@@ -8,7 +8,8 @@
     <title>E-KAZI · Profile Manager</title>
     <link rel="icon" type="image/x-icon" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview-1.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
@@ -21,11 +22,7 @@
             --gold-dark: #a16207;
             --gold-light: #fbbf24;
             --gold-soft: #fef3c7;
-            
-            --primary: #ca8a04;
-            --primary-dark: #a16207;
-            --primary-light: #fbbf24;
-            --primary-soft: #fef3c7;
+            --gold-glow: rgba(202, 138, 4, 0.1);
             
             --success: #10b981;
             --warning: #f59e0b;
@@ -34,25 +31,25 @@
             --purple: #8b5cf6;
             
             --bg-primary: #ffffff;
-            --bg-secondary: #f9fafb;
+            --bg-secondary: #faf9f7;
             --bg-card: #ffffff;
-            --text-primary: #111827;
-            --text-secondary: #4b5563;
-            --text-muted: #6b7280;
-            --border-light: #e5e7eb;
+            --text-primary: #1a1a2e;
+            --text-secondary: #4a5568;
+            --text-muted: #718096;
+            --border-light: #e9ecef;
             --border-medium: #d1d5db;
             
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.02), 0 1px 2px rgba(0, 0, 0, 0.03);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
             
-            --nav-bg: rgba(255, 255, 255, 0.95);
+            --nav-bg: rgba(255, 255, 255, 0.98);
             --card-bg: #ffffff;
             --input-bg: #ffffff;
             --toast-bg: #ffffff;
             
-            --header-height: 70px;
+            --header-height: 80px;
         }
 
         body {
@@ -63,6 +60,76 @@
             min-height: 100vh;
         }
 
+        /* Custom Loader Animation */
+        .loader-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+
+        .loader-container.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .loader {
+            text-align: center;
+        }
+
+        .loader-ring {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1.5rem;
+            position: relative;
+        }
+
+        .loader-ring svg {
+            width: 100%;
+            height: 100%;
+            animation: rotate 2s linear infinite;
+        }
+
+        .loader-ring circle {
+            fill: none;
+            stroke: var(--gold);
+            stroke-width: 3;
+            stroke-dasharray: 180;
+            stroke-dashoffset: 180;
+            animation: dash 1.5s ease-in-out infinite;
+        }
+
+        @keyframes rotate {
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes dash {
+            0% { stroke-dashoffset: 180; }
+            50% { stroke-dashoffset: 45; }
+            100% { stroke-dashoffset: 180; }
+        }
+
+        .loader-text {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--gold);
+            letter-spacing: 1px;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
         /* Header */
         .site-header {
             position: fixed;
@@ -70,7 +137,7 @@
             width: 100%;
             height: var(--header-height);
             background: var(--nav-bg);
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--border-light);
             z-index: 1000;
             padding: 0 2rem;
@@ -92,38 +159,50 @@
         }
 
         .logo img {
-            height: 40px;
+            height: 45px;
             width: auto;
         }
 
         .logo span {
-            font-size: 1.25rem;
-            font-weight: 600;
+            font-size: 1.5rem;
+            font-weight: 700;
             color: var(--gold);
+            font-family: 'Plus Jakarta Sans', sans-serif;
         }
 
         .nav-links {
             display: flex;
-            gap: 2rem;
+            gap: 2.5rem;
         }
 
         .nav-link {
             color: var(--text-secondary);
             text-decoration: none;
-            font-size: 0.95rem;
+            font-size: 1rem;
             font-weight: 500;
-            padding: 0.35rem 0;
-            border-bottom: 2px solid transparent;
-            transition: all 0.2s;
+            transition: all 0.3s ease;
+            position: relative;
         }
 
-        .nav-link:hover {
-            color: var(--gold);
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--gold);
+            transition: width 0.3s ease;
         }
 
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            width: 100%;
+        }
+
+        .nav-link:hover,
         .nav-link.active {
             color: var(--gold);
-            border-bottom-color: var(--gold);
         }
 
         .user-menu {
@@ -132,10 +211,16 @@
             gap: 0.75rem;
             background: var(--bg-card);
             border: 1px solid var(--border-light);
-            border-radius: 40px;
+            border-radius: 60px;
             padding: 0.3rem 0.3rem 0.3rem 1rem;
             cursor: pointer;
             position: relative;
+            transition: all 0.2s;
+        }
+
+        .user-menu:hover {
+            border-color: var(--gold);
+            box-shadow: var(--shadow-sm);
         }
 
         .user-name {
@@ -145,8 +230,8 @@
         }
 
         .user-avatar {
-            width: 36px;
-            height: 36px;
+            width: 38px;
+            height: 38px;
             background: var(--gold);
             color: white;
             border-radius: 50%;
@@ -158,13 +243,13 @@
 
         .logout-dropdown {
             position: absolute;
-            top: calc(100% + 5px);
+            top: calc(100% + 10px);
             right: 0;
             background: var(--card-bg);
             border: 1px solid var(--border-light);
-            border-radius: 12px;
+            border-radius: 16px;
             padding: 0.5rem;
-            min-width: 150px;
+            min-width: 160px;
             display: none;
             z-index: 1001;
             box-shadow: var(--shadow-lg);
@@ -175,14 +260,15 @@
         }
 
         .logout-item {
-            padding: 0.6rem 1rem;
+            padding: 0.7rem 1rem;
             color: var(--text-secondary);
-            border-radius: 8px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             gap: 0.5rem;
             cursor: pointer;
             font-size: 0.9rem;
+            transition: all 0.2s;
         }
 
         .logout-item:hover {
@@ -203,7 +289,7 @@
             padding: 4rem;
             background: var(--card-bg);
             border: 1px solid var(--border-light);
-            border-radius: 24px;
+            border-radius: 32px;
             box-shadow: var(--shadow-sm);
         }
 
@@ -224,31 +310,62 @@
             margin-bottom: 2rem;
         }
 
-        .login-required .btn {
+        .btn {
             padding: 0.8rem 2rem;
+            border: none;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: var(--gold);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--gold-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(202, 138, 4, 0.3);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border-medium);
+            color: var(--text-muted);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--gold);
+            color: var(--gold);
         }
 
         /* Profile Header */
         .profile-header {
             background: var(--card-bg);
             border: 1px solid var(--border-light);
-            border-radius: 24px;
+            border-radius: 32px;
             padding: 2rem;
             margin-bottom: 2rem;
             box-shadow: var(--shadow-sm);
         }
 
         .profile-cover {
-            height: 120px;
-            background: linear-gradient(135deg, var(--gold-soft), var(--primary-soft));
-            border-radius: 16px;
+            height: 140px;
+            background: linear-gradient(135deg, var(--gold-soft) 0%, var(--primary-soft) 100%);
+            border-radius: 24px;
             margin-bottom: 3rem;
             position: relative;
         }
 
         .profile-avatar-wrapper {
             position: absolute;
-            bottom: -40px;
+            bottom: -50px;
             left: 2rem;
             display: flex;
             align-items: flex-end;
@@ -256,25 +373,26 @@
         }
 
         .profile-avatar-large {
-            width: 100px;
-            height: 100px;
+            width: 110px;
+            height: 110px;
             background: var(--gold);
             border-radius: 50%;
             border: 4px solid white;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2.5rem;
+            font-size: 3rem;
             font-weight: 600;
             color: white;
             box-shadow: var(--shadow-md);
         }
 
         .profile-title h1 {
-            font-size: 1.8rem;
-            font-weight: 600;
+            font-size: 2rem;
+            font-weight: 700;
             color: var(--text-primary);
             margin-bottom: 0.25rem;
+            font-family: 'Plus Jakarta Sans', sans-serif;
         }
 
         .profile-title p {
@@ -289,9 +407,9 @@
             display: inline-flex;
             align-items: center;
             gap: 0.3rem;
-            padding: 0.2rem 0.8rem;
+            padding: 0.3rem 1rem;
             background: var(--primary-soft);
-            border-radius: 20px;
+            border-radius: 30px;
             color: var(--gold);
             font-size: 0.75rem;
             font-weight: 600;
@@ -305,8 +423,8 @@
 
         .profile-stats {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 1.5rem;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
             margin-top: 2rem;
             padding-top: 1.5rem;
             border-top: 1px solid var(--border-light);
@@ -318,7 +436,7 @@
 
         .stat-value {
             font-size: 1.8rem;
-            font-weight: 600;
+            font-weight: 700;
             color: var(--gold);
             line-height: 1.2;
         }
@@ -327,7 +445,7 @@
             color: var(--text-muted);
             font-size: 0.8rem;
             text-transform: uppercase;
-            letter-spacing: 0.3px;
+            letter-spacing: 0.5px;
         }
 
         /* Profile Tabs */
@@ -335,17 +453,17 @@
             display: flex;
             gap: 0.5rem;
             background: var(--bg-secondary);
-            padding: 0.25rem;
-            border-radius: 40px;
-            margin-bottom: 1.5rem;
+            padding: 0.35rem;
+            border-radius: 60px;
+            margin-bottom: 2rem;
             width: fit-content;
         }
 
         .tab-btn {
-            padding: 0.5rem 1.5rem;
+            padding: 0.6rem 1.8rem;
             background: transparent;
             border: none;
-            border-radius: 40px;
+            border-radius: 60px;
             color: var(--text-muted);
             font-size: 0.9rem;
             font-weight: 500;
@@ -371,36 +489,43 @@
         .profile-grid {
             display: grid;
             grid-template-columns: 1fr 2fr;
-            gap: 1.5rem;
+            gap: 2rem;
         }
 
-        /* Sidebar */
+        /* Sidebar Cards */
         .profile-sidebar {
             display: flex;
             flex-direction: column;
-            gap: 1.5rem;
+            gap: 2rem;
         }
 
         .sidebar-card {
             background: var(--card-bg);
             border: 1px solid var(--border-light);
-            border-radius: 20px;
-            padding: 1.5rem;
+            border-radius: 24px;
+            padding: 1.8rem;
             box-shadow: var(--shadow-sm);
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-card:hover {
+            border-color: var(--gold);
+            box-shadow: var(--shadow-md);
         }
 
         .card-title {
             font-size: 1.1rem;
             font-weight: 600;
             color: var(--text-primary);
-            margin-bottom: 1rem;
+            margin-bottom: 1.2rem;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.6rem;
         }
 
         .card-title i {
             color: var(--gold);
+            font-size: 1.2rem;
         }
 
         .info-item {
@@ -409,13 +534,15 @@
 
         .info-label {
             color: var(--text-muted);
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             margin-bottom: 0.2rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .info-value {
             color: var(--text-primary);
-            font-size: 0.95rem;
+            font-size: 1rem;
             font-weight: 500;
         }
 
@@ -428,15 +555,15 @@
         .badge-list {
             display: flex;
             flex-wrap: wrap;
-            gap: 0.5rem;
+            gap: 0.6rem;
             margin-top: 0.5rem;
         }
 
         .badge {
             background: var(--primary-soft);
             border: 1px solid rgba(202, 138, 4, 0.2);
-            border-radius: 30px;
-            padding: 0.3rem 1rem;
+            border-radius: 40px;
+            padding: 0.4rem 1rem;
             font-size: 0.8rem;
             color: var(--gold);
             font-weight: 500;
@@ -445,13 +572,14 @@
         .skill-tag {
             background: var(--bg-secondary);
             border: 1px solid var(--border-light);
-            border-radius: 30px;
-            padding: 0.3rem 1rem;
+            border-radius: 40px;
+            padding: 0.4rem 1rem;
             font-size: 0.8rem;
             color: var(--text-secondary);
             display: inline-flex;
             align-items: center;
-            gap: 0.3rem;
+            gap: 0.4rem;
+            transition: all 0.2s;
         }
 
         .skill-tag i {
@@ -459,30 +587,36 @@
             font-size: 0.7rem;
         }
 
-        /* Main Content Area */
+        /* Main Cards */
         .profile-main {
             display: flex;
             flex-direction: column;
-            gap: 1.5rem;
+            gap: 2rem;
         }
 
         .main-card {
             background: var(--card-bg);
             border: 1px solid var(--border-light);
-            border-radius: 20px;
-            padding: 1.5rem;
+            border-radius: 24px;
+            padding: 1.8rem;
             box-shadow: var(--shadow-sm);
+            transition: all 0.3s ease;
+        }
+
+        .main-card:hover {
+            border-color: var(--gold);
+            box-shadow: var(--shadow-md);
         }
 
         .card-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 1.25rem;
+            margin-bottom: 1.2rem;
         }
 
         .card-header h3 {
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             font-weight: 600;
             color: var(--text-primary);
         }
@@ -490,14 +624,14 @@
         .edit-btn {
             background: transparent;
             border: 1px solid var(--border-light);
-            border-radius: 30px;
+            border-radius: 40px;
             padding: 0.4rem 1rem;
             color: var(--text-muted);
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 0.3rem;
+            gap: 0.4rem;
             transition: all 0.2s;
         }
 
@@ -510,6 +644,7 @@
             color: var(--text-secondary);
             font-size: 0.95rem;
             line-height: 1.6;
+            padding: 0.5rem 0;
         }
 
         /* Portfolio Grid */
@@ -521,28 +656,30 @@
 
         .portfolio-item {
             border: 1px solid var(--border-light);
-            border-radius: 12px;
+            border-radius: 16px;
             padding: 1rem;
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            gap: 0.8rem;
             transition: all 0.2s;
         }
 
         .portfolio-item:hover {
             border-color: var(--gold);
-            box-shadow: var(--shadow-sm);
+            background: var(--gold-soft);
+            transform: translateX(4px);
         }
 
         .portfolio-icon {
-            width: 40px;
-            height: 40px;
+            width: 44px;
+            height: 44px;
             background: var(--primary-soft);
-            border-radius: 10px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: var(--gold);
+            font-size: 1.2rem;
         }
 
         .portfolio-info {
@@ -550,7 +687,7 @@
         }
 
         .portfolio-title {
-            font-weight: 500;
+            font-weight: 600;
             color: var(--text-primary);
             font-size: 0.9rem;
             margin-bottom: 0.2rem;
@@ -558,7 +695,7 @@
 
         .portfolio-link {
             color: var(--text-muted);
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             text-decoration: none;
             word-break: break-all;
         }
@@ -568,6 +705,12 @@
         }
 
         /* Reviews Section */
+        .reviews-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
         .review-item {
             border-bottom: 1px solid var(--border-light);
             padding: 1rem 0;
@@ -585,7 +728,7 @@
         }
 
         .reviewer {
-            font-weight: 500;
+            font-weight: 600;
             color: var(--text-primary);
             font-size: 0.9rem;
         }
@@ -603,6 +746,7 @@
             color: var(--text-secondary);
             font-size: 0.85rem;
             margin-bottom: 0.3rem;
+            line-height: 1.5;
         }
 
         .review-date {
@@ -610,39 +754,11 @@
             font-size: 0.7rem;
         }
 
-        /* Earnings Summary */
-        .earnings-summary {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .earning-box {
-            text-align: center;
-            padding: 1rem;
-            background: var(--bg-secondary);
-            border-radius: 12px;
-        }
-
-        .earning-amount {
-            font-size: 1.3rem;
-            font-weight: 600;
-            color: var(--gold);
-            margin-bottom: 0.2rem;
-        }
-
-        .earning-label {
-            color: var(--text-muted);
-            font-size: 0.7rem;
-            text-transform: uppercase;
-        }
-
         /* Settings Form */
         .settings-form {
             display: flex;
             flex-direction: column;
-            gap: 1.25rem;
+            gap: 1.2rem;
         }
 
         .form-row {
@@ -654,7 +770,7 @@
         .form-group {
             display: flex;
             flex-direction: column;
-            gap: 0.3rem;
+            gap: 0.4rem;
         }
 
         .form-group label {
@@ -664,18 +780,19 @@
         }
 
         .form-control {
-            padding: 0.7rem 1rem;
+            padding: 0.8rem 1rem;
             background: var(--input-bg);
             border: 1px solid var(--border-medium);
-            border-radius: 10px;
+            border-radius: 14px;
             color: var(--text-primary);
             font-size: 0.9rem;
+            transition: all 0.2s;
         }
 
         .form-control:focus {
             outline: none;
             border-color: var(--gold);
-            box-shadow: 0 0 0 2px rgba(202, 138, 4, 0.1);
+            box-shadow: 0 0 0 3px var(--gold-glow);
         }
 
         .form-control:disabled {
@@ -683,53 +800,11 @@
             color: var(--text-muted);
         }
 
-        .btn {
-            padding: 0.7rem 1.5rem;
-            border: none;
-            border-radius: 30px;
-            font-weight: 500;
-            font-size: 0.9rem;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: all 0.2s;
-        }
-
-        .btn-primary {
-            background: var(--gold);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: var(--gold-dark);
-        }
-
-        .btn-outline {
-            background: transparent;
-            border: 1px solid var(--border-light);
-            color: var(--text-muted);
-        }
-
-        .btn-outline:hover {
-            border-color: var(--gold);
-            color: var(--gold);
-        }
-
-        .btn-danger {
-            background: var(--danger);
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background: #dc2626;
-        }
-
         .form-actions {
             display: flex;
             justify-content: flex-end;
             gap: 1rem;
-            margin-top: 1rem;
+            margin-top: 0.5rem;
         }
 
         /* Modal */
@@ -740,7 +815,7 @@
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(4px);
+            backdrop-filter: blur(8px);
             z-index: 2000;
             display: none;
         }
@@ -755,13 +830,13 @@
             left: 50%;
             transform: translate(-50%, -50%) scale(0.95);
             background: var(--card-bg);
-            border-radius: 24px;
+            border-radius: 32px;
             border: 1px solid var(--border-light);
             box-shadow: var(--shadow-xl);
             z-index: 2001;
             max-width: 500px;
             width: 90%;
-            max-height: 80vh;
+            max-height: 85vh;
             overflow-y: auto;
             opacity: 0;
             visibility: hidden;
@@ -783,8 +858,8 @@
         }
 
         .modal-header h3 {
-            font-size: 1.25rem;
-            font-weight: 600;
+            font-size: 1.3rem;
+            font-weight: 700;
             color: var(--text-primary);
         }
 
@@ -792,7 +867,7 @@
             background: transparent;
             border: none;
             color: var(--text-muted);
-            font-size: 1.25rem;
+            font-size: 1.3rem;
             cursor: pointer;
         }
 
@@ -807,54 +882,19 @@
             margin-top: 1.5rem;
         }
 
-        /* Loading and Toast */
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255,255,255,0.8);
-            backdrop-filter: blur(4px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 3000;
-            opacity: 0;
-            visibility: hidden;
-            transition: 0.2s;
-        }
-
-        .loading-overlay.active {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .loading-spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid var(--border-light);
-            border-top-color: var(--gold);
-            border-radius: 50%;
-            animation: spin 0.6s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
+        /* Toast */
         .toast-container {
             position: fixed;
             top: 20px;
             right: 20px;
-            z-index: 4000;
+            z-index: 3000;
         }
 
         .toast {
             background: var(--card-bg);
             border: 1px solid var(--border-light);
             border-radius: 12px;
-            padding: 0.75rem 1rem;
+            padding: 0.8rem 1.2rem;
             margin-bottom: 0.5rem;
             box-shadow: var(--shadow-lg);
             display: flex;
@@ -872,13 +912,26 @@
             font-size: 1rem;
         }
 
-        .toast.success i { color: var(--success); }
-        .toast.error i { color: var(--danger); }
-        .toast.info i { color: var(--gold); }
-
         @keyframes slideIn {
             from { opacity: 0; transform: translateX(20px); }
             to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-muted);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .empty-state p {
+            font-size: 0.9rem;
         }
 
         /* Responsive */
@@ -890,27 +943,28 @@
             .portfolio-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
+            
+            .profile-stats {
+                grid-template-columns: repeat(3, 1fr);
+            }
         }
 
         @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
             .profile-stats {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .earnings-summary {
                 grid-template-columns: 1fr;
-            }
-            
-            .form-row {
-                grid-template-columns: 1fr;
+                gap: 1rem;
             }
             
             .portfolio-grid {
                 grid-template-columns: 1fr;
             }
             
-            .nav-links {
-                display: none;
+            .form-row {
+                grid-template-columns: 1fr;
             }
             
             .profile-avatar-wrapper {
@@ -924,13 +978,25 @@
             .profile-title {
                 text-align: center;
             }
+            
+            .profile-tabs {
+                width: 100%;
+                justify-content: center;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Loading Overlay -->
-    <div class="loading-overlay" id="loadingOverlay">
-        <div class="loading-spinner"></div>
+    <!-- Custom Loader -->
+    <div class="loader-container" id="loader">
+        <div class="loader">
+            <div class="loader-ring">
+                <svg viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="45" />
+                </svg>
+            </div>
+            <div class="loader-text">Loading profile...</div>
+        </div>
     </div>
 
     <!-- Toast Container -->
@@ -962,8 +1028,8 @@
                     <input type="text" class="form-control" id="editRate" placeholder="e.g., 500/hour">
                 </div>
                 <div class="modal-actions">
-                    <button type="button" class="btn btn-outline" onclick="closeEditModal()">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                    <button type="button" class="btn-outline" onclick="closeEditModal()">Cancel</button>
+                    <button type="submit" class="btn-primary">Save Changes</button>
                 </div>
             </form>
         </div>
@@ -991,8 +1057,8 @@
                     <textarea class="form-control" id="portfolioDesc" rows="2"></textarea>
                 </div>
                 <div class="modal-actions">
-                    <button type="button" class="btn btn-outline" onclick="closePortfolioModal()">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Add Item</button>
+                    <button type="button" class="btn-outline" onclick="closePortfolioModal()">Cancel</button>
+                    <button type="submit" class="btn-primary">Add Item</button>
                 </div>
             </form>
         </div>
@@ -1030,7 +1096,7 @@
                 <i class="fas fa-user-lock"></i>
                 <h2>Login Required</h2>
                 <p>Please sign in to view your profile</p>
-                <button class="btn btn-primary" onclick="window.location.href='index.html'">Go to Login</button>
+                <button class="btn-primary" onclick="window.location.href='index.html'">Go to Login</button>
             </div>
         </div>
 
@@ -1053,16 +1119,12 @@
                 
                 <div class="profile-stats">
                     <div class="stat-item">
-                        <div class="stat-value" id="statTotalEarnings">0</div>
-                        <div class="stat-label">Total Earnings</div>
-                    </div>
-                    <div class="stat-item">
                         <div class="stat-value" id="statCompletedTasks">0</div>
-                        <div class="stat-label">Completed</div>
+                        <div class="stat-label">Completed Tasks</div>
                     </div>
                     <div class="stat-item">
                         <div class="stat-value" id="statActiveTasks">0</div>
-                        <div class="stat-label">Active</div>
+                        <div class="stat-label">Active Tasks</div>
                     </div>
                     <div class="stat-item">
                         <div class="stat-value" id="statRating">5.0</div>
@@ -1092,21 +1154,21 @@
                         <div class="info-item">
                             <div class="info-label">Phone</div>
                             <div class="info-value with-icon">
-                                <i class="fas fa-phone" style="color: var(--gold);"></i>
+                                <i class="fas fa-phone" style="color: var(--gold); font-size: 0.8rem;"></i>
                                 <span id="profilePhone">Not provided</span>
                             </div>
                         </div>
                         <div class="info-item">
                             <div class="info-label">Location</div>
                             <div class="info-value with-icon">
-                                <i class="fas fa-map-marker-alt" style="color: var(--gold);"></i>
+                                <i class="fas fa-map-marker-alt" style="color: var(--gold); font-size: 0.8rem;"></i>
                                 <span>Nairobi, Kenya</span>
                             </div>
                         </div>
                         <div class="info-item">
                             <div class="info-label">Member Since</div>
                             <div class="info-value with-icon">
-                                <i class="fas fa-calendar" style="color: var(--gold);"></i>
+                                <i class="fas fa-calendar" style="color: var(--gold); font-size: 0.8rem;"></i>
                                 <span id="profileJoined">Loading...</span>
                             </div>
                         </div>
@@ -1129,7 +1191,7 @@
                             <i class="fas fa-language"></i>
                             Languages
                         </div>
-                        <div class="badge-list" id="profileLanguages">
+                        <div class="badge-list">
                             <span class="badge">English (Fluent)</span>
                             <span class="badge">Swahili (Native)</span>
                         </div>
@@ -1158,31 +1220,9 @@
                                 <button class="edit-btn" onclick="openPortfolioModal()"><i class="fas fa-plus"></i> Add</button>
                             </div>
                             <div class="portfolio-grid" id="recentPortfolio">
-                                <!-- Portfolio items will be loaded here -->
-                                <div style="grid-column: span 2; text-align: center; padding: 2rem; color: var(--text-muted);">
-                                    No portfolio items yet. Click "Add" to showcase your work.
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Earnings Overview -->
-                        <div class="main-card">
-                            <div class="card-header">
-                                <h3>Earnings Overview</h3>
-                                <span class="edit-btn" style="cursor: default;">This Month</span>
-                            </div>
-                            <div class="earnings-summary">
-                                <div class="earning-box">
-                                    <div class="earning-amount" id="monthEarnings">KSh 0</div>
-                                    <div class="earning-label">This Month</div>
-                                </div>
-                                <div class="earning-box">
-                                    <div class="earning-amount" id="pendingEarnings">KSh 0</div>
-                                    <div class="earning-label">Pending</div>
-                                </div>
-                                <div class="earning-box">
-                                    <div class="earning-amount" id="totalEarnings">KSh 0</div>
-                                    <div class="earning-label">Total</div>
+                                <div class="empty-state">
+                                    <i class="fas fa-folder-open"></i>
+                                    <p>No portfolio items yet. Click "Add" to showcase your work.</p>
                                 </div>
                             </div>
                         </div>
@@ -1196,9 +1236,9 @@
                                 <button class="edit-btn" onclick="openPortfolioModal()"><i class="fas fa-plus"></i> Add Item</button>
                             </div>
                             <div class="portfolio-grid" id="fullPortfolio">
-                                <!-- All portfolio items will be loaded here -->
-                                <div style="grid-column: span 2; text-align: center; padding: 2rem; color: var(--text-muted);">
-                                    No portfolio items yet.
+                                <div class="empty-state">
+                                    <i class="fas fa-folder-open"></i>
+                                    <p>No portfolio items yet.</p>
                                 </div>
                             </div>
                         </div>
@@ -1211,10 +1251,10 @@
                                 <h3>Client Reviews</h3>
                                 <span class="edit-btn" style="cursor: default;"><i class="fas fa-star" style="color: var(--gold);"></i> 5.0</span>
                             </div>
-                            <div id="reviewsList">
-                                <!-- Reviews will be loaded here -->
-                                <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
-                                    No reviews yet. Complete tasks to earn reviews.
+                            <div class="reviews-list" id="reviewsList">
+                                <div class="empty-state">
+                                    <i class="fas fa-star"></i>
+                                    <p>No reviews yet. Complete tasks to earn reviews.</p>
                                 </div>
                             </div>
                         </div>
@@ -1256,8 +1296,8 @@
                                     <input type="text" class="form-control" id="settingsSkills" placeholder="e.g., Data Entry, Writing, Design">
                                 </div>
                                 <div class="form-actions">
-                                    <button type="button" class="btn btn-outline" onclick="resetSettings()">Reset</button>
-                                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                                    <button type="button" class="btn-outline" onclick="resetSettings()">Reset</button>
+                                    <button type="submit" class="btn-primary">Save Changes</button>
                                 </div>
                             </form>
                         </div>
@@ -1267,9 +1307,9 @@
                                 <h3>Account Security</h3>
                             </div>
                             <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                                <button class="btn btn-outline" onclick="changePassword()"><i class="fas fa-key"></i> Change Password</button>
-                                <button class="btn btn-outline" onclick="twoFactorAuth()"><i class="fas fa-mobile-alt"></i> Two-Factor Auth</button>
-                                <button class="btn btn-danger" onclick="deactivateAccount()"><i class="fas fa-exclamation-triangle"></i> Deactivate Account</button>
+                                <button class="btn-outline" onclick="changePassword()"><i class="fas fa-key"></i> Change Password</button>
+                                <button class="btn-outline" onclick="twoFactorAuth()"><i class="fas fa-mobile-alt"></i> Two-Factor Auth</button>
+                                <button class="btn-outline" style="border-color: var(--danger); color: var(--danger);" onclick="deactivateAccount()"><i class="fas fa-exclamation-triangle"></i> Deactivate Account</button>
                             </div>
                         </div>
                     </div>
@@ -1300,7 +1340,13 @@
         let currentUser = null;
         let currentTasker = null;
         let portfolioItems = [];
-        let reviews = [];
+
+        // Hide loader after page loads
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('loader').classList.add('hidden');
+            }, 500);
+        });
 
         // Auth state listener
         auth.onAuthStateChanged(async (user) => {
@@ -1310,13 +1356,12 @@
                 showProfileContent();
             } else {
                 showLoginRequired();
+                document.getElementById('loader').classList.add('hidden');
             }
         });
 
         // Load user profile
         async function loadUserProfile(user) {
-            showLoading(true);
-            
             try {
                 // Load tasker data
                 const taskerSnapshot = await database.ref(`taskers/${user.uid}`).once('value');
@@ -1324,7 +1369,6 @@
                 if (taskerSnapshot.exists()) {
                     currentTasker = taskerSnapshot.val();
                 } else {
-                    // Create basic profile if doesn't exist
                     currentTasker = {
                         name: user.displayName || user.email?.split('@')[0] || 'Tasker',
                         email: user.email,
@@ -1352,8 +1396,6 @@
             } catch (error) {
                 console.error('Error loading profile:', error);
                 showToast('Error loading profile', 'error');
-            } finally {
-                showLoading(false);
             }
         }
 
@@ -1380,20 +1422,8 @@
                 const completed = userTasks.filter(t => t.status === 'completed' || t.status === 'approved').length;
                 const active = userTasks.filter(t => ['assigned', 'in-progress', 'submitted'].includes(t.status)).length;
                 
-                // Calculate earnings
-                const earningsPerTask = 1000;
-                const totalEarnings = completed * earningsPerTask;
-                const monthEarnings = userTasks
-                    .filter(t => t.status === 'completed' && t.completedAt && new Date(t.completedAt).getMonth() === new Date().getMonth())
-                    .length * earningsPerTask;
-                const pendingEarnings = active * earningsPerTask;
-                
                 document.getElementById('statCompletedTasks').textContent = completed;
                 document.getElementById('statActiveTasks').textContent = active;
-                document.getElementById('statTotalEarnings').textContent = `KSh ${totalEarnings}`;
-                document.getElementById('monthEarnings').textContent = `KSh ${monthEarnings}`;
-                document.getElementById('totalEarnings').textContent = `KSh ${totalEarnings}`;
-                document.getElementById('pendingEarnings').textContent = `KSh ${pendingEarnings}`;
                 
             } catch (error) {
                 console.error('Error loading tasks:', error);
@@ -1467,9 +1497,9 @@
             const fullContainer = document.getElementById('fullPortfolio');
             
             if (portfolioItems.length === 0) {
-                const emptyMessage = '<div style="grid-column: span 2; text-align: center; padding: 2rem; color: var(--text-muted);">No portfolio items yet. Click "Add" to showcase your work.</div>';
-                recentContainer.innerHTML = emptyMessage;
-                fullContainer.innerHTML = emptyMessage;
+                const emptyHtml = `<div class="empty-state"><i class="fas fa-folder-open"></i><p>No portfolio items yet. Click "Add" to showcase your work.</p></div>`;
+                recentContainer.innerHTML = emptyHtml;
+                fullContainer.innerHTML = emptyHtml;
                 return;
             }
             
@@ -1480,7 +1510,7 @@
                     <div class="portfolio-icon"><i class="fas fa-folder-open"></i></div>
                     <div class="portfolio-info">
                         <div class="portfolio-title">${escapeHtml(item.title)}</div>
-                        <a href="${escapeHtml(item.link)}" target="_blank" class="portfolio-link">${item.link.length > 30 ? item.link.substring(0, 30) + '...' : item.link}</a>
+                        <a href="${escapeHtml(item.link)}" target="_blank" class="portfolio-link">${item.link.length > 40 ? item.link.substring(0, 40) + '...' : item.link}</a>
                         ${item.description ? `<div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.2rem;">${escapeHtml(item.description)}</div>` : ''}
                     </div>
                 </div>
@@ -1492,7 +1522,7 @@
                     <div class="portfolio-icon"><i class="fas fa-folder-open"></i></div>
                     <div class="portfolio-info">
                         <div class="portfolio-title">${escapeHtml(item.title)}</div>
-                        <a href="${escapeHtml(item.link)}" target="_blank" class="portfolio-link">${item.link.length > 30 ? item.link.substring(0, 30) + '...' : item.link}</a>
+                        <a href="${escapeHtml(item.link)}" target="_blank" class="portfolio-link">${item.link.length > 40 ? item.link.substring(0, 40) + '...' : item.link}</a>
                         ${item.description ? `<div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.2rem;">${escapeHtml(item.description)}</div>` : ''}
                     </div>
                 </div>
@@ -1550,8 +1580,6 @@
             const bio = document.getElementById('editBio').value.trim();
             const rate = document.getElementById('editRate').value.trim();
             
-            showLoading(true);
-            
             try {
                 const updates = {
                     name,
@@ -1563,10 +1591,7 @@
                 
                 await database.ref(`taskers/${currentUser.uid}`).update(updates);
                 
-                // Update local object
                 currentTasker = { ...currentTasker, ...updates };
-                
-                // Update UI
                 updateProfileUI();
                 
                 showToast('Profile updated successfully', 'success');
@@ -1575,8 +1600,6 @@
             } catch (error) {
                 console.error('Error updating profile:', error);
                 showToast('Error updating profile', 'error');
-            } finally {
-                showLoading(false);
             }
         };
 
@@ -1593,13 +1616,6 @@
                 return;
             }
             
-            if (!link.startsWith('http://') && !link.startsWith('https://')) {
-                showToast('Please enter a valid URL', 'warning');
-                return;
-            }
-            
-            showLoading(true);
-            
             try {
                 const portfolioRef = database.ref(`portfolios/${currentUser.uid}`).push();
                 const item = {
@@ -1611,10 +1627,7 @@
                 
                 await portfolioRef.set(item);
                 
-                // Add to local array
                 portfolioItems.unshift({ id: portfolioRef.key, ...item });
-                
-                // Update UI
                 renderPortfolio();
                 
                 showToast('Portfolio item added', 'success');
@@ -1623,8 +1636,6 @@
             } catch (error) {
                 console.error('Error adding portfolio item:', error);
                 showToast('Error adding portfolio item', 'error');
-            } finally {
-                showLoading(false);
             }
         };
 
@@ -1638,8 +1649,6 @@
             const skillsInput = document.getElementById('settingsSkills').value.trim();
             const skills = skillsInput ? skillsInput.split(',').map(s => s.trim()) : [];
             
-            showLoading(true);
-            
             try {
                 const updates = {
                     phone,
@@ -1651,10 +1660,7 @@
                 
                 await database.ref(`taskers/${currentUser.uid}`).update(updates);
                 
-                // Update local object
                 currentTasker = { ...currentTasker, ...updates };
-                
-                // Update UI
                 updateProfileUI();
                 
                 showToast('Settings updated', 'success');
@@ -1662,8 +1668,6 @@
             } catch (error) {
                 console.error('Error updating settings:', error);
                 showToast('Error updating settings', 'error');
-            } finally {
-                showLoading(false);
             }
         };
 
@@ -1691,13 +1695,11 @@
         // Logout
         window.handleLogout = async function() {
             try {
-                showLoading(true);
                 await auth.signOut();
                 window.location.href = 'index.html';
             } catch (error) {
                 console.error('Logout error:', error);
                 showToast('Logout failed', 'error');
-                showLoading(false);
             }
         };
 
@@ -1709,10 +1711,6 @@
             return div.innerHTML;
         }
 
-        function showLoading(show) {
-            document.getElementById('loadingOverlay').classList.toggle('active', show);
-        }
-
         function showToast(message, type = 'info') {
             const container = document.getElementById('toastContainer');
             const toast = document.createElement('div');
@@ -1721,7 +1719,6 @@
             const icons = {
                 success: 'check-circle',
                 error: 'exclamation-circle',
-                warning: 'exclamation-triangle',
                 info: 'info-circle'
             };
             
