@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#ca8a04">
     <meta name="color-scheme" content="light">
-    <title>E-KAZI · Profile Manager</title>
+    <title>E-KAZI · Professional Profile</title>
     <link rel="icon" type="image/x-icon" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview-1.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
@@ -15,14 +15,18 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         
         :root {
             --gold: #ca8a04;
             --gold-dark: #a16207;
             --gold-light: #fbbf24;
             --gold-soft: #fef3c7;
-            --gold-glow: rgba(202, 138, 4, 0.1);
+            --gold-glow: rgba(202, 138, 4, 0.08);
             
             --success: #10b981;
             --warning: #f59e0b;
@@ -31,51 +35,58 @@
             --purple: #8b5cf6;
             
             --bg-primary: #ffffff;
-            --bg-secondary: #faf9f7;
-            --bg-card: #ffffff;
-            --text-primary: #1a1a2e;
-            --text-secondary: #4a5568;
-            --text-muted: #718096;
-            --border-light: #e9ecef;
-            --border-medium: #d1d5db;
-            
-            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.02), 0 1px 2px rgba(0, 0, 0, 0.03);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
-            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-            
-            --nav-bg: rgba(255, 255, 255, 0.98);
+            --bg-secondary: #fafaf9;
+            --bg-tertiary: #f5f5f4;
             --card-bg: #ffffff;
-            --input-bg: #ffffff;
-            --toast-bg: #ffffff;
+            --text-primary: #0a0a0a;
+            --text-secondary: #52525b;
+            --text-muted: #a1a1aa;
+            --border-light: #e4e4e7;
+            --border-medium: #d4d4d8;
             
-            --header-height: 80px;
+            --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.02);
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.03), 0 1px 2px rgba(0, 0, 0, 0.02);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 10px 10px -5px rgba(0, 0, 0, 0.01);
+            
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+            --radius-2xl: 24px;
+            --radius-3xl: 32px;
+            --radius-full: 9999px;
+            
+            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            --font-display: 'Plus Jakarta Sans', var(--font-sans);
+            
+            --header-height: 72px;
+            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: var(--font-sans);
             background: var(--bg-secondary);
             color: var(--text-primary);
             line-height: 1.5;
             min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* Custom Loader Animation */
-        .loader-container {
+        /* Custom Loader */
+        .loader-overlay {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            inset: 0;
             background: var(--bg-primary);
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 10000;
-            transition: opacity 0.5s ease, visibility 0.5s ease;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
         }
 
-        .loader-container.hidden {
+        .loader-overlay.hidden {
             opacity: 0;
             visibility: hidden;
         }
@@ -84,50 +95,24 @@
             text-align: center;
         }
 
-        .loader-ring {
-            width: 80px;
-            height: 80px;
-            margin: 0 auto 1.5rem;
-            position: relative;
+        .loader-spinner {
+            width: 48px;
+            height: 48px;
+            border: 3px solid var(--border-light);
+            border-top-color: var(--gold);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 1rem;
         }
 
-        .loader-ring svg {
-            width: 100%;
-            height: 100%;
-            animation: rotate 2s linear infinite;
-        }
-
-        .loader-ring circle {
-            fill: none;
-            stroke: var(--gold);
-            stroke-width: 3;
-            stroke-dasharray: 180;
-            stroke-dashoffset: 180;
-            animation: dash 1.5s ease-in-out infinite;
-        }
-
-        @keyframes rotate {
-            100% { transform: rotate(360deg); }
-        }
-
-        @keyframes dash {
-            0% { stroke-dashoffset: 180; }
-            50% { stroke-dashoffset: 45; }
-            100% { stroke-dashoffset: 180; }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
         .loader-text {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            font-size: 1rem;
-            font-weight: 500;
-            color: var(--gold);
-            letter-spacing: 1px;
-            animation: pulse 1.5s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 0.6; }
-            50% { opacity: 1; }
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            letter-spacing: 0.3px;
         }
 
         /* Header */
@@ -136,8 +121,8 @@
             top: 0;
             width: 100%;
             height: var(--header-height);
-            background: var(--nav-bg);
-            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(12px);
             border-bottom: 1px solid var(--border-light);
             z-index: 1000;
             padding: 0 2rem;
@@ -159,40 +144,41 @@
         }
 
         .logo img {
-            height: 45px;
+            height: 40px;
             width: auto;
         }
 
         .logo span {
-            font-size: 1.5rem;
+            font-size: 1.25rem;
             font-weight: 700;
             color: var(--gold);
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-family: var(--font-display);
+            letter-spacing: -0.3px;
         }
 
         .nav-links {
             display: flex;
-            gap: 2.5rem;
+            gap: 2rem;
         }
 
         .nav-link {
             color: var(--text-secondary);
             text-decoration: none;
-            font-size: 1rem;
+            font-size: 0.9375rem;
             font-weight: 500;
-            transition: all 0.3s ease;
+            transition: var(--transition);
             position: relative;
         }
 
         .nav-link::after {
             content: '';
             position: absolute;
-            bottom: -4px;
+            bottom: -6px;
             left: 0;
             width: 0;
             height: 2px;
             background: var(--gold);
-            transition: width 0.3s ease;
+            transition: width 0.2s ease;
         }
 
         .nav-link:hover::after,
@@ -209,13 +195,12 @@
             display: flex;
             align-items: center;
             gap: 0.75rem;
-            background: var(--bg-card);
+            background: var(--bg-primary);
             border: 1px solid var(--border-light);
-            border-radius: 60px;
-            padding: 0.3rem 0.3rem 0.3rem 1rem;
+            border-radius: var(--radius-full);
+            padding: 0.25rem 0.25rem 0.25rem 1rem;
             cursor: pointer;
-            position: relative;
-            transition: all 0.2s;
+            transition: var(--transition);
         }
 
         .user-menu:hover {
@@ -224,14 +209,14 @@
         }
 
         .user-name {
-            color: var(--text-primary);
+            font-size: 0.875rem;
             font-weight: 500;
-            font-size: 0.9rem;
+            color: var(--text-primary);
         }
 
         .user-avatar {
-            width: 38px;
-            height: 38px;
+            width: 36px;
+            height: 36px;
             background: var(--gold);
             color: white;
             border-radius: 50%;
@@ -239,17 +224,18 @@
             align-items: center;
             justify-content: center;
             font-weight: 600;
+            font-size: 0.875rem;
         }
 
         .logout-dropdown {
             position: absolute;
-            top: calc(100% + 10px);
+            top: calc(100% + 8px);
             right: 0;
             background: var(--card-bg);
             border: 1px solid var(--border-light);
-            border-radius: 16px;
+            border-radius: var(--radius-md);
             padding: 0.5rem;
-            min-width: 160px;
+            min-width: 150px;
             display: none;
             z-index: 1001;
             box-shadow: var(--shadow-lg);
@@ -260,15 +246,15 @@
         }
 
         .logout-item {
-            padding: 0.7rem 1rem;
+            padding: 0.6rem 1rem;
             color: var(--text-secondary);
-            border-radius: 12px;
+            border-radius: var(--radius-sm);
             display: flex;
             align-items: center;
             gap: 0.5rem;
             cursor: pointer;
-            font-size: 0.9rem;
-            transition: all 0.2s;
+            font-size: 0.875rem;
+            transition: var(--transition);
         }
 
         .logout-item:hover {
@@ -278,9 +264,9 @@
 
         /* Main Content */
         .main-content {
-            max-width: 1280px;
-            margin: calc(var(--header-height) + 2rem) auto 2rem;
-            padding: 0 2rem;
+            max-width: 1200px;
+            margin: calc(var(--header-height) + 2rem) auto 3rem;
+            padding: 0 1.5rem;
         }
 
         /* Login Required */
@@ -289,38 +275,38 @@
             padding: 4rem;
             background: var(--card-bg);
             border: 1px solid var(--border-light);
-            border-radius: 32px;
+            border-radius: var(--radius-2xl);
             box-shadow: var(--shadow-sm);
         }
 
         .login-required i {
-            font-size: 4rem;
+            font-size: 3.5rem;
             color: var(--gold);
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
         }
 
         .login-required h2 {
-            font-size: 2rem;
+            font-size: 1.5rem;
+            font-weight: 600;
             margin-bottom: 0.5rem;
-            color: var(--text-primary);
         }
 
         .login-required p {
             color: var(--text-muted);
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
         }
 
         .btn {
-            padding: 0.8rem 2rem;
+            padding: 0.7rem 1.5rem;
             border: none;
-            border-radius: 60px;
+            border-radius: var(--radius-full);
             font-weight: 600;
-            font-size: 0.95rem;
+            font-size: 0.875rem;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
-            transition: all 0.3s ease;
+            transition: var(--transition);
         }
 
         .btn-primary {
@@ -330,14 +316,14 @@
 
         .btn-primary:hover {
             background: var(--gold-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(202, 138, 4, 0.3);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
         }
 
         .btn-outline {
             background: transparent;
             border: 1px solid var(--border-medium);
-            color: var(--text-muted);
+            color: var(--text-secondary);
         }
 
         .btn-outline:hover {
@@ -349,23 +335,23 @@
         .profile-header {
             background: var(--card-bg);
             border: 1px solid var(--border-light);
-            border-radius: 32px;
+            border-radius: var(--radius-2xl);
             padding: 2rem;
             margin-bottom: 2rem;
             box-shadow: var(--shadow-sm);
         }
 
         .profile-cover {
-            height: 140px;
-            background: linear-gradient(135deg, var(--gold-soft) 0%, var(--primary-soft) 100%);
-            border-radius: 24px;
+            height: 120px;
+            background: linear-gradient(135deg, var(--gold-soft) 0%, #fff1e0 100%);
+            border-radius: var(--radius-lg);
             margin-bottom: 3rem;
             position: relative;
         }
 
         .profile-avatar-wrapper {
             position: absolute;
-            bottom: -50px;
+            bottom: -40px;
             left: 2rem;
             display: flex;
             align-items: flex-end;
@@ -373,31 +359,31 @@
         }
 
         .profile-avatar-large {
-            width: 110px;
-            height: 110px;
+            width: 100px;
+            height: 100px;
             background: var(--gold);
             border-radius: 50%;
             border: 4px solid white;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 3rem;
+            font-size: 2.5rem;
             font-weight: 600;
             color: white;
             box-shadow: var(--shadow-md);
         }
 
         .profile-title h1 {
-            font-size: 2rem;
+            font-size: 1.75rem;
             font-weight: 700;
             color: var(--text-primary);
             margin-bottom: 0.25rem;
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-family: var(--font-display);
         }
 
         .profile-title p {
             color: var(--text-muted);
-            font-size: 0.95rem;
+            font-size: 0.875rem;
             display: flex;
             align-items: center;
             gap: 0.5rem;
@@ -406,12 +392,12 @@
         .profile-status {
             display: inline-flex;
             align-items: center;
-            gap: 0.3rem;
-            padding: 0.3rem 1rem;
-            background: var(--primary-soft);
-            border-radius: 30px;
+            gap: 0.25rem;
+            padding: 0.25rem 0.75rem;
+            background: var(--gold-soft);
+            border-radius: var(--radius-full);
             color: var(--gold);
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             font-weight: 600;
             margin-left: 0.5rem;
         }
@@ -422,8 +408,7 @@
         }
 
         .profile-stats {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            display: flex;
             gap: 2rem;
             margin-top: 2rem;
             padding-top: 1.5rem;
@@ -431,11 +416,11 @@
         }
 
         .stat-item {
-            text-align: center;
+            text-align: left;
         }
 
         .stat-value {
-            font-size: 1.8rem;
+            font-size: 1.5rem;
             font-weight: 700;
             color: var(--gold);
             line-height: 1.2;
@@ -443,7 +428,7 @@
 
         .stat-label {
             color: var(--text-muted);
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
@@ -452,29 +437,35 @@
         .profile-tabs {
             display: flex;
             gap: 0.5rem;
-            background: var(--bg-secondary);
-            padding: 0.35rem;
-            border-radius: 60px;
             margin-bottom: 2rem;
-            width: fit-content;
+            border-bottom: 1px solid var(--border-light);
+            padding-bottom: 0;
         }
 
         .tab-btn {
-            padding: 0.6rem 1.8rem;
+            padding: 0.75rem 1.5rem;
             background: transparent;
             border: none;
-            border-radius: 60px;
             color: var(--text-muted);
-            font-size: 0.9rem;
+            font-size: 0.875rem;
             font-weight: 500;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: var(--transition);
+            position: relative;
         }
 
         .tab-btn.active {
-            background: var(--card-bg);
             color: var(--gold);
-            box-shadow: var(--shadow-sm);
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--gold);
         }
 
         .tab-content {
@@ -488,7 +479,7 @@
         /* Profile Grid */
         .profile-grid {
             display: grid;
-            grid-template-columns: 1fr 2fr;
+            grid-template-columns: 320px 1fr;
             gap: 2rem;
         }
 
@@ -496,57 +487,58 @@
         .profile-sidebar {
             display: flex;
             flex-direction: column;
-            gap: 2rem;
+            gap: 1.5rem;
         }
 
         .sidebar-card {
             background: var(--card-bg);
             border: 1px solid var(--border-light);
-            border-radius: 24px;
-            padding: 1.8rem;
+            border-radius: var(--radius-xl);
+            padding: 1.5rem;
             box-shadow: var(--shadow-sm);
-            transition: all 0.3s ease;
+            transition: var(--transition);
         }
 
         .sidebar-card:hover {
-            border-color: var(--gold);
+            border-color: var(--gold-light);
             box-shadow: var(--shadow-md);
         }
 
         .card-title {
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 600;
             color: var(--text-primary);
-            margin-bottom: 1.2rem;
+            margin-bottom: 1rem;
             display: flex;
             align-items: center;
-            gap: 0.6rem;
+            gap: 0.5rem;
         }
 
         .card-title i {
             color: var(--gold);
-            font-size: 1.2rem;
+            font-size: 1rem;
         }
 
         .info-item {
             margin-bottom: 1rem;
         }
 
+        .info-item:last-child {
+            margin-bottom: 0;
+        }
+
         .info-label {
             color: var(--text-muted);
-            font-size: 0.75rem;
-            margin-bottom: 0.2rem;
+            font-size: 0.7rem;
+            margin-bottom: 0.25rem;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px;
         }
 
         .info-value {
             color: var(--text-primary);
-            font-size: 1rem;
+            font-size: 0.875rem;
             font-weight: 500;
-        }
-
-        .info-value.with-icon {
             display: flex;
             align-items: center;
             gap: 0.5rem;
@@ -555,56 +547,54 @@
         .badge-list {
             display: flex;
             flex-wrap: wrap;
-            gap: 0.6rem;
-            margin-top: 0.5rem;
+            gap: 0.5rem;
         }
 
         .badge {
-            background: var(--primary-soft);
+            background: var(--gold-soft);
             border: 1px solid rgba(202, 138, 4, 0.2);
-            border-radius: 40px;
-            padding: 0.4rem 1rem;
-            font-size: 0.8rem;
+            border-radius: var(--radius-full);
+            padding: 0.3rem 0.8rem;
+            font-size: 0.75rem;
             color: var(--gold);
             font-weight: 500;
         }
 
         .skill-tag {
-            background: var(--bg-secondary);
+            background: var(--bg-tertiary);
             border: 1px solid var(--border-light);
-            border-radius: 40px;
-            padding: 0.4rem 1rem;
-            font-size: 0.8rem;
+            border-radius: var(--radius-full);
+            padding: 0.3rem 0.8rem;
+            font-size: 0.75rem;
             color: var(--text-secondary);
             display: inline-flex;
             align-items: center;
-            gap: 0.4rem;
-            transition: all 0.2s;
+            gap: 0.3rem;
         }
 
         .skill-tag i {
             color: var(--gold);
-            font-size: 0.7rem;
+            font-size: 0.65rem;
         }
 
         /* Main Cards */
         .profile-main {
             display: flex;
             flex-direction: column;
-            gap: 2rem;
+            gap: 1.5rem;
         }
 
         .main-card {
             background: var(--card-bg);
             border: 1px solid var(--border-light);
-            border-radius: 24px;
-            padding: 1.8rem;
+            border-radius: var(--radius-xl);
+            padding: 1.5rem;
             box-shadow: var(--shadow-sm);
-            transition: all 0.3s ease;
+            transition: var(--transition);
         }
 
         .main-card:hover {
-            border-color: var(--gold);
+            border-color: var(--gold-light);
             box-shadow: var(--shadow-md);
         }
 
@@ -612,11 +602,11 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 1.2rem;
+            margin-bottom: 1rem;
         }
 
         .card-header h3 {
-            font-size: 1.2rem;
+            font-size: 1rem;
             font-weight: 600;
             color: var(--text-primary);
         }
@@ -624,15 +614,15 @@
         .edit-btn {
             background: transparent;
             border: 1px solid var(--border-light);
-            border-radius: 40px;
-            padding: 0.4rem 1rem;
+            border-radius: var(--radius-full);
+            padding: 0.35rem 1rem;
             color: var(--text-muted);
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 0.4rem;
-            transition: all 0.2s;
+            gap: 0.3rem;
+            transition: var(--transition);
         }
 
         .edit-btn:hover {
@@ -642,9 +632,8 @@
 
         .bio-text {
             color: var(--text-secondary);
-            font-size: 0.95rem;
+            font-size: 0.875rem;
             line-height: 1.6;
-            padding: 0.5rem 0;
         }
 
         /* Portfolio Grid */
@@ -656,30 +645,29 @@
 
         .portfolio-item {
             border: 1px solid var(--border-light);
-            border-radius: 16px;
+            border-radius: var(--radius-md);
             padding: 1rem;
             display: flex;
             align-items: center;
-            gap: 0.8rem;
-            transition: all 0.2s;
+            gap: 0.75rem;
+            transition: var(--transition);
         }
 
         .portfolio-item:hover {
             border-color: var(--gold);
             background: var(--gold-soft);
-            transform: translateX(4px);
         }
 
         .portfolio-icon {
-            width: 44px;
-            height: 44px;
-            background: var(--primary-soft);
-            border-radius: 12px;
+            width: 40px;
+            height: 40px;
+            background: var(--gold-soft);
+            border-radius: var(--radius-sm);
             display: flex;
             align-items: center;
             justify-content: center;
             color: var(--gold);
-            font-size: 1.2rem;
+            font-size: 1rem;
         }
 
         .portfolio-info {
@@ -689,7 +677,7 @@
         .portfolio-title {
             font-weight: 600;
             color: var(--text-primary);
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             margin-bottom: 0.2rem;
         }
 
@@ -718,6 +706,7 @@
 
         .review-item:last-child {
             border-bottom: none;
+            padding-bottom: 0;
         }
 
         .review-header {
@@ -730,22 +719,18 @@
         .reviewer {
             font-weight: 600;
             color: var(--text-primary);
-            font-size: 0.9rem;
+            font-size: 0.85rem;
         }
 
         .review-rating {
             color: var(--gold);
-        }
-
-        .review-rating i {
             font-size: 0.8rem;
-            margin-right: 0.1rem;
         }
 
         .review-comment {
             color: var(--text-secondary);
             font-size: 0.85rem;
-            margin-bottom: 0.3rem;
+            margin-bottom: 0.25rem;
             line-height: 1.5;
         }
 
@@ -758,7 +743,7 @@
         .settings-form {
             display: flex;
             flex-direction: column;
-            gap: 1.2rem;
+            gap: 1.25rem;
         }
 
         .form-row {
@@ -770,23 +755,23 @@
         .form-group {
             display: flex;
             flex-direction: column;
-            gap: 0.4rem;
+            gap: 0.35rem;
         }
 
         .form-group label {
             color: var(--text-secondary);
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             font-weight: 500;
         }
 
         .form-control {
-            padding: 0.8rem 1rem;
-            background: var(--input-bg);
+            padding: 0.7rem 1rem;
+            background: var(--bg-primary);
             border: 1px solid var(--border-medium);
-            border-radius: 14px;
+            border-radius: var(--radius-md);
             color: var(--text-primary);
-            font-size: 0.9rem;
-            transition: all 0.2s;
+            font-size: 0.875rem;
+            transition: var(--transition);
         }
 
         .form-control:focus {
@@ -796,7 +781,7 @@
         }
 
         .form-control:disabled {
-            background: var(--bg-secondary);
+            background: var(--bg-tertiary);
             color: var(--text-muted);
         }
 
@@ -815,7 +800,7 @@
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(8px);
+            backdrop-filter: blur(4px);
             z-index: 2000;
             display: none;
         }
@@ -828,9 +813,9 @@
             position: fixed;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%) scale(0.95);
+            transform: translate(-50%, -50%) scale(0.96);
             background: var(--card-bg);
-            border-radius: 32px;
+            border-radius: var(--radius-2xl);
             border: 1px solid var(--border-light);
             box-shadow: var(--shadow-xl);
             z-index: 2001;
@@ -853,22 +838,21 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 1.5rem;
+            padding: 1.25rem 1.5rem;
             border-bottom: 1px solid var(--border-light);
         }
 
         .modal-header h3 {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: var(--text-primary);
+            font-size: 1.2rem;
+            font-weight: 600;
         }
 
         .modal-close {
             background: transparent;
             border: none;
-            color: var(--text-muted);
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             cursor: pointer;
+            color: var(--text-muted);
         }
 
         .modal-body {
@@ -893,8 +877,8 @@
         .toast {
             background: var(--card-bg);
             border: 1px solid var(--border-light);
-            border-radius: 12px;
-            padding: 0.8rem 1.2rem;
+            border-radius: var(--radius-md);
+            padding: 0.75rem 1rem;
             margin-bottom: 0.5rem;
             box-shadow: var(--shadow-lg);
             display: flex;
@@ -920,32 +904,29 @@
         /* Empty State */
         .empty-state {
             text-align: center;
-            padding: 3rem;
+            padding: 2rem;
             color: var(--text-muted);
         }
 
         .empty-state i {
-            font-size: 3rem;
-            margin-bottom: 1rem;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
             opacity: 0.5;
         }
 
         .empty-state p {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
         }
 
         /* Responsive */
         @media (max-width: 1024px) {
             .profile-grid {
                 grid-template-columns: 1fr;
+                gap: 1.5rem;
             }
             
             .portfolio-grid {
                 grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .profile-stats {
-                grid-template-columns: repeat(3, 1fr);
             }
         }
 
@@ -955,7 +936,7 @@
             }
             
             .profile-stats {
-                grid-template-columns: 1fr;
+                flex-direction: column;
                 gap: 1rem;
             }
             
@@ -980,21 +961,17 @@
             }
             
             .profile-tabs {
-                width: 100%;
-                justify-content: center;
+                overflow-x: auto;
+                padding-bottom: 0.5rem;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Custom Loader -->
-    <div class="loader-container" id="loader">
+    <!-- Loader -->
+    <div class="loader-overlay" id="loaderOverlay">
         <div class="loader">
-            <div class="loader-ring">
-                <svg viewBox="0 0 100 100">
-                    <circle cx="50" cy="50" r="45" />
-                </svg>
-            </div>
+            <div class="loader-spinner"></div>
             <div class="loader-text">Loading profile...</div>
         </div>
     </div>
@@ -1020,7 +997,7 @@
                     <input type="tel" class="form-control" id="editPhone" required>
                 </div>
                 <div class="form-group">
-                    <label>Bio / About</label>
+                    <label>Bio</label>
                     <textarea class="form-control" id="editBio" rows="3" placeholder="Tell clients about yourself..."></textarea>
                 </div>
                 <div class="form-group">
@@ -1093,9 +1070,9 @@
         <!-- Login Required -->
         <div id="loginRequired" style="display: none;">
             <div class="login-required">
-                <i class="fas fa-user-lock"></i>
-                <h2>Login Required</h2>
-                <p>Please sign in to view your profile</p>
+                <i class="fas fa-lock"></i>
+                <h2>Sign in required</h2>
+                <p>Please log in to access your profile</p>
                 <button class="btn-primary" onclick="window.location.href='index.html'">Go to Login</button>
             </div>
         </div>
@@ -1104,16 +1081,15 @@
         <div id="profileContent" style="display: none;">
             <!-- Profile Header -->
             <div class="profile-header">
-                <div class="profile-cover">
-                    <div class="profile-avatar-wrapper">
-                        <div class="profile-avatar-large" id="profileAvatar">T</div>
-                        <div class="profile-title">
-                            <h1 id="profileName">Loading...</h1>
-                            <p>
-                                <i class="fas fa-envelope"></i> <span id="profileEmail">loading...</span>
-                                <span class="profile-status" id="profileStatus">VERIFIED</span>
-                            </p>
-                        </div>
+                <div class="profile-cover"></div>
+                <div class="profile-avatar-wrapper">
+                    <div class="profile-avatar-large" id="profileAvatar">T</div>
+                    <div class="profile-title">
+                        <h1 id="profileName">Loading...</h1>
+                        <p>
+                            <i class="fas fa-envelope"></i> <span id="profileEmail">loading...</span>
+                            <span class="profile-status" id="profileStatus">VERIFIED</span>
+                        </p>
                     </div>
                 </div>
                 
@@ -1149,26 +1125,26 @@
                     <div class="sidebar-card">
                         <div class="card-title">
                             <i class="fas fa-address-card"></i>
-                            Contact Information
+                            Contact
                         </div>
                         <div class="info-item">
                             <div class="info-label">Phone</div>
-                            <div class="info-value with-icon">
-                                <i class="fas fa-phone" style="color: var(--gold); font-size: 0.8rem;"></i>
+                            <div class="info-value">
+                                <i class="fas fa-phone" style="color: var(--gold); font-size: 0.7rem;"></i>
                                 <span id="profilePhone">Not provided</span>
                             </div>
                         </div>
                         <div class="info-item">
                             <div class="info-label">Location</div>
-                            <div class="info-value with-icon">
-                                <i class="fas fa-map-marker-alt" style="color: var(--gold); font-size: 0.8rem;"></i>
+                            <div class="info-value">
+                                <i class="fas fa-map-marker-alt" style="color: var(--gold); font-size: 0.7rem;"></i>
                                 <span>Nairobi, Kenya</span>
                             </div>
                         </div>
                         <div class="info-item">
                             <div class="info-label">Member Since</div>
-                            <div class="info-value with-icon">
-                                <i class="fas fa-calendar" style="color: var(--gold); font-size: 0.8rem;"></i>
+                            <div class="info-value">
+                                <i class="fas fa-calendar" style="color: var(--gold); font-size: 0.7rem;"></i>
                                 <span id="profileJoined">Loading...</span>
                             </div>
                         </div>
@@ -1178,7 +1154,7 @@
                     <div class="sidebar-card">
                         <div class="card-title">
                             <i class="fas fa-code"></i>
-                            Skills & Expertise
+                            Skills
                         </div>
                         <div class="badge-list" id="profileSkills">
                             <span class="skill-tag"><i class="fas fa-tag"></i> Loading...</span>
@@ -1198,22 +1174,20 @@
                     </div>
                 </div>
 
-                <!-- Main Content Area -->
+                <!-- Main Content -->
                 <div class="profile-main">
                     <!-- Overview Tab -->
                     <div id="overviewTab" class="tab-content active">
-                        <!-- Bio -->
                         <div class="main-card">
                             <div class="card-header">
-                                <h3>About Me</h3>
-                                <button class="edit-btn" onclick="openEditModal()"><i class="fas fa-edit"></i> Edit</button>
+                                <h3>About</h3>
+                                <button class="edit-btn" onclick="openEditModal()"><i class="fas fa-pen"></i> Edit</button>
                             </div>
                             <div class="bio-text" id="profileBio">
-                                No bio added yet. Click edit to tell clients about yourself.
+                                No bio added yet.
                             </div>
                         </div>
 
-                        <!-- Recent Portfolio -->
                         <div class="main-card">
                             <div class="card-header">
                                 <h3>Recent Work</h3>
@@ -1222,7 +1196,7 @@
                             <div class="portfolio-grid" id="recentPortfolio">
                                 <div class="empty-state">
                                     <i class="fas fa-folder-open"></i>
-                                    <p>No portfolio items yet. Click "Add" to showcase your work.</p>
+                                    <p>No portfolio items</p>
                                 </div>
                             </div>
                         </div>
@@ -1238,7 +1212,7 @@
                             <div class="portfolio-grid" id="fullPortfolio">
                                 <div class="empty-state">
                                     <i class="fas fa-folder-open"></i>
-                                    <p>No portfolio items yet.</p>
+                                    <p>No portfolio items</p>
                                 </div>
                             </div>
                         </div>
@@ -1254,7 +1228,7 @@
                             <div class="reviews-list" id="reviewsList">
                                 <div class="empty-state">
                                     <i class="fas fa-star"></i>
-                                    <p>No reviews yet. Complete tasks to earn reviews.</p>
+                                    <p>No reviews yet</p>
                                 </div>
                             </div>
                         </div>
@@ -1293,7 +1267,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label>Skills (comma separated)</label>
-                                    <input type="text" class="form-control" id="settingsSkills" placeholder="e.g., Data Entry, Writing, Design">
+                                    <input type="text" class="form-control" id="settingsSkills" placeholder="Data Entry, Writing, Design">
                                 </div>
                                 <div class="form-actions">
                                     <button type="button" class="btn-outline" onclick="resetSettings()">Reset</button>
@@ -1302,14 +1276,14 @@
                             </form>
                         </div>
                         
-                        <div class="main-card" style="margin-top: 1rem;">
+                        <div class="main-card">
                             <div class="card-header">
                                 <h3>Account Security</h3>
                             </div>
-                            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
                                 <button class="btn-outline" onclick="changePassword()"><i class="fas fa-key"></i> Change Password</button>
-                                <button class="btn-outline" onclick="twoFactorAuth()"><i class="fas fa-mobile-alt"></i> Two-Factor Auth</button>
-                                <button class="btn-outline" style="border-color: var(--danger); color: var(--danger);" onclick="deactivateAccount()"><i class="fas fa-exclamation-triangle"></i> Deactivate Account</button>
+                                <button class="btn-outline" onclick="twoFactorAuth()"><i class="fas fa-shield-alt"></i> 2FA</button>
+                                <button class="btn-outline" style="border-color: var(--danger); color: var(--danger);" onclick="deactivateAccount()"><i class="fas fa-trash-alt"></i> Deactivate</button>
                             </div>
                         </div>
                     </div>
@@ -1336,7 +1310,6 @@
         const auth = firebase.auth();
         auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 
-        // Global state
         let currentUser = null;
         let currentTasker = null;
         let portfolioItems = [];
@@ -1344,7 +1317,7 @@
         // Hide loader after page loads
         window.addEventListener('load', () => {
             setTimeout(() => {
-                document.getElementById('loader').classList.add('hidden');
+                document.getElementById('loaderOverlay').classList.add('hidden');
             }, 500);
         });
 
@@ -1356,14 +1329,13 @@
                 showProfileContent();
             } else {
                 showLoginRequired();
-                document.getElementById('loader').classList.add('hidden');
+                document.getElementById('loaderOverlay').classList.add('hidden');
             }
         });
 
         // Load user profile
         async function loadUserProfile(user) {
             try {
-                // Load tasker data
                 const taskerSnapshot = await database.ref(`taskers/${user.uid}`).once('value');
                 
                 if (taskerSnapshot.exists()) {
@@ -1373,7 +1345,6 @@
                         name: user.displayName || user.email?.split('@')[0] || 'Tasker',
                         email: user.email,
                         phone: '',
-                        category: 'General',
                         bio: '',
                         rate: '',
                         skills: [],
@@ -1384,13 +1355,8 @@
                     await database.ref(`taskers/${user.uid}`).set(currentTasker);
                 }
                 
-                // Load portfolio
                 await loadPortfolio(user.uid);
-                
-                // Load tasks for stats
                 await loadTaskStats(user.email);
-                
-                // Update UI
                 updateProfileUI();
                 
             } catch (error) {
@@ -1399,7 +1365,6 @@
             }
         }
 
-        // Load portfolio items
         async function loadPortfolio(uid) {
             try {
                 const snapshot = await database.ref(`portfolios/${uid}`).once('value');
@@ -1407,12 +1372,10 @@
                 portfolioItems = Object.entries(data).map(([id, item]) => ({ id, ...item }));
                 portfolioItems.sort((a, b) => (b.addedAt || 0) - (a.addedAt || 0));
             } catch (error) {
-                console.error('Error loading portfolio:', error);
                 portfolioItems = [];
             }
         }
 
-        // Load task statistics
         async function loadTaskStats(email) {
             try {
                 const tasksSnapshot = await database.ref('ekazi_assigned_tasks').once('value');
@@ -1430,21 +1393,18 @@
             }
         }
 
-        // Update profile UI
         function updateProfileUI() {
             if (!currentTasker) return;
             
             const name = currentTasker.name || currentUser?.email?.split('@')[0] || 'Tasker';
             const initial = name.charAt(0).toUpperCase();
             
-            // Header
             document.getElementById('profileName').textContent = name;
             document.getElementById('profileEmail').textContent = currentUser?.email || '';
             document.getElementById('profileAvatar').textContent = initial;
             document.getElementById('userDisplayName').textContent = name;
             document.getElementById('userAvatar').textContent = initial;
             
-            // Status badge
             const statusEl = document.getElementById('profileStatus');
             if (currentTasker.verified && currentTasker.status === 'active') {
                 statusEl.textContent = 'VERIFIED';
@@ -1454,16 +1414,11 @@
                 statusEl.classList.remove('verified');
             }
             
-            // Contact info
             document.getElementById('profilePhone').textContent = currentTasker.phone || 'Not provided';
             document.getElementById('profileJoined').textContent = currentTasker.joined ? 
-                new Date(currentTasker.joined).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : 
-                'Recently';
+                new Date(currentTasker.joined).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : 'Recently';
+            document.getElementById('profileBio').textContent = currentTasker.bio || 'No bio added yet.';
             
-            // Bio
-            document.getElementById('profileBio').textContent = currentTasker.bio || 'No bio added yet. Click edit to tell clients about yourself.';
-            
-            // Skills
             const skillsContainer = document.getElementById('profileSkills');
             if (currentTasker.skills && currentTasker.skills.length > 0) {
                 skillsContainer.innerHTML = currentTasker.skills.map(skill => 
@@ -1473,7 +1428,6 @@
                 skillsContainer.innerHTML = '<span class="skill-tag"><i class="fas fa-tag"></i> No skills added</span>';
             }
             
-            // Settings form
             document.getElementById('settingsName').value = name;
             document.getElementById('settingsEmail').value = currentUser?.email || '';
             document.getElementById('settingsPhone').value = currentTasker.phone || '';
@@ -1481,29 +1435,25 @@
             document.getElementById('settingsBio').value = currentTasker.bio || '';
             document.getElementById('settingsSkills').value = currentTasker.skills ? currentTasker.skills.join(', ') : '';
             
-            // Edit modal
             document.getElementById('editName').value = name;
             document.getElementById('editPhone').value = currentTasker.phone || '';
             document.getElementById('editBio').value = currentTasker.bio || '';
             document.getElementById('editRate').value = currentTasker.rate || '';
             
-            // Portfolio
             renderPortfolio();
         }
 
-        // Render portfolio items
         function renderPortfolio() {
             const recentContainer = document.getElementById('recentPortfolio');
             const fullContainer = document.getElementById('fullPortfolio');
             
             if (portfolioItems.length === 0) {
-                const emptyHtml = `<div class="empty-state"><i class="fas fa-folder-open"></i><p>No portfolio items yet. Click "Add" to showcase your work.</p></div>`;
+                const emptyHtml = `<div class="empty-state"><i class="fas fa-folder-open"></i><p>No portfolio items</p></div>`;
                 recentContainer.innerHTML = emptyHtml;
                 fullContainer.innerHTML = emptyHtml;
                 return;
             }
             
-            // Recent items (first 2)
             const recent = portfolioItems.slice(0, 2);
             recentContainer.innerHTML = recent.map(item => `
                 <div class="portfolio-item">
@@ -1511,25 +1461,21 @@
                     <div class="portfolio-info">
                         <div class="portfolio-title">${escapeHtml(item.title)}</div>
                         <a href="${escapeHtml(item.link)}" target="_blank" class="portfolio-link">${item.link.length > 40 ? item.link.substring(0, 40) + '...' : item.link}</a>
-                        ${item.description ? `<div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.2rem;">${escapeHtml(item.description)}</div>` : ''}
                     </div>
                 </div>
             `).join('');
             
-            // All items
             fullContainer.innerHTML = portfolioItems.map(item => `
                 <div class="portfolio-item">
                     <div class="portfolio-icon"><i class="fas fa-folder-open"></i></div>
                     <div class="portfolio-info">
                         <div class="portfolio-title">${escapeHtml(item.title)}</div>
                         <a href="${escapeHtml(item.link)}" target="_blank" class="portfolio-link">${item.link.length > 40 ? item.link.substring(0, 40) + '...' : item.link}</a>
-                        ${item.description ? `<div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.2rem;">${escapeHtml(item.description)}</div>` : ''}
                     </div>
                 </div>
             `).join('');
         }
 
-        // UI state management
         function showLoginRequired() {
             document.getElementById('loginRequired').style.display = 'block';
             document.getElementById('profileContent').style.display = 'none';
@@ -1540,16 +1486,13 @@
             document.getElementById('profileContent').style.display = 'block';
         }
 
-        // Tab switching
         window.switchTab = function(tab) {
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-            
             event.target.classList.add('active');
             document.getElementById(tab + 'Tab').classList.add('active');
         };
 
-        // Modal functions
         window.openEditModal = function() {
             document.getElementById('editModal').classList.add('active');
             document.getElementById('editModalOverlay').classList.add('active');
@@ -1571,39 +1514,28 @@
             document.getElementById('portfolioForm').reset();
         };
 
-        // Save profile changes
         window.saveProfileChanges = async function(e) {
             e.preventDefault();
             
-            const name = document.getElementById('editName').value.trim();
-            const phone = document.getElementById('editPhone').value.trim();
-            const bio = document.getElementById('editBio').value.trim();
-            const rate = document.getElementById('editRate').value.trim();
+            const updates = {
+                name: document.getElementById('editName').value.trim(),
+                phone: document.getElementById('editPhone').value.trim(),
+                bio: document.getElementById('editBio').value.trim(),
+                rate: document.getElementById('editRate').value.trim(),
+                updatedAt: new Date().toISOString()
+            };
             
             try {
-                const updates = {
-                    name,
-                    phone,
-                    bio,
-                    rate,
-                    updatedAt: new Date().toISOString()
-                };
-                
                 await database.ref(`taskers/${currentUser.uid}`).update(updates);
-                
                 currentTasker = { ...currentTasker, ...updates };
                 updateProfileUI();
-                
-                showToast('Profile updated successfully', 'success');
+                showToast('Profile updated', 'success');
                 closeEditModal();
-                
             } catch (error) {
-                console.error('Error updating profile:', error);
                 showToast('Error updating profile', 'error');
             }
         };
 
-        // Add portfolio item
         window.addPortfolioItem = async function(e) {
             e.preventDefault();
             
@@ -1618,56 +1550,34 @@
             
             try {
                 const portfolioRef = database.ref(`portfolios/${currentUser.uid}`).push();
-                const item = {
-                    title,
-                    link,
-                    description,
-                    addedAt: Date.now()
-                };
-                
-                await portfolioRef.set(item);
-                
-                portfolioItems.unshift({ id: portfolioRef.key, ...item });
+                await portfolioRef.set({ title, link, description, addedAt: Date.now() });
+                portfolioItems.unshift({ id: portfolioRef.key, title, link, description });
                 renderPortfolio();
-                
                 showToast('Portfolio item added', 'success');
                 closePortfolioModal();
-                
             } catch (error) {
-                console.error('Error adding portfolio item:', error);
                 showToast('Error adding portfolio item', 'error');
             }
         };
 
-        // Update settings
         window.updateSettings = async function(e) {
             e.preventDefault();
             
-            const phone = document.getElementById('settingsPhone').value.trim();
-            const rate = document.getElementById('settingsRate').value.trim();
-            const bio = document.getElementById('settingsBio').value.trim();
-            const skillsInput = document.getElementById('settingsSkills').value.trim();
-            const skills = skillsInput ? skillsInput.split(',').map(s => s.trim()) : [];
+            const updates = {
+                phone: document.getElementById('settingsPhone').value.trim(),
+                rate: document.getElementById('settingsRate').value.trim(),
+                bio: document.getElementById('settingsBio').value.trim(),
+                skills: document.getElementById('settingsSkills').value.trim().split(',').map(s => s.trim()).filter(s => s),
+                updatedAt: new Date().toISOString()
+            };
             
             try {
-                const updates = {
-                    phone,
-                    rate,
-                    bio,
-                    skills,
-                    updatedAt: new Date().toISOString()
-                };
-                
                 await database.ref(`taskers/${currentUser.uid}`).update(updates);
-                
                 currentTasker = { ...currentTasker, ...updates };
                 updateProfileUI();
-                
-                showToast('Settings updated', 'success');
-                
+                showToast('Settings saved', 'success');
             } catch (error) {
-                console.error('Error updating settings:', error);
-                showToast('Error updating settings', 'error');
+                showToast('Error saving settings', 'error');
             }
         };
 
@@ -1678,32 +1588,23 @@
             document.getElementById('settingsSkills').value = currentTasker.skills ? currentTasker.skills.join(', ') : '';
         };
 
-        window.changePassword = function() {
-            showToast('Password reset email sent', 'info');
-        };
-
-        window.twoFactorAuth = function() {
-            showToast('Two-factor authentication coming soon', 'info');
-        };
-
-        window.deactivateAccount = function() {
-            if (confirm('Are you sure you want to deactivate your account? This action cannot be undone.')) {
-                showToast('Account deactivation requested', 'info');
+        window.changePassword = () => showToast('Password reset email sent', 'info');
+        window.twoFactorAuth = () => showToast('2FA coming soon', 'info');
+        window.deactivateAccount = () => {
+            if (confirm('Deactivate account? This action cannot be undone.')) {
+                showToast('Deactivation requested', 'info');
             }
         };
 
-        // Logout
         window.handleLogout = async function() {
             try {
                 await auth.signOut();
                 window.location.href = 'index.html';
             } catch (error) {
-                console.error('Logout error:', error);
                 showToast('Logout failed', 'error');
             }
         };
 
-        // Utility functions
         function escapeHtml(text) {
             if (!text) return '';
             const div = document.createElement('div');
@@ -1715,20 +1616,12 @@
             const container = document.getElementById('toastContainer');
             const toast = document.createElement('div');
             toast.className = `toast ${type}`;
-            
-            const icons = {
-                success: 'check-circle',
-                error: 'exclamation-circle',
-                info: 'info-circle'
-            };
-            
+            const icons = { success: 'check-circle', error: 'exclamation-circle', info: 'info-circle' };
             toast.innerHTML = `<i class="fas fa-${icons[type]}"></i><span>${message}</span>`;
             container.appendChild(toast);
-            
             setTimeout(() => toast.remove(), 3000);
         }
 
-        // Modal click handlers
         document.getElementById('editModalOverlay').addEventListener('click', closeEditModal);
         document.getElementById('portfolioModalOverlay').addEventListener('click', closePortfolioModal);
     </script>
