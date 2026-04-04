@@ -9,7 +9,7 @@
     <link rel="icon" type="image/x-icon" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview-1.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
-    <!-- Firebase SDKs -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -21,11 +21,7 @@
             --gold-dark: #a16207;
             --gold-light: #fbbf24;
             --gold-soft: #fef3c7;
-            
-            --primary: #ca8a04;
-            --primary-dark: #a16207;
-            --primary-light: #fbbf24;
-            --primary-soft: #fef3c7;
+            --gold-glow: rgba(202, 138, 4, 0.1);
             
             --success: #10b981;
             --warning: #f59e0b;
@@ -34,25 +30,25 @@
             --purple: #8b5cf6;
             
             --bg-primary: #ffffff;
-            --bg-secondary: #f9fafb;
+            --bg-secondary: #faf9f7;
             --bg-card: #ffffff;
-            --text-primary: #111827;
-            --text-secondary: #4b5563;
-            --text-muted: #6b7280;
-            --border-light: #e5e7eb;
+            --text-primary: #1a1a2e;
+            --text-secondary: #4a5568;
+            --text-muted: #718096;
+            --border-light: #e9ecef;
             --border-medium: #d1d5db;
             
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.02), 0 1px 2px rgba(0, 0, 0, 0.03);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
             
-            --nav-bg: rgba(255, 255, 255, 0.95);
+            --nav-bg: rgba(255, 255, 255, 0.98);
             --card-bg: #ffffff;
             --input-bg: #ffffff;
             --toast-bg: #ffffff;
             
-            --header-height: 70px;
+            --header-height: 80px;
         }
 
         body {
@@ -63,6 +59,76 @@
             min-height: 100vh;
         }
 
+        /* Custom Loader Animation */
+        .loader-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+
+        .loader-container.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .loader {
+            text-align: center;
+        }
+
+        .loader-ring {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1.5rem;
+            position: relative;
+        }
+
+        .loader-ring svg {
+            width: 100%;
+            height: 100%;
+            animation: rotate 2s linear infinite;
+        }
+
+        .loader-ring circle {
+            fill: none;
+            stroke: var(--gold);
+            stroke-width: 3;
+            stroke-dasharray: 180;
+            stroke-dashoffset: 180;
+            animation: dash 1.5s ease-in-out infinite;
+        }
+
+        @keyframes rotate {
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes dash {
+            0% { stroke-dashoffset: 180; }
+            50% { stroke-dashoffset: 45; }
+            100% { stroke-dashoffset: 180; }
+        }
+
+        .loader-text {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--gold);
+            letter-spacing: 1px;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
         /* Header */
         .site-header {
             position: fixed;
@@ -70,7 +136,7 @@
             width: 100%;
             height: var(--header-height);
             background: var(--nav-bg);
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--border-light);
             z-index: 1000;
             padding: 0 2rem;
@@ -92,38 +158,50 @@
         }
 
         .logo img {
-            height: 40px;
+            height: 45px;
             width: auto;
         }
 
         .logo span {
-            font-size: 1.25rem;
-            font-weight: 600;
+            font-size: 1.5rem;
+            font-weight: 700;
             color: var(--gold);
+            font-family: 'Plus Jakarta Sans', sans-serif;
         }
 
         .nav-links {
             display: flex;
-            gap: 2rem;
+            gap: 2.5rem;
         }
 
         .nav-link {
             color: var(--text-secondary);
             text-decoration: none;
-            font-size: 0.95rem;
+            font-size: 1rem;
             font-weight: 500;
-            padding: 0.35rem 0;
-            border-bottom: 2px solid transparent;
-            transition: all 0.2s;
+            transition: all 0.3s ease;
+            position: relative;
         }
 
-        .nav-link:hover {
-            color: var(--gold);
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--gold);
+            transition: width 0.3s ease;
         }
 
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            width: 100%;
+        }
+
+        .nav-link:hover,
         .nav-link.active {
             color: var(--gold);
-            border-bottom-color: var(--gold);
         }
 
         .user-menu {
@@ -132,10 +210,16 @@
             gap: 0.75rem;
             background: var(--bg-card);
             border: 1px solid var(--border-light);
-            border-radius: 40px;
+            border-radius: 60px;
             padding: 0.3rem 0.3rem 0.3rem 1rem;
             cursor: pointer;
             position: relative;
+            transition: all 0.2s;
+        }
+
+        .user-menu:hover {
+            border-color: var(--gold);
+            box-shadow: var(--shadow-sm);
         }
 
         .user-name {
@@ -145,8 +229,8 @@
         }
 
         .user-avatar {
-            width: 36px;
-            height: 36px;
+            width: 38px;
+            height: 38px;
             background: var(--gold);
             color: white;
             border-radius: 50%;
@@ -158,13 +242,13 @@
 
         .logout-dropdown {
             position: absolute;
-            top: calc(100% + 5px);
+            top: calc(100% + 10px);
             right: 0;
             background: var(--card-bg);
             border: 1px solid var(--border-light);
-            border-radius: 12px;
+            border-radius: 16px;
             padding: 0.5rem;
-            min-width: 150px;
+            min-width: 160px;
             display: none;
             z-index: 1001;
             box-shadow: var(--shadow-lg);
@@ -175,14 +259,15 @@
         }
 
         .logout-item {
-            padding: 0.6rem 1rem;
+            padding: 0.7rem 1rem;
             color: var(--text-secondary);
-            border-radius: 8px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             gap: 0.5rem;
             cursor: pointer;
             font-size: 0.9rem;
+            transition: all 0.2s;
         }
 
         .logout-item:hover {
@@ -197,8 +282,8 @@
             right: 20px;
             background: var(--card-bg);
             border: 1px solid var(--border-light);
-            border-radius: 12px;
-            padding: 0.75rem 1rem;
+            border-radius: 16px;
+            padding: 0.8rem 1.2rem;
             display: flex;
             align-items: center;
             gap: 1rem;
@@ -219,8 +304,8 @@
         .inactivity-warning button {
             background: var(--gold);
             border: none;
-            border-radius: 8px;
-            padding: 0.4rem 0.8rem;
+            border-radius: 40px;
+            padding: 0.4rem 1rem;
             color: white;
             font-size: 0.8rem;
             font-weight: 500;
@@ -239,11 +324,73 @@
             padding: 0 2rem;
         }
 
+        /* Login Required */
+        .login-required {
+            text-align: center;
+            padding: 4rem;
+            background: var(--card-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 32px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .login-required i {
+            font-size: 4rem;
+            color: var(--gold);
+            margin-bottom: 1.5rem;
+        }
+
+        .login-required h2 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .login-required p {
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+
+        .btn {
+            padding: 0.8rem 2rem;
+            border: none;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: var(--gold);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--gold-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(202, 138, 4, 0.3);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border-medium);
+            color: var(--text-muted);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+
         /* Welcome Section */
         .welcome-section {
             background: var(--card-bg);
             border: 1px solid var(--border-light);
-            border-radius: 24px;
+            border-radius: 32px;
             padding: 2rem;
             margin-bottom: 2rem;
             box-shadow: var(--shadow-sm);
@@ -278,7 +425,7 @@
             align-items: center;
             gap: 0.3rem;
             padding: 0.4rem 1rem;
-            background: var(--primary-soft);
+            background: var(--gold-soft);
             border-radius: 30px;
             color: var(--gold);
             font-size: 0.8rem;
@@ -316,7 +463,7 @@
         .stat-card {
             background: var(--card-bg);
             border: 1px solid var(--border-light);
-            border-radius: 20px;
+            border-radius: 24px;
             padding: 1.5rem;
             display: flex;
             align-items: center;
@@ -334,7 +481,7 @@
         .stat-icon {
             width: 56px;
             height: 56px;
-            background: var(--primary-soft);
+            background: var(--gold-soft);
             border-radius: 16px;
             display: flex;
             align-items: center;
@@ -349,7 +496,7 @@
 
         .stat-value {
             font-size: 1.8rem;
-            font-weight: 600;
+            font-weight: 700;
             color: var(--text-primary);
             line-height: 1.2;
             margin-bottom: 0.2rem;
@@ -418,17 +565,18 @@
             display: flex;
             gap: 0.5rem;
             background: var(--bg-secondary);
-            padding: 0.25rem;
-            border-radius: 40px;
+            padding: 0.35rem;
+            border-radius: 60px;
             margin-bottom: 1.5rem;
             width: fit-content;
+            flex-wrap: wrap;
         }
 
         .filter-btn {
             padding: 0.5rem 1.25rem;
             background: transparent;
             border: none;
-            border-radius: 40px;
+            border-radius: 60px;
             color: var(--text-muted);
             cursor: pointer;
             font-size: 0.85rem;
@@ -453,7 +601,7 @@
         .task-card {
             background: var(--card-bg);
             border: 1px solid var(--border-light);
-            border-radius: 20px;
+            border-radius: 24px;
             padding: 1.5rem;
             box-shadow: var(--shadow-sm);
             transition: all 0.2s;
@@ -469,10 +617,12 @@
             justify-content: space-between;
             align-items: flex-start;
             margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
         }
 
         .task-category {
-            background: var(--primary-soft);
+            background: var(--gold-soft);
             border: 1px solid rgba(202, 138, 4, 0.2);
             border-radius: 30px;
             padding: 0.25rem 1rem;
@@ -580,6 +730,8 @@
             justify-content: space-between;
             align-items: center;
             margin-top: 1rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
         }
 
         .due-date {
@@ -597,6 +749,7 @@
         .task-actions {
             display: flex;
             gap: 0.5rem;
+            flex-wrap: wrap;
         }
 
         .task-btn {
@@ -650,7 +803,7 @@
         .action-card {
             background: var(--card-bg);
             border: 1px solid var(--border-light);
-            border-radius: 16px;
+            border-radius: 20px;
             padding: 1.25rem;
             text-align: center;
             text-decoration: none;
@@ -669,7 +822,7 @@
         .action-icon {
             width: 48px;
             height: 48px;
-            background: var(--primary-soft);
+            background: var(--gold-soft);
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -693,7 +846,7 @@
         /* Earnings Card */
         .earnings-card {
             background: linear-gradient(135deg, var(--gold), var(--gold-dark));
-            border-radius: 20px;
+            border-radius: 24px;
             padding: 1.5rem;
             color: white;
             display: flex;
@@ -746,7 +899,7 @@
         .activity-list {
             background: var(--card-bg);
             border: 1px solid var(--border-light);
-            border-radius: 20px;
+            border-radius: 24px;
             padding: 1rem;
         }
 
@@ -765,7 +918,7 @@
         .activity-icon {
             width: 40px;
             height: 40px;
-            background: var(--primary-soft);
+            background: var(--gold-soft);
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -806,7 +959,7 @@
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(4px);
+            backdrop-filter: blur(8px);
             z-index: 2000;
             display: none;
         }
@@ -821,13 +974,13 @@
             left: 50%;
             transform: translate(-50%, -50%) scale(0.95);
             background: var(--card-bg);
-            border-radius: 24px;
+            border-radius: 32px;
             border: 1px solid var(--border-light);
             box-shadow: var(--shadow-xl);
             z-index: 2001;
             max-width: 500px;
             width: 90%;
-            max-height: 80vh;
+            max-height: 85vh;
             overflow-y: auto;
             opacity: 0;
             visibility: hidden;
@@ -849,8 +1002,8 @@
         }
 
         .modal-header h3 {
-            font-size: 1.25rem;
-            font-weight: 600;
+            font-size: 1.3rem;
+            font-weight: 700;
             color: var(--text-primary);
         }
 
@@ -858,7 +1011,7 @@
             background: transparent;
             border: none;
             color: var(--text-muted);
-            font-size: 1.25rem;
+            font-size: 1.3rem;
             cursor: pointer;
         }
 
@@ -888,56 +1041,24 @@
 
         .form-control {
             width: 100%;
-            padding: 0.7rem 1rem;
+            padding: 0.8rem 1rem;
             background: var(--input-bg);
             border: 1px solid var(--border-medium);
-            border-radius: 10px;
+            border-radius: 14px;
             color: var(--text-primary);
             font-size: 0.9rem;
+            transition: all 0.2s;
         }
 
         .form-control:focus {
             outline: none;
             border-color: var(--gold);
-            box-shadow: 0 0 0 2px rgba(202, 138, 4, 0.1);
+            box-shadow: 0 0 0 3px var(--gold-glow);
         }
 
         .form-control[readonly] {
             background: var(--bg-secondary);
             cursor: not-allowed;
-        }
-
-        .btn {
-            padding: 0.7rem 1.5rem;
-            border: none;
-            border-radius: 30px;
-            font-weight: 500;
-            font-size: 0.9rem;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: all 0.2s;
-        }
-
-        .btn-primary {
-            background: var(--gold);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: var(--gold-dark);
-        }
-
-        .btn-outline {
-            background: transparent;
-            border: 1px solid var(--border-light);
-            color: var(--text-muted);
-        }
-
-        .btn-outline:hover {
-            border-color: var(--gold);
-            color: var(--gold);
         }
 
         .link-input-group {
@@ -951,24 +1072,31 @@
         }
 
         .remove-link-btn {
-            width: 40px;
-            height: 40px;
-            border: 1px solid var(--border-light);
-            border-radius: 10px;
+            width: 42px;
+            height: 42px;
+            border: 1px solid var(--border-medium);
+            border-radius: 14px;
             background: transparent;
             color: var(--danger);
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .remove-link-btn:hover {
+            background: var(--danger);
+            color: white;
+            border-color: var(--danger);
         }
 
         .add-link-btn {
             width: 100%;
-            padding: 0.7rem;
+            padding: 0.8rem;
             background: transparent;
             border: 2px dashed var(--border-medium);
-            border-radius: 10px;
+            border-radius: 14px;
             color: var(--gold);
             cursor: pointer;
             display: flex;
@@ -977,11 +1105,12 @@
             gap: 0.5rem;
             font-size: 0.85rem;
             margin-top: 0.5rem;
+            transition: all 0.2s;
         }
 
         .add-link-btn:hover {
             border-color: var(--gold);
-            background: var(--primary-soft);
+            background: var(--gold-soft);
         }
 
         /* Task Details Modal */
@@ -995,7 +1124,7 @@
         .task-detail-box {
             background: var(--bg-secondary);
             border: 1px solid var(--border-light);
-            border-radius: 12px;
+            border-radius: 14px;
             padding: 0.75rem;
         }
 
@@ -1012,9 +1141,9 @@
         }
 
         .instruction-box {
-            background: rgba(202, 138, 4, 0.05);
+            background: var(--gold-soft);
             border: 1px solid rgba(202, 138, 4, 0.2);
-            border-radius: 12px;
+            border-radius: 16px;
             padding: 1rem;
             margin: 1rem 0;
         }
@@ -1044,10 +1173,11 @@
             padding: 0.5rem 1rem;
             background: var(--bg-secondary);
             border: 1px solid var(--border-light);
-            border-radius: 10px;
+            border-radius: 12px;
             text-decoration: none;
             color: var(--text-primary);
             font-size: 0.85rem;
+            transition: all 0.2s;
         }
 
         .submission-link-item:hover {
@@ -1060,7 +1190,7 @@
 
         .review-item {
             background: var(--bg-secondary);
-            border-radius: 12px;
+            border-radius: 14px;
             padding: 0.75rem;
             margin-bottom: 0.75rem;
             border-left: 3px solid var(--gold);
@@ -1071,6 +1201,8 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 0.3rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
         }
 
         .review-decision {
@@ -1112,7 +1244,7 @@
             padding: 3rem;
             background: var(--card-bg);
             border: 1px dashed var(--border-medium);
-            border-radius: 20px;
+            border-radius: 24px;
             grid-column: span 2;
         }
 
@@ -1142,7 +1274,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(255,255,255,0.8);
+            background: rgba(255, 255, 255, 0.9);
             backdrop-filter: blur(4px);
             display: flex;
             align-items: center;
@@ -1182,7 +1314,7 @@
             background: var(--card-bg);
             border: 1px solid var(--border-light);
             border-radius: 12px;
-            padding: 0.75rem 1rem;
+            padding: 0.8rem 1.2rem;
             margin-bottom: 0.5rem;
             box-shadow: var(--shadow-lg);
             display: flex;
@@ -1195,6 +1327,7 @@
         .toast.success { border-left: 3px solid var(--success); }
         .toast.error { border-left: 3px solid var(--danger); }
         .toast.info { border-left: 3px solid var(--gold); }
+        .toast.warning { border-left: 3px solid var(--warning); }
 
         .toast i {
             font-size: 1rem;
@@ -1203,6 +1336,7 @@
         .toast.success i { color: var(--success); }
         .toast.error i { color: var(--danger); }
         .toast.info i { color: var(--gold); }
+        .toast.warning i { color: var(--warning); }
 
         @keyframes slideIn {
             from { opacity: 0; transform: translateX(20px); }
@@ -1255,10 +1389,27 @@
                 flex-direction: column;
                 text-align: center;
             }
+            
+            .filter-buttons {
+                width: 100%;
+                justify-content: center;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- Custom Loader -->
+    <div class="loader-container" id="loader">
+        <div class="loader">
+            <div class="loader-ring">
+                <svg viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="45" />
+                </svg>
+            </div>
+            <div class="loader-text">Loading dashboard...</div>
+        </div>
+    </div>
+
     <!-- Loading Overlay -->
     <div class="loading-overlay" id="loadingOverlay">
         <div class="loading-spinner"></div>
@@ -1309,8 +1460,8 @@
                 </div>
                 
                 <div class="modal-actions">
-                    <button type="button" class="btn btn-outline" onclick="closeSubmitModal()">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Submit Work</button>
+                    <button type="button" class="btn-outline" onclick="closeSubmitModal()">Cancel</button>
+                    <button type="submit" class="btn-primary">Submit Work</button>
                 </div>
             </form>
         </div>
@@ -1323,12 +1474,10 @@
             <h3>Task Details</h3>
             <button class="modal-close" onclick="closeTaskDetailsModal()"><i class="fas fa-times"></i></button>
         </div>
-        <div class="modal-body" id="taskDetailsModalBody">
-            <!-- Content will be populated dynamically -->
-        </div>
+        <div class="modal-body" id="taskDetailsModalBody"></div>
         <div class="modal-actions">
-            <button class="btn btn-outline" onclick="closeTaskDetailsModal()">Close</button>
-            <button class="btn btn-primary" id="taskDetailsActionBtn" onclick="taskDetailsAction()">Take Action</button>
+            <button class="btn-outline" onclick="closeTaskDetailsModal()">Close</button>
+            <button class="btn-primary" id="taskDetailsActionBtn" onclick="taskDetailsAction()">Take Action</button>
         </div>
     </div>
 
@@ -1339,11 +1488,9 @@
             <h3>Submission Details</h3>
             <button class="modal-close" onclick="closeSubmissionDetailsModal()"><i class="fas fa-times"></i></button>
         </div>
-        <div class="modal-body" id="submissionDetailsModalBody">
-            <!-- Content will be populated dynamically -->
-        </div>
+        <div class="modal-body" id="submissionDetailsModalBody"></div>
         <div class="modal-actions">
-            <button class="btn btn-outline" onclick="closeSubmissionDetailsModal()">Close</button>
+            <button class="btn-outline" onclick="closeSubmissionDetailsModal()">Close</button>
         </div>
     </div>
 
@@ -1374,11 +1521,13 @@
     <!-- Main Content -->
     <main class="main-content">
         <!-- Login Required Message -->
-        <div class="welcome-section" id="loginRequired" style="display: none; text-align: center; padding: 3rem;">
-            <i class="fas fa-user-lock" style="font-size: 3rem; color: var(--gold); margin-bottom: 1rem;"></i>
-            <h2 style="margin-bottom: 0.5rem;">Login Required</h2>
-            <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Please sign in to view your dashboard</p>
-            <button class="btn btn-primary" onclick="window.location.href='index.html'">Go to Login</button>
+        <div id="loginRequired" style="display: none;">
+            <div class="login-required">
+                <i class="fas fa-user-lock"></i>
+                <h2>Login Required</h2>
+                <p>Please sign in to view your dashboard</p>
+                <button class="btn-primary" onclick="window.location.href='index.html'">Go to Login</button>
+            </div>
         </div>
 
         <!-- Dashboard Content (shown when logged in) -->
@@ -1404,7 +1553,6 @@
                     <div class="stat-content">
                         <div class="stat-value" id="totalTasks">0</div>
                         <div class="stat-label">Total Tasks</div>
-                        <div class="stat-change positive" id="totalTasksChange">+0%</div>
                     </div>
                 </div>
                 <div class="stat-card">
@@ -1412,7 +1560,6 @@
                     <div class="stat-content">
                         <div class="stat-value" id="inProgressTasks">0</div>
                         <div class="stat-label">In Progress</div>
-                        <div class="stat-change" id="inProgressChange">0 tasks</div>
                     </div>
                 </div>
                 <div class="stat-card">
@@ -1420,7 +1567,6 @@
                     <div class="stat-content">
                         <div class="stat-value" id="pendingReviewTasks">0</div>
                         <div class="stat-label">Pending Review</div>
-                        <div class="stat-change" id="pendingChange">0 tasks</div>
                     </div>
                 </div>
                 <div class="stat-card">
@@ -1428,7 +1574,6 @@
                     <div class="stat-content">
                         <div class="stat-value" id="completedTasks">0</div>
                         <div class="stat-label">Completed</div>
-                        <div class="stat-change positive" id="completedChange">+0%</div>
                     </div>
                 </div>
             </div>
@@ -1496,9 +1641,7 @@
                 <h2 class="section-title"><i class="fas fa-history"></i> Recent Activity</h2>
                 <div class="view-all" onclick="filterTasks('all')">View All <i class="fas fa-arrow-right"></i></div>
             </div>
-            <div class="activity-list" id="activityContainer">
-                <!-- Activity items will be loaded here -->
-            </div>
+            <div class="activity-list" id="activityContainer"></div>
         </div>
     </main>
 
@@ -1534,6 +1677,13 @@
         const INACTIVITY_LIMIT = 5 * 60 * 1000;
         const WARNING_BEFORE = 60 * 1000;
 
+        // Hide loader after page loads
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('loader').classList.add('hidden');
+            }, 500);
+        });
+
         // Auth state listener
         auth.onAuthStateChanged(async (user) => {
             if (user) {
@@ -1543,6 +1693,7 @@
                 resetInactivityTimer();
             } else {
                 showLoginRequired();
+                document.getElementById('loader').classList.add('hidden');
             }
         });
 
@@ -1609,14 +1760,14 @@
         // Update dashboard UI
         function updateDashboardUI() {
             // Update welcome section
-            const name = currentTasker.name || currentUser.email?.split('@')[0] || 'Tasker';
+            const name = currentTasker?.name || currentUser?.email?.split('@')[0] || 'Tasker';
             document.getElementById('userName').textContent = name;
             document.getElementById('userDisplayName').textContent = name;
             document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
             
             // Update verification badge
             const badge = document.getElementById('verificationBadge');
-            if (currentTasker.verified && currentTasker.status === 'active') {
+            if (currentTasker?.verified && currentTasker?.status === 'active') {
                 badge.textContent = '✓ VERIFIED';
                 badge.className = 'verification-badge verified';
             } else {
@@ -1628,7 +1779,7 @@
             const date = new Date();
             document.getElementById('currentDate').innerHTML = `<i class="fas fa-calendar-alt"></i> ${date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`;
             
-            // Calculate stats
+            // Calculate stats from actual data
             const assigned = assignedTasks.filter(t => t.status === 'assigned').length;
             const inProgress = assignedTasks.filter(t => t.status === 'in-progress').length;
             const submitted = assignedTasks.filter(t => t.status === 'submitted').length;
@@ -1640,28 +1791,29 @@
             document.getElementById('pendingReviewTasks').textContent = submitted;
             document.getElementById('completedTasks').textContent = completed;
             
-            // Calculate earnings (mock - would need actual payment data)
-            const earningsPerTask = 1000;
-            const totalEarnings = completed * earningsPerTask;
-            const monthEarnings = assignedTasks
-                .filter(t => t.status === 'completed' && t.completedAt && new Date(t.completedAt).getMonth() === new Date().getMonth())
-                .length * earningsPerTask;
-            const pendingEarnings = (assigned + inProgress + submitted) * earningsPerTask;
+            // Calculate earnings from actual pay rates
+            let totalEarnings = 0;
+            let monthEarnings = 0;
+            let pendingEarnings = 0;
+            
+            assignedTasks.forEach(task => {
+                const payRate = parseInt(task.payRate) || 0;
+                if (task.status === 'completed' || task.status === 'approved') {
+                    totalEarnings += payRate;
+                    if (task.completedAt && new Date(task.completedAt).getMonth() === new Date().getMonth()) {
+                        monthEarnings += payRate;
+                    }
+                } else if (['assigned', 'in-progress', 'submitted'].includes(task.status)) {
+                    pendingEarnings += payRate;
+                }
+            });
             
             document.getElementById('totalEarnings').textContent = `KSh ${totalEarnings.toLocaleString()}`;
             document.getElementById('monthEarnings').textContent = `KSh ${monthEarnings.toLocaleString()}`;
             document.getElementById('pendingEarnings').textContent = `KSh ${pendingEarnings.toLocaleString()}`;
             
-            // Calculate changes (mock)
-            document.getElementById('totalTasksChange').innerHTML = `<i class="fas fa-arrow-up"></i> +12%`;
-            document.getElementById('inProgressChange').innerHTML = `${inProgress} tasks`;
-            document.getElementById('pendingChange').innerHTML = `${submitted} tasks`;
-            document.getElementById('completedChange').innerHTML = `<i class="fas fa-arrow-up"></i> +8%`;
-            
-            // Render tasks
+            // Render tasks and activity
             renderTasks();
-            
-            // Render activity
             renderActivity();
         }
 
@@ -1701,18 +1853,19 @@
                 
                 const hasSubmission = taskSubmissions.some(s => s.taskId === task.id);
                 const submission = taskSubmissions.find(s => s.taskId === task.id);
+                const payRate = parseInt(task.payRate) || 0;
                 
                 html += `
                     <div class="task-card">
                         <div class="task-header">
-                            <span class="task-category"><i class="fas fa-tag"></i> ${task.category}</span>
-                            <span class="task-status ${statusClass}">${task.status}</span>
+                            <span class="task-category"><i class="fas fa-tag"></i> ${escapeHtml(task.category || 'General')}</span>
+                            <span class="task-status ${statusClass}">${escapeHtml(task.status || 'unknown')}</span>
                         </div>
-                        <div class="task-title">Task for ${task.clientName}</div>
-                        <div class="task-client"><i class="fas fa-user"></i> ${task.clientName}</div>
+                        <div class="task-title">Task for ${escapeHtml(task.clientName || 'Client')}</div>
+                        <div class="task-client"><i class="fas fa-user"></i> ${escapeHtml(task.clientName || 'Client')}</div>
                         <div class="task-meta">
-                            <div class="task-meta-item"><i class="fas fa-money-bill"></i> ${task.payRate}</div>
-                            <div class="task-meta-item"><i class="fas fa-star"></i> Reviews: ${task.currentReviewCount || 0}/${task.reviewCount}</div>
+                            <div class="task-meta-item"><i class="fas fa-money-bill"></i> KSh ${payRate.toLocaleString()}</div>
+                            <div class="task-meta-item"><i class="fas fa-star"></i> Reviews: ${task.currentReviewCount || 0}/${task.reviewCount || 3}</div>
                         </div>
                         <div class="task-progress">
                             <div class="progress-header">
@@ -1725,7 +1878,7 @@
                         </div>
                         <div class="task-footer">
                             <span class="due-date ${isUrgent ? 'urgent' : ''}">
-                                <i class="fas fa-calendar"></i> Due: ${dueDate}
+                                <i class="fas fa-calendar"></i> Due: ${escapeHtml(dueDate)}
                             </span>
                             <div class="task-actions">
                                 <button class="task-btn" onclick="viewTaskDetails('${task.id}')"><i class="fas fa-eye"></i> View</button>
@@ -1756,8 +1909,9 @@
             
             if (assignedTasks.length === 0) {
                 container.innerHTML = `
-                    <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
-                        <i class="fas fa-history"></i> No recent activity
+                    <div class="empty-state" style="grid-column: span 1; padding: 2rem;">
+                        <i class="fas fa-history"></i>
+                        <p>No recent activity</p>
                     </div>
                 `;
                 return;
@@ -1772,13 +1926,13 @@
                     <div class="activity-item">
                         <div class="activity-icon"><i class="fas fa-tasks"></i></div>
                         <div class="activity-content">
-                            <div class="activity-title">Task assigned: ${task.category}</div>
+                            <div class="activity-title">Task assigned: ${escapeHtml(task.category || 'General')}</div>
                             <div class="activity-meta">
-                                <span><i class="fas fa-user"></i> ${task.clientName}</span>
-                                <span><i class="fas fa-calendar"></i> ${date}</span>
+                                <span><i class="fas fa-user"></i> ${escapeHtml(task.clientName || 'Client')}</span>
+                                <span><i class="fas fa-calendar"></i> ${escapeHtml(date)}</span>
                             </div>
                         </div>
-                        <span class="activity-status ${statusClass}">${task.status}</span>
+                        <span class="activity-status ${statusClass}">${escapeHtml(task.status || 'unknown')}</span>
                     </div>
                 `;
             });
@@ -1791,7 +1945,9 @@
             currentFilter = filter;
             
             document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+            if (event && event.target) {
+                event.target.classList.add('active');
+            }
             
             renderTasks();
         };
@@ -1829,7 +1985,8 @@
             
             const dueDate = task.dueDate ? new Date(task.dueDate).toLocaleDateString() : 'No date';
             const assignedDate = task.assignedAt ? new Date(task.assignedAt).toLocaleString() : 'Unknown';
-            const progress = task.currentReviewCount ? Math.round((task.currentReviewCount / task.reviewCount) * 100) : 0;
+            const progress = task.currentReviewCount ? Math.round((task.currentReviewCount / (task.reviewCount || 3)) * 100) : 0;
+            const payRate = parseInt(task.payRate) || 0;
             
             let actionButtonText = 'Take Action';
             let actionButtonClass = 'btn-primary';
@@ -1853,38 +2010,38 @@
                 <div class="task-detail-grid">
                     <div class="task-detail-box">
                         <div class="label">Task ID</div>
-                        <div class="value">${task.id.substring(0, 8)}...</div>
+                        <div class="value">${escapeHtml(task.id.substring(0, 8))}...</div>
                     </div>
                     <div class="task-detail-box">
                         <div class="label">Category</div>
-                        <div class="value">${task.category}</div>
+                        <div class="value">${escapeHtml(task.category || 'General')}</div>
                     </div>
                     <div class="task-detail-box">
                         <div class="label">Status</div>
-                        <div class="value"><span class="task-status status-${task.status}">${task.status}</span></div>
+                        <div class="value"><span class="task-status status-${task.status}">${escapeHtml(task.status || 'unknown')}</span></div>
                     </div>
                     <div class="task-detail-box">
                         <div class="label">Pay Rate</div>
-                        <div class="value">${task.payRate}</div>
+                        <div class="value">KSh ${payRate.toLocaleString()}</div>
                     </div>
                 </div>
                 
                 <div class="task-detail-grid">
                     <div class="task-detail-box">
                         <div class="label">Client</div>
-                        <div class="value">${task.clientName}</div>
+                        <div class="value">${escapeHtml(task.clientName || 'Client')}</div>
                     </div>
                     <div class="task-detail-box">
                         <div class="label">Client Email</div>
-                        <div class="value">${task.clientEmail}</div>
+                        <div class="value">${escapeHtml(task.clientEmail || 'N/A')}</div>
                     </div>
                     <div class="task-detail-box">
                         <div class="label">Due Date</div>
-                        <div class="value">${dueDate}</div>
+                        <div class="value">${escapeHtml(dueDate)}</div>
                     </div>
                     <div class="task-detail-box">
                         <div class="label">Assigned</div>
-                        <div class="value">${assignedDate}</div>
+                        <div class="value">${escapeHtml(assignedDate)}</div>
                     </div>
                 </div>
                 
@@ -1893,15 +2050,15 @@
                         <i class="fas fa-info-circle" style="color: var(--info);"></i>
                         <strong>Instructions</strong>
                     </div>
-                    <a href="${task.jobLink}" target="_blank">
-                        <i class="fas fa-external-link-alt"></i> ${task.jobLink}
+                    <a href="${escapeHtml(task.jobLink || '#')}" target="_blank">
+                        <i class="fas fa-external-link-alt"></i> ${escapeHtml(task.jobLink || 'No link provided')}
                     </a>
                 </div>
                 
                 <div class="task-detail-grid">
                     <div class="task-detail-box">
                         <div class="label">Reviews Required</div>
-                        <div class="value">${task.currentReviewCount || 0}/${task.reviewCount}</div>
+                        <div class="value">${task.currentReviewCount || 0}/${task.reviewCount || 3}</div>
                     </div>
                     <div class="task-detail-box">
                         <div class="label">Progress</div>
@@ -1910,9 +2067,9 @@
                 </div>
                 
                 ${task.notes ? `
-                <div style="margin-top: 1rem; padding: 1rem; background: var(--bg-secondary); border-radius: 12px;">
+                <div style="margin-top: 1rem; padding: 1rem; background: var(--bg-secondary); border-radius: 14px;">
                     <div style="color: var(--text-secondary); font-weight: 500; margin-bottom: 0.3rem;">Additional Notes:</div>
-                    <div style="color: var(--text-primary);">${task.notes}</div>
+                    <div style="color: var(--text-primary);">${escapeHtml(task.notes)}</div>
                 </div>
                 ` : ''}
             `;
@@ -1947,7 +2104,7 @@
             if (!task) return;
             
             document.getElementById('submitTaskId').value = taskId;
-            document.getElementById('displayTaskCategory').value = task.category;
+            document.getElementById('displayTaskCategory').value = task.category || 'General';
             
             // Reset links container
             document.getElementById('linksContainer').innerHTML = `
@@ -2018,7 +2175,7 @@
                 
                 await submissionRef.set({
                     taskId: taskId,
-                    taskerName: currentTasker.name,
+                    taskerName: currentTasker?.name || currentUser?.email?.split('@')[0],
                     taskerEmail: currentUser.email,
                     submissionLinks: links,
                     notes: notes,
@@ -2074,23 +2231,23 @@
                     reviewHistoryHtml += `
                         <div class="review-item">
                             <div class="review-header">
-                                <span class="review-decision ${review.decision}">${review.decision}</span>
-                                <span class="review-meta">${date}</span>
+                                <span class="review-decision ${review.decision}">${escapeHtml(review.decision)}</span>
+                                <span class="review-meta">${escapeHtml(date)}</span>
                             </div>
-                            <div class="review-comment">${review.comments}</div>
-                            <div class="review-meta">by ${review.reviewedBy}</div>
+                            <div class="review-comment">${escapeHtml(review.comments)}</div>
+                            <div class="review-meta">by ${escapeHtml(review.reviewedBy)}</div>
                         </div>
                     `;
                 });
             }
             
-            const linksHtml = submission.submissionLinks.map((link, idx) => {
+            const linksHtml = (submission.submissionLinks || []).map((link, idx) => {
                 const isDrive = link.includes('drive.google.com');
                 const isDocs = link.includes('docs.google.com');
                 const icon = isDrive ? 'fa-cloud' : (isDocs ? 'fa-file-alt' : 'fa-link');
                 
                 return `
-                    <a href="${link}" target="_blank" class="submission-link-item">
+                    <a href="${escapeHtml(link)}" target="_blank" class="submission-link-item">
                         <i class="fas ${icon}"></i>
                         <span>Link ${idx + 1}: ${link.length > 50 ? link.substring(0, 50) + '...' : link}</span>
                     </a>
@@ -2099,8 +2256,8 @@
             
             const content = `
                 <div style="margin-bottom: 1rem;">
-                    <span class="task-category">${task ? task.category : 'Unknown'}</span>
-                    <span class="task-status status-${submission.currentStatus}" style="margin-left: 0.5rem;">${submission.currentStatus}</span>
+                    <span class="task-category">${escapeHtml(task?.category || 'Unknown')}</span>
+                    <span class="task-status status-${submission.currentStatus}" style="margin-left: 0.5rem;">${escapeHtml(submission.currentStatus)}</span>
                 </div>
                 
                 <div class="form-group">
@@ -2111,21 +2268,21 @@
                 <div class="form-group">
                     <label>Your Submission Links</label>
                     <div class="submission-links">
-                        ${linksHtml}
+                        ${linksHtml || '<p>No links provided</p>'}
                     </div>
                 </div>
                 
                 ${submission.notes ? `
                 <div class="form-group">
                     <label>Your Notes</label>
-                    <div class="form-control" style="background: var(--bg-secondary);" readonly>${submission.notes}</div>
+                    <div class="form-control" style="background: var(--bg-secondary);" readonly>${escapeHtml(submission.notes)}</div>
                 </div>
                 ` : ''}
                 
                 ${reviewHistoryHtml}
                 
                 ${(!submission.reviewHistory || submission.reviewHistory.length === 0) ? `
-                <div style="text-align: center; padding: 1.5rem; background: var(--bg-secondary); border-radius: 12px; margin-top: 1rem;">
+                <div style="text-align: center; padding: 1.5rem; background: var(--bg-secondary); border-radius: 14px; margin-top: 1rem;">
                     <i class="fas fa-clock" style="color: var(--gold);"></i>
                     <p style="margin-top: 0.5rem; color: var(--text-muted);">Awaiting review from admin</p>
                 </div>
@@ -2170,12 +2327,12 @@
             }, 1000);
         }
 
-        function extendSession() {
+        window.extendSession = function() {
             clearInterval(countdownInterval);
             document.getElementById('inactivityWarning').style.display = 'none';
             resetInactivityTimer();
             showToast('Session extended', 'success');
-        }
+        };
 
         async function handleInactivityLogout() {
             clearInterval(countdownInterval);
@@ -2219,6 +2376,13 @@
         };
 
         // Utility functions
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
         function showLoading(show) {
             document.getElementById('loadingOverlay').classList.toggle('active', show);
         }
@@ -2235,7 +2399,7 @@
                 info: 'info-circle'
             };
             
-            toast.innerHTML = `<i class="fas fa-${icons[type]}"></i><span>${message}</span>`;
+            toast.innerHTML = `<i class="fas fa-${icons[type] || 'info-circle'}"></i><span>${escapeHtml(message)}</span>`;
             container.appendChild(toast);
             
             setTimeout(() => toast.remove(), 3000);
