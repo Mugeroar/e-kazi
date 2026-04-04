@@ -1502,7 +1502,7 @@
                 <span>E-KAZI</span>
             </div>
             <nav class="nav-links">
-                <a href="tasker-dashboard.html" class="nav-link active">Dashboard</a>
+                <a href="#" class="nav-link active">Dashboard</a>
                 <a href="tasker-profile.html" class="nav-link">Profile</a>
                 <a href="tasker-resource.html" class="nav-link">Resources</a>
             </nav>
@@ -1612,7 +1612,7 @@
                     <div class="action-title">Update Profile</div>
                     <div class="action-desc">Edit your information</div>
                 </a>
-                <div class="action-card" onclick="filterTasks('assigned')">
+                <div class="action-card" onclick="scrollToTasks()">
                     <div class="action-icon"><i class="fas fa-clipboard-list"></i></div>
                     <div class="action-title">View Tasks</div>
                     <div class="action-desc">See all assignments</div>
@@ -1625,12 +1625,12 @@
             </div>
 
             <!-- Filter Buttons -->
-            <div class="filter-buttons">
-                <button class="filter-btn active" onclick="filterTasks('all')">All Tasks</button>
-                <button class="filter-btn" onclick="filterTasks('assigned')">Assigned</button>
-                <button class="filter-btn" onclick="filterTasks('in-progress')">In Progress</button>
-                <button class="filter-btn" onclick="filterTasks('submitted')">Pending Review</button>
-                <button class="filter-btn" onclick="filterTasks('completed')">Completed</button>
+            <div class="filter-buttons" id="filterButtons">
+                <button class="filter-btn active" data-filter="all">All Tasks</button>
+                <button class="filter-btn" data-filter="assigned">Assigned</button>
+                <button class="filter-btn" data-filter="in-progress">In Progress</button>
+                <button class="filter-btn" data-filter="submitted">Pending Review</button>
+                <button class="filter-btn" data-filter="completed">Completed</button>
             </div>
 
             <!-- Tasks Grid -->
@@ -1688,10 +1688,12 @@
         auth.onAuthStateChanged(async (user) => {
             if (user) {
                 currentUser = user;
+                console.log('✅ User authenticated:', user.email);
                 await loadUserData(user);
                 showDashboardContent();
                 resetInactivityTimer();
             } else {
+                console.log('❌ No user authenticated');
                 showLoginRequired();
                 document.getElementById('loader').classList.add('hidden');
             }
@@ -1707,13 +1709,19 @@
                 
                 if (taskerSnapshot.exists()) {
                     currentTasker = taskerSnapshot.val();
+                    console.log('✅ Tasker profile loaded:', currentTasker);
                 } else {
+                    console.log('⚠️ No tasker profile found, creating default');
                     currentTasker = {
                         name: user.displayName || user.email?.split('@')[0] || 'Tasker',
                         email: user.email,
                         verified: false,
-                        status: 'pending'
+                        status: 'pending',
+                        registeredAt: new Date().toISOString()
                     };
+                    
+                    // Create tasker profile if it doesn't exist
+                    await database.ref(`taskers/${user.uid}`).set(currentTasker);
                 }
                 
                 // Load tasks
@@ -1724,7 +1732,7 @@
                 
             } catch (error) {
                 console.error('Error loading data:', error);
-                showToast('Error loading dashboard', 'error');
+                showToast('Error loading dashboard: ' + error.message, 'error');
             } finally {
                 showLoading(false);
             }
@@ -1739,8 +1747,10 @@
                 
                 assignedTasks = Object.entries(tasksData)
                     .map(([id, task]) => ({ id, ...task }))
-                    .filter(task => task.taskerEmail === email)
+                    .filter(task => task.taskerEmail && task.taskerEmail.toLowerCase() === email.toLowerCase())
                     .sort((a, b) => (b.assignedAt || 0) - (a.assignedAt || 0));
+                
+                console.log(`✅ Loaded ${assignedTasks.length} assigned tasks`);
                 
                 // Load submissions
                 const submissionsSnapshot = await database.ref('ekazi_task_submissions').once('value');
@@ -1748,7 +1758,9 @@
                 
                 taskSubmissions = Object.entries(submissionsData)
                     .map(([id, sub]) => ({ id, ...sub }))
-                    .filter(sub => sub.taskerEmail === email);
+                    .filter(sub => sub.taskerEmail && sub.taskerEmail.toLowerCase() === email.toLowerCase());
+                
+                console.log(`✅ Loaded ${taskSubmissions.length} submissions`);
                 
             } catch (error) {
                 console.error('Error loading tasks:', error);
@@ -1795,12 +1807,13 @@
             let totalEarnings = 0;
             let monthEarnings = 0;
             let pendingEarnings = 0;
+            const currentMonth = new Date().getMonth();
             
             assignedTasks.forEach(task => {
                 const payRate = parseInt(task.payRate) || 0;
                 if (task.status === 'completed' || task.status === 'approved') {
                     totalEarnings += payRate;
-                    if (task.completedAt && new Date(task.completedAt).getMonth() === new Date().getMonth()) {
+                    if (task.completedAt && new Date(task.completedAt).getMonth() === currentMonth) {
                         monthEarnings += payRate;
                     }
                 } else if (['assigned', 'in-progress', 'submitted'].includes(task.status)) {
@@ -1849,7 +1862,7 @@
                 const statusClass = `status-${task.status}`;
                 const dueDate = task.dueDate ? new Date(task.dueDate).toLocaleDateString() : 'No date';
                 const isUrgent = task.dueDate && new Date(task.dueDate) < new Date() && task.status !== 'completed' && task.status !== 'approved';
-                const progress = task.currentReviewCount ? Math.round((task.currentReviewCount / task.reviewCount) * 100) : 0;
+                const progress = task.currentReviewCount ? Math.round((task.currentReviewCount / (task.reviewCount || 3)) * 100) : 0;
                 
                 const hasSubmission = taskSubmissions.some(s => s.taskId === task.id);
                 const submission = taskSubmissions.find(s => s.taskId === task.id);
@@ -1861,7 +1874,7 @@
                             <span class="task-category"><i class="fas fa-tag"></i> ${escapeHtml(task.category || 'General')}</span>
                             <span class="task-status ${statusClass}">${escapeHtml(task.status || 'unknown')}</span>
                         </div>
-                        <div class="task-title">Task for ${escapeHtml(task.clientName || 'Client')}</div>
+                        <div class="task-title">${escapeHtml(task.category || 'Task')}</div>
                         <div class="task-client"><i class="fas fa-user"></i> ${escapeHtml(task.clientName || 'Client')}</div>
                         <div class="task-meta">
                             <div class="task-meta-item"><i class="fas fa-money-bill"></i> KSh ${payRate.toLocaleString()}</div>
@@ -1941,16 +1954,37 @@
         }
 
         // Filter tasks
-        window.filterTasks = function(filter) {
+        function filterTasks(filter) {
             currentFilter = filter;
             
-            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-            if (event && event.target) {
-                event.target.classList.add('active');
-            }
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                if (btn.dataset.filter === filter) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
             
             renderTasks();
-        };
+        }
+
+        // Setup filter buttons
+        function setupFilterButtons() {
+            const buttons = document.querySelectorAll('.filter-btn');
+            buttons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    filterTasks(btn.dataset.filter);
+                });
+            });
+        }
+
+        // Scroll to tasks
+        function scrollToTasks() {
+            const tasksContainer = document.getElementById('tasksContainer');
+            if (tasksContainer) {
+                tasksContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
 
         // Task actions
         window.startTask = async function(taskId) {
@@ -1961,7 +1995,7 @@
             try {
                 await database.ref(`ekazi_assigned_tasks/${taskId}`).update({
                     status: 'in-progress',
-                    startedAt: new Date().toISOString()
+                    startedAt: firebase.database.ServerValue.TIMESTAMP
                 });
                 
                 showToast('Task started! Good luck!', 'success');
@@ -1970,7 +2004,7 @@
                 
             } catch (error) {
                 console.error('Error starting task:', error);
-                showToast('Error starting task', 'error');
+                showToast('Error starting task: ' + error.message, 'error');
             } finally {
                 showLoading(false);
             }
@@ -2169,13 +2203,28 @@
             showLoading(true);
             
             try {
-                // Create submission
+                // Get the task to verify authorization
+                const taskSnapshot = await database.ref(`ekazi_assigned_tasks/${taskId}`).once('value');
+                const task = taskSnapshot.val();
+                
+                if (!task) {
+                    showToast('Task not found', 'error');
+                    return;
+                }
+                
+                // Verify the tasker is assigned to this task
+                if (task.taskerEmail.toLowerCase() !== currentUser.email.toLowerCase()) {
+                    showToast('You are not authorized to submit for this task', 'error');
+                    return;
+                }
+                
+                // Create submission with required fields
                 const submissionRef = database.ref('ekazi_task_submissions').push();
                 const submissionId = submissionRef.key;
                 
-                await submissionRef.set({
+                const submissionData = {
                     taskId: taskId,
-                    taskerName: currentTasker?.name || currentUser?.email?.split('@')[0],
+                    taskerName: currentTasker?.name || currentUser?.email?.split('@')[0] || 'Tasker',
                     taskerEmail: currentUser.email,
                     submissionLinks: links,
                     notes: notes,
@@ -2183,12 +2232,14 @@
                     currentStatus: 'pending-review',
                     reviewCount: 0,
                     reviewHistory: []
-                });
+                };
+                
+                await submissionRef.set(submissionData);
                 
                 // Update task status
                 await database.ref(`ekazi_assigned_tasks/${taskId}`).update({
                     status: 'submitted',
-                    lastSubmittedAt: new Date().toISOString(),
+                    lastSubmittedAt: firebase.database.ServerValue.TIMESTAMP,
                     currentSubmissionId: submissionId
                 });
                 
@@ -2357,6 +2408,7 @@
         function showDashboardContent() {
             document.getElementById('loginRequired').style.display = 'none';
             document.getElementById('dashboardContent').style.display = 'block';
+            setupFilterButtons();
         }
 
         // Logout
@@ -2384,7 +2436,10 @@
         }
 
         function showLoading(show) {
-            document.getElementById('loadingOverlay').classList.toggle('active', show);
+            const overlay = document.getElementById('loadingOverlay');
+            if (overlay) {
+                overlay.classList.toggle('active', show);
+            }
         }
 
         function showToast(message, type = 'info') {
