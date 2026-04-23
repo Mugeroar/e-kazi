@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=0.8, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#ca8a04">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Logistics Dashboard | PickUp Delivery</title>
+  <link rel="icon" type="image/x-icon" href="https://i.postimg.cc/HLQqRybx/mm.jpg">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    :root {
+      --gold: #ca8a04;
+      --gold-dark: #a16207;
+      --gold-light: #fef3c7;
+      --bg-primary: #0a0a0a;
+      --bg-secondary: #111111;
+      --bg-card: #1a1a1a;
+      --text-primary: #ffffff;
+      --text-secondary: #e0e0e0;
+      --text-muted: #a0a0a0;
+      --border-light: #2a2a2a;
+      --border-gold: rgba(202,138,4,0.3);
+      --shadow-color: rgba(202,138,4,0.2);
+      --nav-bg: rgba(10,10,10,0.95);
+      --input-bg: rgba(255,255,255,0.05);
+      --input-border: #2a2a2a;
+      --hover-bg: rgba(202,138,4,0.1);
+      --modal-overlay: rgba(0,0,0,0.95);
+      --header-height: 70px;
+    }
+    body.light-theme {
+      --bg-primary: #f8f5f0;
+      --bg-secondary: #ffffff;
+      --bg-card: #ffffff;
+      --text-primary: #1a1a1a;
+      --text-secondary: #2d2d2d;
+      --text-muted: #666666;
+      --border-light: #e0e0e0;
+      --border-gold: rgba(202,138,4,0.2);
+      --shadow-color: rgba(202,138,4,0.15);
+      --nav-bg: rgba(255,255,255,0.95);
+      --input-bg: #f5f5f5;
+      --input-border: #dddddd;
+      --hover-bg: rgba(202,138,4,0.05);
+      --modal-overlay: rgba(255,255,255,0.95);
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      min-height: 100vh;
+      padding-top: var(--header-height);
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+    .site-header {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      height: var(--header-height);
+      background: var(--nav-bg);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--gold);
+      z-index: 1000;
+      padding: 0 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: background 0.3s ease;
+    }
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .site-logo {
+      height: 42px;
+      border-radius: 12px;
+      border: 2px solid var(--gold);
+    }
+    .logo-text {
+      font-family: 'Cinzel', serif;
+      font-weight: 700;
+      color: var(--gold);
+      font-size: 1.3rem;
+    }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .theme-toggle, .auth-btn {
+      background: var(--hover-bg);
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .theme-toggle:hover, .auth-btn:hover {
+      background: var(--gold);
+      color: black;
+    }
+    .main-content {
+      max-width: 1400px;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+    }
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.8rem;
+      margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-gold);
+      border-radius: 24px;
+      padding: 1.5rem;
+      transition: all 0.3s;
+    }
+    .stat-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    .stat-value {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--gold);
+    }
+    .delivery-list {
+      background: var(--bg-card);
+      border: 1px solid var(--border-gold);
+      border-radius: 24px;
+      padding: 1.5rem;
+      margin-top: 2rem;
+    }
+    .list-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    .delivery-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      border-bottom: 1px solid var(--border-light);
+      transition: background 0.2s;
+    }
+    .delivery-item:hover {
+      background: var(--hover-bg);
+    }
+    .status-badge {
+      padding: 0.3rem 1rem;
+      border-radius: 30px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .status-pending { background: rgba(245,158,11,0.2); color: #f59e0b; }
+    .status-assigned { background: rgba(59,130,246,0.2); color: #3b82f6; }
+    .status-completed { background: rgba(16,185,129,0.2); color: #10b981; }
+    
+    .action-btns {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .icon-btn {
+      background: transparent;
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .icon-btn:hover {
+      background: var(--gold);
+      color: black;
+    }
+    
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: var(--modal-overlay);
+      backdrop-filter: blur(8px);
+      z-index: 2000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal-container {
+      max-width: 700px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      background: var(--bg-card);
+      border: 2px solid var(--gold);
+      border-radius: 30px;
+      padding: 2rem;
+      position: relative;
+    }
+    .modal-close {
+      position: absolute;
+      top: 1rem; right: 1rem;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+    .form-group {
+      margin-bottom: 1.2rem;
+    }
+    .form-label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+    .form-input, .form-select, .form-textarea {
+      width: 100%;
+      padding: 0.8rem 1rem;
+      background: var(--input-bg);
+      border: 1px solid var(--input-border);
+      border-radius: 16px;
+      color: var(--text-primary);
+      font-size: 0.95rem;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    .btn {
+      padding: 0.8rem 1.8rem;
+      border-radius: 40px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s;
+    }
+    .btn-gold {
+      background: var(--gold);
+      color: black;
+    }
+    .btn-gold:hover { background: var(--gold-dark); }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--gold);
+      color: var(--gold);
+    }
+    .receipt-box {
+      background: var(--bg-secondary);
+      border: 1px dashed var(--gold);
+      border-radius: 20px;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+      font-family: monospace;
+      white-space: pre-wrap;
+      color: var(--text-primary);
+    }
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: #10b981;
+      color: white;
+      padding: 0.8rem 1.5rem;
+      border-radius: 30px;
+      z-index: 3000;
+      animation: slideIn 0.3s ease;
+    }
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    @media (max-width: 768px) {
+      .form-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<header class="site-header">
+  <div class="logo-area">
+    <img src="https://i.postimg.cc/T10385m6/20260304-0949-Image-Generation-remix-01kjvspyrkf078efwbh09qxkag-1.webp" alt="Logo" class="site-logo">
+    <span class="logo-text">Logistics Panel</span>
+  </div>
+  <div class="header-actions">
+    <div class="theme-toggle" id="themeToggleBtn"><i class="fas fa-moon" id="themeIcon"></i></div>
+    <button class="auth-btn" id="authActionBtn" title="Login/Logout"><i class="fas fa-sign-in-alt"></i></button>
+  </div>
+</header>
+
+<main class="main-content">
+  <!-- Login screen (shown when not logged in) -->
+  <div id="loginScreen" style="display: none; max-width: 450px; margin: 4rem auto; background: var(--bg-card); border: 2px solid var(--gold); border-radius: 30px; padding: 2.5rem;">
+    <h2 style="font-family: 'Cinzel', serif; color: var(--gold); text-align: center; margin-bottom: 2rem;">Logistics Login</h2>
+    <div id="loginFormBlock">
+      <div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input" id="loginEmail" placeholder="admin@example.com"></div>
+      <div class="form-group"><label class="form-label">Password</label><input type="password" class="form-input" id="loginPassword"></div>
+      <button class="btn btn-gold" id="doLoginBtn" style="width:100%; justify-content:center;">Sign In</button>
+      <p style="text-align:center; margin-top:1rem; font-size:0.85rem;"><a id="showSignupLink" style="color:var(--gold); cursor:pointer;">Create account</a></p>
+    </div>
+    <div id="signupFormBlock" style="display:none;">
+      <div class="form-group"><label class="form-label">Name</label><input type="text" class="form-input" id="signupName"></div>
+      <div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input" id="signupEmail"></div>
+      <div class="form-group"><label class="form-label">Password</label><input type="password" class="form-input" id="signupPassword"></div>
+      <button class="btn btn-gold" id="doSignupBtn" style="width:100%; justify-content:center;">Register</button>
+      <p style="text-align:center; margin-top:1rem;"><a id="showLoginLink" style="color:var(--gold); cursor:pointer;">Back to login</a></p>
+    </div>
+  </div>
+
+  <!-- Dashboard (shown when logged in) -->
+  <div id="dashboardScreen" style="display: none;">
+    <div class="dashboard-grid">
+      <div class="stat-card"><div class="stat-header"><span>Total Deliveries</span><i class="fas fa-box" style="color:var(--gold);"></i></div><div class="stat-value" id="totalCount">0</div></div>
+      <div class="stat-card"><div class="stat-header"><span>Pending</span><i class="fas fa-clock" style="color:#f59e0b;"></i></div><div class="stat-value" id="pendingCount">0</div></div>
+      <div class="stat-card"><div class="stat-header"><span>Revenue (KES)</span><i class="fas fa-chart-line" style="color:var(--gold);"></i></div><div class="stat-value" id="totalRevenue">0</div></div>
+    </div>
+    
+    <div class="delivery-list">
+      <div class="list-header">
+        <h3 style="font-family: 'Cinzel', serif; color: var(--gold);"><i class="fas fa-list"></i> Delivery Requests</h3>
+        <button class="btn btn-outline" id="refreshBtn"><i class="fas fa-sync-alt"></i> Refresh</button>
+      </div>
+      <div id="deliveriesContainer" style="max-height: 500px; overflow-y: auto;">
+        <p style="color:var(--text-muted); text-align:center;">Loading deliveries...</p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Detail/Receipt Modal -->
+<div class="modal-overlay" id="detailModal">
+  <div class="modal-container">
+    <button class="modal-close" onclick="closeDetailModal()"><i class="fas fa-times"></i></button>
+    <div id="detailContent"></div>
+  </div>
+</div>
+
+<div id="toastContainer"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+<script>
+  (function() {
+    const firebaseConfig = {
+      apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+      authDomain: "mugera-e51cc.firebaseapp.com",
+      databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "mugera-e51cc",
+      storageBucket: "mugera-e51cc.firebasestorage.app",
+      messagingSenderId: "1024868637509",
+      appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
+    };
+    
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
+
+    // Theme
+    function initTheme() {
+      const saved = localStorage.getItem('logisticsTheme');
+      if (saved === 'light') document.body.classList.add('light-theme');
+      document.getElementById('themeIcon').className = document.body.classList.contains('light-theme') ? 'fas fa-sun' : 'fas fa-moon';
+    }
+    document.getElementById('themeToggleBtn').addEventListener('click', () => {
+      document.body.classList.toggle('light-theme');
+      localStorage.setItem('logisticsTheme', document.body.classList.contains('light-theme') ? 'light' : 'dark');
+      document.getElementById('themeIcon').className = document.body.classList.contains('light-theme') ? 'fas fa-sun' : 'fas fa-moon';
+    });
+
+    // UI helpers
+    function showToast(msg, isError = false) {
+      const t = document.createElement('div');
+      t.className = 'toast';
+      t.style.background = isError ? '#ef4444' : '#10b981';
+      t.innerHTML = `<i class="fas fa-${isError ? 'exclamation-circle' : 'check-circle'}"></i> ${msg}`;
+      document.getElementById('toastContainer').appendChild(t);
+      setTimeout(() => t.remove(), 3500);
+    }
+
+    function formatDate(iso) {
+      if (!iso) return '';
+      return new Date(iso).toLocaleString('en-KE', { dateStyle: 'medium', timeStyle: 'short' });
+    }
+
+    // Auth UI
+    const loginScreen = document.getElementById('loginScreen');
+    const dashboardScreen = document.getElementById('dashboardScreen');
+    const authActionBtn = document.getElementById('authActionBtn');
+
+    function showLoginScreen() {
+      loginScreen.style.display = 'block';
+      dashboardScreen.style.display = 'none';
+      authActionBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i>';
+    }
+    function showDashboard() {
+      loginScreen.style.display = 'none';
+      dashboardScreen.style.display = 'block';
+      authActionBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i>';
+      loadDeliveries();
+    }
+
+    authActionBtn.addEventListener('click', () => {
+      if (auth.currentUser) {
+        auth.signOut().then(() => showToast('Logged out'));
+      } else {
+        showLoginScreen();
+      }
+    });
+
+    // Login / Signup handlers
+    document.getElementById('showSignupLink').addEventListener('click', () => {
+      document.getElementById('loginFormBlock').style.display = 'none';
+      document.getElementById('signupFormBlock').style.display = 'block';
+    });
+    document.getElementById('showLoginLink').addEventListener('click', () => {
+      document.getElementById('signupFormBlock').style.display = 'none';
+      document.getElementById('loginFormBlock').style.display = 'block';
+    });
+
+    document.getElementById('doLoginBtn').addEventListener('click', async () => {
+      const email = document.getElementById('loginEmail').value.trim();
+      const pass = document.getElementById('loginPassword').value;
+      try {
+        await auth.signInWithEmailAndPassword(email, pass);
+        showToast('Welcome!');
+      } catch(e) { showToast(e.message, true); }
+    });
+
+    document.getElementById('doSignupBtn').addEventListener('click', async () => {
+      const name = document.getElementById('signupName').value.trim();
+      const email = document.getElementById('signupEmail').value.trim();
+      const pass = document.getElementById('signupPassword').value;
+      try {
+        const cred = await auth.createUserWithEmailAndPassword(email, pass);
+        await db.ref(`logistics_users/${cred.user.uid}`).set({ name, email, role: 'staff' });
+        showToast('Account created');
+      } catch(e) { showToast(e.message, true); }
+    });
+
+    // Delivery management
+    function loadDeliveries() {
+      const container = document.getElementById('deliveriesContainer');
+      container.innerHTML = '<p style="color:var(--text-muted);">Loading...</p>';
+      
+      db.ref('pickup_deliveries').orderByChild('timestamp').on('value', snapshot => {
+        const deliveries = [];
+        if (snapshot.exists()) {
+          snapshot.forEach(child => {
+            deliveries.push({ id: child.key, ...child.val() });
+          });
+        }
+        deliveries.reverse(); // newest first
+        renderDeliveries(deliveries);
+        updateStats(deliveries);
+      }, error => {
+        container.innerHTML = '<p style="color:red;">Error loading deliveries</p>';
+      });
+    }
+
+    function updateStats(list) {
+      document.getElementById('totalCount').textContent = list.length;
+      document.getElementById('pendingCount').textContent = list.filter(d => d.status === 'pending').length;
+      const revenue = list.reduce((sum, d) => sum + (parseFloat(d.fare) || 0), 0);
+      document.getElementById('totalRevenue').textContent = revenue.toLocaleString();
+    }
+
+    function renderDeliveries(deliveries) {
+      const container = document.getElementById('deliveriesContainer');
+      if (deliveries.length === 0) {
+        container.innerHTML = '<p style="color:var(--text-muted); text-align:center; padding:2rem;">No deliveries yet.</p>';
+        return;
+      }
+      container.innerHTML = deliveries.map(d => {
+        const statusClass = `status-${d.status || 'pending'}`;
+        return `
+          <div class="delivery-item">
+            <div>
+              <strong>${d.userName || 'Client'}</strong>
+              <div style="font-size:0.8rem; color:var(--text-muted);">${d.pickup?.address || ''} → ${d.delivery?.address || ''}</div>
+              <span class="status-badge ${statusClass}">${d.status || 'pending'}</span>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-weight:700; color:var(--gold);">KSh ${d.fare || 0}</div>
+              <div class="action-btns" style="margin-top:0.3rem;">
+                <button class="icon-btn" title="View / Receipt" onclick="openDetail('${d.id}')"><i class="fas fa-eye"></i></button>
+                <button class="icon-btn" title="Assign Driver" onclick="quickAssign('${d.id}')"><i class="fas fa-user-plus"></i></button>
+                ${d.status !== 'completed' ? `<button class="icon-btn" title="Mark Complete" onclick="markComplete('${d.id}')"><i class="fas fa-check"></i></button>` : ''}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    window.quickAssign = function(id) {
+      const phone = prompt('Enter driver phone number (e.g., 0722123456):');
+      if (!phone) return;
+      db.ref(`pickup_deliveries/${id}`).update({
+        driverPhone: phone,
+        status: 'assigned',
+        assignedAt: new Date().toISOString()
+      }).then(() => {
+        showToast('Driver assigned');
+        // Auto-generate driver message
+        db.ref(`pickup_deliveries/${id}`).once('value', snap => {
+          const d = snap.val();
+          if (d) generateDriverMessage(d, phone);
+        });
+      }).catch(e => showToast(e.message, true));
+    };
+
+    window.markComplete = function(id) {
+      if (confirm('Mark as completed?')) {
+        db.ref(`pickup_deliveries/${id}`).update({
+          status: 'completed',
+          completedAt: new Date().toISOString()
+        }).then(() => showToast('Delivery completed'));
+      }
+    };
+
+    function generateDriverMessage(delivery, driverPhone) {
+      const msg = `🚚 *NEW DELIVERY ASSIGNMENT*\n\n` +
+        `📍 Pickup: ${delivery.pickup?.address || 'N/A'}\n` +
+        `🏁 Delivery: ${delivery.delivery?.address || 'N/A'}\n` +
+        `📦 Package: ${delivery.package?.type || 'N/A'} (${delivery.package?.weight || '?'}kg)\n` +
+        `👤 Client: ${delivery.userName || ''} (${delivery.userPhone || ''})\n` +
+        `💰 Fare: KSh ${delivery.fare || 0}\n` +
+        `📝 Notes: ${delivery.package?.instructions || 'None'}\n\n` +
+        `_Please confirm pickup._`;
+      
+      const waUrl = `https://wa.me/254${driverPhone.replace(/^0+/, '')}?text=${encodeURIComponent(msg)}`;
+      window.open(waUrl, '_blank');
+    }
+
+    // Detail modal with receipt & client message
+    window.openDetail = function(id) {
+      db.ref(`pickup_deliveries/${id}`).once('value', snap => {
+        const d = snap.val();
+        if (!d) return;
+        const modal = document.getElementById('detailModal');
+        document.getElementById('detailContent').innerHTML = buildDetailHTML(d, id);
+        modal.classList.add('active');
+      });
+    };
+
+    function buildDetailHTML(d, id) {
+      const receipt = `
+🧾 PICKUP DELIVERY RECEIPT
+-------------------------------
+ID: ${id}
+Date: ${formatDate(d.bookingDate)}
+Service: ${d.serviceType || 'standard'}
+-------------------------------
+Customer: ${d.userName || ''}
+Phone: ${d.userPhone || ''}
+Email: ${d.userEmail || ''}
+-------------------------------
+Pickup: ${d.pickup?.address || ''}
+Delivery: ${d.delivery?.address || ''}
+Package: ${d.package?.type || ''} (${d.package?.weight || 0}kg)
+-------------------------------
+Base Fare: KSh ${d.baseFare || 100}
+Distance Charge: KSh ${d.distanceCharge || 0}
+Weight Surcharge: KSh ${d.weightSurcharge || 0}
+TOTAL: KSh ${d.fare || 0}
+-------------------------------
+Status: ${d.status || 'pending'}
+Driver: ${d.driverPhone || 'Not assigned'}
+      `.trim();
+
+      const clientMsg = `Hello ${d.userName || 'Client'}, your delivery request (${id}) from ${d.pickup?.address || ''} to ${d.delivery?.address || ''} has been received. Total: KSh ${d.fare || 0}. We'll update you once a rider is assigned. Thank you for choosing PickUp Delivery!`;
+      
+      return `
+        <h3 style="color:var(--gold);"><i class="fas fa-file-invoice"></i> Delivery Details</h3>
+        <div class="receipt-box">${receipt.replace(/\n/g, '<br>')}</div>
+        <div style="display:flex; gap:1rem; flex-wrap:wrap; margin-top:1rem;">
+          <button class="btn btn-gold" onclick="sendClientWhatsApp('${id}')"><i class="fab fa-whatsapp"></i> Send to Client</button>
+          <button class="btn btn-outline" onclick="copyReceipt('${id}')"><i class="fas fa-copy"></i> Copy Receipt</button>
+          <button class="btn btn-outline" onclick="updateStatusPrompt('${id}')"><i class="fas fa-edit"></i> Update Status</button>
+        </div>
+        <div style="margin-top:1rem;">
+          <label class="form-label">Client WhatsApp Message</label>
+          <textarea class="form-textarea" id="clientMsgText" style="height:80px;">${clientMsg}</textarea>
+          <button class="btn btn-gold" style="margin-top:0.5rem;" onclick="sendCustomClientMsg('${id}')"><i class="fab fa-whatsapp"></i> Send Custom</button>
+        </div>
+      `;
+    }
+
+    window.sendClientWhatsApp = function(id) {
+      db.ref(`pickup_deliveries/${id}`).once('value', snap => {
+        const d = snap.val();
+        if (!d || !d.userPhone) return showToast('No client phone', true);
+        const msg = `Hello ${d.userName || ''}, your delivery (${id}) is confirmed. Total: KSh ${d.fare}. We'll keep you updated.`;
+        window.open(`https://wa.me/254${d.userPhone.replace(/^0+/, '')}?text=${encodeURIComponent(msg)}`, '_blank');
+      });
+    };
+
+    window.sendCustomClientMsg = function(id) {
+      const msg = document.getElementById('clientMsgText')?.value;
+      db.ref(`pickup_deliveries/${id}`).once('value', snap => {
+        const d = snap.val();
+        if (d?.userPhone && msg) {
+          window.open(`https://wa.me/254${d.userPhone.replace(/^0+/, '')}?text=${encodeURIComponent(msg)}`, '_blank');
+        }
+      });
+    };
+
+    window.copyReceipt = function(id) {
+      const box = document.querySelector('.receipt-box');
+      if (box) {
+        navigator.clipboard.writeText(box.innerText).then(() => showToast('Receipt copied!'));
+      }
+    };
+
+    window.updateStatusPrompt = function(id) {
+      const status = prompt('New status (pending/assigned/completed):');
+      if (status) {
+        db.ref(`pickup_deliveries/${id}`).update({ status }).then(() => showToast('Status updated'));
+      }
+    };
+
+    window.closeDetailModal = function() {
+      document.getElementById('detailModal').classList.remove('active');
+    };
+
+    document.getElementById('refreshBtn').addEventListener('click', loadDeliveries);
+
+    // Auth state listener
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        showDashboard();
+      } else {
+        showLoginScreen();
+      }
+    });
+
+    initTheme();
+    // Close modal on outside click
+    document.getElementById('detailModal').addEventListener('click', function(e) {
+      if (e.target === this) closeDetailModal();
+    });
+  })();
+</script>
+</body>
+</html>
