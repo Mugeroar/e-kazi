@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <meta name="theme-color" content="#7c3aed">
+    <title>IAM MUGERA | Live Operations · Brandinn · E-Kazi · WorkFit Club</title>
+    
+    <!-- Leaflet CSS & JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #7c3aed;
+            --primary-dark: #5b21b6;
+            --primary-light: #a78bfa;
+            --brandinn-color: #7c3aed;
+            --ekazi-color: #06b6d4;
+            --workfit-color: #f59e0b;
+            --bg-deep: #0a0a0f;
+            --card-bg: rgba(18, 16, 24, 0.95);
+            --text-light: #f1f5f9;
+            --text-muted: #a5b4fc;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-deep);
+            color: var(--text-light);
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* START MENU OVERLAY - First screen before login */
+        .start-menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #0a0a0f 0%, #1a0b2e 100%);
+            z-index: 20000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(0px);
+        }
+        .start-menu-card {
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            padding: 40px 24px;
+            background: rgba(10, 10, 15, 0.8);
+            backdrop-filter: blur(20px);
+            border-radius: 48px;
+            border: 1px solid rgba(124, 58, 237, 0.5);
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+        }
+        .start-logo {
+            font-size: 3.5rem;
+            margin-bottom: 16px;
+        }
+        .start-menu-card h1 {
+            font-size: 2rem;
+            background: linear-gradient(135deg, #c084fc, #7c3aed);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 8px;
+        }
+        .start-menu-card p {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-bottom: 32px;
+        }
+        .service-options {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        .service-option-btn {
+            background: rgba(124,58,237,0.15);
+            border: 1px solid var(--primary);
+            border-radius: 60px;
+            padding: 16px 20px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            justify-content: center;
+        }
+        .service-option-btn i { font-size: 1.4rem; }
+        .service-option-btn.brandinn-btn:hover { background: #7c3aed; border-color: #a78bfa; transform: scale(1.02); }
+        .service-option-btn.ekazi-btn:hover { background: #06b6d4; border-color: #22d3ee; transform: scale(1.02); }
+        .service-option-btn.workfit-btn:hover { background: #f59e0b; border-color: #fbbf24; transform: scale(1.02); }
+        
+        .start-footer {
+            margin-top: 20px;
+            font-size: 0.7rem;
+            color: #475569;
+        }
+
+        /* Auth Modal */
+        .auth-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(10, 10, 15, 0.98);
+            backdrop-filter: blur(12px);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .auth-modal {
+            background: var(--card-bg);
+            border: 1px solid var(--primary);
+            border-radius: 28px;
+            padding: 40px 32px;
+            width: 90%;
+            max-width: 380px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+        .auth-modal h2 {
+            color: var(--primary-light);
+            margin-bottom: 8px;
+            font-size: 1.5rem;
+        }
+        .auth-modal p {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            margin-bottom: 28px;
+        }
+        .auth-input {
+            width: 100%;
+            background: rgba(0,0,0,0.6);
+            border: 1px solid #334155;
+            padding: 12px 16px;
+            border-radius: 40px;
+            color: white;
+            margin-bottom: 16px;
+            font-size: 0.9rem;
+        }
+        .auth-input:focus { outline: none; border-color: var(--primary); }
+        .auth-btn {
+            width: 100%;
+            background: var(--primary);
+            border: none;
+            padding: 12px;
+            border-radius: 40px;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: 0.2s;
+        }
+        .auth-btn:hover { background: var(--primary-dark); transform: translateY(-1px); }
+        .auth-error {
+            color: #ef4444;
+            font-size: 0.7rem;
+            margin-top: 12px;
+        }
+
+        /* Header */
+        .ops-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(10, 10, 15, 0.96);
+            backdrop-filter: blur(12px);
+            border-bottom: 2px solid var(--primary);
+            padding: 8px 16px;
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .brand h1 {
+            font-family: 'Space Grotesk', monospace;
+            font-size: 1.2rem;
+            background: linear-gradient(135deg, #c084fc, var(--primary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .brand h1 i { color: var(--primary-light); margin-right: 6px; font-size: 1rem; }
+        .brand p { font-size: 0.55rem; color: var(--text-muted); }
+
+        .service-selector {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .service-chip {
+            background: rgba(124,58,237,0.15);
+            border: 1px solid var(--primary);
+            border-radius: 40px;
+            padding: 4px 12px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .service-chip.active { background: var(--primary); color: white; }
+        .service-chip:hover { background: var(--primary-dark); }
+
+        .user-info { display: flex; align-items: center; gap: 10px; }
+        .user-email { font-size: 0.7rem; color: var(--text-muted); }
+        .logout-btn, .menu-toggle {
+            background: rgba(124,58,237,0.2);
+            border: 1px solid var(--primary);
+            border-radius: 30px;
+            padding: 4px 10px;
+            font-size: 0.7rem;
+            cursor: pointer;
+        }
+        .menu-toggle { display: flex; align-items: center; gap: 5px; background: var(--primary); color: white; }
+
+        /* Dashboard Layout */
+        .dashboard {
+            display: flex;
+            height: 100vh;
+            padding-top: 65px;
+        }
+        .map-section {
+            flex: 1;
+            position: relative;
+            min-width: 0;
+            transition: all 0.3s;
+        }
+        .stats-sidebar {
+            width: 340px;
+            background: var(--card-bg);
+            backdrop-filter: blur(8px);
+            border-left: 1px solid var(--primary);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            z-index: 150;
+        }
+
+        #coverageMap { width: 100%; height: 100%; }
+
+        .float-panel {
+            position: absolute;
+            bottom: 20px;
+            right: 15px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .action-btn {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--primary);
+            border-radius: 12px;
+            padding: 10px;
+            width: 44px;
+            text-align: center;
+            color: var(--primary-light);
+            cursor: pointer;
+        }
+        .action-btn:hover { background: var(--primary); color: white; }
+
+        .reg-panel {
+            background: rgba(0,0,0,0.6);
+            border-radius: 16px;
+            padding: 14px;
+            margin: 12px;
+            border: 1px solid var(--primary);
+        }
+        .reg-panel h3 { font-size: 0.9rem; margin-bottom: 10px; color: var(--primary-light); }
+        .operation-select, .reg-panel input {
+            width: 100%;
+            background: rgba(0,0,0,0.8);
+            border: 1px solid #334155;
+            padding: 8px 10px;
+            border-radius: 10px;
+            color: white;
+            margin-bottom: 10px;
+            font-size: 0.8rem;
+        }
+        .location-status {
+            background: rgba(124,58,237,0.15);
+            padding: 6px;
+            border-radius: 8px;
+            font-size: 0.65rem;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .btn-register {
+            width: 100%;
+            background: var(--primary);
+            border: none;
+            padding: 10px;
+            border-radius: 10px;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        .btn-register:hover { background: var(--primary-dark); }
+
+        .stat-card {
+            background: rgba(0,0,0,0.4);
+            border-radius: 12px;
+            padding: 12px;
+            margin: 12px;
+            border-left: 3px solid var(--primary);
+        }
+        .stat-number { font-size: 2rem; font-weight: bold; }
+        .brandinn-number { color: var(--brandinn-color); }
+        .ekazi-number { color: var(--ekazi-color); }
+        .workfit-number { color: var(--workfit-color); }
+        .stat-label { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+
+        .recent-list { max-height: 200px; overflow-y: auto; }
+        .recent-item { padding: 8px; border-bottom: 1px solid #2d2d44; font-size: 0.7rem; }
+        .service-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 12px;
+            font-size: 0.6rem;
+            font-weight: bold;
+        }
+        .badge-brandinn { background: rgba(124,58,237,0.3); color: #c084fc; }
+        .badge-ekazi { background: rgba(6,182,212,0.3); color: #22d3ee; }
+        .badge-workfit { background: rgba(245,158,11,0.3); color: #fbbf24; }
+
+        .tracking-list { max-height: 150px; overflow-y: auto; }
+        .tracking-item {
+            padding: 8px;
+            border-bottom: 1px solid #2d2d44;
+            font-size: 0.7rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .online { color: var(--success); }
+        .offline { color: var(--danger); }
+        .idle { color: var(--warning); }
+
+        .toast-notify {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: #1e1b2e;
+            border-left: 4px solid var(--primary);
+            padding: 10px 16px;
+            border-radius: 10px;
+            z-index: 3000;
+            display: none;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.75rem;
+        }
+        .toast-notify.show { display: flex; animation: fadeSlide 0.25s ease; }
+        @keyframes fadeSlide {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* Desktop & Mobile - Menu always visible as a button */
+        .menu-toggle {
+            display: flex !important;
+            align-items: center;
+            gap: 6px;
+            background: var(--primary);
+            color: white;
+            border: none;
+        }
+        
+        @media (max-width: 768px) {
+            .stats-sidebar { 
+                width: 280px;
+                position: fixed;
+                right: 0;
+                top: 65px;
+                height: calc(100vh - 65px);
+                transform: translateX(100%);
+                transition: transform 0.3s ease;
+                display: flex;
+                z-index: 1000;
+            }
+            .stats-sidebar.open {
+                transform: translateX(0);
+                box-shadow: -5px 0 25px rgba(0,0,0,0.5);
+            }
+            .brand h1 { font-size: 1rem; }
+            .service-chip { padding: 3px 8px; font-size: 0.6rem; }
+            .float-panel { bottom: 10px; right: 10px; }
+            .action-btn { width: 36px; padding: 8px; font-size: 0.8rem; }
+        }
+        
+        @media (min-width: 769px) {
+            .stats-sidebar { display: flex !important; transform: translateX(0) !important; position: relative; }
+            .menu-toggle { background: var(--primary); display: flex !important; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- START MENU - First screen with service selection -->
+<div id="startMenuOverlay" class="start-menu-overlay">
+    <div class="start-menu-card">
+        <div class="start-logo">
+            <i class="fas fa-chart-line" style="color: #7c3aed;"></i>
+        </div>
+        <h1>IAM MUGERA</h1>
+        <p>Live Operations & Service Management Platform</p>
+        <div class="service-options">
+            <button class="service-option-btn brandinn-btn" data-service="brandinn">
+                <i class="fas fa-tag"></i> Brandinn · Marketing
+            </button>
+            <button class="service-option-btn ekazi-btn" data-service="ekazi">
+                <i class="fas fa-laptop-code"></i> E-Kazi · Freelancing
+            </button>
+            <button class="service-option-btn workfit-btn" data-service="workfit">
+                <i class="fas fa-dumbbell"></i> WorkFit Club · Fitness
+            </button>
+        </div>
+        <div class="start-footer">
+            <i class="fas fa-shield-alt"></i> Secure Clerk Portal · GPS Tracking Enabled
+        </div>
+    </div>
+</div>
+
+<!-- Main App (hidden until auth) -->
+<div class="ops-header" id="appHeader" style="display: none;">
+    <div class="brand">
+        <h1><i class="fas fa-chart-line"></i> IAM MUGERA</h1>
+        <p>LIVE OPERATIONS · TRACKING · MULTI-SERVICE</p>
+    </div>
+    <div class="service-selector" id="serviceSelector">
+        <div class="service-chip active" data-service="all">All Services</div>
+        <div class="service-chip" data-service="brandinn">Brandinn</div>
+        <div class="service-chip" data-service="ekazi">E-Kazi</div>
+        <div class="service-chip" data-service="workfit">WorkFit Club</div>
+    </div>
+    <div class="user-info">
+        <span class="user-email" id="userEmail"></span>
+        <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Exit</button>
+        <button class="menu-toggle" id="menuToggle"><i class="fas fa-chart-simple"></i> <span>Stats</span></button>
+    </div>
+</div>
+
+<div class="dashboard" id="appDashboard" style="display: none;">
+    <div class="map-section">
+        <div id="coverageMap"></div>
+        <div class="float-panel">
+            <button class="action-btn" id="refreshBtn" title="Refresh"><i class="fas fa-sync-alt"></i></button>
+            <button class="action-btn" id="toggleLayerBtn" title="Satellite"><i class="fa-solid fa-layer-group"></i></button>
+            <button class="action-btn" id="getLocationBtn" title="My Location"><i class="fas fa-location-dot"></i></button>
+            <button class="action-btn" id="zoomOutBtn" title="World View"><i class="fas fa-globe"></i></button>
+        </div>
+    </div>
+
+    <div class="stats-sidebar" id="statsSidebar">
+        <div class="reg-panel">
+            <h3><i class="fas fa-clipboard-list"></i> New Registration</h3>
+            <div class="location-status" id="gpsStatus"><i class="fas fa-spinner fa-pulse"></i> Getting GPS...</div>
+            <select id="operationType" class="operation-select">
+                <option value="brandinn">🏪 Brandinn · Marketing</option>
+                <option value="ekazi">💻 E-Kazi · Freelancing</option>
+                <option value="workfit">💪 WorkFit Club · Fitness</option>
+            </select>
+            <input type="text" id="businessName" placeholder="Business / Member name">
+            <input type="text" id="ownerName" placeholder="Contact (optional)">
+            <button class="btn-register" id="registerBtn"><i class="fas fa-save"></i> Register</button>
+            <button class="btn-register" id="retryGpsBtn" style="background:#334155; margin-top:6px;"><i class="fas fa-satellite-dish"></i> Refresh GPS</button>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label"><i class="fas fa-chart-simple"></i> TOTAL REGISTRATIONS</div>
+            <div class="stat-number" id="totalStat">0</div>
+        </div>
+
+        <div class="stat-card" style="border-left-color: var(--brandinn-color);">
+            <div class="stat-label">🏪 Brandinn</div>
+            <div class="stat-number brandinn-number" id="brandinnStat">0</div>
+        </div>
+
+        <div class="stat-card" style="border-left-color: var(--ekazi-color);">
+            <div class="stat-label">💻 E-Kazi</div>
+            <div class="stat-number ekazi-number" id="ekaziStat">0</div>
+        </div>
+
+        <div class="stat-card" style="border-left-color: var(--workfit-color);">
+            <div class="stat-label">💪 WorkFit Club</div>
+            <div class="stat-number workfit-number" id="workfitStat">0</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">📍 LIVE TRACKING</div>
+            <div id="trackingList" class="tracking-list">Loading...</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">🕒 RECENT ACTIVITY</div>
+            <div id="recentList" class="recent-list">Loading...</div>
+        </div>
+    </div>
+</div>
+
+<div id="liveToast" class="toast-notify"><i class="fas fa-check-circle"></i><span id="toastMsg">Ready</span></div>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+        authDomain: "mugera-e51cc.firebaseapp.com",
+        databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "mugera-e51cc",
+        storageBucket: "mugera-e51cc.firebasestorage.app",
+        messagingSenderId: "1024868637509",
+        appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
+    };
+
+    let app, database, auth;
+    let map, streetLayer, satelliteLayer, activeLayer = 'street';
+    let businessMarkers = {};
+    let trackingMarkers = {};
+    let currentUserLocation = null;
+    let allRegistrations = [];
+    let currentUser = null;
+    let currentServiceFilter = 'all';
+    let locationUpdateInterval = null;
+    let selectedStartService = null;
+
+    // Initialize Firebase
+    try {
+        app = firebase.initializeApp(firebaseConfig);
+        database = firebase.database();
+        auth = firebase.auth();
+        console.log("Firebase initialized");
+    } catch(e) { console.error("Firebase error:", e); }
+
+    function showToast(msg, isErr = false) {
+        const toast = document.getElementById('liveToast');
+        const icon = toast.querySelector('i');
+        icon.className = isErr ? 'fas fa-exclamation-triangle' : 'fas fa-check-circle';
+        icon.style.color = isErr ? '#f97316' : '#22c55e';
+        document.getElementById('toastMsg').innerText = msg;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function getMarkerIcon(operation) {
+        let color, icon;
+        if (operation === 'brandinn') { color = '#7c3aed'; icon = 'fa-tag'; }
+        else if (operation === 'ekazi') { color = '#06b6d4'; icon = 'fa-laptop-code'; }
+        else { color = '#f59e0b'; icon = 'fa-dumbbell'; }
+        return L.divIcon({
+            html: `<div style="background:${color}; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:2px solid white; box-shadow:0 0 10px ${color};"><i class="fas ${icon}" style="color:white; font-size:12px;"></i></div>`,
+            iconSize: [30,30], popupAnchor: [0,-12]
+        });
+    }
+
+    function getTrackingIcon(status, type) {
+        let color = status === 'active' ? '#22c55e' : (status === 'idle' ? '#f59e0b' : '#6b7280');
+        let icon = type === 'vehicle' ? 'fa-truck' : 'fa-user';
+        return L.divIcon({
+            html: `<div style="background:${color}; width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:2px solid white;"><i class="fas ${icon}" style="color:white; font-size:11px;"></i></div>`,
+            iconSize: [28,28], className: 'tracking-marker'
+        });
+    }
+
+    function addMarker(id, data, lat, lng) {
+        if (businessMarkers[id] && map) map.removeLayer(businessMarkers[id]);
+        const marker = L.marker([lat, lng], { icon: getMarkerIcon(data.operation) }).addTo(map);
+        const badge = data.operation === 'brandinn' ? 'Brandinn' : (data.operation === 'ekazi' ? 'E-Kazi' : 'WorkFit');
+        marker.bindPopup(`<div><strong>${escapeHtml(data.businessName)}</strong><br><span style="font-size:11px;">${badge}</span><br>📋 ${escapeHtml(data.ownerName || '—')}<br>🕒 ${new Date(data.timestamp).toLocaleString()}</div>`);
+        businessMarkers[id] = marker;
+        if (currentServiceFilter !== 'all' && data.operation !== currentServiceFilter) {
+            marker.setOpacity(0.3);
+        } else { marker.setOpacity(1); }
+    }
+
+    function addTrackingMarker(id, data) {
+        if (trackingMarkers[id] && map) map.removeLayer(trackingMarkers[id]);
+        const marker = L.marker([data.lat, data.lng], { icon: getTrackingIcon(data.status, data.type) }).addTo(map);
+        marker.bindPopup(`<div><strong>${data.name || id}</strong><br>Type: ${data.type}<br>Status: ${data.status}<br>📍 ${data.lat.toFixed(5)}, ${data.lng.toFixed(5)}<br>🕒 ${new Date(data.lastUpdate).toLocaleTimeString()}</div>`);
+        trackingMarkers[id] = marker;
+    }
+
+    function escapeHtml(s) { if(!s) return ''; return s.replace(/[&<>]/g, m => m==='&'?'&amp;':m==='<'?'&lt;':'&gt;'); }
+
+    async function loadRegistrations() {
+        if (!database || !currentUser) return;
+        for (let id in businessMarkers) if (businessMarkers[id] && map) map.removeLayer(businessMarkers[id]);
+        businessMarkers = {};
+        try {
+            const snapshot = await database.ref('iam_mugera_registrations').once('value');
+            const data = snapshot.val();
+            allRegistrations = [];
+            if (data) {
+                Object.keys(data).forEach(key => {
+                    const reg = data[key];
+                    if (reg.lat && reg.lng && reg.operation) {
+                        allRegistrations.push({ id: key, ...reg });
+                        addMarker(key, reg, reg.lat, reg.lng);
+                    }
+                });
+            }
+            allRegistrations.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            updateStatistics();
+        } catch(e) { console.error("Load error:", e); }
+    }
+
+    async function loadTracking() {
+        if (!database || !currentUser) return;
+        try {
+            const snapshot = await database.ref('live_tracking').once('value');
+            const data = snapshot.val();
+            for (let id in trackingMarkers) if (trackingMarkers[id] && map) map.removeLayer(trackingMarkers[id]);
+            trackingMarkers = {};
+            if (data) {
+                Object.keys(data).forEach(key => {
+                    const track = data[key];
+                    if (track.lat && track.lng) {
+                        addTrackingMarker(key, track);
+                    }
+                });
+            }
+            updateTrackingList(data);
+        } catch(e) { console.error("Tracking load error:", e); }
+    }
+
+    function updateTrackingList(data) {
+        const container = document.getElementById('trackingList');
+        if (!data || Object.keys(data).length === 0) {
+            container.innerHTML = '<div style="color:#64748b; text-align:center;">No active tracking</div>';
+            return;
+        }
+        container.innerHTML = Object.keys(data).map(key => {
+            const t = data[key];
+            const statusClass = t.status === 'active' ? 'online' : (t.status === 'idle' ? 'idle' : 'offline');
+            return `<div class="tracking-item"><span><i class="fas ${t.type === 'vehicle' ? 'fa-truck' : 'fa-user'}"></i> ${escapeHtml(t.name || key.slice(0,8))}</span><span class="${statusClass}">● ${t.status}</span></div>`;
+        }).join('');
+    }
+
+    function updateStatistics() {
+        const brandinnCount = allRegistrations.filter(r => r.operation === 'brandinn').length;
+        const ekaziCount = allRegistrations.filter(r => r.operation === 'ekazi').length;
+        const workfitCount = allRegistrations.filter(r => r.operation === 'workfit').length;
+        const total = allRegistrations.length;
+        
+        document.getElementById('totalStat').innerText = total;
+        document.getElementById('brandinnStat').innerText = brandinnCount;
+        document.getElementById('ekaziStat').innerText = ekaziCount;
+        document.getElementById('workfitStat').innerText = workfitCount;
+        
+        const recentDiv = document.getElementById('recentList');
+        if (allRegistrations.length === 0) {
+            recentDiv.innerHTML = '<div style="color:#64748b; text-align:center;">No registrations yet</div>';
+        } else {
+            recentDiv.innerHTML = allRegistrations.slice(0, 10).map(r => {
+                let badgeClass = r.operation === 'brandinn' ? 'badge-brandinn' : (r.operation === 'ekazi' ? 'badge-ekazi' : 'badge-workfit');
+                let badgeText = r.operation === 'brandinn' ? 'Brandinn' : (r.operation === 'ekazi' ? 'E-Kazi' : 'WorkFit');
+                return `<div class="recent-item"><strong>${escapeHtml(r.businessName)}</strong> <span class="service-badge ${badgeClass}">${badgeText}</span><br>📍 ${r.lat.toFixed(4)}, ${r.lng.toFixed(4)}<br>🕒 ${new Date(r.timestamp).toLocaleString()}</div>`;
+            }).join('');
+        }
+    }
+
+    async function registerBusiness() {
+        if (!database || !currentUser) { showToast("Please sign in", true); return; }
+        if (!currentUserLocation) { showToast("GPS location not available", true); return; }
+        const businessName = document.getElementById('businessName').value.trim();
+        if (!businessName) { showToast("Enter name", true); return; }
+        const ownerName = document.getElementById('ownerName').value.trim();
+        const operation = document.getElementById('operationType').value;
+        const registrationId = Date.now().toString() + '_' + Math.random().toString(36).substr(2, 6);
+        const regData = { businessName, ownerName: ownerName || "Not provided", operation, lat: currentUserLocation.lat, lng: currentUserLocation.lng, timestamp: new Date().toISOString(), recordedBy: currentUser.email, clerkId: currentUser.uid };
+        try {
+            await database.ref('iam_mugera_registrations/' + registrationId).set(regData);
+            allRegistrations.unshift({ id: registrationId, ...regData });
+            addMarker(registrationId, regData, currentUserLocation.lat, currentUserLocation.lng);
+            updateStatistics();
+            showToast(`✅ ${businessName} registered for ${operation}`, false);
+            document.getElementById('businessName').value = '';
+            document.getElementById('ownerName').value = '';
+        } catch(e) { showToast("Save failed: " + e.message, true); }
+    }
+
+    function startLiveLocationTracking() {
+        if (locationUpdateInterval) clearInterval(locationUpdateInterval);
+        locationUpdateInterval = setInterval(async () => {
+            if (!currentUser || !currentUserLocation || !database) return;
+            const trackingData = {
+                lat: currentUserLocation.lat,
+                lng: currentUserLocation.lng,
+                lastUpdate: Date.now(),
+                type: 'clerk',
+                status: 'active',
+                name: currentUser.email?.split('@')[0] || 'Clerk',
+                email: currentUser.email
+            };
+            try {
+                await database.ref('live_tracking/' + currentUser.uid).set(trackingData);
+            } catch(e) { console.warn("Tracking update failed"); }
+        }, 5000);
+    }
+
+    function startGPS() {
+        const statusDiv = document.getElementById('gpsStatus');
+        statusDiv.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Acquiring GPS...';
+        const options = { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 };
+        
+        navigator.geolocation.getCurrentPosition(
+            pos => {
+                currentUserLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+                let accuracy = pos.coords.accuracy;
+                statusDiv.innerHTML = `<i class="fas fa-check-circle" style="color:#22c55e;"></i> Location: ${currentUserLocation.lat.toFixed(6)}, ${currentUserLocation.lng.toFixed(6)} (${Math.round(accuracy)}m)`;
+                if (window.userMarker && map) map.removeLayer(window.userMarker);
+                if (map) {
+                    window.userMarker = L.circleMarker([currentUserLocation.lat, currentUserLocation.lng], { radius: 8, color: '#f59e0b', weight: 3, fillColor: '#f59e0b', fillOpacity: 0.8 }).addTo(map).bindPopup("📍 Your location").openPopup();
+                    map.setView([currentUserLocation.lat, currentUserLocation.lng], 16);
+                }
+                startLiveLocationTracking();
+            },
+            err => { 
+                statusDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i> GPS failed. Using Nairobi CBD.';
+                currentUserLocation = { lat: -1.286389, lng: 36.817223 };
+                if (map) map.setView([currentUserLocation.lat, currentUserLocation.lng], 14);
+                startLiveLocationTracking();
+                showToast("GPS unavailable - using default location", true);
+            },
+            options
+        );
+    }
+
+    function initMap() {
+        streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap', maxZoom: 19 });
+        satelliteLayer = L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', { subdomains: ['mt0','mt1','mt2','mt3'], attribution: '&copy; Google', maxZoom: 19 });
+        map = L.map('coverageMap').setView([-1.2864, 36.8172], 13);
+        streetLayer.addTo(map);
+        L.control.scale({ metric: true, position: 'bottomright' }).addTo(map);
+        loadRegistrations();
+        loadTracking();
+        startGPS();
+        setInterval(() => { loadTracking(); loadRegistrations(); }, 15000);
+        if (database) {
+            database.ref('live_tracking').on('child_changed', () => loadTracking());
+            database.ref('iam_mugera_registrations').on('child_added', () => loadRegistrations());
+        }
+    }
+
+    function showApp(serviceHint = null) {
+        const startMenu = document.getElementById('startMenuOverlay');
+        if (startMenu) startMenu.style.display = 'none';
+        document.getElementById('appHeader').style.display = 'flex';
+        document.getElementById('appDashboard').style.display = 'flex';
+        document.getElementById('userEmail').innerText = currentUser.email;
+        if (serviceHint && ['brandinn', 'ekazi', 'workfit'].includes(serviceHint)) {
+            const selectEl = document.getElementById('operationType');
+            if (selectEl) selectEl.value = serviceHint;
+        }
+        initMap();
+    }
+
+    function showAuthModal(serviceFromMenu = null) {
+        const existingOverlay = document.getElementById('authOverlay');
+        if (existingOverlay) existingOverlay.remove();
+        selectedStartService = serviceFromMenu;
+        
+        const overlay = document.createElement('div');
+        overlay.id = 'authOverlay';
+        overlay.className = 'auth-overlay';
+        overlay.innerHTML = `
+            <div class="auth-modal">
+                <i class="fas fa-shield-alt" style="font-size:48px;color:var(--primary-light);margin-bottom:16px;"></i>
+                <h2>IAM MUGERA</h2>
+                <p>Operational Access · Clerk Portal</p>
+                <input type="email" id="authEmail" class="auth-input" placeholder="Clerk Email" autocomplete="email">
+                <input type="password" id="authPassword" class="auth-input" placeholder="Password" autocomplete="current-password">
+                <button id="loginBtn" class="auth-btn"><i class="fas fa-sign-in-alt"></i> Sign In</button>
+                <div id="authError" class="auth-error"></div>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+        
+        document.getElementById('loginBtn').addEventListener('click', async () => {
+            const email = document.getElementById('authEmail').value;
+            const pwd = document.getElementById('authPassword').value;
+            const errorDiv = document.getElementById('authError');
+            errorDiv.innerText = '';
+            if (!email || !pwd) {
+                errorDiv.innerText = 'Please enter email and password';
+                return;
+            }
+            try {
+                const cred = await auth.signInWithEmailAndPassword(email, pwd);
+                currentUser = cred.user;
+                showApp(selectedStartService);
+            } catch(e) { 
+                errorDiv.innerText = 'Invalid email or password. Please try again.'; 
+            }
+        });
+    }
+
+    // Start menu event handlers
+    document.querySelectorAll('.service-option-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const service = btn.getAttribute('data-service');
+            if (currentUser) {
+                showApp(service);
+            } else {
+                showAuthModal(service);
+            }
+        });
+    });
+
+    // Auth state listener
+    auth.onAuthStateChanged(user => {
+        if (user) {
+            currentUser = user;
+            if (document.getElementById('startMenuOverlay') && document.getElementById('startMenuOverlay').style.display !== 'none') {
+                showApp();
+            } else if (document.getElementById('appHeader').style.display !== 'flex') {
+                showApp();
+            } else {
+                document.getElementById('userEmail').innerText = user.email;
+                if (map) { loadRegistrations(); loadTracking(); }
+            }
+        }
+    });
+
+    // Event listeners for dashboard
+    document.addEventListener('DOMContentLoaded', () => {
+        const serviceSelector = document.getElementById('serviceSelector');
+        if (serviceSelector) {
+            serviceSelector.addEventListener('click', (e) => {
+                const chip = e.target.closest('.service-chip');
+                if (!chip) return;
+                document.querySelectorAll('.service-chip').forEach(c => c.classList.remove('active'));
+                chip.classList.add('active');
+                currentServiceFilter = chip.dataset.service;
+                for (let id in businessMarkers) {
+                    const markerData = allRegistrations.find(r => r.id === id);
+                    if (markerData && businessMarkers[id]) {
+                        if (currentServiceFilter !== 'all' && markerData.operation !== currentServiceFilter)
+                            businessMarkers[id].setOpacity(0.2);
+                        else businessMarkers[id].setOpacity(1);
+                    }
+                }
+            });
+        }
+        
+        document.getElementById('registerBtn')?.addEventListener('click', registerBusiness);
+        document.getElementById('refreshBtn')?.addEventListener('click', () => { loadRegistrations(); loadTracking(); });
+        document.getElementById('toggleLayerBtn')?.addEventListener('click', () => {
+            if (map) {
+                if (activeLayer === 'street') { map.removeLayer(streetLayer); satelliteLayer.addTo(map); activeLayer = 'satellite'; }
+                else { map.removeLayer(satelliteLayer); streetLayer.addTo(map); activeLayer = 'street'; }
+            }
+        });
+        document.getElementById('getLocationBtn')?.addEventListener('click', () => { startGPS(); if(currentUserLocation && map) map.setView([currentUserLocation.lat, currentUserLocation.lng], 16); });
+        document.getElementById('retryGpsBtn')?.addEventListener('click', startGPS);
+        document.getElementById('zoomOutBtn')?.addEventListener('click', () => map?.setView([20, 0], 2));
+        document.getElementById('logoutBtn')?.addEventListener('click', async () => { await auth.signOut(); location.reload(); });
+        
+        const menuToggle = document.getElementById('menuToggle');
+        if (menuToggle) {
+            menuToggle.addEventListener('click', () => {
+                const sidebar = document.getElementById('statsSidebar');
+                sidebar.classList.toggle('open');
+            });
+        }
+    });
+</script>
+</body>
+</html>
