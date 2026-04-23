@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=0.8, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#ca8a04">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Logistics Scheduling | PickUp Delivery</title>
+  <link rel="icon" type="image/x-icon" href="https://i.postimg.cc/HLQqRybx/mm.jpg">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    :root {
+      --gold: #ca8a04;
+      --gold-dark: #a16207;
+      --gold-light: #fef3c7;
+      --bg-primary: #0a0a0a;
+      --bg-secondary: #111111;
+      --bg-card: #1a1a1a;
+      --text-primary: #ffffff;
+      --text-secondary: #e0e0e0;
+      --text-muted: #a0a0a0;
+      --border-light: #2a2a2a;
+      --border-gold: rgba(202,138,4,0.3);
+      --shadow-color: rgba(202,138,4,0.2);
+      --nav-bg: rgba(10,10,10,0.95);
+      --input-bg: rgba(255,255,255,0.05);
+      --input-border: #2a2a2a;
+      --hover-bg: rgba(202,138,4,0.1);
+      --modal-overlay: rgba(0,0,0,0.95);
+      --header-height: 70px;
+    }
+    body.light-theme {
+      --bg-primary: #f8f5f0;
+      --bg-secondary: #ffffff;
+      --bg-card: #ffffff;
+      --text-primary: #1a1a1a;
+      --text-secondary: #2d2d2d;
+      --text-muted: #666666;
+      --border-light: #e0e0e0;
+      --border-gold: rgba(202,138,4,0.2);
+      --shadow-color: rgba(202,138,4,0.15);
+      --nav-bg: rgba(255,255,255,0.95);
+      --input-bg: #f5f5f5;
+      --input-border: #dddddd;
+      --hover-bg: rgba(202,138,4,0.05);
+      --modal-overlay: rgba(255,255,255,0.95);
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      min-height: 100vh;
+      padding-top: var(--header-height);
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+    .site-header {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      height: var(--header-height);
+      background: var(--nav-bg);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--gold);
+      z-index: 1000;
+      padding: 0 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .site-logo {
+      height: 42px;
+      border-radius: 12px;
+      border: 2px solid var(--gold);
+    }
+    .logo-text {
+      font-family: 'Cinzel', serif;
+      font-weight: 700;
+      color: var(--gold);
+      font-size: 1.3rem;
+    }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .theme-toggle, .auth-btn {
+      background: var(--hover-bg);
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .theme-toggle:hover, .auth-btn:hover {
+      background: var(--gold);
+      color: black;
+    }
+    .main-content {
+      max-width: 1400px;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+    }
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+    .tab {
+      padding: 0.7rem 1.8rem;
+      border-radius: 40px;
+      font-weight: 600;
+      cursor: pointer;
+      background: var(--bg-card);
+      border: 1px solid var(--border-gold);
+      color: var(--text-secondary);
+      transition: all 0.2s;
+    }
+    .tab.active {
+      background: var(--gold);
+      color: black;
+      border-color: var(--gold);
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    /* Cards & Grids */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-gold);
+      border-radius: 24px;
+      padding: 1.5rem;
+    }
+    .stat-value {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--gold);
+    }
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-gold);
+      border-radius: 24px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .delivery-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--border-light);
+      flex-wrap: wrap;
+      gap: 0.8rem;
+    }
+    .status-badge {
+      padding: 0.3rem 1rem;
+      border-radius: 30px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .status-pending { background: rgba(245,158,11,0.2); color: #f59e0b; }
+    .status-assigned { background: rgba(59,130,246,0.2); color: #3b82f6; }
+    .status-completed { background: rgba(16,185,129,0.2); color: #10b981; }
+    .status-cancelled { background: rgba(239,68,68,0.2); color: #ef4444; }
+    
+    .btn {
+      padding: 0.7rem 1.5rem;
+      border-radius: 40px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s;
+      font-size: 0.9rem;
+    }
+    .btn-gold {
+      background: var(--gold);
+      color: black;
+    }
+    .btn-gold:hover { background: var(--gold-dark); }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--gold);
+      color: var(--gold);
+    }
+    .btn-outline:hover { background: var(--hover-bg); }
+    .btn-sm {
+      padding: 0.4rem 1rem;
+      font-size: 0.8rem;
+    }
+    .icon-btn {
+      background: transparent;
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    
+    .form-group {
+      margin-bottom: 1.2rem;
+    }
+    .form-label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+    .form-input, .form-select, .form-textarea {
+      width: 100%;
+      padding: 0.8rem 1rem;
+      background: var(--input-bg);
+      border: 1px solid var(--input-border);
+      border-radius: 16px;
+      color: var(--text-primary);
+      font-size: 0.95rem;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    .map-container {
+      height: 250px;
+      border-radius: 20px;
+      overflow: hidden;
+      margin: 1rem 0;
+      border: 1px solid var(--gold);
+    }
+    
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: var(--modal-overlay);
+      backdrop-filter: blur(8px);
+      z-index: 2000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal-container {
+      max-width: 700px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      background: var(--bg-card);
+      border: 2px solid var(--gold);
+      border-radius: 30px;
+      padding: 2rem;
+      position: relative;
+    }
+    .modal-close {
+      position: absolute;
+      top: 1rem; right: 1rem;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+    .receipt-box {
+      background: var(--bg-secondary);
+      border: 1px dashed var(--gold);
+      border-radius: 20px;
+      padding: 1.5rem;
+      margin: 1rem 0;
+      font-family: monospace;
+      white-space: pre-wrap;
+    }
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: #10b981;
+      color: white;
+      padding: 0.8rem 1.5rem;
+      border-radius: 30px;
+      z-index: 3000;
+      animation: slideIn 0.3s ease;
+    }
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    @media (max-width: 768px) {
+      .form-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<header class="site-header">
+  <div class="logo-area">
+    <img src="https://i.postimg.cc/T10385m6/20260304-0949-Image-Generation-remix-01kjvspyrkf078efwbh09qxkag-1.webp" alt="Logo" class="site-logo">
+    <span class="logo-text">Scheduling Panel</span>
+  </div>
+  <div class="header-actions">
+    <div class="theme-toggle" id="themeToggleBtn"><i class="fas fa-moon" id="themeIcon"></i></div>
+    <button class="auth-btn" id="authActionBtn" title="Login/Logout"><i class="fas fa-sign-in-alt"></i></button>
+  </div>
+</header>
+
+<main class="main-content">
+  <!-- Login Screen -->
+  <div id="loginScreen" style="display:none; max-width:450px; margin:4rem auto; background:var(--bg-card); border:2px solid var(--gold); border-radius:30px; padding:2.5rem;">
+    <h2 style="font-family:'Cinzel',serif; color:var(--gold); text-align:center; margin-bottom:2rem;">Staff Login</h2>
+    <div id="loginFormBlock">
+      <div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input" id="loginEmail"></div>
+      <div class="form-group"><label class="form-label">Password</label><input type="password" class="form-input" id="loginPassword"></div>
+      <button class="btn btn-gold" id="doLoginBtn" style="width:100%; justify-content:center;">Sign In</button>
+      <p style="text-align:center; margin-top:1rem;"><a id="showSignupLink" style="color:var(--gold); cursor:pointer;">Create staff account</a></p>
+    </div>
+    <div id="signupFormBlock" style="display:none;">
+      <div class="form-group"><label class="form-label">Name</label><input type="text" class="form-input" id="signupName"></div>
+      <div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input" id="signupEmail"></div>
+      <div class="form-group"><label class="form-label">Password</label><input type="password" class="form-input" id="signupPassword"></div>
+      <button class="btn btn-gold" id="doSignupBtn" style="width:100%; justify-content:center;">Register</button>
+      <p style="text-align:center; margin-top:1rem;"><a id="showLoginLink" style="color:var(--gold); cursor:pointer;">Back to login</a></p>
+    </div>
+  </div>
+
+  <!-- Dashboard -->
+  <div id="dashboardScreen" style="display:none;">
+    <div class="tabs">
+      <div class="tab active" data-tab="tab-schedule">📋 New Booking</div>
+      <div class="tab" data-tab="tab-deliveries">📦 All Deliveries</div>
+      <div class="tab" data-tab="tab-drivers">👥 Drivers</div>
+    </div>
+
+    <!-- New Booking Tab -->
+    <div class="tab-content active" id="tab-schedule">
+      <div class="card">
+        <h3 style="color:var(--gold); margin-bottom:1.5rem;"><i class="fas fa-plus-circle"></i> Schedule Delivery</h3>
+        <form id="scheduleForm">
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Client Name *</label><input type="text" class="form-input" id="schedClientName" required></div>
+            <div class="form-group"><label class="form-label">Client Phone *</label><input type="tel" class="form-input" id="schedClientPhone" required></div>
+          </div>
+          <div class="form-group"><label class="form-label">Client Email</label><input type="email" class="form-input" id="schedClientEmail"></div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Pickup Address *</label><input type="text" class="form-input" id="schedPickup" placeholder="e.g., Kawangware" required></div>
+            <div class="form-group"><label class="form-label">Delivery Address *</label><input type="text" class="form-input" id="schedDelivery" placeholder="e.g., Westlands" required></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Package Type</label><select class="form-select" id="schedPackage">
+              <option value="document">📄 Document (no surcharge)</option>
+              <option value="small">📦 Small Box (no surcharge)</option>
+              <option value="medium" selected>📦 Medium Box (+100 KES)</option>
+              <option value="large">📦 Large Box (+200 KES)</option>
+              <option value="fragile">⚠️ Fragile (+150 KES)</option>
+            </select></div>
+            <div class="form-group"><label class="form-label">Weight (kg)</label><input type="number" class="form-input" id="schedWeight" value="2" step="0.1"></div>
+          </div>
+          <div class="form-group"><label class="form-label">Instructions</label><textarea class="form-textarea" id="schedInstructions" rows="2"></textarea></div>
+          <div class="map-container" id="scheduleMap"></div>
+          <div class="card" style="background:linear-gradient(135deg, var(--gold), var(--gold-dark)); color:black; text-align:center;">
+            <h4>Estimated Fare</h4>
+            <div style="font-size:2rem; font-weight:800;" id="schedPrice">— KES</div>
+            <div id="schedDistance" style="font-size:0.85rem;"></div>
+          </div>
+          <button type="submit" class="btn btn-gold" style="width:100%; justify-content:center;"><i class="fas fa-save"></i> Create Booking</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- All Deliveries Tab -->
+    <div class="tab-content" id="tab-deliveries">
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+          <h3 style="color:var(--gold);"><i class="fas fa-list"></i> Deliveries</h3>
+          <button class="btn btn-outline btn-sm" id="refreshDeliveriesBtn"><i class="fas fa-sync-alt"></i> Refresh</button>
+        </div>
+        <div id="deliveriesList"></div>
+      </div>
+    </div>
+
+    <!-- Drivers Tab -->
+    <div class="tab-content" id="tab-drivers">
+      <div class="card">
+        <h3 style="color:var(--gold); margin-bottom:1rem;"><i class="fas fa-users"></i> Driver Management</h3>
+        <div class="form-row" style="margin-bottom:1rem;">
+          <div class="form-group"><input type="text" class="form-input" id="driverName" placeholder="Driver name"></div>
+          <div class="form-group"><input type="tel" class="form-input" id="driverPhone" placeholder="Phone (07XX...)"></div>
+        </div>
+        <button class="btn btn-gold" id="addDriverBtn"><i class="fas fa-plus"></i> Add Driver</button>
+        <div id="driversList" style="margin-top:1.5rem;"></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Detail Modal -->
+<div class="modal-overlay" id="detailModal">
+  <div class="modal-container">
+    <button class="modal-close" onclick="closeDetailModal()"><i class="fas fa-times"></i></button>
+    <div id="detailContent"></div>
+  </div>
+</div>
+
+<div id="toastContainer"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+<script>
+  (function() {
+    const firebaseConfig = {
+      apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+      authDomain: "mugera-e51cc.firebaseapp.com",
+      databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "mugera-e51cc",
+      storageBucket: "mugera-e51cc.firebasestorage.app",
+      messagingSenderId: "1024868637509",
+      appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
+
+    // Pricing
+    const PRICING = {
+      baseFare: 100,
+      perKmRate: 50,
+      weightSurcharge: { document: 0, small: 0, medium: 100, large: 200, fragile: 150 }
+    };
+    let scheduleMap = null, pickupMarker = null, deliveryMarker = null;
+    let currentPickupCoords = null, currentDeliveryCoords = null;
+
+    // Theme
+    function initTheme() {
+      if (localStorage.getItem('logisticsTheme') === 'light') document.body.classList.add('light-theme');
+      document.getElementById('themeIcon').className = document.body.classList.contains('light-theme') ? 'fas fa-sun' : 'fas fa-moon';
+    }
+    document.getElementById('themeToggleBtn').addEventListener('click', () => {
+      document.body.classList.toggle('light-theme');
+      localStorage.setItem('logisticsTheme', document.body.classList.contains('light-theme') ? 'light' : 'dark');
+      document.getElementById('themeIcon').className = document.body.classList.contains('light-theme') ? 'fas fa-sun' : 'fas fa-moon';
+    });
+
+    function showToast(msg, err = false) {
+      const t = document.createElement('div');
+      t.className = 'toast';
+      t.style.background = err ? '#ef4444' : '#10b981';
+      t.innerHTML = `<i class="fas fa-${err ? 'exclamation-circle' : 'check-circle'}"></i> ${msg}`;
+      document.getElementById('toastContainer').appendChild(t);
+      setTimeout(() => t.remove(), 3500);
+    }
+
+    // Auth UI
+    const loginScreen = document.getElementById('loginScreen');
+    const dashboardScreen = document.getElementById('dashboardScreen');
+    const authActionBtn = document.getElementById('authActionBtn');
+    function showLogin() { loginScreen.style.display = 'block'; dashboardScreen.style.display = 'none'; authActionBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i>'; }
+    function showDashboard() { loginScreen.style.display = 'none'; dashboardScreen.style.display = 'block'; authActionBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i>'; loadAllData(); }
+    authActionBtn.addEventListener('click', () => auth.currentUser ? auth.signOut().then(() => showToast('Logged out')) : showLogin());
+
+    document.getElementById('showSignupLink').addEventListener('click', () => {
+      document.getElementById('loginFormBlock').style.display = 'none';
+      document.getElementById('signupFormBlock').style.display = 'block';
+    });
+    document.getElementById('showLoginLink').addEventListener('click', () => {
+      document.getElementById('signupFormBlock').style.display = 'none';
+      document.getElementById('loginFormBlock').style.display = 'block';
+    });
+    document.getElementById('doLoginBtn').addEventListener('click', async () => {
+      try {
+        await auth.signInWithEmailAndPassword(document.getElementById('loginEmail').value, document.getElementById('loginPassword').value);
+        showToast('Welcome!');
+      } catch(e) { showToast(e.message, true); }
+    });
+    document.getElementById('doSignupBtn').addEventListener('click', async () => {
+      try {
+        const cred = await auth.createUserWithEmailAndPassword(document.getElementById('signupEmail').value, document.getElementById('signupPassword').value);
+        await db.ref(`logistics_staff/${cred.user.uid}`).set({ name: document.getElementById('signupName').value, email: document.getElementById('signupEmail').value });
+        showToast('Account created');
+      } catch(e) { showToast(e.message, true); }
+    });
+
+    // Tabs
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById(tab.dataset.tab).classList.add('active');
+        if (tab.dataset.tab === 'tab-schedule') setTimeout(initScheduleMap, 200);
+      });
+    });
+
+    // Map for scheduling
+    function initScheduleMap() {
+      if (scheduleMap) { scheduleMap.invalidateSize(); return; }
+      scheduleMap = L.map('scheduleMap').setView([-1.2864, 36.8172], 13);
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(scheduleMap);
+    }
+
+    async function geocode(addr) {
+      const r = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(addr)}&limit=1`);
+      const d = await r.json();
+      return d.length ? { lat: parseFloat(d[0].lat), lon: parseFloat(d[0].lon) } : null;
+    }
+
+    async function getRouteDistance(p, d) {
+      const r = await fetch(`https://router.project-osrm.org/route/v1/driving/${p.lon},${p.lat};${d.lon},${d.lat}`);
+      const j = await r.json();
+      return j.routes?.[0]?.distance / 1000 || null;
+    }
+
+    function calcPrice(dist, pkg) {
+      const surcharge = PRICING.weightSurcharge[pkg] || 0;
+      return Math.round(PRICING.baseFare + (dist * PRICING.perKmRate) + surcharge);
+    }
+
+    async function updateSchedulePrice() {
+      const pickup = document.getElementById('schedPickup').value;
+      const delivery = document.getElementById('schedDelivery').value;
+      const pkg = document.getElementById('schedPackage').value;
+      if (!pickup || !delivery) return;
+      document.getElementById('schedPrice').textContent = '...';
+      const pCoords = await geocode(pickup);
+      const dCoords = await geocode(delivery);
+      if (!pCoords || !dCoords) { document.getElementById('schedPrice').textContent = '— KES'; return; }
+      currentPickupCoords = pCoords; currentDeliveryCoords = dCoords;
+      let dist = await getRouteDistance(pCoords, dCoords);
+      if (!dist) dist = Math.sqrt(Math.pow(pCoords.lat-dCoords.lat,2)+Math.pow(pCoords.lon-dCoords.lon,2))*111;
+      document.getElementById('schedDistance').textContent = `${dist.toFixed(1)} km`;
+      document.getElementById('schedPrice').textContent = `${calcPrice(dist, pkg)} KES`;
+      if (pickupMarker) pickupMarker.remove(); if (deliveryMarker) deliveryMarker.remove();
+      pickupMarker = L.marker([pCoords.lat, pCoords.lon]).addTo(scheduleMap).bindPopup('Pickup');
+      deliveryMarker = L.marker([dCoords.lat, dCoords.lon]).addTo(scheduleMap).bindPopup('Delivery');
+      scheduleMap.fitBounds(L.latLngBounds([[pCoords.lat,pCoords.lon],[dCoords.lat,dCoords.lon]]), {padding:[40,40]});
+    }
+
+    document.getElementById('schedPickup').addEventListener('change', updateSchedulePrice);
+    document.getElementById('schedDelivery').addEventListener('change', updateSchedulePrice);
+    document.getElementById('schedPackage').addEventListener('change', updateSchedulePrice);
+
+    // Schedule form submit
+    document.getElementById('scheduleForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const priceText = document.getElementById('schedPrice').textContent;
+      if (!priceText.includes('KES')) return showToast('Wait for price calculation', true);
+      const fare = parseInt(priceText);
+      const distText = document.getElementById('schedDistance').textContent;
+      const booking = {
+        userName: document.getElementById('schedClientName').value,
+        userPhone: document.getElementById('schedClientPhone').value,
+        userEmail: document.getElementById('schedClientEmail').value,
+        pickup: { address: document.getElementById('schedPickup').value, coordinates: currentPickupCoords },
+        delivery: { address: document.getElementById('schedDelivery').value, coordinates: currentDeliveryCoords },
+        package: { type: document.getElementById('schedPackage').value, weight: parseFloat(document.getElementById('schedWeight').value)||0, instructions: document.getElementById('schedInstructions').value },
+        fare, distance: parseFloat(distText), baseFare: PRICING.baseFare,
+        distanceCharge: Math.round((parseFloat(distText)||0)*PRICING.perKmRate),
+        weightSurcharge: PRICING.weightSurcharge[document.getElementById('schedPackage').value]||0,
+        status: 'pending', bookingDate: new Date().toISOString(), timestamp: firebase.database.ServerValue.TIMESTAMP,
+        createdBy: auth.currentUser?.uid || 'staff'
+      };
+      try {
+        await db.ref('pickup_deliveries').push(booking);
+        showToast('Booking created!');
+        document.getElementById('scheduleForm').reset();
+        document.getElementById('schedPrice').textContent = '— KES';
+        document.getElementById('schedDistance').textContent = '';
+        if (pickupMarker) pickupMarker.remove();
+        if (deliveryMarker) deliveryMarker.remove();
+      } catch(err) { showToast(err.message, true); }
+    });
+
+    // Load all data
+    function loadAllData() {
+      loadDeliveriesList();
+      loadDrivers();
+    }
+
+    function loadDeliveriesList() {
+      db.ref('pickup_deliveries').orderByChild('timestamp').on('value', snap => {
+        const list = []; if (snap.exists()) snap.forEach(c => list.push({id:c.key, ...c.val()}));
+        list.reverse();
+        document.getElementById('deliveriesList').innerHTML = list.length ? list.map(d => `
+          <div class="delivery-row">
+            <div><strong>${d.userName||'Client'}</strong><br><small>${d.pickup?.address||''} → ${d.delivery?.address||''}</small></div>
+            <div><span class="status-badge status-${d.status||'pending'}">${d.status||'pending'}</span></div>
+            <div style="font-weight:700;">KSh ${d.fare||0}</div>
+            <div>
+              <button class="btn btn-outline btn-sm" onclick="openDetail('${d.id}')"><i class="fas fa-eye"></i></button>
+              <button class="btn btn-outline btn-sm" onclick="assignDriverPrompt('${d.id}')"><i class="fas fa-user-plus"></i></button>
+            </div>
+          </div>
+        `).join('') : '<p style="color:var(--text-muted);">No deliveries yet.</p>';
+      });
+    }
+
+    function loadDrivers() {
+      db.ref('logistics_drivers').on('value', snap => {
+        const drivers = []; if (snap.exists()) snap.forEach(c => drivers.push({id:c.key, ...c.val()}));
+        document.getElementById('driversList').innerHTML = drivers.length ? drivers.map(d => `
+          <div class="delivery-row">
+            <span><strong>${d.name}</strong> - ${d.phone}</span>
+            <button class="btn btn-outline btn-sm" onclick="removeDriver('${d.id}')"><i class="fas fa-trash"></i></button>
+          </div>
+        `).join('') : '<p style="color:var(--text-muted);">No drivers added.</p>';
+      });
+    }
+
+    document.getElementById('addDriverBtn').addEventListener('click', async () => {
+      const name = document.getElementById('driverName').value.trim();
+      const phone = document.getElementById('driverPhone').value.trim();
+      if (!name || !phone) return showToast('Fill all fields', true);
+      await db.ref('logistics_drivers').push({ name, phone });
+      document.getElementById('driverName').value = '';
+      document.getElementById('driverPhone').value = '';
+      showToast('Driver added');
+    });
+
+    window.removeDriver = async (id) => { if(confirm('Remove driver?')) { await db.ref(`logistics_drivers/${id}`).remove(); showToast('Removed'); } };
+
+    window.assignDriverPrompt = function(deliveryId) {
+      db.ref('logistics_drivers').once('value', snap => {
+        const drivers = []; if (snap.exists()) snap.forEach(c => drivers.push({id:c.key, ...c.val()}));
+        if (!drivers.length) return showToast('Add drivers first', true);
+        const opts = drivers.map((d,i) => `${i+1}. ${d.name} (${d.phone})`).join('\n');
+        const idx = prompt(`Select driver:\n${opts}\nEnter number:`);
+        if (idx && drivers[parseInt(idx)-1]) {
+          const driver = drivers[parseInt(idx)-1];
+          db.ref(`pickup_deliveries/${deliveryId}`).update({
+            driverName: driver.name, driverPhone: driver.phone, status: 'assigned', assignedAt: new Date().toISOString()
+          }).then(() => {
+            showToast('Driver assigned');
+            db.ref(`pickup_deliveries/${deliveryId}`).once('value', s => {
+              const d = s.val();
+              if (d) sendDriverWA(d, driver.phone);
+            });
+          });
+        }
+      });
+    };
+
+    function sendDriverWA(delivery, phone) {
+      const msg = `🚚 *NEW DELIVERY*\n📍 Pickup: ${delivery.pickup?.address}\n🏁 Delivery: ${delivery.delivery?.address}\n📦 ${delivery.package?.type} (${delivery.package?.weight}kg)\n👤 Client: ${delivery.userName} (${delivery.userPhone})\n💰 KSh ${delivery.fare}\n📝 ${delivery.package?.instructions||'None'}`;
+      window.open(`https://wa.me/254${phone.replace(/^0+/,'')}?text=${encodeURIComponent(msg)}`, '_blank');
+    }
+
+    window.openDetail = function(id) {
+      db.ref(`pickup_deliveries/${id}`).once('value', snap => {
+        const d = snap.val(); if (!d) return;
+        const receipt = `🧾 PICKUP DELIVERY RECEIPT\nID: ${id}\nDate: ${new Date(d.bookingDate).toLocaleString()}\n---\nClient: ${d.userName}\nPhone: ${d.userPhone}\nPickup: ${d.pickup?.address}\nDelivery: ${d.delivery?.address}\nPackage: ${d.package?.type} (${d.package?.weight}kg)\n---\nBase: KSh ${d.baseFare||100}\nDistance: KSh ${d.distanceCharge||0}\nSurcharge: KSh ${d.weightSurcharge||0}\nTOTAL: KSh ${d.fare}\n---\nStatus: ${d.status}\nDriver: ${d.driverName||'N/A'} (${d.driverPhone||''})`;
+        document.getElementById('detailContent').innerHTML = `
+          <h3 style="color:var(--gold);"><i class="fas fa-file-invoice"></i> Delivery #${id}</h3>
+          <div class="receipt-box">${receipt.replace(/\n/g,'<br>')}</div>
+          <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+            <button class="btn btn-gold btn-sm" onclick="sendClientWA('${id}')"><i class="fab fa-whatsapp"></i> Msg Client</button>
+            <button class="btn btn-outline btn-sm" onclick="copyReceipt()"><i class="fas fa-copy"></i> Copy</button>
+            <button class="btn btn-outline btn-sm" onclick="markComplete('${id}')"><i class="fas fa-check"></i> Complete</button>
+          </div>
+        `;
+        document.getElementById('detailModal').classList.add('active');
+      });
+    };
+
+    window.sendClientWA = function(id) {
+      db.ref(`pickup_deliveries/${id}`).once('value', snap => {
+        const d = snap.val();
+        if (d?.userPhone) window.open(`https://wa.me/254${d.userPhone.replace(/^0+/,'')}?text=${encodeURIComponent(`Hello ${d.userName}, your delivery is confirmed. Total KSh ${d.fare}. We'll update you shortly.`)}`, '_blank');
+      });
+    };
+
+    window.copyReceipt = () => {
+      const box = document.querySelector('.receipt-box');
+      if (box) navigator.clipboard.writeText(box.innerText).then(() => showToast('Copied!'));
+    };
+
+    window.markComplete = (id) => {
+      if (confirm('Mark as completed?')) {
+        db.ref(`pickup_deliveries/${id}`).update({ status: 'completed', completedAt: new Date().toISOString() }).then(() => showToast('Completed'));
+      }
+    };
+
+    window.closeDetailModal = () => document.getElementById('detailModal').classList.remove('active');
+    document.getElementById('detailModal').addEventListener('click', e => { if (e.target === document.getElementById('detailModal')) closeDetailModal(); });
+    document.getElementById('refreshDeliveriesBtn').addEventListener('click', loadDeliveriesList);
+
+    auth.onAuthStateChanged(user => {
+      if (user) showDashboard();
+      else showLogin();
+    });
+    initTheme();
+  })();
+</script>
+</body>
+</html>
