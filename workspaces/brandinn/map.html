@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <meta name="theme-color" content="#7c3aed">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>KazInni Workspaces | Add to Map</title>
+    
+    <!-- Favicon (KazInni logo) -->
+    <link rel="icon" type="image/png" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
+    
+    <!-- Leaflet CSS & JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
+    </script>
+    
+    <!-- Font Awesome & Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #7c3aed;
+            --primary-dark: #5b21b6;
+            --primary-light: #a78bfa;
+            --bg-deep: #0f0f1a;
+            --card-bg: rgba(20, 18, 30, 0.96);
+            --text-light: #f1f5f9;
+            --text-muted: #94a3b8;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-deep);
+            color: var(--text-light);
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .navbar {
+            background: rgba(15, 15, 26, 0.97);
+            backdrop-filter: blur(16px);
+            padding: 0.7rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid rgba(124, 58, 237, 0.5);
+            z-index: 2000;
+            flex-shrink: 0;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-img {
+            height: 40px;
+            width: 40px;
+            border-radius: 12px;
+            object-fit: contain;
+            background: white;
+            box-shadow: 0 6px 16px rgba(124, 58, 237, 0.3);
+        }
+
+        .logo-text {
+            font-weight: 800;
+            font-size: 1.3rem;
+            background: linear-gradient(145deg, #c084fc, #7c3aed);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.3px;
+        }
+
+        .logo-text span {
+            font-weight: 600;
+            font-size: 0.8rem;
+            background: #64748b;
+            -webkit-text-fill-color: #64748b;
+            margin-left: 4px;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .back-btn, .logout-btn {
+            background: rgba(124, 58, 237, 0.15);
+            border: 1px solid var(--primary);
+            padding: 0.5rem 1.1rem;
+            border-radius: 40px;
+            color: var(--primary-light);
+            font-weight: 600;
+            font-size: 0.8rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            text-decoration: none;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .back-btn:hover, .logout-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .user-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.05);
+            padding: 0.3rem 0.9rem 0.3rem 0.6rem;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .user-avatar {
+            width: 34px;
+            height: 34px;
+            background: linear-gradient(145deg, #7c3aed, #c084fc);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        /* Layout */
+        .main-layout {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .map-container {
+            flex: 1;
+            position: relative;
+            min-width: 0;
+        }
+
+        #coverageMap {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Search Panel - Overlay on map */
+        .search-panel {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            z-index: 1000;
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            border-radius: 20px;
+            padding: 16px;
+            border: 1px solid rgba(124, 58, 237, 0.4);
+            width: 320px;
+            max-width: calc(100vw - 30px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+
+        .search-panel h3 {
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            color: var(--primary-light);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .search-tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .search-tab {
+            flex: 1;
+            min-width: 70px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid #334155;
+            padding: 8px 10px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .search-tab i {
+            margin-right: 4px;
+        }
+
+        .search-tab.active {
+            background: rgba(124, 58, 237, 0.25);
+            border-color: var(--primary);
+            color: var(--primary-light);
+        }
+
+        .search-input-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .search-input-row input {
+            flex: 1;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid #334155;
+            padding: 10px 14px;
+            border-radius: 12px;
+            color: white;
+            font-size: 0.8rem;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .search-input-row input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
+        }
+
+        .search-input-row input::placeholder {
+            color: #64748b;
+        }
+
+        .search-btn {
+            background: var(--primary);
+            border: none;
+            padding: 10px 16px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .search-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .search-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .coords-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 5px;
+        }
+
+        .coords-row input {
+            flex: 1;
+        }
+
+        .search-results-info {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .search-results-info i {
+            color: var(--success);
+        }
+
+        /* Sidebar */
+        .side-panel {
+            width: 360px;
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border-left: 1px solid rgba(124, 58, 237, 0.3);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            z-index: 150;
+        }
+
+        .register-card {
+            background: rgba(0,0,0,0.35);
+            border-radius: 18px;
+            padding: 16px;
+            margin: 12px;
+            border: 1px solid rgba(124, 58, 237, 0.3);
+        }
+
+        .register-card h4 {
+            font-size: 0.85rem;
+            margin-bottom: 12px;
+            color: var(--primary-light);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .selected-location-info {
+            background: rgba(124, 58, 237, 0.12);
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 12px;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            border: 1px dashed rgba(124, 58, 237, 0.3);
+        }
+
+        .selected-location-info strong {
+            color: var(--primary-light);
+        }
+
+        .register-card input {
+            width: 100%;
+            background: rgba(0,0,0,0.6);
+            border: 1px solid #334155;
+            padding: 10px 14px;
+            border-radius: 12px;
+            color: white;
+            margin-bottom: 10px;
+            font-size: 0.8rem;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .register-card input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
+        }
+
+        .register-btn {
+            width: 100%;
+            background: var(--primary);
+            border: none;
+            padding: 11px;
+            border-radius: 12px;
+            font-weight: 700;
+            color: white;
+            cursor: pointer;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .register-btn:hover:not(:disabled) {
+            background: var(--primary-dark);
+        }
+
+        .register-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .stat-card {
+            background: rgba(0,0,0,0.35);
+            border-radius: 14px;
+            padding: 14px;
+            margin: 8px 12px;
+            border-left: 3px solid var(--primary);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--primary-light);
+        }
+
+        .stat-label {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 2px;
+        }
+
+        .recent-list {
+            max-height: 200px;
+            overflow-y: auto;
+            font-size: 0.7rem;
+            margin: 0 12px 12px;
+        }
+
+        .recent-item {
+            padding: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .recent-item strong {
+            color: var(--text-light);
+        }
+
+        /* Toast */
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 3000;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .toast {
+            background: #1e1b2e;
+            border-left: 4px solid var(--primary);
+            padding: 12px 18px;
+            border-radius: 12px;
+            color: white;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+            animation: slideIn 0.25s ease;
+        }
+
+        .toast.success {
+            border-left-color: var(--success);
+        }
+
+        .toast.error {
+            border-left-color: var(--danger);
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(60px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .map-crosshair {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2rem;
+            color: var(--primary);
+            pointer-events: none;
+            z-index: 999;
+            text-shadow: 0 0 12px rgba(124, 58, 237, 0.5);
+        }
+
+        .spinner-small {
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.2);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            display: inline-block;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 0.6rem 1rem;
+            }
+            .logo-text {
+                font-size: 1rem;
+            }
+            .search-panel {
+                width: calc(100vw - 30px);
+                left: 15px;
+                top: 10px;
+            }
+            .side-panel {
+                width: 280px;
+                position: fixed;
+                right: 0;
+                top: 62px;
+                height: calc(100vh - 62px);
+                transform: translateX(100%);
+                transition: transform 0.3s ease;
+                z-index: 1000;
+            }
+            .side-panel.open {
+                transform: translateX(0);
+                box-shadow: -5px 0 25px rgba(0,0,0,0.5);
+            }
+            .menu-toggle-mobile {
+                display: flex !important;
+                background: var(--primary);
+                border: none;
+                color: white;
+                padding: 8px 14px;
+                border-radius: 20px;
+                font-size: 0.75rem;
+                cursor: pointer;
+                align-items: center;
+                gap: 6px;
+                font-weight: 600;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .side-panel {
+                display: flex !important;
+                transform: translateX(0) !important;
+            }
+            .menu-toggle-mobile {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="logo">
+            <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png" alt="KazInni Logo" class="logo-img">
+            <span class="logo-text">KazInni <span>Workspaces</span></span>
+        </div>
+        <div class="nav-right">
+            <a href="/workspaces/brandinn/index.html" class="back-btn">
+                <i class="fas fa-arrow-left"></i> <span>Dashboard</span>
+            </a>
+            <div class="user-badge">
+                <div class="user-avatar" id="userAvatar">KA</div>
+                <span id="userName">Field Agent</span>
+            </div>
+            <button class="logout-btn" id="logoutBtn">
+                <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
+            </button>
+            <button class="menu-toggle-mobile" id="menuToggleMobile" style="display:none;">
+                <i class="fas fa-bars"></i> Panel
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Layout -->
+    <div class="main-layout">
+        <!-- Map Section -->
+        <div class="map-container">
+            <div id="coverageMap"></div>
+            <div class="map-crosshair" id="mapCrosshair" style="display:none;">
+                <i class="fas fa-plus-circle"></i>
+            </div>
+
+            <!-- Search Panel Overlay -->
+            <div class="search-panel" id="searchPanel">
+                <h3><i class="fas fa-search-location"></i> Search Location</h3>
+                <div class="search-tabs">
+                    <button class="search-tab active" data-tab="name">
+                        <i class="fas fa-map-pin"></i> Place Name
+                    </button>
+                    <button class="search-tab" data-tab="coordinates">
+                        <i class="fas fa-crosshairs"></i> Coordinates
+                    </button>
+                </div>
+
+                <!-- Place Name Search -->
+                <div id="searchByNameTab">
+                    <div class="search-input-row">
+                        <input type="text" id="placeSearchInput" placeholder="e.g., Nairobi CBD, Westlands...">
+                        <button class="search-btn" id="searchPlaceBtn">
+                            <i class="fas fa-search"></i> Find
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Coordinates Search -->
+                <div id="searchByCoordsTab" style="display:none;">
+                    <div class="coords-row">
+                        <input type="text" id="latInput" placeholder="Latitude (e.g., -1.2864)">
+                        <input type="text" id="lngInput" placeholder="Longitude (e.g., 36.8172)">
+                    </div>
+                    <button class="search-btn" id="searchCoordsBtn" style="width:100%; margin-top:5px;">
+                        <i class="fas fa-crosshairs"></i> Go to Coordinates
+                    </button>
+                </div>
+
+                <div class="search-results-info" id="searchResultsInfo">
+                    <i class="fas fa-info-circle"></i>
+                    <span id="searchStatus">Search for a location to place a business marker</span>
+                </div>
+                <button class="search-btn" id="useCurrentLocationBtn" style="width:100%; margin-top:5px; background:#334155;">
+                    <i class="fas fa-location-dot"></i> Use Current GPS Location
+                </button>
+            </div>
+        </div>
+
+        <!-- Side Panel -->
+        <div class="side-panel" id="sidePanel">
+            <div class="register-card">
+                <h4><i class="fas fa-plus-circle"></i> Add Business to Map</h4>
+                <div class="selected-location-info" id="selectedLocationInfo">
+                    <i class="fas fa-info-circle"></i> Search a location first, then add a business
+                </div>
+                <input type="text" id="businessNameInput" placeholder="Business Name (required)">
+                <input type="text" id="ownerNameInput" placeholder="Owner / Contact (optional)">
+                <button class="register-btn" id="addBusinessBtn" disabled>
+                    <i class="fas fa-map-pin"></i> Add Business at This Location
+                </button>
+                <p style="font-size:0.65rem; color:var(--text-muted); margin-top:8px; text-align:center;">
+                    <i class="fas fa-lightbulb"></i> Search for a location first, then register
+                </p>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-number" id="totalOnMap">0</div>
+                <div class="stat-label"><i class="fas fa-map-marked-alt"></i> Businesses on Map</div>
+            </div>
+
+            <div class="stat-card" style="border-left-color: var(--success);">
+                <div class="stat-number" id="recentlyAdded">0</div>
+                <div class="stat-label"><i class="fas fa-clock"></i> Added This Session</div>
+            </div>
+
+            <div style="padding: 0 12px; margin-top: 8px;">
+                <h4 style="font-size:0.8rem; color:var(--text-muted); margin-bottom:8px;">
+                    <i class="fas fa-history"></i> Recently Added
+                </h4>
+            </div>
+            <div class="recent-list" id="recentList">
+                <p style="color:var(--text-muted); text-align:center;">No businesses added yet</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Firebase & Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+            authDomain: "mugera-e51cc.firebaseapp.com",
+            databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "mugera-e51cc",
+            storageBucket: "mugera-e51cc.firebasestorage.app",
+            messagingSenderId: "1024868637509",
+            appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const auth = firebase.auth();
+
+        let map, streetLayer, satelliteLayer, activeLayer = 'street';
+        let businessMarkers = {};
+        let searchMarker = null;
+        let selectedLocation = null;
+        let currentUser = null;
+        let allBusinesses = [];
+        let sessionAddedCount = 0;
+
+        // DOM Elements
+        const searchPanel = document.getElementById('searchPanel');
+        const sidePanel = document.getElementById('sidePanel');
+        const toastContainer = document.getElementById('toastContainer');
+        const searchStatus = document.getElementById('searchStatus');
+        const searchResultsInfo = document.getElementById('searchResultsInfo');
+        const selectedLocationInfo = document.getElementById('selectedLocationInfo');
+        const addBusinessBtn = document.getElementById('addBusinessBtn');
+        const businessNameInput = document.getElementById('businessNameInput');
+        const ownerNameInput = document.getElementById('ownerNameInput');
+        const recentList = document.getElementById('recentList');
+
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            const icon = type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle';
+            toast.innerHTML = `<i class="fas ${icon}"></i> <span>${message}</span>`;
+            toastContainer.appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : m === '>' ? '&gt;' : m);
+        }
+
+        function getInitials(name) {
+            return name ? name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2) : 'KA';
+        }
+
+        // Search by place name using OpenStreetMap Nominatim
+        async function searchByPlaceName(query) {
+            if (!query || query.trim().length < 2) {
+                showToast('Please enter a place name to search', 'error');
+                return;
+            }
+
+            searchStatus.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Searching...';
+            document.getElementById('searchPlaceBtn').disabled = true;
+
+            try {
+                const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1&addressdetails=1`);
+                const data = await response.json();
+
+                if (data && data.length > 0) {
+                    const result = data[0];
+                    const lat = parseFloat(result.lat);
+                    const lng = parseFloat(result.lon);
+                    const displayName = result.display_name || query;
+
+                    updateSelectedLocation(lat, lng, displayName);
+                    map.setView([lat, lng], 17);
+                    searchStatus.innerHTML = `<i class="fas fa-check-circle" style="color:var(--success);"></i> Found: ${escapeHtml(displayName.substring(0, 40))}...`;
+                    showToast(`📍 Location found: ${displayName.split(',')[0]}`, 'success');
+                } else {
+                    searchStatus.innerHTML = '<i class="fas fa-exclamation-triangle" style="color:var(--warning);"></i> Location not found';
+                    showToast('Location not found. Try a more specific search or use coordinates.', 'error');
+                }
+            } catch (error) {
+                console.error('Search error:', error);
+                searchStatus.innerHTML = '<i class="fas fa-exclamation-triangle" style="color:var(--danger);"></i> Search failed';
+                showToast('Search failed. Please check your connection and try again.', 'error');
+            } finally {
+                document.getElementById('searchPlaceBtn').disabled = false;
+            }
+        }
+
+        // Search by coordinates
+        function searchByCoordinates(lat, lng) {
+            const latNum = parseFloat(lat);
+            const lngNum = parseFloat(lng);
+
+            if (isNaN(latNum) || isNaN(lngNum)) {
+                showToast('Please enter valid coordinates', 'error');
+                return;
+            }
+
+            if (latNum < -90 || latNum > 90 || lngNum < -180 || lngNum > 180) {
+                showToast('Coordinates out of valid range', 'error');
+                return;
+            }
+
+            updateSelectedLocation(latNum, lngNum, `${latNum.toFixed(6)}, ${lngNum.toFixed(6)}`);
+            map.setView([latNum, lngNum], 17);
+            searchStatus.innerHTML = `<i class="fas fa-check-circle" style="color:var(--success);"></i> Location set: ${latNum.toFixed(5)}, ${lngNum.toFixed(5)}`;
+            showToast(`📍 Coordinates set successfully`, 'success');
+        }
+
+        // Update selected location
+        function updateSelectedLocation(lat, lng, displayName) {
+            selectedLocation = { lat, lng, displayName };
+
+            if (searchMarker) {
+                map.removeLayer(searchMarker);
+            }
+
+            searchMarker = L.marker([lat, lng], {
+                icon: L.divIcon({
+                    html: `<div style="background:#7c3aed; width:24px; height:24px; border-radius:50%; border:3px solid white; box-shadow:0 0 15px rgba(124,58,237,0.6);"></div>`,
+                    iconSize: [24, 24],
+                    className: ''
+                })
+            }).addTo(map);
+            searchMarker.bindPopup(`<strong>📍 Selected Location</strong><br>${escapeHtml(displayName)}<br>${lat.toFixed(6)}, ${lng.toFixed(6)}`).openPopup();
+
+            selectedLocationInfo.innerHTML = `
+                <strong><i class="fas fa-map-pin"></i> Selected Location:</strong><br>
+                📍 ${escapeHtml(displayName.substring(0, 50))}<br>
+                🎯 Lat: ${lat.toFixed(6)} | Lng: ${lng.toFixed(6)}
+            `;
+
+            addBusinessBtn.disabled = false;
+        }
+
+        // Add business to map
+        async function addBusinessToMap() {
+            if (!selectedLocation) {
+                showToast('Please search for a location first', 'error');
+                return;
+            }
+
+            const businessName = businessNameInput.value.trim();
+            if (!businessName) {
+                showToast('Please enter a business name', 'error');
+                businessNameInput.focus();
+                return;
+            }
+
+            if (!currentUser) {
+                showToast('You must be logged in to add businesses', 'error');
+                window.location.href = 'https://kazinni.vercel.app';
+                return;
+            }
+
+            const ownerName = ownerNameInput.value.trim() || 'Not provided';
+            const businessId = Date.now().toString() + '_' + Math.random().toString(36).substr(2, 6);
+            const businessData = {
+                businessName,
+                ownerName,
+                lat: selectedLocation.lat,
+                lng: selectedLocation.lng,
+                displayName: selectedLocation.displayName,
+                addedBy: currentUser.email,
+                addedById: currentUser.uid,
+                timestamp: new Date().toISOString(),
+                status: 'active'
+            };
+
+            try {
+                await database.ref(`brandinn_map_locations/${businessId}`).set(businessData);
+                allBusinesses.unshift({ id: businessId, ...businessData });
+                addBusinessMarker(businessId, businessData);
+                sessionAddedCount++;
+                updateStatistics();
+                showToast(`✅ "${businessName}" added to map!`, 'success');
+                businessNameInput.value = '';
+                ownerNameInput.value = '';
+            } catch (error) {
+                console.error('Error adding business:', error);
+                showToast('Failed to add business. Please try again.', 'error');
+            }
+        }
+
+        // Add business marker to map
+        function addBusinessMarker(id, data) {
+            if (businessMarkers[id] && map) {
+                map.removeLayer(businessMarkers[id]);
+            }
+
+            const marker = L.marker([data.lat, data.lng], {
+                icon: L.divIcon({
+                    html: `<div style="background:#7c3aed; width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:2px solid white; box-shadow:0 0 12px rgba(124,58,237,0.5);"><i class="fas fa-store" style="color:white; font-size:13px;"></i></div>`,
+                    iconSize: [32, 32],
+                    popupAnchor: [0, -14]
+                })
+            }).addTo(map);
+
+            marker.bindPopup(`
+                <div style="font-family:'Inter',sans-serif; min-width:180px;">
+                    <strong style="color:#7c3aed;">${escapeHtml(data.businessName)}</strong><br>
+                    <span style="font-size:11px; color:#64748b;">👤 ${escapeHtml(data.ownerName)}</span><br>
+                    <span style="font-size:10px; color:#94a3b8;">📍 ${data.lat.toFixed(5)}, ${data.lng.toFixed(5)}</span><br>
+                    <span style="font-size:10px; color:#94a3b8;">🕒 ${new Date(data.timestamp).toLocaleString()}</span>
+                </div>
+            `);
+
+            businessMarkers[id] = marker;
+        }
+
+        // Update statistics and recent list
+        function updateStatistics() {
+            document.getElementById('totalOnMap').textContent = allBusinesses.length;
+            document.getElementById('recentlyAdded').textContent = sessionAddedCount;
+
+            if (allBusinesses.length === 0) {
+                recentList.innerHTML = '<p style="color:var(--text-muted); text-align:center;">No businesses added yet</p>';
+            } else {
+                recentList.innerHTML = allBusinesses.slice(0, 10).map(b => `
+                    <div class="recent-item">
+                        <strong>${escapeHtml(b.businessName)}</strong><br>
+                        <span style="color:var(--text-muted);">📍 ${b.lat.toFixed(5)}, ${b.lng.toFixed(5)}</span><br>
+                        <span style="font-size:0.65rem; color:#64748b;">🕒 ${new Date(b.timestamp).toLocaleString()}</span>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // Load businesses from Firebase
+        async function loadBusinesses() {
+            for (let id in businessMarkers) {
+                if (businessMarkers[id] && map) {
+                    map.removeLayer(businessMarkers[id]);
+                }
+            }
+            businessMarkers = {};
+            allBusinesses = [];
+
+            try {
+                const snapshot = await database.ref('brandinn_map_locations').once('value');
+                const data = snapshot.val();
+                if (data) {
+                    Object.keys(data).forEach(key => {
+                        const biz = data[key];
+                        if (biz.lat && biz.lng) {
+                            allBusinesses.push({ id: key, ...biz });
+                            addBusinessMarker(key, biz);
+                        }
+                    });
+                }
+                allBusinesses.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                updateStatistics();
+            } catch (error) {
+                console.error('Error loading businesses:', error);
+            }
+        }
+
+        // Get user's GPS location
+        function getUserLocation() {
+            searchStatus.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Getting GPS location...';
+
+            if (!navigator.geolocation) {
+                showToast('Geolocation is not supported by your browser', 'error');
+                searchStatus.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Geolocation not supported';
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    const accuracy = position.coords.accuracy;
+                    updateSelectedLocation(lat, lng, `GPS Location (${Math.round(accuracy)}m accuracy)`);
+                    map.setView([lat, lng], 18);
+                    searchStatus.innerHTML = `<i class="fas fa-check-circle" style="color:var(--success);"></i> GPS: ${lat.toFixed(6)}, ${lng.toFixed(6)} (${Math.round(accuracy)}m)`;
+                    showToast('📍 GPS location acquired', 'success');
+                },
+                (error) => {
+                    console.error('GPS error:', error);
+                    searchStatus.innerHTML = '<i class="fas fa-exclamation-triangle"></i> GPS unavailable';
+                    showToast('GPS unavailable. Please search manually or use coordinates.', 'error');
+                }, {
+                    enableHighAccuracy: true,
+                    timeout: 15000,
+                    maximumAge: 0
+                }
+            );
+        }
+
+        // Initialize map
+        function initMap() {
+            streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap',
+                maxZoom: 19
+            });
+            satelliteLayer = L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+                subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+                attribution: '&copy; Google',
+                maxZoom: 19
+            });
+
+            map = L.map('coverageMap', {
+                center: [-1.2864, 36.8172],
+                zoom: 13,
+                zoomControl: true
+            });
+            streetLayer.addTo(map);
+            L.control.scale({ metric: true, position: 'bottomleft' }).addTo(map);
+
+            // Click on map to select location
+            map.on('click', (e) => {
+                updateSelectedLocation(e.latlng.lat, e.latlng.lng, `Manual Selection (${e.latlng.lat.toFixed(5)}, ${e.latlng.lng.toFixed(5)})`);
+                searchStatus.innerHTML = `<i class="fas fa-check-circle" style="color:var(--success);"></i> Location selected from map`;
+            });
+
+            loadBusinesses();
+            getUserLocation();
+
+            // Real-time listener for new businesses
+            database.ref('brandinn_map_locations').on('child_added', (snapshot) => {
+                const biz = snapshot.val();
+                const id = snapshot.key;
+                if (biz.lat && biz.lng && !businessMarkers[id]) {
+                    allBusinesses.unshift({ id, ...biz });
+                    addBusinessMarker(id, biz);
+                    updateStatistics();
+                }
+            });
+        }
+
+        // Auth state listener
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('userName').textContent = user.email?.split('@')[0] || 'Field Agent';
+                document.getElementById('userAvatar').textContent = getInitials(user.email?.split('@')[0] || 'KA');
+                if (!map) {
+                    initMap();
+                } else {
+                    loadBusinesses();
+                }
+            } else {
+                window.location.href = 'https://kazinni.vercel.app';
+            }
+        });
+
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            // Logout
+            document.getElementById('logoutBtn').addEventListener('click', async () => {
+                try {
+                    await auth.signOut();
+                    window.location.href = 'https://kazinni.vercel.app';
+                } catch (e) {
+                    console.error('Logout error:', e);
+                }
+            });
+
+            // Search tabs
+            document.querySelectorAll('.search-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.search-tab').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    const tabName = tab.dataset.tab;
+                    document.getElementById('searchByNameTab').style.display = tabName === 'name' ? 'block' : 'none';
+                    document.getElementById('searchByCoordsTab').style.display = tabName === 'coordinates' ? 'block' : 'none';
+                });
+            });
+
+            // Search by place name
+            document.getElementById('searchPlaceBtn').addEventListener('click', () => {
+                const query = document.getElementById('placeSearchInput').value.trim();
+                searchByPlaceName(query);
+            });
+            document.getElementById('placeSearchInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    const query = document.getElementById('placeSearchInput').value.trim();
+                    searchByPlaceName(query);
+                }
+            });
+
+            // Search by coordinates
+            document.getElementById('searchCoordsBtn').addEventListener('click', () => {
+                const lat = document.getElementById('latInput').value.trim();
+                const lng = document.getElementById('lngInput').value.trim();
+                searchByCoordinates(lat, lng);
+            });
+
+            // Use current GPS location
+            document.getElementById('useCurrentLocationBtn').addEventListener('click', getUserLocation);
+
+            // Add business button
+            document.getElementById('addBusinessBtn').addEventListener('click', addBusinessToMap);
+
+            // Mobile menu toggle
+            const menuToggleMobile = document.getElementById('menuToggleMobile');
+            if (menuToggleMobile) {
+                menuToggleMobile.addEventListener('click', () => {
+                    sidePanel.classList.toggle('open');
+                });
+            }
+
+            // Check screen size for mobile menu
+            function checkScreenSize() {
+                if (window.innerWidth <= 768) {
+                    menuToggleMobile.style.display = 'flex';
+                } else {
+                    menuToggleMobile.style.display = 'none';
+                    sidePanel.classList.remove('open');
+                }
+            }
+            checkScreenSize();
+            window.addEventListener('resize', checkScreenSize);
+        });
+    </script>
+</body>
+</html>
