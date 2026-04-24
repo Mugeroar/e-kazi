@@ -1741,24 +1741,18 @@
             showLoading(true);
             
             try {
-                // Use a transaction to atomically check and accept
+                // Check if job is already accepted using transaction
                 const result = await database.ref('ekazi_job_postings').child(jobId).transaction((currentJob) => {
-                    // If job doesn't exist or was already accepted
                     if (!currentJob) {
-                        return currentJob; // Abort - job doesn't exist
+                        return currentJob; // Job doesn't exist
                     }
                     
                     // Check if already accepted
                     if (currentJob.status === 'accepted' || currentJob.status === 'assigned') {
-                        return currentJob; // Abort - already taken
+                        return currentJob; // Already taken
                     }
                     
-                    // Check if applications exceed some limit (optional)
-                    // if ((currentJob.applications || 0) > 5) {
-                    //     return currentJob; // Abort - too many applicants
-                    // }
-                    
-                    // Mark as accepted
+                    // Return updated job (transaction handles the write)
                     return {
                         ...currentJob,
                         status: 'accepted',
@@ -1766,9 +1760,8 @@
                         acceptedAt: firebase.database.ServerValue.TIMESTAMP,
                         applications: (currentJob.applications || 0) + 1
                     };
-                });
+                }, false); // Note: false means don't apply locally first
                 
-                // Check if transaction succeeded
                 if (!result.committed) {
                     showToast('This job was already accepted by someone else', 'warning');
                     await loadAvailableJobs();
@@ -1776,13 +1769,12 @@
                     return;
                 }
                 
-                // If we got here, we're the first and only acceptor
+                // Now create the task - this is what taskers CAN write to
                 const taskRef = database.ref('ekazi_assigned_tasks').push();
                 const taskId = taskRef.key;
                 const taskerName = currentTasker?.name || currentUser?.displayName || currentUser?.email?.split('@')[0] || 'Tasker';
                 
-                // Create the task (only we can do this now since transaction succeeded)
-                await taskRef.set({
+                const taskData = {
                     category: job.category,
                     clientName: job.postedBy || 'Client',
                     clientEmail: job.source === 'hiring_inquiry' ? job.postedBy : 'admin@ekazi.com',
@@ -1799,9 +1791,12 @@
                     assignedBy: 'self-assigned',
                     source: job.source,
                     sourceId: jobId
-                });
+                };
                 
-                // Update hiring inquiry if applicable
+                // This write should succeed because taskers are allowed to create tasks
+                await taskRef.set(taskData);
+                
+                // Update hiring inquiry if applicable (skip if fails for non-admins)
                 if (job.source === 'hiring_inquiry') {
                     try {
                         await database.ref(`ekazi_hiring_inquiries/${jobId}`).update({
@@ -1809,14 +1804,13 @@
                             assignedTaskId: taskId,
                             assignedAt: firebase.database.ServerValue.TIMESTAMP
                         });
-                    } catch (e) {
-                        console.log('Could not update hiring inquiry (may need admin):', e);
+                    } catch (hiringError) {
+                        console.log('Could not update hiring inquiry (admin-only):', hiringError.message);
                     }
                 }
                 
-                showToast('Job accepted successfully! ✓', 'success');
+                showToast('Job accepted successfully! Check My Tasks below.', 'success');
                 
-                // Refresh all data
                 await loadTasks(currentUser.email);
                 await loadAvailableJobs();
                 renderAvailableJobsTable();
@@ -1825,7 +1819,13 @@
                 
             } catch (error) {
                 console.error('Error accepting job:', error);
-                showToast('Error accepting job: ' + error.message, 'error');
+                
+                // More specific error messages
+                if (error.code === 'PERMISSION_DENIED') {
+                    showToast('Permission denied. Make sure your account is verified.', 'error');
+                } else {
+                    showToast('Error accepting job: ' + error.message, 'error');
+                }
             } finally {
                 showLoading(false);
             }
