@@ -8,13 +8,12 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>KazInni Workspaces | Add to Map</title>
     
-    <!-- Favicon (KazInni logo) -->
+    <!-- Favicon -->
     <link rel="icon" type="image/png" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
     
-    <!-- Leaflet CSS & JS -->
+    <!-- Leaflet -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
-    </script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
     <!-- Font Awesome & Fonts -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
@@ -34,6 +33,7 @@
             --success: #22c55e;
             --danger: #ef4444;
             --warning: #f59e0b;
+            --info: #06b6d4;
         }
 
         body {
@@ -46,11 +46,20 @@
             flex-direction: column;
         }
 
+        /* Operations Colors */
+        .op-brandinn { color: #7c3aed; border-color: #7c3aed; }
+        .op-deliveries { color: #f59e0b; border-color: #f59e0b; }
+        .op-rides { color: #22c55e; border-color: #22c55e; }
+        .op-ekazi { color: #06b6d4; border-color: #06b6d4; }
+        .op-heritage { color: #d946ef; border-color: #d946ef; }
+        .op-workfit { color: #f97316; border-color: #f97316; }
+        .op-hekima { color: #10b981; border-color: #10b981; }
+
         /* Header */
         .navbar {
             background: rgba(15, 15, 26, 0.97);
             backdrop-filter: blur(16px);
-            padding: 0.7rem 5%;
+            padding: 0.7rem 3%;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -96,28 +105,28 @@
         .nav-right {
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: 12px;
             flex-wrap: wrap;
         }
 
-        .back-btn, .logout-btn {
+        .nav-btn {
             background: rgba(124, 58, 237, 0.15);
             border: 1px solid var(--primary);
-            padding: 0.5rem 1.1rem;
+            padding: 0.5rem 1rem;
             border-radius: 40px;
             color: var(--primary-light);
             font-weight: 600;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
-            gap: 7px;
+            gap: 6px;
             text-decoration: none;
             transition: all 0.2s;
             white-space: nowrap;
         }
 
-        .back-btn:hover, .logout-btn:hover {
+        .nav-btn:hover {
             background: var(--primary);
             color: white;
         }
@@ -134,14 +143,15 @@
         }
 
         .user-avatar {
-            width: 34px;
-            height: 34px;
+            width: 32px;
+            height: 32px;
             background: linear-gradient(145deg, #7c3aed, #c084fc);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 700;
+            font-size: 0.8rem;
         }
 
         /* Layout */
@@ -162,142 +172,9 @@
             height: 100%;
         }
 
-        /* Search Panel - Overlay on map */
-        .search-panel {
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            z-index: 1000;
-            background: var(--card-bg);
-            backdrop-filter: blur(16px);
-            border-radius: 20px;
-            padding: 16px;
-            border: 1px solid rgba(124, 58, 237, 0.4);
-            width: 320px;
-            max-width: calc(100vw - 30px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-        }
-
-        .search-panel h3 {
-            font-size: 0.9rem;
-            margin-bottom: 10px;
-            color: var(--primary-light);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .search-tabs {
-            display: flex;
-            gap: 5px;
-            margin-bottom: 12px;
-            flex-wrap: wrap;
-        }
-
-        .search-tab {
-            flex: 1;
-            min-width: 70px;
-            background: rgba(255,255,255,0.03);
-            border: 1px solid #334155;
-            padding: 8px 10px;
-            border-radius: 10px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            color: var(--text-muted);
-            cursor: pointer;
-            text-align: center;
-            transition: all 0.2s;
-            white-space: nowrap;
-        }
-
-        .search-tab i {
-            margin-right: 4px;
-        }
-
-        .search-tab.active {
-            background: rgba(124, 58, 237, 0.25);
-            border-color: var(--primary);
-            color: var(--primary-light);
-        }
-
-        .search-input-row {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 8px;
-        }
-
-        .search-input-row input {
-            flex: 1;
-            background: rgba(0,0,0,0.5);
-            border: 1px solid #334155;
-            padding: 10px 14px;
-            border-radius: 12px;
-            color: white;
-            font-size: 0.8rem;
-            font-family: 'Inter', sans-serif;
-        }
-
-        .search-input-row input:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
-        }
-
-        .search-input-row input::placeholder {
-            color: #64748b;
-        }
-
-        .search-btn {
-            background: var(--primary);
-            border: none;
-            padding: 10px 16px;
-            border-radius: 12px;
-            color: white;
-            font-weight: 700;
-            cursor: pointer;
-            font-size: 0.8rem;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.2s;
-            white-space: nowrap;
-        }
-
-        .search-btn:hover {
-            background: var(--primary-dark);
-        }
-
-        .search-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .coords-row {
-            display: flex;
-            gap: 8px;
-            margin-top: 5px;
-        }
-
-        .coords-row input {
-            flex: 1;
-        }
-
-        .search-results-info {
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            margin-top: 8px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .search-results-info i {
-            color: var(--success);
-        }
-
-        /* Sidebar */
+        /* Side Panel */
         .side-panel {
-            width: 360px;
+            width: 420px;
             background: var(--card-bg);
             backdrop-filter: blur(12px);
             border-left: 1px solid rgba(124, 58, 237, 0.3);
@@ -307,15 +184,15 @@
             z-index: 150;
         }
 
-        .register-card {
-            background: rgba(0,0,0,0.35);
-            border-radius: 18px;
+        .panel-section {
+            background: rgba(0,0,0,0.3);
+            border-radius: 16px;
             padding: 16px;
-            margin: 12px;
-            border: 1px solid rgba(124, 58, 237, 0.3);
+            margin: 10px 12px;
+            border: 1px solid rgba(124, 58, 237, 0.2);
         }
 
-        .register-card h4 {
+        .panel-section h4 {
             font-size: 0.85rem;
             margin-bottom: 12px;
             color: var(--primary-light);
@@ -324,7 +201,72 @@
             gap: 8px;
         }
 
-        .selected-location-info {
+        .panel-section label {
+            display: block;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .panel-section select,
+        .panel-section input {
+            width: 100%;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid #334155;
+            padding: 10px 14px;
+            border-radius: 12px;
+            color: white;
+            font-size: 0.8rem;
+            font-family: 'Inter', sans-serif;
+            margin-bottom: 12px;
+            transition: all 0.2s;
+        }
+
+        .panel-section select:focus,
+        .panel-section input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
+        }
+
+        .panel-section select option {
+            background: #1a1a2e;
+            color: white;
+        }
+
+        .search-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .search-row input {
+            flex: 1;
+        }
+
+        .search-row button {
+            background: var(--primary);
+            border: none;
+            padding: 10px 16px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+
+        .search-row button:hover {
+            background: var(--primary-dark);
+        }
+
+        .selected-location {
             background: rgba(124, 58, 237, 0.12);
             border-radius: 10px;
             padding: 10px;
@@ -332,38 +274,27 @@
             font-size: 0.7rem;
             color: var(--text-muted);
             border: 1px dashed rgba(124, 58, 237, 0.3);
+            min-height: 40px;
         }
 
-        .selected-location-info strong {
+        .selected-location strong {
             color: var(--primary-light);
         }
 
-        .register-card input {
-            width: 100%;
-            background: rgba(0,0,0,0.6);
-            border: 1px solid #334155;
-            padding: 10px 14px;
-            border-radius: 12px;
-            color: white;
-            margin-bottom: 10px;
-            font-size: 0.8rem;
-            font-family: 'Inter', sans-serif;
+        .coords-row {
+            display: flex;
+            gap: 8px;
         }
 
-        .register-card input:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
+        .coords-row input {
+            flex: 1;
         }
 
-        .register-btn {
+        .btn {
             width: 100%;
-            background: var(--primary);
-            border: none;
             padding: 11px;
             border-radius: 12px;
             font-weight: 700;
-            color: white;
             cursor: pointer;
             font-size: 0.85rem;
             display: flex;
@@ -371,53 +302,97 @@
             justify-content: center;
             gap: 8px;
             transition: all 0.2s;
+            border: none;
+            color: white;
         }
 
-        .register-btn:hover:not(:disabled) {
+        .btn-primary {
+            background: var(--primary);
+        }
+
+        .btn-primary:hover:not(:disabled) {
             background: var(--primary-dark);
         }
 
-        .register-btn:disabled {
+        .btn-secondary {
+            background: #334155;
+        }
+
+        .btn-secondary:hover {
+            background: #475569;
+        }
+
+        .btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
         }
 
-        .stat-card {
-            background: rgba(0,0,0,0.35);
-            border-radius: 14px;
-            padding: 14px;
-            margin: 8px 12px;
+        /* Stats */
+        .stat-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .stat-mini {
+            flex: 1;
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            padding: 10px;
+            text-align: center;
             border-left: 3px solid var(--primary);
         }
 
-        .stat-number {
-            font-size: 2rem;
+        .stat-mini .number {
+            font-size: 1.5rem;
             font-weight: 800;
             color: var(--primary-light);
         }
 
-        .stat-label {
-            font-size: 0.6rem;
+        .stat-mini .label {
+            font-size: 0.55rem;
             color: var(--text-muted);
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-top: 2px;
         }
 
+        /* Operation Badges */
+        .operation-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 8px;
+            font-size: 0.6rem;
+            font-weight: 700;
+        }
+
+        .badge-brandinn { background: rgba(124,58,237,0.3); color: #c084fc; }
+        .badge-deliveries { background: rgba(245,158,11,0.3); color: #fbbf24; }
+        .badge-rides { background: rgba(34,197,94,0.3); color: #4ade80; }
+        .badge-ekazi { background: rgba(6,182,212,0.3); color: #22d3ee; }
+        .badge-heritage { background: rgba(217,70,239,0.3); color: #e879f9; }
+        .badge-workfit { background: rgba(249,115,22,0.3); color: #fb923c; }
+        .badge-hekima { background: rgba(16,185,129,0.3); color: #34d399; }
+
         .recent-list {
-            max-height: 200px;
+            max-height: 250px;
             overflow-y: auto;
             font-size: 0.7rem;
-            margin: 0 12px 12px;
         }
 
         .recent-item {
-            padding: 8px;
+            padding: 10px;
             border-bottom: 1px solid rgba(255,255,255,0.05);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .recent-item:hover {
+            background: rgba(124, 58, 237, 0.1);
         }
 
         .recent-item strong {
             color: var(--text-light);
+            display: block;
+            margin-bottom: 3px;
         }
 
         /* Toast */
@@ -445,29 +420,12 @@
             animation: slideIn 0.25s ease;
         }
 
-        .toast.success {
-            border-left-color: var(--success);
-        }
-
-        .toast.error {
-            border-left-color: var(--danger);
-        }
+        .toast.success { border-left-color: var(--success); }
+        .toast.error { border-left-color: var(--danger); }
 
         @keyframes slideIn {
             from { opacity: 0; transform: translateX(60px); }
             to { opacity: 1; transform: translateX(0); }
-        }
-
-        .map-crosshair {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 2rem;
-            color: var(--primary);
-            pointer-events: none;
-            z-index: 999;
-            text-shadow: 0 0 12px rgba(124, 58, 237, 0.5);
         }
 
         .spinner-small {
@@ -491,17 +449,12 @@
             .logo-text {
                 font-size: 1rem;
             }
-            .search-panel {
-                width: calc(100vw - 30px);
-                left: 15px;
-                top: 10px;
-            }
             .side-panel {
-                width: 280px;
+                width: 100%;
                 position: fixed;
                 right: 0;
-                top: 62px;
-                height: calc(100vh - 62px);
+                top: 60px;
+                height: calc(100vh - 60px);
                 transform: translateX(100%);
                 transition: transform 0.3s ease;
                 z-index: 1000;
@@ -545,15 +498,15 @@
             <span class="logo-text">KazInni <span>Workspaces</span></span>
         </div>
         <div class="nav-right">
-            <a href="/workspaces/brandinn/index.html" class="back-btn">
-                <i class="fas fa-arrow-left"></i> <span>Dashboard</span>
+            <a href="/workspaces/brandinn/index.html" class="nav-btn">
+                <i class="fas fa-arrow-left"></i> Dashboard
             </a>
             <div class="user-badge">
                 <div class="user-avatar" id="userAvatar">KA</div>
                 <span id="userName">Field Agent</span>
             </div>
-            <button class="logout-btn" id="logoutBtn">
-                <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
+            <button class="nav-btn" id="logoutBtn">
+                <i class="fas fa-sign-out-alt"></i> Logout
             </button>
             <button class="menu-toggle-mobile" id="menuToggleMobile" style="display:none;">
                 <i class="fas fa-bars"></i> Panel
@@ -566,87 +519,101 @@
         <!-- Map Section -->
         <div class="map-container">
             <div id="coverageMap"></div>
-            <div class="map-crosshair" id="mapCrosshair" style="display:none;">
-                <i class="fas fa-plus-circle"></i>
-            </div>
-
-            <!-- Search Panel Overlay -->
-            <div class="search-panel" id="searchPanel">
-                <h3><i class="fas fa-search-location"></i> Search Location</h3>
-                <div class="search-tabs">
-                    <button class="search-tab active" data-tab="name">
-                        <i class="fas fa-map-pin"></i> Place Name
-                    </button>
-                    <button class="search-tab" data-tab="coordinates">
-                        <i class="fas fa-crosshairs"></i> Coordinates
-                    </button>
-                </div>
-
-                <!-- Place Name Search -->
-                <div id="searchByNameTab">
-                    <div class="search-input-row">
-                        <input type="text" id="placeSearchInput" placeholder="e.g., Nairobi CBD, Westlands...">
-                        <button class="search-btn" id="searchPlaceBtn">
-                            <i class="fas fa-search"></i> Find
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Coordinates Search -->
-                <div id="searchByCoordsTab" style="display:none;">
-                    <div class="coords-row">
-                        <input type="text" id="latInput" placeholder="Latitude (e.g., -1.2864)">
-                        <input type="text" id="lngInput" placeholder="Longitude (e.g., 36.8172)">
-                    </div>
-                    <button class="search-btn" id="searchCoordsBtn" style="width:100%; margin-top:5px;">
-                        <i class="fas fa-crosshairs"></i> Go to Coordinates
-                    </button>
-                </div>
-
-                <div class="search-results-info" id="searchResultsInfo">
-                    <i class="fas fa-info-circle"></i>
-                    <span id="searchStatus">Search for a location to place a business marker</span>
-                </div>
-                <button class="search-btn" id="useCurrentLocationBtn" style="width:100%; margin-top:5px; background:#334155;">
-                    <i class="fas fa-location-dot"></i> Use Current GPS Location
-                </button>
-            </div>
         </div>
 
         <!-- Side Panel -->
         <div class="side-panel" id="sidePanel">
-            <div class="register-card">
-                <h4><i class="fas fa-plus-circle"></i> Add Business to Map</h4>
-                <div class="selected-location-info" id="selectedLocationInfo">
-                    <i class="fas fa-info-circle"></i> Search a location first, then add a business
+            <!-- Location Search -->
+            <div class="panel-section">
+                <h4><i class="fas fa-search-location"></i> Search Location</h4>
+                <div class="search-row">
+                    <input type="text" id="placeSearchInput" placeholder="Search place or address...">
+                    <button id="searchPlaceBtn"><i class="fas fa-search"></i> Find</button>
                 </div>
-                <input type="text" id="businessNameInput" placeholder="Business Name (required)">
-                <input type="text" id="ownerNameInput" placeholder="Owner / Contact (optional)">
-                <button class="register-btn" id="addBusinessBtn" disabled>
-                    <i class="fas fa-map-pin"></i> Add Business at This Location
+                <div class="coords-row" style="margin-top:8px;">
+                    <input type="text" id="latInput" placeholder="Latitude">
+                    <input type="text" id="lngInput" placeholder="Longitude">
+                </div>
+                <button class="btn btn-secondary" id="searchCoordsBtn" style="margin-top:8px;">
+                    <i class="fas fa-crosshairs"></i> Go to Coordinates
                 </button>
-                <p style="font-size:0.65rem; color:var(--text-muted); margin-top:8px; text-align:center;">
-                    <i class="fas fa-lightbulb"></i> Search for a location first, then register
-                </p>
+                <button class="btn btn-secondary" id="useGpsBtn" style="margin-top:6px;">
+                    <i class="fas fa-location-dot"></i> Use My GPS Location
+                </button>
+                <div class="selected-location" id="selectedLocationDisplay">
+                    <i class="fas fa-info-circle"></i> Search for a location or click on map
+                </div>
             </div>
 
-            <div class="stat-card">
-                <div class="stat-number" id="totalOnMap">0</div>
-                <div class="stat-label"><i class="fas fa-map-marked-alt"></i> Businesses on Map</div>
+            <!-- Registration Form -->
+            <div class="panel-section">
+                <h4><i class="fas fa-plus-circle"></i> Add Business to Map</h4>
+                
+                <label><i class="fas fa-building"></i> Select Operation</label>
+                <select id="operationSelect">
+                    <option value="">-- Choose Operation --</option>
+                    <option value="brandinn">🏪 BrandInn Business</option>
+                    <option value="deliveries">📦 Pick Up Deliveries</option>
+                    <option value="rides">🚗 Pick Me Rides</option>
+                    <option value="ekazi">💻 E-Kazi</option>
+                    <option value="heritage">🏛️ Heritage Marketplace</option>
+                    <option value="workfit">💪 WorkFit Club</option>
+                    <option value="hekima">📚 Hekima Hub</option>
+                </select>
+
+                <label><i class="fas fa-store"></i> Select Business</label>
+                <select id="businessSelect" disabled>
+                    <option value="">-- Select operation first --</option>
+                </select>
+                <small style="color:var(--text-muted); font-size:0.65rem;">
+                    Or register a new business below
+                </small>
+
+                <div id="newBusinessForm" style="margin-top:10px;">
+                    <label style="margin-top:8px;"><i class="fas fa-store-alt"></i> Business Name *</label>
+                    <input type="text" id="businessNameInput" placeholder="Enter business name">
+
+                    <label><i class="fas fa-envelope"></i> Email *</label>
+                    <input type="email" id="emailInput" placeholder="Business email">
+
+                    <label><i class="fas fa-phone"></i> Phone Number *</label>
+                    <input type="tel" id="phoneInput" placeholder="07XX XXX XXX">
+
+                    <label><i class="fas fa-user"></i> Contact Person</label>
+                    <input type="text" id="contactPersonInput" placeholder="Full name">
+
+                    <label><i class="fas fa-phone-alt"></i> Alternative Phone</label>
+                    <input type="tel" id="altPhoneInput" placeholder="Alternative number">
+
+                    <label><i class="fas fa-map-marker-alt"></i> Physical Address</label>
+                    <input type="text" id="addressInput" placeholder="Street, building, landmark">
+                </div>
+
+                <button class="btn btn-primary" id="addBusinessBtn" disabled>
+                    <i class="fas fa-map-pin"></i> Add Business to Map
+                </button>
             </div>
 
-            <div class="stat-card" style="border-left-color: var(--success);">
-                <div class="stat-number" id="recentlyAdded">0</div>
-                <div class="stat-label"><i class="fas fa-clock"></i> Added This Session</div>
+            <!-- Stats -->
+            <div class="stat-row" style="margin: 0 12px;">
+                <div class="stat-mini">
+                    <div class="number" id="totalOnMap">0</div>
+                    <div class="label">Total on Map</div>
+                </div>
+                <div class="stat-mini" style="border-left-color: var(--success);">
+                    <div class="number" id="sessionAdded">0</div>
+                    <div class="label">Added Now</div>
+                </div>
             </div>
 
-            <div style="padding: 0 12px; margin-top: 8px;">
+            <!-- Recent List -->
+            <div style="padding: 0 12px; margin-top: 4px;">
                 <h4 style="font-size:0.8rem; color:var(--text-muted); margin-bottom:8px;">
                     <i class="fas fa-history"></i> Recently Added
                 </h4>
             </div>
-            <div class="recent-list" id="recentList">
-                <p style="color:var(--text-muted); text-align:center;">No businesses added yet</p>
+            <div class="recent-list" id="recentList" style="margin: 0 12px 12px;">
+                <p style="color:var(--text-muted); text-align:center; padding:20px;">No businesses added yet</p>
             </div>
         </div>
     </div>
@@ -654,7 +621,7 @@
     <!-- Toast Container -->
     <div class="toast-container" id="toastContainer"></div>
 
-    <!-- Firebase & Scripts -->
+    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
@@ -674,32 +641,32 @@
         const database = firebase.database();
         const auth = firebase.auth();
 
-        let map, streetLayer, satelliteLayer, activeLayer = 'street';
+        // Operation definitions
+        const OPERATIONS = {
+            brandinn: { name: 'BrandInn Business', icon: 'fa-store', color: '#7c3aed', badgeClass: 'badge-brandinn' },
+            deliveries: { name: 'Pick Up Deliveries', icon: 'fa-box', color: '#f59e0b', badgeClass: 'badge-deliveries' },
+            rides: { name: 'Pick Me Rides', icon: 'fa-car', color: '#22c55e', badgeClass: 'badge-rides' },
+            ekazi: { name: 'E-Kazi', icon: 'fa-laptop-code', color: '#06b6d4', badgeClass: 'badge-ekazi' },
+            heritage: { name: 'Heritage Marketplace', icon: 'fa-landmark', color: '#d946ef', badgeClass: 'badge-heritage' },
+            workfit: { name: 'WorkFit Club', icon: 'fa-dumbbell', color: '#f97316', badgeClass: 'badge-workfit' },
+            hekima: { name: 'Hekima Hub', icon: 'fa-book-open', color: '#10b981', badgeClass: 'badge-hekima' }
+        };
+
+        let map, streetLayer, satelliteLayer;
         let businessMarkers = {};
         let searchMarker = null;
         let selectedLocation = null;
         let currentUser = null;
-        let allBusinesses = [];
+        let allMapEntries = [];
         let sessionAddedCount = 0;
-
-        // DOM Elements
-        const searchPanel = document.getElementById('searchPanel');
-        const sidePanel = document.getElementById('sidePanel');
-        const toastContainer = document.getElementById('toastContainer');
-        const searchStatus = document.getElementById('searchStatus');
-        const searchResultsInfo = document.getElementById('searchResultsInfo');
-        const selectedLocationInfo = document.getElementById('selectedLocationInfo');
-        const addBusinessBtn = document.getElementById('addBusinessBtn');
-        const businessNameInput = document.getElementById('businessNameInput');
-        const ownerNameInput = document.getElementById('ownerNameInput');
-        const recentList = document.getElementById('recentList');
+        let registeredBusinesses = {};
 
         function showToast(message, type = 'info') {
             const toast = document.createElement('div');
             toast.className = `toast ${type}`;
             const icon = type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle';
             toast.innerHTML = `<i class="fas ${icon}"></i> <span>${message}</span>`;
-            toastContainer.appendChild(toast);
+            document.getElementById('toastContainer').appendChild(toast);
             setTimeout(() => toast.remove(), 4000);
         }
 
@@ -712,115 +679,144 @@
             return name ? name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2) : 'KA';
         }
 
-        // Search by place name using OpenStreetMap Nominatim
-        async function searchByPlaceName(query) {
-            if (!query || query.trim().length < 2) {
-                showToast('Please enter a place name to search', 'error');
-                return;
-            }
-
-            searchStatus.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Searching...';
-            document.getElementById('searchPlaceBtn').disabled = true;
-
-            try {
-                const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1&addressdetails=1`);
-                const data = await response.json();
-
-                if (data && data.length > 0) {
-                    const result = data[0];
-                    const lat = parseFloat(result.lat);
-                    const lng = parseFloat(result.lon);
-                    const displayName = result.display_name || query;
-
-                    updateSelectedLocation(lat, lng, displayName);
-                    map.setView([lat, lng], 17);
-                    searchStatus.innerHTML = `<i class="fas fa-check-circle" style="color:var(--success);"></i> Found: ${escapeHtml(displayName.substring(0, 40))}...`;
-                    showToast(`📍 Location found: ${displayName.split(',')[0]}`, 'success');
-                } else {
-                    searchStatus.innerHTML = '<i class="fas fa-exclamation-triangle" style="color:var(--warning);"></i> Location not found';
-                    showToast('Location not found. Try a more specific search or use coordinates.', 'error');
-                }
-            } catch (error) {
-                console.error('Search error:', error);
-                searchStatus.innerHTML = '<i class="fas fa-exclamation-triangle" style="color:var(--danger);"></i> Search failed';
-                showToast('Search failed. Please check your connection and try again.', 'error');
-            } finally {
-                document.getElementById('searchPlaceBtn').disabled = false;
-            }
+        function getMarkerIcon(operation) {
+            const op = OPERATIONS[operation] || { color: '#7c3aed', icon: 'fa-map-pin' };
+            return L.divIcon({
+                html: `<div style="background:${op.color}; width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:3px solid white; box-shadow:0 0 15px ${op.color};"><i class="fas ${op.icon}" style="color:white; font-size:14px;"></i></div>`,
+                iconSize: [34, 34],
+                popupAnchor: [0, -15]
+            });
         }
 
-        // Search by coordinates
-        function searchByCoordinates(lat, lng) {
-            const latNum = parseFloat(lat);
-            const lngNum = parseFloat(lng);
-
-            if (isNaN(latNum) || isNaN(lngNum)) {
-                showToast('Please enter valid coordinates', 'error');
-                return;
-            }
-
-            if (latNum < -90 || latNum > 90 || lngNum < -180 || lngNum > 180) {
-                showToast('Coordinates out of valid range', 'error');
-                return;
-            }
-
-            updateSelectedLocation(latNum, lngNum, `${latNum.toFixed(6)}, ${lngNum.toFixed(6)}`);
-            map.setView([latNum, lngNum], 17);
-            searchStatus.innerHTML = `<i class="fas fa-check-circle" style="color:var(--success);"></i> Location set: ${latNum.toFixed(5)}, ${lngNum.toFixed(5)}`;
-            showToast(`📍 Coordinates set successfully`, 'success');
-        }
-
-        // Update selected location
         function updateSelectedLocation(lat, lng, displayName) {
             selectedLocation = { lat, lng, displayName };
-
-            if (searchMarker) {
-                map.removeLayer(searchMarker);
-            }
-
+            if (searchMarker) map.removeLayer(searchMarker);
             searchMarker = L.marker([lat, lng], {
                 icon: L.divIcon({
-                    html: `<div style="background:#7c3aed; width:24px; height:24px; border-radius:50%; border:3px solid white; box-shadow:0 0 15px rgba(124,58,237,0.6);"></div>`,
-                    iconSize: [24, 24],
+                    html: `<div style="background:#7c3aed; width:20px; height:20px; border-radius:50%; border:3px solid white; box-shadow:0 0 12px rgba(124,58,237,0.6);"></div>`,
+                    iconSize: [20, 20],
                     className: ''
                 })
             }).addTo(map);
             searchMarker.bindPopup(`<strong>📍 Selected Location</strong><br>${escapeHtml(displayName)}<br>${lat.toFixed(6)}, ${lng.toFixed(6)}`).openPopup();
-
-            selectedLocationInfo.innerHTML = `
-                <strong><i class="fas fa-map-pin"></i> Selected Location:</strong><br>
-                📍 ${escapeHtml(displayName.substring(0, 50))}<br>
-                🎯 Lat: ${lat.toFixed(6)} | Lng: ${lng.toFixed(6)}
+            document.getElementById('selectedLocationDisplay').innerHTML = `
+                <strong><i class="fas fa-map-pin"></i> Selected:</strong><br>
+                📍 ${escapeHtml(displayName.substring(0, 40))}<br>
+                🎯 ${lat.toFixed(6)}, ${lng.toFixed(6)}
             `;
-
-            addBusinessBtn.disabled = false;
+            document.getElementById('addBusinessBtn').disabled = false;
         }
 
-        // Add business to map
+        async function searchByPlaceName(query) {
+            if (!query || query.trim().length < 2) { showToast('Enter a place name', 'error'); return; }
+            document.getElementById('searchPlaceBtn').disabled = true;
+            try {
+                const resp = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`);
+                const data = await resp.json();
+                if (data && data.length > 0) {
+                    const r = data[0];
+                    updateSelectedLocation(parseFloat(r.lat), parseFloat(r.lon), r.display_name || query);
+                    map.setView([parseFloat(r.lat), parseFloat(r.lon)], 17);
+                    showToast(`📍 Found: ${r.display_name.split(',')[0]}`, 'success');
+                } else {
+                    showToast('Location not found. Try coordinates.', 'error');
+                }
+            } catch (e) { showToast('Search failed', 'error'); }
+            document.getElementById('searchPlaceBtn').disabled = false;
+        }
+
+        function searchByCoordinates(lat, lng) {
+            const la = parseFloat(lat), lo = parseFloat(lng);
+            if (isNaN(la) || isNaN(lo) || la < -90 || la > 90 || lo < -180 || lo > 180) {
+                showToast('Invalid coordinates', 'error'); return;
+            }
+            updateSelectedLocation(la, lo, `${la.toFixed(6)}, ${lo.toFixed(6)}`);
+            map.setView([la, lo], 17);
+            showToast('📍 Coordinates set', 'success');
+        }
+
+        function getUserLocation() {
+            if (!navigator.geolocation) { showToast('Geolocation not supported', 'error'); return; }
+            navigator.geolocation.getCurrentPosition(
+                pos => {
+                    updateSelectedLocation(pos.coords.latitude, pos.coords.longitude, `GPS (${Math.round(pos.coords.accuracy)}m)`);
+                    map.setView([pos.coords.latitude, pos.coords.longitude], 18);
+                    showToast('📍 GPS acquired', 'success');
+                },
+                err => { showToast('GPS unavailable. Search manually.', 'error'); },
+                { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+            );
+        }
+
+        async function loadRegisteredBusinesses() {
+            try {
+                const snap = await database.ref('kazinni_registered_businesses').once('value');
+                registeredBusinesses = snap.val() || {};
+                updateBusinessDropdown();
+            } catch (e) { console.error('Load businesses error:', e); }
+        }
+
+        function updateBusinessDropdown() {
+            const operation = document.getElementById('operationSelect').value;
+            const dropdown = document.getElementById('businessSelect');
+            dropdown.innerHTML = '<option value="">-- Select business or type new below --</option>';
+            
+            if (!operation) {
+                dropdown.disabled = true;
+                return;
+            }
+            dropdown.disabled = false;
+            
+            const businessesForOp = Object.entries(registeredBusinesses)
+                .filter(([_, b]) => b.operation === operation);
+            
+            if (businessesForOp.length === 0) {
+                dropdown.innerHTML += '<option value="" disabled>No businesses registered yet</option>';
+            } else {
+                businessesForOp.forEach(([id, b]) => {
+                    dropdown.innerHTML += `<option value="${id}">${escapeHtml(b.businessName)} - ${escapeHtml(b.email || '')}</option>`;
+                });
+            }
+        }
+
+        function populateFormFromBusiness(businessId) {
+            if (!businessId || !registeredBusinesses[businessId]) return;
+            const biz = registeredBusinesses[businessId];
+            document.getElementById('businessNameInput').value = biz.businessName || '';
+            document.getElementById('emailInput').value = biz.email || '';
+            document.getElementById('phoneInput').value = biz.phone || '';
+            document.getElementById('contactPersonInput').value = biz.contactPerson || '';
+            document.getElementById('altPhoneInput').value = biz.altPhone || '';
+            document.getElementById('addressInput').value = biz.address || '';
+        }
+
         async function addBusinessToMap() {
-            if (!selectedLocation) {
-                showToast('Please search for a location first', 'error');
-                return;
-            }
+            if (!selectedLocation) { showToast('Select a location first', 'error'); return; }
+            if (!currentUser) { showToast('You must be logged in', 'error'); window.location.href = 'https://kazinni.vercel.app'; return; }
 
-            const businessName = businessNameInput.value.trim();
-            if (!businessName) {
-                showToast('Please enter a business name', 'error');
-                businessNameInput.focus();
-                return;
-            }
+            const operation = document.getElementById('operationSelect').value;
+            if (!operation) { showToast('Select an operation', 'error'); return; }
 
-            if (!currentUser) {
-                showToast('You must be logged in to add businesses', 'error');
-                window.location.href = 'https://kazinni.vercel.app';
-                return;
-            }
+            const businessName = document.getElementById('businessNameInput').value.trim();
+            const email = document.getElementById('emailInput').value.trim();
+            const phone = document.getElementById('phoneInput').value.trim();
+            const contactPerson = document.getElementById('contactPersonInput').value.trim();
+            const altPhone = document.getElementById('altPhoneInput').value.trim();
+            const address = document.getElementById('addressInput').value.trim();
 
-            const ownerName = ownerNameInput.value.trim() || 'Not provided';
-            const businessId = Date.now().toString() + '_' + Math.random().toString(36).substr(2, 6);
+            if (!businessName) { showToast('Business name is required', 'error'); return; }
+            if (!email) { showToast('Email is required', 'error'); return; }
+            if (!phone) { showToast('Phone number is required', 'error'); return; }
+
             const businessData = {
                 businessName,
-                ownerName,
+                email,
+                phone,
+                contactPerson: contactPerson || 'Not provided',
+                altPhone: altPhone || '',
+                address: address || '',
+                operation,
+                operationName: OPERATIONS[operation]?.name || operation,
                 lat: selectedLocation.lat,
                 lng: selectedLocation.lng,
                 displayName: selectedLocation.displayName,
@@ -831,249 +827,178 @@
             };
 
             try {
-                await database.ref(`brandinn_map_locations/${businessId}`).set(businessData);
-                allBusinesses.unshift({ id: businessId, ...businessData });
-                addBusinessMarker(businessId, businessData);
+                const mapId = Date.now().toString() + '_' + Math.random().toString(36).substr(2, 6);
+                await database.ref(`kazinni_map_locations/${mapId}`).set(businessData);
+                
+                const businessRegId = `${operation}_${businessName.toLowerCase().replace(/[^a-z0-9]/g, '_')}`;
+                const existingBiz = Object.entries(registeredBusinesses).find(([_, b]) => 
+                    b.operation === operation && b.businessName.toLowerCase() === businessName.toLowerCase()
+                );
+                
+                if (!existingBiz) {
+                    const regData = { ...businessData, registeredAt: new Date().toISOString() };
+                    await database.ref(`kazinni_registered_businesses/${businessRegId}`).set(regData);
+                    registeredBusinesses[businessRegId] = regData;
+                }
+
+                allMapEntries.unshift({ id: mapId, ...businessData });
+                addBusinessMarker(mapId, businessData);
                 sessionAddedCount++;
-                updateStatistics();
+                updateStats();
                 showToast(`✅ "${businessName}" added to map!`, 'success');
-                businessNameInput.value = '';
-                ownerNameInput.value = '';
-            } catch (error) {
-                console.error('Error adding business:', error);
-                showToast('Failed to add business. Please try again.', 'error');
+                
+                document.getElementById('businessNameInput').value = '';
+                document.getElementById('emailInput').value = '';
+                document.getElementById('phoneInput').value = '';
+                document.getElementById('contactPersonInput').value = '';
+                document.getElementById('altPhoneInput').value = '';
+                document.getElementById('addressInput').value = '';
+                updateBusinessDropdown();
+            } catch (e) {
+                console.error('Error:', e);
+                showToast('Failed to add business', 'error');
             }
         }
 
-        // Add business marker to map
         function addBusinessMarker(id, data) {
-            if (businessMarkers[id] && map) {
-                map.removeLayer(businessMarkers[id]);
-            }
-
-            const marker = L.marker([data.lat, data.lng], {
-                icon: L.divIcon({
-                    html: `<div style="background:#7c3aed; width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:2px solid white; box-shadow:0 0 12px rgba(124,58,237,0.5);"><i class="fas fa-store" style="color:white; font-size:13px;"></i></div>`,
-                    iconSize: [32, 32],
-                    popupAnchor: [0, -14]
-                })
-            }).addTo(map);
-
+            if (businessMarkers[id] && map) map.removeLayer(businessMarkers[id]);
+            const marker = L.marker([data.lat, data.lng], { icon: getMarkerIcon(data.operation) }).addTo(map);
+            const opName = OPERATIONS[data.operation]?.name || data.operation;
             marker.bindPopup(`
-                <div style="font-family:'Inter',sans-serif; min-width:180px;">
-                    <strong style="color:#7c3aed;">${escapeHtml(data.businessName)}</strong><br>
-                    <span style="font-size:11px; color:#64748b;">👤 ${escapeHtml(data.ownerName)}</span><br>
-                    <span style="font-size:10px; color:#94a3b8;">📍 ${data.lat.toFixed(5)}, ${data.lng.toFixed(5)}</span><br>
-                    <span style="font-size:10px; color:#94a3b8;">🕒 ${new Date(data.timestamp).toLocaleString()}</span>
+                <div style="font-family:'Inter',sans-serif; min-width:200px;">
+                    <strong>${escapeHtml(data.businessName)}</strong><br>
+                    <span style="font-size:11px; color:#64748b;">🏷️ ${opName}</span><br>
+                    <span style="font-size:10px;">📧 ${escapeHtml(data.email)}</span><br>
+                    <span style="font-size:10px;">📞 ${escapeHtml(data.phone)}</span><br>
+                    <span style="font-size:10px;">📍 ${data.lat.toFixed(5)}, ${data.lng.toFixed(5)}</span>
                 </div>
             `);
-
             businessMarkers[id] = marker;
         }
 
-        // Update statistics and recent list
-        function updateStatistics() {
-            document.getElementById('totalOnMap').textContent = allBusinesses.length;
-            document.getElementById('recentlyAdded').textContent = sessionAddedCount;
-
-            if (allBusinesses.length === 0) {
-                recentList.innerHTML = '<p style="color:var(--text-muted); text-align:center;">No businesses added yet</p>';
-            } else {
-                recentList.innerHTML = allBusinesses.slice(0, 10).map(b => `
-                    <div class="recent-item">
-                        <strong>${escapeHtml(b.businessName)}</strong><br>
-                        <span style="color:var(--text-muted);">📍 ${b.lat.toFixed(5)}, ${b.lng.toFixed(5)}</span><br>
-                        <span style="font-size:0.65rem; color:#64748b;">🕒 ${new Date(b.timestamp).toLocaleString()}</span>
-                    </div>
-                `).join('');
-            }
-        }
-
-        // Load businesses from Firebase
-        async function loadBusinesses() {
-            for (let id in businessMarkers) {
-                if (businessMarkers[id] && map) {
-                    map.removeLayer(businessMarkers[id]);
-                }
-            }
+        async function loadMapEntries() {
+            for (let id in businessMarkers) { if (businessMarkers[id] && map) map.removeLayer(businessMarkers[id]); }
             businessMarkers = {};
-            allBusinesses = [];
-
+            allMapEntries = [];
             try {
-                const snapshot = await database.ref('brandinn_map_locations').once('value');
-                const data = snapshot.val();
+                const snap = await database.ref('kazinni_map_locations').once('value');
+                const data = snap.val();
                 if (data) {
                     Object.keys(data).forEach(key => {
-                        const biz = data[key];
-                        if (biz.lat && biz.lng) {
-                            allBusinesses.push({ id: key, ...biz });
-                            addBusinessMarker(key, biz);
+                        const entry = data[key];
+                        if (entry.lat && entry.lng) {
+                            allMapEntries.push({ id: key, ...entry });
+                            addBusinessMarker(key, entry);
                         }
                     });
                 }
-                allBusinesses.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-                updateStatistics();
-            } catch (error) {
-                console.error('Error loading businesses:', error);
+                allMapEntries.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                updateStats();
+            } catch (e) { console.error('Load map entries error:', e); }
+        }
+
+        function updateStats() {
+            document.getElementById('totalOnMap').textContent = allMapEntries.length;
+            document.getElementById('sessionAdded').textContent = sessionAddedCount;
+            const list = document.getElementById('recentList');
+            if (allMapEntries.length === 0) {
+                list.innerHTML = '<p style="color:var(--text-muted); text-align:center; padding:20px;">No businesses added yet</p>';
+            } else {
+                list.innerHTML = allMapEntries.slice(0, 15).map(b => {
+                    const op = OPERATIONS[b.operation] || { badgeClass: '', name: b.operation };
+                    return `
+                        <div class="recent-item" onclick="if(map) map.setView([${b.lat}, ${b.lng}], 17)">
+                            <strong>${escapeHtml(b.businessName)}</strong>
+                            <span class="operation-badge ${op.badgeClass}">${op.name}</span><br>
+                            📍 ${b.lat.toFixed(5)}, ${b.lng.toFixed(5)} · ${new Date(b.timestamp).toLocaleDateString()}
+                        </div>
+                    `;
+                }).join('');
             }
         }
 
-        // Get user's GPS location
-        function getUserLocation() {
-            searchStatus.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Getting GPS location...';
-
-            if (!navigator.geolocation) {
-                showToast('Geolocation is not supported by your browser', 'error');
-                searchStatus.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Geolocation not supported';
-                return;
-            }
-
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    const lat = position.coords.latitude;
-                    const lng = position.coords.longitude;
-                    const accuracy = position.coords.accuracy;
-                    updateSelectedLocation(lat, lng, `GPS Location (${Math.round(accuracy)}m accuracy)`);
-                    map.setView([lat, lng], 18);
-                    searchStatus.innerHTML = `<i class="fas fa-check-circle" style="color:var(--success);"></i> GPS: ${lat.toFixed(6)}, ${lng.toFixed(6)} (${Math.round(accuracy)}m)`;
-                    showToast('📍 GPS location acquired', 'success');
-                },
-                (error) => {
-                    console.error('GPS error:', error);
-                    searchStatus.innerHTML = '<i class="fas fa-exclamation-triangle"></i> GPS unavailable';
-                    showToast('GPS unavailable. Please search manually or use coordinates.', 'error');
-                }, {
-                    enableHighAccuracy: true,
-                    timeout: 15000,
-                    maximumAge: 0
-                }
-            );
-        }
-
-        // Initialize map
         function initMap() {
-            streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; OpenStreetMap',
-                maxZoom: 19
-            });
-            satelliteLayer = L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
-                subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
-                attribution: '&copy; Google',
-                maxZoom: 19
-            });
-
-            map = L.map('coverageMap', {
-                center: [-1.2864, 36.8172],
-                zoom: 13,
-                zoomControl: true
-            });
+            streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OSM', maxZoom: 19 });
+            satelliteLayer = L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', { subdomains: ['mt0','mt1','mt2','mt3'], maxZoom: 19 });
+            map = L.map('coverageMap', { center: [-1.2864, 36.8172], zoom: 13 });
             streetLayer.addTo(map);
             L.control.scale({ metric: true, position: 'bottomleft' }).addTo(map);
-
-            // Click on map to select location
-            map.on('click', (e) => {
-                updateSelectedLocation(e.latlng.lat, e.latlng.lng, `Manual Selection (${e.latlng.lat.toFixed(5)}, ${e.latlng.lng.toFixed(5)})`);
-                searchStatus.innerHTML = `<i class="fas fa-check-circle" style="color:var(--success);"></i> Location selected from map`;
+            
+            map.on('click', e => {
+                updateSelectedLocation(e.latlng.lat, e.latlng.lng, `Map click (${e.latlng.lat.toFixed(5)}, ${e.latlng.lng.toFixed(5)})`);
             });
 
-            loadBusinesses();
+            loadMapEntries();
+            loadRegisteredBusinesses();
             getUserLocation();
 
-            // Real-time listener for new businesses
-            database.ref('brandinn_map_locations').on('child_added', (snapshot) => {
-                const biz = snapshot.val();
-                const id = snapshot.key;
-                if (biz.lat && biz.lng && !businessMarkers[id]) {
-                    allBusinesses.unshift({ id, ...biz });
-                    addBusinessMarker(id, biz);
-                    updateStatistics();
+            database.ref('kazinni_map_locations').on('child_added', snap => {
+                const entry = snap.val();
+                if (entry.lat && entry.lng && !businessMarkers[snap.key]) {
+                    allMapEntries.unshift({ id: snap.key, ...entry });
+                    addBusinessMarker(snap.key, entry);
+                    updateStats();
                 }
             });
         }
 
-        // Auth state listener
-        auth.onAuthStateChanged((user) => {
+        auth.onAuthStateChanged(user => {
             if (user) {
                 currentUser = user;
-                document.getElementById('userName').textContent = user.email?.split('@')[0] || 'Field Agent';
+                document.getElementById('userName').textContent = user.email?.split('@')[0] || 'Agent';
                 document.getElementById('userAvatar').textContent = getInitials(user.email?.split('@')[0] || 'KA');
-                if (!map) {
-                    initMap();
-                } else {
-                    loadBusinesses();
-                }
+                if (!map) initMap();
+                else { loadMapEntries(); loadRegisteredBusinesses(); }
             } else {
                 window.location.href = 'https://kazinni.vercel.app';
             }
         });
 
-        // Event Listeners
         document.addEventListener('DOMContentLoaded', () => {
-            // Logout
             document.getElementById('logoutBtn').addEventListener('click', async () => {
-                try {
-                    await auth.signOut();
-                    window.location.href = 'https://kazinni.vercel.app';
-                } catch (e) {
-                    console.error('Logout error:', e);
-                }
+                await auth.signOut();
+                window.location.href = 'https://kazinni.vercel.app';
             });
 
-            // Search tabs
-            document.querySelectorAll('.search-tab').forEach(tab => {
-                tab.addEventListener('click', () => {
-                    document.querySelectorAll('.search-tab').forEach(t => t.classList.remove('active'));
-                    tab.classList.add('active');
-                    const tabName = tab.dataset.tab;
-                    document.getElementById('searchByNameTab').style.display = tabName === 'name' ? 'block' : 'none';
-                    document.getElementById('searchByCoordsTab').style.display = tabName === 'coordinates' ? 'block' : 'none';
-                });
+            document.getElementById('operationSelect').addEventListener('change', updateBusinessDropdown);
+            
+            document.getElementById('businessSelect').addEventListener('change', function() {
+                if (this.value) populateFormFromBusiness(this.value);
             });
 
-            // Search by place name
             document.getElementById('searchPlaceBtn').addEventListener('click', () => {
-                const query = document.getElementById('placeSearchInput').value.trim();
-                searchByPlaceName(query);
+                searchByPlaceName(document.getElementById('placeSearchInput').value.trim());
             });
-            document.getElementById('placeSearchInput').addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    const query = document.getElementById('placeSearchInput').value.trim();
-                    searchByPlaceName(query);
-                }
+            
+            document.getElementById('placeSearchInput').addEventListener('keypress', e => {
+                if (e.key === 'Enter') searchByPlaceName(e.target.value.trim());
             });
 
-            // Search by coordinates
             document.getElementById('searchCoordsBtn').addEventListener('click', () => {
-                const lat = document.getElementById('latInput').value.trim();
-                const lng = document.getElementById('lngInput').value.trim();
-                searchByCoordinates(lat, lng);
+                searchByCoordinates(document.getElementById('latInput').value, document.getElementById('lngInput').value);
             });
 
-            // Use current GPS location
-            document.getElementById('useCurrentLocationBtn').addEventListener('click', getUserLocation);
-
-            // Add business button
+            document.getElementById('useGpsBtn').addEventListener('click', getUserLocation);
             document.getElementById('addBusinessBtn').addEventListener('click', addBusinessToMap);
 
-            // Mobile menu toggle
-            const menuToggleMobile = document.getElementById('menuToggleMobile');
-            if (menuToggleMobile) {
-                menuToggleMobile.addEventListener('click', () => {
-                    sidePanel.classList.toggle('open');
+            const menuToggle = document.getElementById('menuToggleMobile');
+            if (menuToggle) {
+                menuToggle.addEventListener('click', () => {
+                    document.getElementById('sidePanel').classList.toggle('open');
                 });
             }
 
-            // Check screen size for mobile menu
-            function checkScreenSize() {
+            function checkScreen() {
+                const toggle = document.getElementById('menuToggleMobile');
                 if (window.innerWidth <= 768) {
-                    menuToggleMobile.style.display = 'flex';
+                    if (toggle) toggle.style.display = 'flex';
                 } else {
-                    menuToggleMobile.style.display = 'none';
-                    sidePanel.classList.remove('open');
+                    if (toggle) toggle.style.display = 'none';
+                    document.getElementById('sidePanel').classList.remove('open');
                 }
             }
-            checkScreenSize();
-            window.addEventListener('resize', checkScreenSize);
+            checkScreen();
+            window.addEventListener('resize', checkScreen);
         });
     </script>
 </body>
