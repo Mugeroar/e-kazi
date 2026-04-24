@@ -5,34 +5,30 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>KazInni Workspace | Schedule Delivery</title>
   
-  <meta name="theme-color" content="#b45309">
+  <meta name="theme-color" content="#f59e0b">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   
   <link rel="icon" type="image/png" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
     :root {
-      --gold: #b45309;
-      --gold-light: #f59e0b;
-      --gold-bg: #fffbeb;
+      --gold: #f59e0b;
+      --gold-dark: #b45309;
+      --gold-light: #fbbf24;
       --card-bg: #ffffff;
       --text-primary: #1e293b;
       --text-muted: #64748b;
       --border-light: #fde68a;
-      --shadow: rgba(180, 83, 9, 0.08);
       --input-bg: #f8fafc;
       --input-border: #e2e8f0;
       --purple: #7c3aed;
+      --bg-deep: #0f0f1a;
     }
 
     body {
@@ -45,18 +41,19 @@
       flex-direction: column;
     }
 
-    /* Navigation */
     .navbar {
-      background: rgba(255, 255, 255, 0.92);
-      backdrop-filter: blur(12px);
-      padding: 0.9rem 5%;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(16px);
+      padding: 0.7rem 3%;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 1px solid var(--border-light);
+      border-bottom: 2px solid rgba(245, 158, 11, 0.3);
       position: sticky;
       top: 0;
-      z-index: 100;
+      z-index: 2000;
+      flex-wrap: wrap;
+      gap: 10px;
     }
 
     .logo {
@@ -66,114 +63,85 @@
     }
 
     .logo-img {
-      height: 42px;
-      width: 42px;
-      border-radius: 14px;
+      height: 40px;
+      width: 40px;
+      border-radius: 12px;
       object-fit: contain;
       background: white;
-      box-shadow: 0 8px 18px rgba(124, 58, 237, 0.15);
+      box-shadow: 0 6px 16px rgba(124, 58, 237, 0.3);
     }
 
     .logo-text {
       font-weight: 800;
-      font-size: 1.5rem;
-      background: linear-gradient(145deg, #7c3aed, #8b5cf6);
+      font-size: 1.3rem;
+      background: linear-gradient(145deg, #c084fc, #7c3aed);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      letter-spacing: -0.5px;
+      letter-spacing: -0.3px;
     }
 
     .logo-text span {
       font-weight: 600;
-      font-size: 0.9rem;
-      background: #b45309;
-      -webkit-text-fill-color: #b45309;
+      font-size: 0.8rem;
+      background: #f59e0b;
+      -webkit-text-fill-color: #f59e0b;
       margin-left: 4px;
-      letter-spacing: 0;
     }
 
     .nav-right {
       display: flex;
       align-items: center;
-      gap: 18px;
-    }
-
-    .rep-profile {
-      display: flex;
-      align-items: center;
       gap: 12px;
-      background: #fef3c7;
-      padding: 0.3rem 1rem 0.3rem 0.8rem;
-      border-radius: 60px;
+      flex-wrap: wrap;
     }
 
-    .rep-avatar {
-      width: 42px;
-      height: 42px;
-      background: linear-gradient(145deg, #b45309, #f59e0b);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-weight: 700;
-      font-size: 1rem;
-    }
-
-    .rep-info {
-      line-height: 1.3;
-    }
-
-    .rep-name {
-      font-weight: 700;
-      color: #0f172a;
-    }
-
-    .rep-role {
-      font-size: 0.7rem;
-      color: #b45309;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .logout-btn {
-      background: white;
-      border: 1.5px solid #fde68a;
-      padding: 0.55rem 1.3rem;
+    .nav-btn {
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid var(--gold);
+      padding: 0.5rem 1rem;
       border-radius: 40px;
-      color: #475569;
+      color: var(--gold-dark);
       font-weight: 600;
-      font-size: 0.85rem;
+      font-size: 0.75rem;
       cursor: pointer;
-      display: flex;
+      display: inline-flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
+      text-decoration: none;
       transition: all 0.2s;
       white-space: nowrap;
     }
 
-    .logout-btn:hover {
-      background: #fee2e2;
-      border-color: #ef4444;
-      color: #ef4444;
+    .nav-btn:hover {
+      background: var(--gold);
+      color: white;
     }
 
-    .back-link {
-      color: #7c3aed;
-      text-decoration: none;
-      font-weight: 600;
-      font-size: 0.9rem;
+    .user-badge {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
+      background: rgba(255,255,255,0.05);
+      padding: 0.3rem 0.9rem 0.3rem 0.6rem;
+      border-radius: 40px;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      border: 1px solid #fde68a;
     }
 
-    .back-link:hover {
-      color: #b45309;
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(145deg, #f59e0b, #b45309);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.8rem;
+      color: white;
     }
 
-    /* Container */
     .container {
       max-width: 900px;
       margin: 0 auto;
@@ -196,11 +164,11 @@
     }
 
     .page-header h1 i {
-      color: #b45309;
+      color: var(--gold-dark);
       background: white;
       padding: 10px;
       border-radius: 14px;
-      box-shadow: 0 8px 16px rgba(180, 83, 9, 0.08);
+      box-shadow: 0 8px 16px rgba(245, 158, 11, 0.1);
     }
 
     .page-header p {
@@ -209,20 +177,19 @@
       margin-left: 56px;
     }
 
-    /* Form Card */
     .form-card {
       background: white;
       border-radius: 28px;
       padding: 2rem;
       border: 1px solid #fef3c7;
-      box-shadow: 0 15px 35px -10px rgba(180, 83, 9, 0.06);
+      box-shadow: 0 15px 35px -10px rgba(245, 158, 11, 0.08);
       margin-bottom: 1.5rem;
     }
 
     .form-section-title {
       font-size: 1.1rem;
       font-weight: 700;
-      color: #b45309;
+      color: var(--gold-dark);
       margin-bottom: 1.5rem;
       display: flex;
       align-items: center;
@@ -270,8 +237,8 @@
 
     .form-input:focus, .form-select:focus, .form-textarea:focus {
       outline: none;
-      border-color: #b45309;
-      box-shadow: 0 0 0 3px rgba(180, 83, 9, 0.1);
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
       background: white;
     }
 
@@ -280,18 +247,16 @@
       min-height: 80px;
     }
 
-    /* Map */
     .map-container {
-      height: 280px;
+      height: 300px;
       border-radius: 18px;
       overflow: hidden;
       margin: 1.2rem 0;
       border: 2px solid #fde68a;
     }
 
-    /* Price display */
     .price-card {
-      background: linear-gradient(135deg, #b45309, #d97706);
+      background: linear-gradient(135deg, #b45309, #f59e0b);
       border-radius: 20px;
       padding: 1.5rem;
       color: white;
@@ -341,7 +306,6 @@
       color: #b45309;
     }
 
-    /* Buttons */
     .btn {
       padding: 0.85rem 1.8rem;
       border-radius: 40px;
@@ -358,14 +322,14 @@
     }
 
     .btn-primary {
-      background: linear-gradient(145deg, #b45309, #d97706);
+      background: linear-gradient(145deg, #b45309, #f59e0b);
       color: white;
-      box-shadow: 0 8px 20px rgba(180, 83, 9, 0.2);
+      box-shadow: 0 8px 20px rgba(245, 158, 11, 0.2);
     }
 
-    .btn-primary:hover {
+    .btn-primary:hover:not(:disabled) {
       transform: translateY(-2px);
-      box-shadow: 0 12px 25px rgba(180, 83, 9, 0.3);
+      box-shadow: 0 12px 25px rgba(245, 158, 11, 0.3);
     }
 
     .btn-primary:disabled {
@@ -378,13 +342,14 @@
       background: white;
       border: 1.5px solid #fde68a;
       color: #b45309;
+      width: auto;
+      padding: 0.7rem 1.5rem;
     }
 
     .btn-outline:hover {
       background: #fffbeb;
     }
 
-    /* Toast */
     .toast {
       position: fixed;
       bottom: 30px;
@@ -400,6 +365,7 @@
       display: flex;
       align-items: center;
       gap: 8px;
+      font-size: 0.85rem;
     }
 
     .toast.error {
@@ -451,17 +417,15 @@
       <span class="logo-text">KazInni <span>PickUp</span></span>
     </div>
     <div class="nav-right">
-      <a href="dashboard.html" class="back-link"><i class="fas fa-arrow-left"></i> Dashboard</a>
-      <div class="rep-profile">
-        <div class="rep-avatar" id="repAvatar">PU</div>
-        <div class="rep-info">
-          <div class="rep-name" id="repName">Agent</div>
-          <div class="rep-role"><i class="fas fa-badge-check"></i> Logistics</div>
-        </div>
+      <a href="/workspaces/brandinn/index.html" class="nav-btn">
+        <i class="fas fa-arrow-left"></i> Dashboard
+      </a>
+      <div class="user-badge">
+        <div class="user-avatar" id="repAvatar">PU</div>
+        <span id="repName">Agent</span>
       </div>
-      <button class="logout-btn" id="logoutBtn">
-        <i class="fas fa-sign-out-alt"></i>
-        <span>Logout</span>
+      <button class="nav-btn" id="logoutBtn">
+        <i class="fas fa-sign-out-alt"></i> Logout
       </button>
     </div>
   </nav>
@@ -476,7 +440,6 @@
     </div>
 
     <div class="form-card">
-      <!-- Client Information -->
       <div class="form-section-title">
         <i class="fas fa-user"></i> Client Information
       </div>
@@ -495,7 +458,6 @@
         <input type="email" class="form-input" id="clientEmail" placeholder="client@email.com">
       </div>
 
-      <!-- Delivery Details -->
       <div class="form-section-title" style="margin-top: 2rem;">
         <i class="fas fa-map-marker-alt"></i> Delivery Details
       </div>
@@ -510,7 +472,6 @@
         </div>
       </div>
 
-      <!-- Package Details -->
       <div class="form-section-title" style="margin-top: 2rem;">
         <i class="fas fa-box"></i> Package Details
       </div>
@@ -535,13 +496,11 @@
         <textarea class="form-textarea" id="instructions" placeholder="e.g., Call upon arrival, leave with security..."></textarea>
       </div>
 
-      <!-- Map -->
       <div class="map-container" id="deliveryMap"></div>
-      <button class="btn btn-outline" type="button" id="calculateRouteBtn" style="width: auto; padding: 0.7rem 1.5rem;">
+      <button class="btn btn-outline" type="button" id="calculateRouteBtn">
         <i class="fas fa-route"></i> Calculate Route & Fare
       </button>
 
-      <!-- Price Display -->
       <div class="price-card" id="priceCard" style="display: none;">
         <div class="price-label">Estimated Total Fare</div>
         <div class="price-amount" id="totalFare">— KES</div>
@@ -557,12 +516,12 @@
 
   <div id="toastContainer"></div>
 
-  <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getDatabase, ref, push, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 
+  <script>
     const firebaseConfig = {
       apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
       authDomain: "mugera-e51cc.firebaseapp.com",
@@ -573,24 +532,16 @@
       appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
     };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-    const auth = getAuth(app);
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    const auth = firebase.auth();
 
-    // Pricing configuration
     const PRICING = {
       baseFare: 100,
       perKmRate: 50,
-      weightSurcharge: {
-        document: 0,
-        small: 0,
-        medium: 100,
-        large: 200,
-        fragile: 150
-      }
+      weightSurcharge: { document: 0, small: 0, medium: 100, large: 200, fragile: 150 }
     };
 
-    // State
     let deliveryMap = null;
     let pickupMarker = null;
     let deliveryMarker = null;
@@ -600,14 +551,6 @@
     let calculatedDistance = null;
     let calculatedFare = null;
 
-    const loadingOverlay = document.getElementById('loadingOverlay');
-    const repNameEl = document.getElementById('repName');
-    const repAvatarEl = document.getElementById('repAvatar');
-
-    function getInitials(name) {
-      return name ? name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0,2) : 'PU';
-    }
-
     function showToast(msg, isError = false) {
       const toast = document.createElement('div');
       toast.className = `toast ${isError ? 'error' : ''}`;
@@ -616,25 +559,24 @@
       setTimeout(() => toast.remove(), 4000);
     }
 
-    // Initialize map
+    function getInitials(name) {
+      return name ? name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0,2) : 'PU';
+    }
+
     function initMap() {
       if (deliveryMap) return;
       deliveryMap = L.map('deliveryMap').setView([-1.2864, 36.8172], 13);
-      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap'
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap'
       }).addTo(deliveryMap);
     }
 
-    // Geocode address
     async function geocodeAddress(address) {
       try {
         const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`);
         const data = await response.json();
         if (data.length > 0) {
-          return {
-            lat: parseFloat(data[0].lat),
-            lon: parseFloat(data[0].lon)
-          };
+          return { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) };
         }
         return null;
       } catch (error) {
@@ -643,16 +585,12 @@
       }
     }
 
-    // Get route distance
     async function getRouteDistance(pickup, delivery) {
       try {
         const response = await fetch(`https://router.project-osrm.org/route/v1/driving/${pickup.lon},${pickup.lat};${delivery.lon},${delivery.lat}?overview=full&geometries=geojson`);
         const data = await response.json();
         if (data.routes && data.routes[0]) {
-          return {
-            distance: data.routes[0].distance / 1000, // km
-            geometry: data.routes[0].geometry
-          };
+          return { distance: data.routes[0].distance / 1000, geometry: data.routes[0].geometry };
         }
         return null;
       } catch (error) {
@@ -661,20 +599,17 @@
       }
     }
 
-    // Calculate fare
     function calculateFare(distance, packageType) {
       const surcharge = PRICING.weightSurcharge[packageType] || 0;
       const distanceCharge = Math.round(distance * PRICING.perKmRate);
-      const total = PRICING.baseFare + distanceCharge + surcharge;
       return {
         baseFare: PRICING.baseFare,
         distanceCharge,
         surcharge,
-        total
+        total: PRICING.baseFare + distanceCharge + surcharge
       };
     }
 
-    // Calculate route and update UI
     document.getElementById('calculateRouteBtn').addEventListener('click', async () => {
       const pickup = document.getElementById('pickupAddress').value.trim();
       const delivery = document.getElementById('deliveryAddress').value.trim();
@@ -685,71 +620,52 @@
       }
 
       initMap();
-      document.getElementById('calculateRouteBtn').disabled = true;
-      document.getElementById('calculateRouteBtn').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Calculating...';
+      const btn = document.getElementById('calculateRouteBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Calculating...';
 
       try {
         const pickupCoords = await geocodeAddress(pickup);
         const deliveryCoords = await geocodeAddress(delivery);
 
         if (!pickupCoords || !deliveryCoords) {
-          showToast('Could not find one or both addresses. Please be more specific.', true);
+          showToast('Could not find one or both addresses', true);
           return;
         }
 
         currentPickupCoords = pickupCoords;
         currentDeliveryCoords = deliveryCoords;
 
-        // Clear previous markers
         if (pickupMarker) deliveryMap.removeLayer(pickupMarker);
         if (deliveryMarker) deliveryMap.removeLayer(deliveryMarker);
         if (routeLine) deliveryMap.removeLayer(routeLine);
 
-        // Add markers
-        pickupMarker = L.marker([pickupCoords.lat, pickupCoords.lon])
-          .addTo(deliveryMap)
-          .bindPopup('📍 Pickup Location');
-        
-        deliveryMarker = L.marker([deliveryCoords.lat, deliveryCoords.lon])
-          .addTo(deliveryMap)
-          .bindPopup('🏁 Delivery Location');
+        pickupMarker = L.marker([pickupCoords.lat, pickupCoords.lon]).addTo(deliveryMap).bindPopup('📍 Pickup');
+        deliveryMarker = L.marker([deliveryCoords.lat, deliveryCoords.lon]).addTo(deliveryMap).bindPopup('🏁 Delivery');
 
-        // Get route
         const routeData = await getRouteDistance(pickupCoords, deliveryCoords);
         
         if (routeData) {
           calculatedDistance = routeData.distance;
-          
-          // Draw route
           routeLine = L.geoJSON(routeData.geometry, {
-            style: { color: '#b45309', weight: 4, opacity: 0.8 }
+            style: { color: '#f59e0b', weight: 4, opacity: 0.8 }
           }).addTo(deliveryMap);
-
-          // Fit bounds
-          const bounds = L.latLngBounds([
-            [pickupCoords.lat, pickupCoords.lon],
-            [deliveryCoords.lat, deliveryCoords.lon]
-          ]);
-          deliveryMap.fitBounds(bounds, { padding: [40, 40] });
         } else {
-          // Fallback: straight line distance
           calculatedDistance = Math.sqrt(
             Math.pow(pickupCoords.lat - deliveryCoords.lat, 2) + 
             Math.pow(pickupCoords.lon - deliveryCoords.lon, 2)
-          ) * 111; // approximate km
-          
-          const bounds = L.latLngBounds([
-            [pickupCoords.lat, pickupCoords.lon],
-            [deliveryCoords.lat, deliveryCoords.lon]
-          ]);
-          deliveryMap.fitBounds(bounds, { padding: [40, 40] });
+          ) * 111;
         }
 
-        // Calculate fare
+        const bounds = L.latLngBounds([
+          [pickupCoords.lat, pickupCoords.lon],
+          [deliveryCoords.lat, deliveryCoords.lon]
+        ]);
+        deliveryMap.fitBounds(bounds, { padding: [40, 40] });
+
         const packageType = document.getElementById('packageType').value;
         calculatedFare = calculateFare(calculatedDistance, packageType);
 
-        // Update UI
         document.getElementById('totalFare').textContent = `${calculatedFare.total} KES`;
         document.getElementById('distanceDisplay').textContent = `Distance: ${calculatedDistance.toFixed(1)} km`;
         document.getElementById('priceBreakdown').innerHTML = `
@@ -760,18 +676,16 @@
         `;
         document.getElementById('priceCard').style.display = 'block';
         document.getElementById('submitBookingBtn').disabled = false;
-        
-        showToast('Route calculated successfully!');
+        showToast('Route calculated!');
       } catch (error) {
         console.error('Error:', error);
-        showToast('Error calculating route. Please try again.', true);
+        showToast('Error calculating route', true);
       } finally {
-        document.getElementById('calculateRouteBtn').disabled = false;
-        document.getElementById('calculateRouteBtn').innerHTML = '<i class="fas fa-route"></i> Calculate Route & Fare';
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-route"></i> Calculate Route & Fare';
       }
     });
 
-    // Update fare when package type changes
     document.getElementById('packageType').addEventListener('change', () => {
       if (calculatedDistance) {
         const packageType = document.getElementById('packageType').value;
@@ -786,7 +700,6 @@
       }
     });
 
-    // Submit booking
     document.getElementById('submitBookingBtn').addEventListener('click', async () => {
       const clientName = document.getElementById('clientName').value.trim();
       const clientPhone = document.getElementById('clientPhone').value.trim();
@@ -807,43 +720,58 @@
         return;
       }
 
+      const user = auth.currentUser;
+      if (!user) {
+        showToast('You must be logged in', true);
+        window.location.href = 'https://kazinni.vercel.app';
+        return;
+      }
+
       const bookingData = {
+        userId: user.uid,
         userName: clientName,
         userPhone: clientPhone,
         userEmail: clientEmail || '',
         pickup: {
           address: pickupAddress,
-          coordinates: currentPickupCoords
+          lat: currentPickupCoords?.lat || null,
+          lng: currentPickupCoords?.lon || null
         },
         delivery: {
           address: deliveryAddress,
-          coordinates: currentDeliveryCoords
+          lat: currentDeliveryCoords?.lat || null,
+          lng: currentDeliveryCoords?.lon || null
         },
         package: {
           type: packageType,
           weight: packageWeight,
           instructions: instructions
         },
-        fare: calculatedFare.total,
-        baseFare: calculatedFare.baseFare,
-        distanceCharge: calculatedFare.distanceCharge,
-        weightSurcharge: calculatedFare.surcharge,
+        fare: {
+          total: calculatedFare.total,
+          base: calculatedFare.baseFare,
+          distance: calculatedFare.distanceCharge,
+          surcharge: calculatedFare.surcharge
+        },
         distance: parseFloat(calculatedDistance.toFixed(2)),
         status: 'pending',
-        bookingDate: new Date().toISOString(),
-        timestamp: serverTimestamp,
-        createdBy: auth.currentUser?.uid || 'staff'
+        createdAt: firebase.database.ServerValue.TIMESTAMP,
+        createdBy: user.email || 'staff',
+        assignedTo: null
       };
 
+      const btn = document.getElementById('submitBookingBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
       try {
-        document.getElementById('submitBookingBtn').disabled = true;
-        document.getElementById('submitBookingBtn').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+        const newRef = database.ref('pickup_deliveries').push();
+        await newRef.set(bookingData);
         
-        await push(ref(db, 'pickup_deliveries'), bookingData);
+        console.log('✅ Delivery saved with ID:', newRef.key);
         
         showToast('Booking created successfully!');
         
-        // Reset form
         document.getElementById('clientName').value = '';
         document.getElementById('clientPhone').value = '';
         document.getElementById('clientEmail').value = '';
@@ -865,35 +793,35 @@
         currentDeliveryCoords = null;
         
       } catch (error) {
-        console.error('Error saving booking:', error);
-        showToast('Error saving booking. Please try again.', true);
+        console.error('❌ Error saving delivery:', error);
+        showToast('Error: ' + error.message, true);
       } finally {
-        document.getElementById('submitBookingBtn').disabled = false;
-        document.getElementById('submitBookingBtn').innerHTML = '<i class="fas fa-save"></i> Create Booking';
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-save"></i> Create Booking';
       }
     });
 
-    // Auth
-    onAuthStateChanged(auth, async (user) => {
+    auth.onAuthStateChanged(async (user) => {
       if (user) {
         let userName = 'Logistics Agent';
-        const { get } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js");
-        const staffRef = ref(db, `logistics_staff/${user.uid}`);
-        const staffSnap = await get(staffRef);
-        if (staffSnap.exists()) {
-          userName = staffSnap.val().name || user.email?.split('@')[0] || 'Staff';
-        } else {
-          const brandRef = ref(db, `brandinn_users/${user.uid}`);
-          const brandSnap = await get(brandRef);
-          if (brandSnap.exists()) {
-            userName = brandSnap.val().name || user.email?.split('@')[0] || 'Agent';
+        try {
+          const staffSnap = await database.ref(`logistics_staff/${user.uid}`).once('value');
+          if (staffSnap.exists()) {
+            userName = staffSnap.val().name || user.email?.split('@')[0] || 'Staff';
           } else {
-            userName = user.displayName || user.email?.split('@')[0] || 'Agent';
+            const brandSnap = await database.ref(`brandinn_users/${user.uid}`).once('value');
+            if (brandSnap.exists()) {
+              userName = brandSnap.val().name || user.email?.split('@')[0] || 'Agent';
+            } else {
+              userName = user.displayName || user.email?.split('@')[0] || 'Agent';
+            }
           }
+        } catch(e) {
+          userName = user.email?.split('@')[0] || 'Agent';
         }
-        repNameEl.textContent = userName;
-        repAvatarEl.textContent = getInitials(userName);
-        loadingOverlay.classList.add('hide');
+        document.getElementById('repName').textContent = userName;
+        document.getElementById('repAvatar').textContent = getInitials(userName);
+        document.getElementById('loadingOverlay').classList.add('hide');
         initMap();
       } else {
         window.location.href = 'https://kazinni.vercel.app';
@@ -902,11 +830,11 @@
 
     document.getElementById('logoutBtn').addEventListener('click', async () => {
       if (confirm('Log out of KazInni Workspaces?')) {
-        await signOut(auth);
+        await auth.signOut();
       }
     });
 
-    setTimeout(() => loadingOverlay.classList.add('hide'), 5000);
+    setTimeout(() => document.getElementById('loadingOverlay').classList.add('hide'), 5000);
   </script>
 </body>
 </html>
