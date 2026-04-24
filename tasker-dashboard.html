@@ -1494,12 +1494,13 @@
 
         async function loadAvailableJobs() {
             try {
+                // Job postings - any authenticated user can read these
                 const jobPostingsSnapshot = await database.ref('ekazi_job_postings').once('value');
                 const jobPostingsData = jobPostingsSnapshot.val() || {};
-                const hiringSnapshot = await database.ref('ekazi_hiring_inquiries').once('value');
-                const hiringData = hiringSnapshot.val() || {};
+                
                 availableJobs = [];
-
+                
+                // Process job postings (visible to all authenticated users)
                 Object.entries(jobPostingsData).forEach(([id, job]) => {
                     if (job.status === 'active' || job.status === 'open') {
                         availableJobs.push({
@@ -1519,31 +1520,42 @@
                         });
                     }
                 });
-
-                Object.entries(hiringData).forEach(([id, inquiry]) => {
-                    if ((inquiry.status === 'new' || inquiry.status === 'open') && !inquiry.assignedTaskId) {
-                        availableJobs.push({
-                            id: id,
-                            source: 'hiring_inquiry',
-                            title: inquiry.category || 'Open Task',
-                            category: inquiry.category || 'General',
-                            budget: parseInt(inquiry.budget) || 0,
-                            description: inquiry.description || '',
-                            requirements: '',
-                            deadline: null,
-                            duration: 'Not specified',
-                            postedAt: inquiry.timestamp || Date.now(),
-                            postedBy: inquiry.email || inquiry.name || 'Client',
-                            reviewCount: 3,
-                            applications: 0
-                        });
-                    }
-                });
-
+                
+                // Hiring inquiries - ONLY admins can see these, so wrap in try-catch
+                try {
+                    const hiringSnapshot = await database.ref('ekazi_hiring_inquiries').once('value');
+                    const hiringData = hiringSnapshot.val() || {};
+                    
+                    Object.entries(hiringData).forEach(([id, inquiry]) => {
+                        if ((inquiry.status === 'new' || inquiry.status === 'open') && !inquiry.assignedTaskId) {
+                            availableJobs.push({
+                                id: id,
+                                source: 'hiring_inquiry',
+                                title: inquiry.category || 'Open Task',
+                                category: inquiry.category || 'General',
+                                budget: parseInt(inquiry.budget) || 0,
+                                description: inquiry.description || '',
+                                requirements: '',
+                                deadline: null,
+                                duration: 'Not specified',
+                                postedAt: inquiry.timestamp || Date.now(),
+                                postedBy: inquiry.email || inquiry.name || 'Client',
+                                reviewCount: 3,
+                                applications: 0
+                            });
+                        }
+                    });
+                } catch (hiringError) {
+                    // Non-admins will get a permission error here - that's expected
+                    console.log('ℹ️ Hiring inquiries skipped (requires admin access):', hiringError.message);
+                }
+                
+                // Sort by most recent first
                 availableJobs.sort((a, b) => (b.postedAt || 0) - (a.postedAt || 0));
                 console.log(`✅ Loaded ${availableJobs.length} available jobs`);
+                
             } catch (error) {
-                console.error('Error loading available jobs:', error);
+                console.error('❌ Error loading available jobs:', error);
                 availableJobs = [];
             }
         }
