@@ -1440,11 +1440,14 @@
         async function loadUserData(user) {
             showLoading(true);
             try {
+                // Load tasker profile
                 const taskerSnapshot = await database.ref(`taskers/${user.uid}`).once('value');
+                
                 if (taskerSnapshot.exists()) {
                     currentTasker = taskerSnapshot.val();
-                    console.log('✅ Tasker profile loaded');
+                    console.log('✅ Tasker profile loaded:', currentTasker);
                 } else {
+                    console.log('⚠️ No tasker profile found, creating default');
                     currentTasker = {
                         name: user.displayName || user.email?.split('@')[0] || 'Tasker',
                         email: user.email,
@@ -1452,15 +1455,17 @@
                         status: 'pending',
                         registeredAt: new Date().toISOString()
                     };
+                    
+                    // Create tasker profile if it doesn't exist
                     await database.ref(`taskers/${user.uid}`).set(currentTasker);
                 }
-                await Promise.all([
-                    loadTasks(user.email),
-                    loadAvailableJobs()
-                ]);
+                
+                // Setup real-time listeners for live updates
+                setupRealtimeListeners();
+                
+                // Update UI with initial data
                 updateDashboardUI();
-                renderAvailableJobsTable();
-                renderTasksTable();
+                
             } catch (error) {
                 console.error('Error loading data:', error);
                 showToast('Error loading dashboard: ' + error.message, 'error');
@@ -1468,7 +1473,6 @@
                 showLoading(false);
             }
         }
-
         async function loadTasks(email) {
             try {
                 const tasksSnapshot = await database.ref('ekazi_assigned_tasks').once('value');
@@ -1558,6 +1562,70 @@
                 console.error('❌ Error loading available jobs:', error);
                 availableJobs = [];
             }
+        }
+        // ADD THIS NEW FUNCTION HERE
+        function setupRealtimeListeners() {
+            // Real-time listener for job postings
+            database.ref('ekazi_job_postings').on('value', (snapshot) => {
+                const jobPostingsData = snapshot.val() || {};
+                
+                availableJobs = [];
+                
+                Object.entries(jobPostingsData).forEach(([id, job]) => {
+                    if (job.status === 'active' || job.status === 'open') {
+                        availableJobs.push({
+                            id: id,
+                            source: 'job_posting',
+                            title: job.title || 'Untitled Job',
+                            category: job.category || 'General',
+                            budget: parseInt(job.budget) || 0,
+                            description: job.description || '',
+                            requirements: job.requirements || '',
+                            deadline: job.deadline || null,
+                            duration: job.duration || 'Not specified',
+                            postedAt: job.postedAt || Date.now(),
+                            postedBy: job.postedBy || 'Admin',
+                            reviewCount: job.reviewCount || 3,
+                            applications: job.applications || 0,
+                            status: job.status
+                        });
+                    }
+                });
+                
+                availableJobs.sort((a, b) => (b.postedAt || 0) - (a.postedAt || 0));
+                renderAvailableJobsTable();
+                console.log('🔄 Job postings updated in real-time');
+            });
+            
+            // Real-time listener for assigned tasks
+            database.ref('ekazi_assigned_tasks')
+                .orderByChild('taskerEmail')
+                .equalTo(currentUser.email)
+                .on('value', (snapshot) => {
+                    const tasksData = snapshot.val() || {};
+                    
+                    assignedTasks = Object.entries(tasksData)
+                        .map(([id, task]) => ({ id, ...task }))
+                        .sort((a, b) => (b.assignedAt || 0) - (a.assignedAt || 0));
+                    
+                    renderTasksTable();
+                    updateDashboardUI();
+                    console.log('🔄 Tasks updated in real-time');
+                });
+            
+            // Real-time listener for submissions
+            database.ref('ekazi_task_submissions')
+                .orderByChild('taskerEmail')
+                .equalTo(currentUser.email)
+                .on('value', (snapshot) => {
+                    const submissionsData = snapshot.val() || {};
+                    
+                    taskSubmissions = Object.entries(submissionsData)
+                        .map(([id, sub]) => ({ id, ...sub }));
+                    
+                    renderTasksTable();
+                    console.log('🔄 Submissions updated in real-time');
+                });
         }
 
         function updateDashboardUI() {
@@ -1734,21 +1802,22 @@
                 return;
             }
             
-            if (!confirm(`Accept "${job.title}" for KSh ${job.budget.toLocaleString()}?`)) {
+            if (!confirm(`Accept "${job.title}" for KSh ${job.budget.toLocaleString()}?\n\nCategory: ${job.category}`)) {
                 return;
             }
         
             showLoading(true);
             
             try {
-                // Update the job posting status (now allowed for taskers)
+                // Update the job posting status to accepted
                 await database.ref(`ekazi_job_postings/${jobId}`).update({
                     status: 'accepted',
                     acceptedBy: currentUser.email,
-                    acceptedAt: firebase.database.ServerValue.TIMESTAMP
+                    acceptedAt: firebase.database.ServerValue.TIMESTAMP,
+                    applications: (job.applications || 0) + 1
                 });
                 
-                // Create the assigned task
+                // Create the assigned task for this tasker
                 const taskRef = database.ref('ekazi_assigned_tasks').push();
                 const taskId = taskRef.key;
                 const taskerName = currentTasker?.name || currentUser?.displayName || currentUser?.email?.split('@')[0] || 'Tasker';
@@ -1774,13 +1843,20 @@
                 
                 await taskRef.set(taskData);
                 
-                showToast('Job accepted successfully! Check My Tasks below.', 'success');
+                // Update hiring inquiry if applicable (skip if fails for non-admins)
+                if (job.source === 'hiring_inquiry') {
+                    try {
+                        await database.ref(`ekazi_hiring_inquiries/${jobId}`).update({
+                            status: 'assigned',
+                            assignedTaskId: taskId,
+                            assignedAt: firebase.database.ServerValue.TIMESTAMP
+                        });
+                    } catch (hiringError) {
+                        console.log('Could not update hiring inquiry (admin-only):', hiringError.message);
+                    }
+                }
                 
-                await loadTasks(currentUser.email);
-                await loadAvailableJobs();
-                renderAvailableJobsTable();
-                renderTasksTable();
-                updateDashboardUI();
+                showToast('Job accepted successfully! Check My Tasks below.', 'success');
                 
             } catch (error) {
                 console.error('Error accepting job:', error);
@@ -1790,11 +1866,10 @@
             }
         };
 
-        window.refreshAvailableJobs = async function() {
-            const tbody = document.getElementById('availableJobsTableBody');
-            tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state" style="padding:1.5rem;"><i class="fas fa-spinner fa-spin"></i><p style="margin-top:0.5rem;">Refreshing jobs...</p></div></td></tr>`;
-            await loadAvailableJobs();
-            renderAvailableJobsTable();
+        window.refreshAvailableJobs = function() {
+            // With real-time listeners, data updates automatically
+            // This function is kept for manual refresh if needed
+            showToast('Data updates automatically in real-time', 'info');
         };
 
         window.startTask = async function(taskId) {
@@ -2082,9 +2157,18 @@
         window.handleLogout = async function() {
             try {
                 showLoading(true);
+                
+                // Clear all timers
                 clearTimeout(inactivityTimer);
                 clearTimeout(warningTimer);
                 clearInterval(countdownInterval);
+                
+                // Remove all real-time listeners
+                database.ref('ekazi_job_postings').off();
+                database.ref('ekazi_assigned_tasks').off();
+                database.ref('ekazi_task_submissions').off();
+                
+                // Sign out and redirect
                 await auth.signOut();
                 window.location.href = 'index.html';
             } catch (error) {
