@@ -28,6 +28,8 @@
       --input-bg: #f8fafc;
       --input-border: #e2e8f0;
       --purple: #7c3aed;
+      --green: #22c55e;
+      --red: #ef4444;
     }
 
     body {
@@ -159,7 +161,7 @@
     }
 
     .side-panel {
-      width: 400px;
+      width: 420px;
       background: white;
       border-left: 1px solid #fef3c7;
       display: flex;
@@ -221,6 +223,59 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 8px;
+    }
+
+    .address-row {
+      display: flex;
+      gap: 6px;
+      align-items: flex-end;
+    }
+
+    .address-row .form-input {
+      flex: 1;
+    }
+
+    .small-btn {
+      background: var(--purple);
+      border: none;
+      color: white;
+      padding: 0.45rem 0.7rem;
+      border-radius: 8px;
+      font-size: 0.7rem;
+      cursor: pointer;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 10px;
+      transition: all 0.2s;
+    }
+
+    .small-btn:hover {
+      background: #6d28d9;
+    }
+
+    .small-btn.green {
+      background: var(--green);
+    }
+
+    .small-btn.green:hover {
+      background: #16a34a;
+    }
+
+    .selected-business-info {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 0.7rem;
+      color: #166534;
+      margin-bottom: 8px;
+      display: none;
+    }
+
+    .selected-business-info.show {
+      display: block;
     }
 
     .price-card {
@@ -308,7 +363,6 @@
       background: white;
       border: 1.5px solid #fde68a;
       color: #b45309;
-      width: auto;
     }
 
     .btn-outline:hover {
@@ -320,18 +374,18 @@
       bottom: 20px;
       left: 15px;
       z-index: 1000;
-      background: white;
+      background: rgba(255,255,255,0.95);
       border-radius: 14px;
-      padding: 12px;
+      padding: 10px 12px;
       box-shadow: 0 4px 15px rgba(0,0,0,0.1);
       border: 1px solid #fde68a;
-      max-height: 200px;
+      max-height: 180px;
       overflow-y: auto;
     }
 
     .legend h5 {
-      font-size: 0.7rem;
-      margin-bottom: 8px;
+      font-size: 0.65rem;
+      margin-bottom: 6px;
       color: #475569;
       text-transform: uppercase;
       letter-spacing: 0.5px;
@@ -340,10 +394,10 @@
     .legend-item {
       display: flex;
       align-items: center;
-      gap: 8px;
-      font-size: 0.65rem;
+      gap: 6px;
+      font-size: 0.6rem;
       color: #64748b;
-      margin-bottom: 4px;
+      margin-bottom: 3px;
       cursor: pointer;
       padding: 2px 4px;
       border-radius: 4px;
@@ -355,8 +409,8 @@
     }
 
     .legend-dot {
-      width: 12px;
-      height: 12px;
+      width: 10px;
+      height: 10px;
       border-radius: 50%;
       border: 2px solid white;
       box-shadow: 0 0 6px currentColor;
@@ -412,16 +466,22 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
+    .coords-display {
+      font-size: 0.6rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
     @media (max-width: 768px) {
       .main-layout {
         flex-direction: column;
       }
       .side-panel {
         width: 100%;
-        max-height: 50vh;
+        max-height: 55vh;
       }
       .map-section {
-        height: 50vh;
+        height: 45vh;
       }
       .navbar {
         padding: 0.6rem 1rem;
@@ -443,7 +503,7 @@
       <span class="logo-text">KazInni <span>PickUp</span></span>
     </div>
     <div class="nav-right">
-      <a href="/index.html" class="nav-btn">
+      <a href="/workspaces/pick-up/index.html" class="nav-btn">
         <i class="fas fa-arrow-left"></i> Dashboard
       </a>
       <div class="user-badge">
@@ -460,7 +520,7 @@
     <div class="map-section">
       <div id="deliveryMap"></div>
       <div class="legend" id="mapLegend">
-        <h5><i class="fas fa-filter"></i> Map Legend</h5>
+        <h5><i class="fas fa-filter"></i> Map Legend (click to toggle)</h5>
         <div id="legendItems">Loading...</div>
       </div>
     </div>
@@ -484,10 +544,25 @@
 
       <div class="panel-section">
         <h4><i class="fas fa-map-marker-alt"></i> Delivery Details</h4>
-        <label class="form-label">Pickup Address *</label>
-        <input type="text" class="form-input" id="pickupAddress" placeholder="Kawangware, Nairobi" required>
+        
+        <div class="selected-business-info" id="selectedPickupInfo">
+          <i class="fas fa-check-circle"></i> <span id="selectedPickupText"></span>
+        </div>
+        
+        <div class="address-row">
+          <div style="flex:1;">
+            <label class="form-label">Pickup Location *</label>
+            <input type="text" class="form-input" id="pickupAddress" placeholder="Click business on map or type address" required>
+          </div>
+          <button class="small-btn green" id="useMyLocationBtn" title="Use my GPS location">
+            <i class="fas fa-location-dot"></i> GPS
+          </button>
+        </div>
+        <div class="coords-display" id="pickupCoords" style="display:none;"></div>
+        
         <label class="form-label">Delivery Address *</label>
         <input type="text" class="form-input" id="deliveryAddress" placeholder="Westlands, Nairobi" required>
+        <div class="coords-display" id="deliveryCoords" style="display:none;"></div>
         
         <label class="form-label">Package Type</label>
         <select class="form-select" id="packageType">
@@ -502,7 +577,7 @@
         <input type="number" class="form-input" id="packageWeight" value="2" step="0.1" min="0.1">
         
         <label class="form-label">Special Instructions</label>
-        <textarea class="form-textarea" id="instructions" placeholder="Call upon arrival..."></textarea>
+        <textarea class="form-textarea" id="instructions" placeholder="Call upon arrival, leave with security..."></textarea>
 
         <button class="btn btn-outline" type="button" id="calculateRouteBtn">
           <i class="fas fa-route"></i> Calculate Route & Fare
@@ -576,8 +651,9 @@
     };
 
     const PRICING = {
-      baseFare: 100,
-      perKmRate: 50,
+      baseFare: 150,
+      perKmRate: 60,
+      minFare: 200,
       weightSurcharge: { document: 0, small: 0, medium: 100, large: 200, fragile: 150 }
     };
 
@@ -592,6 +668,8 @@
     let calculatedFare = null;
     let allRegistrations = [];
     let visibleOperations = {};
+    let selectedBusiness = null;
+    let userLocationMarker = null;
 
     function showToast(msg, isError = false) {
       const toast = document.createElement('div');
@@ -609,9 +687,25 @@
       const color = OP_COLORS[operation] || '#7c3aed';
       const icon = OP_ICONS[operation] || 'fa-map-pin';
       return L.divIcon({
-        html: `<div style="background:${color}; width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:2px solid white; box-shadow:0 0 10px ${color};"><i class="fas ${icon}" style="color:white; font-size:11px;"></i></div>`,
-        iconSize: [26, 26],
+        html: `<div style="background:${color}; width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:2px solid white; box-shadow:0 0 10px ${color}; cursor:pointer;"><i class="fas ${icon}" style="color:white; font-size:12px;"></i></div>`,
+        iconSize: [28, 28],
         popupAnchor: [0, -12]
+      });
+    }
+
+    function getPickupIcon() {
+      return L.divIcon({
+        html: `<div style="background:#22c55e; width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:3px solid white; box-shadow:0 0 15px #22c55e;"><i class="fas fa-box" style="color:white; font-size:15px;"></i></div>`,
+        iconSize: [34, 34],
+        popupAnchor: [0, -15]
+      });
+    }
+
+    function getDeliveryIcon() {
+      return L.divIcon({
+        html: `<div style="background:#ef4444; width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:3px solid white; box-shadow:0 0 15px #ef4444;"><i class="fas fa-flag-checkered" style="color:white; font-size:15px;"></i></div>`,
+        iconSize: [34, 34],
+        popupAnchor: [0, -15]
       });
     }
 
@@ -619,26 +713,63 @@
       if (businessMarkers[id] && deliveryMap) deliveryMap.removeLayer(businessMarkers[id]);
       const marker = L.marker([data.lat, data.lng], { 
         icon: getBusinessMarkerIcon(data.operation),
-        opacity: visibleOperations[data.operation] !== false ? 1 : 0.2
+        opacity: visibleOperations[data.operation] !== false ? 1 : 0.2,
+        zIndexOffset: 100
       }).addTo(deliveryMap);
       
       const opName = OP_NAMES[data.operation] || data.operation;
       marker.bindPopup(`
-        <div style="font-family:'Inter',sans-serif; min-width:160px;">
-          <strong>${escapeHtml(data.businessName)}</strong><br>
-          <span style="font-size:10px;">🏷️ ${opName}</span><br>
-          <span style="font-size:9px;">👤 ${escapeHtml(data.ownerName || 'N/A')}</span><br>
-          <span style="font-size:9px;">📍 ${data.lat.toFixed(5)}, ${data.lng.toFixed(5)}</span>
+        <div style="font-family:'Inter',sans-serif; min-width:180px; padding:4px;">
+          <strong style="color:#1e293b;">${escapeHtml(data.businessName)}</strong><br>
+          <span style="font-size:10px; color:${OP_COLORS[data.operation]}; font-weight:600;">🏷️ ${opName}</span><br>
+          <span style="font-size:9px; color:#64748b;">👤 ${escapeHtml(data.ownerName || 'N/A')}</span><br>
+          <span style="font-size:9px; color:#64748b;">📍 ${data.lat.toFixed(5)}, ${data.lng.toFixed(5)}</span><br>
+          <button onclick="window.useBusinessAsPickup('${id}')" style="margin-top:6px; background:#22c55e; color:white; border:none; padding:4px 10px; border-radius:6px; cursor:pointer; font-size:10px; width:100%;">
+            📍 Use as Pickup Location
+          </button>
         </div>
       `);
       
       marker.on('click', () => {
-        document.getElementById('pickupAddress').value = data.businessName + ', ' + (data.ownerName || '');
-        document.getElementById('clientName').value = data.ownerName || data.businessName;
+        window.useBusinessAsPickup(id);
       });
       
       businessMarkers[id] = marker;
     }
+
+    window.useBusinessAsPickup = function(id) {
+      const biz = allRegistrations.find(b => b.id === id);
+      if (!biz || !deliveryMap) return;
+      
+      selectedBusiness = biz;
+      currentPickupCoords = { lat: biz.lat, lon: biz.lng };
+      
+      document.getElementById('pickupAddress').value = biz.businessName;
+      document.getElementById('clientName').value = biz.ownerName || biz.businessName;
+      
+      const pickupInfo = document.getElementById('selectedPickupInfo');
+      const pickupText = document.getElementById('selectedPickupText');
+      const opName = OP_NAMES[biz.operation] || biz.operation;
+      pickupText.textContent = `Pickup: ${biz.businessName} (${opName}) at ${biz.lat.toFixed(5)}, ${biz.lng.toFixed(5)}`;
+      pickupInfo.classList.add('show');
+      
+      document.getElementById('pickupCoords').style.display = 'block';
+      document.getElementById('pickupCoords').textContent = `📍 ${biz.lat.toFixed(6)}, ${biz.lng.toFixed(6)}`;
+      
+      if (pickupMarker) deliveryMap.removeLayer(pickupMarker);
+      pickupMarker = L.marker([biz.lat, biz.lng], { icon: getPickupIcon(), zIndexOffset: 500 })
+        .addTo(deliveryMap)
+        .bindPopup(`<strong>📍 Pickup:</strong><br>${escapeHtml(biz.businessName)}`)
+        .openPopup();
+      
+      deliveryMap.setView([biz.lat, biz.lng], 16);
+      
+      showToast(`✅ Pickup set to: ${biz.businessName}`);
+      
+      if (currentDeliveryCoords && deliveryMarker) {
+        calculateRoute();
+      }
+    };
 
     function escapeHtml(str) {
       if (!str) return '';
@@ -668,9 +799,9 @@
           });
         }
         updateLegend();
-        console.log('📦 Loaded', allRegistrations.length, 'businesses on map');
+        console.log('📦 Loaded', allRegistrations.length, 'businesses');
       } catch (e) {
-        console.error('Load businesses error:', e);
+        console.error('Load error:', e);
       }
     }
 
@@ -685,15 +816,15 @@
       });
 
       if (Object.keys(ops).length === 0) {
-        container.innerHTML = '<span style="font-size:0.65rem;color:#94a3b8;">No businesses loaded</span>';
+        container.innerHTML = '<span style="font-size:0.6rem;">No businesses</span>';
         return;
       }
 
       container.innerHTML = Object.entries(ops).map(([key, val]) => `
-        <div class="legend-item" onclick="toggleOperation('${key}')" id="legend-${key}">
+        <div class="legend-item" onclick="window.toggleOperation('${key}')" id="legend-${key}">
           <div class="legend-dot" style="background:${val.color}; color:${val.color};"></div>
           <span>${val.name} (${val.count})</span>
-          <i class="fas fa-eye" style="margin-left:auto; font-size:0.6rem; color:#94a3b8;"></i>
+          <i class="fas fa-eye" style="margin-left:auto; font-size:0.55rem;"></i>
         </div>
       `).join('');
     }
@@ -706,150 +837,104 @@
           businessMarkers[id].setOpacity(visibleOperations[operation] ? 1 : 0.2);
         }
       }
-      const legendItem = document.getElementById(`legend-${operation}`);
-      if (legendItem) {
-        const icon = legendItem.querySelector('i');
-        if (icon) {
-          icon.className = visibleOperations[operation] ? 'fas fa-eye' : 'fas fa-eye-slash';
-        }
-        legendItem.style.opacity = visibleOperations[operation] ? '1' : '0.5';
+      const item = document.getElementById(`legend-${operation}`);
+      if (item) {
+        item.querySelector('i').className = visibleOperations[operation] ? 'fas fa-eye' : 'fas fa-eye-slash';
+        item.style.opacity = visibleOperations[operation] ? '1' : '0.5';
       }
     };
 
-    function initMap() {
-      if (deliveryMap) return;
-      deliveryMap = L.map('deliveryMap').setView([-1.2864, 36.8172], 13);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap'
-      }).addTo(deliveryMap);
-      
-      L.control.scale({ metric: true, position: 'bottomright' }).addTo(deliveryMap);
-      
-      loadBusinesses();
-      
-      database.ref('iam_mugera_registrations').on('child_added', snap => {
-        const entry = snap.val();
-        if (entry.lat && entry.lng && !businessMarkers[snap.key]) {
-          allRegistrations.push({ id: snap.key, ...entry });
-          if (!visibleOperations[entry.operation]) {
-            visibleOperations[entry.operation] = true;
-          }
-          addBusinessMarker(snap.key, entry);
-          updateLegend();
-        }
-      });
-    }
-
     async function geocodeAddress(address) {
       try {
-        const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`);
-        const data = await response.json();
+        const resp = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1&countrycodes=ke`);
+        const data = await resp.json();
         if (data.length > 0) {
-          return { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) };
+          return { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon), display: data[0].display_name };
         }
         return null;
-      } catch (error) {
-        console.error('Geocoding error:', error);
+      } catch (e) {
+        console.error('Geocode error:', e);
         return null;
       }
     }
 
-    async function getRouteDistance(pickup, delivery) {
+    async function getRoute(pickup, delivery) {
       try {
-        const response = await fetch(`https://router.project-osrm.org/route/v1/driving/${pickup.lon},${pickup.lat};${delivery.lon},${delivery.lat}?overview=full&geometries=geojson`);
-        const data = await response.json();
+        const url = `https://router.project-osrm.org/route/v1/driving/${pickup.lon},${pickup.lat};${delivery.lon},${delivery.lat}?overview=full&geometries=geojson&steps=true`;
+        const resp = await fetch(url);
+        const data = await resp.json();
         if (data.routes && data.routes[0]) {
-          return { distance: data.routes[0].distance / 1000, geometry: data.routes[0].geometry };
+          return { 
+            distance: data.routes[0].distance / 1000,
+            duration: data.routes[0].duration / 60,
+            geometry: data.routes[0].geometry 
+          };
         }
         return null;
-      } catch (error) {
-        console.error('Routing error:', error);
+      } catch (e) {
+        console.error('Route error:', e);
         return null;
       }
     }
 
-    function calculateFare(distance, packageType) {
-      const surcharge = PRICING.weightSurcharge[packageType] || 0;
-      const distanceCharge = Math.round(distance * PRICING.perKmRate);
-      return {
-        baseFare: PRICING.baseFare,
-        distanceCharge,
-        surcharge,
-        total: PRICING.baseFare + distanceCharge + surcharge
-      };
+    function haversineDistance(lat1, lon1, lat2, lon2) {
+      const R = 6371;
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(lat1 * Math.PI/180) * Math.cos(lat2 * Math.PI/180) *
+                Math.sin(dLon/2) * Math.sin(dLon/2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      return R * c;
     }
 
-    document.getElementById('calculateRouteBtn').addEventListener('click', async () => {
-      const pickup = document.getElementById('pickupAddress').value.trim();
-      const delivery = document.getElementById('deliveryAddress').value.trim();
+    function calculateFare(distanceKm, packageType) {
+      const surcharge = PRICING.weightSurcharge[packageType] || 0;
+      const distanceCharge = Math.round(distanceKm * PRICING.perKmRate);
+      const total = Math.max(PRICING.baseFare + distanceCharge + surcharge, PRICING.minFare);
+      return { baseFare: PRICING.baseFare, distanceCharge, surcharge, total };
+    }
 
-      if (!pickup || !delivery) {
-        showToast('Please enter both pickup and delivery addresses', true);
-        return;
-      }
-
-      initMap();
+    async function calculateRoute() {
+      if (!currentPickupCoords || !currentDeliveryCoords) return;
+      
       const btn = document.getElementById('calculateRouteBtn');
       btn.disabled = true;
       btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Calculating...';
 
       try {
-        const pickupCoords = await geocodeAddress(pickup);
-        const deliveryCoords = await geocodeAddress(delivery);
-
-        if (!pickupCoords || !deliveryCoords) {
-          showToast('Could not find one or both addresses', true);
-          return;
-        }
-
-        currentPickupCoords = pickupCoords;
-        currentDeliveryCoords = deliveryCoords;
-
-        if (pickupMarker) deliveryMap.removeLayer(pickupMarker);
-        if (deliveryMarker) deliveryMap.removeLayer(deliveryMarker);
+        const routeData = await getRoute(currentPickupCoords, currentDeliveryCoords);
+        
         if (routeLine) deliveryMap.removeLayer(routeLine);
-
-        pickupMarker = L.marker([pickupCoords.lat, pickupCoords.lon], {
-          icon: L.divIcon({
-            html: `<div style="background:#22c55e; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:3px solid white; box-shadow:0 0 12px #22c55e;"><i class="fas fa-location-dot" style="color:white; font-size:14px;"></i></div>`,
-            iconSize: [30, 30],
-            popupAnchor: [0, -14]
-          })
-        }).addTo(deliveryMap).bindPopup('📍 Pickup');
         
-        deliveryMarker = L.marker([deliveryCoords.lat, deliveryCoords.lon], {
-          icon: L.divIcon({
-            html: `<div style="background:#ef4444; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:3px solid white; box-shadow:0 0 12px #ef4444;"><i class="fas fa-flag-checkered" style="color:white; font-size:14px;"></i></div>`,
-            iconSize: [30, 30],
-            popupAnchor: [0, -14]
-          })
-        }).addTo(deliveryMap).bindPopup('🏁 Delivery');
-
-        const routeData = await getRouteDistance(pickupCoords, deliveryCoords);
-        
-        if (routeData) {
+        if (routeData && routeData.distance > 0) {
           calculatedDistance = routeData.distance;
           routeLine = L.geoJSON(routeData.geometry, {
-            style: { color: '#f59e0b', weight: 4, opacity: 0.8 }
+            style: { color: '#f59e0b', weight: 5, opacity: 0.7 }
           }).addTo(deliveryMap);
+          console.log('✅ OSRM distance:', calculatedDistance.toFixed(2), 'km');
         } else {
-          calculatedDistance = Math.sqrt(
-            Math.pow(pickupCoords.lat - deliveryCoords.lat, 2) + 
-            Math.pow(pickupCoords.lon - deliveryCoords.lon, 2)
-          ) * 111;
+          calculatedDistance = haversineDistance(
+            currentPickupCoords.lat, currentPickupCoords.lon,
+            currentDeliveryCoords.lat, currentDeliveryCoords.lon
+          );
+          calculatedDistance *= 1.4;
+          console.log('⚠️ Fallback distance (×1.4):', calculatedDistance.toFixed(2), 'km');
         }
 
         const bounds = L.latLngBounds([
-          [pickupCoords.lat, pickupCoords.lon],
-          [deliveryCoords.lat, deliveryCoords.lon]
+          [currentPickupCoords.lat, currentPickupCoords.lon],
+          [currentDeliveryCoords.lat, currentDeliveryCoords.lon]
         ]);
         deliveryMap.fitBounds(bounds, { padding: [60, 60] });
 
         const packageType = document.getElementById('packageType').value;
         calculatedFare = calculateFare(calculatedDistance, packageType);
+        const duration = routeData?.duration || (calculatedDistance / 30 * 60);
 
         document.getElementById('totalFare').textContent = `${calculatedFare.total} KES`;
-        document.getElementById('distanceDisplay').textContent = `Distance: ${calculatedDistance.toFixed(1)} km`;
+        document.getElementById('distanceDisplay').textContent = 
+          `Distance: ${calculatedDistance.toFixed(1)} km · ~${Math.round(duration)} min`;
         document.getElementById('priceBreakdown').innerHTML = `
           <div class="breakdown-row"><span>Base Fare</span><span>${calculatedFare.baseFare} KES</span></div>
           <div class="breakdown-row"><span>Distance (${calculatedDistance.toFixed(1)} km × ${PRICING.perKmRate} KES/km)</span><span>${calculatedFare.distanceCharge} KES</span></div>
@@ -858,20 +943,53 @@
         `;
         document.getElementById('priceCard').style.display = 'block';
         document.getElementById('submitBookingBtn').disabled = false;
-        showToast('Route calculated!');
-      } catch (error) {
-        console.error('Error:', error);
+        showToast(`Route: ${calculatedDistance.toFixed(1)} km, ~${Math.round(duration)} min`);
+      } catch (e) {
+        console.error('Route error:', e);
         showToast('Error calculating route', true);
       } finally {
         btn.disabled = false;
         btn.innerHTML = '<i class="fas fa-route"></i> Calculate Route & Fare';
       }
+    }
+
+    document.getElementById('calculateRouteBtn').addEventListener('click', async () => {
+      const pickupAddr = document.getElementById('pickupAddress').value.trim();
+      const deliveryAddr = document.getElementById('deliveryAddress').value.trim();
+
+      if (!pickupAddr || !deliveryAddr) {
+        showToast('Enter both pickup and delivery', true);
+        return;
+      }
+
+      if (!currentPickupCoords || selectedBusiness?.businessName !== pickupAddr) {
+        const geocoded = await geocodeAddress(pickupAddr);
+        if (!geocoded) { showToast('Could not find pickup address', true); return; }
+        currentPickupCoords = { lat: geocoded.lat, lon: geocoded.lon };
+        if (pickupMarker) deliveryMap.removeLayer(pickupMarker);
+        pickupMarker = L.marker([geocoded.lat, geocoded.lon], { icon: getPickupIcon(), zIndexOffset: 500 })
+          .addTo(deliveryMap)
+          .bindPopup('📍 Pickup');
+        document.getElementById('pickupCoords').style.display = 'block';
+        document.getElementById('pickupCoords').textContent = `📍 ${geocoded.lat.toFixed(6)}, ${geocoded.lon.toFixed(6)}`;
+      }
+
+      const geocoded = await geocodeAddress(deliveryAddr);
+      if (!geocoded) { showToast('Could not find delivery address', true); return; }
+      currentDeliveryCoords = { lat: geocoded.lat, lon: geocoded.lon };
+      if (deliveryMarker) deliveryMap.removeLayer(deliveryMarker);
+      deliveryMarker = L.marker([geocoded.lat, geocoded.lon], { icon: getDeliveryIcon(), zIndexOffset: 500 })
+        .addTo(deliveryMap)
+        .bindPopup('🏁 Delivery');
+      document.getElementById('deliveryCoords').style.display = 'block';
+      document.getElementById('deliveryCoords').textContent = `📍 ${geocoded.lat.toFixed(6)}, ${geocoded.lon.toFixed(6)}`;
+
+      await calculateRoute();
     });
 
     document.getElementById('packageType').addEventListener('change', () => {
       if (calculatedDistance) {
-        const packageType = document.getElementById('packageType').value;
-        calculatedFare = calculateFare(calculatedDistance, packageType);
+        calculatedFare = calculateFare(calculatedDistance, document.getElementById('packageType').value);
         document.getElementById('totalFare').textContent = `${calculatedFare.total} KES`;
         document.getElementById('priceBreakdown').innerHTML = `
           <div class="breakdown-row"><span>Base Fare</span><span>${calculatedFare.baseFare} KES</span></div>
@@ -880,6 +998,33 @@
           <div class="breakdown-row"><span>Total</span><span>${calculatedFare.total} KES</span></div>
         `;
       }
+    });
+
+    document.getElementById('useMyLocationBtn').addEventListener('click', () => {
+      if (!navigator.geolocation) { showToast('GPS not supported', true); return; }
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          currentPickupCoords = { lat: pos.coords.latitude, lon: pos.coords.longitude };
+          if (pickupMarker) deliveryMap.removeLayer(pickupMarker);
+          if (userLocationMarker) deliveryMap.removeLayer(userLocationMarker);
+          
+          pickupMarker = L.marker([pos.coords.latitude, pos.coords.longitude], { icon: getPickupIcon(), zIndexOffset: 500 })
+            .addTo(deliveryMap)
+            .bindPopup('📍 My Location (Pickup)')
+            .openPopup();
+          
+          document.getElementById('pickupAddress').value = `GPS: ${pos.coords.latitude.toFixed(5)}, ${pos.coords.longitude.toFixed(5)}`;
+          document.getElementById('pickupCoords').style.display = 'block';
+          document.getElementById('pickupCoords').textContent = `📍 ${pos.coords.latitude.toFixed(6)}, ${pos.coords.longitude.toFixed(6)}`;
+          document.getElementById('selectedPickupInfo').classList.remove('show');
+          selectedBusiness = null;
+          
+          deliveryMap.setView([pos.coords.latitude, pos.coords.longitude], 18);
+          showToast('GPS location set as pickup');
+        },
+        err => showToast('GPS failed: ' + err.message, true),
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
     });
 
     document.getElementById('submitBookingBtn').addEventListener('click', async () => {
@@ -893,21 +1038,13 @@
       const instructions = document.getElementById('instructions').value.trim();
 
       if (!clientName || !clientPhone || !pickupAddress || !deliveryAddress) {
-        showToast('Please fill in all required fields', true);
+        showToast('Fill all required fields', true);
         return;
       }
-
-      if (!calculatedFare || !calculatedDistance) {
-        showToast('Please calculate the route first', true);
-        return;
-      }
+      if (!calculatedFare) { showToast('Calculate route first', true); return; }
 
       const user = auth.currentUser;
-      if (!user) {
-        showToast('You must be logged in', true);
-        window.location.href = 'https://kazinni.vercel.app';
-        return;
-      }
+      if (!user) { window.location.href = 'https://kazinni.vercel.app'; return; }
 
       const bookingData = {
         userId: user.uid,
@@ -917,24 +1054,17 @@
         pickup: {
           address: pickupAddress,
           lat: currentPickupCoords?.lat || null,
-          lng: currentPickupCoords?.lon || null
+          lng: currentPickupCoords?.lon || null,
+          isBusinessLocation: !!selectedBusiness,
+          businessId: selectedBusiness?.id || null
         },
         delivery: {
           address: deliveryAddress,
           lat: currentDeliveryCoords?.lat || null,
           lng: currentDeliveryCoords?.lon || null
         },
-        package: {
-          type: packageType,
-          weight: packageWeight,
-          instructions: instructions
-        },
-        fare: {
-          total: calculatedFare.total,
-          base: calculatedFare.baseFare,
-          distance: calculatedFare.distanceCharge,
-          surcharge: calculatedFare.surcharge
-        },
+        package: { type: packageType, weight: packageWeight, instructions },
+        fare: { total: calculatedFare.total, base: calculatedFare.baseFare, distance: calculatedFare.distanceCharge, surcharge: calculatedFare.surcharge },
         distance: parseFloat(calculatedDistance.toFixed(2)),
         status: 'pending',
         createdAt: firebase.database.ServerValue.TIMESTAMP,
@@ -947,60 +1077,84 @@
       btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
 
       try {
-        const newRef = database.ref('pickup_deliveries').push();
-        await newRef.set(bookingData);
+        const ref = database.ref('pickup_deliveries').push();
+        await ref.set(bookingData);
+        console.log('✅ Saved:', ref.key);
+        showToast('Booking created!');
         
-        console.log('✅ Delivery saved with ID:', newRef.key);
-        
-        showToast('Booking created successfully!');
-        
-        document.getElementById('clientName').value = '';
-        document.getElementById('clientPhone').value = '';
-        document.getElementById('clientEmail').value = '';
-        document.getElementById('pickupAddress').value = '';
-        document.getElementById('deliveryAddress').value = '';
+        ['clientName','clientPhone','clientEmail','pickupAddress','deliveryAddress','instructions'].forEach(id => {
+          document.getElementById(id).value = '';
+        });
         document.getElementById('packageType').value = 'medium';
         document.getElementById('packageWeight').value = '2';
-        document.getElementById('instructions').value = '';
         document.getElementById('priceCard').style.display = 'none';
         document.getElementById('submitBookingBtn').disabled = true;
+        document.getElementById('selectedPickupInfo').classList.remove('show');
+        document.getElementById('pickupCoords').style.display = 'none';
+        document.getElementById('deliveryCoords').style.display = 'none';
         
-        if (pickupMarker) deliveryMap.removeLayer(pickupMarker);
-        if (deliveryMarker) deliveryMap.removeLayer(deliveryMarker);
-        if (routeLine) deliveryMap.removeLayer(routeLine);
-        
-        calculatedDistance = null;
-        calculatedFare = null;
-        currentPickupCoords = null;
-        currentDeliveryCoords = null;
-        
-      } catch (error) {
-        console.error('❌ Error saving delivery:', error);
-        showToast('Error: ' + error.message, true);
+        [pickupMarker, deliveryMarker, routeLine].forEach(m => { if(m) deliveryMap.removeLayer(m); });
+        pickupMarker = deliveryMarker = null;
+        routeLine = null;
+        calculatedDistance = calculatedFare = null;
+        currentPickupCoords = currentDeliveryCoords = null;
+        selectedBusiness = null;
+      } catch(e) {
+        console.error('❌ Error:', e);
+        showToast('Error: ' + e.message, true);
       } finally {
         btn.disabled = false;
         btn.innerHTML = '<i class="fas fa-save"></i> Create Booking';
       }
     });
 
+    function initMap() {
+      if (deliveryMap) return;
+      deliveryMap = L.map('deliveryMap').setView([-1.2864, 36.8172], 13);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OSM' }).addTo(deliveryMap);
+      L.control.scale({ metric: true, position: 'bottomright' }).addTo(deliveryMap);
+      
+      deliveryMap.on('click', async (e) => {
+        if (e.originalEvent.shiftKey) {
+          currentPickupCoords = { lat: e.latlng.lat, lon: e.latlng.lng };
+          if (pickupMarker) deliveryMap.removeLayer(pickupMarker);
+          pickupMarker = L.marker([e.latlng.lat, e.latlng.lng], { icon: getPickupIcon(), zIndexOffset: 500 })
+            .addTo(deliveryMap)
+            .bindPopup('📍 Pickup (manual)')
+            .openPopup();
+          document.getElementById('pickupAddress').value = `Manual: ${e.latlng.lat.toFixed(5)}, ${e.latlng.lng.toFixed(5)}`;
+          document.getElementById('pickupCoords').style.display = 'block';
+          document.getElementById('pickupCoords').textContent = `📍 ${e.latlng.lat.toFixed(6)}, ${e.latlng.lng.toFixed(6)}`;
+          document.getElementById('selectedPickupInfo').classList.remove('show');
+          selectedBusiness = null;
+        }
+      });
+      
+      loadBusinesses();
+      
+      database.ref('iam_mugera_registrations').on('child_added', snap => {
+        const entry = snap.val();
+        if (entry.lat && entry.lng && !businessMarkers[snap.key]) {
+          allRegistrations.push({ id: snap.key, ...entry });
+          if (!visibleOperations[entry.operation]) visibleOperations[entry.operation] = true;
+          addBusinessMarker(snap.key, entry);
+          updateLegend();
+        }
+      });
+    }
+
     auth.onAuthStateChanged(async (user) => {
       if (user) {
-        let userName = 'Logistics Agent';
+        let userName = 'Agent';
         try {
           const staffSnap = await database.ref(`logistics_staff/${user.uid}`).once('value');
-          if (staffSnap.exists()) {
-            userName = staffSnap.val().name || user.email?.split('@')[0] || 'Staff';
-          } else {
+          if (staffSnap.exists()) userName = staffSnap.val().name || user.email?.split('@')[0] || 'Staff';
+          else {
             const brandSnap = await database.ref(`brandinn_users/${user.uid}`).once('value');
-            if (brandSnap.exists()) {
-              userName = brandSnap.val().name || user.email?.split('@')[0] || 'Agent';
-            } else {
-              userName = user.displayName || user.email?.split('@')[0] || 'Agent';
-            }
+            if (brandSnap.exists()) userName = brandSnap.val().name || user.email?.split('@')[0] || 'Agent';
+            else userName = user.displayName || user.email?.split('@')[0] || 'Agent';
           }
-        } catch(e) {
-          userName = user.email?.split('@')[0] || 'Agent';
-        }
+        } catch(e) { userName = user.email?.split('@')[0] || 'Agent'; }
         document.getElementById('repName').textContent = userName;
         document.getElementById('repAvatar').textContent = getInitials(userName);
         document.getElementById('loadingOverlay').classList.add('hide');
@@ -1011,9 +1165,7 @@
     });
 
     document.getElementById('logoutBtn').addEventListener('click', async () => {
-      if (confirm('Log out of KazInni Workspaces?')) {
-        await auth.signOut();
-      }
+      if (confirm('Log out?')) await auth.signOut();
     });
 
     setTimeout(() => document.getElementById('loadingOverlay').classList.add('hide'), 5000);
