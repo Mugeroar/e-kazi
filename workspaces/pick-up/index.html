@@ -421,6 +421,9 @@
     .status-tag.completed { background: #e6f7e6; color: #0d7c3f; }
     .status-tag.pending { background: #fef3c7; color: #b45309; }
     .status-tag.assigned { background: #e0f2fe; color: #0369a1; }
+    .status-tag.out-for-delivery { background: #fef3cd; color: #b45309; }
+    .status-tag.delivered { background: #d1fae5; color: #065f46; }
+    .status-tag.scheduled { background: #e0e7ff; color: #4338ca; }
 
     .empty-state {
       text-align: center;
@@ -515,7 +518,7 @@
         <div class="stat-left">
           <h4>Pending</h4>
           <div class="stat-number" id="pendingCount">0</div>
-          <div class="stat-trend"><i class="fas fa-clock"></i> Awaiting</div>
+          <div class="stat-trend"><i class="fas fa-clock"></i> Awaiting action</div>
         </div>
         <div class="stat-icon"><i class="fas fa-clock"></i></div>
       </div>
@@ -529,7 +532,7 @@
       </div>
       <div class="stat-card">
         <div class="stat-left">
-          <h4>Drivers</h4>
+          <h4>Delivery Agents</h4>
           <div class="stat-number" id="driverCount">0</div>
           <div class="stat-trend"><i class="fas fa-users"></i> Registered</div>
         </div>
@@ -561,7 +564,7 @@
     <div class="quick-section">
       <div class="quick-header"><i class="fas fa-bolt"></i> Quick Actions</div>
       <div class="quick-links">
-        <a href="/workspaces/brandinn/delivery.html" class="quick-btn"><i class="fas fa-plus-circle"></i> New Pickup</a>
+        <a href="/workspaces/pick-up/schedule.html" class="quick-btn"><i class="fas fa-plus-circle"></i> Create Booking</a>
         <a href="/workspaces/brandinn/deliveries.html" class="quick-btn"><i class="fas fa-list-check"></i> All Deliveries</a>
         <a href="/workspaces/brandinn/map.html" class="quick-btn"><i class="fas fa-map-pin"></i> View Map</a>
         <a href="/workspaces/brandinn/deliveries.html?filter=pending" class="quick-btn"><i class="fas fa-clock"></i> Pending (<span id="pendingBadge">0</span>)</a>
@@ -603,7 +606,9 @@
     const auth = firebase.auth();
 
     let allDeliveries = {};
-    let allDrivers = {};
+    let allAssistants = {};    // delivery_assistants node
+    let allTaskers = {};       // taskers node (verified delivery agents)
+    let assistantTasks = {};   // assistant_tasks node
 
     const loadingOverlay = document.getElementById('loadingOverlay');
     const totalDeliveriesEl = document.getElementById('totalDeliveries');
@@ -616,7 +621,8 @@
     const footerStatsEl = document.getElementById('footerStats');
 
     function getInitials(name) {
-      return name ? name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0,2) : 'PU';
+      if (!name) return '??';
+      return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
     }
 
     function escapeHtml(str) {
@@ -644,11 +650,11 @@
 
     function renderRecentList() {
       const deliveries = Object.entries(allDeliveries)
-        .filter(([_, d]) => d && d.userName)
+        .filter(([_, d]) => d && (d.userName || d.customer?.name))
         .map(([id, data]) => ({ id, ...data }))
         .sort((a, b) => {
-          const timeA = a.createdAt || a.timestamp || 0;
-          const timeB = b.createdAt || b.timestamp || 0;
+          const timeA = a.createdAt || a.timestamp || a.bookingDate || 0;
+          const timeB = b.createdAt || b.timestamp || b.bookingDate || 0;
           return timeB - timeA;
         })
         .slice(0, 6);
@@ -659,15 +665,18 @@
       }
 
       recentListEl.innerHTML = deliveries.map(del => {
-        const status = del.status || 'pending';
-        const timeAgo = formatTimeAgo(del.createdAt || del.timestamp);
-        const client = del.userName || 'Client';
+        const status = (del.status || 'pending').toLowerCase();
+        const timeAgo = formatTimeAgo(del.createdAt || del.timestamp || del.bookingDate);
+        const client = del.userName || del.customer?.name || 'Client';
         const pickup = del.pickup?.address || 'N/A';
         const dropoff = del.delivery?.address || 'N/A';
         const fare = del.fare?.total || '—';
-        let statusClass = '';
-        if (status === 'completed') statusClass = 'completed';
+        
+        let statusClass = 'pending';
+        if (status === 'completed' || status === 'delivered') statusClass = 'completed';
         else if (status === 'assigned') statusClass = 'assigned';
+        else if (status === 'out-for-delivery') statusClass = 'out-for-delivery';
+        else if (status === 'scheduled') statusClass = 'scheduled';
         else statusClass = 'pending';
         
         return `
@@ -676,55 +685,102 @@
               <div style="width:38px;height:38px;background:#fffbeb;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.8rem;">${getInitials(client)}</div>
               <div>
                 <strong>${escapeHtml(client)}</strong>
-                <p style="font-size:0.7rem;color:#64748b;">${escapeHtml(pickup.substring(0,20))} → ${escapeHtml(dropoff.substring(0,20))} ${timeAgo ? '· '+timeAgo : ''}</p>
+                <p style="font-size:0.7rem;color:#64748b;">${escapeHtml(pickup.substring(0, 25))} → ${escapeHtml(dropoff.substring(0, 25))} ${timeAgo ? '· ' + timeAgo : ''}</p>
               </div>
             </div>
-            <span class="status-tag ${statusClass}">${status}</span>
+            <span class="status-tag ${statusClass}">${status.replace(/-/g, ' ')}</span>
           </div>`;
       }).join('');
     }
 
+    function getPendingCount() {
+      const deliveries = Object.values(allDeliveries).filter(d => d);
+      return deliveries.filter(d => {
+        const status = (d.status || '').toLowerCase();
+        return status === 'pending' || status === 'scheduled';
+      }).length;
+    }
+
+    function getActiveCount() {
+      const deliveries = Object.values(allDeliveries).filter(d => d);
+      return deliveries.filter(d => {
+        const status = (d.status || '').toLowerCase();
+        return status === 'pending' || status === 'scheduled' || status === 'assigned' || status === 'out-for-delivery' || status === 'in_progress';
+      }).length;
+    }
+
+    function getDeliveryWorkerCount() {
+      // Count unique verified delivery_assistants + verified taskers
+      const assistantIds = Object.keys(allAssistants).filter(id => {
+        const a = allAssistants[id];
+        return a && a.verified === true;
+      });
+      
+      const taskerIds = Object.keys(allTaskers).filter(id => {
+        const t = allTaskers[id];
+        return t && t.verified === true && t.status !== 'rejected';
+      });
+      
+      // Combine unique IDs
+      const uniqueIds = new Set([...assistantIds, ...taskerIds]);
+      return uniqueIds.size;
+    }
+
     function updateStats() {
-      const deliveries = Object.values(allDeliveries).filter(d => d && d.userName);
+      const deliveries = Object.values(allDeliveries).filter(d => d && (d.userName || d.customer?.name));
       const total = deliveries.length;
-      const pending = deliveries.filter(d => d.status === 'pending').length;
-      const active = deliveries.filter(d => d.status === 'pending' || d.status === 'assigned' || d.status === 'in_progress').length;
-      const drivers = Object.keys(allDrivers).length;
+      const pending = getPendingCount();
+      const active = getActiveCount();
+      const workers = getDeliveryWorkerCount();
 
       totalDeliveriesEl.textContent = total;
       pendingCountEl.textContent = pending;
       activeJobsEl.textContent = active;
-      driverCountEl.textContent = drivers;
+      driverCountEl.textContent = workers;
       pendingBadgeEl.textContent = pending;
       
-      footerStatsEl.textContent = `${total} deliveries · ${pending} pending · ${active} active · ${drivers} drivers`;
+      footerStatsEl.textContent = `${total} deliveries · ${pending} pending · ${active} active · ${workers} agents`;
       lastUpdatedEl.innerHTML = `<i class="fas fa-circle" style="color:#10b981;"></i> Live · ${new Date().toLocaleTimeString()}`;
       renderRecentList();
     }
 
     function setupRealtimeListeners() {
-      // Listen to pickup_deliveries
+      // 1. Listen to pickup_deliveries (main delivery bookings node)
       database.ref('pickup_deliveries').on('value', (snapshot) => {
         allDeliveries = snapshot.val() || {};
-        console.log('📦 Deliveries loaded:', Object.keys(allDeliveries).length);
+        console.log('📦 Pickup deliveries loaded:', Object.keys(allDeliveries).length);
         updateStats();
         loadingOverlay.classList.add('hide');
       }, (error) => {
-        console.error('Deliveries error:', error);
+        console.error('❌ pickup_deliveries error:', error);
         loadingOverlay.classList.add('hide');
       });
 
-      // Listen to drivers from logistics_staff or drivers
-      database.ref('drivers').on('value', (snapshot) => {
-        allDrivers = snapshot.val() || {};
-        updateStats();
-      });
-      
-      // Also try delivery_assistants
+      // 2. Listen to delivery_assistants (verified pickup/delivery workers)
       database.ref('delivery_assistants').on('value', (snapshot) => {
-        const assistants = snapshot.val() || {};
-        allDrivers = { ...allDrivers, ...assistants };
+        allAssistants = snapshot.val() || {};
+        console.log('👤 Delivery assistants loaded:', Object.keys(allAssistants).length);
         updateStats();
+      }, (error) => {
+        console.error('❌ delivery_assistants error:', error);
+      });
+
+      // 3. Listen to taskers (workers registered via E-Kazi who may also do deliveries)
+      database.ref('taskers').on('value', (snapshot) => {
+        allTaskers = snapshot.val() || {};
+        console.log('👤 Taskers loaded:', Object.keys(allTaskers).length);
+        updateStats();
+      }, (error) => {
+        console.error('❌ taskers error:', error);
+      });
+
+      // 4. Listen to assistant_tasks (assigned delivery tasks)
+      database.ref('assistant_tasks').on('value', (snapshot) => {
+        assistantTasks = snapshot.val() || {};
+        console.log('📋 Assistant tasks loaded');
+        updateStats();
+      }, (error) => {
+        console.error('❌ assistant_tasks error:', error);
       });
     }
 
@@ -732,18 +788,26 @@
       if (user) {
         let userName = 'Logistics Agent';
         try {
+          // Try logistics_staff first
           const staffSnap = await database.ref(`logistics_staff/${user.uid}`).once('value');
           if (staffSnap.exists()) {
             userName = staffSnap.val().name || user.email?.split('@')[0] || 'Staff';
           } else {
+            // Try brandinn_users
             const brandSnap = await database.ref(`brandinn_users/${user.uid}`).once('value');
             if (brandSnap.exists()) {
-              userName = brandSnap.val().name || user.email?.split('@')[0] || 'Agent';
+              userName = brandSnap.val().name || brandSnap.val().businessName || user.email?.split('@')[0] || 'Agent';
             } else {
-              userName = user.displayName || user.email?.split('@')[0] || 'Agent';
+              // Try delivery_assistants
+              const assistSnap = await database.ref(`delivery_assistants/${user.uid}`).once('value');
+              if (assistSnap.exists()) {
+                userName = assistSnap.val().name || 'Driver';
+              } else {
+                userName = user.displayName || user.email?.split('@')[0] || 'Agent';
+              }
             }
           }
-        } catch(e) {
+        } catch (e) {
           userName = user.email?.split('@')[0] || 'Agent';
         }
         document.getElementById('repName').textContent = userName;
@@ -760,7 +824,8 @@
       }
     });
 
-    setTimeout(() => loadingOverlay.classList.add('hide'), 5000);
+    // Fallback: hide loading after timeout
+    setTimeout(() => loadingOverlay.classList.add('hide'), 8000);
   </script>
 </body>
 </html>
