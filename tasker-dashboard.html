@@ -8,8 +8,10 @@
     <title>E-KAZI · Tasker Dashboard</title>
     <link rel="icon" type="image/x-icon" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview-1.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@400;500;600;700;800&family=Satoshi:wght@400;500;600;700;800;900&family=Clash+Display:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&family=General+Sans:wght@400;500;600;700&family=Chillax:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@400,500,600,700,800&f[]=satoshi@400,500,600,700,800,900&f[]=clash-display@400,500,600,700&f[]=general-sans@400,500,600,700&f[]=chillax@400,500,600,700&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -21,7 +23,8 @@
             --gold-dark: #a16207;
             --gold-light: #fbbf24;
             --gold-soft: #fef3c7;
-            --gold-glow: rgba(202, 138, 4, 0.1);
+            --gold-glow: rgba(202, 138, 4, 0.12);
+            --gold-gradient: linear-gradient(135deg, #ca8a04 0%, #eab308 50%, #fbbf24 100%);
             
             --success: #10b981;
             --warning: #f59e0b;
@@ -38,1070 +41,522 @@
             --border-light: #e9ecef;
             --border-medium: #d1d5db;
             
-            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.02), 0 1px 2px rgba(0, 0, 0, 0.03);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
-            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.02), 0 1px 2px rgba(0,0,0,0.03);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -2px rgba(0,0,0,0.04);
+            --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+            --shadow-gold: 0 8px 32px rgba(202,138,4,0.15);
             
-            --nav-bg: rgba(255, 255, 255, 0.98);
+            --nav-bg: rgba(255,255,255,0.98);
             --card-bg: #ffffff;
             --input-bg: #ffffff;
             --toast-bg: #ffffff;
             
             --header-height: 80px;
+            
+            --font-display: 'Clash Display', 'Cabinet Grotesk', sans-serif;
+            --font-heading: 'Satoshi', 'General Sans', sans-serif;
+            --font-body: 'General Sans', 'Outfit', sans-serif;
+            --font-accent: 'Chillax', 'Cabinet Grotesk', sans-serif;
         }
 
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: var(--font-body);
             background: var(--bg-secondary);
             color: var(--text-primary);
-            line-height: 1.5;
+            line-height: 1.6;
             min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         .loader-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--bg-primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10000;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-primary); display: flex; align-items: center;
+            justify-content: center; z-index: 10000;
             transition: opacity 0.5s ease, visibility 0.5s ease;
         }
-
         .loader-container.hidden { opacity: 0; visibility: hidden; }
-
         .loader { text-align: center; }
-
-        .loader-ring {
-            width: 80px;
-            height: 80px;
-            margin: 0 auto 1.5rem;
-            position: relative;
-        }
-
-        .loader-ring svg {
-            width: 100%;
-            height: 100%;
-            animation: rotate 2s linear infinite;
-        }
-
+        .loader-ring { width: 80px; height: 80px; margin: 0 auto 1.5rem; position: relative; }
+        .loader-ring svg { width: 100%; height: 100%; animation: rotate 2s linear infinite; }
         .loader-ring circle {
-            fill: none;
-            stroke: var(--gold);
-            stroke-width: 3;
-            stroke-dasharray: 180;
-            stroke-dashoffset: 180;
+            fill: none; stroke: var(--gold); stroke-width: 3;
+            stroke-dasharray: 180; stroke-dashoffset: 180;
             animation: dash 1.5s ease-in-out infinite;
         }
-
         @keyframes rotate { 100% { transform: rotate(360deg); } }
-
         @keyframes dash {
             0% { stroke-dashoffset: 180; }
             50% { stroke-dashoffset: 45; }
             100% { stroke-dashoffset: 180; }
         }
-
         .loader-text {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            font-size: 1rem;
-            font-weight: 500;
-            color: var(--gold);
-            letter-spacing: 1px;
+            font-family: var(--font-heading); font-size: 0.95rem;
+            font-weight: 600; color: var(--gold); letter-spacing: 0.5px;
             animation: pulse 1.5s ease-in-out infinite;
         }
-
         @keyframes pulse {
-            0%, 100% { opacity: 0.6; }
-            50% { opacity: 1; }
+            0%,100%{opacity:0.6} 50%{opacity:1}
         }
 
         .site-header {
-            position: fixed;
-            top: 0;
-            width: 100%;
-            height: var(--header-height);
-            background: var(--nav-bg);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--border-light);
-            z-index: 1000;
-            padding: 0 2rem;
+            position: fixed; top: 0; width: 100%; height: var(--header-height);
+            background: var(--nav-bg); backdrop-filter: blur(25px);
+            border-bottom: 1px solid rgba(202,138,4,0.08); z-index: 1000; padding: 0 2.5rem;
         }
-
         .header-container {
-            max-width: 1280px;
-            height: 100%;
-            margin: 0 auto;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            max-width: 1280px; height: 100%; margin: 0 auto;
+            display: flex; align-items: center; justify-content: space-between;
         }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .logo img { height: 45px; width: auto; }
-
+        .logo { display: flex; align-items: center; gap: 0.85rem; }
+        .logo img { height: 46px; width: auto; filter: drop-shadow(0 4px 8px rgba(202,138,4,0.15)); }
         .logo span {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--gold);
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1.6rem; font-weight: 800;
+            background: var(--gold-gradient);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text; font-family: var(--font-display); letter-spacing: -0.5px;
         }
-
         .nav-links { display: flex; gap: 2.5rem; }
-
         .nav-link {
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-size: 1rem;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            position: relative;
+            color: var(--text-secondary); text-decoration: none;
+            font-size: 0.95rem; font-weight: 500; font-family: var(--font-heading);
+            transition: all 0.3s ease; position: relative;
         }
-
         .nav-link::after {
-            content: '';
-            position: absolute;
-            bottom: -4px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: var(--gold);
-            transition: width 0.3s ease;
+            content: ''; position: absolute; bottom: -4px; left: 0; width: 0; height: 2.5px;
+            background: var(--gold-gradient); border-radius: 2px;
+            transition: width 0.3s cubic-bezier(0.4,0,0.2,1);
         }
-
-        .nav-link:hover::after,
-        .nav-link.active::after { width: 100%; }
-
-        .nav-link:hover,
-        .nav-link.active { color: var(--gold); }
-
+        .nav-link:hover::after, .nav-link.active::after { width: 100%; }
+        .nav-link:hover, .nav-link.active { color: var(--gold); }
         .user-menu {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            background: var(--bg-card);
-            border: 1px solid var(--border-light);
-            border-radius: 60px;
-            padding: 0.3rem 0.3rem 0.3rem 1rem;
-            cursor: pointer;
-            position: relative;
-            transition: all 0.2s;
+            display: flex; align-items: center; gap: 0.75rem;
+            background: var(--bg-card); border: 1px solid var(--border-light);
+            border-radius: 60px; padding: 0.3rem 0.3rem 0.3rem 1rem;
+            cursor: pointer; position: relative; transition: all 0.25s;
         }
-
-        .user-menu:hover {
-            border-color: var(--gold);
-            box-shadow: var(--shadow-sm);
-        }
-
+        .user-menu:hover { border-color: var(--gold); box-shadow: var(--shadow-sm); }
         .user-name {
-            color: var(--text-primary);
-            font-weight: 500;
-            font-size: 0.9rem;
+            color: var(--text-primary); font-weight: 600; font-size: 0.9rem;
+            font-family: var(--font-heading);
         }
-
         .user-avatar {
-            width: 38px;
-            height: 38px;
-            background: var(--gold);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
+            width: 38px; height: 38px;
+            background: var(--gold-gradient); color: white;
+            border-radius: 50%; display: flex; align-items: center;
+            justify-content: center; font-weight: 700; font-family: var(--font-heading);
         }
-
         .logout-dropdown {
-            position: absolute;
-            top: calc(100% + 10px);
-            right: 0;
-            background: var(--card-bg);
-            border: 1px solid var(--border-light);
-            border-radius: 16px;
-            padding: 0.5rem;
-            min-width: 160px;
-            display: none;
-            z-index: 1001;
-            box-shadow: var(--shadow-lg);
+            position: absolute; top: calc(100% + 10px); right: 0;
+            background: var(--card-bg); border: 1px solid var(--border-light);
+            border-radius: 16px; padding: 0.5rem; min-width: 160px;
+            display: none; z-index: 1001; box-shadow: var(--shadow-lg);
         }
-
         .user-menu:hover .logout-dropdown { display: block; }
-
         .logout-item {
-            padding: 0.7rem 1rem;
-            color: var(--text-secondary);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            cursor: pointer;
-            font-size: 0.9rem;
+            padding: 0.7rem 1rem; color: var(--text-secondary);
+            border-radius: 12px; display: flex; align-items: center; gap: 0.5rem;
+            cursor: pointer; font-size: 0.9rem; font-family: var(--font-body);
             transition: all 0.2s;
         }
-
-        .logout-item:hover {
-            background: var(--bg-secondary);
-            color: var(--danger);
-        }
+        .logout-item:hover { background: var(--bg-secondary); color: var(--danger); }
 
         .inactivity-warning {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: var(--card-bg);
-            border: 1px solid var(--border-light);
-            border-radius: 16px;
-            padding: 0.8rem 1.2rem;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            z-index: 1002;
-            box-shadow: var(--shadow-lg);
+            position: fixed; bottom: 20px; right: 20px;
+            background: var(--card-bg); border: 1px solid var(--border-light);
+            border-radius: 20px; padding: 0.8rem 1.2rem;
+            display: flex; align-items: center; gap: 1rem;
+            z-index: 1002; box-shadow: var(--shadow-xl);
             animation: slideUp 0.2s ease;
         }
-
-        .inactivity-warning i { color: var(--warning); }
-
-        .inactivity-warning span {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-        }
-
-        .inactivity-warning button {
-            background: var(--gold);
-            border: none;
-            border-radius: 40px;
-            padding: 0.4rem 1rem;
-            color: white;
-            font-size: 0.8rem;
-            font-weight: 500;
-            cursor: pointer;
-        }
-
         @keyframes slideUp {
-            from { transform: translateY(10px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+            from{transform:translateY(10px);opacity:0}
+            to{transform:translateY(0);opacity:1}
         }
 
         .main-content {
-            max-width: 1280px;
-            margin: calc(var(--header-height) + 2rem) auto 2rem;
-            padding: 0 2rem;
+            max-width: 1280px; margin: calc(var(--header-height) + 2rem) auto 2rem;
+            padding: 0 2.5rem;
         }
 
         .login-required {
-            text-align: center;
-            padding: 4rem;
-            background: var(--card-bg);
-            border: 1px solid var(--border-light);
-            border-radius: 32px;
-            box-shadow: var(--shadow-sm);
+            text-align: center; padding: 4rem;
+            background: var(--card-bg); border: 1px solid var(--border-light);
+            border-radius: 32px; box-shadow: var(--shadow-sm);
         }
-
-        .login-required i {
-            font-size: 4rem;
-            color: var(--gold);
-            margin-bottom: 1.5rem;
-        }
-
+        .login-required i { font-size: 4rem; color: var(--gold); margin-bottom: 1.5rem; }
         .login-required h2 {
-            font-size: 2rem;
-            margin-bottom: 0.5rem;
-            color: var(--text-primary);
-        }
-
-        .login-required p {
-            color: var(--text-muted);
-            margin-bottom: 2rem;
+            font-size: 2rem; margin-bottom: 0.5rem; color: var(--text-primary);
+            font-family: var(--font-display);
         }
 
         .btn {
-            padding: 0.8rem 2rem;
-            border: none;
-            border-radius: 60px;
-            font-weight: 600;
-            font-size: 0.95rem;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: all 0.3s ease;
+            padding: 0.75rem 1.8rem; border: none; border-radius: 50px;
+            font-weight: 600; font-size: 0.9rem; cursor: pointer;
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+            font-family: var(--font-heading); letter-spacing: -0.2px;
         }
-
         .btn-primary {
-            background: var(--gold);
-            color: white;
+            background: var(--gold-gradient); color: white;
+            box-shadow: var(--shadow-gold); position: relative; overflow: hidden;
         }
-
-        .btn-primary:hover {
-            background: var(--gold-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(202, 138, 4, 0.3);
+        .btn-primary::before {
+            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+            transition: left 0.5s;
         }
-
+        .btn-primary:hover::before { left: 100%; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 36px rgba(202,138,4,0.3); }
         .btn-outline {
-            background: transparent;
-            border: 1px solid var(--border-medium);
+            background: transparent; border: 1.5px solid var(--border-medium);
             color: var(--text-muted);
         }
-
-        .btn-outline:hover {
-            border-color: var(--gold);
-            color: var(--gold);
-        }
-
-        .btn-danger {
-            background: var(--danger);
-            color: white;
-        }
-
-        .btn-sm {
-            padding: 0.4rem 1rem;
-            font-size: 0.8rem;
-        }
+        .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+        .btn-sm { padding: 0.4rem 1rem; font-size: 0.8rem; }
 
         .welcome-section {
-            background: var(--card-bg);
-            border: 1px solid var(--border-light);
-            border-radius: 32px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            box-shadow: var(--shadow-sm);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 1rem;
+            background: var(--card-bg); border: 1px solid var(--border-light);
+            border-radius: 32px; padding: 2.2rem 2.5rem; margin-bottom: 2rem;
+            box-shadow: var(--shadow-sm); display: flex;
+            justify-content: space-between; align-items: center;
+            flex-wrap: wrap; gap: 1rem;
         }
-
         .welcome-text h1 {
-            font-size: 1.8rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 0.25rem;
+            font-size: 2rem; font-weight: 800; color: var(--text-primary);
+            margin-bottom: 0.3rem; font-family: var(--font-display);
+            letter-spacing: -0.02em;
         }
-
         .welcome-text p {
-            color: var(--text-muted);
-            font-size: 0.95rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+            color: var(--text-muted); font-size: 0.95rem;
+            display: flex; align-items: center; gap: 0.5rem;
         }
-
-        .welcome-text p i { color: var(--gold); }
-
         .verification-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.3rem;
-            padding: 0.4rem 1rem;
-            background: var(--gold-soft);
-            border-radius: 30px;
-            color: var(--gold);
-            font-size: 0.8rem;
-            font-weight: 600;
+            display: inline-flex; align-items: center; gap: 0.3rem;
+            padding: 0.45rem 1.1rem; background: var(--gold-soft);
+            border-radius: 30px; color: var(--gold-dark);
+            font-size: 0.8rem; font-weight: 700; font-family: var(--font-heading);
+            letter-spacing: 0.3px;
         }
-
         .verification-badge.verified {
-            background: rgba(16, 185, 129, 0.1);
-            color: #059669;
+            background: rgba(16,185,129,0.1); color: #059669;
         }
-
         .date-display {
-            background: var(--bg-secondary);
-            padding: 0.6rem 1.2rem;
-            border-radius: 40px;
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+            background: var(--bg-secondary); padding: 0.6rem 1.2rem;
+            border-radius: 40px; font-size: 0.9rem; color: var(--text-secondary);
+            display: flex; align-items: center; gap: 0.5rem; font-weight: 500;
         }
-
-        .date-display i { color: var(--gold); }
 
         .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 1.5rem;
-            margin-bottom: 2rem;
+            display: grid; grid-template-columns: repeat(4,1fr); gap: 1.5rem; margin-bottom: 2rem;
         }
-
         .stat-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-light);
-            border-radius: 24px;
-            padding: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            box-shadow: var(--shadow-sm);
-            transition: all 0.2s;
+            background: var(--card-bg); border: 1px solid var(--border-light);
+            border-radius: 24px; padding: 1.6rem; display: flex;
+            align-items: center; gap: 1.2rem; box-shadow: var(--shadow-sm);
+            transition: all 0.3s;
         }
-
         .stat-card:hover {
-            transform: translateY(-2px);
-            border-color: var(--gold);
+            transform: translateY(-4px); border-color: var(--gold);
             box-shadow: var(--shadow-md);
         }
-
         .stat-icon {
-            width: 56px;
-            height: 56px;
-            background: var(--gold-soft);
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            color: var(--gold);
+            width: 56px; height: 56px; background: var(--gold-soft);
+            border-radius: 18px; display: flex; align-items: center;
+            justify-content: center; font-size: 1.5rem; color: var(--gold);
         }
-
-        .stat-content { flex: 1; }
-
         .stat-value {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: var(--text-primary);
-            line-height: 1.2;
-            margin-bottom: 0.2rem;
+            font-size: 2rem; font-weight: 800; color: var(--text-primary);
+            line-height: 1.2; margin-bottom: 0.2rem;
+            font-family: var(--font-display); letter-spacing: -0.02em;
         }
-
         .stat-label {
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            font-weight: 500;
+            color: var(--text-muted); font-size: 0.85rem; font-weight: 500;
+            font-family: var(--font-heading);
         }
 
         .earnings-card {
-            background: linear-gradient(135deg, var(--gold), var(--gold-dark));
-            border-radius: 24px;
-            padding: 1.5rem;
-            color: white;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 1rem;
-            margin-bottom: 2rem;
+            background: linear-gradient(135deg, #1a1a2e 0%, #2d2d44 100%);
+            border-radius: 28px; padding: 2rem; color: white;
+            display: flex; justify-content: space-between; align-items: center;
+            flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem;
+            box-shadow: var(--shadow-xl); position: relative; overflow: hidden;
         }
-
+        .earnings-card::before {
+            content: ''; position: absolute; top: -30%; right: -10%;
+            width: 300px; height: 300px;
+            background: radial-gradient(circle, rgba(202,138,4,0.15) 0%, transparent 70%);
+            border-radius: 50%;
+        }
         .earnings-left h3 {
-            font-size: 1rem;
-            font-weight: 500;
-            margin-bottom: 0.5rem;
-            opacity: 0.9;
+            font-size: 0.95rem; font-weight: 500; margin-bottom: 0.5rem;
+            opacity: 0.9; font-family: var(--font-heading);
         }
-
         .earnings-amount {
-            font-size: 2.5rem;
-            font-weight: 700;
-            line-height: 1;
+            font-size: 2.8rem; font-weight: 800; line-height: 1;
+            font-family: var(--font-display); letter-spacing: -0.02em;
+            background: var(--gold-gradient);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
-
-        .earnings-period {
-            opacity: 0.8;
-            font-size: 0.9rem;
-        }
-
-        .earnings-right { display: flex; gap: 2rem; }
-
+        .earnings-period { opacity: 0.75; font-size: 0.9rem; font-weight: 500; }
+        .earnings-right { display: flex; gap: 2rem; position: relative; z-index: 1; }
         .earning-stat { text-align: right; }
-
-        .earning-stat-label {
-            font-size: 0.8rem;
-            opacity: 0.8;
-            margin-bottom: 0.2rem;
-        }
-
-        .earning-stat-value {
-            font-size: 1.2rem;
-            font-weight: 600;
-        }
+        .earning-stat-label { font-size: 0.8rem; opacity: 0.8; margin-bottom: 0.2rem; }
+        .earning-stat-value { font-size: 1.2rem; font-weight: 700; }
 
         .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            display: flex; justify-content: space-between; align-items: center;
             margin: 2rem 0 1rem;
         }
-
         .section-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+            font-size: 1.3rem; font-weight: 700; color: var(--text-primary);
+            display: flex; align-items: center; gap: 0.5rem;
+            font-family: var(--font-display); letter-spacing: -0.02em;
         }
-
         .section-title i { color: var(--gold); }
-
         .view-all {
-            color: var(--gold);
-            text-decoration: none;
-            font-size: 0.9rem;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 0.3rem;
-            cursor: pointer;
+            color: var(--gold); text-decoration: none; font-size: 0.9rem;
+            font-weight: 600; display: flex; align-items: center; gap: 0.3rem;
+            cursor: pointer; font-family: var(--font-heading);
+            transition: gap 0.2s;
         }
-
         .view-all:hover { gap: 0.5rem; }
 
         .card-table {
-            background: var(--card-bg);
-            border: 1px solid var(--border-light);
-            border-radius: 24px;
-            overflow: hidden;
-            margin-bottom: 2rem;
+            background: var(--card-bg); border: 1px solid var(--border-light);
+            border-radius: 24px; overflow: hidden; margin-bottom: 2rem;
             box-shadow: var(--shadow-sm);
         }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
+        table { width: 100%; border-collapse: collapse; }
         th {
-            text-align: left;
-            padding: 1rem 1.2rem;
-            background: var(--gold-soft);
-            color: var(--gold-dark);
-            font-weight: 600;
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            border-bottom: 2px solid rgba(202, 138, 4, 0.2);
+            text-align: left; padding: 1rem 1.2rem;
+            background: var(--gold-soft); color: var(--gold-dark);
+            font-weight: 700; font-size: 0.72rem; text-transform: uppercase;
+            letter-spacing: 0.8px; border-bottom: 2px solid rgba(202,138,4,0.2);
+            font-family: var(--font-heading);
         }
-
         td {
-            padding: 0.9rem 1.2rem;
-            border-bottom: 1px solid var(--border-light);
-            color: var(--text-secondary);
-            font-size: 0.88rem;
+            padding: 0.9rem 1.2rem; border-bottom: 1px solid var(--border-light);
+            color: var(--text-secondary); font-size: 0.88rem;
         }
-
         tr:hover td { background: var(--bg-secondary); }
-
         .badge {
-            padding: 0.3rem 0.8rem;
-            border-radius: 40px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            white-space: nowrap;
-            display: inline-block;
+            padding: 0.3rem 0.8rem; border-radius: 40px; font-size: 0.7rem;
+            font-weight: 700; text-transform: uppercase; white-space: nowrap;
+            display: inline-block; font-family: var(--font-heading); letter-spacing: 0.3px;
         }
-
-        .badge-success {
-            background: rgba(16, 185, 129, 0.1);
-            color: #059669;
-        }
-
-        .badge-warning {
-            background: rgba(245, 158, 11, 0.1);
-            color: #d97706;
-        }
-
-        .badge-info {
-            background: rgba(59, 130, 246, 0.1);
-            color: #2563eb;
-        }
-
-        .badge-purple {
-            background: rgba(139, 92, 246, 0.1);
-            color: #7c3aed;
-        }
-
-        .badge-danger {
-            background: rgba(239, 68, 68, 0.1);
-            color: #dc2626;
-        }
-
-        .badge-gold {
-            background: var(--gold-soft);
-            color: var(--gold-dark);
-        }
+        .badge-success { background: rgba(16,185,129,0.1); color: #059669; }
+        .badge-warning { background: rgba(245,158,11,0.1); color: #d97706; }
+        .badge-info { background: rgba(59,130,246,0.1); color: #2563eb; }
+        .badge-purple { background: rgba(139,92,246,0.1); color: #7c3aed; }
+        .badge-danger { background: rgba(239,68,68,0.1); color: #dc2626; }
+        .badge-gold { background: var(--gold-soft); color: var(--gold-dark); }
 
         .quick-actions {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 1rem;
-            margin-bottom: 2rem;
+            display: grid; grid-template-columns: repeat(4,1fr); gap: 1rem; margin-bottom: 2rem;
         }
-
         .action-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-light);
-            border-radius: 20px;
-            padding: 1.25rem;
-            text-align: center;
-            text-decoration: none;
-            color: var(--text-primary);
-            transition: all 0.2s;
-            display: block;
-            cursor: pointer;
+            background: var(--card-bg); border: 1px solid var(--border-light);
+            border-radius: 20px; padding: 1.3rem; text-align: center;
+            text-decoration: none; color: var(--text-primary);
+            transition: all 0.3s; display: block; cursor: pointer;
         }
-
         .action-card:hover {
-            border-color: var(--gold);
-            transform: translateY(-2px);
+            border-color: var(--gold); transform: translateY(-3px);
             box-shadow: var(--shadow-md);
         }
-
         .action-icon {
-            width: 48px;
-            height: 48px;
-            background: var(--gold-soft);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 0.75rem;
-            color: var(--gold);
-            font-size: 1.25rem;
+            width: 50px; height: 50px; background: var(--gold-soft);
+            border-radius: 16px; display: flex; align-items: center;
+            justify-content: center; margin: 0 auto 0.75rem;
+            color: var(--gold); font-size: 1.3rem;
         }
-
         .action-title {
-            font-size: 0.95rem;
-            font-weight: 600;
-            margin-bottom: 0.25rem;
+            font-size: 0.95rem; font-weight: 700; margin-bottom: 0.25rem;
+            font-family: var(--font-heading);
         }
-
-        .action-desc {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-        }
+        .action-desc { font-size: 0.78rem; color: var(--text-muted); }
 
         .task-btn {
-            padding: 0.4rem 1rem;
-            border: 1px solid var(--border-light);
-            border-radius: 30px;
-            background: transparent;
-            color: var(--text-secondary);
-            font-size: 0.75rem;
-            font-weight: 500;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 0.3rem;
-            transition: all 0.2s;
+            padding: 0.4rem 1rem; border: 1px solid var(--border-light);
+            border-radius: 30px; background: transparent; color: var(--text-secondary);
+            font-size: 0.75rem; font-weight: 600; cursor: pointer;
+            display: flex; align-items: center; gap: 0.3rem;
+            transition: all 0.2s; font-family: var(--font-heading);
         }
-
-        .task-btn:hover {
-            border-color: var(--gold);
-            color: var(--gold);
-        }
-
-        .task-btn.primary {
-            background: var(--gold);
-            border-color: var(--gold);
-            color: white;
-        }
-
-        .task-btn.primary:hover { background: var(--gold-dark); }
-
-        .task-btn.success {
-            background: var(--success);
-            border-color: var(--success);
-            color: white;
-        }
+        .task-btn:hover { border-color: var(--gold); color: var(--gold); }
+        .task-btn.primary { background: var(--gold-gradient); border-color: transparent; color: white; }
+        .task-btn.success { background: var(--success); border-color: transparent; color: white; }
 
         .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(8px);
-            z-index: 2000;
-            display: none;
+            position: fixed; top:0;left:0;width:100%;height:100%;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(8px);
+            z-index: 2000; display: none;
         }
-
         .modal-overlay.active { display: block; }
-
         .modal {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(0.95);
-            background: var(--card-bg);
-            border-radius: 32px;
-            border: 1px solid var(--border-light);
-            box-shadow: var(--shadow-xl);
-            z-index: 2001;
-            max-width: 500px;
-            width: 90%;
-            max-height: 85vh;
-            overflow-y: auto;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.2s ease;
+            position: fixed; top:50%;left:50%; transform: translate(-50%,-50%) scale(0.95);
+            background: var(--card-bg); border-radius: 32px;
+            border: 1px solid var(--border-light); box-shadow: var(--shadow-xl);
+            z-index: 2001; max-width: 500px; width: 90%; max-height: 85vh;
+            overflow-y: auto; opacity: 0; visibility: hidden;
+            transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
         }
-
-        .modal.active {
-            opacity: 1;
-            visibility: visible;
-            transform: translate(-50%, -50%) scale(1);
-        }
-
+        .modal.active { opacity: 1; visibility: visible; transform: translate(-50%,-50%) scale(1); }
         .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1.5rem;
-            border-bottom: 1px solid var(--border-light);
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 1.5rem; border-bottom: 1px solid var(--border-light);
         }
-
         .modal-header h3 {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: var(--text-primary);
+            font-size: 1.3rem; font-weight: 700; color: var(--text-primary);
+            font-family: var(--font-display);
         }
-
         .modal-close {
-            background: transparent;
-            border: none;
-            color: var(--text-muted);
-            font-size: 1.3rem;
-            cursor: pointer;
+            background: transparent; border: none; color: var(--text-muted);
+            font-size: 1.3rem; cursor: pointer;
         }
-
         .modal-body { padding: 1.5rem; }
-
         .modal-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 1rem;
-            margin-top: 1.5rem;
+            display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1.5rem;
         }
 
         .form-group { margin-bottom: 1.25rem; }
-
         .form-group label {
-            display: block;
-            color: var(--text-secondary);
-            margin-bottom: 0.3rem;
-            font-size: 0.85rem;
-            font-weight: 500;
+            display: block; color: var(--text-secondary); margin-bottom: 0.3rem;
+            font-size: 0.85rem; font-weight: 600; font-family: var(--font-heading);
         }
-
         .form-control {
-            width: 100%;
-            padding: 0.8rem 1rem;
-            background: var(--input-bg);
-            border: 1px solid var(--border-medium);
-            border-radius: 14px;
-            color: var(--text-primary);
-            font-size: 0.9rem;
-            transition: all 0.2s;
+            width: 100%; padding: 0.8rem 1rem; background: var(--input-bg);
+            border: 1px solid var(--border-medium); border-radius: 14px;
+            color: var(--text-primary); font-size: 0.9rem;
+            font-family: var(--font-body); transition: all 0.2s;
         }
-
         .form-control:focus {
-            outline: none;
-            border-color: var(--gold);
+            outline: none; border-color: var(--gold);
             box-shadow: 0 0 0 3px var(--gold-glow);
         }
+        .form-control[readonly] { background: var(--bg-secondary); cursor: not-allowed; }
+        textarea.form-control { resize: vertical; min-height: 80px; }
 
-        .form-control[readonly] {
-            background: var(--bg-secondary);
-            cursor: not-allowed;
-        }
-
-        textarea.form-control {
-            resize: vertical;
-            min-height: 80px;
-        }
-
-        .link-input-group {
-            display: flex;
-            gap: 0.5rem;
-            margin-bottom: 0.5rem;
-        }
-
+        .link-input-group { display: flex; gap: 0.5rem; margin-bottom: 0.5rem; }
         .link-input-group .form-control { flex: 1; }
-
         .remove-link-btn {
-            width: 42px;
-            height: 42px;
-            border: 1px solid var(--border-medium);
-            border-radius: 14px;
-            background: transparent;
-            color: var(--danger);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
+            width: 42px; height: 42px; border: 1px solid var(--border-medium);
+            border-radius: 14px; background: transparent; color: var(--danger);
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
         }
-
-        .remove-link-btn:hover {
-            background: var(--danger);
-            color: white;
-            border-color: var(--danger);
-        }
-
         .add-link-btn {
-            width: 100%;
-            padding: 0.8rem;
-            background: transparent;
-            border: 2px dashed var(--border-medium);
-            border-radius: 14px;
-            color: var(--gold);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            font-size: 0.85rem;
-            margin-top: 0.5rem;
-            transition: all 0.2s;
+            width: 100%; padding: 0.8rem; background: transparent;
+            border: 2px dashed var(--border-medium); border-radius: 14px;
+            color: var(--gold); cursor: pointer; display: flex;
+            align-items: center; justify-content: center; gap: 0.5rem;
+            font-size: 0.85rem; font-family: var(--font-heading);
         }
-
-        .add-link-btn:hover {
-            border-color: var(--gold);
-            background: var(--gold-soft);
-        }
+        .add-link-btn:hover { border-color: var(--gold); background: var(--gold-soft); }
 
         .empty-state {
-            text-align: center;
-            padding: 3rem;
-            color: var(--text-muted);
+            text-align: center; padding: 3rem; color: var(--text-muted);
         }
-
-        .empty-state i {
-            font-size: 3rem;
-            color: var(--gold);
-            margin-bottom: 1rem;
-            opacity: 0.5;
-        }
-
+        .empty-state i { font-size: 3rem; color: var(--gold); margin-bottom: 1rem; opacity: 0.5; }
         .empty-state h3 {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 0.3rem;
-        }
-
-        .empty-state p {
-            color: var(--text-muted);
-            font-size: 0.85rem;
+            font-size: 1.1rem; font-weight: 700; color: var(--text-primary);
+            margin-bottom: 0.3rem; font-family: var(--font-heading);
         }
 
         .task-detail-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 0.75rem;
-            margin-bottom: 1rem;
+            display: grid; grid-template-columns: repeat(2,1fr); gap: 0.75rem; margin-bottom: 1rem;
         }
-
         .task-detail-box {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-light);
-            border-radius: 14px;
-            padding: 0.75rem;
+            background: var(--bg-secondary); border: 1px solid var(--border-light);
+            border-radius: 14px; padding: 0.75rem;
         }
-
-        .task-detail-box .label {
-            color: var(--text-muted);
-            font-size: 0.7rem;
-            margin-bottom: 0.1rem;
-        }
-
-        .task-detail-box .value {
-            color: var(--text-primary);
-            font-size: 0.9rem;
-            font-weight: 600;
-        }
+        .task-detail-box .label { color: var(--text-muted); font-size: 0.7rem; margin-bottom: 0.1rem; }
+        .task-detail-box .value { color: var(--text-primary); font-size: 0.9rem; font-weight: 600; }
 
         .instruction-box {
-            background: var(--gold-soft);
-            border: 1px solid rgba(202, 138, 4, 0.2);
-            border-radius: 16px;
-            padding: 1rem;
-            margin: 1rem 0;
+            background: var(--gold-soft); border: 1px solid rgba(202,138,4,0.2);
+            border-radius: 16px; padding: 1rem; margin: 1rem 0;
         }
+        .instruction-box a { color: var(--gold); text-decoration: none; font-size: 0.85rem; word-break: break-all; }
 
-        .instruction-box a {
-            color: var(--gold);
-            text-decoration: none;
-            font-size: 0.85rem;
-            word-break: break-all;
-        }
-
-        .instruction-box a:hover { text-decoration: underline; }
-
-        .submission-links {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
+        .submission-links { display: flex; flex-direction: column; gap: 0.5rem; }
         .submission-link-item {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 1rem;
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-light);
-            border-radius: 12px;
-            text-decoration: none;
-            color: var(--text-primary);
-            font-size: 0.85rem;
+            display: flex; align-items: center; gap: 0.5rem;
+            padding: 0.5rem 1rem; background: var(--bg-secondary);
+            border: 1px solid var(--border-light); border-radius: 12px;
+            text-decoration: none; color: var(--text-primary); font-size: 0.85rem;
             transition: all 0.2s;
         }
-
         .submission-link-item:hover { border-color: var(--gold); }
 
-        .submission-link-item i { color: var(--gold); }
-
         .review-item {
-            background: var(--bg-secondary);
-            border-radius: 14px;
-            padding: 0.75rem;
-            margin-bottom: 0.75rem;
+            background: var(--bg-secondary); border-radius: 14px;
+            padding: 0.75rem; margin-bottom: 0.75rem;
             border-left: 3px solid var(--gold);
         }
-
         .review-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.3rem;
-            flex-wrap: wrap;
-            gap: 0.5rem;
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 0.3rem; flex-wrap: wrap; gap: 0.5rem;
         }
-
         .review-decision {
-            padding: 0.2rem 0.6rem;
-            border-radius: 20px;
-            font-size: 0.7rem;
-            font-weight: 600;
+            padding: 0.2rem 0.6rem; border-radius: 20px;
+            font-size: 0.7rem; font-weight: 700;
         }
-
-        .review-decision.approved {
-            background: rgba(16, 185, 129, 0.1);
-            color: #059669;
-        }
-
-        .review-decision.revision {
-            background: rgba(245, 158, 11, 0.1);
-            color: #d97706;
-        }
-
-        .review-decision.rejected {
-            background: rgba(239, 68, 68, 0.1);
-            color: #dc2626;
-        }
-
-        .review-comment {
-            color: var(--text-secondary);
-            font-size: 0.8rem;
-            margin-bottom: 0.2rem;
-        }
-
-        .review-meta {
-            color: var(--text-muted);
-            font-size: 0.7rem;
-        }
+        .review-decision.approved { background: rgba(16,185,129,0.1); color: #059669; }
+        .review-decision.revision { background: rgba(245,158,11,0.1); color: #d97706; }
+        .review-decision.rejected { background: rgba(239,68,68,0.1); color: #dc2626; }
+        .review-comment { color: var(--text-secondary); font-size: 0.8rem; margin-bottom: 0.2rem; }
+        .review-meta { color: var(--text-muted); font-size: 0.7rem; }
 
         .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(4px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 3000;
-            opacity: 0;
-            visibility: hidden;
-            transition: 0.2s;
+            position: fixed; top:0;left:0;width:100%;height:100%;
+            background: rgba(255,255,255,0.9); backdrop-filter: blur(4px);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 3000; opacity: 0; visibility: hidden; transition: 0.2s;
         }
-
-        .loading-overlay.active {
-            opacity: 1;
-            visibility: visible;
-        }
-
+        .loading-overlay.active { opacity: 1; visibility: visible; }
         .loading-spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid var(--border-light);
-            border-top-color: var(--gold);
-            border-radius: 50%;
+            width: 40px; height: 40px; border: 3px solid var(--border-light);
+            border-top-color: var(--gold); border-radius: 50%;
             animation: spin 0.6s linear infinite;
         }
+        @keyframes spin { to{transform:rotate(360deg)} }
 
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        .toast-container {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 4000;
-        }
-
+        .toast-container { position: fixed; top:20px; right:20px; z-index:4000; }
         .toast {
-            background: var(--card-bg);
-            border: 1px solid var(--border-light);
-            border-radius: 12px;
-            padding: 0.8rem 1.2rem;
-            margin-bottom: 0.5rem;
-            box-shadow: var(--shadow-lg);
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            min-width: 280px;
-            animation: slideIn 0.2s ease;
+            background: var(--card-bg); border: 1px solid var(--border-light);
+            border-radius: 14px; padding: 0.8rem 1.2rem; margin-bottom: 0.5rem;
+            box-shadow: var(--shadow-lg); display: flex; align-items: center;
+            gap: 0.75rem; min-width: 280px; animation: slideIn 0.2s ease;
+            font-family: var(--font-body);
         }
-
         .toast.success { border-left: 3px solid var(--success); }
         .toast.error { border-left: 3px solid var(--danger); }
         .toast.info { border-left: 3px solid var(--gold); }
         .toast.warning { border-left: 3px solid var(--warning); }
-
         .toast i { font-size: 1rem; }
         .toast.success i { color: var(--success); }
         .toast.error i { color: var(--danger); }
         .toast.info i { color: var(--gold); }
         .toast.warning i { color: var(--warning); }
-
         @keyframes slideIn {
-            from { opacity: 0; transform: translateX(20px); }
-            to { opacity: 1; transform: translateX(0); }
+            from{opacity:0;transform:translateX(20px)}
+            to{opacity:1;transform:translateX(0)}
         }
 
-        @media (max-width: 1024px) {
-            .stats-grid { grid-template-columns: repeat(2, 1fr); }
-            .quick-actions { grid-template-columns: repeat(2, 1fr); }
+        @media (max-width:1024px) {
+            .stats-grid{grid-template-columns:repeat(2,1fr)}
+            .quick-actions{grid-template-columns:repeat(2,1fr)}
         }
-
-        @media (max-width: 768px) {
-            .stats-grid { grid-template-columns: 1fr; }
-            .quick-actions { grid-template-columns: 1fr; }
-            .earnings-card { flex-direction: column; text-align: center; }
-            .earnings-right { flex-direction: column; gap: 1rem; }
-            .earning-stat { text-align: center; }
-            .nav-links { display: none; }
-            .welcome-section { flex-direction: column; text-align: center; }
+        @media (max-width:768px) {
+            .stats-grid,.quick-actions{grid-template-columns:1fr}
+            .earnings-card{flex-direction:column;text-align:center}
+            .earnings-right{flex-direction:column;gap:1rem}
+            .earning-stat{text-align:center}
+            .nav-links{display:none}
+            .welcome-section{flex-direction:column;text-align:center}
         }
     </style>
 </head>
@@ -1109,21 +564,15 @@
     <div class="loader-container" id="loader">
         <div class="loader">
             <div class="loader-ring">
-                <svg viewBox="0 0 100 100">
-                    <circle cx="50" cy="50" r="45" />
-                </svg>
+                <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="45"/></svg>
             </div>
             <div class="loader-text">Loading dashboard...</div>
         </div>
     </div>
 
-    <div class="loading-overlay" id="loadingOverlay">
-        <div class="loading-spinner"></div>
-    </div>
-
+    <div class="loading-overlay" id="loadingOverlay"><div class="loading-spinner"></div></div>
     <div class="toast-container" id="toastContainer"></div>
-
-    <div class="inactivity-warning" id="inactivityWarning" style="display: none;">
+    <div class="inactivity-warning" id="inactivityWarning" style="display:none;">
         <i class="fas fa-clock"></i>
         <span>Session expires in <span id="inactivityCountdown">60</span>s</span>
         <button onclick="extendSession()">Stay</button>
@@ -1216,7 +665,7 @@
     </header>
 
     <main class="main-content">
-        <div id="loginRequired" style="display: none;">
+        <div id="loginRequired" style="display:none;">
             <div class="login-required">
                 <i class="fas fa-user-lock"></i>
                 <h2>Login Required</h2>
@@ -1225,15 +674,13 @@
             </div>
         </div>
 
-        <div id="dashboardContent" style="display: none;">
+        <div id="dashboardContent" style="display:none;">
             <div class="welcome-section">
                 <div class="welcome-text">
                     <h1>Welcome back, <span id="userName">Tasker</span>!</h1>
-                    <p>
-                        <i class="fas fa-calendar-check"></i> Here's what's happening with your tasks today
-                    </p>
+                    <p><i class="fas fa-calendar-check"></i> Here's what's happening with your tasks today</p>
                 </div>
-                <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+                <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
                     <span class="verification-badge" id="verificationBadge">VERIFIED</span>
                     <div class="date-display" id="currentDate"></div>
                 </div>
@@ -1288,11 +735,10 @@
                 </div>
             </div>
 
-            <!-- Available Jobs Section -->
-            <div class="section-header" style="margin: 1.5rem 0 0.5rem;">
+            <div class="section-header" style="margin:1.5rem 0 0.5rem;">
                 <h2 class="section-title">
                     <i class="fas fa-briefcase"></i> Available Jobs
-                    <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 400; margin-left: 0.5rem;">
+                    <span style="font-size:0.8rem;color:var(--text-muted);font-weight:400;margin-left:0.5rem;">
                         (Open positions you can accept)
                     </span>
                 </h2>
@@ -1302,28 +748,21 @@
             </div>
 
             <div class="card-table">
-                <div style="overflow-x: auto;">
+                <div style="overflow-x:auto;">
                     <table>
                         <thead>
                             <tr>
-                                <th style="width: 30%;">Job Title</th>
-                                <th style="width: 15%;">Category</th>
-                                <th style="width: 12%;">Budget (KES)</th>
-                                <th style="width: 13%;">Posted</th>
-                                <th style="width: 13%;">Deadline</th>
-                                <th style="width: 10%;">Applicants</th>
-                                <th style="width: 7%;">Action</th>
+                                <th style="width:30%;">Job Title</th>
+                                <th style="width:15%;">Category</th>
+                                <th style="width:12%;">Budget (KES)</th>
+                                <th style="width:13%;">Posted</th>
+                                <th style="width:13%;">Deadline</th>
+                                <th style="width:10%;">Applicants</th>
+                                <th style="width:7%;">Action</th>
                             </tr>
                         </thead>
                         <tbody id="availableJobsTableBody">
-                            <tr>
-                                <td colspan="7">
-                                    <div class="empty-state" style="padding: 1.5rem;">
-                                        <i class="fas fa-spinner fa-spin"></i>
-                                        <p style="margin-top: 0.5rem;">Loading available jobs...</p>
-                                    </div>
-                                </td>
-                            </tr>
+                            <tr><td colspan="7"><div class="empty-state" style="padding:1.5rem;"><i class="fas fa-spinner fa-spin"></i><p style="margin-top:0.5rem;">Loading available jobs...</p></div></td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -1359,28 +798,21 @@
                 <h2 class="section-title"><i class="fas fa-clipboard-list"></i> My Tasks</h2>
             </div>
             <div class="card-table">
-                <div style="overflow-x: auto;">
+                <div style="overflow-x:auto;">
                     <table>
                         <thead>
                             <tr>
-                                <th style="width: 25%;">Task / Category</th>
-                                <th style="width: 15%;">Client</th>
-                                <th style="width: 12%;">Pay (KES)</th>
-                                <th style="width: 12%;">Due Date</th>
-                                <th style="width: 12%;">Status</th>
-                                <th style="width: 12%;">Reviews</th>
-                                <th style="width: 12%;">Actions</th>
+                                <th style="width:25%;">Task / Category</th>
+                                <th style="width:15%;">Client</th>
+                                <th style="width:12%;">Pay (KES)</th>
+                                <th style="width:12%;">Due Date</th>
+                                <th style="width:12%;">Status</th>
+                                <th style="width:12%;">Reviews</th>
+                                <th style="width:12%;">Actions</th>
                             </tr>
                         </thead>
                         <tbody id="tasksTableBody">
-                            <tr>
-                                <td colspan="7">
-                                    <div class="empty-state" style="padding: 1.5rem;">
-                                        <i class="fas fa-spinner fa-spin"></i>
-                                        <p style="margin-top: 0.5rem;">Loading your tasks...</p>
-                                    </div>
-                                </td>
-                            </tr>
+                            <tr><td colspan="7"><div class="empty-state" style="padding:1.5rem;"><i class="fas fa-spinner fa-spin"></i><p style="margin-top:0.5rem;">Loading your tasks...</p></div></td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -1440,7 +872,6 @@
         async function loadUserData(user) {
             showLoading(true);
             try {
-                // Load tasker profile
                 const taskerSnapshot = await database.ref(`taskers/${user.uid}`).once('value');
                 
                 if (taskerSnapshot.exists()) {
@@ -1455,15 +886,10 @@
                         status: 'pending',
                         registeredAt: new Date().toISOString()
                     };
-                    
-                    // Create tasker profile if it doesn't exist
                     await database.ref(`taskers/${user.uid}`).set(currentTasker);
                 }
                 
-                // Setup real-time listeners for live updates
                 setupRealtimeListeners();
-                
-                // Update UI with initial data
                 updateDashboardUI();
                 
             } catch (error) {
@@ -1473,102 +899,10 @@
                 showLoading(false);
             }
         }
-        async function loadTasks(email) {
-            try {
-                const tasksSnapshot = await database.ref('ekazi_assigned_tasks').once('value');
-                const tasksData = tasksSnapshot.val() || {};
-                assignedTasks = Object.entries(tasksData)
-                    .map(([id, task]) => ({ id, ...task }))
-                    .filter(task => task.taskerEmail && task.taskerEmail.toLowerCase() === email.toLowerCase())
-                    .sort((a, b) => (b.assignedAt || 0) - (a.assignedAt || 0));
-                console.log(`✅ Loaded ${assignedTasks.length} assigned tasks`);
 
-                const submissionsSnapshot = await database.ref('ekazi_task_submissions').once('value');
-                const submissionsData = submissionsSnapshot.val() || {};
-                taskSubmissions = Object.entries(submissionsData)
-                    .map(([id, sub]) => ({ id, ...sub }))
-                    .filter(sub => sub.taskerEmail && sub.taskerEmail.toLowerCase() === email.toLowerCase());
-                console.log(`✅ Loaded ${taskSubmissions.length} submissions`);
-            } catch (error) {
-                console.error('Error loading tasks:', error);
-                assignedTasks = [];
-                taskSubmissions = [];
-            }
-        }
-
-        async function loadAvailableJobs() {
-            try {
-                // Job postings - any authenticated user can read these
-                const jobPostingsSnapshot = await database.ref('ekazi_job_postings').once('value');
-                const jobPostingsData = jobPostingsSnapshot.val() || {};
-                
-                availableJobs = [];
-                
-                // Process job postings (visible to all authenticated users)
-                Object.entries(jobPostingsData).forEach(([id, job]) => {
-                    if (job.status === 'active' || job.status === 'open') {
-                        availableJobs.push({
-                            id: id,
-                            source: 'job_posting',
-                            title: job.title || 'Untitled Job',
-                            category: job.category || 'General',
-                            budget: parseInt(job.budget) || 0,
-                            description: job.description || '',
-                            requirements: job.requirements || '',
-                            deadline: job.deadline || null,
-                            duration: job.duration || 'Not specified',
-                            postedAt: job.postedAt || Date.now(),
-                            postedBy: job.postedBy || 'Admin',
-                            reviewCount: job.reviewCount || 3,
-                            applications: job.applications || 0
-                        });
-                    }
-                });
-                
-                // Hiring inquiries - ONLY admins can see these, so wrap in try-catch
-                try {
-                    const hiringSnapshot = await database.ref('ekazi_hiring_inquiries').once('value');
-                    const hiringData = hiringSnapshot.val() || {};
-                    
-                    Object.entries(hiringData).forEach(([id, inquiry]) => {
-                        if ((inquiry.status === 'new' || inquiry.status === 'open') && !inquiry.assignedTaskId) {
-                            availableJobs.push({
-                                id: id,
-                                source: 'hiring_inquiry',
-                                title: inquiry.category || 'Open Task',
-                                category: inquiry.category || 'General',
-                                budget: parseInt(inquiry.budget) || 0,
-                                description: inquiry.description || '',
-                                requirements: '',
-                                deadline: null,
-                                duration: 'Not specified',
-                                postedAt: inquiry.timestamp || Date.now(),
-                                postedBy: inquiry.email || inquiry.name || 'Client',
-                                reviewCount: 3,
-                                applications: 0
-                            });
-                        }
-                    });
-                } catch (hiringError) {
-                    // Non-admins will get a permission error here - that's expected
-                    console.log('ℹ️ Hiring inquiries skipped (requires admin access):', hiringError.message);
-                }
-                
-                // Sort by most recent first
-                availableJobs.sort((a, b) => (b.postedAt || 0) - (a.postedAt || 0));
-                console.log(`✅ Loaded ${availableJobs.length} available jobs`);
-                
-            } catch (error) {
-                console.error('❌ Error loading available jobs:', error);
-                availableJobs = [];
-            }
-        }
-        // ADD THIS NEW FUNCTION HERE
         function setupRealtimeListeners() {
-            // Real-time listener for job postings
             database.ref('ekazi_job_postings').on('value', (snapshot) => {
                 const jobPostingsData = snapshot.val() || {};
-                
                 availableJobs = [];
                 
                 Object.entries(jobPostingsData).forEach(([id, job]) => {
@@ -1597,7 +931,6 @@
                 console.log('🔄 Job postings updated in real-time');
             });
             
-            // Real-time listener for assigned tasks
             database.ref('ekazi_assigned_tasks')
                 .orderByChild('taskerEmail')
                 .equalTo(currentUser.email)
@@ -1613,7 +946,6 @@
                     console.log('🔄 Tasks updated in real-time');
                 });
             
-            // Real-time listener for submissions
             database.ref('ekazi_task_submissions')
                 .orderByChild('taskerEmail')
                 .equalTo(currentUser.email)
@@ -1682,17 +1014,7 @@
         function renderAvailableJobsTable() {
             const tbody = document.getElementById('availableJobsTableBody');
             if (!availableJobs || availableJobs.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="7">
-                            <div class="empty-state" style="padding: 2rem;">
-                                <i class="fas fa-briefcase" style="font-size: 2.5rem;"></i>
-                                <h3 style="margin-top: 0.5rem;">No Open Positions</h3>
-                                <p>Check back later for new job postings</p>
-                            </div>
-                        </td>
-                    </tr>
-                `;
+                tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state" style="padding:2rem;"><i class="fas fa-briefcase" style="font-size:2.5rem;"></i><h3 style="margin-top:0.5rem;">No Open Positions</h3><p>Check back later for new job postings</p></div></td></tr>`;
                 return;
             }
 
@@ -1702,24 +1024,15 @@
                 const deadline = job.deadline ? new Date(job.deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'Open';
                 const budgetFormatted = job.budget.toLocaleString();
 
-                html += `
-                    <tr>
-                        <td>
-                            <strong>${escapeHtml(job.title)}</strong>
-                            ${job.description ? `<br><small style="color: var(--text-muted);">${escapeHtml(job.description.substring(0, 60))}...</small>` : ''}
-                        </td>
-                        <td><span class="badge badge-info">${escapeHtml(job.category)}</span></td>
-                        <td><strong style="color: var(--gold);">KSh ${budgetFormatted}</strong></td>
-                        <td><small>${escapeHtml(postedDate)}</small></td>
-                        <td><small style="color: ${job.deadline ? 'var(--text-secondary)' : 'var(--success)'};">${escapeHtml(deadline)}</small></td>
-                        <td><span class="badge badge-purple">${job.applications || 0}</span></td>
-                        <td>
-                            <button class="task-btn primary" onclick="acceptJob('${job.id}')">
-                                <i class="fas fa-handshake"></i> Accept
-                            </button>
-                        </td>
-                    </tr>
-                `;
+                html += `<tr>
+                    <td><strong>${escapeHtml(job.title)}</strong>${job.description ? `<br><small style="color:var(--text-muted);">${escapeHtml(job.description.substring(0, 60))}...</small>` : ''}</td>
+                    <td><span class="badge badge-info">${escapeHtml(job.category)}</span></td>
+                    <td><strong style="color:var(--gold);">KSh ${budgetFormatted}</strong></td>
+                    <td><small>${escapeHtml(postedDate)}</small></td>
+                    <td><small style="color:${job.deadline ? 'var(--text-secondary)' : 'var(--success)'};">${escapeHtml(deadline)}</small></td>
+                    <td><span class="badge badge-purple">${job.applications || 0}</span></td>
+                    <td><button class="task-btn primary" onclick="acceptJob('${job.id}')"><i class="fas fa-handshake"></i> Accept</button></td>
+                </tr>`;
             });
 
             tbody.innerHTML = html;
@@ -1728,17 +1041,7 @@
         function renderTasksTable() {
             const tbody = document.getElementById('tasksTableBody');
             if (!assignedTasks || assignedTasks.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="7">
-                            <div class="empty-state" style="padding: 2rem;">
-                                <i class="fas fa-tasks" style="font-size: 2.5rem;"></i>
-                                <h3 style="margin-top: 0.5rem;">No Tasks Yet</h3>
-                                <p>Accept a job above to get started</p>
-                            </div>
-                        </td>
-                    </tr>
-                `;
+                tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state" style="padding:2rem;"><i class="fas fa-tasks" style="font-size:2.5rem;"></i><h3 style="margin-top:0.5rem;">No Tasks Yet</h3><p>Accept a job above to get started</p></div></td></tr>`;
                 return;
             }
 
@@ -1746,7 +1049,6 @@
             assignedTasks.forEach(task => {
                 const dueDate = task.dueDate ? new Date(task.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—';
                 const payRate = parseInt(task.payRate) || 0;
-                const hasSubmission = taskSubmissions.some(s => s.taskId === task.id);
                 const submission = taskSubmissions.find(s => s.taskId === task.id);
 
                 let statusBadge = 'badge-info';
@@ -1767,24 +1069,15 @@
                     actionButtons = `<button class="task-btn" onclick="viewSubmissionDetails('${submission.id}')"><i class="fas fa-history"></i> Feedback</button>`;
                 }
 
-                html += `
-                    <tr>
-                        <td>
-                            <strong>${escapeHtml(task.category || 'Task')}</strong>
-                        </td>
-                        <td>${escapeHtml(task.clientName || 'Client')}</td>
-                        <td><strong style="color: var(--gold);">KSh ${payRate.toLocaleString()}</strong></td>
-                        <td><small>${escapeHtml(dueDate)}</small></td>
-                        <td><span class="badge ${statusBadge}">${statusText}</span></td>
-                        <td><small>${task.currentReviewCount || 0}/${task.reviewCount || 3}</small></td>
-                        <td>
-                            <div style="display: flex; gap: 0.3rem; flex-wrap: wrap;">
-                                <button class="task-btn" onclick="viewTaskDetails('${task.id}')"><i class="fas fa-info-circle"></i></button>
-                                ${actionButtons}
-                            </div>
-                        </td>
-                    </tr>
-                `;
+                html += `<tr>
+                    <td><strong>${escapeHtml(task.category || 'Task')}</strong></td>
+                    <td>${escapeHtml(task.clientName || 'Client')}</td>
+                    <td><strong style="color:var(--gold);">KSh ${payRate.toLocaleString()}</strong></td>
+                    <td><small>${escapeHtml(dueDate)}</small></td>
+                    <td><span class="badge ${statusBadge}">${statusText}</span></td>
+                    <td><small>${task.currentReviewCount || 0}/${task.reviewCount || 3}</small></td>
+                    <td><div style="display:flex;gap:0.3rem;flex-wrap:wrap;"><button class="task-btn" onclick="viewTaskDetails('${task.id}')"><i class="fas fa-info-circle"></i></button>${actionButtons}</div></td>
+                </tr>`;
             });
 
             tbody.innerHTML = html;
@@ -1792,24 +1085,12 @@
 
         window.acceptJob = async function(jobId) {
             const job = availableJobs.find(j => j.id === jobId);
-            if (!job) {
-                showToast('Job not found', 'error');
-                return;
-            }
-            
-            if (!currentTasker?.verified) {
-                showToast('Your profile must be verified before accepting jobs', 'warning');
-                return;
-            }
-            
-            if (!confirm(`Accept "${job.title}" for KSh ${job.budget.toLocaleString()}?\n\nCategory: ${job.category}`)) {
-                return;
-            }
+            if (!job) { showToast('Job not found', 'error'); return; }
+            if (!currentTasker?.verified) { showToast('Your profile must be verified before accepting jobs', 'warning'); return; }
+            if (!confirm(`Accept "${job.title}" for KSh ${job.budget.toLocaleString()}?\n\nCategory: ${job.category}`)) return;
         
             showLoading(true);
-            
             try {
-                // Update the job posting status to accepted
                 await database.ref(`ekazi_job_postings/${jobId}`).update({
                     status: 'accepted',
                     acceptedBy: currentUser.email,
@@ -1817,7 +1098,6 @@
                     applications: (job.applications || 0) + 1
                 });
                 
-                // Create the assigned task for this tasker
                 const taskRef = database.ref('ekazi_assigned_tasks').push();
                 const taskId = taskRef.key;
                 const taskerName = currentTasker?.name || currentUser?.displayName || currentUser?.email?.split('@')[0] || 'Tasker';
@@ -1843,7 +1123,6 @@
                 
                 await taskRef.set(taskData);
                 
-                // Update hiring inquiry if applicable (skip if fails for non-admins)
                 if (job.source === 'hiring_inquiry') {
                     try {
                         await database.ref(`ekazi_hiring_inquiries/${jobId}`).update({
@@ -1857,7 +1136,6 @@
                 }
                 
                 showToast('Job accepted successfully! Check My Tasks below.', 'success');
-                
             } catch (error) {
                 console.error('Error accepting job:', error);
                 showToast('Error accepting job: ' + error.message, 'error');
@@ -1867,8 +1145,6 @@
         };
 
         window.refreshAvailableJobs = function() {
-            // With real-time listeners, data updates automatically
-            // This function is kept for manual refresh if needed
             showToast('Data updates automatically in real-time', 'info');
         };
 
@@ -1881,9 +1157,6 @@
                     startedAt: firebase.database.ServerValue.TIMESTAMP
                 });
                 showToast('Task started!', 'success');
-                await loadTasks(currentUser.email);
-                renderTasksTable();
-                updateDashboardUI();
             } catch (error) {
                 showToast('Error: ' + error.message, 'error');
             } finally {
@@ -1896,12 +1169,7 @@
             if (!task) return;
             document.getElementById('submitTaskId').value = taskId;
             document.getElementById('displayTaskCategory').value = task.category || 'General';
-            document.getElementById('linksContainer').innerHTML = `
-                <div class="link-input-group">
-                    <input type="url" class="form-control" name="submissionLinks[]" placeholder="https://drive.google.com/..." required>
-                    <button type="button" class="remove-link-btn" onclick="removeLinkField(this)"><i class="fas fa-times"></i></button>
-                </div>
-            `;
+            document.getElementById('linksContainer').innerHTML = `<div class="link-input-group"><input type="url" class="form-control" name="submissionLinks[]" placeholder="https://drive.google.com/..." required><button type="button" class="remove-link-btn" onclick="removeLinkField(this)"><i class="fas fa-times"></i></button></div>`;
             document.getElementById('submissionNotes').value = '';
             document.getElementById('submitModal').classList.add('active');
             document.getElementById('submitModalOverlay').classList.add('active');
@@ -1917,10 +1185,7 @@
             const container = document.getElementById('linksContainer');
             const newField = document.createElement('div');
             newField.className = 'link-input-group';
-            newField.innerHTML = `
-                <input type="url" class="form-control" name="submissionLinks[]" placeholder="https://drive.google.com/..." required>
-                <button type="button" class="remove-link-btn" onclick="removeLinkField(this)"><i class="fas fa-times"></i></button>
-            `;
+            newField.innerHTML = `<input type="url" class="form-control" name="submissionLinks[]" placeholder="https://drive.google.com/..." required><button type="button" class="remove-link-btn" onclick="removeLinkField(this)"><i class="fas fa-times"></i></button>`;
             container.appendChild(newField);
         };
 
@@ -1938,25 +1203,21 @@
             const taskId = document.getElementById('submitTaskId').value;
             const links = Array.from(document.querySelectorAll('input[name="submissionLinks[]"]')).map(input => input.value.trim());
             const notes = document.getElementById('submissionNotes').value.trim();
-            if (links.length === 0 || !links[0]) {
-                showToast('Please provide at least one link', 'warning');
-                return;
-            }
+            
+            if (links.length === 0 || !links[0]) { showToast('Please provide at least one link', 'warning'); return; }
             for (let link of links) {
                 if (!link.startsWith('http://') && !link.startsWith('https://')) {
-                    showToast('Please enter valid URLs', 'warning');
-                    return;
+                    showToast('Please enter valid URLs', 'warning'); return;
                 }
             }
+            
             showLoading(true);
             try {
                 const taskSnapshot = await database.ref(`ekazi_assigned_tasks/${taskId}`).once('value');
                 const task = taskSnapshot.val();
                 if (!task) { showToast('Task not found', 'error'); return; }
-                if (task.taskerEmail.toLowerCase() !== currentUser.email.toLowerCase()) {
-                    showToast('Not authorized', 'error');
-                    return;
-                }
+                if (task.taskerEmail.toLowerCase() !== currentUser.email.toLowerCase()) { showToast('Not authorized', 'error'); return; }
+                
                 const submissionRef = database.ref('ekazi_task_submissions').push();
                 const submissionId = submissionRef.key;
                 await submissionRef.set({
@@ -1970,16 +1231,15 @@
                     reviewCount: 0,
                     reviewHistory: []
                 });
+                
                 await database.ref(`ekazi_assigned_tasks/${taskId}`).update({
                     status: 'submitted',
                     lastSubmittedAt: firebase.database.ServerValue.TIMESTAMP,
                     currentSubmissionId: submissionId
                 });
+                
                 showToast('Work submitted successfully!', 'success');
                 closeSubmitModal();
-                await loadTasks(currentUser.email);
-                renderTasksTable();
-                updateDashboardUI();
             } catch (error) {
                 showToast('Error: ' + error.message, 'error');
             } finally {
@@ -2000,9 +1260,11 @@
             const task = assignedTasks.find(t => t.id === taskId);
             if (!task) return;
             currentTaskId = taskId;
+            
             const dueDate = task.dueDate ? new Date(task.dueDate).toLocaleDateString() : 'No date';
             const assignedDate = task.assignedAt ? new Date(task.assignedAt).toLocaleString() : 'Unknown';
             const payRate = parseInt(task.payRate) || 0;
+            
             let actionButtonText = 'Take Action';
             if (task.status === 'assigned') actionButtonText = 'Start Task';
             else if (task.status === 'in-progress') actionButtonText = 'Submit Work';
@@ -2065,22 +1327,11 @@
                 reviewHistoryHtml = '<h4 style="margin:1rem 0 0.5rem;font-size:0.9rem;">Review History</h4>';
                 submission.reviewHistory.forEach(review => {
                     const date = new Date(review.reviewedAt).toLocaleString();
-                    reviewHistoryHtml += `
-                        <div class="review-item">
-                            <div class="review-header"><span class="review-decision ${review.decision}">${escapeHtml(review.decision)}</span><span class="review-meta">${escapeHtml(date)}</span></div>
-                            <div class="review-comment">${escapeHtml(review.comments)}</div>
-                            <div class="review-meta">by ${escapeHtml(review.reviewedBy)}</div>
-                        </div>
-                    `;
+                    reviewHistoryHtml += `<div class="review-item"><div class="review-header"><span class="review-decision ${review.decision}">${escapeHtml(review.decision)}</span><span class="review-meta">${escapeHtml(date)}</span></div><div class="review-comment">${escapeHtml(review.comments)}</div><div class="review-meta">by ${escapeHtml(review.reviewedBy)}</div></div>`;
                 });
             }
 
-            const linksHtml = (submission.submissionLinks || []).map((link, idx) => `
-                <a href="${escapeHtml(link)}" target="_blank" class="submission-link-item">
-                    <i class="fas fa-link"></i>
-                    <span>Link ${idx + 1}: ${link.length > 50 ? link.substring(0, 50) + '...' : link}</span>
-                </a>
-            `).join('');
+            const linksHtml = (submission.submissionLinks || []).map((link, idx) => `<a href="${escapeHtml(link)}" target="_blank" class="submission-link-item"><i class="fas fa-link"></i><span>Link ${idx + 1}: ${link.length > 50 ? link.substring(0, 50) + '...' : link}</span></a>`).join('');
 
             document.getElementById('submissionDetailsModalBody').innerHTML = `
                 <div style="margin-bottom:1rem;"><span class="badge badge-info">${escapeHtml(task?.category || 'Unknown')}</span></div>
@@ -2157,18 +1408,12 @@
         window.handleLogout = async function() {
             try {
                 showLoading(true);
-                
-                // Clear all timers
                 clearTimeout(inactivityTimer);
                 clearTimeout(warningTimer);
                 clearInterval(countdownInterval);
-                
-                // Remove all real-time listeners
                 database.ref('ekazi_job_postings').off();
                 database.ref('ekazi_assigned_tasks').off();
                 database.ref('ekazi_task_submissions').off();
-                
-                // Sign out and redirect
                 await auth.signOut();
                 window.location.href = 'index.html';
             } catch (error) {
