@@ -418,12 +418,13 @@
       white-space: nowrap;
     }
 
-    .status-tag.completed { background: #e6f7e6; color: #0d7c3f; }
+    .status-tag.completed { background: #d1fae5; color: #065f46; }
+    .status-tag.delivered { background: #d1fae5; color: #065f46; }
     .status-tag.pending { background: #fef3c7; color: #b45309; }
     .status-tag.assigned { background: #e0f2fe; color: #0369a1; }
     .status-tag.out-for-delivery { background: #fef3cd; color: #b45309; }
-    .status-tag.delivered { background: #d1fae5; color: #065f46; }
     .status-tag.scheduled { background: #e0e7ff; color: #4338ca; }
+    .status-tag.in_progress { background: #fef3cd; color: #b45309; }
 
     .empty-state {
       text-align: center;
@@ -606,9 +607,9 @@
     const auth = firebase.auth();
 
     let allDeliveries = {};
-    let allAssistants = {};    // delivery_assistants node
-    let allTaskers = {};       // taskers node (verified delivery agents)
-    let assistantTasks = {};   // assistant_tasks node
+    let allAssistants = {};
+    let allTaskers = {};
+    let assistantTasks = {};
 
     const loadingOverlay = document.getElementById('loadingOverlay');
     const totalDeliveriesEl = document.getElementById('totalDeliveries');
@@ -648,9 +649,32 @@
       return 'Just now';
     }
 
+    function getClientName(delivery) {
+      return delivery.userName || delivery.customer?.name || delivery.userEmail || 'Client';
+    }
+
+    function isValidDelivery(delivery) {
+      if (!delivery) return false;
+      return !!(delivery.userName || delivery.customer?.name || delivery.userEmail);
+    }
+
+    function getStatusClass(status) {
+      const s = (status || 'pending').toLowerCase();
+      if (s === 'completed' || s === 'delivered') return 'completed';
+      if (s === 'assigned') return 'assigned';
+      if (s === 'out-for-delivery') return 'out-for-delivery';
+      if (s === 'scheduled') return 'scheduled';
+      if (s === 'in_progress') return 'in_progress';
+      return 'pending';
+    }
+
+    function getStatusLabel(status) {
+      return (status || 'pending').toLowerCase().replace(/-/g, ' ');
+    }
+
     function renderRecentList() {
       const deliveries = Object.entries(allDeliveries)
-        .filter(([_, d]) => d && (d.userName || d.customer?.name))
+        .filter(([_, d]) => isValidDelivery(d))
         .map(([id, data]) => ({ id, ...data }))
         .sort((a, b) => {
           const timeA = a.createdAt || a.timestamp || a.bookingDate || 0;
@@ -667,50 +691,44 @@
       recentListEl.innerHTML = deliveries.map(del => {
         const status = (del.status || 'pending').toLowerCase();
         const timeAgo = formatTimeAgo(del.createdAt || del.timestamp || del.bookingDate);
-        const client = del.userName || del.customer?.name || 'Client';
-        const pickup = del.pickup?.address || 'N/A';
-        const dropoff = del.delivery?.address || 'N/A';
-        const fare = del.fare?.total || '—';
-        
-        let statusClass = 'pending';
-        if (status === 'completed' || status === 'delivered') statusClass = 'completed';
-        else if (status === 'assigned') statusClass = 'assigned';
-        else if (status === 'out-for-delivery') statusClass = 'out-for-delivery';
-        else if (status === 'scheduled') statusClass = 'scheduled';
-        else statusClass = 'pending';
+        const client = getClientName(del);
+        const pickup = del.pickup?.address || (del.pickup?.coordinates?.displayName) || 'N/A';
+        const dropoff = del.delivery?.address || (del.delivery?.coordinates?.displayName) || 'N/A';
+        const statusClass = getStatusClass(status);
         
         return `
           <div class="recent-item">
-            <div style="display:flex; align-items:center; gap:12px;">
-              <div style="width:38px;height:38px;background:#fffbeb;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.8rem;">${getInitials(client)}</div>
-              <div>
-                <strong>${escapeHtml(client)}</strong>
-                <p style="font-size:0.7rem;color:#64748b;">${escapeHtml(pickup.substring(0, 25))} → ${escapeHtml(dropoff.substring(0, 25))} ${timeAgo ? '· ' + timeAgo : ''}</p>
+            <div style="display:flex; align-items:center; gap:12px; min-width:0;">
+              <div style="width:38px;height:38px;background:#fffbeb;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.8rem;flex-shrink:0;">${getInitials(client)}</div>
+              <div style="min-width:0;">
+                <strong style="font-size:0.85rem;">${escapeHtml(client)}</strong>
+                <p style="font-size:0.7rem;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(String(pickup).substring(0, 25))} → ${escapeHtml(String(dropoff).substring(0, 25))} ${timeAgo ? '· ' + timeAgo : ''}</p>
               </div>
             </div>
-            <span class="status-tag ${statusClass}">${status.replace(/-/g, ' ')}</span>
+            <span class="status-tag ${statusClass}" style="flex-shrink:0;margin-left:8px;">${getStatusLabel(status)}</span>
           </div>`;
       }).join('');
     }
 
+    function getValidDeliveries() {
+      return Object.values(allDeliveries).filter(d => isValidDelivery(d));
+    }
+
     function getPendingCount() {
-      const deliveries = Object.values(allDeliveries).filter(d => d);
-      return deliveries.filter(d => {
+      return getValidDeliveries().filter(d => {
         const status = (d.status || '').toLowerCase();
         return status === 'pending' || status === 'scheduled';
       }).length;
     }
 
     function getActiveCount() {
-      const deliveries = Object.values(allDeliveries).filter(d => d);
-      return deliveries.filter(d => {
+      return getValidDeliveries().filter(d => {
         const status = (d.status || '').toLowerCase();
-        return status === 'pending' || status === 'scheduled' || status === 'assigned' || status === 'out-for-delivery' || status === 'in_progress';
+        return ['pending', 'scheduled', 'assigned', 'out-for-delivery', 'in_progress'].includes(status);
       }).length;
     }
 
     function getDeliveryWorkerCount() {
-      // Count unique verified delivery_assistants + verified taskers
       const assistantIds = Object.keys(allAssistants).filter(id => {
         const a = allAssistants[id];
         return a && a.verified === true;
@@ -721,14 +739,13 @@
         return t && t.verified === true && t.status !== 'rejected';
       });
       
-      // Combine unique IDs
       const uniqueIds = new Set([...assistantIds, ...taskerIds]);
       return uniqueIds.size;
     }
 
     function updateStats() {
-      const deliveries = Object.values(allDeliveries).filter(d => d && (d.userName || d.customer?.name));
-      const total = deliveries.length;
+      const validDeliveries = getValidDeliveries();
+      const total = validDeliveries.length;
       const pending = getPendingCount();
       const active = getActiveCount();
       const workers = getDeliveryWorkerCount();
@@ -745,7 +762,7 @@
     }
 
     function setupRealtimeListeners() {
-      // 1. Listen to pickup_deliveries (main delivery bookings node)
+      // 1. pickup_deliveries - main delivery bookings
       database.ref('pickup_deliveries').on('value', (snapshot) => {
         allDeliveries = snapshot.val() || {};
         console.log('📦 Pickup deliveries loaded:', Object.keys(allDeliveries).length);
@@ -756,31 +773,25 @@
         loadingOverlay.classList.add('hide');
       });
 
-      // 2. Listen to delivery_assistants (verified pickup/delivery workers)
+      // 2. delivery_assistants - verified pickup/delivery workers
       database.ref('delivery_assistants').on('value', (snapshot) => {
         allAssistants = snapshot.val() || {};
         console.log('👤 Delivery assistants loaded:', Object.keys(allAssistants).length);
         updateStats();
-      }, (error) => {
-        console.error('❌ delivery_assistants error:', error);
       });
 
-      // 3. Listen to taskers (workers registered via E-Kazi who may also do deliveries)
+      // 3. taskers - E-Kazi workers who can also deliver
       database.ref('taskers').on('value', (snapshot) => {
         allTaskers = snapshot.val() || {};
         console.log('👤 Taskers loaded:', Object.keys(allTaskers).length);
         updateStats();
-      }, (error) => {
-        console.error('❌ taskers error:', error);
       });
 
-      // 4. Listen to assistant_tasks (assigned delivery tasks)
+      // 4. assistant_tasks - assigned delivery tasks
       database.ref('assistant_tasks').on('value', (snapshot) => {
         assistantTasks = snapshot.val() || {};
         console.log('📋 Assistant tasks loaded');
         updateStats();
-      }, (error) => {
-        console.error('❌ assistant_tasks error:', error);
       });
     }
 
@@ -788,17 +799,14 @@
       if (user) {
         let userName = 'Logistics Agent';
         try {
-          // Try logistics_staff first
           const staffSnap = await database.ref(`logistics_staff/${user.uid}`).once('value');
           if (staffSnap.exists()) {
             userName = staffSnap.val().name || user.email?.split('@')[0] || 'Staff';
           } else {
-            // Try brandinn_users
             const brandSnap = await database.ref(`brandinn_users/${user.uid}`).once('value');
             if (brandSnap.exists()) {
               userName = brandSnap.val().name || brandSnap.val().businessName || user.email?.split('@')[0] || 'Agent';
             } else {
-              // Try delivery_assistants
               const assistSnap = await database.ref(`delivery_assistants/${user.uid}`).once('value');
               if (assistSnap.exists()) {
                 userName = assistSnap.val().name || 'Driver';
@@ -824,7 +832,6 @@
       }
     });
 
-    // Fallback: hide loading after timeout
     setTimeout(() => loadingOverlay.classList.add('hide'), 8000);
   </script>
 </body>
