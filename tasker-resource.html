@@ -158,7 +158,7 @@
         }
         .btn-primary {
             background: var(--gold-gradient); color: white;
-            box-shadow: var(--shadow-gold); position: relative; overflow: hidden;
+            box-shadow: var(--shadow-gold);
         }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 36px rgba(202,138,4,0.3); }
 
@@ -173,26 +173,23 @@
         .page-header h1 i { color: var(--gold); margin-right: 0.5rem; }
         .page-header p {
             color: var(--text-muted); font-size: 1.1rem; max-width: 600px;
-            margin: 0 auto 1.5rem;
+            margin: 0 auto;
         }
 
-        /* Search Bar */
+        /* Search Container */
         .search-container {
-            max-width: 550px; margin: 0 auto 2.5rem; position: relative;
+            max-width: 600px; margin: 2rem auto; position: relative; z-index: 100;
         }
         .search-wrapper {
             display: flex; align-items: center;
             background: var(--bg-card); border: 1.5px solid var(--border-light);
-            border-radius: 50px; padding: 0.3rem 0.3rem 0.3rem 1.5rem;
+            border-radius: 50px; padding: 0.3rem 0.5rem 0.3rem 1.5rem;
             box-shadow: var(--shadow-sm); transition: all 0.3s;
         }
         .search-wrapper:focus-within {
             border-color: var(--gold); box-shadow: 0 0 0 4px var(--gold-glow);
         }
-        .search-icon {
-            color: var(--text-muted); font-size: 1rem;
-            margin-right: 0.75rem;
-        }
+        .search-icon { color: var(--text-muted); font-size: 1rem; margin-right: 0.75rem; }
         .search-input {
             flex: 1; border: none; outline: none;
             font-size: 0.95rem; font-family: var(--font-body);
@@ -207,14 +204,54 @@
             justify-content: center; transition: all 0.2s;
         }
         .search-clear:hover { background: var(--bg-secondary); color: var(--danger); }
-        .search-btn {
-            padding: 0.65rem 1.4rem; border-radius: 40px;
-            border: none; background: var(--gold-gradient);
-            color: white; font-weight: 600; cursor: pointer;
-            font-family: var(--font-heading); font-size: 0.9rem;
-            transition: all 0.2s;
+
+        /* Search Results Dropdown */
+        .search-results-dropdown {
+            position: absolute; top: calc(100% + 8px); left: 0; right: 0;
+            background: var(--bg-card); border: 1px solid var(--border-light);
+            border-radius: 20px; box-shadow: var(--shadow-xl);
+            max-height: 350px; overflow-y: auto; display: none; z-index: 200;
         }
-        .search-btn:hover { opacity: 0.9; }
+        .search-results-dropdown.active { display: block; }
+        .search-result-item {
+            display: flex; align-items: center; gap: 1rem;
+            padding: 0.9rem 1.5rem; cursor: pointer; transition: all 0.15s;
+            border-bottom: 1px solid var(--border-light);
+        }
+        .search-result-item:last-child { border-bottom: none; }
+        .search-result-item:hover { background: var(--gold-soft); }
+        .search-result-icon {
+            width: 42px; height: 42px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1rem; flex-shrink: 0;
+        }
+        .search-result-icon.guide { background: rgba(59,130,246,0.1); color: var(--guide-color); }
+        .search-result-icon.training { background: rgba(139,92,246,0.1); color: var(--training-color); }
+        .search-result-icon.tool { background: rgba(16,185,129,0.1); color: var(--tool-color); }
+        .search-result-icon.reference { background: rgba(245,158,11,0.1); color: var(--reference-color); }
+        .search-result-info { flex: 1; min-width: 0; }
+        .search-result-title {
+            font-weight: 600; color: var(--text-primary); font-size: 0.9rem;
+            margin-bottom: 0.15rem; font-family: var(--font-heading);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .search-result-desc {
+            color: var(--text-muted); font-size: 0.78rem;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .search-result-badge {
+            padding: 0.2rem 0.7rem; border-radius: 20px;
+            font-size: 0.68rem; font-weight: 700; text-transform: uppercase;
+            font-family: var(--font-heading); letter-spacing: 0.3px;
+        }
+        .badge-guide { background: rgba(59,130,246,0.1); color: var(--guide-color); }
+        .badge-training { background: rgba(139,92,246,0.1); color: var(--training-color); }
+        .badge-tool { background: rgba(16,185,129,0.1); color: var(--tool-color); }
+        .badge-reference { background: rgba(245,158,11,0.1); color: var(--reference-color); }
+        .no-results-dropdown {
+            padding: 2rem; text-align: center; color: var(--text-muted);
+        }
+        .no-results-dropdown i { font-size: 2rem; color: var(--gold); opacity: 0.3; margin-bottom: 0.5rem; }
 
         .resources-section { margin-bottom: 3rem; }
         .section-header {
@@ -302,17 +339,6 @@
             border: 1px dashed var(--border-medium); grid-column: 1 / -1;
         }
         .empty-section i { font-size: 3rem; color: var(--gold); margin-bottom: 1rem; opacity: 0.4; }
-        .empty-section h3 {
-            font-size: 1.1rem; font-weight: 700; color: var(--text-primary);
-            margin-bottom: 0.3rem; font-family: var(--font-heading);
-        }
-        .empty-section p { color: var(--text-muted); font-size: 0.9rem; }
-
-        .no-results {
-            text-align: center; padding: 2rem; grid-column: 1 / -1;
-            color: var(--text-muted);
-        }
-        .no-results i { font-size: 2.5rem; color: var(--gold); margin-bottom: 0.5rem; opacity: 0.4; }
 
         .loading-overlay {
             position: fixed; top:0;left:0;width:100%;height:100%;
@@ -402,18 +428,20 @@
             <p>Everything you need to succeed on E-KAZI</p>
         </div>
 
-        <!-- Search Bar -->
+        <!-- Search Bar with Dropdown -->
         <div class="search-container">
             <div class="search-wrapper">
                 <i class="fas fa-search search-icon"></i>
-                <input type="text" class="search-input" id="searchInput" placeholder="Search guides, tools, training..." oninput="handleSearch()">
+                <input type="text" class="search-input" id="searchInput" 
+                       placeholder="Search guides, tools, training..." 
+                       oninput="handleSearchInput()"
+                       onfocus="handleSearchInput()"
+                       autocomplete="off">
                 <button class="search-clear" id="searchClear" onclick="clearSearch()" style="display:none;">
                     <i class="fas fa-times"></i>
                 </button>
-                <button class="search-btn" onclick="handleSearch()">
-                    <i class="fas fa-search"></i> Search
-                </button>
             </div>
+            <div class="search-results-dropdown" id="searchDropdown"></div>
         </div>
 
         <section class="resources-section guides-section">
@@ -421,7 +449,7 @@
                 <div class="section-icon guides"><i class="fas fa-graduation-cap"></i></div>
                 <h2>Guides & Tutorials</h2>
             </div>
-            <p class="section-description">Step-by-step guides to help you master tasks and complete projects successfully</p>
+            <p class="section-description">Step-by-step guides to help you master tasks</p>
             <div class="cards-grid" id="guidesContainer"></div>
         </section>
 
@@ -430,7 +458,7 @@
                 <div class="section-icon training"><i class="fas fa-video"></i></div>
                 <h2>Training Materials</h2>
             </div>
-            <p class="section-description">Video courses, worksheets, and interactive materials to build your skills</p>
+            <p class="section-description">Video courses and interactive materials</p>
             <div class="cards-grid" id="trainingContainer"></div>
         </section>
 
@@ -439,7 +467,7 @@
                 <div class="section-icon tools"><i class="fas fa-tools"></i></div>
                 <h2>Working Tools</h2>
             </div>
-            <p class="section-description">Essential tools and software to help you work efficiently</p>
+            <p class="section-description">Essential tools for efficient work</p>
             <div class="cards-grid" id="toolsContainer"></div>
         </section>
 
@@ -448,7 +476,7 @@
                 <div class="section-icon references"><i class="fas fa-link"></i></div>
                 <h2>Reference Points</h2>
             </div>
-            <p class="section-description">Useful links, templates, and references for your work</p>
+            <p class="section-description">Useful links and templates</p>
             <div class="cards-grid" id="referencesContainer"></div>
         </section>
     </div>
@@ -502,13 +530,73 @@
         document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
     }
 
+    function openResourceLink(link) {
+        if (link) window.open(link, '_blank');
+    }
+
+    function handleSearchInput() {
+        const query = document.getElementById('searchInput').value.trim().toLowerCase();
+        const dropdown = document.getElementById('searchDropdown');
+        const clearBtn = document.getElementById('searchClear');
+
+        if (query.length === 0) {
+            dropdown.classList.remove('active');
+            clearBtn.style.display = 'none';
+            return;
+        }
+
+        clearBtn.style.display = 'flex';
+
+        const filtered = allResources.filter(item =>
+            item.title.toLowerCase().includes(query) ||
+            item.description.toLowerCase().includes(query) ||
+            (item.category && item.category.toLowerCase().includes(query))
+        );
+
+        if (filtered.length === 0) {
+            dropdown.innerHTML = `<div class="no-results-dropdown"><i class="fas fa-search"></i><p>No results for "<strong>${escapeHtml(query)}</strong>"</p></div>`;
+        } else {
+            const typeIcons = { guides: 'book', training: 'video', tools: 'tools', references: 'link' };
+            const typeLabels = { guides: 'Guide', training: 'Training', tools: 'Tool', references: 'Reference' };
+            
+            dropdown.innerHTML = filtered.slice(0, 8).map(item => `
+                <div class="search-result-item" onclick="openResourceLink('${escapeHtml(item.link)}')">
+                    <div class="search-result-icon ${item.type === 'guides' ? 'guide' : item.type === 'training' ? 'training' : item.type === 'tools' ? 'tool' : 'reference'}">
+                        <i class="fas fa-${typeIcons[item.type] || 'book'}"></i>
+                    </div>
+                    <div class="search-result-info">
+                        <div class="search-result-title">${escapeHtml(item.title)}</div>
+                        <div class="search-result-desc">${escapeHtml(item.description)}</div>
+                    </div>
+                    <span class="search-result-badge badge-${item.type === 'guides' ? 'guide' : item.type === 'training' ? 'training' : item.type === 'tools' ? 'tool' : 'reference'}">${typeLabels[item.type] || 'Resource'}</span>
+                </div>
+            `).join('');
+        }
+        dropdown.classList.add('active');
+    }
+
+    function clearSearch() {
+        document.getElementById('searchInput').value = '';
+        document.getElementById('searchClear').style.display = 'none';
+        document.getElementById('searchDropdown').classList.remove('active');
+        document.getElementById('searchInput').focus();
+    }
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+        const searchContainer = document.querySelector('.search-container');
+        if (!searchContainer.contains(e.target)) {
+            document.getElementById('searchDropdown').classList.remove('active');
+        }
+    });
+
     function createCardHtml(item, placeholderIcon) {
         const imageHtml = item.image 
             ? `<img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.title)}" loading="lazy">`
             : `<div class="image-placeholder"><i class="fas fa-${placeholderIcon}"></i></div>`;
         
         return `
-            <div class="resource-card" onclick="window.open('${escapeHtml(item.link)}', '_blank')">
+            <div class="resource-card" onclick="openResourceLink('${escapeHtml(item.link)}')">
                 <div class="card-image">${imageHtml}</div>
                 <div class="card-content">
                     <h3 class="card-title">${escapeHtml(item.title)}</h3>
@@ -528,59 +616,11 @@
         
         if (!items || items.length === 0) {
             const iconMap = { guidesContainer: 'book', trainingContainer: 'video', toolsContainer: 'tools', referencesContainer: 'link' };
-            const emptyIcon = iconMap[containerId] || 'book';
-            container.innerHTML = `
-                <div class="empty-section">
-                    <i class="fas fa-${emptyIcon}"></i>
-                    <h3>No ${containerId.replace('Container','')} Available</h3>
-                    <p>Check back later for updates.</p>
-                </div>`;
+            container.innerHTML = `<div class="empty-section"><i class="fas fa-${iconMap[containerId]}"></i><h3>No items yet</h3></div>`;
             return;
         }
 
         container.innerHTML = items.map(item => createCardHtml(item, placeholderIcon)).join('');
-    }
-
-    function handleSearch() {
-        const query = document.getElementById('searchInput').value.trim().toLowerCase();
-        const clearBtn = document.getElementById('searchClear');
-        
-        if (query) {
-            clearBtn.style.display = 'flex';
-            const filtered = allResources.filter(item => 
-                item.title.toLowerCase().includes(query) || 
-                item.description.toLowerCase().includes(query) ||
-                (item.category && item.category.toLowerCase().includes(query))
-            );
-            
-            renderSection('guidesContainer', filtered.filter(i => i.type === 'guides'), 'book');
-            renderSection('trainingContainer', filtered.filter(i => i.type === 'training'), 'video');
-            renderSection('toolsContainer', filtered.filter(i => i.type === 'tools'), 'tools');
-            renderSection('referencesContainer', filtered.filter(i => i.type === 'references'), 'link');
-
-            if (filtered.length === 0) {
-                const noResults = `<div class="no-results"><i class="fas fa-search"></i><p>No results found for "<strong>${escapeHtml(query)}</strong>"</p></div>`;
-                ['guidesContainer','trainingContainer','toolsContainer','referencesContainer'].forEach(id => {
-                    document.getElementById(id).innerHTML = noResults;
-                });
-            }
-        } else {
-            clearBtn.style.display = 'none';
-            renderSection('guidesContainer', resources.guides, 'book');
-            renderSection('trainingContainer', resources.training, 'video');
-            renderSection('toolsContainer', resources.tools, 'tools');
-            renderSection('referencesContainer', resources.references, 'link');
-        }
-    }
-
-    function clearSearch() {
-        document.getElementById('searchInput').value = '';
-        document.getElementById('searchClear').style.display = 'none';
-        renderSection('guidesContainer', resources.guides, 'book');
-        renderSection('trainingContainer', resources.training, 'video');
-        renderSection('toolsContainer', resources.tools, 'tools');
-        renderSection('referencesContainer', resources.references, 'link');
-        document.getElementById('searchInput').focus();
     }
 
     async function loadResources() {
@@ -606,7 +646,6 @@
             renderSection('toolsContainer', resources.tools, 'tools');
             renderSection('referencesContainer', resources.references, 'link');
         } catch (error) {
-            console.error('Error loading resources:', error);
             showToast('Failed to load resources', 'error');
         } finally {
             showLoading(false);
@@ -622,7 +661,6 @@
             };
             updateUserUI();
         } catch (e) {
-            console.error('User data error:', e);
             currentTasker = { name: user.email?.split('@')[0] || 'Tasker' };
             updateUserUI();
         }
@@ -632,32 +670,19 @@
         document.getElementById('loginRequired').style.display = 'block';
         document.getElementById('resourcesContent').style.display = 'none';
     }
-
     function showResourcesContent() {
         document.getElementById('loginRequired').style.display = 'none';
         document.getElementById('resourcesContent').style.display = 'block';
     }
 
     window.handleLogout = async function() {
-        try {
-            showLoading(true);
-            await auth.signOut();
-            window.location.href = 'index.html';
-        } catch (error) {
-            showToast('Logout failed', 'error');
-            showLoading(false);
-        }
+        try { showLoading(true); await auth.signOut(); window.location.href = 'index.html'; }
+        catch (error) { showToast('Logout failed', 'error'); showLoading(false); }
     };
 
     auth.onAuthStateChanged(async (user) => {
-        if (user) {
-            currentUser = user;
-            await loadUserData(user);
-            await loadResources();
-            showResourcesContent();
-        } else {
-            showLoginRequired();
-        }
+        if (user) { currentUser = user; await loadUserData(user); await loadResources(); showResourcesContent(); }
+        else { showLoginRequired(); }
     });
 </script>
 </body>
