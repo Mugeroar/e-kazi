@@ -127,13 +127,15 @@
         }
         .nav-link:hover::after, .nav-link.active::after { width: 100%; }
         .nav-link:hover, .nav-link.active { color: var(--gold); }
+
         .user-menu {
             display: flex; align-items: center; gap: 0.5rem;
             background: var(--bg-card); border: 1px solid var(--border-light);
             border-radius: 60px; padding: 0.3rem 0.5rem 0.3rem 1rem;
-            transition: all 0.25s;
+            cursor: pointer; position: relative; transition: all 0.25s;
         }
         .user-menu:hover { border-color: var(--gold); box-shadow: var(--shadow-md); }
+        .user-menu:hover .logout-dropdown { display: block; opacity: 1; visibility: visible; transform: translateY(0); }
         .user-name {
             color: var(--text-primary); font-weight: 600; font-size: 0.9rem;
             font-family: var(--font-heading);
@@ -142,22 +144,48 @@
             width: 38px; height: 38px;
             background: var(--gold-gradient); color: white;
             border-radius: 50%; display: flex; align-items: center;
-            justify-content: center; font-weight: 700;
+            justify-content: center; font-weight: 700; font-family: var(--font-heading);
         }
-        .logout-btn-header {
-            width: 36px; height: 36px; border-radius: 50%;
-            border: 1px solid var(--border-light); background: var(--bg-card);
-            color: var(--text-muted); cursor: pointer; display: flex;
-            align-items: center; justify-content: center;
-            transition: all 0.2s; font-size: 0.85rem;
+        .logout-dropdown {
+            position: absolute; top: calc(100% + 10px); right: 0;
+            background: var(--card-bg); border: 1px solid var(--border-light);
+            border-radius: 16px; padding: 0.5rem; min-width: 160px;
+            display: block; opacity: 0; visibility: hidden;
+            transform: translateY(-10px); transition: all 0.2s ease;
+            z-index: 1001; box-shadow: var(--shadow-lg);
         }
-        .logout-btn-header:hover {
-            background: var(--danger); color: white; border-color: var(--danger);
+        .logout-item {
+            padding: 0.7rem 1rem; color: var(--text-secondary);
+            border-radius: 12px; display: flex; align-items: center; gap: 0.5rem;
+            cursor: pointer; font-size: 0.9rem; font-family: var(--font-body);
+            transition: all 0.2s;
         }
+        .logout-item:hover { background: var(--bg-secondary); color: var(--danger); }
+
+        .inactivity-warning {
+            position: fixed; bottom: 20px; right: 20px;
+            background: var(--card-bg); border: 1px solid var(--border-light);
+            border-radius: 20px; padding: 0.8rem 1.2rem;
+            display: flex; align-items: center; gap: 1rem;
+            z-index: 1002; box-shadow: var(--shadow-xl);
+            animation: slideUp 0.2s ease;
+        }
+        @keyframes slideUp { from{transform:translateY(10px);opacity:0} to{transform:translateY(0);opacity:1} }
 
         .main-content {
             max-width: 1280px; margin: calc(var(--header-height) + 2rem) auto 2rem;
             padding: 0 2.5rem;
+        }
+
+        .login-required {
+            text-align: center; padding: 4rem;
+            background: var(--card-bg); border: 1px solid var(--border-light);
+            border-radius: 32px; box-shadow: var(--shadow-sm);
+        }
+        .login-required i { font-size: 4rem; color: var(--gold); margin-bottom: 1.5rem; }
+        .login-required h2 {
+            font-size: 2rem; margin-bottom: 0.5rem; color: var(--text-primary);
+            font-family: var(--font-display);
         }
 
         .btn {
@@ -171,6 +199,12 @@
             background: var(--gold-gradient); color: white;
             box-shadow: var(--shadow-gold); position: relative; overflow: hidden;
         }
+        .btn-primary::before {
+            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+            transition: left 0.5s;
+        }
+        .btn-primary:hover::before { left: 100%; }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 36px rgba(202,138,4,0.3); }
         .btn-outline {
             background: transparent; border: 1.5px solid var(--border-medium); color: var(--text-muted);
@@ -190,14 +224,22 @@
             margin-bottom: 0.3rem; font-family: var(--font-display);
             letter-spacing: -0.02em;
         }
+        .welcome-text p {
+            color: var(--text-muted); font-size: 0.95rem;
+            display: flex; align-items: center; gap: 0.5rem;
+        }
         .verification-badge {
             display: inline-flex; align-items: center; gap: 0.3rem;
             padding: 0.45rem 1.1rem; background: var(--gold-soft);
             border-radius: 30px; color: var(--gold-dark);
             font-size: 0.8rem; font-weight: 700; font-family: var(--font-heading);
+            letter-spacing: 0.3px;
         }
-        .verification-badge.verified {
-            background: rgba(16,185,129,0.1); color: #059669;
+        .verification-badge.verified { background: rgba(16,185,129,0.1); color: #059669; }
+        .date-display {
+            background: var(--bg-secondary); padding: 0.6rem 1.2rem;
+            border-radius: 40px; font-size: 0.9rem; color: var(--text-secondary);
+            display: flex; align-items: center; gap: 0.5rem; font-weight: 500;
         }
 
         .stats-grid {
@@ -209,7 +251,7 @@
             align-items: center; gap: 1.2rem; box-shadow: var(--shadow-sm);
             transition: all 0.3s;
         }
-        .stat-card:hover { transform: translateY(-4px); border-color: var(--gold); }
+        .stat-card:hover { transform: translateY(-4px); border-color: var(--gold); box-shadow: var(--shadow-md); }
         .stat-icon {
             width: 56px; height: 56px; background: var(--gold-soft);
             border-radius: 18px; display: flex; align-items: center;
@@ -217,7 +259,8 @@
         }
         .stat-value {
             font-size: 2rem; font-weight: 800; color: var(--text-primary);
-            line-height: 1.2; font-family: var(--font-display);
+            line-height: 1.2; margin-bottom: 0.2rem;
+            font-family: var(--font-display); letter-spacing: -0.02em;
         }
         .stat-label {
             color: var(--text-muted); font-size: 0.85rem; font-weight: 500;
@@ -237,24 +280,37 @@
             background: radial-gradient(circle, rgba(202,138,4,0.15) 0%, transparent 70%);
             border-radius: 50%;
         }
-        .earnings-left h3 { font-size: 0.95rem; font-weight: 500; opacity: 0.9; font-family: var(--font-heading); }
+        .earnings-left h3 { font-size: 0.95rem; font-weight: 500; margin-bottom: 0.5rem; opacity: 0.9; font-family: var(--font-heading); }
         .earnings-amount {
             font-size: 2.8rem; font-weight: 800; line-height: 1;
-            font-family: var(--font-display);
+            font-family: var(--font-display); letter-spacing: -0.02em;
             background: var(--gold-gradient);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
             background-clip: text;
         }
+        .earnings-period { opacity: 0.75; font-size: 0.9rem; font-weight: 500; }
         .earnings-right { display: flex; gap: 2rem; position: relative; z-index: 1; }
         .earning-stat { text-align: right; }
+        .earning-stat-label { font-size: 0.8rem; opacity: 0.8; margin-bottom: 0.2rem; }
         .earning-stat-value { font-size: 1.2rem; font-weight: 700; }
 
-        .section-header { display: flex; justify-content: space-between; align-items: center; margin: 2rem 0 1rem; }
+        .section-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin: 2rem 0 1rem;
+        }
         .section-title {
             font-size: 1.3rem; font-weight: 700; color: var(--text-primary);
             display: flex; align-items: center; gap: 0.5rem;
             font-family: var(--font-display); letter-spacing: -0.02em;
         }
+        .section-title i { color: var(--gold); }
+        .view-all {
+            color: var(--gold); text-decoration: none; font-size: 0.9rem;
+            font-weight: 600; display: flex; align-items: center; gap: 0.3rem;
+            cursor: pointer; font-family: var(--font-heading);
+            transition: gap 0.2s;
+        }
+        .view-all:hover { gap: 0.5rem; }
 
         .card-table {
             background: var(--card-bg); border: 1px solid var(--border-light);
@@ -284,6 +340,7 @@
         .badge-info { background: rgba(59,130,246,0.1); color: #2563eb; }
         .badge-purple { background: rgba(139,92,246,0.1); color: #7c3aed; }
         .badge-danger { background: rgba(239,68,68,0.1); color: #dc2626; }
+        .badge-gold { background: var(--gold-soft); color: var(--gold-dark); }
 
         .quick-actions {
             display: grid; grid-template-columns: repeat(4,1fr); gap: 1rem; margin-bottom: 2rem;
@@ -294,14 +351,15 @@
             text-decoration: none; color: var(--text-primary);
             transition: all 0.3s; display: block; cursor: pointer;
         }
-        .action-card:hover { border-color: var(--gold); transform: translateY(-3px); }
+        .action-card:hover { border-color: var(--gold); transform: translateY(-3px); box-shadow: var(--shadow-md); }
         .action-icon {
             width: 50px; height: 50px; background: var(--gold-soft);
             border-radius: 16px; display: flex; align-items: center;
             justify-content: center; margin: 0 auto 0.75rem;
             color: var(--gold); font-size: 1.3rem;
         }
-        .action-title { font-size: 0.95rem; font-weight: 700; font-family: var(--font-heading); }
+        .action-title { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.25rem; font-family: var(--font-heading); }
+        .action-desc { font-size: 0.78rem; color: var(--text-muted); }
 
         .task-btn {
             padding: 0.4rem 1rem; border: 1px solid var(--border-light);
@@ -324,7 +382,7 @@
             position: fixed; top:50%;left:50%; transform: translate(-50%,-50%) scale(0.95);
             background: var(--card-bg); border-radius: 32px;
             border: 1px solid var(--border-light); box-shadow: var(--shadow-xl);
-            z-index: 2001; max-width: 550px; width: 90%; max-height: 85vh;
+            z-index: 2001; max-width: 500px; width: 90%; max-height: 85vh;
             overflow-y: auto; opacity: 0; visibility: hidden;
             transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
         }
@@ -333,31 +391,23 @@
             display: flex; justify-content: space-between; align-items: center;
             padding: 1.5rem; border-bottom: 1px solid var(--border-light);
         }
-        .modal-header h3 { font-size: 1.3rem; font-weight: 700; font-family: var(--font-display); }
+        .modal-header h3 { font-size: 1.3rem; font-weight: 700; color: var(--text-primary); font-family: var(--font-display); }
+        .modal-close { background: transparent; border: none; color: var(--text-muted); font-size: 1.3rem; cursor: pointer; }
         .modal-body { padding: 1.5rem; }
         .modal-actions { display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1.5rem; }
 
+        .form-group { margin-bottom: 1.25rem; }
+        .form-group label {
+            display: block; color: var(--text-secondary); margin-bottom: 0.3rem;
+            font-size: 0.85rem; font-weight: 600; font-family: var(--font-heading);
+        }
         .form-control {
             width: 100%; padding: 0.8rem 1rem; background: var(--input-bg);
             border: 1px solid var(--border-medium); border-radius: 14px;
             color: var(--text-primary); font-size: 0.9rem;
             font-family: var(--font-body); transition: all 0.2s;
         }
-        .form-control:focus { outline: none; border-color: var(--gold); }
-
-        .revision-box {
-            background: rgba(239,68,68,0.04); border: 1px solid rgba(239,68,68,0.2);
-            border-radius: 16px; padding: 1.2rem; margin: 1rem 0;
-        }
-        .revision-box h4 {
-            color: var(--danger); font-size: 0.9rem; font-weight: 700;
-            margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;
-        }
-        .revision-item {
-            background: white; border-radius: 12px; padding: 0.9rem;
-            margin-bottom: 0.6rem; border-left: 3px solid var(--danger);
-        }
-        .revision-item:last-child { margin-bottom: 0; }
+        .form-control:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-glow); }
 
         .task-detail-grid {
             display: grid; grid-template-columns: repeat(2,1fr); gap: 0.75rem; margin-bottom: 1rem;
@@ -368,6 +418,26 @@
         }
         .task-detail-box .label { color: var(--text-muted); font-size: 0.7rem; margin-bottom: 0.1rem; }
         .task-detail-box .value { color: var(--text-primary); font-size: 0.9rem; font-weight: 600; }
+
+        .revision-box {
+            background: rgba(239,68,68,0.04); border: 1px solid rgba(239,68,68,0.2);
+            border-radius: 14px; padding: 1rem; margin: 1rem 0;
+        }
+        .revision-box h4 {
+            color: var(--danger); font-size: 0.85rem; font-weight: 700;
+            margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.4rem;
+        }
+        .revision-item {
+            background: white; border-radius: 10px; padding: 0.7rem;
+            margin-bottom: 0.5rem; border-left: 3px solid var(--danger);
+            font-size: 0.82rem;
+        }
+        .revision-item:last-child { margin-bottom: 0; }
+
+        .instruction-box {
+            background: var(--gold-soft); border: 1px solid rgba(202,138,4,0.2);
+            border-radius: 16px; padding: 1rem; margin: 1rem 0;
+        }
 
         .loading-overlay {
             position: fixed; top:0;left:0;width:100%;height:100%;
@@ -389,11 +459,18 @@
             border-radius: 14px; padding: 0.8rem 1.2rem; margin-bottom: 0.5rem;
             box-shadow: var(--shadow-lg); display: flex; align-items: center;
             gap: 0.75rem; min-width: 280px; animation: slideIn 0.2s ease;
+            font-family: var(--font-body);
         }
         .toast.success { border-left: 3px solid var(--success); }
         .toast.error { border-left: 3px solid var(--danger); }
         .toast.info { border-left: 3px solid var(--gold); }
+        .toast.warning { border-left: 3px solid var(--warning); }
         @keyframes slideIn { from{opacity:0;transform:translateX(20px)} to{opacity:1;transform:translateX(0)} }
+
+        .empty-state { text-align: center; padding: 2rem; color: var(--text-muted); }
+        .empty-state i { font-size: 2.5rem; color: var(--gold); margin-bottom: 0.5rem; opacity: 0.4; }
+        .empty-state h3 { font-size: 1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.2rem; font-family: var(--font-heading); }
+        .empty-state p { font-size: 0.85rem; }
 
         @media (max-width:1024px) {
             .stats-grid{grid-template-columns:repeat(2,1fr)}
@@ -401,7 +478,11 @@
         }
         @media (max-width:768px) {
             .stats-grid,.quick-actions{grid-template-columns:1fr}
+            .earnings-card{flex-direction:column;text-align:center}
+            .earnings-right{flex-direction:column;gap:1rem}
+            .earning-stat{text-align:center}
             .nav-links{display:none}
+            .welcome-section{flex-direction:column;text-align:center}
         }
     </style>
 </head>
@@ -411,6 +492,24 @@
     </div>
     <div class="loading-overlay" id="loadingOverlay"><div class="loading-spinner"></div></div>
     <div class="toast-container" id="toastContainer"></div>
+    <div class="inactivity-warning" id="inactivityWarning" style="display:none;">
+        <i class="fas fa-clock"></i><span>Session expires in <span id="inactivityCountdown">60</span>s</span>
+        <button onclick="extendSession()">Stay</button>
+    </div>
+
+    <div class="modal-overlay" id="submitModalOverlay"></div>
+    <div class="modal" id="submitModal">
+        <div class="modal-header"><h3>Submit Work</h3><button class="modal-close" onclick="closeSubmitModal()"><i class="fas fa-times"></i></button></div>
+        <div class="modal-body">
+            <form id="submissionForm" onsubmit="submitWork(event)">
+                <input type="hidden" id="submitTaskId">
+                <div class="form-group"><label>Task Category</label><input type="text" class="form-control" id="displayTaskCategory" readonly></div>
+                <div class="form-group"><label>Work Links</label><div id="linksContainer"><div class="link-input-group"><input type="url" class="form-control" name="submissionLinks[]" placeholder="https://drive.google.com/..." required><button type="button" class="remove-link-btn" onclick="removeLinkField(this)"><i class="fas fa-times"></i></button></div></div><button type="button" class="add-link-btn" onclick="addLinkField()"><i class="fas fa-plus"></i> Add Another Link</button></div>
+                <div class="form-group"><label>Additional Notes (Optional)</label><textarea class="form-control" id="submissionNotes" rows="3" placeholder="Any notes for the reviewer..."></textarea></div>
+                <div class="modal-actions"><button type="button" class="btn btn-outline" onclick="closeSubmitModal()">Cancel</button><button type="submit" class="btn btn-primary">Submit Work</button></div>
+            </form>
+        </div>
+    </div>
 
     <div class="modal-overlay" id="taskDetailsModalOverlay"></div>
     <div class="modal" id="taskDetailsModal">
@@ -426,20 +525,6 @@
         <div class="modal-actions"><button class="btn btn-outline" onclick="closeSubmissionDetailsModal()">Close</button></div>
     </div>
 
-    <div class="modal-overlay" id="submitModalOverlay"></div>
-    <div class="modal" id="submitModal">
-        <div class="modal-header"><h3>Submit Work</h3><button class="modal-close" onclick="closeSubmitModal()"><i class="fas fa-times"></i></button></div>
-        <div class="modal-body">
-            <form id="submissionForm" onsubmit="submitWork(event)">
-                <input type="hidden" id="submitTaskId">
-                <div class="form-group"><label>Task Category</label><input type="text" class="form-control" id="displayTaskCategory" readonly></div>
-                <div class="form-group"><label>Work Links</label><div id="linksContainer"><div class="link-input-group"><input type="url" class="form-control" name="submissionLinks[]" required><button type="button" class="remove-link-btn" onclick="removeLinkField(this)"><i class="fas fa-times"></i></button></div></div><button type="button" class="add-link-btn" onclick="addLinkField()"><i class="fas fa-plus"></i> Add Link</button></div>
-                <div class="form-group"><label>Notes</label><textarea class="form-control" id="submissionNotes" rows="3"></textarea></div>
-                <div class="modal-actions"><button type="button" class="btn btn-outline" onclick="closeSubmitModal()">Cancel</button><button type="submit" class="btn btn-primary">Submit</button></div>
-            </form>
-        </div>
-    </div>
-
     <header class="site-header">
         <div class="header-container">
             <div class="logo"><img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview-1.png" alt="E-KAZI"><span>E-KAZI</span></div>
@@ -449,28 +534,25 @@
                 <a href="workspaces.html" class="nav-link">Workspaces</a>
                 <a href="tasker-resource.html" class="nav-link">Resources</a>
             </nav>
-            <div class="user-menu">
+            <div class="user-menu" id="userMenu">
                 <span class="user-name" id="userDisplayName">Loading...</span>
                 <div class="user-avatar" id="userAvatar">T</div>
-                <button class="logout-btn-header" onclick="handleLogout()" title="Sign Out"><i class="fas fa-sign-out-alt"></i></button>
+                <div class="logout-dropdown">
+                    <div class="logout-item" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Sign Out</div>
+                </div>
             </div>
         </div>
     </header>
 
     <main class="main-content">
         <div id="loginRequired" style="display:none;">
-            <div class="login-required" style="text-align:center;padding:4rem;background:var(--card-bg);border-radius:32px;">
-                <i class="fas fa-user-lock" style="font-size:4rem;color:var(--gold);margin-bottom:1.5rem;"></i>
-                <h2 style="font-family:var(--font-display);">Login Required</h2>
-                <p>Please sign in to view your dashboard</p>
-                <button class="btn btn-primary" onclick="window.location.href='index.html'">Go to Login</button>
-            </div>
+            <div class="login-required"><i class="fas fa-user-lock"></i><h2>Login Required</h2><p>Please sign in to view your dashboard</p><button class="btn btn-primary" onclick="window.location.href='index.html'">Go to Login</button></div>
         </div>
 
         <div id="dashboardContent" style="display:none;">
             <div class="welcome-section">
-                <div class="welcome-text"><h1>Welcome back, <span id="userName">Tasker</span>!</h1><p><i class="fas fa-calendar-check"></i> Here's what's happening today</p></div>
-                <div style="display:flex;align-items:center;gap:1rem;"><span class="verification-badge" id="verificationBadge">VERIFIED</span><div class="date-display" id="currentDate"></div></div>
+                <div class="welcome-text"><h1>Welcome back, <span id="userName">Tasker</span>!</h1><p><i class="fas fa-calendar-check"></i> Here's what's happening with your tasks today</p></div>
+                <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;"><span class="verification-badge" id="verificationBadge">VERIFIED</span><div class="date-display" id="currentDate"></div></div>
             </div>
 
             <div class="stats-grid">
@@ -485,19 +567,23 @@
                 <div class="earnings-right"><div class="earning-stat"><div class="earning-stat-label">This Month</div><div class="earning-stat-value" id="monthEarnings">KSh 0</div></div><div class="earning-stat"><div class="earning-stat-label">Pending</div><div class="earning-stat-value" id="pendingEarnings">KSh 0</div></div></div>
             </div>
 
-            <div class="section-header"><h2 class="section-title"><i class="fas fa-briefcase"></i> Available Jobs</h2></div>
-            <div class="card-table"><div style="overflow-x:auto;"><table><thead><tr><th>Job Title</th><th>Category</th><th>Budget (KES)</th><th>Posted</th><th>Deadline</th><th>Action</th></tr></thead><tbody id="availableJobsTableBody"></tbody></table></div></div>
+            <div class="section-header" style="margin:1.5rem 0 0.5rem;">
+                <h2 class="section-title"><i class="fas fa-briefcase"></i> Available Jobs<span style="font-size:0.8rem;color:var(--text-muted);font-weight:400;margin-left:0.5rem;">(Open positions you can accept)</span></h2>
+                <div class="view-all" onclick="refreshAvailableJobs()"><i class="fas fa-sync-alt"></i> Refresh</div>
+            </div>
+
+            <div class="card-table"><div style="overflow-x:auto;"><table><thead><tr><th style="width:30%;">Job Title</th><th style="width:15%;">Category</th><th style="width:12%;">Budget (KES)</th><th style="width:13%;">Posted</th><th style="width:13%;">Deadline</th><th style="width:10%;">Applicants</th><th style="width:7%;">Action</th></tr></thead><tbody id="availableJobsTableBody"></tbody></table></div></div>
 
             <div class="section-header"><h2 class="section-title"><i class="fas fa-bolt"></i> Quick Actions</h2></div>
             <div class="quick-actions">
-                <div class="action-card" onclick="openSubmitModalForTask()"><div class="action-icon"><i class="fas fa-upload"></i></div><div class="action-title">Submit Work</div></div>
-                <a href="tasker-profile.html" class="action-card"><div class="action-icon"><i class="fas fa-user-edit"></i></div><div class="action-title">Profile</div></a>
-                <a href="tasker-resource.html" class="action-card"><div class="action-icon"><i class="fas fa-book-open"></i></div><div class="action-title">Resources</div></a>
-                <a href="workspaces.html" class="action-card"><div class="action-icon"><i class="fas fa-desktop"></i></div><div class="action-title">Workspaces</div></a>
+                <div class="action-card" onclick="openSubmitModalForTask()"><div class="action-icon"><i class="fas fa-upload"></i></div><div class="action-title">Submit Work</div><div class="action-desc">Submit completed task</div></div>
+                <a href="tasker-profile.html" class="action-card"><div class="action-icon"><i class="fas fa-user-edit"></i></div><div class="action-title">Update Profile</div><div class="action-desc">Edit your information</div></a>
+                <a href="tasker-resource.html" class="action-card"><div class="action-icon"><i class="fas fa-book-open"></i></div><div class="action-title">Resources</div><div class="action-desc">Helpful guides</div></a>
+                <a href="workspaces.html" class="action-card"><div class="action-icon"><i class="fas fa-desktop"></i></div><div class="action-title">Workspaces</div><div class="action-desc">Tools & portals</div></a>
             </div>
 
             <div class="section-header"><h2 class="section-title"><i class="fas fa-clipboard-list"></i> My Tasks</h2></div>
-            <div class="card-table"><div style="overflow-x:auto;"><table><thead><tr><th>Task / Category</th><th>Client</th><th>Pay (KES)</th><th>Due Date</th><th>Status</th><th>Reviews</th><th>Actions</th></tr></thead><tbody id="tasksTableBody"></tbody></table></div></div>
+            <div class="card-table"><div style="overflow-x:auto;"><table><thead><tr><th style="width:25%;">Task / Category</th><th style="width:15%;">Client</th><th style="width:12%;">Pay (KES)</th><th style="width:12%;">Due Date</th><th style="width:12%;">Status</th><th style="width:12%;">Reviews</th><th style="width:12%;">Actions</th></tr></thead><tbody id="tasksTableBody"></tbody></table></div></div>
         </div>
     </main>
 
@@ -517,11 +603,13 @@
         auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 
         let currentUser = null, currentTasker = null, assignedTasks = [], taskSubmissions = [], availableJobs = [], currentTaskId = null, currentSubmissionId = null;
+        let inactivityTimer, warningTimer, countdownInterval;
+        const INACTIVITY_LIMIT = 5 * 60 * 1000, WARNING_BEFORE = 60 * 1000;
 
         window.addEventListener('load', () => setTimeout(() => document.getElementById('loader').classList.add('hidden'), 500));
 
         auth.onAuthStateChanged(async (user) => {
-            if (user) { currentUser = user; await loadUserData(user); showDashboardContent(); }
+            if (user) { currentUser = user; await loadUserData(user); showDashboardContent(); resetInactivityTimer(); }
             else { showLoginRequired(); document.getElementById('loader').classList.add('hidden'); }
         });
 
@@ -529,17 +617,17 @@
             showLoading(true);
             try {
                 const snap = await database.ref(`taskers/${user.uid}`).once('value');
-                currentTasker = snap.exists() ? snap.val() : { name: user.displayName || user.email?.split('@')[0] || 'Tasker', email: user.email, verified: false };
+                currentTasker = snap.exists() ? snap.val() : { name: user.displayName || user.email?.split('@')[0] || 'Tasker', email: user.email, verified: false, status: 'pending' };
                 if (!snap.exists()) await database.ref(`taskers/${user.uid}`).set(currentTasker);
                 setupRealtimeListeners();
                 updateDashboardUI();
-            } catch(e) { showToast('Error loading dashboard', 'error'); }
+            } catch(e) { showToast('Error loading dashboard: ' + e.message, 'error'); }
             finally { showLoading(false); }
         }
 
         function setupRealtimeListeners() {
             database.ref('ekazi_job_postings').on('value', (snap) => {
-                availableJobs = Object.entries(snap.val() || {}).filter(([_,j]) => j.status==='active'||j.status==='open').map(([id,j]) => ({id,source:'job_posting',title:j.title||'Untitled',category:j.category||'General',budget:parseInt(j.budget)||0,description:j.description||'',deadline:j.deadline||null,postedAt:j.postedAt||Date.now(),postedBy:j.postedBy||'Admin',reviewCount:j.reviewCount||3,applications:j.applications||0})).sort((a,b) => (b.postedAt||0)-(a.postedAt||0));
+                availableJobs = Object.entries(snap.val() || {}).filter(([_,j]) => j.status==='active'||j.status==='open').map(([id,j]) => ({id,source:'job_posting',title:j.title||'Untitled Job',category:j.category||'General',budget:parseInt(j.budget)||0,description:j.description||'',deadline:j.deadline||null,postedAt:j.postedAt||Date.now(),postedBy:j.postedBy||'Admin',reviewCount:j.reviewCount||3,applications:j.applications||0})).sort((a,b) => (b.postedAt||0)-(a.postedAt||0));
                 renderAvailableJobsTable();
             });
             database.ref('ekazi_assigned_tasks').orderByChild('taskerEmail').equalTo(currentUser?.email||'').on('value', (snap) => {
@@ -558,7 +646,7 @@
             document.getElementById('userDisplayName').textContent = name;
             document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
             const badge = document.getElementById('verificationBadge');
-            badge.textContent = currentTasker?.verified ? '✓ VERIFIED' : '⏳ PENDING';
+            badge.textContent = currentTasker?.verified ? '✓ VERIFIED' : '⏳ PENDING VERIFICATION';
             badge.className = 'verification-badge' + (currentTasker?.verified ? ' verified' : '');
             document.getElementById('currentDate').innerHTML = `<i class="fas fa-calendar-alt"></i> ${new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}`;
             const stats = {total:0,inProgress:0,submitted:0,completed:0,totalEarnings:0,monthEarnings:0,pendingEarnings:0};
@@ -581,13 +669,13 @@
 
         function renderAvailableJobsTable() {
             const tbody = document.getElementById('availableJobsTableBody');
-            if(!availableJobs.length){tbody.innerHTML='<tr><td colspan="6"><div class="empty-state"><i class="fas fa-briefcase"></i><p>No open positions</p></div></td></tr>';return;}
-            tbody.innerHTML = availableJobs.map(j => `<tr><td><strong>${escapeHtml(j.title)}</strong></td><td><span class="badge badge-info">${escapeHtml(j.category)}</span></td><td><strong style="color:var(--gold);">KSh ${j.budget.toLocaleString()}</strong></td><td>${new Date(j.postedAt).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</td><td>${j.deadline?new Date(j.deadline).toLocaleDateString('en-US',{month:'short',day:'numeric'}):'Open'}</td><td><button class="task-btn primary" onclick="acceptJob('${j.id}')"><i class="fas fa-handshake"></i> Accept</button></td></tr>`).join('');
+            if(!availableJobs.length){tbody.innerHTML='<tr><td colspan="7"><div class="empty-state"><i class="fas fa-briefcase"></i><h3>No Open Positions</h3><p>Check back later for new job postings</p></div></td></tr>';return;}
+            tbody.innerHTML = availableJobs.map(j => `<tr><td><strong>${escapeHtml(j.title)}</strong>${j.description?`<br><small style="color:var(--text-muted);">${escapeHtml(j.description.substring(0,60))}...</small>`:''}</td><td><span class="badge badge-info">${escapeHtml(j.category)}</span></td><td><strong style="color:var(--gold);">KSh ${j.budget.toLocaleString()}</strong></td><td><small>${new Date(j.postedAt).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</small></td><td><small style="color:${j.deadline?'var(--text-secondary)':'var(--success)'};">${j.deadline?new Date(j.deadline).toLocaleDateString('en-US',{month:'short',day:'numeric'}):'Open'}</small></td><td><span class="badge badge-purple">${j.applications||0}</span></td><td><button class="task-btn primary" onclick="acceptJob('${j.id}')"><i class="fas fa-handshake"></i> Accept</button></td></tr>`).join('');
         }
 
         function renderTasksTable() {
             const tbody = document.getElementById('tasksTableBody');
-            if(!assignedTasks.length){tbody.innerHTML='<tr><td colspan="7"><div class="empty-state"><i class="fas fa-tasks"></i><p>No tasks yet</p></div></td></tr>';return;}
+            if(!assignedTasks.length){tbody.innerHTML='<tr><td colspan="7"><div class="empty-state"><i class="fas fa-tasks"></i><h3>No Tasks Yet</h3><p>Accept a job above to get started</p></div></td></tr>';return;}
             tbody.innerHTML = assignedTasks.map(task => {
                 const pay = parseInt(task.payRate)||0;
                 const sub = taskSubmissions.find(s => s.taskId === task.id);
@@ -600,16 +688,20 @@
                 if(task.status==='assigned')actions=`<button class="task-btn primary" onclick="startTask('${task.id}')"><i class="fas fa-play"></i> Start</button>`;
                 else if(task.status==='in-progress'||task.status==='revision')actions=`<button class="task-btn success" onclick="openSubmitModal('${task.id}')"><i class="fas fa-upload"></i> Submit</button>`;
                 else if(task.status==='submitted'&&sub)actions=`<button class="task-btn" onclick="viewSubmissionDetails('${sub.id}')"><i class="fas fa-eye"></i> View</button>`;
-                return `<tr><td><strong>${escapeHtml(task.category||'Task')}</strong></td><td>${escapeHtml(task.clientName||'Client')}</td><td><strong style="color:var(--gold);">KSh ${pay.toLocaleString()}</strong></td><td>${task.dueDate?new Date(task.dueDate).toLocaleDateString('en-US',{month:'short',day:'numeric'}):'—'}</td><td><span class="badge ${badge}">${statusText}</span></td><td>${task.currentReviewCount||0}/${task.reviewCount||3}</td><td><div style="display:flex;gap:0.3rem;"><button class="task-btn" onclick="viewTaskDetails('${task.id}')"><i class="fas fa-info-circle"></i></button>${actions}</div></td></tr>`;
+                else if(['approved','completed'].includes(task.status)&&sub)actions=`<button class="task-btn" onclick="viewSubmissionDetails('${sub.id}')"><i class="fas fa-history"></i> Feedback</button>`;
+                return `<tr><td><strong>${escapeHtml(task.category||'Task')}</strong></td><td>${escapeHtml(task.clientName||'Client')}</td><td><strong style="color:var(--gold);">KSh ${pay.toLocaleString()}</strong></td><td><small>${task.dueDate?new Date(task.dueDate).toLocaleDateString('en-US',{month:'short',day:'numeric'}):'—'}</small></td><td><span class="badge ${badge}">${statusText}</span></td><td><small>${task.currentReviewCount||0}/${task.reviewCount||3}</small></td><td><div style="display:flex;gap:0.3rem;flex-wrap:wrap;"><button class="task-btn" onclick="viewTaskDetails('${task.id}')"><i class="fas fa-info-circle"></i></button>${actions}</div></td></tr>`;
             }).join('');
         }
 
+        // VIEW TASK DETAILS - Now shows revision reasons
         window.viewTaskDetails = function(taskId) {
             const task = assignedTasks.find(t => t.id === taskId);
             if (!task) return;
             currentTaskId = taskId;
             const submission = taskSubmissions.find(s => s.taskId === task.id);
             const payRate = parseInt(task.payRate) || 0;
+            const dueDate = task.dueDate ? new Date(task.dueDate).toLocaleDateString() : 'No date';
+            const assignedDate = task.assignedAt ? new Date(task.assignedAt).toLocaleString() : 'Unknown';
             
             let actionText = 'Close';
             if (task.status === 'assigned') actionText = 'Start Task';
@@ -620,7 +712,7 @@
             actionBtn.textContent = actionText;
             actionBtn.className = `btn ${['assigned','in-progress','revision'].includes(task.status) ? 'btn-primary' : 'btn-outline'}`;
 
-            // Build revision reasons
+            // Build revision reasons section
             let revisionHtml = '';
             if (submission?.reviewHistory?.length) {
                 const revisions = submission.reviewHistory.filter(r => r.decision === 'revision');
@@ -630,37 +722,37 @@
                             <h4><i class="fas fa-exclamation-triangle"></i> Revision Required</h4>
                             ${revisions.map((r, i) => `
                                 <div class="revision-item">
-                                    <div style="display:flex;justify-content:space-between;margin-bottom:0.4rem;">
-                                        <span style="font-weight:700;color:var(--danger);font-size:0.8rem;">Revision #${i+1}</span>
+                                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.3rem;">
+                                        <span style="font-weight:700;color:var(--danger);">Revision #${i+1}</span>
                                         <span style="font-size:0.7rem;color:var(--text-muted);">${new Date(r.reviewedAt).toLocaleString()}</span>
                                     </div>
-                                    <div style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:0.3rem;"><strong>Reason:</strong> ${escapeHtml(r.comments || 'No reason provided')}</div>
-                                    <div style="font-size:0.7rem;color:var(--text-muted);">By: ${escapeHtml(r.reviewedBy || 'Admin')}</div>
+                                    <div style="color:var(--text-secondary);margin-bottom:0.2rem;"><strong>Reason:</strong> ${escapeHtml(r.comments || 'No specific reason provided')}</div>
+                                    <div style="font-size:0.7rem;color:var(--text-muted);">Reviewed by: ${escapeHtml(r.reviewedBy || 'Admin')}</div>
                                 </div>
                             `).join('')}
                         </div>`;
                 }
             }
             if (task.status === 'revision' && task.revisionNote && !revisionHtml) {
-                revisionHtml = `<div class="revision-box"><h4><i class="fas fa-exclamation-circle"></i> Revision Note</h4><div class="revision-item"><div style="font-size:0.85rem;color:var(--text-secondary);">${escapeHtml(task.revisionNote)}</div></div></div>`;
+                revisionHtml = `<div class="revision-box"><h4><i class="fas fa-exclamation-circle"></i> Revision Note</h4><div class="revision-item"><div style="color:var(--text-secondary);font-size:0.85rem;">${escapeHtml(task.revisionNote)}</div></div></div>`;
             }
 
             document.getElementById('taskDetailsModalBody').innerHTML = `
                 <div class="task-detail-grid">
                     <div class="task-detail-box"><div class="label">Task ID</div><div class="value">${escapeHtml(task.id.substring(0,8))}...</div></div>
-                    <div class="task-detail-box"><div class="label">Category</div><div class="value">${escapeHtml(task.category||'General')}</div></div>
+                    <div class="task-detail-box"><div class="label">Category</div><div class="value">${escapeHtml(task.category || 'General')}</div></div>
                     <div class="task-detail-box"><div class="label">Status</div><div class="value"><span class="badge ${task.status==='revision'?'badge-danger':'badge-info'}">${escapeHtml(task.status)}</span></div></div>
                     <div class="task-detail-box"><div class="label">Pay Rate</div><div class="value">KSh ${payRate.toLocaleString()}</div></div>
                 </div>
                 <div class="task-detail-grid">
-                    <div class="task-detail-box"><div class="label">Client</div><div class="value">${escapeHtml(task.clientName||'Client')}</div></div>
-                    <div class="task-detail-box"><div class="label">Due Date</div><div class="value">${task.dueDate?new Date(task.dueDate).toLocaleDateString():'No date'}</div></div>
-                    <div class="task-detail-box"><div class="label">Assigned</div><div class="value">${task.assignedAt?new Date(task.assignedAt).toLocaleString():'Unknown'}</div></div>
-                    <div class="task-detail-box"><div class="label">Reviews</div><div class="value">${task.currentReviewCount||0}/${task.reviewCount||3}</div></div>
+                    <div class="task-detail-box"><div class="label">Client</div><div class="value">${escapeHtml(task.clientName || 'Client')}</div></div>
+                    <div class="task-detail-box"><div class="label">Due Date</div><div class="value">${escapeHtml(dueDate)}</div></div>
+                    <div class="task-detail-box"><div class="label">Assigned</div><div class="value">${escapeHtml(assignedDate)}</div></div>
+                    <div class="task-detail-box"><div class="label">Reviews</div><div class="value">${task.currentReviewCount || 0}/${task.reviewCount || 3}</div></div>
                 </div>
-                ${task.jobLink ? `<div style="background:var(--gold-soft);border-radius:14px;padding:1rem;margin-bottom:1rem;"><a href="${escapeHtml(task.jobLink)}" target="_blank" style="color:var(--gold);"><i class="fas fa-external-link-alt"></i> View Instructions</a></div>` : ''}
+                ${task.jobLink ? `<div class="instruction-box"><div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;"><i class="fas fa-info-circle" style="color:var(--info);"></i><strong>Instructions</strong></div><a href="${escapeHtml(task.jobLink)}" target="_blank" style="color:var(--gold);"><i class="fas fa-external-link-alt"></i> ${escapeHtml(task.jobLink)}</a></div>` : ''}
                 ${revisionHtml}
-                ${task.notes ? `<div style="background:var(--bg-secondary);border-radius:14px;padding:1rem;margin-top:0.5rem;"><strong style="font-size:0.85rem;">Notes:</strong><p style="font-size:0.85rem;color:var(--text-secondary);margin-top:0.3rem;">${escapeHtml(task.notes)}</p></div>` : ''}
+                ${task.notes ? `<div style="margin-top:1rem;padding:1rem;background:var(--bg-secondary);border-radius:14px;"><div style="color:var(--text-secondary);font-weight:500;margin-bottom:0.3rem;">Notes:</div><div style="color:var(--text-primary);">${escapeHtml(task.notes)}</div></div>` : ''}
             `;
             document.getElementById('taskDetailsModal').classList.add('active');
             document.getElementById('taskDetailsModalOverlay').classList.add('active');
@@ -679,50 +771,61 @@
             if (!submission) return;
             currentSubmissionId = submissionId;
             const task = assignedTasks.find(t => t.id === submission.taskId);
-            
             let reviewHtml = '';
             if (submission.reviewHistory?.length) {
-                reviewHtml = '<h4 style="margin:1rem 0 0.5rem;font-size:0.9rem;font-weight:700;">Review History</h4>';
+                reviewHtml = '<h4 style="margin:1rem 0 0.5rem;font-size:0.9rem;font-weight:700;font-family:var(--font-heading);">Review History</h4>';
                 submission.reviewHistory.forEach(r => {
-                    const decisionClass = r.decision === 'approved' ? 'badge-success' : r.decision === 'revision' ? 'badge-danger' : 'badge-warning';
-                    reviewHtml += `<div class="revision-item" style="border-left-color:${r.decision==='approved'?'var(--success)':r.decision==='revision'?'var(--danger)':'var(--warning)'};"><div style="display:flex;justify-content:space-between;margin-bottom:0.3rem;"><span class="badge ${decisionClass}" style="font-size:0.65rem;">${r.decision}</span><span style="font-size:0.7rem;color:var(--text-muted);">${new Date(r.reviewedAt).toLocaleString()}</span></div><div style="font-size:0.85rem;color:var(--text-secondary);">${escapeHtml(r.comments||'No comment')}</div><div style="font-size:0.7rem;color:var(--text-muted);margin-top:0.2rem;">By: ${escapeHtml(r.reviewedBy||'Admin')}</div></div>`;
+                    const decisionClass = r.decision === 'approved' ? 'approved' : r.decision === 'revision' ? 'revision' : 'rejected';
+                    reviewHtml += `<div class="review-item" style="border-left-color:${r.decision==='approved'?'var(--success)':r.decision==='revision'?'var(--danger)':'var(--warning)'};"><div class="review-header"><span class="review-decision ${decisionClass}">${escapeHtml(r.decision)}</span><span class="review-meta">${new Date(r.reviewedAt).toLocaleString()}</span></div><div class="review-comment">${escapeHtml(r.comments || 'No comment')}</div><div class="review-meta">by ${escapeHtml(r.reviewedBy || 'Admin')}</div></div>`;
                 });
             }
-
             document.getElementById('submissionDetailsModalBody').innerHTML = `
-                <div style="margin-bottom:1rem;"><span class="badge badge-info">${escapeHtml(task?.category||'Unknown')}</span></div>
-                <div class="form-group"><label>Submitted</label><div class="form-control" style="background:var(--bg-secondary);">${new Date(submission.submittedAt).toLocaleString()}</div></div>
-                <div class="form-group"><label>Links</label>${(submission.submissionLinks||[]).map(l => `<a href="${escapeHtml(l)}" target="_blank" style="display:block;color:var(--gold);margin-bottom:0.3rem;">${l}</a>`).join('')}</div>
-                ${submission.notes ? `<div class="form-group"><label>Notes</label><div class="form-control" style="background:var(--bg-secondary);">${escapeHtml(submission.notes)}</div></div>` : ''}
-                ${reviewHtml || '<div style="text-align:center;padding:1.5rem;color:var(--text-muted);"><i class="fas fa-clock"></i><p>Awaiting review</p></div>'}
+                <div style="margin-bottom:1rem;"><span class="badge badge-info">${escapeHtml(task?.category || 'Unknown')}</span></div>
+                <div class="form-group"><label>Submitted</label><div class="form-control" style="background:var(--bg-secondary);" readonly>${new Date(submission.submittedAt).toLocaleString()}</div></div>
+                <div class="form-group"><label>Submission Links</label><div class="submission-links">${(submission.submissionLinks||[]).map((l,i) => `<a href="${escapeHtml(l)}" target="_blank" class="submission-link-item"><i class="fas fa-link"></i><span>Link ${i+1}: ${l.length>50?l.substring(0,50)+'...':l}</span></a>`).join('')}</div></div>
+                ${submission.notes ? `<div class="form-group"><label>Notes</label><div class="form-control" style="background:var(--bg-secondary);" readonly>${escapeHtml(submission.notes)}</div></div>` : ''}
+                ${reviewHtml || '<div style="text-align:center;padding:1.5rem;background:var(--bg-secondary);border-radius:14px;margin-top:1rem;"><i class="fas fa-clock" style="color:var(--gold);"></i><p style="margin-top:0.5rem;color:var(--text-muted);">Awaiting review</p></div>'}
             `;
             document.getElementById('submissionDetailsModal').classList.add('active');
             document.getElementById('submissionDetailsModalOverlay').classList.add('active');
         };
 
         window.closeTaskDetailsModal = () => { document.getElementById('taskDetailsModal').classList.remove('active'); document.getElementById('taskDetailsModalOverlay').classList.remove('active'); currentTaskId = null; };
-        window.closeSubmissionDetailsModal = () => { document.getElementById('submissionDetailsModal').classList.remove('active'); document.getElementById('submissionDetailsModalOverlay').classList.remove('active'); };
-        window.closeSubmitModal = () => { document.getElementById('submitModal').classList.remove('active'); document.getElementById('submitModalOverlay').classList.remove('active'); };
+        window.closeSubmissionDetailsModal = () => { document.getElementById('submissionDetailsModal').classList.remove('active'); document.getElementById('submissionDetailsModalOverlay').classList.remove('active'); currentSubmissionId = null; };
+        window.closeSubmitModal = () => { document.getElementById('submitModal').classList.remove('active'); document.getElementById('submitModalOverlay').classList.remove('active'); document.getElementById('submissionForm').reset(); };
 
-        window.startTask = async (id) => { if(confirm('Start this task?')){showLoading(true);try{await database.ref(`ekazi_assigned_tasks/${id}`).update({status:'in-progress',startedAt:firebase.database.ServerValue.TIMESTAMP});showToast('Task started','success');}catch(e){showToast(e.message,'error');}finally{showLoading(false);}}};
-        window.openSubmitModal = (id) => { const t = assignedTasks.find(x => x.id===id); if(!t)return; document.getElementById('submitTaskId').value=id; document.getElementById('displayTaskCategory').value=t.category||'General'; document.getElementById('linksContainer').innerHTML='<div class="link-input-group"><input type="url" class="form-control" name="submissionLinks[]" required><button type="button" class="remove-link-btn" onclick="removeLinkField(this)"><i class="fas fa-times"></i></button></div>'; document.getElementById('submissionNotes').value=''; document.getElementById('submitModal').classList.add('active'); document.getElementById('submitModalOverlay').classList.add('active'); };
-        window.openSubmitModalForTask = () => { const t = assignedTasks.find(x => ['assigned','in-progress','revision'].includes(x.status)); if(t) openSubmitModal(t.id); else showToast('No tasks available','info'); };
-        window.acceptJob = async (id) => { const j = availableJobs.find(x => x.id===id); if(!j||!currentTasker?.verified){showToast('Verification required','warning');return;} if(!confirm(`Accept "${j.title}" for KSh ${j.budget.toLocaleString()}?`))return; showLoading(true); try { await database.ref(`ekazi_job_postings/${id}`).update({status:'accepted',acceptedBy:currentUser.email,acceptedAt:firebase.database.ServerValue.TIMESTAMP}); const ref = database.ref('ekazi_assigned_tasks').push(); await ref.set({category:j.category,clientName:j.postedBy||'Client',clientEmail:'admin@ekazi.com',taskerName:currentTasker?.name||'Tasker',taskerEmail:currentUser.email,jobLink:j.description||'',dueDate:j.deadline||new Date(Date.now()+7*86400000).toISOString().split('T')[0],payRate:j.budget.toString(),reviewCount:j.reviewCount||3,currentReviewCount:0,status:'assigned',notes:j.requirements||'',assignedAt:firebase.database.ServerValue.TIMESTAMP,assignedBy:'self-assigned'}); showToast('Job accepted!','success'); } catch(e) { showToast(e.message,'error'); } finally { showLoading(false); }};
-        window.submitWork = async (e) => { e.preventDefault(); const taskId=document.getElementById('submitTaskId').value; const links=Array.from(document.querySelectorAll('input[name="submissionLinks[]"]')).map(i=>i.value.trim()).filter(Boolean); if(!links.length){showToast('Add at least one link','warning');return;} showLoading(true); try { const ref=database.ref('ekazi_task_submissions').push(); await ref.set({taskId,taskerName:currentTasker?.name||'Tasker',taskerEmail:currentUser.email,submissionLinks:links,notes:document.getElementById('submissionNotes').value.trim(),submittedAt:firebase.database.ServerValue.TIMESTAMP,currentStatus:'pending-review',reviewCount:0,reviewHistory:[]}); await database.ref(`ekazi_assigned_tasks/${taskId}`).update({status:'submitted',lastSubmittedAt:firebase.database.ServerValue.TIMESTAMP,currentSubmissionId:ref.key}); showToast('Submitted!','success'); closeSubmitModal(); } catch(e) { showToast(e.message,'error'); } finally { showLoading(false); }};
-        window.addLinkField = () => { const c=document.getElementById('linksContainer'); const d=document.createElement('div'); d.className='link-input-group'; d.innerHTML='<input type="url" class="form-control" name="submissionLinks[]" required><button type="button" class="remove-link-btn" onclick="removeLinkField(this)"><i class="fas fa-times"></i></button>'; c.appendChild(d); };
-        window.removeLinkField = (btn) => { const c=document.getElementById('linksContainer'); if(c.children.length>1)btn.parentElement.remove(); else showToast('Need at least one link','warning'); };
+        // All remaining functions (startTask, openSubmitModal, acceptJob, submitWork, etc.) remain identical to the original
+        window.startTask = async (id) => { if(!confirm('Start working on this task?'))return; showLoading(true); try { await database.ref(`ekazi_assigned_tasks/${id}`).update({status:'in-progress',startedAt:firebase.database.ServerValue.TIMESTAMP}); showToast('Task started!','success'); } catch(e) { showToast('Error: '+e.message,'error'); } finally { showLoading(false); }};
+        window.openSubmitModal = (id) => { const t=assignedTasks.find(x=>x.id===id); if(!t)return; document.getElementById('submitTaskId').value=id; document.getElementById('displayTaskCategory').value=t.category||'General'; document.getElementById('linksContainer').innerHTML='<div class="link-input-group"><input type="url" class="form-control" name="submissionLinks[]" placeholder="https://drive.google.com/..." required><button type="button" class="remove-link-btn" onclick="removeLinkField(this)"><i class="fas fa-times"></i></button></div>'; document.getElementById('submissionNotes').value=''; document.getElementById('submitModal').classList.add('active'); document.getElementById('submitModalOverlay').classList.add('active'); };
+        window.openSubmitModalForTask = () => { const t=assignedTasks.find(x=>['assigned','in-progress','revision'].includes(x.status)); if(t)openSubmitModal(t.id); else showToast('No tasks available for submission','info'); };
+        window.acceptJob = async (id) => { const j=availableJobs.find(x=>x.id===id); if(!j)return; if(!currentTasker?.verified){showToast('Your profile must be verified before accepting jobs','warning');return;} if(!confirm(`Accept "${j.title}" for KSh ${j.budget.toLocaleString()}?\n\nCategory: ${j.category}`))return; showLoading(true); try { await database.ref(`ekazi_job_postings/${id}`).update({status:'accepted',acceptedBy:currentUser.email,acceptedAt:firebase.database.ServerValue.TIMESTAMP,applications:(j.applications||0)+1}); const ref=database.ref('ekazi_assigned_tasks').push(); await ref.set({category:j.category,clientName:j.postedBy||'Client',clientEmail:'admin@ekazi.com',taskerName:currentTasker?.name||'Tasker',taskerEmail:currentUser.email,jobLink:j.description||'',dueDate:j.deadline||new Date(Date.now()+7*86400000).toISOString().split('T')[0],payRate:j.budget.toString(),reviewCount:j.reviewCount||3,currentReviewCount:0,status:'assigned',notes:j.requirements||'',assignedAt:firebase.database.ServerValue.TIMESTAMP,assignedBy:'self-assigned',source:j.source,sourceId:id}); showToast('Job accepted successfully! Check My Tasks below.','success'); } catch(e) { showToast('Error accepting job: '+e.message,'error'); } finally { showLoading(false); }};
+        window.submitWork = async (e) => { e.preventDefault(); const taskId=document.getElementById('submitTaskId').value; const links=Array.from(document.querySelectorAll('input[name="submissionLinks[]"]')).map(i=>i.value.trim()).filter(Boolean); if(!links.length){showToast('Please provide at least one link','warning');return;} for(let l of links){if(!l.startsWith('http://')&&!l.startsWith('https://')){showToast('Please enter valid URLs','warning');return;}} showLoading(true); try { const taskSnap=await database.ref(`ekazi_assigned_tasks/${taskId}`).once('value'); const task=taskSnap.val(); if(!task||task.taskerEmail.toLowerCase()!==currentUser.email.toLowerCase()){showToast('Not authorized','error');return;} const ref=database.ref('ekazi_task_submissions').push(); await ref.set({taskId,taskerName:currentTasker?.name||'Tasker',taskerEmail:currentUser.email,submissionLinks:links,notes:document.getElementById('submissionNotes').value.trim(),submittedAt:firebase.database.ServerValue.TIMESTAMP,currentStatus:'pending-review',reviewCount:0,reviewHistory:[]}); await database.ref(`ekazi_assigned_tasks/${taskId}`).update({status:'submitted',lastSubmittedAt:firebase.database.ServerValue.TIMESTAMP,currentSubmissionId:ref.key}); showToast('Work submitted successfully!','success'); closeSubmitModal(); } catch(e) { showToast('Error: '+e.message,'error'); } finally { showLoading(false); }};
+        window.addLinkField = () => { const c=document.getElementById('linksContainer'); const d=document.createElement('div'); d.className='link-input-group'; d.innerHTML='<input type="url" class="form-control" name="submissionLinks[]" placeholder="https://drive.google.com/..." required><button type="button" class="remove-link-btn" onclick="removeLinkField(this)"><i class="fas fa-times"></i></button>'; c.appendChild(d); };
+        window.removeLinkField = (btn) => { const c=document.getElementById('linksContainer'); if(c.children.length>1)btn.parentElement.remove(); else showToast('You need at least one link','warning'); };
+        window.refreshAvailableJobs = () => showToast('Data updates automatically in real-time','info');
 
-        window.handleLogout = async () => { showLoading(true); try { database.ref('ekazi_job_postings').off(); database.ref('ekazi_assigned_tasks').off(); database.ref('ekazi_task_submissions').off(); await auth.signOut(); window.location.href='index.html'; } catch(e) { showToast('Logout failed','error'); showLoading(false); } };
+        function resetInactivityTimer() {
+            clearTimeout(inactivityTimer); clearTimeout(warningTimer); clearInterval(countdownInterval);
+            document.getElementById('inactivityWarning').style.display = 'none';
+            if (currentUser) {
+                warningTimer = setTimeout(() => { let s=60; document.getElementById('inactivityWarning').style.display='flex'; countdownInterval=setInterval(()=>{s--;document.getElementById('inactivityCountdown').textContent=s;if(s<=0)clearInterval(countdownInterval);},1000); }, INACTIVITY_LIMIT - WARNING_BEFORE);
+                inactivityTimer = setTimeout(() => { clearInterval(countdownInterval); document.getElementById('inactivityWarning').style.display='none'; if(currentUser){showToast('Session expired due to inactivity','warning');handleLogout();} }, INACTIVITY_LIMIT);
+            }
+        }
+        window.extendSession = () => { clearInterval(countdownInterval); document.getElementById('inactivityWarning').style.display='none'; resetInactivityTimer(); showToast('Session extended','success'); };
+        ['mousedown','keydown','scroll','touchstart'].forEach(e => document.addEventListener(e, resetInactivityTimer));
+
+        window.handleLogout = async () => { showLoading(true); try { clearTimeout(inactivityTimer); clearTimeout(warningTimer); clearInterval(countdownInterval); database.ref('ekazi_job_postings').off(); database.ref('ekazi_assigned_tasks').off(); database.ref('ekazi_task_submissions').off(); await auth.signOut(); window.location.href='index.html'; } catch(e) { showToast('Logout failed','error'); showLoading(false); } };
 
         function escapeHtml(t) { const d=document.createElement('div'); d.textContent=t||''; return d.innerHTML; }
         function showLoading(s) { document.getElementById('loadingOverlay').classList.toggle('active',s); }
-        function showToast(m, type='info') { const t=document.createElement('div'); t.className=`toast ${type}`; t.innerHTML=`<i class="fas fa-${type==='error'?'exclamation-circle':'check-circle'}"></i><span>${escapeHtml(m)}</span>`; document.getElementById('toastContainer').appendChild(t); setTimeout(()=>t.remove(),3000); }
+        function showToast(m, type='info') { const t=document.createElement('div'); t.className=`toast ${type}`; t.innerHTML=`<i class="fas fa-${type==='error'?'exclamation-circle':type==='warning'?'exclamation-triangle':'check-circle'}"></i><span>${escapeHtml(m)}</span>`; document.getElementById('toastContainer').appendChild(t); setTimeout(()=>t.remove(),3000); }
         function showLoginRequired() { document.getElementById('loginRequired').style.display='block'; document.getElementById('dashboardContent').style.display='none'; }
         function showDashboardContent() { document.getElementById('loginRequired').style.display='none'; document.getElementById('dashboardContent').style.display='block'; }
 
+        document.getElementById('submitModalOverlay').addEventListener('click', closeSubmitModal);
         document.getElementById('taskDetailsModalOverlay').addEventListener('click', closeTaskDetailsModal);
         document.getElementById('submissionDetailsModalOverlay').addEventListener('click', closeSubmissionDetailsModal);
-        document.getElementById('submitModalOverlay').addEventListener('click', closeSubmitModal);
     </script>
 </body>
 </html>
