@@ -642,45 +642,81 @@
     }
 
     function getClientName(d) {
-      return d.userName || d.customer?.name || d.userEmail || 'Client';
+      return d.userName || d.customer?.name || d.userEmail || d.createdBy || 'Client';
+    }
+
+    function getNormalizedStatus(delivery) {
+      // Get status from various possible fields
+      if (delivery.status) return delivery.status.toLowerCase();
+      if (delivery.serviceType === 'scheduled') return 'scheduled';
+      if (delivery.serviceType === 'instant') return 'pending';
+      return 'pending';
     }
 
     function getStatusClass(status) {
-      const s = (status || 'pending').toLowerCase().replace(/-/g, '_');
-      return `status-${s}`;
+      const map = {
+        'pending': 'status-pending',
+        'scheduled': 'status-scheduled',
+        'assigned': 'status-assigned',
+        'out-for-delivery': 'status-out-for-delivery',
+        'in_progress': 'status-in_progress',
+        'delivered': 'status-delivered',
+        'completed': 'status-completed',
+        'cancelled': 'status-cancelled'
+      };
+      return map[status] || 'status-pending';
     }
 
     function formatFare(delivery) {
       if (delivery.fare?.total) return `${delivery.fare.total} KES`;
-      if (delivery.fare) return `${delivery.fare} KES`;
+      if (typeof delivery.fare === 'number') return `${delivery.fare} KES`;
       return '—';
     }
 
     function getShortId(id) {
       if (!id) return '—';
-      return id.substring(id.length - 6);
+      return id.substring(Math.max(0, id.length - 6));
+    }
+
+    function isValidDelivery(delivery) {
+      if (!delivery) return false;
+      // Check if it has at least a client name or pickup address
+      return !!(getClientName(delivery) || delivery.pickup?.address || delivery.pickup?.coordinates);
+    }
+
+    function getDriverName(delivery) {
+      return delivery.assignedName || delivery.assistant?.name || delivery.assignedTo || '—';
     }
 
     function renderTable() {
-      let deliveries = Object.entries(allDeliveries).map(([id, data]) => ({ id, ...data }));
+      // Get all deliveries
+      let deliveries = Object.entries(allDeliveries)
+        .map(([id, data]) => ({ id, ...data }))
+        .filter(d => isValidDelivery(d));
 
-      // Filter
+      console.log('📊 Total valid deliveries:', deliveries.length);
+      console.log('📊 Current filter:', currentFilter);
+      console.log('📊 Sample statuses:', deliveries.slice(0, 5).map(d => getNormalizedStatus(d)));
+
+      // Apply status filter
       if (currentFilter !== 'all') {
         deliveries = deliveries.filter(d => {
-          const status = (d.status || 'pending').toLowerCase();
-          return status === currentFilter.toLowerCase().replace(/-/g, '_');
+          const status = getNormalizedStatus(d);
+          const filterStatus = currentFilter.toLowerCase().replace(/-/g, '_');
+          return status === filterStatus;
         });
       }
 
-      // Search
+      // Apply search
       if (searchQuery) {
         const q = searchQuery.toLowerCase();
         deliveries = deliveries.filter(d => {
           const client = getClientName(d).toLowerCase();
-          const pickup = (d.pickup?.address || '').toLowerCase();
-          const dropoff = (d.delivery?.address || '').toLowerCase();
+          const pickup = (d.pickup?.address || d.pickup?.coordinates?.displayName || '').toLowerCase();
+          const dropoff = (d.delivery?.address || d.delivery?.coordinates?.displayName || '').toLowerCase();
           const phone = (d.userPhone || d.customer?.phone || '').toLowerCase();
-          return client.includes(q) || pickup.includes(q) || dropoff.includes(q) || phone.includes(q);
+          const driver = getDriverName(d).toLowerCase();
+          return client.includes(q) || pickup.includes(q) || dropoff.includes(q) || phone.includes(q) || driver.includes(q);
         });
       }
 
@@ -691,37 +727,44 @@
         return tB - tA;
       });
 
+      console.log('📊 After filtering:', deliveries.length);
+
       if (!deliveries.length) {
-        tableBody.innerHTML = '<tr class="empty-row"><td colspan="8"><i class="fas fa-box-open"></i><p style="margin-top:8px;">No deliveries found</p></td></tr>';
+        tableBody.innerHTML = `<tr class="empty-row"><td colspan="8">
+          <i class="fas fa-box-open" style="font-size:2rem;display:block;margin-bottom:8px;"></i>
+          <p>No deliveries found</p>
+          <p style="font-size:0.7rem;color:#94a3b8;">${currentFilter !== 'all' ? 'Try changing the filter or search query' : 'Create a new delivery to get started'}</p>
+        </td></tr>`;
         return;
       }
 
       tableBody.innerHTML = deliveries.map(del => {
-        const status = (del.status || 'pending').toLowerCase();
+        const status = getNormalizedStatus(del);
         const client = getClientName(del);
-        const pickup = del.pickup?.address || 'N/A';
-        const dropoff = del.delivery?.address || 'N/A';
+        const pickup = del.pickup?.address || del.pickup?.coordinates?.displayName || 'N/A';
+        const dropoff = del.delivery?.address || del.delivery?.coordinates?.displayName || 'N/A';
         const fare = formatFare(del);
-        const driverName = del.assignedName || del.assistant?.name || '—';
+        const driverName = getDriverName(del);
         const statusClass = getStatusClass(status);
+        const phone = del.userPhone || del.customer?.phone || '';
 
         return `
           <tr>
             <td><code style="font-size:0.7rem;background:#f1f5f9;padding:2px 6px;border-radius:4px;">#${getShortId(del.id)}</code></td>
             <td>
               <div style="display:flex;align-items:center;gap:8px;">
-                <div style="width:28px;height:28px;background:#fffbeb;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.65rem;">${getInitials(client)}</div>
+                <div style="width:28px;height:28px;background:#fffbeb;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.65rem;flex-shrink:0;">${getInitials(client)}</div>
                 <div>
                   <strong>${escapeHtml(client)}</strong>
-                  <div style="font-size:0.65rem;color:#94a3b8;">${escapeHtml(del.userPhone || del.customer?.phone || '')}</div>
+                  ${phone ? `<div style="font-size:0.65rem;color:#94a3b8;">${escapeHtml(phone)}</div>` : ''}
                 </div>
               </div>
             </td>
-            <td><span title="${escapeHtml(pickup)}">${escapeHtml(String(pickup).substring(0, 25))}${String(pickup).length > 25 ? '...' : ''}</span></td>
-            <td><span title="${escapeHtml(dropoff)}">${escapeHtml(String(dropoff).substring(0, 25))}${String(dropoff).length > 25 ? '...' : ''}</span></td>
+            <td><span title="${escapeHtml(pickup)}">${escapeHtml(String(pickup).substring(0, 30))}${String(pickup).length > 30 ? '...' : ''}</span></td>
+            <td><span title="${escapeHtml(dropoff)}">${escapeHtml(String(dropoff).substring(0, 30))}${String(dropoff).length > 30 ? '...' : ''}</span></td>
             <td><strong>${fare}</strong></td>
             <td>${escapeHtml(driverName)}</td>
-            <td><span class="status-badge ${statusClass}">${status.replace(/-/g, ' ')}</span></td>
+            <td><span class="status-badge ${statusClass}">${status.replace(/_/g, ' ').replace(/-/g, ' ')}</span></td>
             <td>
               <div class="action-btns">
                 <button class="action-btn btn-view" onclick="viewDetails('${del.id}')" title="View Details"><i class="fas fa-eye"></i></button>
@@ -731,7 +774,7 @@
                 ${status === 'assigned' ? `
                   <button class="action-btn btn-start" onclick="updateStatus('${del.id}', 'out-for-delivery')" title="Start Delivery"><i class="fas fa-truck"></i></button>
                 ` : ''}
-                ${status === 'out-for-delivery' ? `
+                ${status === 'out-for-delivery' || status === 'in_progress' ? `
                   <button class="action-btn btn-complete" onclick="updateStatus('${del.id}', 'delivered')" title="Mark Delivered"><i class="fas fa-check"></i></button>
                 ` : ''}
                 ${['pending', 'scheduled', 'assigned'].includes(status) ? `
@@ -797,7 +840,7 @@
       if (!del) return;
 
       const client = getClientName(del);
-      const status = (del.status || 'pending').toLowerCase();
+      const status = getNormalizedStatus(del);
       const fare = formatFare(del);
 
       modalContent.innerHTML = `
@@ -806,22 +849,24 @@
           <div class="detail-item"><strong>Client</strong>${escapeHtml(client)}</div>
           <div class="detail-item"><strong>Phone</strong>${escapeHtml(del.userPhone || del.customer?.phone || 'N/A')}</div>
           <div class="detail-item"><strong>Email</strong>${escapeHtml(del.userEmail || del.customer?.email || 'N/A')}</div>
-          <div class="detail-item"><strong>Status</strong><span class="status-badge ${getStatusClass(status)}">${status.replace(/-/g, ' ')}</span></div>
-          <div class="detail-item"><strong>Pickup</strong>${escapeHtml(del.pickup?.address || 'N/A')}</div>
-          <div class="detail-item"><strong>Delivery</strong>${escapeHtml(del.delivery?.address || 'N/A')}</div>
-          <div class="detail-item"><strong>Package</strong>${escapeHtml(del.package?.type || 'N/A')} · ${del.package?.weight || 0}kg</div>
+          <div class="detail-item"><strong>Status</strong><span class="status-badge ${getStatusClass(status)}">${status.replace(/_/g, ' ').replace(/-/g, ' ')}</span></div>
+          <div class="detail-item"><strong>Pickup</strong>${escapeHtml(del.pickup?.address || del.pickup?.coordinates?.displayName || 'N/A')}</div>
+          <div class="detail-item"><strong>Delivery</strong>${escapeHtml(del.delivery?.address || del.delivery?.coordinates?.displayName || 'N/A')}</div>
+          <div class="detail-item"><strong>Package</strong>${escapeHtml(del.package?.type || 'N/A')} · ${del.package?.weight || del.passengers?.count || 0}${del.package?.weight ? 'kg' : ''}</div>
           <div class="detail-item"><strong>Fare</strong>${fare}</div>
-          <div class="detail-item"><strong>Distance</strong>${del.distance ? del.distance + ' km' : 'N/A'}</div>
-          <div class="detail-item"><strong>Driver</strong>${escapeHtml(del.assignedName || del.assistant?.name || 'Unassigned')}</div>
-          <div class="detail-item"><strong>Instructions</strong>${escapeHtml(del.package?.instructions || del.instructions || 'None')}</div>
-          <div class="detail-item"><strong>Created</strong>${del.createdAt ? new Date(del.createdAt).toLocaleString() : 'N/A'}</div>
+          <div class="detail-item"><strong>Distance</strong>${del.distance ? del.distance + ' km' : (del.fare?.distance ? del.fare.distance + ' KES (charge)' : 'N/A')}</div>
+          <div class="detail-item"><strong>Driver</strong>${escapeHtml(getDriverName(del))}</div>
+          <div class="detail-item"><strong>Instructions</strong>${escapeHtml(del.package?.instructions || del.instructions || del.specialRequirements || 'None')}</div>
+          <div class="detail-item"><strong>Service Type</strong>${escapeHtml(del.serviceType || 'N/A')}</div>
+          ${del.pickup?.scheduledDateTime ? `<div class="detail-item"><strong>Scheduled</strong>${new Date(del.pickup.scheduledDateTime).toLocaleString()}</div>` : ''}
+          <div class="detail-item"><strong>Created</strong>${del.createdAt ? new Date(del.createdAt).toLocaleString() : (del.bookingDate ? new Date(del.bookingDate).toLocaleString() : 'N/A')}</div>
           ${del.deliveryDate ? `<div class="detail-item"><strong>Delivered</strong>${new Date(del.deliveryDate).toLocaleString()}</div>` : ''}
         </div>
-        ${del.statusHistory ? `
+        ${del.statusHistory && del.statusHistory.length ? `
           <h4 style="margin-top:1.5rem;margin-bottom:0.5rem;">Status History</h4>
           ${del.statusHistory.map(h => `
             <div style="background:#f8fafc;padding:0.5rem 0.8rem;border-radius:8px;margin-bottom:4px;font-size:0.75rem;">
-              <strong>${h.status}</strong> · ${h.note || ''} · <span style="color:#94a3b8;">${h.timestamp ? new Date(h.timestamp).toLocaleString() : ''}</span>
+              <strong>${h.status}</strong> · ${escapeHtml(h.note || '')} · <span style="color:#94a3b8;">${h.timestamp ? new Date(h.timestamp).toLocaleString() : ''}</span>
             </div>
           `).join('')}
         ` : ''}
@@ -835,11 +880,23 @@
     function showAssignModal(deliveryId) {
       const assistants = Object.entries(allAssistants).filter(([_, a]) => a.verified);
       
+      if (!assistants.length) {
+        modalContent.innerHTML = `
+          <h3><i class="fas fa-user-plus"></i> Assign Driver</h3>
+          <p style="color:#94a3b8;text-align:center;padding:2rem;">No verified drivers available. Please register drivers first.</p>
+          <div class="btn-row">
+            <button class="btn btn-secondary" onclick="closeModal()">Close</button>
+          </div>
+        `;
+        modal.classList.add('show');
+        return;
+      }
+      
       modalContent.innerHTML = `
         <h3><i class="fas fa-user-plus"></i> Assign Driver</h3>
         <div class="form-group">
           <label>Select Driver</label>
-          <select id="driverSelect">
+          <select id="driverSelect" style="width:100%;padding:0.6rem;border-radius:10px;border:1.5px solid #e2e8f0;">
             <option value="">— Choose a driver —</option>
             ${assistants.map(([id, a]) => `
               <option value="${id}">${escapeHtml(a.name || id)} · ${escapeHtml(a.vehicle || 'N/A')} · ${escapeHtml(a.phone || '')}</option>
@@ -884,11 +941,10 @@
           ]
         });
 
-        // Also update assistant_tasks
         await database.ref(`assistant_tasks/${driverId}/${deliveryId}`).set({
           assignedAt: new Date().toISOString(),
           bookingId: deliveryId,
-          customerEmail: allDeliveries[deliveryId]?.userEmail || '',
+          customerEmail: allDeliveries[deliveryId]?.userEmail || allDeliveries[deliveryId]?.customer?.email || '',
           customerId: allDeliveries[deliveryId]?.userId || '',
           status: 'assigned',
           zone: allDeliveries[deliveryId]?.delivery?.zone || allDeliveries[deliveryId]?.pickup?.zone || ''
@@ -906,15 +962,22 @@
       const del = allDeliveries[deliveryId];
       if (!del) return;
 
+      const existingDate = del.pickup?.scheduledDateTime 
+        ? new Date(del.pickup.scheduledDateTime).toISOString().split('T')[0] 
+        : new Date().toISOString().split('T')[0];
+      const existingTime = del.pickup?.scheduledDateTime 
+        ? new Date(del.pickup.scheduledDateTime).toTimeString().substring(0,5) 
+        : '09:00';
+
       modalContent.innerHTML = `
         <h3><i class="fas fa-calendar-alt"></i> Reschedule Delivery</h3>
         <div class="form-group">
           <label>New Pickup Date</label>
-          <input type="date" id="rescheduleDate" value="${del.pickup?.scheduledDateTime ? new Date(del.pickup.scheduledDateTime).toISOString().split('T')[0] : ''}">
+          <input type="date" id="rescheduleDate" value="${existingDate}">
         </div>
         <div class="form-group">
           <label>New Pickup Time</label>
-          <input type="time" id="rescheduleTime" value="${del.pickup?.scheduledDateTime ? new Date(del.pickup.scheduledDateTime).toTimeString().substring(0,5) : ''}">
+          <input type="time" id="rescheduleTime" value="${existingTime}">
         </div>
         <div class="form-group">
           <label>Reason for Rescheduling</label>
@@ -972,6 +1035,7 @@
         document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         currentFilter = btn.dataset.filter;
+        console.log('🔍 Filter changed to:', currentFilter);
         renderTable();
       });
     });
@@ -995,15 +1059,18 @@
     function setupRealtimeListeners() {
       database.ref('pickup_deliveries').on('value', (snapshot) => {
         allDeliveries = snapshot.val() || {};
-        console.log('📦 Deliveries loaded:', Object.keys(allDeliveries).length);
+        console.log('📦 Pickup deliveries loaded:', Object.keys(allDeliveries).length);
+        console.log('📦 Sample keys:', Object.keys(allDeliveries).slice(0, 5));
         renderTable();
+        loadingOverlay.classList.add('hide');
+      }, (error) => {
+        console.error('❌ Error loading deliveries:', error);
         loadingOverlay.classList.add('hide');
       });
 
       database.ref('delivery_assistants').on('value', (snapshot) => {
         allAssistants = snapshot.val() || {};
-        console.log('👤 Assistants loaded:', Object.keys(allAssistants).length);
-        renderTable();
+        console.log('👤 Delivery assistants loaded:', Object.keys(allAssistants).length);
       });
     }
 
