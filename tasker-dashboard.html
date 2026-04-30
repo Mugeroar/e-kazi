@@ -696,10 +696,28 @@
                 availableJobs = Object.entries(snap.val() || {}).filter(([_,j]) => j.status==='active'||j.status==='open').map(([id,j]) => ({id,source:'job_posting',title:j.title||'Untitled Job',category:j.category||'General',budget:parseInt(j.budget)||0,description:j.description||'',deadline:j.deadline||null,postedAt:j.postedAt||Date.now(),postedBy:j.postedBy||'Admin',reviewCount:j.reviewCount||3,applications:j.applications||0})).sort((a,b) => (b.postedAt||0)-(a.postedAt||0));
                 renderAvailableJobsTable();
             });
+            
             database.ref('ekazi_assigned_tasks').orderByChild('taskerEmail').equalTo(currentUser?.email||'').on('value', (snap) => {
-                assignedTasks = Object.entries(snap.val() || {}).map(([id,t]) => ({id,...t})).sort((a,b) => (b.assignedAt||0)-(a.assignedAt||0));
-                renderTasksTable(); updateDashboardUI();
+                const tasksData = snap.val() || {};
+                assignedTasks = Object.entries(tasksData).map(([id,t]) => ({id,...t})).sort((a,b) => (b.assignedAt||0)-(a.assignedAt||0));
+                
+                // Sync review counts from submissions to tasks
+                assignedTasks.forEach(task => {
+                    const submission = taskSubmissions.find(s => s.taskId === task.id);
+                    if (submission && submission.reviewHistory && submission.reviewHistory.length) {
+                        const actualReviewCount = submission.reviewHistory.length;
+                        if (task.currentReviewCount !== actualReviewCount) {
+                            database.ref(`ekazi_assigned_tasks/${task.id}`).update({
+                                currentReviewCount: actualReviewCount
+                            });
+                        }
+                    }
+                });
+                
+                renderTasksTable(); 
+                updateDashboardUI();
             });
+            
             database.ref('ekazi_task_submissions').orderByChild('taskerEmail').equalTo(currentUser?.email||'').on('value', (snap) => {
                 taskSubmissions = Object.entries(snap.val() || {}).map(([id,s]) => ({id,...s}));
                 renderTasksTable();
@@ -754,12 +772,9 @@
                 else if(task.status==='in-progress'){badge='badge-purple';statusText='In Progress';}
                 else if(task.status==='revision'){badge='badge-danger';statusText='Revision';}
                 
-                // Calculate actual review count from submission review history
-                let reviewCount = task.currentReviewCount || 0;
-                if (sub && sub.reviewHistory && sub.reviewHistory.length) {
-                    reviewCount = sub.reviewHistory.length;
-                }
-                const totalReviews = task.reviewCount || 3;
+                // Use task's currentReviewCount from database as the source of truth
+                let reviewCount = parseInt(task.currentReviewCount) || 0;
+                const totalReviews = parseInt(task.reviewCount) || 3;
                 
                 let actions='';
                 if(task.status==='assigned')actions=`<button class="task-btn primary" onclick="startTask('${task.id}')"><i class="fas fa-play"></i> Start</button>`;
@@ -798,19 +813,19 @@
             actionBtn.textContent = actionText;
             actionBtn.className = `btn ${['assigned','in-progress','revision'].includes(task.status) ? 'btn-primary' : 'btn-outline'}`;
 
-            // Build revision reasons section - FIXED to show ALL revisions
+            // Build revision reasons section - show ALL revisions from submission reviewHistory
             let revisionHtml = '';
-            if (submission && submission.reviewHistory && submission.reviewHistory.length) {
-                const revisions = submission.reviewHistory.filter(r => r.decision === 'revision');
-                if (revisions.length) {
+            if (submission && submission.reviewHistory && Array.isArray(submission.reviewHistory)) {
+                const allRevisions = submission.reviewHistory.filter(r => r && r.decision === 'revision');
+                if (allRevisions.length > 0) {
                     revisionHtml = `
                         <div class="revision-box">
-                            <h4><i class="fas fa-exclamation-triangle"></i> Revision Required (${revisions.length} revision${revisions.length > 1 ? 's' : ''})</h4>
-                            ${revisions.map((r, i) => `
+                            <h4><i class="fas fa-exclamation-triangle"></i> Revision${allRevisions.length > 1 ? 's' : ''} Required (${allRevisions.length} total)</h4>
+                            ${allRevisions.map((r, i) => `
                                 <div class="revision-item">
                                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.3rem;">
-                                        <span style="font-weight:700;color:var(--danger);">Revision #${i+1} of ${revisions.length}</span>
-                                        <span style="font-size:0.7rem;color:var(--text-muted);">${new Date(r.reviewedAt).toLocaleString()}</span>
+                                        <span style="font-weight:700;color:var(--danger);">Revision #${i + 1}</span>
+                                        <span style="font-size:0.7rem;color:var(--text-muted);">${r.reviewedAt ? new Date(r.reviewedAt).toLocaleString() : 'Date unknown'}</span>
                                     </div>
                                     <div style="color:var(--text-secondary);margin-bottom:0.2rem;"><strong>Reason:</strong> ${escapeHtml(r.comments || 'No specific reason provided')}</div>
                                     <div style="font-size:0.7rem;color:var(--text-muted);">Reviewed by: ${escapeHtml(r.reviewedBy || 'Admin')}</div>
@@ -819,9 +834,21 @@
                         </div>`;
                 }
             }
+            
+            // Fallback to task revisionNote if no submission revisions exist
             if (task.status === 'revision' && task.revisionNote && !revisionHtml) {
-                revisionHtml = `<div class="revision-box"><h4><i class="fas fa-exclamation-circle"></i> Revision Note</h4><div class="revision-item"><div style="color:var(--text-secondary);font-size:0.85rem;">${escapeHtml(task.revisionNote)}</div></div></div>`;
+                revisionHtml = `
+                    <div class="revision-box">
+                        <h4><i class="fas fa-exclamation-circle"></i> Revision Note</h4>
+                        <div class="revision-item">
+                            <div style="color:var(--text-secondary);font-size:0.85rem;">${escapeHtml(task.revisionNote)}</div>
+                        </div>
+                    </div>`;
             }
+            
+            // Use actual review count from submission if available
+            const displayReviewCount = (submission && submission.reviewHistory) ? submission.reviewHistory.length : (task.currentReviewCount || 0);
+            const totalReviews = task.reviewCount || 3;
 
             document.getElementById('taskDetailsModalBody').innerHTML = `
                 <div class="task-detail-grid">
@@ -834,7 +861,7 @@
                     <div class="task-detail-box"><div class="label">Client</div><div class="value">${escapeHtml(task.clientName || 'Client')}</div></div>
                     <div class="task-detail-box"><div class="label">Due Date</div><div class="value">${escapeHtml(dueDate)}</div></div>
                     <div class="task-detail-box"><div class="label">Assigned</div><div class="value">${escapeHtml(assignedDate)}</div></div>
-                    <div class="task-detail-box"><div class="label">Reviews</div><div class="value">${task.currentReviewCount || 0}/${task.reviewCount || 3}</div></div>
+                    <div class="task-detail-box"><div class="label">Reviews</div><div class="value">${displayReviewCount}/${totalReviews}</div></div>
                 </div>
                 ${task.jobLink ? `<div class="instruction-box"><div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;"><i class="fas fa-info-circle" style="color:var(--info);"></i><strong>Instructions</strong></div><a href="${escapeHtml(task.jobLink)}" target="_blank" style="color:var(--gold);"><i class="fas fa-external-link-alt"></i> ${escapeHtml(task.jobLink)}</a></div>` : ''}
                 ${revisionHtml}
