@@ -409,6 +409,39 @@
         }
         .form-control:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-glow); }
 
+                .link-input-group {
+            display: flex; gap: 0.5rem; margin-bottom: 0.5rem; align-items: center;
+        }
+        .link-input-group .form-control {
+            flex: 1;
+        }
+        .remove-link-btn {
+            background: transparent; border: 1px solid var(--border-light);
+            color: var(--text-muted); width: 38px; height: 38px;
+            border-radius: 10px; display: flex; align-items: center;
+            justify-content: center; cursor: pointer; transition: all 0.2s;
+            font-size: 0.85rem; flex-shrink: 0;
+        }
+        .remove-link-btn:hover {
+            background: rgba(239,68,68,0.08); border-color: var(--danger);
+            color: var(--danger);
+        }
+        .add-link-btn {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            padding: 0.55rem 1rem; background: transparent;
+            border: 1.5px dashed var(--border-medium); border-radius: 12px;
+            color: var(--text-muted); font-size: 0.85rem; font-weight: 500;
+            cursor: pointer; transition: all 0.2s;
+            font-family: var(--font-heading); margin-top: 0.25rem;
+        }
+        .add-link-btn:hover {
+            border-color: var(--gold); color: var(--gold);
+            background: var(--gold-soft);
+        }
+        .add-link-btn i {
+            font-size: 0.75rem;
+        }
+
         .task-detail-grid {
             display: grid; grid-template-columns: repeat(2,1fr); gap: 0.75rem; margin-bottom: 1rem;
         }
@@ -499,14 +532,47 @@
 
     <div class="modal-overlay" id="submitModalOverlay"></div>
     <div class="modal" id="submitModal">
-        <div class="modal-header"><h3>Submit Work</h3><button class="modal-close" onclick="closeSubmitModal()"><i class="fas fa-times"></i></button></div>
+        <div class="modal-header">
+            <h3>Submit Work</h3>
+            <button class="modal-close" onclick="closeSubmitModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
         <div class="modal-body">
             <form id="submissionForm" onsubmit="submitWork(event)">
                 <input type="hidden" id="submitTaskId">
-                <div class="form-group"><label>Task Category</label><input type="text" class="form-control" id="displayTaskCategory" readonly></div>
-                <div class="form-group"><label>Work Links</label><div id="linksContainer"><div class="link-input-group"><input type="url" class="form-control" name="submissionLinks[]" placeholder="https://drive.google.com/..." required><button type="button" class="remove-link-btn" onclick="removeLinkField(this)"><i class="fas fa-times"></i></button></div></div><button type="button" class="add-link-btn" onclick="addLinkField()"><i class="fas fa-plus"></i> Add Another Link</button></div>
-                <div class="form-group"><label>Additional Notes (Optional)</label><textarea class="form-control" id="submissionNotes" rows="3" placeholder="Any notes for the reviewer..."></textarea></div>
-                <div class="modal-actions"><button type="button" class="btn btn-outline" onclick="closeSubmitModal()">Cancel</button><button type="submit" class="btn btn-primary">Submit Work</button></div>
+                <div class="form-group">
+                    <label>Task Category</label>
+                    <input type="text" class="form-control" id="displayTaskCategory" readonly>
+                </div>
+                <div class="form-group">
+                    <label>Work Links <span style="color:var(--danger);font-size:0.8rem;">*</span></label>
+                    <div id="linksContainer">
+                        <div class="link-input-group">
+                            <input type="url" class="form-control" name="submissionLinks[]" 
+                                   placeholder="https://drive.google.com/..." required>
+                            <button type="button" class="remove-link-btn" onclick="removeLinkField(this)">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="button" class="add-link-btn" onclick="addLinkField()">
+                        <i class="fas fa-plus"></i> Add Another Link
+                    </button>
+                </div>
+                <div class="form-group">
+                    <label>Additional Notes <span style="color:var(--text-muted);font-weight:400;font-size:0.8rem;">(Optional)</span></label>
+                    <textarea class="form-control" id="submissionNotes" rows="3" 
+                              placeholder="Any notes for the reviewer..."></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-outline" onclick="closeSubmitModal()">
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane"></i> Submit Work
+                    </button>
+                </div>
             </form>
         </div>
     </div>
@@ -796,7 +862,24 @@
 
         // All remaining functions (startTask, openSubmitModal, acceptJob, submitWork, etc.) remain identical to the original
         window.startTask = async (id) => { if(!confirm('Start working on this task?'))return; showLoading(true); try { await database.ref(`ekazi_assigned_tasks/${id}`).update({status:'in-progress',startedAt:firebase.database.ServerValue.TIMESTAMP}); showToast('Task started!','success'); } catch(e) { showToast('Error: '+e.message,'error'); } finally { showLoading(false); }};
-        window.openSubmitModal = (id) => { const t=assignedTasks.find(x=>x.id===id); if(!t)return; document.getElementById('submitTaskId').value=id; document.getElementById('displayTaskCategory').value=t.category||'General'; document.getElementById('linksContainer').innerHTML='<div class="link-input-group"><input type="url" class="form-control" name="submissionLinks[]" placeholder="https://drive.google.com/..." required><button type="button" class="remove-link-btn" onclick="removeLinkField(this)"><i class="fas fa-times"></i></button></div>'; document.getElementById('submissionNotes').value=''; document.getElementById('submitModal').classList.add('active'); document.getElementById('submitModalOverlay').classList.add('active'); };
+        window.openSubmitModal = (id) => { 
+            const t = assignedTasks.find(x => x.id === id); 
+            if (!t) return; 
+            document.getElementById('submitTaskId').value = id; 
+            document.getElementById('displayTaskCategory').value = t.category || 'General'; 
+            document.getElementById('linksContainer').innerHTML = `
+                <div class="link-input-group">
+                    <input type="url" class="form-control" name="submissionLinks[]" 
+                           placeholder="https://drive.google.com/..." required>
+                    <button type="button" class="remove-link-btn" onclick="removeLinkField(this)">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `; 
+            document.getElementById('submissionNotes').value = ''; 
+            document.getElementById('submitModal').classList.add('active'); 
+            document.getElementById('submitModalOverlay').classList.add('active'); 
+        };
         window.openSubmitModalForTask = () => { const t=assignedTasks.find(x=>['assigned','in-progress','revision'].includes(x.status)); if(t)openSubmitModal(t.id); else showToast('No tasks available for submission','info'); };
         window.acceptJob = async (id) => { const j=availableJobs.find(x=>x.id===id); if(!j)return; if(!currentTasker?.verified){showToast('Your profile must be verified before accepting jobs','warning');return;} if(!confirm(`Accept "${j.title}" for KSh ${j.budget.toLocaleString()}?\n\nCategory: ${j.category}`))return; showLoading(true); try { await database.ref(`ekazi_job_postings/${id}`).update({status:'accepted',acceptedBy:currentUser.email,acceptedAt:firebase.database.ServerValue.TIMESTAMP,applications:(j.applications||0)+1}); const ref=database.ref('ekazi_assigned_tasks').push(); await ref.set({category:j.category,clientName:j.postedBy||'Client',clientEmail:'admin@ekazi.com',taskerName:currentTasker?.name||'Tasker',taskerEmail:currentUser.email,jobLink:j.description||'',dueDate:j.deadline||new Date(Date.now()+7*86400000).toISOString().split('T')[0],payRate:j.budget.toString(),reviewCount:j.reviewCount||3,currentReviewCount:0,status:'assigned',notes:j.requirements||'',assignedAt:firebase.database.ServerValue.TIMESTAMP,assignedBy:'self-assigned',source:j.source,sourceId:id}); showToast('Job accepted successfully! Check My Tasks below.','success'); } catch(e) { showToast('Error accepting job: '+e.message,'error'); } finally { showLoading(false); }};
         window.submitWork = async (e) => { e.preventDefault(); const taskId=document.getElementById('submitTaskId').value; const links=Array.from(document.querySelectorAll('input[name="submissionLinks[]"]')).map(i=>i.value.trim()).filter(Boolean); if(!links.length){showToast('Please provide at least one link','warning');return;} for(let l of links){if(!l.startsWith('http://')&&!l.startsWith('https://')){showToast('Please enter valid URLs','warning');return;}} showLoading(true); try { const taskSnap=await database.ref(`ekazi_assigned_tasks/${taskId}`).once('value'); const task=taskSnap.val(); if(!task||task.taskerEmail.toLowerCase()!==currentUser.email.toLowerCase()){showToast('Not authorized','error');return;} const ref=database.ref('ekazi_task_submissions').push(); await ref.set({taskId,taskerName:currentTasker?.name||'Tasker',taskerEmail:currentUser.email,submissionLinks:links,notes:document.getElementById('submissionNotes').value.trim(),submittedAt:firebase.database.ServerValue.TIMESTAMP,currentStatus:'pending-review',reviewCount:0,reviewHistory:[]}); await database.ref(`ekazi_assigned_tasks/${taskId}`).update({status:'submitted',lastSubmittedAt:firebase.database.ServerValue.TIMESTAMP,currentSubmissionId:ref.key}); showToast('Work submitted successfully!','success'); closeSubmitModal(); } catch(e) { showToast('Error: '+e.message,'error'); } finally { showLoading(false); }};
