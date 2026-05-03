@@ -2,38 +2,44 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#8b5cf6">
-    <title>Pick Me Rides · Driver Portal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Pick Me · Driver</title>
+    
+    <meta name="theme-color" content="#0f172a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Pick Me">
+    <meta name="mobile-web-app-capable" content="yes">
+    
     <link rel="icon" type="image/png" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
+    <link rel="apple-touch-icon" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
+    <link rel="manifest" href="/e-kazi/assistants/pick-me-manifest.json">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
-    
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
-            --primary: #8b5cf6;
-            --primary-dark: #6d28d9;
-            --primary-light: #a78bfa;
-            --bg-primary: #0f172a;
-            --bg-secondary: #1e293b;
-            --bg-card: #1e293b;
+            --bg-primary: #0a0f1e;
+            --bg-secondary: #111827;
+            --bg-card: #1a2235;
             --text-primary: #f1f5f9;
             --text-secondary: #cbd5e1;
             --text-muted: #94a3b8;
-            --border: #334155;
-            --success: #22c55e;
-            --danger: #ef4444;
+            --border: #263148;
+            --border-light: #334155;
+            --gold: #f59e0b;
+            --gold-dark: #b45309;
+            --purple: #8b5cf6;
+            --purple-dark: #6d28d9;
+            --purple-light: #a78bfa;
+            --green: #22c55e;
+            --red: #ef4444;
             --warning: #f59e0b;
             --info: #3b82f6;
-            --gold: #f59e0b;
             --orange: #f97316;
-            --header-height: 64px;
+            --safe-bottom: env(safe-area-inset-bottom, 20px);
         }
 
         body {
@@ -41,968 +47,565 @@
             background: var(--bg-primary);
             color: var(--text-primary);
             min-height: 100vh;
-            padding-top: var(--header-height);
+            min-height: 100dvh;
             line-height: 1.6;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-font-smoothing: antialiased;
         }
 
-        .header {
+        .bg-gradient {
             position: fixed;
-            top: 0; left: 0; right: 0;
-            height: var(--header-height);
-            background: rgba(15, 23, 42, 0.95);
-            backdrop-filter: blur(16px);
-            border-bottom: 2px solid rgba(139, 92, 246, 0.3);
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            padding: 0 1.5rem;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: 
+                radial-gradient(ellipse at 15% 40%, rgba(139, 92, 246, 0.07) 0%, transparent 50%),
+                radial-gradient(ellipse at 85% 25%, rgba(245, 158, 11, 0.06) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 80%, rgba(34, 197, 94, 0.04) 0%, transparent 50%);
+            z-index: 0;
+            pointer-events: none;
         }
 
-        .header-container {
-            max-width: 1200px;
-            width: 100%;
+        .app-container {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: rgba(10, 15, 30, 0.85);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border-bottom: 1px solid rgba(245, 158, 11, 0.15);
+            padding: 0 1rem;
+        }
+
+        .header-inner {
+            max-width: 900px;
             margin: 0 auto;
             display: flex;
             align-items: center;
             justify-content: space-between;
+            height: 60px;
         }
 
         .brand {
             display: flex;
             align-items: center;
-            gap: 12px;
-            text-decoration: none;
+            gap: 10px;
+            cursor: pointer;
         }
 
         .brand-logo {
-            width: 38px;
-            height: 38px;
+            width: 36px;
+            height: 36px;
             border-radius: 10px;
-            background: white;
             object-fit: contain;
+            background: white;
+            box-shadow: 0 4px 16px rgba(139, 92, 246, 0.25);
+        }
+
+        .brand-text {
+            display: flex;
+            flex-direction: column;
         }
 
         .brand-name {
+            font-size: 1rem;
             font-weight: 800;
-            font-size: 1.1rem;
-            color: var(--text-primary);
+            background: linear-gradient(135deg, #c084fc, #fbbf24);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.3px;
+            line-height: 1.1;
         }
 
-        .brand-name span {
-            color: var(--primary-light);
+        .brand-sub {
+            font-size: 0.55rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            text-transform: uppercase;
         }
 
-        .header-actions {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
+        .header-right { display: flex; align-items: center; gap: 10px; }
 
-        .btn {
-            padding: 0.5rem 1.2rem;
-            border-radius: 30px;
-            font-weight: 600;
-            font-size: 0.8rem;
-            cursor: pointer;
-            border: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.2s;
-            text-decoration: none;
-        }
-
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: var(--primary-dark);
-        }
-
-        .btn-outline {
-            background: transparent;
-            border: 1.5px solid var(--primary-light);
-            color: var(--primary-light);
-        }
-
-        .btn-outline:hover {
-            background: var(--primary);
-            color: white;
-        }
-
-        .btn-sm {
-            padding: 0.3rem 0.8rem;
-            font-size: 0.7rem;
-        }
-
-        .btn-success { background: var(--success); color: white; }
-        .btn-danger { background: var(--danger); color: white; }
-        .btn-orange { background: var(--orange); color: white; }
-        .btn-warning { background: var(--warning); color: #0f172a; }
-        .btn-info { background: var(--info); color: white; }
-
-        .user-badge {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(139, 92, 246, 0.1);
-            border: 1px solid rgba(139, 92, 246, 0.3);
-            padding: 0.3rem 1rem 0.3rem 0.5rem;
-            border-radius: 30px;
-            font-size: 0.8rem;
-            cursor: pointer;
-            position: relative;
-        }
-
-        .user-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: var(--primary);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 0.75rem;
-        }
-
-        .logout-dropdown {
-            position: absolute;
-            top: 110%;
-            right: 0;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 0.5rem;
-            min-width: 160px;
+        .status-dot {
+            width: 7px; height: 7px; border-radius: 50%;
+            background: var(--green);
+            animation: pulse-dot 2s infinite;
             display: none;
-            z-index: 10;
+        }
+        .status-dot.show { display: block; }
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
+            50% { opacity: 0.6; box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); }
         }
 
-        .user-badge:hover .logout-dropdown {
-            display: block;
+        .user-btn {
+            display: flex; align-items: center; gap: 8px;
+            background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+            padding: 0.3rem 0.8rem 0.3rem 0.4rem; border-radius: 30px;
+            cursor: pointer; font-family: 'Inter', sans-serif;
+            color: var(--text-primary); font-size: 0.72rem;
+            transition: all 0.2s; position: relative;
         }
-
-        .logout-item {
-            padding: 0.6rem 1rem;
-            border-radius: 10px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-            transition: 0.2s;
+        .user-btn:hover { border-color: var(--gold); background: rgba(245,158,11,0.06); }
+        .user-avatar {
+            width: 30px; height: 30px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--purple), var(--gold));
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 0.68rem; color: white; flex-shrink: 0;
         }
-
-        .logout-item:hover {
-            background: rgba(139, 92, 246, 0.15);
-            color: var(--primary-light);
+        .user-dropdown {
+            position: absolute; top: 110%; right: 0;
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 14px; padding: 0.4rem; min-width: 160px;
+            display: none; z-index: 10; box-shadow: 0 15px 40px rgba(0,0,0,0.4);
         }
+        .user-btn:hover .user-dropdown { display: block; }
+        .dropdown-item {
+            padding: 0.55rem 0.8rem; border-radius: 10px; cursor: pointer;
+            display: flex; align-items: center; gap: 8px;
+            font-size: 0.72rem; color: var(--text-secondary);
+            transition: 0.2s; border: none; background: none;
+            width: 100%; font-family: 'Inter', sans-serif;
+        }
+        .dropdown-item:hover { background: rgba(245,158,11,0.1); color: var(--gold); }
+        .dropdown-item.danger:hover { background: rgba(239,68,68,0.1); color: var(--red); }
 
+        .signin-btn {
+            padding: 0.45rem 1rem; border-radius: 25px;
+            font-weight: 600; font-size: 0.7rem; cursor: pointer;
+            border: none; background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+            color: white; font-family: 'Inter', sans-serif;
+            display: flex; align-items: center; gap: 6px;
+            white-space: nowrap; transition: all 0.2s;
+        }
+        .signin-btn:active { transform: scale(0.96); }
+
+        /* Main */
         .main-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 1.5rem;
+            flex: 1; max-width: 900px; width: 100%;
+            margin: 0 auto; padding: 1.5rem 1rem calc(1.5rem + var(--safe-bottom));
+        }
+
+        .dashboard-section { animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .alert-card {
-            border-radius: 20px;
-            padding: 2rem;
-            text-align: center;
-            margin-bottom: 2rem;
-            border: 1px solid var(--border);
+            border-radius: 20px; padding: 2rem; text-align: center;
+            margin-bottom: 2rem; border: 1px solid var(--border);
         }
+        .alert-card i { font-size: 3rem; margin-bottom: 1rem; }
+        .alert-card h2 { font-size: 1.5rem; margin-bottom: 0.8rem; }
+        .alert-card p { color: var(--text-muted); max-width: 500px; margin: 0 auto 1.5rem; }
+        .alert-pending { border-color: rgba(139,92,246,0.3); background: rgba(139,92,246,0.05); }
+        .alert-pending i { color: var(--purple-light); }
+        .alert-pending h2 { color: var(--purple-light); }
+        .alert-rejected { border-color: rgba(239,68,68,0.3); background: rgba(239,68,68,0.05); }
+        .alert-rejected i { color: var(--red); }
+        .alert-rejected h2 { color: var(--red); }
+        .alert-welcome { border-color: rgba(139,92,246,0.3); background: rgba(139,92,246,0.05); }
+        .alert-welcome i { color: var(--purple-light); }
+        .alert-welcome h2 { color: var(--purple-light); }
 
-        .alert-card i {
-            font-size: 3rem;
-            margin-bottom: 1rem;
+        .btn {
+            padding: 0.6rem 1.4rem; border-radius: 25px;
+            font-weight: 600; font-size: 0.8rem; cursor: pointer;
+            border: none; display: inline-flex; align-items: center;
+            gap: 7px; transition: all 0.2s;
+            font-family: 'Inter', sans-serif; white-space: nowrap; text-decoration: none;
         }
+        .btn-gold { background: linear-gradient(135deg, var(--gold-dark), var(--gold)); color: white; }
+        .btn-gold:active { transform: scale(0.96); }
+        .btn-outline { background: transparent; border: 1.5px solid var(--border-light); color: var(--text-secondary); }
+        .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+        .btn-sm { padding: 0.4rem 1rem; font-size: 0.7rem; }
+        .btn-success { background: var(--green); color: white; }
+        .btn-danger { background: var(--red); color: white; }
+        .btn-orange { background: var(--orange); color: white; }
+        .btn-info { background: var(--info); color: white; }
 
-        .alert-card h2 {
-            font-size: 1.5rem;
-            margin-bottom: 0.8rem;
-        }
-
-        .alert-card p {
-            color: var(--text-muted);
-            max-width: 500px;
-            margin: 0 auto 1.5rem;
-        }
-
-        .alert-pending {
-            border-color: rgba(139, 92, 246, 0.3);
-            background: rgba(139, 92, 246, 0.05);
-        }
-        .alert-pending i { color: var(--primary-light); }
-        .alert-pending h2 { color: var(--primary-light); }
-
-        .alert-rejected {
-            border-color: rgba(239, 68, 68, 0.3);
-            background: rgba(239, 68, 68, 0.05);
-        }
-        .alert-rejected i { color: var(--danger); }
-        .alert-rejected h2 { color: var(--danger); }
-
-        .alert-welcome {
-            border-color: rgba(139, 92, 246, 0.3);
-            background: rgba(139, 92, 246, 0.05);
-        }
-        .alert-welcome i { color: var(--primary-light); }
-        .alert-welcome h2 { color: var(--primary-light); }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
-
-        .stat-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 1.5rem;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, var(--primary), var(--primary-dark));
-        }
-
-        .stat-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-
-        .stat-title {
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--text-muted);
-            font-weight: 600;
-        }
-
-        .stat-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
-            background: rgba(139, 92, 246, 0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--primary-light);
-            font-size: 1.1rem;
-        }
-
-        .stat-value {
-            font-size: 2rem;
-            font-weight: 800;
-            color: var(--primary-light);
-            line-height: 1;
-        }
-
-        .stat-footer {
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            margin-top: 0.5rem;
-        }
-
+        /* Profile */
         .profile-card {
-            background: var(--bg-card);
-            border: 1px solid var(--primary-light);
-            border-radius: 20px;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-            display: flex;
-            align-items: center;
-            gap: 1.5rem;
-            flex-wrap: wrap;
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 18px; padding: 1.2rem; display: flex;
+            align-items: center; gap: 1rem; margin-bottom: 1.5rem;
+        }
+        .profile-avatar-lg {
+            width: 48px; height: 48px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--purple), var(--gold));
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 1rem; color: white; flex-shrink: 0;
+        }
+        .profile-details h3 { font-size: 0.9rem; font-weight: 700; }
+        .profile-details span { font-size: 0.68rem; color: var(--text-muted); }
+        .profile-meta { display: flex; gap: 1rem; flex-wrap: wrap; color: var(--text-muted); font-size: 0.7rem; margin-top: 4px; }
+        .profile-meta span { display: flex; align-items: center; gap: 4px; }
+        .profile-meta i { color: var(--purple-light); width: 14px; }
+
+        /* Stats */
+        .stats-row { display: flex; gap: 0.6rem; margin-bottom: 1.8rem; }
+        .stat-mini {
+            flex: 1; background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 16px; padding: 1rem; text-align: center; transition: all 0.2s;
+        }
+        .stat-mini:hover { border-color: var(--gold); }
+        .stat-mini-value { font-size: 1.6rem; font-weight: 800; color: var(--gold); line-height: 1; }
+        .stat-mini-label {
+            font-size: 0.58rem; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 0.6px; margin-top: 0.3rem;
         }
 
-        .profile-avatar {
-            width: 72px;
-            height: 72px;
-            border-radius: 50%;
-            background: rgba(139, 92, 246, 0.1);
-            border: 3px solid var(--primary-light);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            color: var(--primary-light);
-        }
-
-        .profile-info h2 {
-            font-size: 1.4rem;
-            color: var(--primary-light);
-            margin-bottom: 0.3rem;
-        }
-
-        .profile-meta {
-            display: flex;
-            gap: 1.5rem;
-            flex-wrap: wrap;
-            color: var(--text-muted);
-            font-size: 0.8rem;
-        }
-
-        .profile-meta span {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .profile-meta i {
-            color: var(--primary-light);
-            width: 16px;
-        }
-
+        /* Filters */
         .filters-bar {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-bottom: 1.5rem;
-            align-items: center;
+            display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1.2rem; align-items: center;
         }
-
         .filter-btn {
-            padding: 0.5rem 1.2rem;
-            border-radius: 30px;
-            border: 1.5px solid var(--border);
-            background: transparent;
-            color: var(--text-muted);
-            font-weight: 600;
-            font-size: 0.75rem;
-            cursor: pointer;
-            transition: 0.2s;
-            white-space: nowrap;
+            padding: 0.4rem 1rem; border-radius: 25px;
+            border: 1.5px solid var(--border); background: transparent;
+            color: var(--text-muted); font-weight: 600; font-size: 0.7rem;
+            cursor: pointer; transition: 0.2s; white-space: nowrap; font-family: 'Inter', sans-serif;
         }
-
-        .filter-btn.active {
-            background: var(--primary-dark);
-            color: white;
-            border-color: var(--primary-dark);
-        }
-
-        .filter-btn:hover {
-            border-color: var(--primary);
-            color: var(--primary-light);
-        }
-
+        .filter-btn.active { background: var(--purple-dark); color: white; border-color: var(--purple-dark); }
+        .filter-btn:hover { border-color: var(--purple); color: var(--purple-light); }
         .search-input {
-            flex: 1;
-            min-width: 200px;
-            padding: 0.5rem 1rem;
-            border-radius: 30px;
-            border: 1.5px solid var(--border);
-            background: var(--bg-card);
-            color: var(--text-primary);
-            font-size: 0.8rem;
-            font-family: 'Inter', sans-serif;
+            flex: 1; min-width: 180px; padding: 0.45rem 0.8rem;
+            border-radius: 25px; border: 1.5px solid var(--border);
+            background: var(--bg-card); color: var(--text-primary);
+            font-size: 0.75rem; font-family: 'Inter', sans-serif;
         }
-
-        .search-input:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-
+        .search-input:focus { outline: none; border-color: var(--gold); }
         .refresh-btn {
-            padding: 0.5rem 1rem;
-            border-radius: 30px;
-            border: 1.5px solid var(--primary-light);
-            background: transparent;
-            color: var(--primary-light);
-            cursor: pointer;
-            font-size: 0.8rem;
-            display: flex;
-            align-items: center;
-            gap: 6px;
+            padding: 0.4rem 0.8rem; border-radius: 25px;
+            border: 1.5px solid var(--purple-light); background: transparent;
+            color: var(--purple-light); cursor: pointer; font-size: 0.75rem;
+            display: flex; align-items: center; gap: 5px; font-family: 'Inter', sans-serif;
         }
 
-        .table-container {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            overflow: hidden;
+        /* Table */
+        .table-wrap {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 18px; overflow: hidden;
         }
-
-        .table-scroll {
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.8rem;
-        }
-
-        thead {
-            background: rgba(139, 92, 246, 0.05);
-        }
-
+        .table-scroll { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
+        thead { background: rgba(139,92,246,0.05); }
         th {
-            padding: 0.9rem 1rem;
-            text-align: left;
-            font-weight: 700;
-            color: var(--primary-light);
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            white-space: nowrap;
+            padding: 0.7rem 0.8rem; text-align: left; font-weight: 700;
+            color: var(--purple-light); font-size: 0.62rem;
+            text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;
         }
-
-        td {
-            padding: 0.8rem 1rem;
-            border-bottom: 1px solid var(--border);
-            color: var(--text-secondary);
-            vertical-align: middle;
-        }
-
+        td { padding: 0.65rem 0.8rem; border-bottom: 1px solid var(--border); color: var(--text-secondary); vertical-align: middle; }
         tr:last-child td { border-bottom: none; }
-        tr:hover td { background: rgba(139, 92, 246, 0.03); }
+        tr:hover td { background: rgba(139,92,246,0.03); }
 
-        .status-badge {
-            padding: 0.2rem 0.7rem;
-            border-radius: 20px;
-            font-size: 0.65rem;
-            font-weight: 700;
-            text-transform: capitalize;
+        .badge {
+            padding: 0.15rem 0.55rem; border-radius: 15px;
+            font-size: 0.6rem; font-weight: 700; text-transform: capitalize; display: inline-block;
         }
+        .badge-requested { background: rgba(245,158,11,0.15); color: var(--warning); }
+        .badge-accepted { background: rgba(59,130,246,0.15); color: var(--info); }
+        .badge-arrived { background: rgba(139,92,246,0.15); color: var(--purple-light); }
+        .badge-ongoing, .badge-in_progress { background: rgba(249,115,22,0.15); color: var(--orange); }
+        .badge-completed { background: rgba(34,197,94,0.15); color: var(--green); }
+        .badge-cancelled { background: rgba(239,68,68,0.15); color: var(--red); }
 
-        .status-requested { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
-        .status-accepted { background: rgba(59, 130, 246, 0.15); color: var(--info); }
-        .status-arrived { background: rgba(139, 92, 246, 0.15); color: var(--primary-light); }
-        .status-ongoing { background: rgba(249, 115, 22, 0.15); color: var(--orange); }
-        .status-in_progress { background: rgba(249, 115, 22, 0.15); color: var(--orange); }
-        .status-completed { background: rgba(34, 197, 94, 0.15); color: var(--success); }
-        .status-cancelled { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
-
-        .table-actions {
-            display: flex;
-            gap: 4px;
-            flex-wrap: wrap;
-        }
-
+        .table-actions { display: flex; gap: 3px; flex-wrap: wrap; }
         .table-action {
-            padding: 0.25rem 0.5rem;
-            border-radius: 8px;
-            border: none;
-            font-size: 0.65rem;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 3px;
-            transition: 0.2s;
+            padding: 0.2rem 0.45rem; border-radius: 8px; border: none;
+            font-size: 0.6rem; cursor: pointer; display: inline-flex;
+            align-items: center; gap: 2px; transition: 0.2s;
+            background: rgba(148,163,184,0.08); color: var(--text-muted);
+        }
+        .table-action:hover { background: var(--text-muted); color: white; }
+        .table-action.accept:hover { background: var(--green); }
+        .table-action.arrive:hover { background: var(--purple); }
+        .table-action.start:hover { background: var(--orange); }
+        .table-action.complete:hover { background: var(--green); }
+        .table-action.nav:hover { background: var(--info); }
+        .table-action.call:hover { background: var(--warning); color: #0f172a; }
+
+        .meta-tags { display: flex; gap: 3px; flex-wrap: wrap; margin-top: 2px; }
+        .meta-tag {
+            font-size: 0.5rem; padding: 1px 5px; border-radius: 8px;
+            background: rgba(148,163,184,0.08); color: var(--text-muted);
         }
 
-        .action-view { background: rgba(148, 163, 184, 0.1); color: var(--text-muted); }
-        .action-view:hover { background: var(--text-muted); color: white; }
-
-        .action-accept { background: rgba(34, 197, 94, 0.1); color: var(--success); }
-        .action-accept:hover { background: var(--success); color: white; }
-
-        .action-arrive { background: rgba(139, 92, 246, 0.1); color: var(--primary-light); }
-        .action-arrive:hover { background: var(--primary); color: white; }
-
-        .action-start { background: rgba(249, 115, 22, 0.1); color: var(--orange); }
-        .action-start:hover { background: var(--orange); color: white; }
-
-        .action-complete { background: rgba(34, 197, 94, 0.1); color: var(--success); }
-        .action-complete:hover { background: var(--success); color: white; }
-
-        .action-navigate { background: rgba(59, 130, 246, 0.1); color: var(--info); }
-        .action-navigate:hover { background: var(--info); color: white; }
-
-        .action-contact { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
-        .action-contact:hover { background: var(--warning); color: #0f172a; }
-
+        /* Modal */
         .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7);
-            z-index: 2000;
-            justify-content: center;
-            align-items: center;
-            backdrop-filter: blur(4px);
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.75); z-index: 4000;
+            display: none; align-items: center; justify-content: center;
+            padding: 1rem; backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
         }
         .modal-overlay.show { display: flex; }
-
         .modal {
-            background: var(--bg-card);
-            border-radius: 24px;
-            padding: 2rem;
-            max-width: 520px;
-            width: 95%;
-            max-height: 85vh;
-            overflow-y: auto;
-            border: 1px solid var(--primary-light);
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 20px; padding: 1.5rem;
+            width: 100%; max-width: 440px; max-height: 85vh; overflow-y: auto;
         }
-
-        .modal h3 {
-            font-size: 1.2rem;
-            margin-bottom: 1.5rem;
-            color: var(--primary-light);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .modal .form-group {
-            margin-bottom: 1rem;
-        }
-
+        .modal h3 { font-size: 1rem; margin-bottom: 1rem; color: var(--purple-light); display: flex; align-items: center; gap: 8px; }
+        .modal .form-group { margin-bottom: 0.8rem; }
         .modal label {
-            display: block;
-            font-weight: 600;
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            margin-bottom: 0.3rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            display: block; font-weight: 600; font-size: 0.62rem;
+            color: var(--text-muted); text-transform: uppercase;
+            letter-spacing: 0.5px; margin-bottom: 0.2rem;
         }
-
-        .modal input, .modal textarea, .modal select {
-            width: 100%;
-            padding: 0.6rem 0.8rem;
-            border-radius: 10px;
-            border: 1.5px solid var(--border);
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            font-size: 0.85rem;
+        .modal input, .modal select, .modal textarea {
+            width: 100%; padding: 0.5rem 0.6rem; border-radius: 10px;
+            border: 1.5px solid var(--border); background: var(--bg-secondary);
+            color: var(--text-primary); font-size: 0.78rem;
             font-family: 'Inter', sans-serif;
         }
+        .modal input:focus, .modal select:focus, .modal textarea:focus { outline: none; border-color: var(--gold); }
+        .modal textarea { resize: vertical; min-height: 55px; }
+        .modal .btn-row { display: flex; gap: 8px; justify-content: flex-end; margin-top: 1rem; flex-wrap: wrap; }
 
-        .modal textarea {
-            resize: vertical;
-            min-height: 70px;
-        }
+        .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.72rem; }
+        .detail-item { background: var(--bg-secondary); padding: 0.5rem 0.6rem; border-radius: 8px; }
+        .detail-item strong { display: block; font-size: 0.55rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.1rem; }
+        .detail-item.full { grid-column: 1/-1; }
 
-        .modal .btn-row {
-            display: flex;
-            gap: 10px;
-            justify-content: flex-end;
-            margin-top: 1.5rem;
-            flex-wrap: wrap;
-        }
-
-        .detail-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-
-        .detail-item {
-            background: var(--bg-primary);
-            padding: 0.7rem;
-            border-radius: 10px;
-        }
-
-        .detail-item strong {
-            display: block;
-            font-size: 0.6rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            margin-bottom: 0.2rem;
-        }
-
-        .detail-item.full {
-            grid-column: 1 / -1;
-        }
-
+        /* Toast */
         .toast-container {
-            position: fixed;
-            top: 80px;
-            right: 20px;
-            z-index: 3000;
+            position: fixed; top: 70px; right: 12px; left: 12px;
+            z-index: 3000; display: flex; flex-direction: column;
+            align-items: flex-end; pointer-events: none;
         }
-
         .toast {
-            background: var(--bg-card);
-            border: 1px solid var(--primary-light);
-            border-radius: 16px;
-            padding: 1rem 1.5rem;
-            margin-bottom: 0.5rem;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 0.85rem;
-            animation: slideIn 0.3s ease;
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 14px; padding: 0.7rem 0.9rem; margin-bottom: 0.4rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            display: flex; align-items: center; gap: 6px;
+            font-size: 0.72rem; animation: slideIn 0.3s ease;
+            pointer-events: auto; max-width: 100%;
         }
-
-        .toast.success { border-left: 4px solid var(--success); }
-        .toast.error { border-left: 4px solid var(--danger); }
-        .toast.warning { border-left: 4px solid var(--warning); }
-        .toast.info { border-left: 4px solid var(--info); }
-
+        .toast.success { border-left: 3px solid var(--green); }
+        .toast.error { border-left: 3px solid var(--red); }
+        .toast.warning { border-left: 3px solid var(--warning); }
+        .toast.info { border-left: 3px solid var(--info); }
         @keyframes slideIn {
-            from { opacity: 0; transform: translateX(100%); }
+            from { opacity: 0; transform: translateX(60px); }
             to { opacity: 1; transform: translateX(0); }
         }
 
-        .loading {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(15, 23, 42, 0.8);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 4000;
+        .loading-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(10,15,30,0.8); backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 5000;
         }
-        .loading.hidden { display: none; }
+        .loading-overlay.hidden { display: none; }
         .spinner {
-            width: 48px; height: 48px;
-            border: 3px solid rgba(139, 92, 246, 0.2);
-            border-top-color: var(--primary);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
+            width: 40px; height: 40px; border-radius: 50%;
+            border: 3px solid var(--border); border-top-color: var(--gold);
+            animation: spin 0.7s linear infinite;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        .empty-state {
-            text-align: center;
-            padding: 3rem;
-            color: var(--text-muted);
-        }
-
-        .empty-state i {
-            font-size: 3rem;
-            color: var(--primary-light);
-            margin-bottom: 1rem;
-        }
+        .empty-state { text-align: center; padding: 2.5rem; color: var(--text-muted); }
+        .empty-state i { font-size: 2.5rem; color: var(--purple-light); margin-bottom: 0.8rem; }
 
         .hidden { display: none !important; }
 
-        .ride-meta-tags {
-            display: flex; gap: 4px; flex-wrap: wrap; margin-top: 2px;
+        .footer {
+            text-align: center; padding: 1rem 1rem calc(1rem + var(--safe-bottom));
+            color: var(--text-muted); font-size: 0.6rem;
+            border-top: 1px solid var(--border);
         }
-        .meta-tag {
-            font-size: 0.55rem; padding: 1px 6px; border-radius: 10px;
-            background: rgba(148, 163, 184, 0.1); color: var(--text-muted);
-        }
+        .footer span { color: var(--gold); font-weight: 600; }
 
-        @media (max-width: 768px) {
-            .header { padding: 0 1rem; }
-            .brand-name { font-size: 0.9rem; }
-            .main-content { padding: 1rem; }
-            .stats-grid { grid-template-columns: repeat(2, 1fr); }
-            .profile-card { flex-direction: column; text-align: center; }
-            .profile-meta { justify-content: center; }
-            .detail-grid { grid-template-columns: 1fr; }
-            table { font-size: 0.7rem; }
-            th, td { padding: 0.6rem 0.7rem; }
+        @media (min-width: 640px) {
+            .header { padding: 0 1.5rem; }
+            .main-content { padding: 2rem 1.5rem calc(2rem + var(--safe-bottom)); }
         }
     </style>
 </head>
 <body>
-    <div class="loading hidden" id="loadingOverlay">
+    <div class="bg-gradient"></div>
+
+    <div class="loading-overlay hidden" id="loadingOverlay">
         <div class="spinner"></div>
     </div>
 
     <div class="toast-container" id="toastContainer"></div>
 
-    <header class="header">
-        <div class="header-container">
-            <div class="brand">
-                <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png" alt="Pick Me" class="brand-logo">
-                <span class="brand-name">Pick Me <span>Rides</span></span>
-            </div>
-            <div class="header-actions">
-                <div id="loginBtnArea">
-                    <button class="btn btn-primary" onclick="openAuthModal('login')">
-                        <i class="fas fa-sign-in-alt"></i> Login
-                    </button>
-                </div>
-                <div class="user-badge hidden" id="userBadge">
-                    <div class="user-avatar" id="userAvatar">D</div>
-                    <span id="userName">Driver</span>
-                    <div class="logout-dropdown">
-                        <div class="logout-item" onclick="toggleAvailability()">
-                            <i class="fas fa-toggle-on" id="availabilityIcon"></i> <span id="availabilityText">Go Offline</span>
-                        </div>
-                        <div class="logout-item" onclick="handleLogout()">
-                            <i class="fas fa-sign-out-alt"></i> Logout
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <main class="main-content">
-        <!-- Welcome (not logged in) -->
-        <div class="alert-card alert-welcome" id="welcomeCard">
-            <i class="fas fa-taxi"></i>
-            <h2>Pick Me Driver Portal</h2>
-            <p>Join our ride network. Login to manage your ride requests or apply to become a verified Pick Me driver.</p>
-            <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
-                <button class="btn btn-primary" onclick="openAuthModal('login')">
-                    <i class="fas fa-sign-in-alt"></i> Login
-                </button>
-                <button class="btn btn-outline" onclick="openAuthModal('request')">
-                    <i class="fas fa-user-plus"></i> Apply as Driver
-                </button>
-            </div>
-        </div>
-
-        <!-- Pending Verification -->
-        <div class="alert-card alert-pending hidden" id="pendingCard">
-            <i class="fas fa-clock"></i>
-            <h2>Verification Pending</h2>
-            <p>Your driver application is under review. You'll be notified once approved.</p>
-            <p style="color:var(--text-muted);">Applied: <span id="requestedDate">—</span></p>
-        </div>
-
-        <!-- Rejected -->
-        <div class="alert-card alert-rejected hidden" id="rejectedCard">
-            <i class="fas fa-times-circle"></i>
-            <h2>Application Not Approved</h2>
-            <p id="rejectionMsg">Your driver application was not approved at this time.</p>
-            <button class="btn btn-outline" onclick="openAuthModal('request')">
-                <i class="fas fa-redo"></i> Submit New Application
-            </button>
-        </div>
-
-        <!-- Profile Card (approved) -->
-        <div class="profile-card hidden" id="profileCard">
-            <div class="profile-avatar">
-                <i class="fas fa-id-card"></i>
-            </div>
-            <div class="profile-info">
-                <h2 id="profileName">—</h2>
-                <div class="profile-meta">
-                    <span><i class="fas fa-phone"></i> <span id="profilePhone">—</span></span>
-                    <span><i class="fas fa-car"></i> <span id="profileVehicle">—</span></span>
-                    <span><i class="fas fa-map-marker-alt"></i> <span id="profileZone">—</span></span>
-                    <span><i class="fas fa-envelope"></i> <span id="profileEmail">—</span></span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Stats Grid (approved) -->
-        <div class="stats-grid hidden" id="statsGrid">
-            <div class="stat-card">
-                <div class="stat-header">
-                    <span class="stat-title">Active Trip</span>
-                    <div class="stat-icon"><i class="fas fa-car"></i></div>
-                </div>
-                <div class="stat-value" id="activeTrips">0</div>
-                <div class="stat-footer">Currently in progress</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-header">
-                    <span class="stat-title">Completed Today</span>
-                    <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
-                </div>
-                <div class="stat-value" id="completedToday">0</div>
-                <div class="stat-footer">Trips completed today</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-header">
-                    <span class="stat-title">Total Trips</span>
-                    <div class="stat-icon"><i class="fas fa-road"></i></div>
-                </div>
-                <div class="stat-value" id="totalTrips">0</div>
-                <div class="stat-footer">All-time trips</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-header">
-                    <span class="stat-title">Rating</span>
-                    <div class="stat-icon"><i class="fas fa-star"></i></div>
-                </div>
-                <div class="stat-value" id="driverRating">5.0</div>
-                <div class="stat-footer">Average rating</div>
-            </div>
-        </div>
-
-        <!-- Filters (approved) -->
-        <div class="filters-bar hidden" id="filtersBar">
-            <button class="filter-btn active" data-filter="all">All</button>
-            <button class="filter-btn" data-filter="accepted">Accepted</button>
-            <button class="filter-btn" data-filter="arrived">Arrived</button>
-            <button class="filter-btn" data-filter="ongoing">Ongoing</button>
-            <button class="filter-btn" data-filter="completed">Completed</button>
-            <input type="text" class="search-input" id="searchInput" placeholder="Search passenger, address, phone...">
-            <button class="refresh-btn" onclick="loadAllData()">
-                <i class="fas fa-sync-alt"></i> Refresh
-            </button>
-        </div>
-
-        <!-- Rides Table (approved) -->
-        <div class="table-container hidden" id="tableContainer">
-            <div class="table-scroll">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Ride ID</th>
-                            <th>Date</th>
-                            <th>Passenger</th>
-                            <th>Pickup</th>
-                            <th>Dropoff</th>
-                            <th>Fare</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tableBody">
-                        <tr><td colspan="8" class="empty-state">Loading your rides...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </main>
-
     <!-- Auth Modal -->
     <div class="modal-overlay" id="authModalOverlay"></div>
-    <div class="modal" id="authModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:2001;">
-        <h3><i class="fas fa-taxi"></i> Pick Me Driver Portal</h3>
-        
+    <div class="modal" id="authModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:4001;">
+        <h3><i class="fas fa-taxi"></i> Pick Me Driver</h3>
         <form id="loginForm" onsubmit="handleLogin(event)" style="display:none;">
-            <div class="form-group">
-                <label>Email</label>
-                <input type="email" id="loginEmail" placeholder="driver@email.com" required>
-            </div>
-            <div class="form-group">
-                <label>Password</label>
-                <input type="password" id="loginPassword" placeholder="Your password" required>
-            </div>
-            <p id="loginError" style="color:var(--danger);font-size:0.8rem;display:none;"></p>
+            <div class="form-group"><label>Email</label><input type="email" id="loginEmail" placeholder="driver@email.com" required></div>
+            <div class="form-group"><label>Password</label><input type="password" id="loginPassword" placeholder="Your password" required></div>
+            <p id="loginError" style="color:var(--red);font-size:0.7rem;display:none;"></p>
             <div class="btn-row">
-                <button type="button" class="btn btn-outline btn-sm" onclick="switchAuthTab('request')">Apply as Driver</button>
-                <button type="submit" class="btn btn-primary">Login</button>
+                <button type="button" class="btn btn-outline btn-sm" onclick="switchAuthTab('request')">Apply</button>
+                <button type="submit" class="btn btn-gold btn-sm">Login</button>
             </div>
         </form>
-
         <form id="requestForm" onsubmit="handleRequestAccess(event)">
-            <div class="form-group">
-                <label>Full Name *</label>
-                <input type="text" id="reqName" placeholder="John Doe" required>
+            <div class="form-group"><label>Full Name *</label><input type="text" id="reqName" placeholder="John Doe" required></div>
+            <div class="form-group"><label>Email *</label><input type="email" id="reqEmail" placeholder="driver@email.com" required></div>
+            <div class="form-group"><label>Phone *</label><input type="tel" id="reqPhone" placeholder="0712345678" required></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                <div class="form-group"><label>Vehicle *</label><select id="reqVehicle" required><option value="">Select</option><option value="Standard">Standard</option><option value="Comfort">Comfort</option><option value="Premium">Premium</option><option value="Boda Boda">Boda Boda</option><option value="Tuk Tuk">Tuk Tuk</option></select></div>
+                <div class="form-group"><label>Plate *</label><input type="text" id="reqPlate" placeholder="KAA 123A" required></div>
             </div>
-            <div class="form-group">
-                <label>Email *</label>
-                <input type="email" id="reqEmail" placeholder="driver@email.com" required>
-            </div>
-            <div class="form-group">
-                <label>Phone *</label>
-                <input type="tel" id="reqPhone" placeholder="0712345678" required>
-            </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-                <div class="form-group">
-                    <label>Vehicle Type *</label>
-                    <select id="reqVehicle" required>
-                        <option value="">Select</option>
-                        <option value="Standard">Standard (Sedan)</option>
-                        <option value="Comfort">Comfort (SUV)</option>
-                        <option value="Premium">Premium (Luxury)</option>
-                        <option value="Boda Boda">Boda Boda</option>
-                        <option value="Tuk Tuk">Tuk Tuk</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>License Plate *</label>
-                    <input type="text" id="reqPlate" placeholder="KAA 123A" required>
-                </div>
-            </div>
-            <div class="form-group">
-                <label>Preferred Zone *</label>
-                <select id="reqZone" required>
-                    <option value="">Select</option>
-                    <option value="Nairobi Central">Nairobi Central</option>
-                    <option value="Westlands">Westlands</option>
-                    <option value="Kilimani">Kilimani</option>
-                    <option value="Lavington">Lavington</option>
-                    <option value="Karen">Karen</option>
-                    <option value="Eastlands">Eastlands</option>
-                    <option value="Kawangware">Kawangware</option>
-                    <option value="Other">Other</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Driving Experience</label>
-                <textarea id="reqReason" rows="2" placeholder="Tell us about your driving experience..."></textarea>
-            </div>
-            <p id="requestError" style="color:var(--danger);font-size:0.8rem;display:none;"></p>
+            <div class="form-group"><label>Zone *</label><select id="reqZone" required><option value="">Select</option><option value="Nairobi Central">Nairobi Central</option><option value="Westlands">Westlands</option><option value="Kilimani">Kilimani</option><option value="Karen">Karen</option><option value="Eastlands">Eastlands</option><option value="Other">Other</option></select></div>
+            <div class="form-group"><label>Experience</label><textarea id="reqReason" rows="2" placeholder="Driving experience..."></textarea></div>
+            <p id="requestError" style="color:var(--red);font-size:0.7rem;display:none;"></p>
             <div class="btn-row">
-                <button type="button" class="btn btn-outline btn-sm" onclick="switchAuthTab('login')">Back to Login</button>
-                <button type="submit" class="btn btn-primary">Submit Application</button>
+                <button type="button" class="btn btn-outline btn-sm" onclick="switchAuthTab('login')">Back</button>
+                <button type="submit" class="btn btn-gold btn-sm">Apply</button>
             </div>
         </form>
     </div>
 
     <!-- Details Modal -->
     <div class="modal-overlay" id="detailsOverlay"></div>
-    <div class="modal" id="detailsModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:2001;">
+    <div class="modal" id="detailsModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:4001;">
         <h3 id="detailsTitle"><i class="fas fa-info-circle"></i> Ride Details</h3>
         <div id="detailsBody"></div>
-        <div class="btn-row">
-            <button class="btn btn-outline btn-sm" onclick="closeDetailsModal()">Close</button>
-        </div>
+        <div class="btn-row"><button class="btn btn-outline btn-sm" onclick="closeDetailsModal()">Close</button></div>
     </div>
 
-    <!-- Arrived Confirmation Modal -->
+    <!-- Arrived Modal -->
     <div class="modal-overlay" id="arrivedOverlay"></div>
-    <div class="modal" id="arrivedModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:2001;">
+    <div class="modal" id="arrivedModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:4001;">
         <h3><i class="fas fa-location-dot"></i> Confirm Arrival</h3>
-        <p style="color:var(--text-muted);margin-bottom:1rem;">Confirm that you have arrived at the pickup location.</p>
-        <div class="form-group">
-            <label>Notes (Optional)</label>
-            <textarea id="arrivedNotes" rows="2" placeholder="e.g., Waiting at the gate..."></textarea>
-        </div>
-        <div class="btn-row">
-            <button class="btn btn-outline btn-sm" onclick="closeArrivedModal()">Cancel</button>
-            <button class="btn btn-primary" onclick="confirmArrival()">Confirm Arrival</button>
-        </div>
+        <p style="color:var(--text-muted);font-size:0.8rem;margin-bottom:1rem;">You have arrived at the pickup location.</p>
+        <div class="form-group"><label>Notes</label><textarea id="arrivedNotes" rows="2" placeholder="Optional..."></textarea></div>
+        <div class="btn-row"><button class="btn btn-outline btn-sm" onclick="closeArrivedModal()">Cancel</button><button class="btn btn-gold btn-sm" onclick="confirmArrival()">Confirm</button></div>
     </div>
 
-    <!-- Start Trip Modal -->
+    <!-- Start Modal -->
     <div class="modal-overlay" id="startOverlay"></div>
-    <div class="modal" id="startModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:2001;">
+    <div class="modal" id="startModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:4001;">
         <h3><i class="fas fa-play"></i> Start Trip</h3>
-        <p style="color:var(--text-muted);margin-bottom:1rem;">Passenger is in the vehicle. Start the trip now.</p>
-        <div class="btn-row">
-            <button class="btn btn-outline btn-sm" onclick="closeStartModal()">Cancel</button>
-            <button class="btn btn-orange" onclick="startTrip()">Start Trip</button>
-        </div>
+        <p style="color:var(--text-muted);font-size:0.8rem;margin-bottom:1rem;">Passenger is in the vehicle.</p>
+        <div class="btn-row"><button class="btn btn-outline btn-sm" onclick="closeStartModal()">Cancel</button><button class="btn btn-orange btn-sm" onclick="startTrip()">Start Trip</button></div>
     </div>
 
-    <!-- Complete Trip Modal -->
+    <!-- Complete Modal -->
     <div class="modal-overlay" id="completeOverlay"></div>
-    <div class="modal" id="completeModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:2001;">
+    <div class="modal" id="completeModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:4001;">
         <h3><i class="fas fa-flag-checkered"></i> Complete Trip</h3>
-        <div class="form-group">
-            <label>Final Fare (if different)</label>
-            <input type="number" id="finalFare" placeholder="Leave empty to use estimated fare">
-        </div>
-        <div class="form-group">
-            <label>Payment Received *</label>
-            <select id="paymentConfirmed" required>
-                <option value="yes">Yes - Payment received</option>
-                <option value="no">No - Pending</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label>Trip Notes</label>
-            <textarea id="tripNotes" rows="2" placeholder="Any notes about the trip..."></textarea>
-        </div>
-        <div class="btn-row">
-            <button class="btn btn-outline btn-sm" onclick="closeCompleteModal()">Cancel</button>
-            <button class="btn btn-success" onclick="completeTrip()">Complete Trip</button>
-        </div>
+        <div class="form-group"><label>Final Fare</label><input type="number" id="finalFare" placeholder="Leave empty for estimated"></div>
+        <div class="form-group"><label>Payment *</label><select id="paymentConfirmed"><option value="yes">Received</option><option value="no">Pending</option></select></div>
+        <div class="form-group"><label>Notes</label><textarea id="tripNotes" rows="2" placeholder="Optional..."></textarea></div>
+        <div class="btn-row"><button class="btn btn-outline btn-sm" onclick="closeCompleteModal()">Cancel</button><button class="btn btn-success btn-sm" onclick="completeTrip()">Complete</button></div>
     </div>
+
+    <div class="app-container">
+        <header class="header">
+            <div class="header-inner">
+                <div class="brand">
+                    <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png" alt="Pick Me" class="brand-logo">
+                    <div class="brand-text">
+                        <span class="brand-name">Pick Me</span>
+                        <span class="brand-sub">Driver</span>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <span class="status-dot" id="statusDot"></span>
+                    <div id="loginArea"><button class="signin-btn" onclick="openAuthModal('login')"><i class="fas fa-sign-in-alt"></i> Sign In</button></div>
+                    <div class="user-btn hidden" id="userBtn">
+                        <div class="user-avatar" id="userAvatar">D</div>
+                        <span id="userNameShort">Driver</span>
+                        <div class="user-dropdown">
+                            <button class="dropdown-item" onclick="toggleAvailability()"><i class="fas fa-toggle-on" id="availabilityIcon"></i> <span id="availabilityText">Go Offline</span></button>
+                            <button class="dropdown-item" onclick="loadAllData()"><i class="fas fa-sync-alt"></i> Refresh</button>
+                            <button class="dropdown-item danger" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="alert-card alert-welcome" id="welcomeCard">
+                <i class="fas fa-taxi"></i>
+                <h2>Pick Me Driver</h2>
+                <p>Join our ride network. Login or apply to become a verified driver.</p>
+                <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
+                    <button class="btn btn-gold" onclick="openAuthModal('login')"><i class="fas fa-sign-in-alt"></i> Login</button>
+                    <button class="btn btn-outline" onclick="openAuthModal('request')"><i class="fas fa-user-plus"></i> Apply</button>
+                </div>
+            </div>
+
+            <div class="alert-card alert-pending hidden" id="pendingCard">
+                <i class="fas fa-clock"></i><h2>Verification Pending</h2>
+                <p>Your application is under review.</p>
+                <p style="color:var(--text-muted);">Applied: <span id="requestedDate">—</span></p>
+            </div>
+
+            <div class="alert-card alert-rejected hidden" id="rejectedCard">
+                <i class="fas fa-times-circle"></i><h2>Not Approved</h2>
+                <p id="rejectionMsg">Your application was not approved.</p>
+                <button class="btn btn-outline" onclick="openAuthModal('request')"><i class="fas fa-redo"></i> Reapply</button>
+            </div>
+
+            <div id="dashboardSection" class="hidden dashboard-section">
+                <div class="profile-card">
+                    <div class="profile-avatar-lg" id="profileAvatar">D</div>
+                    <div class="profile-details">
+                        <h3 id="profileName">—</h3>
+                        <span id="profileEmail">—</span>
+                        <div class="profile-meta">
+                            <span><i class="fas fa-phone"></i> <span id="profilePhone">—</span></span>
+                            <span><i class="fas fa-car"></i> <span id="profileVehicle">—</span></span>
+                            <span><i class="fas fa-map-marker-alt"></i> <span id="profileZone">—</span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stats-row">
+                    <div class="stat-mini"><div class="stat-mini-value" id="activeTrips">0</div><div class="stat-mini-label">Active</div></div>
+                    <div class="stat-mini"><div class="stat-mini-value" id="completedToday">0</div><div class="stat-mini-label">Today</div></div>
+                    <div class="stat-mini"><div class="stat-mini-value" id="totalTrips">0</div><div class="stat-mini-label">Total</div></div>
+                    <div class="stat-mini"><div class="stat-mini-value" id="driverRating">5.0</div><div class="stat-mini-label">Rating</div></div>
+                </div>
+
+                <div class="filters-bar">
+                    <button class="filter-btn active" data-filter="all">All</button>
+                    <button class="filter-btn" data-filter="accepted">Accepted</button>
+                    <button class="filter-btn" data-filter="arrived">Arrived</button>
+                    <button class="filter-btn" data-filter="ongoing">Ongoing</button>
+                    <button class="filter-btn" data-filter="completed">Completed</button>
+                    <input type="text" class="search-input" id="searchInput" placeholder="Search...">
+                    <button class="refresh-btn" onclick="loadAllData()"><i class="fas fa-sync-alt"></i> Refresh</button>
+                </div>
+
+                <div class="table-wrap">
+                    <div class="table-scroll">
+                        <table>
+                            <thead><tr><th>ID</th><th>Date</th><th>Passenger</th><th>Pickup</th><th>Dropoff</th><th>Fare</th><th>Status</th><th>Actions</th></tr></thead>
+                            <tbody id="tableBody"><tr><td colspan="8"><div class="empty-state"><i class="fas fa-sync-alt fa-spin"></i><p>Loading...</p></div></td></tr></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">&copy; 2026 <span>Pick Me</span> · Driver Portal</footer>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
     <script>
         const firebaseConfig = {
@@ -1014,78 +617,41 @@
             messagingSenderId: "1024868637509",
             appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
         };
-
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
         const auth = firebase.auth();
 
-        let currentUser = null;
-        let driverData = null;
-        let driverStatus = null;
-        let allRides = [];
-        let currentFilter = 'all';
-        let currentActionId = null;
-        let isAvailable = true;
-
         const $ = id => document.getElementById(id);
-        const loadingEl = $('loadingOverlay');
-        const toastEl = $('toastContainer');
+        let currentUser = null, driverData = null, driverStatus = null, allRides = [], currentFilter = 'all', currentActionId = null, isAvailable = true;
 
-        function showLoading(s) { loadingEl.classList.toggle('hidden', !s); }
-        
+        function showLoading(s) { $('loadingOverlay').classList.toggle('hidden', !s); }
         function toast(msg, type = 'info') {
-            const t = document.createElement('div');
-            t.className = `toast ${type}`;
-            t.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'}"></i> ${msg}`;
-            toastEl.appendChild(t);
-            setTimeout(() => t.remove(), 4000);
+            const icons = { success: 'check-circle', error: 'exclamation-circle', warning: 'exclamation-triangle', info: 'info-circle' };
+            const t = document.createElement('div'); t.className = `toast ${type}`;
+            t.innerHTML = `<i class="fas fa-${icons[type]}"></i> ${msg}`;
+            $('toastContainer').appendChild(t); setTimeout(() => t.remove(), 3500);
         }
+        function getInitials(n) { return n ? String(n).split(' ').map(w => w[0]).join('').toUpperCase().substring(0,2) : 'D'; }
+        function shortId(id) { return id ? String(id).substring(Math.max(0, id.length - 6)) : '—'; }
+        function getPassengerName(r) { return r?.passengerName || r?.customerName || r?.userName || 'Passenger'; }
+        function getPickup(r) { return r?.pickup?.address || r?.pickupAddress || '—'; }
+        function getDropoff(r) { return r?.dropoff?.address || r?.dropoffAddress || '—'; }
+        function formatFare(r) { if (r?.fare?.total) return `KSh ${r.fare.total}`; if (typeof r?.fare === 'number') return `KSh ${r.fare}`; if (r?.estimatedFare) return `KSh ${r.estimatedFare}`; return '—'; }
+        function getPhone(r) { return r?.passengerPhone || r?.phone || ''; }
 
-        function getInitials(name) {
-            if (!name) return 'DR';
-            return String(name).split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
-        }
-
-        function shortId(id) {
-            return id ? String(id).substring(Math.max(0, id.length - 8)) : '—';
-        }
-
-        function getPassengerName(ride) {
-            return ride.passengerName || ride.customerName || ride.userName || 'Passenger';
-        }
-
-        function getPickupAddr(ride) {
-            return ride.pickup?.address || ride.pickupAddress || 'Pickup';
-        }
-
-        function getDropoffAddr(ride) {
-            return ride.dropoff?.address || ride.dropoffAddress || 'Dropoff';
-        }
-
-        function formatFare(ride) {
-            if (ride.fare?.total) return `KSh ${ride.fare.total}`;
-            if (typeof ride.fare === 'number') return `KSh ${ride.fare}`;
-            if (ride.estimatedFare) return `KSh ${ride.estimatedFare}`;
-            return '—';
-        }
-
-        function getPhone(ride) {
-            return ride.passengerPhone || ride.phone || ride.passenger?.phone || '';
-        }
-
-        auth.onAuthStateChanged(async (user) => {
+        auth.onAuthStateChanged(async user => {
             if (user) {
                 currentUser = user;
-                $('loginBtnArea').classList.add('hidden');
-                $('userBadge').classList.remove('hidden');
-                $('userName').textContent = user.displayName || user.email?.split('@')[0] || 'Driver';
+                $('loginArea').classList.add('hidden'); $('userBtn').classList.remove('hidden');
+                $('userNameShort').textContent = (user.displayName || user.email?.split('@')[0] || 'Driver').substring(0,12);
                 $('userAvatar').textContent = getInitials(user.displayName || user.email);
+                $('statusDot').classList.add('show');
                 await checkDriverStatus(user);
             } else {
-                currentUser = null;
-                driverData = null;
-                driverStatus = null;
-                showWelcomeUI();
+                currentUser = null; driverData = null; driverStatus = null;
+                hideAll(); $('welcomeCard').classList.remove('hidden');
+                $('loginArea').classList.remove('hidden'); $('userBtn').classList.add('hidden');
+                $('statusDot').classList.remove('show');
             }
         });
 
@@ -1093,515 +659,221 @@
             try {
                 const snap = await db.ref(`pickme_drivers/${user.uid}`).once('value');
                 if (snap.exists() && snap.val().verified === true) {
-                    driverData = { id: user.uid, ...snap.val() };
-                    driverStatus = 'approved';
-                    isAvailable = driverData.status === 'available';
-                    updateAvailabilityUI();
-                    showApprovedUI();
-                    loadAllData();
-                } else if (snap.exists() && snap.val().status === 'rejected') {
-                    driverStatus = 'rejected';
-                    showRejectedUI(snap.val());
-                } else if (snap.exists()) {
-                    driverStatus = 'pending';
-                    showPendingUI(snap.val());
-                } else {
-                    const reqSnap = await db.ref('pickme_driver_requests').orderByChild('email').equalTo(user.email).once('value');
-                    if (reqSnap.exists()) {
-                        const reqs = reqSnap.val();
-                        const req = Object.values(reqs)[0];
-                        const status = req.status || 'pending';
-                        if (status === 'rejected') {
-                            driverStatus = 'rejected';
-                            showRejectedUI(req);
-                        } else {
-                            driverStatus = 'pending';
-                            showPendingUI(req);
-                        }
-                    } else {
-                        showWelcomeUI();
-                    }
+                    driverData = { id: user.uid, ...snap.val() }; driverStatus = 'approved';
+                    isAvailable = driverData.status === 'available'; updateAvailabilityUI();
+                    showDashboard(); loadAllData();
+                } else if (snap.exists() && snap.val().status === 'rejected') { driverStatus = 'rejected'; showRejected(snap.val()); }
+                else if (snap.exists()) { driverStatus = 'pending'; showPending(snap.val()); }
+                else {
+                    const rSnap = await db.ref('pickme_driver_requests').orderByChild('email').equalTo(user.email).once('value');
+                    if (rSnap.exists()) {
+                        const req = Object.values(rSnap.val())[0];
+                        if (req.status === 'rejected') { driverStatus = 'rejected'; showRejected(req); }
+                        else { driverStatus = 'pending'; showPending(req); }
+                    } else { hideAll(); $('welcomeCard').classList.remove('hidden'); }
                 }
-            } catch (e) {
-                console.error('Status check error:', e);
-                showWelcomeUI();
-            }
+            } catch (e) { hideAll(); $('welcomeCard').classList.remove('hidden'); }
         }
 
-        function hideAllSections() {
-            ['welcomeCard', 'pendingCard', 'rejectedCard', 'profileCard', 'statsGrid', 'filtersBar', 'tableContainer'].forEach(id => {
-                $(id).classList.add('hidden');
-            });
-        }
-
-        function showWelcomeUI() {
-            hideAllSections();
-            $('welcomeCard').classList.remove('hidden');
-            $('loginBtnArea').classList.remove('hidden');
-            $('userBadge').classList.add('hidden');
-        }
-
-        function showPendingUI(data) {
-            hideAllSections();
-            $('pendingCard').classList.remove('hidden');
-            $('requestedDate').textContent = data.timestamp ? new Date(data.timestamp).toLocaleDateString() : 'Recently';
-        }
-
-        function showRejectedUI(data) {
-            hideAllSections();
-            $('rejectedCard').classList.remove('hidden');
-            if (data.rejectionReason) $('rejectionMsg').textContent = data.rejectionReason;
-        }
-
-        function showApprovedUI() {
-            hideAllSections();
-            $('profileCard').classList.remove('hidden');
-            $('statsGrid').classList.remove('hidden');
-            $('filtersBar').classList.remove('hidden');
-            $('tableContainer').classList.remove('hidden');
-
+        function hideAll() { ['welcomeCard','pendingCard','rejectedCard','dashboardSection'].forEach(id => $(id).classList.add('hidden')); }
+        function showPending(d) { hideAll(); $('pendingCard').classList.remove('hidden'); $('requestedDate').textContent = d.timestamp ? new Date(d.timestamp).toLocaleDateString() : 'Recently'; }
+        function showRejected(d) { hideAll(); $('rejectedCard').classList.remove('hidden'); if (d.rejectionReason) $('rejectionMsg').textContent = d.rejectionReason; }
+        function showDashboard() {
+            hideAll(); $('dashboardSection').classList.remove('hidden');
             if (driverData) {
                 $('profileName').textContent = driverData.name || 'Driver';
+                $('profileEmail').textContent = currentUser?.email || '';
                 $('profilePhone').textContent = driverData.phone || '—';
-                $('profileVehicle').textContent = `${driverData.vehicle || 'Standard'} · ${driverData.licensePlate || '—'}`;
+                $('profileVehicle').textContent = `${driverData.vehicle||'Standard'} · ${driverData.licensePlate||''}`;
                 $('profileZone').textContent = driverData.zone || '—';
-                $('profileEmail').textContent = currentUser?.email || '—';
+                $('profileAvatar').textContent = getInitials(driverData.name);
             }
         }
-
         function updateAvailabilityUI() {
-            const icon = $('availabilityIcon');
-            const text = $('availabilityText');
-            if (isAvailable) {
-                icon.className = 'fas fa-toggle-on';
-                text.textContent = 'Go Offline';
-                icon.style.color = 'var(--success)';
-            } else {
-                icon.className = 'fas fa-toggle-off';
-                text.textContent = 'Go Online';
-                icon.style.color = 'var(--text-muted)';
-            }
+            const icon = $('availabilityIcon'), text = $('availabilityText');
+            icon.className = isAvailable ? 'fas fa-toggle-on' : 'fas fa-toggle-off';
+            text.textContent = isAvailable ? 'Go Offline' : 'Go Online';
+            icon.style.color = isAvailable ? 'var(--green)' : 'var(--text-muted)';
         }
 
-        window.toggleAvailability = async function() {
+        window.toggleAvailability = async () => {
             if (!currentUser || !driverData) return;
-            isAvailable = !isAvailable;
-            updateAvailabilityUI();
-            try {
-                await db.ref(`pickme_drivers/${currentUser.uid}`).update({
-                    status: isAvailable ? 'available' : 'offline',
-                    lastStatusChange: new Date().toISOString()
-                });
-                toast(isAvailable ? 'You are now online' : 'You are now offline', isAvailable ? 'success' : 'info');
-            } catch (e) {
-                console.error(e);
-                toast('Error updating status', 'error');
-            }
+            isAvailable = !isAvailable; updateAvailabilityUI();
+            await db.ref(`pickme_drivers/${currentUser.uid}`).update({ status: isAvailable ? 'available' : 'offline', lastStatusChange: new Date().toISOString() });
+            toast(isAvailable ? 'Online' : 'Offline', isAvailable ? 'success' : 'info');
         };
 
-        window.openAuthModal = function(tab = 'login') {
-            $('authModal').style.display = 'block';
-            $('authModalOverlay').classList.add('show');
-            switchAuthTab(tab);
-        };
+        window.openAuthModal = (tab='login') => { $('authModal').style.display='block'; $('authModalOverlay').classList.add('show'); switchAuthTab(tab); };
+        window.closeAuthModal = () => { $('authModal').style.display='none'; $('authModalOverlay').classList.remove('show'); $('loginError').style.display='none'; $('requestError').style.display='none'; };
+        window.switchAuthTab = (tab) => { $('loginForm').style.display = tab==='login'?'block':'none'; $('requestForm').style.display = tab==='request'?'block':'none'; };
 
-        window.closeAuthModal = function() {
-            $('authModal').style.display = 'none';
-            $('authModalOverlay').classList.remove('show');
-            $('loginError').style.display = 'none';
-            $('requestError').style.display = 'none';
-        };
-
-        window.switchAuthTab = function(tab) {
-            $('loginForm').style.display = tab === 'login' ? 'block' : 'none';
-            $('requestForm').style.display = tab === 'request' ? 'block' : 'none';
-        };
-
-        window.handleLogin = async function(e) {
+        window.handleLogin = async e => {
             e.preventDefault();
-            const email = $('loginEmail').value.trim();
-            const password = $('loginPassword').value;
-            if (!email || !password) { $('loginError').style.display = 'block'; $('loginError').textContent = 'Fill all fields'; return; }
+            const email = $('loginEmail').value.trim(), pw = $('loginPassword').value;
+            if (!email||!pw) { $('loginError').style.display='block'; $('loginError').textContent='Fill all fields'; return; }
+            showLoading(true);
+            try { $('loginError').style.display='none'; await auth.signInWithEmailAndPassword(email,pw); closeAuthModal(); }
+            catch(err) { $('loginError').style.display='block'; $('loginError').textContent=err.message; }
+            finally { showLoading(false); }
+        };
+
+        window.handleRequestAccess = async e => {
+            e.preventDefault();
+            const name=$('reqName').value.trim(), email=$('reqEmail').value.trim(), phone=$('reqPhone').value.trim();
+            const vehicle=$('reqVehicle').value, plate=$('reqPlate').value.trim(), zone=$('reqZone').value, reason=$('reqReason').value.trim();
+            if (!name||!email||!phone||!vehicle||!plate||!zone) { $('requestError').style.display='block'; $('requestError').textContent='Fill all required fields'; return; }
             showLoading(true);
             try {
-                $('loginError').style.display = 'none';
-                await auth.signInWithEmailAndPassword(email, password);
-                closeAuthModal();
-            } catch (err) {
-                $('loginError').style.display = 'block';
-                $('loginError').textContent = err.message;
-            } finally { showLoading(false); }
+                if (!currentUser) { const pw=Math.random().toString(36).slice(-8); const c=await auth.createUserWithEmailAndPassword(email,pw); await c.user.updateProfile({displayName:name}); currentUser=c.user; }
+                const uid=currentUser.uid;
+                await db.ref('pickme_driver_requests').push({name,email,phone,vehicle,licensePlate:plate,zone,experience:reason,userId:uid,status:'pending',timestamp:firebase.database.ServerValue.TIMESTAMP,requestedAt:new Date().toISOString()});
+                await db.ref(`pickme_drivers/${uid}`).set({name,email,phone,vehicle,licensePlate:plate,zone,status:'pending',verified:false,timestamp:firebase.database.ServerValue.TIMESTAMP});
+                toast('Application submitted!','success'); closeAuthModal(); await checkDriverStatus(currentUser);
+            } catch(err) { $('requestError').style.display='block'; $('requestError').textContent=err.message; }
+            finally { showLoading(false); }
         };
 
-        window.handleRequestAccess = async function(e) {
-            e.preventDefault();
-            const name = $('reqName').value.trim();
-            const email = $('reqEmail').value.trim();
-            const phone = $('reqPhone').value.trim();
-            const vehicle = $('reqVehicle').value;
-            const plate = $('reqPlate').value.trim();
-            const zone = $('reqZone').value;
-            const reason = $('reqReason').value.trim();
-            if (!name || !email || !phone || !vehicle || !plate || !zone) {
-                $('requestError').style.display = 'block';
-                $('requestError').textContent = 'Fill all required fields';
-                return;
-            }
-            showLoading(true);
-            try {
-                if (!currentUser) {
-                    const tempPw = Math.random().toString(36).slice(-8);
-                    const cred = await auth.createUserWithEmailAndPassword(email, tempPw);
-                    await cred.user.updateProfile({ displayName: name });
-                    currentUser = cred.user;
-                }
-                const uid = currentUser.uid;
-                await db.ref('pickme_driver_requests').push({
-                    name, email, phone, vehicle, licensePlate: plate, zone, experience: reason,
-                    userId: uid,
-                    status: 'pending',
-                    timestamp: firebase.database.ServerValue.TIMESTAMP,
-                    requestedAt: new Date().toISOString()
-                });
-                await db.ref(`pickme_drivers/${uid}`).set({
-                    name, email, phone, vehicle, licensePlate: plate, zone,
-                    status: 'pending',
-                    verified: false,
-                    timestamp: firebase.database.ServerValue.TIMESTAMP
-                });
-                toast('Application submitted! You will be notified once approved.', 'success');
-                closeAuthModal();
-                await checkDriverStatus(currentUser);
-            } catch (err) {
-                $('requestError').style.display = 'block';
-                $('requestError').textContent = err.message;
-            } finally { showLoading(false); }
-        };
-
-        window.handleLogout = async function() {
-            if (confirm('Log out?')) {
-                if (driverData) {
-                    await db.ref(`pickme_drivers/${currentUser.uid}`).update({ status: 'offline' });
-                }
-                await auth.signOut();
-                showWelcomeUI();
-                toast('Logged out', 'success');
+        window.handleLogout = async () => {
+            if (confirm('Sign out?')) {
+                if (driverData) await db.ref(`pickme_drivers/${currentUser.uid}`).update({status:'offline'});
+                await auth.signOut(); toast('Signed out','info');
             }
         };
 
-        window.loadAllData = async function() {
-            if (driverStatus !== 'approved' || !currentUser) return;
+        window.loadAllData = async () => {
+            if (driverStatus!=='approved'||!currentUser) return;
             showLoading(true);
             try {
                 const snap = await db.ref('pickme_rides').orderByChild('driverId').equalTo(currentUser.uid).once('value');
-                allRides = Object.entries(snap.val() || {}).map(([id, data]) => ({ id, ...data }))
-                    .sort((a, b) => (b.requestedAt || b.timestamp || 0) - (a.requestedAt || a.timestamp || 0));
-
-                updateStats();
-                renderTable();
-                toast('Rides refreshed', 'success');
-            } catch (e) {
-                console.error('Load error:', e);
-                toast('Error loading rides', 'error');
-            } finally { showLoading(false); }
+                allRides = Object.entries(snap.val()||{}).map(([id,data])=>({id,...data})).sort((a,b)=>(b.requestedAt||b.timestamp||0)-(a.requestedAt||a.timestamp||0));
+                updateStats(); renderTable();
+            } catch(e) { toast('Error loading','error'); }
+            finally { showLoading(false); }
         };
 
         function updateStats() {
             const today = new Date().toDateString();
-            const active = allRides.filter(r => ['accepted', 'arrived', 'ongoing', 'in_progress'].includes(r.status));
-            const completedToday = allRides.filter(r => 
-                r.status === 'completed' && r.completedAt && new Date(r.completedAt).toDateString() === today
-            );
-            const totalCompleted = allRides.filter(r => r.status === 'completed');
-
-            $('activeTrips').textContent = active.length;
-            $('completedToday').textContent = completedToday.length;
-            $('totalTrips').textContent = totalCompleted.length;
-            $('driverRating').textContent = driverData?.rating || '5.0';
+            $('activeTrips').textContent = allRides.filter(r=>['accepted','arrived','ongoing','in_progress'].includes(r.status)).length;
+            $('completedToday').textContent = allRides.filter(r=>r.status==='completed'&&r.completedAt&&new Date(r.completedAt).toDateString()===today).length;
+            $('totalTrips').textContent = allRides.filter(r=>r.status==='completed').length;
+            $('driverRating').textContent = driverData?.rating||'5.0';
         }
 
         function renderTable() {
             let rides = [...allRides];
-
-            if (currentFilter !== 'all') {
-                rides = rides.filter(r => r.status === currentFilter);
-            }
-
-            const q = ($('searchInput').value || '').toLowerCase();
-            if (q) {
-                rides = rides.filter(r => {
-                    const id = String(r.id).toLowerCase();
-                    const passenger = getPassengerName(r).toLowerCase();
-                    const pickup = getPickupAddr(r).toLowerCase();
-                    const dropoff = getDropoffAddr(r).toLowerCase();
-                    const phone = getPhone(r).toLowerCase();
-                    return id.includes(q) || passenger.includes(q) || pickup.includes(q) || dropoff.includes(q) || phone.includes(q);
-                });
-            }
-
-            rides.sort((a, b) => {
-                const tA = a.requestedAt || a.timestamp || 0;
-                const tB = b.requestedAt || b.timestamp || 0;
-                return tB - tA;
+            if (currentFilter!=='all') rides = rides.filter(r=>r.status===currentFilter);
+            const q = ($('searchInput').value||'').toLowerCase();
+            if (q) rides = rides.filter(r=>{
+                const id=String(r.id).toLowerCase(), p=getPassengerName(r).toLowerCase();
+                const pu=getPickup(r).toLowerCase(), dr=getDropoff(r).toLowerCase(), ph=getPhone(r).toLowerCase();
+                return id.includes(q)||p.includes(q)||pu.includes(q)||dr.includes(q)||ph.includes(q);
             });
+            rides.sort((a,b)=>(b.requestedAt||b.timestamp||0)-(a.requestedAt||a.timestamp||0));
 
             const tbody = $('tableBody');
-            if (!rides.length) {
-                tbody.innerHTML = `<tr><td colspan="8" class="empty-state"><i class="fas fa-car-side"></i><p>No rides found</p></td></tr>`;
-                return;
-            }
-
-            tbody.innerHTML = rides.map(r => {
-                const status = r.status || 'requested';
-                const passenger = getPassengerName(r);
-                const pickup = getPickupAddr(r);
-                const dropoff = getDropoffAddr(r);
-                const date = r.requestedAt || r.timestamp;
-                const dateStr = date ? new Date(date).toLocaleDateString() : '—';
-                const fare = formatFare(r);
-                const phone = getPhone(r);
-                const vehicle = r.vehicleType || 'Standard';
-
-                return `
-                <tr>
-                    <td><code style="background:var(--bg-primary);padding:2px 6px;border-radius:4px;font-size:0.7rem;">#${shortId(r.id)}</code></td>
-                    <td>${dateStr}</td>
-                    <td>
-                        <strong>${passenger}</strong>
-                        ${phone ? `<br><small style="color:var(--text-muted);">${phone}</small>` : ''}
-                        <div class="ride-meta-tags">
-                            <span class="meta-tag">${vehicle}</span>
-                            ${r.paymentMethod ? `<span class="meta-tag">${r.paymentMethod}</span>` : ''}
-                        </div>
-                    </td>
-                    <td><span title="${pickup}">${String(pickup).substring(0, 22)}${String(pickup).length > 22 ? '...' : ''}</span></td>
-                    <td><span title="${dropoff}">${String(dropoff).substring(0, 22)}${String(dropoff).length > 22 ? '...' : ''}</span></td>
-                    <td><strong>${fare}</strong></td>
-                    <td><span class="status-badge status-${status}">${status.replace(/-/g, ' ').replace(/_/g, ' ')}</span></td>
-                    <td>
-                        <div class="table-actions">
-                            <button class="table-action action-view" onclick="viewDetails('${r.id}')" title="View"><i class="fas fa-eye"></i></button>
-                            <button class="table-action action-contact" onclick="contactPassenger('${r.id}')" title="Call Passenger"><i class="fas fa-phone"></i></button>
-                            ${status === 'accepted' ? `
-                                <button class="table-action action-arrive" onclick="openArrivedModal('${r.id}')" title="Arrived"><i class="fas fa-location-dot"></i></button>
-                                <button class="table-action action-navigate" onclick="navigate('${encodeURIComponent(pickup)}')" title="Navigate to Pickup"><i class="fas fa-map-marked-alt"></i></button>
-                            ` : ''}
-                            ${status === 'arrived' ? `
-                                <button class="table-action action-start" onclick="openStartModal('${r.id}')" title="Start Trip"><i class="fas fa-play"></i></button>
-                            ` : ''}
-                            ${status === 'ongoing' || status === 'in_progress' ? `
-                                <button class="table-action action-navigate" onclick="navigate('${encodeURIComponent(dropoff)}')" title="Navigate to Dropoff"><i class="fas fa-map-marked-alt"></i></button>
-                                <button class="table-action action-complete" onclick="openCompleteModal('${r.id}')" title="Complete"><i class="fas fa-flag-checkered"></i></button>
-                            ` : ''}
-                        </div>
-                    </td>
+            if (!rides.length) { tbody.innerHTML='<tr><td colspan="8"><div class="empty-state"><i class="fas fa-car-side"></i><p>No rides</p></div></td></tr>'; return; }
+            tbody.innerHTML = rides.map(r=>{
+                const s=r.status||'requested', p=getPassengerName(r), pu=getPickup(r), dr=getDropoff(r);
+                const d=r.requestedAt||r.timestamp, ds=d?new Date(d).toLocaleDateString():'—';
+                const f=formatFare(r), ph=getPhone(r), v=r.vehicleType||'Standard';
+                return `<tr>
+                    <td><code style="font-size:0.6rem;background:var(--bg-secondary);padding:2px 6px;border-radius:4px;">#${shortId(r.id)}</code></td>
+                    <td>${ds}</td>
+                    <td><strong>${p}</strong>${ph?`<br><small style="color:var(--text-muted);">${ph}</small>`:''}<div class="meta-tags"><span class="meta-tag">${v}</span>${r.paymentMethod?`<span class="meta-tag">${r.paymentMethod}</span>`:''}</div></td>
+                    <td><span title="${pu}">${String(pu).substring(0,18)}${String(pu).length>18?'...':''}</span></td>
+                    <td><span title="${dr}">${String(dr).substring(0,18)}${String(dr).length>18?'...':''}</span></td>
+                    <td><strong>${f}</strong></td>
+                    <td><span class="badge badge-${s}">${s.replace(/-/g,' ').replace(/_/g,' ')}</span></td>
+                    <td><div class="table-actions">
+                        <button class="table-action" onclick="viewDetails('${r.id}')"><i class="fas fa-eye"></i></button>
+                        <button class="table-action call" onclick="contactPassenger('${r.id}')"><i class="fas fa-phone"></i></button>
+                        ${s==='accepted'?`<button class="table-action arrive" onclick="openArrivedModal('${r.id}')"><i class="fas fa-location-dot"></i></button><button class="table-action nav" onclick="navigate('${encodeURIComponent(pu)}')"><i class="fas fa-map-marked-alt"></i></button>`:''}
+                        ${s==='arrived'?`<button class="table-action start" onclick="openStartModal('${r.id}')"><i class="fas fa-play"></i></button>`:''}
+                        ${s==='ongoing'||s==='in_progress'?`<button class="table-action nav" onclick="navigate('${encodeURIComponent(dr)}')"><i class="fas fa-map-marked-alt"></i></button><button class="table-action complete" onclick="openCompleteModal('${r.id}')"><i class="fas fa-flag-checkered"></i></button>`:''}
+                    </div></td>
                 </tr>`;
             }).join('');
         }
 
-        window.contactPassenger = function(rideId) {
-            const ride = allRides.find(r => r.id === rideId);
-            if (!ride) return;
-            const phone = getPhone(ride);
-            if (phone) {
-                window.open(`tel:${phone}`, '_blank');
-                toast(`Calling ${getPassengerName(ride)}...`, 'info');
-            } else {
-                toast('No phone number available', 'warning');
-            }
-        };
+        window.contactPassenger = (id) => { const r=allRides.find(x=>x.id===id); if(r&&getPhone(r)){window.open(`tel:${getPhone(r)}`,'_blank');toast(`Calling ${getPassengerName(r)}...`,'info');}else toast('No phone','warning'); };
+        window.navigate = (addr) => window.open(`https://www.google.com/maps/search/?api=1&query=${addr}`,'_blank');
 
-        window.navigate = function(address) {
-            window.open(`https://www.google.com/maps/search/?api=1&query=${address}`, '_blank');
-        };
-
-        window.viewDetails = function(rideId) {
-            const ride = allRides.find(r => r.id === rideId);
-            if (!ride) return;
-            const status = ride.status || 'requested';
-
-            $('detailsTitle').innerHTML = `<i class="fas fa-info-circle"></i> Ride #${shortId(rideId)}`;
-            $('detailsBody').innerHTML = `
+        window.viewDetails = (id) => {
+            const r=allRides.find(x=>x.id===id); if(!r) return;
+            const s=r.status||'requested';
+            $('detailsTitle').innerHTML=`<i class="fas fa-info-circle"></i> Ride #${shortId(id)}`;
+            $('detailsBody').innerHTML=`
                 <div class="detail-grid">
-                    <div class="detail-item"><strong>Passenger</strong>${getPassengerName(ride)}</div>
-                    <div class="detail-item"><strong>Phone</strong>${getPhone(ride) || 'N/A'}</div>
-                    <div class="detail-item"><strong>Status</strong><span class="status-badge status-${status}">${status.replace(/-/g, ' ')}</span></div>
-                    <div class="detail-item"><strong>Vehicle</strong>${ride.vehicleType || 'Standard'}</div>
-                    <div class="detail-item"><strong>Pickup</strong>${getPickupAddr(ride)}</div>
-                    <div class="detail-item"><strong>Dropoff</strong>${getDropoffAddr(ride)}</div>
-                    <div class="detail-item"><strong>Fare</strong>${formatFare(ride)}</div>
-                    <div class="detail-item"><strong>Payment</strong>${ride.paymentMethod || 'Cash'}</div>
-                    <div class="detail-item"><strong>Distance</strong>${ride.distance ? ride.distance + ' km' : 'N/A'}</div>
-                    <div class="detail-item"><strong>Passengers</strong>${ride.passengers || 1}</div>
-                    <div class="detail-item full"><strong>Instructions</strong>${ride.specialInstructions || 'None'}</div>
-                    ${ride.scheduledPickupTime ? `<div class="detail-item"><strong>Scheduled</strong>${new Date(ride.scheduledPickupTime).toLocaleString()}</div>` : ''}
+                    <div class="detail-item"><strong>Passenger</strong>${getPassengerName(r)}</div>
+                    <div class="detail-item"><strong>Phone</strong>${getPhone(r)||'N/A'}</div>
+                    <div class="detail-item"><strong>Status</strong><span class="badge badge-${s}">${s.replace(/-/g,' ')}</span></div>
+                    <div class="detail-item"><strong>Vehicle</strong>${r.vehicleType||'Standard'}</div>
+                    <div class="detail-item"><strong>Pickup</strong>${getPickup(r)}</div>
+                    <div class="detail-item"><strong>Dropoff</strong>${getDropoff(r)}</div>
+                    <div class="detail-item"><strong>Fare</strong>${formatFare(r)}</div>
+                    <div class="detail-item"><strong>Payment</strong>${r.paymentMethod||'Cash'}</div>
+                    <div class="detail-item"><strong>Distance</strong>${r.distance?r.distance+' km':'N/A'}</div>
+                    <div class="detail-item"><strong>Passengers</strong>${r.passengers||1}</div>
+                    <div class="detail-item full"><strong>Instructions</strong>${r.specialInstructions||'None'}</div>
                 </div>
-                ${ride.statusHistory ? `
-                    <h4 style="margin-top:1rem;color:var(--primary-light);font-size:0.8rem;">Status History</h4>
-                    ${ride.statusHistory.map(h => `
-                        <div style="background:var(--bg-primary);padding:0.4rem 0.7rem;border-radius:6px;margin:4px 0;font-size:0.7rem;">
-                            <strong>${h.status}</strong> · ${h.note || ''} · <span style="color:var(--text-muted);">${h.timestamp ? new Date(h.timestamp).toLocaleString() : ''}</span>
-                        </div>
-                    `).join('')}
-                ` : ''}
             `;
-            $('detailsModal').style.display = 'block';
-            $('detailsOverlay').classList.add('show');
+            $('detailsModal').style.display='block'; $('detailsOverlay').classList.add('show');
         };
+        window.closeDetailsModal = () => { $('detailsModal').style.display='none'; $('detailsOverlay').classList.remove('show'); };
 
-        window.closeDetailsModal = function() {
-            $('detailsModal').style.display = 'none';
-            $('detailsOverlay').classList.remove('show');
-        };
-
-        window.openArrivedModal = function(rideId) {
-            currentActionId = rideId;
-            $('arrivedModal').style.display = 'block';
-            $('arrivedOverlay').classList.add('show');
-        };
-
-        window.closeArrivedModal = function() {
-            $('arrivedModal').style.display = 'none';
-            $('arrivedOverlay').classList.remove('show');
-            currentActionId = null;
-        };
-
-        window.confirmArrival = async function() {
-            if (!currentActionId) return;
-            const notes = $('arrivedNotes').value.trim();
-            showLoading(true);
-            try {
-                const snap = await db.ref(`pickme_rides/${currentActionId}`).once('value');
-                const existing = snap.val() || {};
-                await db.ref(`pickme_rides/${currentActionId}`).update({
-                    status: 'arrived',
-                    arrivedAt: new Date().toISOString(),
-                    statusHistory: [...(existing.statusHistory || []), { status: 'arrived', timestamp: new Date().toISOString(), note: notes || 'Driver arrived at pickup' }]
-                });
-                toast('Arrival confirmed! Waiting for passenger.', 'success');
-                closeArrivedModal();
-                await loadAllData();
-            } catch (e) {
-                console.error(e);
-                toast('Error confirming arrival', 'error');
-            } finally { showLoading(false); }
-        };
-
-        window.openStartModal = function(rideId) {
-            currentActionId = rideId;
-            $('startModal').style.display = 'block';
-            $('startOverlay').classList.add('show');
-        };
-
-        window.closeStartModal = function() {
-            $('startModal').style.display = 'none';
-            $('startOverlay').classList.remove('show');
-            currentActionId = null;
-        };
-
-        window.startTrip = async function() {
+        window.openArrivedModal = (id) => { currentActionId=id; $('arrivedModal').style.display='block'; $('arrivedOverlay').classList.add('show'); };
+        window.closeArrivedModal = () => { $('arrivedModal').style.display='none'; $('arrivedOverlay').classList.remove('show'); currentActionId=null; };
+        window.confirmArrival = async () => {
             if (!currentActionId) return;
             showLoading(true);
             try {
-                const snap = await db.ref(`pickme_rides/${currentActionId}`).once('value');
-                const existing = snap.val() || {};
-                await db.ref(`pickme_rides/${currentActionId}`).update({
-                    status: 'ongoing',
-                    startedAt: new Date().toISOString(),
-                    tripStartTime: firebase.database.ServerValue.TIMESTAMP,
-                    statusHistory: [...(existing.statusHistory || []), { status: 'ongoing', timestamp: new Date().toISOString(), note: 'Trip started' }]
-                });
-                await db.ref(`pickme_drivers/${currentUser.uid}`).update({ status: 'on_trip', currentRide: currentActionId });
-                toast('Trip started! Drive safely.', 'success');
-                closeStartModal();
-                await loadAllData();
-            } catch (e) {
-                console.error(e);
-                toast('Error starting trip', 'error');
-            } finally { showLoading(false); }
+                const snap=await db.ref(`pickme_rides/${currentActionId}`).once('value');
+                const ex=snap.val()||{};
+                await db.ref(`pickme_rides/${currentActionId}`).update({status:'arrived',arrivedAt:new Date().toISOString(),statusHistory:[...(ex.statusHistory||[]),{status:'arrived',timestamp:new Date().toISOString(),note:$('arrivedNotes').value.trim()||'Driver arrived'}]});
+                toast('Arrival confirmed!','success'); closeArrivedModal(); loadAllData();
+            } catch(e) { toast('Error','error'); }
+            finally { showLoading(false); }
         };
 
-        window.openCompleteModal = function(rideId) {
-            currentActionId = rideId;
-            $('completeModal').style.display = 'block';
-            $('completeOverlay').classList.add('show');
-        };
-
-        window.closeCompleteModal = function() {
-            $('completeModal').style.display = 'none';
-            $('completeOverlay').classList.remove('show');
-            $('finalFare').value = '';
-            $('paymentConfirmed').value = 'yes';
-            $('tripNotes').value = '';
-            currentActionId = null;
-        };
-
-        window.completeTrip = async function() {
+        window.openStartModal = (id) => { currentActionId=id; $('startModal').style.display='block'; $('startOverlay').classList.add('show'); };
+        window.closeStartModal = () => { $('startModal').style.display='none'; $('startOverlay').classList.remove('show'); currentActionId=null; };
+        window.startTrip = async () => {
             if (!currentActionId) return;
-            const finalFare = $('finalFare').value.trim();
-            const paymentConfirmed = $('paymentConfirmed').value;
-            const notes = $('tripNotes').value.trim();
             showLoading(true);
             try {
-                const snap = await db.ref(`pickme_rides/${currentActionId}`).once('value');
-                const existing = snap.val() || {};
-                const updates = {
-                    status: 'completed',
-                    completedAt: new Date().toISOString(),
-                    tripEndTime: firebase.database.ServerValue.TIMESTAMP,
-                    paymentConfirmed: paymentConfirmed === 'yes',
-                    tripNotes: notes,
-                    statusHistory: [...(existing.statusHistory || []), { status: 'completed', timestamp: new Date().toISOString(), note: `Trip completed. Payment ${paymentConfirmed === 'yes' ? 'received' : 'pending'}.` }]
-                };
-                if (finalFare) updates.finalFare = parseInt(finalFare);
-                await db.ref(`pickme_rides/${currentActionId}`).update(updates);
-                await db.ref(`pickme_drivers/${currentUser.uid}`).update({ status: 'available', currentRide: null });
-                toast('Trip completed! Great job.', 'success');
-                closeCompleteModal();
-                await loadAllData();
-            } catch (e) {
-                console.error(e);
-                toast('Error completing trip', 'error');
-            } finally { showLoading(false); }
+                const snap=await db.ref(`pickme_rides/${currentActionId}`).once('value');
+                const ex=snap.val()||{};
+                await db.ref(`pickme_rides/${currentActionId}`).update({status:'ongoing',startedAt:new Date().toISOString(),tripStartTime:firebase.database.ServerValue.TIMESTAMP,statusHistory:[...(ex.statusHistory||[]),{status:'ongoing',timestamp:new Date().toISOString(),note:'Trip started'}]});
+                await db.ref(`pickme_drivers/${currentUser.uid}`).update({status:'on_trip',currentRide:currentActionId});
+                toast('Trip started!','success'); closeStartModal(); loadAllData();
+            } catch(e) { toast('Error','error'); }
+            finally { showLoading(false); }
         };
 
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                currentFilter = btn.dataset.filter;
-                renderTable();
-            });
-        });
+        window.openCompleteModal = (id) => { currentActionId=id; $('completeModal').style.display='block'; $('completeOverlay').classList.add('show'); };
+        window.closeCompleteModal = () => { $('completeModal').style.display='none'; $('completeOverlay').classList.remove('show'); $('finalFare').value=''; $('paymentConfirmed').value='yes'; $('tripNotes').value=''; currentActionId=null; };
+        window.completeTrip = async () => {
+            if (!currentActionId) return;
+            const fare=$('finalFare').value.trim(), paid=$('paymentConfirmed').value, notes=$('tripNotes').value.trim();
+            showLoading(true);
+            try {
+                const snap=await db.ref(`pickme_rides/${currentActionId}`).once('value');
+                const ex=snap.val()||{};
+                const up={status:'completed',completedAt:new Date().toISOString(),tripEndTime:firebase.database.ServerValue.TIMESTAMP,paymentConfirmed:paid==='yes',tripNotes:notes,statusHistory:[...(ex.statusHistory||[]),{status:'completed',timestamp:new Date().toISOString(),note:`Trip completed. Payment ${paid==='yes'?'received':'pending'}.`}]};
+                if (fare) up.finalFare=parseInt(fare);
+                await db.ref(`pickme_rides/${currentActionId}`).update(up);
+                await db.ref(`pickme_drivers/${currentUser.uid}`).update({status:'available',currentRide:null});
+                toast('Trip completed!','success'); closeCompleteModal(); loadAllData();
+            } catch(e) { toast('Error','error'); }
+            finally { showLoading(false); }
+        };
 
-        $('searchInput').addEventListener('input', renderTable);
+        document.querySelectorAll('.filter-btn').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.filter-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');currentFilter=b.dataset.filter;renderTable();}));
+        $('searchInput').addEventListener('input',renderTable);
 
-        ['authModalOverlay', 'detailsOverlay', 'arrivedOverlay', 'startOverlay', 'completeOverlay'].forEach(id => {
-            const el = $(id);
-            if (el) el.addEventListener('click', function(e) {
-                if (e.target === this) {
-                    closeAuthModal();
-                    closeDetailsModal();
-                    closeArrivedModal();
-                    closeStartModal();
-                    closeCompleteModal();
-                }
-            });
-        });
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                closeAuthModal();
-                closeDetailsModal();
-                closeArrivedModal();
-                closeStartModal();
-                closeCompleteModal();
-            }
-        });
-
-        setInterval(() => {
-            if (driverStatus === 'approved') loadAllData();
-        }, 300000);
+        ['authModalOverlay','detailsOverlay','arrivedOverlay','startOverlay','completeOverlay'].forEach(id=>{const el=$(id);if(el)el.addEventListener('click',function(e){if(e.target===this){closeAuthModal();closeDetailsModal();closeArrivedModal();closeStartModal();closeCompleteModal();}});});
+        document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeAuthModal();closeDetailsModal();closeArrivedModal();closeStartModal();closeCompleteModal();}});
+        setInterval(()=>{if(driverStatus==='approved')loadAllData();},300000);
     </script>
 </body>
 </html>
