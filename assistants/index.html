@@ -1,1 +1,1124 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>KazInni Workspaces · Assistant Hub</title>
+    
+    <meta name="theme-color" content="#0f172a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <link rel="icon" type="image/png" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-primary: #0a0f1e;
+            --bg-secondary: #111827;
+            --bg-card: #1a2235;
+            --bg-card-hover: #1e2a42;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --text-muted: #94a3b8;
+            --border: #263148;
+            --border-light: #334155;
+            
+            --gold: #f59e0b;
+            --gold-dark: #b45309;
+            --gold-light: #fbbf24;
+            
+            --purple: #8b5cf6;
+            --purple-dark: #6d28d9;
+            --purple-light: #a78bfa;
+            
+            --green: #22c55e;
+            --green-dark: #16a34a;
+            
+            --blue: #3b82f6;
+            --blue-dark: #2563eb;
+            
+            --red: #ef4444;
+            --orange: #f97316;
+            --teal: #14b8a6;
+            --pink: #ec4899;
+            --cyan: #06b6d4;
+            
+            --success: #22c55e;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Animated background */
+        .bg-pattern {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: 
+                radial-gradient(ellipse at 20% 50%, rgba(139, 92, 246, 0.06) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(245, 158, 11, 0.05) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 80%, rgba(34, 197, 94, 0.04) 0%, transparent 50%);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .grid-bg {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: 
+                linear-gradient(rgba(38, 49, 72, 0.3) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(38, 49, 72, 0.3) 1px, transparent 1px);
+            background-size: 60px 60px;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
+        /* Header */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: rgba(10, 15, 30, 0.85);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border-bottom: 1px solid rgba(245, 158, 11, 0.2);
+            padding: 0 2rem;
+        }
+
+        .header-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 68px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .brand-logo {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            object-fit: contain;
+            background: white;
+            box-shadow: 0 4px 20px rgba(139, 92, 246, 0.25);
+        }
+
+        .brand-text h1 {
+            font-size: 1.25rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #c084fc, #fbbf24);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.3px;
+            line-height: 1.1;
+        }
+
+        .brand-text span {
+            font-size: 0.65rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.72rem;
+            color: var(--text-muted);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--green);
+            animation: pulse-dot 2s infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
+            50% { opacity: 0.7; box-shadow: 0 0 0 8px rgba(34, 197, 94, 0); }
+        }
+
+        .user-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            padding: 0.35rem 1rem 0.35rem 0.5rem;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .user-badge:hover {
+            border-color: var(--gold);
+            background: rgba(245, 158, 11, 0.05);
+        }
+
+        .user-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--purple), var(--gold));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.8rem;
+            color: white;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name {
+            font-weight: 600;
+            font-size: 0.8rem;
+            color: var(--text-primary);
+            line-height: 1.2;
+        }
+
+        .user-role {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .logout-dropdown {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 0.5rem;
+            min-width: 180px;
+            display: none;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            z-index: 10;
+        }
+
+        .user-badge:hover .logout-dropdown {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 0.6rem 1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            transition: 0.2s;
+            border: none;
+            background: none;
+            width: 100%;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .dropdown-item:hover {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--gold);
+        }
+
+        .dropdown-item.danger:hover {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        /* Main Content */
+        .main-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2.5rem 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            padding: 0.4rem 1.2rem;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--purple-light);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-badge i {
+            animation: spin-slow 3s linear infinite;
+        }
+
+        @keyframes spin-slow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .hero-title {
+            font-size: clamp(2rem, 5vw, 3rem);
+            font-weight: 800;
+            line-height: 1.15;
+            margin-bottom: 1rem;
+            letter-spacing: -1px;
+        }
+
+        .hero-title .gradient-text {
+            background: linear-gradient(135deg, var(--purple-light), var(--gold), var(--purple-light));
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradient-shift 4s ease infinite;
+        }
+
+        @keyframes gradient-shift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .hero-subtitle {
+            font-size: 1.05rem;
+            color: var(--text-muted);
+            max-width: 650px;
+            margin: 0 auto;
+            line-height: 1.7;
+        }
+
+        /* Stats Row */
+        .quick-stats {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            margin-bottom: 3rem;
+        }
+
+        .quick-stat {
+            text-align: center;
+            padding: 0.5rem 1.5rem;
+        }
+
+        .quick-stat-value {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--gold);
+            line-height: 1;
+        }
+
+        .quick-stat-label {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 0.3rem;
+        }
+
+        /* Operations Grid */
+        .section-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-label h2 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .section-line {
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        .operations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.2rem;
+            margin-bottom: 2rem;
+        }
+
+        .operation-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 1.8rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
+            display: block;
+            color: inherit;
+        }
+
+        .operation-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+        }
+
+        .operation-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--border-light);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .operation-card.card-purple::before { background: linear-gradient(90deg, var(--purple), var(--purple-light)); }
+        .operation-card.card-purple:hover { border-color: rgba(139, 92, 246, 0.5); box-shadow: 0 20px 40px rgba(139, 92, 246, 0.1); }
+        .operation-card.card-purple .card-accent { color: var(--purple-light); }
+        .operation-card.card-purple .card-icon-bg { background: rgba(139, 92, 246, 0.1); }
+        .operation-card.card-purple .status-badge { background: rgba(139, 92, 246, 0.2); color: var(--purple-light); }
+
+        .operation-card.card-gold::before { background: linear-gradient(90deg, var(--gold-dark), var(--gold-light)); }
+        .operation-card.card-gold:hover { border-color: rgba(245, 158, 11, 0.5); box-shadow: 0 20px 40px rgba(245, 158, 11, 0.1); }
+        .operation-card.card-gold .card-accent { color: var(--gold); }
+        .operation-card.card-gold .card-icon-bg { background: rgba(245, 158, 11, 0.1); }
+        .operation-card.card-gold .status-badge { background: rgba(245, 158, 11, 0.2); color: var(--gold); }
+
+        .operation-card.card-green::before { background: linear-gradient(90deg, var(--green-dark), var(--green)); }
+        .operation-card.card-green:hover { border-color: rgba(34, 197, 94, 0.5); box-shadow: 0 20px 40px rgba(34, 197, 94, 0.1); }
+        .operation-card.card-green .card-accent { color: var(--green); }
+        .operation-card.card-green .card-icon-bg { background: rgba(34, 197, 94, 0.1); }
+        .operation-card.card-green .status-badge { background: rgba(34, 197, 94, 0.2); color: var(--green); }
+
+        .operation-card.card-blue::before { background: linear-gradient(90deg, var(--blue-dark), var(--blue)); }
+        .operation-card.card-blue:hover { border-color: rgba(59, 130, 246, 0.5); box-shadow: 0 20px 40px rgba(59, 130, 246, 0.1); }
+        .operation-card.card-blue .card-accent { color: var(--blue); }
+        .operation-card.card-blue .card-icon-bg { background: rgba(59, 130, 246, 0.1); }
+        .operation-card.card-blue .status-badge { background: rgba(59, 130, 246, 0.2); color: var(--blue); }
+
+        .operation-card.card-teal::before { background: linear-gradient(90deg, #0d9488, var(--teal)); }
+        .operation-card.card-teal:hover { border-color: rgba(20, 184, 166, 0.5); box-shadow: 0 20px 40px rgba(20, 184, 166, 0.1); }
+        .operation-card.card-teal .card-accent { color: var(--teal); }
+        .operation-card.card-teal .card-icon-bg { background: rgba(20, 184, 166, 0.1); }
+        .operation-card.card-teal .status-badge { background: rgba(20, 184, 166, 0.2); color: var(--teal); }
+
+        .operation-card.card-orange::before { background: linear-gradient(90deg, #ea580c, var(--orange)); }
+        .operation-card.card-orange:hover { border-color: rgba(249, 115, 22, 0.5); box-shadow: 0 20px 40px rgba(249, 115, 22, 0.1); }
+        .operation-card.card-orange .card-accent { color: var(--orange); }
+        .operation-card.card-orange .card-icon-bg { background: rgba(249, 115, 22, 0.1); }
+        .operation-card.card-orange .status-badge { background: rgba(249, 115, 22, 0.2); color: var(--orange); }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.2rem;
+        }
+
+        .card-icon-bg {
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+        }
+
+        .status-badge {
+            padding: 0.2rem 0.7rem;
+            border-radius: 20px;
+            font-size: 0.6rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .card-body h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .card-body p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .card-stats {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .card-stats span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .card-arrow {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .operation-card:hover .card-arrow {
+            background: white;
+            color: var(--bg-primary);
+            border-color: white;
+            transform: translateX(2px);
+        }
+
+        /* Footer */
+        .app-footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            font-size: 0.7rem;
+            border-top: 1px solid var(--border);
+            margin-top: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .app-footer span {
+            color: var(--gold);
+            font-weight: 600;
+        }
+
+        /* Toast */
+        .toast-container {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 3000;
+        }
+
+        .toast {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 0.5rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.82rem;
+            animation: slideIn 0.3s ease;
+        }
+
+        .toast.success { border-left: 3px solid var(--success); }
+        .toast.error { border-left: 3px solid var(--danger); }
+        .toast.info { border-left: 3px solid var(--info); }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(100%); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(10, 15, 30, 0.75);
+            backdrop-filter: blur(6px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 5000;
+        }
+        .loading-overlay.hidden { display: none; }
+
+        .spinner-ring {
+            width: 50px; height: 50px;
+            border-radius: 50%;
+            border: 3px solid var(--border);
+            border-top-color: var(--gold);
+            animation: spin 0.7s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Not logged in state */
+        .welcome-overlay {
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        .welcome-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            color: var(--gold);
+        }
+
+        .btn {
+            padding: 0.7rem 1.8rem;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+            text-decoration: none;
+        }
+
+        .btn-gold {
+            background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+            color: white;
+        }
+        .btn-gold:hover {
+            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1.5px solid var(--border-light);
+            color: var(--text-secondary);
+        }
+        .btn-outline:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+
+        @media (max-width: 768px) {
+            .header { padding: 0 1rem; }
+            .main-content { padding: 1.5rem 1rem; }
+            .operations-grid { grid-template-columns: 1fr; }
+            .hero-title { font-size: 1.6rem; }
+            .brand-text h1 { font-size: 1rem; }
+            .user-info { display: none; }
+            .quick-stats { gap: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-pattern"></div>
+    <div class="grid-bg"></div>
+
+    <div class="loading-overlay hidden" id="loadingOverlay">
+        <div class="spinner-ring"></div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <header class="header">
+        <div class="header-inner">
+            <div class="brand" onclick="window.location.reload()">
+                <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png" alt="KazInni" class="brand-logo">
+                <div class="brand-text">
+                    <h1>KazInni Workspaces</h1>
+                    <span>Assistant Hub</span>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="status-indicator" id="statusIndicator" style="display:none;">
+                    <span class="status-dot"></span>
+                    <span>System Online</span>
+                </div>
+                <div id="loginBtnArea">
+                    <button class="btn btn-gold" onclick="showLoginPrompt()">
+                        <i class="fas fa-sign-in-alt"></i> Sign In
+                    </button>
+                </div>
+                <div class="user-badge hidden" id="userBadge">
+                    <div class="user-avatar" id="userAvatar">KA</div>
+                    <div class="user-info">
+                        <span class="user-name" id="userName">Assistant</span>
+                        <span class="user-role" id="userRole">Field Agent</span>
+                    </div>
+                    <div class="logout-dropdown">
+                        <button class="dropdown-item" onclick="refreshData()">
+                            <i class="fas fa-sync-alt"></i> Refresh Status
+                        </button>
+                        <button class="dropdown-item danger" onclick="handleLogout()">
+                            <i class="fas fa-sign-out-alt"></i> Sign Out
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <!-- Not Logged In -->
+        <div id="welcomeSection">
+            <div class="welcome-overlay">
+                <div class="welcome-icon">
+                    <i class="fas fa-rocket"></i>
+                </div>
+                <div class="hero-title">
+                    Welcome to <span class="gradient-text">KazInni</span>
+                </div>
+                <p class="hero-subtitle" style="margin-bottom:2rem;">
+                    Your unified assistant portal. Sign in to access your assigned operations, manage deliveries, rides, and field tasks across all KazInni services.
+                </p>
+                <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+                    <button class="btn btn-gold" onclick="showLoginPrompt()">
+                        <i class="fas fa-sign-in-alt"></i> Sign In with Email
+                    </button>
+                    <button class="btn btn-outline" onclick="window.location.href='https://kazinni.vercel.app'">
+                        <i class="fas fa-globe"></i> Visit Main Site
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Logged In -->
+        <div id="dashboardSection" class="hidden">
+            <!-- Hero -->
+            <div class="hero-section">
+                <div class="hero-badge">
+                    <i class="fas fa-circle-notch"></i>
+                    Assistant Operations Center
+                </div>
+                <div class="hero-title">
+                    Select Your <span class="gradient-text">Operation</span>
+                </div>
+                <p class="hero-subtitle">
+                    Choose the service you're assigned to and access your dedicated portal. Each operation has its own tools, jobs, and workflow.
+                </p>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="quick-stats">
+                <div class="quick-stat">
+                    <div class="quick-stat-value" id="statActiveJobs">0</div>
+                    <div class="quick-stat-label">Active Jobs</div>
+                </div>
+                <div class="quick-stat">
+                    <div class="quick-stat-value" id="statPending">0</div>
+                    <div class="quick-stat-label">Pending Tasks</div>
+                </div>
+                <div class="quick-stat">
+                    <div class="quick-stat-value" id="statCompleted">0</div>
+                    <div class="quick-stat-label">Completed Today</div>
+                </div>
+            </div>
+
+            <!-- Operations -->
+            <div class="section-label">
+                <h2><i class="fas fa-grid-2" style="margin-right:6px;"></i> Available Operations</h2>
+                <div class="section-line"></div>
+            </div>
+
+            <div class="operations-grid" id="operationsGrid">
+                <!-- Cards will be dynamically rendered -->
+            </div>
+        </div>
+    </main>
+
+    <footer class="app-footer">
+        &copy; 2026 <span>KazInni Workspaces</span> · Assistant Hub · All operations managed centrally
+    </footer>
+
+    <!-- Login Prompt Modal -->
+    <div id="loginModal" style="display:none; position:fixed; top:0;left:0;right:0;bottom:0; background:rgba(0,0,0,0.7); z-index:4000; display:none; align-items:center; justify-content:center; backdrop-filter:blur(4px);">
+        <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:24px; padding:2.5rem; max-width:420px; width:90%; text-align:center;">
+            <i class="fas fa-lock" style="font-size:2.5rem; color:var(--gold); margin-bottom:1rem;"></i>
+            <h3 style="margin-bottom:0.5rem; font-size:1.2rem;">Sign In Required</h3>
+            <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:2rem;">Use your KazInni credentials to access the assistant portal.</p>
+            <form id="loginForm" onsubmit="handleLogin(event)" style="text-align:left;">
+                <div style="margin-bottom:1rem;">
+                    <label style="display:block;font-weight:600;font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;margin-bottom:0.3rem;">Email</label>
+                    <input type="email" id="loginEmail" placeholder="assistant@kazinni.com" required style="width:100%;padding:0.7rem;border-radius:12px;border:1.5px solid var(--border);background:var(--bg-secondary);color:var(--text-primary);font-size:0.9rem;font-family:'Inter',sans-serif;">
+                </div>
+                <div style="margin-bottom:1rem;">
+                    <label style="display:block;font-weight:600;font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;margin-bottom:0.3rem;">Password</label>
+                    <input type="password" id="loginPassword" placeholder="Your password" required style="width:100%;padding:0.7rem;border-radius:12px;border:1.5px solid var(--border);background:var(--bg-secondary);color:var(--text-primary);font-size:0.9rem;font-family:'Inter',sans-serif;">
+                </div>
+                <p id="loginError" style="color:var(--danger);font-size:0.75rem;display:none;margin-bottom:0.5rem;"></p>
+                <button type="submit" class="btn btn-gold" style="width:100%;justify-content:center;">
+                    <i class="fas fa-sign-in-alt"></i> Sign In
+                </button>
+            </form>
+            <button onclick="closeLoginModal()" style="background:none;border:none;color:var(--text-muted);cursor:pointer;margin-top:1rem;font-size:0.8rem;font-family:'Inter',sans-serif;">Cancel</button>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+            authDomain: "mugera-e51cc.firebaseapp.com",
+            databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "mugera-e51cc",
+            storageBucket: "mugera-e51cc.firebasestorage.app",
+            messagingSenderId: "1024868637509",
+            appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const auth = firebase.auth();
+
+        const $ = id => document.getElementById(id);
+        let currentUser = null;
+        let assistantRegistrations = {};
+        let allJobs = {};
+
+        const OPERATIONS = [
+            {
+                id: 'pick-up',
+                name: 'Pick-Up Deliveries',
+                description: 'Manage package deliveries, pickups, and drop-offs across registered businesses.',
+                icon: 'fa-box',
+                color: 'gold',
+                url: '/workspaces/pick-up/assistant.html',
+                badge: 'Deliveries',
+                node: 'delivery_assistants'
+            },
+            {
+                id: 'pick-me',
+                name: 'Pick Me Rides',
+                description: 'Accept ride requests, navigate to passengers, and complete trips.',
+                icon: 'fa-taxi',
+                color: 'purple',
+                url: '/workspaces/pick-me/driver.html',
+                badge: 'Rides',
+                node: 'pickme_drivers'
+            },
+            {
+                id: 'ekazi',
+                name: 'E-Kazi Tasks',
+                description: 'Complete gig tasks, freelance jobs, and service requests from clients.',
+                icon: 'fa-laptop-code',
+                color: 'blue',
+                url: '/workspaces/ekazi/tasker.html',
+                badge: 'Tasks',
+                node: 'taskers'
+            },
+            {
+                id: 'brandinn',
+                name: 'BrandInn Services',
+                description: 'Handle brand promotions, in-store activations, and marketing tasks.',
+                icon: 'fa-store',
+                color: 'teal',
+                url: '/workspaces/brandinn/assistant.html',
+                badge: 'Branding',
+                node: 'brandinn_assistants'
+            },
+            {
+                id: 'heritage',
+                name: 'Heritage Tours',
+                description: 'Guide tourists, manage heritage site visits, and cultural experiences.',
+                icon: 'fa-landmark',
+                color: 'orange',
+                url: '/workspaces/heritage/guide.html',
+                badge: 'Tours',
+                node: 'heritage_guides'
+            }
+        ];
+
+        function showLoading(s) {
+            $('loadingOverlay').classList.toggle('hidden', !s);
+        }
+
+        function toast(msg, type = 'info') {
+            const t = document.createElement('div');
+            t.className = `toast ${type}`;
+            t.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i> ${msg}`;
+            $('toastContainer').appendChild(t);
+            setTimeout(() => t.remove(), 4000);
+        }
+
+        function getInitials(name) {
+            if (!name) return 'KA';
+            return String(name).split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+        }
+
+        window.showLoginPrompt = function() {
+            $('loginModal').style.display = 'flex';
+            $('loginError').style.display = 'none';
+        };
+
+        window.closeLoginModal = function() {
+            $('loginModal').style.display = 'none';
+            $('loginError').style.display = 'none';
+        };
+
+        window.handleLogin = async function(e) {
+            e.preventDefault();
+            const email = $('loginEmail').value.trim();
+            const password = $('loginPassword').value;
+            if (!email || !password) {
+                $('loginError').style.display = 'block';
+                $('loginError').textContent = 'Please fill all fields';
+                return;
+            }
+            showLoading(true);
+            try {
+                $('loginError').style.display = 'none';
+                await auth.signInWithEmailAndPassword(email, password);
+                closeLoginModal();
+                toast('Signed in successfully', 'success');
+            } catch (err) {
+                $('loginError').style.display = 'block';
+                $('loginError').textContent = err.message;
+            } finally {
+                showLoading(false);
+            }
+        };
+
+        window.handleLogout = async function() {
+            if (confirm('Sign out of Assistant Hub?')) {
+                await auth.signOut();
+                showWelcomeUI();
+                toast('Signed out', 'info');
+            }
+        };
+
+        window.refreshData = async function() {
+            if (!currentUser) return;
+            await checkAllRegistrations(currentUser);
+            toast('Status refreshed', 'success');
+        };
+
+        async function checkAllRegistrations(user) {
+            const operations = [];
+            const nodes = ['delivery_assistants', 'pickme_drivers', 'taskers', 'brandinn_assistants', 'heritage_guides'];
+            
+            for (const node of nodes) {
+                try {
+                    const snap = await db.ref(`${node}/${user.uid}`).once('value');
+                    if (snap.exists() && snap.val().verified === true) {
+                        operations.push({ node, data: snap.val() });
+                    }
+                } catch (e) {
+                    console.warn(`Error checking ${node}:`, e);
+                }
+            }
+
+            assistantRegistrations = {};
+            operations.forEach(op => {
+                assistantRegistrations[op.node] = op.data;
+            });
+
+            return operations;
+        }
+
+        async function loadJobCounts() {
+            if (!currentUser) return;
+            try {
+                let activeJobs = 0;
+                let pendingTasks = 0;
+                let completedToday = 0;
+                const today = new Date().toDateString();
+
+                // Check pickup deliveries
+                const pickupSnap = await db.ref('pickup_deliveries').orderByChild('assignedTo').equalTo(currentUser.uid).once('value');
+                const pickups = pickupSnap.val() || {};
+                Object.values(pickups).forEach(d => {
+                    if (['assigned', 'out-for-delivery', 'in_progress'].includes(d.status)) activeJobs++;
+                    if (d.status === 'pending') pendingTasks++;
+                    if (d.status === 'delivered' && d.deliveryDate && new Date(d.deliveryDate).toDateString() === today) completedToday++;
+                });
+
+                // Check rides
+                const rideSnap = await db.ref('pickme_rides').orderByChild('driverId').equalTo(currentUser.uid).once('value');
+                const rides = rideSnap.val() || {};
+                Object.values(rides).forEach(r => {
+                    if (['accepted', 'arrived', 'ongoing'].includes(r.status)) activeJobs++;
+                    if (r.status === 'requested') pendingTasks++;
+                    if (r.status === 'completed' && r.completedAt && new Date(r.completedAt).toDateString() === today) completedToday++;
+                });
+
+                // Check tasker tasks
+                const taskSnap = await db.ref('assistant_tasks').orderByChild('assignedTo').equalTo(currentUser.uid).once('value');
+                const tasks = taskSnap.val() || {};
+                Object.values(tasks).forEach(t => {
+                    if (['assigned', 'in_progress'].includes(t.status)) activeJobs++;
+                    if (t.status === 'pending') pendingTasks++;
+                    if (t.status === 'completed' && t.completedAt && new Date(t.completedAt).toDateString() === today) completedToday++;
+                });
+
+                $('statActiveJobs').textContent = activeJobs;
+                $('statPending').textContent = pendingTasks;
+                $('statCompleted').textContent = completedToday;
+            } catch (e) {
+                console.error('Error loading job counts:', e);
+            }
+        }
+
+        function renderOperations() {
+            const grid = $('operationsGrid');
+            const availableOps = [];
+
+            OPERATIONS.forEach(op => {
+                const node = op.node;
+                const isRegistered = assistantRegistrations[node] !== undefined;
+                const data = assistantRegistrations[node];
+
+                availableOps.push({
+                    ...op,
+                    registered: isRegistered,
+                    data: data
+                });
+            });
+
+            grid.innerHTML = availableOps.map(op => {
+                const cardColor = op.color === 'gold' ? 'card-gold' : 
+                                  op.color === 'purple' ? 'card-purple' : 
+                                  op.color === 'blue' ? 'card-blue' : 
+                                  op.color === 'teal' ? 'card-teal' : 'card-orange';
+                
+                const statusText = op.registered ? 'Active' : 'Not Registered';
+                const statusIcon = op.registered ? 'fa-check-circle' : 'fa-lock';
+                
+                return `
+                <div class="operation-card ${cardColor}" onclick="${op.registered ? `window.location.href='${op.url}'` : `toast('You are not registered for ${op.name}. Contact admin.','warning')`}">
+                    <div class="card-header">
+                        <div class="card-icon-bg">
+                            <i class="fas ${op.icon} card-accent"></i>
+                        </div>
+                        <span class="status-badge">
+                            <i class="fas ${statusIcon}" style="margin-right:4px;"></i>${statusText}
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <h3>${op.name}</h3>
+                        <p>${op.description}</p>
+                    </div>
+                    <div class="card-footer">
+                        <div class="card-stats">
+                            <span><i class="fas fa-tag"></i> ${op.badge}</span>
+                            ${op.registered ? '<span><i class="fas fa-check-circle" style="color:var(--green);"></i> Verified</span>' : '<span><i class="fas fa-clock" style="color:var(--warning);"></i> Pending</span>'}
+                        </div>
+                        <div class="card-arrow">
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function showWelcomeUI() {
+            $('welcomeSection').classList.remove('hidden');
+            $('dashboardSection').classList.add('hidden');
+            $('loginBtnArea').classList.remove('hidden');
+            $('userBadge').classList.add('hidden');
+            $('statusIndicator').style.display = 'none';
+        }
+
+        function showDashboardUI() {
+            $('welcomeSection').classList.add('hidden');
+            $('dashboardSection').classList.remove('hidden');
+            $('loginBtnArea').classList.add('hidden');
+            $('userBadge').classList.remove('hidden');
+            $('statusIndicator').style.display = 'flex';
+        }
+
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                currentUser = user;
+                $('userName').textContent = user.displayName || user.email?.split('@')[0] || 'Assistant';
+                $('userAvatar').textContent = getInitials(user.displayName || user.email);
+                $('userRole').textContent = 'Field Agent';
+                
+                showLoading(true);
+                await checkAllRegistrations(user);
+                showDashboardUI();
+                renderOperations();
+                await loadJobCounts();
+                showLoading(false);
+                
+                toast('Welcome back! Select an operation to begin.', 'success');
+            } else {
+                currentUser = null;
+                assistantRegistrations = {};
+                showWelcomeUI();
+            }
+        });
+
+        // Close login modal on Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeLoginModal();
+            }
+        });
+
+        // Click outside login modal to close
+        $('loginModal').addEventListener('click', function(e) {
+            if (e.target === this) closeLoginModal();
+        });
+    </script>
+</body>
+</html>
