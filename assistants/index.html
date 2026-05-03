@@ -3,15 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>KazInni Workspaces · Assistant Hub</title>
+    <title>E-KAZI Assistant</title>
     
     <meta name="theme-color" content="#0f172a">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="KazInni Assist">
+    <meta name="apple-mobile-web-app-title" content="E-KAZI">
+    <meta name="mobile-web-app-capable" content="yes">
     
     <link rel="icon" type="image/png" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
     <link rel="apple-touch-icon" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
+    <link rel="manifest" href="/e-kazi/assistants/manifest.json">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
     
@@ -22,30 +25,20 @@
             --bg-primary: #0a0f1e;
             --bg-secondary: #111827;
             --bg-card: #1a2235;
-            --bg-card-hover: #1f2a40;
             --text-primary: #f1f5f9;
             --text-secondary: #cbd5e1;
             --text-muted: #94a3b8;
             --border: #263148;
             --border-light: #334155;
-            
             --gold: #f59e0b;
             --gold-dark: #b45309;
-            --gold-light: #fbbf24;
-            
             --purple: #8b5cf6;
             --purple-dark: #6d28d9;
             --purple-light: #a78bfa;
-            
             --green: #22c55e;
-            --green-dark: #16a34a;
             --red: #ef4444;
-            --red-light: #fca5a5;
             --warning: #f59e0b;
             --info: #3b82f6;
-            --teal: #14b8a6;
-            --orange: #f97316;
-            
             --safe-bottom: env(safe-area-inset-bottom, 20px);
         }
 
@@ -59,6 +52,78 @@
             overflow-x: hidden;
             -webkit-tap-highlight-color: transparent;
             -webkit-font-smoothing: antialiased;
+        }
+
+        /* ========== LAUNCH ANIMATION ========== */
+        .splash-screen {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--bg-primary);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+        .splash-screen.hide {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .splash-logo {
+            width: 80px;
+            height: 80px;
+            border-radius: 24px;
+            background: white;
+            object-fit: contain;
+            box-shadow: 0 10px 40px rgba(139, 92, 246, 0.3);
+            animation: splashPulse 1.5s ease-in-out infinite;
+        }
+        @keyframes splashPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .splash-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin-top: 1.5rem;
+            letter-spacing: -0.5px;
+        }
+        .splash-title span {
+            background: linear-gradient(135deg, #c084fc, #fbbf24);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .splash-subtitle {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 0.3rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .splash-loader {
+            margin-top: 2rem;
+            width: 120px;
+            height: 3px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .splash-loader-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--purple), var(--gold));
+            border-radius: 3px;
+            animation: splashLoad 2s ease-in-out infinite;
+        }
+        @keyframes splashLoad {
+            0% { width: 0; }
+            50% { width: 70%; }
+            100% { width: 100%; }
         }
 
         .bg-gradient {
@@ -92,7 +157,6 @@
             border-bottom: 1px solid rgba(245, 158, 11, 0.15);
             padding: 0 1rem;
         }
-
         .header-inner {
             max-width: 900px;
             margin: 0 auto;
@@ -101,15 +165,12 @@
             justify-content: space-between;
             height: 60px;
         }
-
         .brand {
             display: flex;
             align-items: center;
             gap: 10px;
-            text-decoration: none;
             cursor: pointer;
         }
-
         .brand-logo {
             width: 36px;
             height: 36px;
@@ -118,12 +179,10 @@
             background: white;
             box-shadow: 0 4px 16px rgba(139, 92, 246, 0.25);
         }
-
         .brand-text {
             display: flex;
             flex-direction: column;
         }
-
         .brand-name {
             font-size: 1rem;
             font-weight: 800;
@@ -133,7 +192,6 @@
             letter-spacing: -0.3px;
             line-height: 1.1;
         }
-
         .brand-sub {
             font-size: 0.55rem;
             font-weight: 500;
@@ -141,150 +199,85 @@
             letter-spacing: 1px;
             text-transform: uppercase;
         }
-
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+        .header-right { display: flex; align-items: center; gap: 10px; }
 
         .status-dot {
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
+            width: 7px; height: 7px; border-radius: 50%;
             background: var(--green);
             animation: pulse-dot 2s infinite;
             display: none;
         }
         .status-dot.show { display: block; }
-
         @keyframes pulse-dot {
             0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
             50% { opacity: 0.6; box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); }
         }
 
         .user-btn {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--border);
-            padding: 0.3rem 0.8rem 0.3rem 0.4rem;
-            border-radius: 30px;
-            cursor: pointer;
-            font-family: 'Inter', sans-serif;
-            color: var(--text-primary);
-            font-size: 0.72rem;
-            transition: all 0.2s;
-            position: relative;
+            display: flex; align-items: center; gap: 8px;
+            background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+            padding: 0.3rem 0.8rem 0.3rem 0.4rem; border-radius: 30px;
+            cursor: pointer; font-family: 'Inter', sans-serif;
+            color: var(--text-primary); font-size: 0.72rem;
+            transition: all 0.2s; position: relative;
         }
-
-        .user-btn:hover {
-            border-color: var(--gold);
-            background: rgba(245, 158, 11, 0.06);
-        }
-
+        .user-btn:hover { border-color: var(--gold); background: rgba(245,158,11,0.06); }
         .user-avatar {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
+            width: 30px; height: 30px; border-radius: 50%;
             background: linear-gradient(135deg, var(--purple), var(--gold));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 0.68rem;
-            color: white;
-            flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 0.68rem; color: white; flex-shrink: 0;
         }
-
         .user-dropdown {
-            position: absolute;
-            top: 110%;
-            right: 0;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 0.4rem;
-            min-width: 160px;
-            display: none;
-            z-index: 10;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+            position: absolute; top: 110%; right: 0;
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 14px; padding: 0.4rem; min-width: 160px;
+            display: none; z-index: 10; box-shadow: 0 15px 40px rgba(0,0,0,0.4);
         }
         .user-btn:hover .user-dropdown { display: block; }
-
         .dropdown-item {
-            padding: 0.55rem 0.8rem;
-            border-radius: 10px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.72rem;
-            color: var(--text-secondary);
-            transition: 0.2s;
-            border: none;
-            background: none;
-            width: 100%;
-            font-family: 'Inter', sans-serif;
+            padding: 0.55rem 0.8rem; border-radius: 10px; cursor: pointer;
+            display: flex; align-items: center; gap: 8px;
+            font-size: 0.72rem; color: var(--text-secondary);
+            transition: 0.2s; border: none; background: none;
+            width: 100%; font-family: 'Inter', sans-serif;
         }
-        .dropdown-item:hover { background: rgba(245, 158, 11, 0.1); color: var(--gold); }
-        .dropdown-item.danger:hover { background: rgba(239, 68, 68, 0.1); color: var(--red); }
+        .dropdown-item:hover { background: rgba(245,158,11,0.1); color: var(--gold); }
+        .dropdown-item.danger:hover { background: rgba(239,68,68,0.1); color: var(--red); }
 
         .signin-btn {
-            padding: 0.45rem 1rem;
-            border-radius: 25px;
-            font-weight: 600;
-            font-size: 0.7rem;
-            cursor: pointer;
-            border: none;
-            background: linear-gradient(135deg, var(--gold-dark), var(--gold));
-            color: white;
-            font-family: 'Inter', sans-serif;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            white-space: nowrap;
-            transition: all 0.2s;
+            padding: 0.45rem 1rem; border-radius: 25px;
+            font-weight: 600; font-size: 0.7rem; cursor: pointer;
+            border: none; background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+            color: white; font-family: 'Inter', sans-serif;
+            display: flex; align-items: center; gap: 6px;
+            white-space: nowrap; transition: all 0.2s;
         }
         .signin-btn:active { transform: scale(0.96); }
 
         /* Main */
         .main-content {
-            flex: 1;
-            max-width: 900px;
-            width: 100%;
-            margin: 0 auto;
-            padding: 1.5rem 1rem calc(1.5rem + var(--safe-bottom));
+            flex: 1; max-width: 900px; width: 100%;
+            margin: 0 auto; padding: 1.5rem 1rem calc(1.5rem + var(--safe-bottom));
         }
 
-        /* Welcome State */
-        .welcome-section {
-            text-align: center;
-            padding: 3rem 1rem;
-        }
+        .welcome-section { text-align: center; padding: 2rem 1rem; }
         .welcome-icon {
-            font-size: 3.5rem;
-            margin-bottom: 1.2rem;
-            display: block;
+            font-size: 3.5rem; margin-bottom: 1.2rem; display: block;
         }
         .welcome-icon i {
             background: linear-gradient(135deg, var(--purple-light), var(--gold));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
         .welcome-title {
             font-size: clamp(1.6rem, 5vw, 2.2rem);
-            font-weight: 800;
-            line-height: 1.2;
-            margin-bottom: 0.6rem;
-            letter-spacing: -0.5px;
+            font-weight: 800; line-height: 1.2;
+            margin-bottom: 0.6rem; letter-spacing: -0.5px;
         }
-        .welcome-title .gradient-text {
+        .gradient-text {
             background: linear-gradient(135deg, var(--purple-light), var(--gold), var(--purple-light));
             background-size: 200% 200%;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
             animation: gradient-shift 4s ease infinite;
         }
         @keyframes gradient-shift {
@@ -292,318 +285,125 @@
             50% { background-position: 100% 50%; }
         }
         .welcome-subtitle {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            line-height: 1.6;
-            max-width: 480px;
-            margin: 0 auto 2rem;
-        }
-        .welcome-buttons {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            flex-wrap: wrap;
+            font-size: 0.85rem; color: var(--text-muted);
+            line-height: 1.6; max-width: 480px; margin: 0 auto 1.5rem;
         }
 
         .btn {
-            padding: 0.6rem 1.4rem;
-            border-radius: 25px;
-            font-weight: 600;
-            font-size: 0.8rem;
-            cursor: pointer;
-            border: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 7px;
-            transition: all 0.2s;
-            font-family: 'Inter', sans-serif;
-            text-decoration: none;
-            white-space: nowrap;
+            padding: 0.6rem 1.4rem; border-radius: 25px;
+            font-weight: 600; font-size: 0.8rem; cursor: pointer;
+            border: none; display: inline-flex; align-items: center;
+            gap: 7px; transition: all 0.2s;
+            font-family: 'Inter', sans-serif; white-space: nowrap;
         }
-        .btn-gold {
-            background: linear-gradient(135deg, var(--gold-dark), var(--gold));
-            color: white;
-        }
+        .btn-gold { background: linear-gradient(135deg, var(--gold-dark), var(--gold)); color: white; }
         .btn-gold:active { transform: scale(0.96); }
-        .btn-outline {
-            background: transparent;
-            border: 1.5px solid var(--border-light);
-            color: var(--text-secondary);
-        }
-        .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
         .btn-sm { padding: 0.4rem 1rem; font-size: 0.7rem; }
 
-        /* Dashboard */
-        .dashboard-section { animation: fadeIn 0.4s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        .hero-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: rgba(139, 92, 246, 0.1);
-            border: 1px solid rgba(139, 92, 246, 0.25);
-            padding: 0.35rem 1rem;
-            border-radius: 25px;
-            font-size: 0.62rem;
-            font-weight: 600;
-            color: var(--purple-light);
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-            margin-bottom: 1.2rem;
-        }
-        .hero-badge i { font-size: 0.55rem; animation: spin-slow 3s linear infinite; }
-        @keyframes spin-slow {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+        .dashboard-section { animation: fadeIn 0.5s ease; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .greeting {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-        .greeting h1 {
-            font-size: clamp(1.4rem, 5vw, 2rem);
-            font-weight: 800;
-            line-height: 1.2;
-            margin-bottom: 0.3rem;
-        }
-        .greeting h1 .highlight {
-            background: linear-gradient(135deg, var(--purple-light), var(--gold));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .greeting p {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-        }
-
-        /* Stats */
-        .stats-row {
-            display: flex;
-            gap: 0.6rem;
-            margin-bottom: 1.8rem;
-        }
+        .stats-row { display: flex; gap: 0.6rem; margin-bottom: 1.8rem; }
         .stat-mini {
-            flex: 1;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 1rem;
-            text-align: center;
-            transition: all 0.2s;
+            flex: 1; background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 16px; padding: 1rem; text-align: center; transition: all 0.2s;
         }
         .stat-mini:hover { border-color: var(--gold); }
-        .stat-mini-value {
-            font-size: 1.6rem;
-            font-weight: 800;
-            color: var(--gold);
-            line-height: 1;
-        }
+        .stat-mini-value { font-size: 1.6rem; font-weight: 800; color: var(--gold); line-height: 1; }
         .stat-mini-label {
-            font-size: 0.58rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.6px;
-            margin-top: 0.3rem;
+            font-size: 0.58rem; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 0.6px; margin-top: 0.3rem;
         }
 
-        /* Section */
         .section-label {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 1rem;
+            display: flex; align-items: center; gap: 10px; margin-bottom: 1rem;
         }
         .section-label h2 {
-            font-size: 0.7rem;
-            font-weight: 700;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            white-space: nowrap;
+            font-size: 0.7rem; font-weight: 700; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 1px; white-space: nowrap;
         }
-        .section-line {
-            flex: 1;
-            height: 1px;
-            background: var(--border);
-        }
+        .section-line { flex: 1; height: 1px; background: var(--border); }
 
-        /* Operations Grid */
         .ops-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 0.8rem;
+            display: flex; flex-direction: column; gap: 0.8rem;
             margin-bottom: 1.5rem;
         }
-
         .op-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 18px;
-            padding: 1.2rem;
-            cursor: pointer;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            position: relative;
-            overflow: hidden;
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 18px; padding: 1.2rem; cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
+            display: flex; align-items: center; gap: 1rem;
+            position: relative; overflow: hidden;
             -webkit-tap-highlight-color: transparent;
         }
         .op-card:active { transform: scale(0.98); }
         .op-card::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 15%;
-            bottom: 15%;
-            width: 3px;
-            border-radius: 0 4px 4px 0;
-            background: var(--gold);
+            content: ''; position: absolute; left: 0; top: 15%; bottom: 15%;
+            width: 3px; border-radius: 0 4px 4px 0; background: var(--gold);
         }
         .op-card.locked { opacity: 0.6; cursor: not-allowed; }
         .op-card.locked::before { background: var(--text-muted); }
-
         .op-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.3rem;
-            flex-shrink: 0;
-            background: rgba(245, 158, 11, 0.1);
-            color: var(--gold);
+            width: 48px; height: 48px; border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.3rem; flex-shrink: 0;
+            background: rgba(245,158,11,0.1); color: var(--gold);
         }
-        .op-card.locked .op-icon {
-            background: rgba(148, 163, 184, 0.1);
-            color: var(--text-muted);
-        }
-
-        .op-info {
-            flex: 1;
-            min-width: 0;
-        }
+        .op-card.locked .op-icon { background: rgba(148,163,184,0.1); color: var(--text-muted); }
+        .op-info { flex: 1; min-width: 0; }
         .op-info h3 {
-            font-size: 0.92rem;
-            font-weight: 700;
-            margin-bottom: 0.15rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            font-size: 0.92rem; font-weight: 700;
+            margin-bottom: 0.15rem; display: flex; align-items: center; gap: 8px;
         }
-        .op-info p {
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            line-height: 1.5;
-        }
-
+        .op-info p { font-size: 0.7rem; color: var(--text-muted); line-height: 1.5; }
         .op-badge {
-            display: inline-block;
-            padding: 0.15rem 0.5rem;
-            border-radius: 12px;
-            font-size: 0.55rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.4px;
+            display: inline-block; padding: 0.15rem 0.5rem; border-radius: 12px;
+            font-size: 0.55rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px;
         }
-        .op-badge.active {
-            background: rgba(34, 197, 94, 0.15);
-            color: var(--green);
-        }
-        .op-badge.locked-badge {
-            background: rgba(239, 68, 68, 0.12);
-            color: var(--red);
-        }
-
+        .op-badge.active { background: rgba(34,197,94,0.15); color: var(--green); }
+        .op-badge.locked-badge { background: rgba(239,68,68,0.12); color: var(--red); }
         .op-arrow {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            border: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            flex-shrink: 0;
-            transition: all 0.3s;
+            width: 32px; height: 32px; border-radius: 50%;
+            border: 1px solid var(--border); display: flex;
+            align-items: center; justify-content: center;
+            font-size: 0.7rem; color: var(--text-muted);
+            flex-shrink: 0; transition: all 0.3s;
         }
 
-        /* Profile Card */
         .profile-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 18px;
-            padding: 1.2rem;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 18px; padding: 1.2rem; display: flex;
+            align-items: center; gap: 1rem; margin-bottom: 1.5rem;
         }
         .profile-avatar-lg {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
+            width: 48px; height: 48px; border-radius: 50%;
             background: linear-gradient(135deg, var(--purple), var(--gold));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 1rem;
-            color: white;
-            flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 1rem; color: white; flex-shrink: 0;
         }
-        .profile-details h3 {
-            font-size: 0.9rem;
-            font-weight: 700;
-        }
-        .profile-details span {
-            font-size: 0.68rem;
-            color: var(--text-muted);
-        }
-        .profile-details .roles {
-            display: flex;
-            gap: 4px;
-            margin-top: 4px;
-            flex-wrap: wrap;
-        }
-        .profile-details .role-tag {
-            font-size: 0.55rem;
-            padding: 2px 8px;
-            border-radius: 10px;
-            background: rgba(139, 92, 246, 0.1);
-            color: var(--purple-light);
+        .profile-details h3 { font-size: 0.9rem; font-weight: 700; }
+        .profile-details span { font-size: 0.68rem; color: var(--text-muted); }
+        .profile-details .roles { display: flex; gap: 4px; margin-top: 4px; flex-wrap: wrap; }
+        .role-tag {
+            font-size: 0.55rem; padding: 2px 8px; border-radius: 10px;
+            background: rgba(139,92,246,0.1); color: var(--purple-light);
         }
 
-        /* Toast */
         .toast-container {
-            position: fixed;
-            top: 70px;
-            right: 12px;
-            left: 12px;
-            z-index: 3000;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            pointer-events: none;
+            position: fixed; top: 70px; right: 12px; left: 12px;
+            z-index: 3000; display: flex; flex-direction: column;
+            align-items: flex-end; pointer-events: none;
         }
         .toast {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 0.8rem 1rem;
-            margin-bottom: 0.4rem;
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 14px; padding: 0.8rem 1rem; margin-bottom: 0.4rem;
             box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.76rem;
-            animation: slideIn 0.3s ease;
-            pointer-events: auto;
-            max-width: 100%;
+            display: flex; align-items: center; gap: 8px;
+            font-size: 0.76rem; animation: slideIn 0.3s ease;
+            pointer-events: auto; max-width: 100%;
         }
         .toast.success { border-left: 3px solid var(--green); }
         .toast.error { border-left: 3px solid var(--red); }
@@ -614,109 +414,81 @@
             to { opacity: 1; transform: translateX(0); }
         }
 
-        /* Loading */
         .loading-overlay {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(10, 15, 30, 0.8);
-            backdrop-filter: blur(6px);
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(10,15,30,0.8); backdrop-filter: blur(6px);
             -webkit-backdrop-filter: blur(6px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
             z-index: 5000;
         }
         .loading-overlay.hidden { display: none; }
         .spinner {
-            width: 44px; height: 44px;
-            border-radius: 50%;
-            border: 3px solid var(--border);
-            border-top-color: var(--gold);
+            width: 44px; height: 44px; border-radius: 50%;
+            border: 3px solid var(--border); border-top-color: var(--gold);
             animation: spin 0.7s linear infinite;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* Login Modal */
         .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.75);
-            z-index: 4000;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 1rem;
-            backdrop-filter: blur(4px);
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.75); z-index: 4000;
+            display: none; align-items: center; justify-content: center;
+            padding: 1rem; backdrop-filter: blur(4px);
             -webkit-backdrop-filter: blur(4px);
         }
         .modal-overlay.show { display: flex; }
         .modal {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 1.8rem;
-            width: 100%;
-            max-width: 380px;
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 20px; padding: 1.8rem;
+            width: 100%; max-width: 380px;
         }
         .modal h3 { text-align: center; font-size: 1rem; margin-bottom: 0.3rem; }
         .modal p { text-align: center; font-size: 0.72rem; color: var(--text-muted); margin-bottom: 1.5rem; }
         .modal .form-group { margin-bottom: 1rem; }
         .modal label {
-            display: block;
-            font-weight: 600;
-            font-size: 0.62rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 0.3rem;
+            display: block; font-weight: 600; font-size: 0.62rem;
+            color: var(--text-muted); text-transform: uppercase;
+            letter-spacing: 0.5px; margin-bottom: 0.3rem;
         }
         .modal input {
-            width: 100%;
-            padding: 0.6rem;
-            border-radius: 10px;
-            border: 1.5px solid var(--border);
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-            font-size: 0.82rem;
+            width: 100%; padding: 0.6rem; border-radius: 10px;
+            border: 1.5px solid var(--border); background: var(--bg-secondary);
+            color: var(--text-primary); font-size: 0.82rem;
             font-family: 'Inter', sans-serif;
         }
         .modal input:focus { outline: none; border-color: var(--gold); }
         .modal .btn-row { display: flex; gap: 8px; margin-top: 1.2rem; }
         .modal .btn-row .btn { flex: 1; justify-content: center; }
-        .error-text {
-            color: var(--red);
-            font-size: 0.68rem;
-            display: none;
-            margin-top: 0.3rem;
-        }
+        .error-text { color: var(--red); font-size: 0.68rem; display: none; margin-top: 0.3rem; }
 
         .hidden { display: none !important; }
 
         .footer {
-            text-align: center;
-            padding: 1rem 1rem calc(1rem + var(--safe-bottom));
-            color: var(--text-muted);
-            font-size: 0.6rem;
+            text-align: center; padding: 1rem 1rem calc(1rem + var(--safe-bottom));
+            color: var(--text-muted); font-size: 0.6rem;
             border-top: 1px solid var(--border);
         }
         .footer span { color: var(--gold); font-weight: 600; }
 
         @media (min-width: 640px) {
-            .ops-grid {
-                flex-direction: row;
-                flex-wrap: wrap;
-            }
-            .op-card {
-                flex: 1;
-                min-width: 260px;
-            }
+            .ops-grid { flex-direction: row; flex-wrap: wrap; }
+            .op-card { flex: 1; min-width: 260px; }
             .header { padding: 0 1.5rem; }
             .main-content { padding: 2rem 1.5rem calc(2rem + var(--safe-bottom)); }
         }
     </style>
 </head>
 <body>
+    <!-- Splash Screen -->
+    <div class="splash-screen" id="splashScreen">
+        <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png" alt="E-KAZI" class="splash-logo">
+        <div class="splash-title"><span>E-KAZI</span> Assistant</div>
+        <div class="splash-subtitle">Loading your workspace</div>
+        <div class="splash-loader">
+            <div class="splash-loader-bar"></div>
+        </div>
+    </div>
+
     <div class="bg-gradient"></div>
 
     <div class="loading-overlay hidden" id="loadingOverlay">
@@ -729,11 +501,11 @@
     <div class="modal-overlay" id="loginModalOverlay">
         <div class="modal">
             <h3><i class="fas fa-lock" style="color:var(--gold);margin-right:6px;"></i> Sign In</h3>
-            <p>Access your assistant portal</p>
+            <p>Access your E-KAZI assistant portal</p>
             <form id="loginForm" onsubmit="handleLogin(event)">
                 <div class="form-group">
                     <label>Email</label>
-                    <input type="email" id="loginEmail" placeholder="you@kazinni.com" required autocomplete="email">
+                    <input type="email" id="loginEmail" placeholder="you@ekazi.com" required autocomplete="email">
                 </div>
                 <div class="form-group">
                     <label>Password</label>
@@ -741,7 +513,7 @@
                 </div>
                 <p class="error-text" id="loginError"></p>
                 <div class="btn-row">
-                    <button type="button" class="btn btn-outline btn-sm" onclick="closeLoginModal()">Cancel</button>
+                    <button type="button" class="btn btn-sm" style="background:transparent;border:1.5px solid var(--border-light);color:var(--text-secondary);" onclick="closeLoginModal()">Cancel</button>
                     <button type="submit" class="btn btn-gold btn-sm">Sign In</button>
                 </div>
             </form>
@@ -749,14 +521,13 @@
     </div>
 
     <div class="app-container">
-        <!-- Header -->
         <header class="header">
             <div class="header-inner">
-                <div class="brand" onclick="window.location.reload()">
-                    <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png" alt="KazInni" class="brand-logo">
+                <div class="brand">
+                    <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png" alt="E-KAZI" class="brand-logo">
                     <div class="brand-text">
-                        <span class="brand-name">KazInni</span>
-                        <span class="brand-sub">Assistants</span>
+                        <span class="brand-name">E-KAZI</span>
+                        <span class="brand-sub">Assistant</span>
                     </div>
                 </div>
                 <div class="header-right">
@@ -782,42 +553,32 @@
             </div>
         </header>
 
-        <!-- Main Content -->
         <main class="main-content">
-            <!-- Welcome State -->
             <div id="welcomeSection">
                 <div class="welcome-section">
                     <span class="welcome-icon"><i class="fas fa-handshake"></i></span>
                     <div class="welcome-title">
-                        Welcome to <span class="gradient-text">KazInni</span> Assistants
+                        Welcome to <span class="gradient-text">E-KAZI</span>
                     </div>
                     <p class="welcome-subtitle">
-                        Your gateway to delivery, ride, and task operations. Sign in to access your assigned services and start working.
+                        Your gateway to delivery, ride, and task operations. Sign in to access your assigned services.
                     </p>
-                    <div class="welcome-buttons">
-                        <button class="btn btn-gold" onclick="openLoginModal()">
-                            <i class="fas fa-sign-in-alt"></i> Sign In
-                        </button>
-                        <a href="https://kazinni.vercel.app" class="btn btn-outline">
-                            <i class="fas fa-globe"></i> Main Site
-                        </a>
-                    </div>
+                    <button class="btn btn-gold" onclick="openLoginModal()">
+                        <i class="fas fa-sign-in-alt"></i> Sign In
+                    </button>
                 </div>
             </div>
 
-            <!-- Dashboard State -->
             <div id="dashboardSection" class="hidden dashboard-section">
-                <!-- Profile -->
                 <div class="profile-card">
                     <div class="profile-avatar-lg" id="profileAvatar">KA</div>
                     <div class="profile-details">
                         <h3 id="profileName">Assistant</h3>
-                        <span id="profileEmail">email@kazinni.com</span>
+                        <span id="profileEmail">email@ekazi.com</span>
                         <div class="roles" id="profileRoles"></div>
                     </div>
                 </div>
 
-                <!-- Stats -->
                 <div class="stats-row">
                     <div class="stat-mini">
                         <div class="stat-mini-value" id="statActive">0</div>
@@ -833,7 +594,6 @@
                     </div>
                 </div>
 
-                <!-- Operations -->
                 <div class="section-label">
                     <h2><i class="fas fa-briefcase"></i> Your Operations</h2>
                     <div class="section-line"></div>
@@ -852,7 +612,7 @@
         </main>
 
         <footer class="footer">
-            &copy; 2026 <span>KazInni Workspaces</span> · Assistant Portal
+            &copy; 2026 <span>E-KAZI Workspaces</span> · Assistant Portal
         </footer>
     </div>
 
@@ -861,6 +621,14 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
     <script>
+        // ========== SERVICE WORKER ==========
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/e-kazi/assistants/sw.js')
+                .then(reg => console.log('SW registered:', reg.scope))
+                .catch(err => console.log('SW failed:', err));
+        }
+
+        // ========== FIREBASE ==========
         const firebaseConfig = {
             apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
             authDomain: "mugera-e51cc.firebaseapp.com",
@@ -879,6 +647,14 @@
         let currentUser = null;
         let allOps = [];
         let registrations = {};
+
+        // ========== SPLASH SCREEN ==========
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const splash = $('splashScreen');
+                if (splash) splash.classList.add('hide');
+            }, 2000);
+        });
 
         function showLoading(s) { $('loadingOverlay').classList.toggle('hidden', !s); }
 
@@ -912,7 +688,6 @@
                 $('loginArea').classList.add('hidden');
                 $('userBtn').classList.remove('hidden');
                 $('statusDot').classList.add('show');
-
                 showLoading(true);
                 await initDashboard(user);
                 showLoading(false);
@@ -929,114 +704,60 @@
         });
 
         async function initDashboard(user) {
-            // Load operations from admin
             await loadOperations();
-            
-            // Check registrations
             await checkAllRegistrations(user);
-            
-            // Update UI
             updateProfile(user);
             renderOps();
             await loadJobCounts();
-            
             $('welcomeSection').classList.add('hidden');
             $('dashboardSection').classList.remove('hidden');
-
-            const hasReg = Object.keys(registrations).length > 0;
-            if (!hasReg) {
+            if (!Object.keys(registrations).length) {
                 toast('No active registrations found. Contact your administrator.', 'warning');
             }
         }
 
-        // ========== LOAD OPS FROM ADMIN ==========
         async function loadOperations() {
             try {
                 const snap = await db.ref('assistant_operations').once('value');
                 const data = snap.val() || {};
-                allOps = Object.entries(data)
-                    .map(([id, op]) => ({ id, ...op }))
-                    .filter(op => op.status !== 'inactive');
-                console.log('📋 Loaded', allOps.length, 'active operations');
-            } catch (e) {
-                console.error('Error loading ops:', e);
-                allOps = [];
-            }
+                allOps = Object.entries(data).map(([id, op]) => ({ id, ...op })).filter(op => op.status !== 'inactive');
+            } catch (e) { allOps = []; }
         }
 
-        // ========== CHECK REGISTRATIONS ==========
         async function checkAllRegistrations(user) {
             registrations = {};
-            // Define known nodes to check
             const nodes = ['delivery_assistants', 'pickme_drivers', 'taskers', 'brandinn_assistants', 'heritage_guides'];
-            
             for (const node of nodes) {
                 try {
                     const snap = await db.ref(`${node}/${user.uid}`).once('value');
                     if (snap.exists() && snap.val().verified === true) {
                         registrations[node] = { node, ...snap.val() };
                     }
-                } catch (e) {
-                    // Node might not exist, skip
-                }
+                } catch (e) {}
             }
-            
-            // Also check assistant_requests for pending status
-            try {
-                const reqSnap = await db.ref('assistant_requests').orderByChild('userId').equalTo(user.uid).once('value');
-                if (reqSnap.exists()) {
-                    const reqs = reqSnap.val();
-                    Object.values(reqs).forEach(req => {
-                        if (req.status === 'pending' && !registrations[req.type || 'pending']) {
-                            registrations['pending_' + (req.type || 'general')] = { node: 'pending', status: 'pending', ...req };
-                        }
-                    });
-                }
-            } catch (e) { /* skip */ }
-
-            console.log('✅ Registrations found:', Object.keys(registrations).length);
         }
 
-        // ========== UPDATE PROFILE ==========
         function updateProfile(user) {
             $('profileName').textContent = user.displayName || user.email?.split('@')[0] || 'Assistant';
             $('profileEmail').textContent = user.email || '';
             $('profileAvatar').textContent = getInitials(user.displayName || user.email);
-
-            // Show roles
             const roles = [];
-            if (registrations['delivery_assistants']) roles.push('Pick-Up Driver');
+            if (registrations['delivery_assistants']) roles.push('Pick-Up');
             if (registrations['pickme_drivers']) roles.push('Ride Driver');
             if (registrations['taskers']) roles.push('Tasker');
             if (registrations['brandinn_assistants']) roles.push('Brand Agent');
             if (registrations['heritage_guides']) roles.push('Tour Guide');
-            
-            if (roles.length === 0) {
-                const hasPending = Object.values(registrations).some(r => r.status === 'pending');
-                roles.push(hasPending ? 'Pending Approval' : 'No Active Roles');
-            }
-
+            if (!roles.length) roles.push('Pending');
             $('profileRoles').innerHTML = roles.map(r => `<span class="role-tag">${r}</span>`).join('');
         }
 
-        // ========== RENDER OPERATIONS ==========
         function renderOps() {
             const grid = $('opsGrid');
-            
             if (!allOps.length) {
-                grid.innerHTML = `
-                <div class="op-card locked" style="cursor:default;">
-                    <div class="op-icon"><i class="fas fa-inbox"></i></div>
-                    <div class="op-info">
-                        <h3>No Operations Available</h3>
-                        <p>No services have been configured yet.</p>
-                    </div>
-                </div>`;
+                grid.innerHTML = `<div class="op-card locked" style="cursor:default;"><div class="op-icon"><i class="fas fa-inbox"></i></div><div class="op-info"><h3>No Operations</h3><p>No services configured yet.</p></div></div>`;
                 return;
             }
-
             grid.innerHTML = allOps.map(op => {
-                // Match operation to registration by checking common nodes
                 const nodeMap = {
                     'delivery_assistants': ['pick-up', 'delivery', 'pickup'],
                     'pickme_drivers': ['pick-me', 'pickme', 'ride', 'rides'],
@@ -1044,127 +765,68 @@
                     'brandinn_assistants': ['brandinn', 'brand', 'branding'],
                     'heritage_guides': ['heritage', 'tour', 'tours']
                 };
-
                 let isRegistered = false;
-                const opName = (op.name || '').toLowerCase();
-                const opDesc = (op.description || '').toLowerCase();
-
+                const opName = (op.name || '').toLowerCase(), opDesc = (op.description || '').toLowerCase();
                 for (const [node, keywords] of Object.entries(nodeMap)) {
-                    if (registrations[node]) {
-                        const match = keywords.some(kw => opName.includes(kw) || opDesc.includes(kw));
-                        if (match) {
-                            isRegistered = true;
-                            break;
-                        }
+                    if (registrations[node] && keywords.some(kw => opName.includes(kw) || opDesc.includes(kw))) {
+                        isRegistered = true; break;
                     }
                 }
-
-                // If no keyword match, check if any registration exists for the URL
-                if (!isRegistered && Object.keys(registrations).length > 0 && op.url) {
-                    isRegistered = true; // Fallback: show as active if they have any registration
-                }
-
-                return `
-                <div class="op-card ${isRegistered ? '' : 'locked'}" 
-                     onclick="${isRegistered ? `goTo('${op.url}')` : `toast('Not registered for this operation.','warning')`}"
-                     role="button" tabindex="0">
-                    <div class="op-icon">
-                        <i class="fas ${op.icon || 'fa-cog'}"></i>
-                    </div>
-                    <div class="op-info">
-                        <h3>
-                            ${escapeHtml(op.name)}
-                            <span class="op-badge ${isRegistered ? 'active' : 'locked-badge'}">
-                                ${isRegistered ? 'Active' : 'Locked'}
-                            </span>
-                        </h3>
-                        <p>${escapeHtml(op.description || 'Access your ' + op.name + ' portal')}</p>
-                    </div>
-                    <div class="op-arrow">
-                        <i class="fas fa-chevron-right"></i>
-                    </div>
+                if (!isRegistered && Object.keys(registrations).length > 0 && op.url) isRegistered = true;
+                return `<div class="op-card ${isRegistered ? '' : 'locked'}" onclick="${isRegistered ? `goTo('${op.url}')` : `toast('Not registered.','warning')`}" role="button" tabindex="0">
+                    <div class="op-icon"><i class="fas ${op.icon || 'fa-cog'}"></i></div>
+                    <div class="op-info"><h3>${escapeHtml(op.name)}<span class="op-badge ${isRegistered ? 'active' : 'locked-badge'}">${isRegistered ? 'Active' : 'Locked'}</span></h3><p>${escapeHtml(op.description || '')}</p></div>
+                    <div class="op-arrow"><i class="fas fa-chevron-right"></i></div>
                 </div>`;
             }).join('');
         }
 
-        window.goTo = function(url) {
-            if (url) window.location.href = url;
-        };
+        window.goTo = url => { if (url) window.location.href = url; };
 
-        // ========== JOB COUNTS ==========
         async function loadJobCounts() {
             if (!currentUser) return;
             try {
                 let active = 0, pending = 0, done = 0;
                 const today = new Date().toDateString();
-
-                // Check existing registrations
                 const checks = [];
-
-                if (registrations['delivery_assistants']) {
-                    checks.push((async () => {
-                        const snap = await db.ref('pickup_deliveries').orderByChild('assignedTo').equalTo(currentUser.uid).once('value');
-                        Object.values(snap.val() || {}).forEach(d => {
-                            if (['assigned', 'out-for-delivery', 'in_progress'].includes(d.status)) active++;
-                            if (d.status === 'pending') pending++;
-                            if (d.status === 'delivered' && d.deliveryDate && new Date(d.deliveryDate).toDateString() === today) done++;
-                        });
-                    })());
-                }
-
-                if (registrations['pickme_drivers']) {
-                    checks.push((async () => {
-                        const snap = await db.ref('pickme_rides').orderByChild('driverId').equalTo(currentUser.uid).once('value');
-                        Object.values(snap.val() || {}).forEach(r => {
-                            if (['accepted', 'arrived', 'ongoing'].includes(r.status)) active++;
-                            if (r.status === 'requested') pending++;
-                            if (r.status === 'completed' && r.completedAt && new Date(r.completedAt).toDateString() === today) done++;
-                        });
-                    })());
-                }
-
-                if (registrations['taskers']) {
-                    checks.push((async () => {
-                        const snap = await db.ref('assistant_tasks').orderByChild('assignedTo').equalTo(currentUser.uid).once('value');
-                        Object.values(snap.val() || {}).forEach(t => {
-                            if (['assigned', 'in_progress'].includes(t.status)) active++;
-                            if (t.status === 'pending') pending++;
-                            if (t.status === 'completed' && t.completedAt && new Date(t.completedAt).toDateString() === today) done++;
-                        });
-                    })());
-                }
-
+                if (registrations['delivery_assistants']) checks.push((async () => {
+                    const s = await db.ref('pickup_deliveries').orderByChild('assignedTo').equalTo(currentUser.uid).once('value');
+                    Object.values(s.val() || {}).forEach(d => {
+                        if (['assigned','out-for-delivery','in_progress'].includes(d.status)) active++;
+                        if (d.status === 'pending') pending++;
+                        if (d.status === 'delivered' && d.deliveryDate && new Date(d.deliveryDate).toDateString() === today) done++;
+                    });
+                })());
+                if (registrations['pickme_drivers']) checks.push((async () => {
+                    const s = await db.ref('pickme_rides').orderByChild('driverId').equalTo(currentUser.uid).once('value');
+                    Object.values(s.val() || {}).forEach(r => {
+                        if (['accepted','arrived','ongoing'].includes(r.status)) active++;
+                        if (r.status === 'requested') pending++;
+                        if (r.status === 'completed' && r.completedAt && new Date(r.completedAt).toDateString() === today) done++;
+                    });
+                })());
+                if (registrations['taskers']) checks.push((async () => {
+                    const s = await db.ref('assistant_tasks').orderByChild('assignedTo').equalTo(currentUser.uid).once('value');
+                    Object.values(s.val() || {}).forEach(t => {
+                        if (['assigned','in_progress'].includes(t.status)) active++;
+                        if (t.status === 'pending') pending++;
+                        if (t.status === 'completed' && t.completedAt && new Date(t.completedAt).toDateString() === today) done++;
+                    });
+                })());
                 await Promise.all(checks);
-
                 $('statActive').textContent = active;
                 $('statPending').textContent = pending;
                 $('statDone').textContent = done;
-            } catch (e) {
-                console.error('Job count error:', e);
-            }
+            } catch (e) {}
         }
 
-        // ========== LOGIN MODAL ==========
-        window.openLoginModal = function() {
-            $('loginModalOverlay').classList.add('show');
-            $('loginError').style.display = 'none';
-            $('loginEmail').focus();
-        };
+        window.openLoginModal = () => { $('loginModalOverlay').classList.add('show'); $('loginError').style.display = 'none'; $('loginEmail').focus(); };
+        window.closeLoginModal = () => { $('loginModalOverlay').classList.remove('show'); $('loginError').style.display = 'none'; };
 
-        window.closeLoginModal = function() {
-            $('loginModalOverlay').classList.remove('show');
-            $('loginError').style.display = 'none';
-        };
-
-        window.handleLogin = async function(e) {
+        window.handleLogin = async e => {
             e.preventDefault();
-            const email = $('loginEmail').value.trim();
-            const password = $('loginPassword').value;
-            if (!email || !password) {
-                $('loginError').style.display = 'block';
-                $('loginError').textContent = 'Please fill all fields';
-                return;
-            }
+            const email = $('loginEmail').value.trim(), password = $('loginPassword').value;
+            if (!email || !password) { $('loginError').style.display = 'block'; $('loginError').textContent = 'Fill all fields'; return; }
             showLoading(true);
             try {
                 $('loginError').style.display = 'none';
@@ -1174,32 +836,17 @@
             } catch (err) {
                 $('loginError').style.display = 'block';
                 $('loginError').textContent = err.message.replace('Firebase: ', '').replace(/\(auth\/.*\)/, '');
-            } finally {
-                showLoading(false);
-            }
+            } finally { showLoading(false); }
         };
 
-        window.handleLogout = async function() {
-            if (confirm('Sign out?')) {
-                await auth.signOut();
-                toast('Signed out', 'info');
-            }
+        window.handleLogout = async () => {
+            if (confirm('Sign out?')) { await auth.signOut(); toast('Signed out', 'info'); }
         };
 
-        window.refreshAll = function() {
-            if (currentUser) {
-                initDashboard(currentUser);
-                toast('Refreshed', 'success');
-            }
-        };
+        window.refreshAll = () => { if (currentUser) { initDashboard(currentUser); toast('Refreshed', 'success'); } };
 
-        // Close modal on overlay click or Escape
-        $('loginModalOverlay').addEventListener('click', function(e) {
-            if (e.target === this) closeLoginModal();
-        });
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') closeLoginModal();
-        });
+        $('loginModalOverlay').addEventListener('click', e => { if (e.target === $('loginModalOverlay')) closeLoginModal(); });
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLoginModal(); });
     </script>
 </body>
 </html>
