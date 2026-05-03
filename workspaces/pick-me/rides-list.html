@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>KazInni Workspaces | Pick Me Rides</title>
+  
+  <meta name="theme-color" content="#8b5cf6">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  
+  <link rel="icon" type="image/png" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --primary: #8b5cf6;
+      --primary-dark: #6d28d9;
+      --primary-light: #a78bfa;
+      --card-bg: #ffffff;
+      --text-primary: #1e293b;
+      --text-muted: #64748b;
+      --border-light: #ede9fe;
+      --gold: #f59e0b;
+      --green: #22c55e;
+      --red: #ef4444;
+      --blue: #3b82f6;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(145deg, #faf5ff 0%, #ffffff 100%);
+      color: var(--text-primary);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .navbar {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(16px);
+      padding: 0.7rem 3%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid rgba(139, 92, 246, 0.25);
+      position: sticky;
+      top: 0;
+      z-index: 2000;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .logo { display: flex; align-items: center; gap: 12px; }
+    .logo-img { 
+      height: 40px; width: 40px; border-radius: 12px; object-fit: contain; 
+      background: white; box-shadow: 0 6px 16px rgba(139, 92, 246, 0.3); 
+    }
+
+    .logo-text {
+      font-weight: 800; font-size: 1.3rem;
+      background: linear-gradient(145deg, #c084fc, #7c3aed);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -0.3px;
+    }
+    .logo-text span { 
+      font-weight: 600; font-size: 0.8rem; 
+      background: #f59e0b; -webkit-text-fill-color: #f59e0b; margin-left: 4px; 
+    }
+
+    .nav-right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+
+    .nav-btn {
+      background: rgba(139, 92, 246, 0.08); border: 1px solid var(--primary-light); 
+      padding: 0.5rem 1rem; border-radius: 40px; color: var(--primary-dark); 
+      font-weight: 600; font-size: 0.75rem; cursor: pointer; 
+      display: inline-flex; align-items: center; gap: 6px;
+      text-decoration: none; transition: all 0.2s; white-space: nowrap;
+    }
+    .nav-btn:hover { background: var(--primary); color: white; border-color: var(--primary); }
+
+    .user-badge {
+      display: flex; align-items: center; gap: 8px; background: white;
+      padding: 0.3rem 0.9rem 0.3rem 0.6rem; border-radius: 40px; font-size: 0.75rem;
+      color: var(--text-muted); border: 1px solid #e9d5ff;
+    }
+    .user-avatar {
+      width: 32px; height: 32px; background: linear-gradient(145deg, #8b5cf6, #6d28d9);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 0.8rem; color: white;
+    }
+
+    .container { max-width: 1400px; margin: 0 auto; padding: 1.5rem 3%; flex: 1; width: 100%; }
+
+    .page-header {
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;
+      gap: 16px; margin-bottom: 1.5rem;
+    }
+    .page-header h1 { 
+      font-size: 1.8rem; font-weight: 800; color: #0f172a; 
+      display: flex; align-items: center; gap: 12px; 
+    }
+    .page-header h1 i { 
+      color: var(--primary-dark); background: white; padding: 10px; 
+      border-radius: 14px; box-shadow: 0 8px 16px rgba(139, 92, 246, 0.1); 
+    }
+
+    .filter-bar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 1.5rem; align-items: center; }
+
+    .filter-btn {
+      padding: 0.5rem 1.2rem; border-radius: 40px; border: 1.5px solid #e2e8f0;
+      background: white; color: #64748b; font-weight: 600; font-size: 0.75rem;
+      cursor: pointer; transition: all 0.2s; white-space: nowrap;
+    }
+    .filter-btn.active { background: var(--primary-dark); color: white; border-color: var(--primary-dark); }
+    .filter-btn:hover { border-color: var(--primary); color: var(--primary-dark); }
+    .filter-btn.active:hover { color: white; }
+
+    .search-box { flex: 1; min-width: 200px; max-width: 400px; position: relative; }
+    .search-box input {
+      width: 100%; padding: 0.5rem 1rem 0.5rem 2.5rem; border-radius: 40px;
+      border: 1.5px solid #e2e8f0; background: white; font-size: 0.8rem; font-family: 'Inter', sans-serif;
+    }
+    .search-box i { 
+      position: absolute; left: 12px; top: 50%; transform: translateY(-50%); 
+      color: #94a3b8; font-size: 0.85rem; 
+    }
+
+    .rides-table-wrap {
+      background: white; border-radius: 20px; border: 1px solid #ede9fe;
+      overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,0.02);
+    }
+    .table-scroll { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+    thead { background: #faf5ff; }
+    th {
+      padding: 0.8rem 1rem; text-align: left; font-weight: 700; color: #6d28d9;
+      font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;
+    }
+    td { padding: 0.8rem 1rem; border-bottom: 1px solid #f1f5f9; color: #1e293b; vertical-align: middle; }
+    tr:hover td { background: #faf5ff; }
+
+    .status-badge {
+      display: inline-block; padding: 0.25rem 0.7rem; border-radius: 20px;
+      font-size: 0.65rem; font-weight: 700; text-transform: capitalize; white-space: nowrap;
+    }
+    .status-requested { background: #fef3c7; color: #92400e; }
+    .status-pending { background: #fef3c7; color: #92400e; }
+    .status-accepted { background: #e0f2fe; color: #0369a1; }
+    .status-arrived { background: #dbeafe; color: #1e40af; }
+    .status-ongoing { background: #fef3cd; color: #b45309; }
+    .status-in_progress { background: #fef3cd; color: #b45309; }
+    .status-completed { background: #d1fae5; color: #065f46; }
+    .status-cancelled { background: #fee2e2; color: #991b1b; }
+
+    .action-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+    .action-btn {
+      padding: 0.3rem 0.6rem; border-radius: 8px; border: none; font-size: 0.65rem;
+      font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;
+      transition: all 0.2s; white-space: nowrap;
+    }
+    .btn-accept { background: #e0f2fe; color: #0369a1; }
+    .btn-accept:hover { background: #0369a1; color: white; }
+    .btn-arrive { background: #dbeafe; color: #1e40af; }
+    .btn-arrive:hover { background: #1e40af; color: white; }
+    .btn-start { background: #fef3cd; color: #b45309; }
+    .btn-start:hover { background: #b45309; color: white; }
+    .btn-complete { background: #d1fae5; color: #065f46; }
+    .btn-complete:hover { background: #065f46; color: white; }
+    .btn-cancel-btn { background: #fee2e2; color: #991b1b; }
+    .btn-cancel-btn:hover { background: #991b1b; color: white; }
+    .btn-view { background: #f1f5f9; color: #475569; }
+    .btn-view:hover { background: #475569; color: white; }
+
+    .empty-row td { text-align: center; padding: 3rem; color: #94a3b8; }
+
+    .modal-overlay {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5); z-index: 3000; justify-content: center; align-items: center; 
+      backdrop-filter: blur(2px);
+    }
+    .modal-overlay.show { display: flex; }
+    .modal {
+      background: white; border-radius: 24px; padding: 2rem; max-width: 600px; width: 95%;
+      max-height: 85vh; overflow-y: auto; box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+    }
+    .modal h3 { font-size: 1.2rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px; }
+    .modal .form-group { margin-bottom: 1rem; }
+    .modal label {
+      display: block; font-weight: 600; font-size: 0.75rem; color: #475569;
+      margin-bottom: 0.3rem; text-transform: uppercase; letter-spacing: 0.3px;
+    }
+    .modal input, .modal select, .modal textarea {
+      width: 100%; padding: 0.6rem 0.8rem; border-radius: 10px;
+      border: 1.5px solid #e2e8f0; font-size: 0.85rem; font-family: 'Inter', sans-serif;
+    }
+    .modal textarea { resize: vertical; min-height: 80px; }
+    .modal .btn-row { display: flex; gap: 10px; margin-top: 1.5rem; }
+    .btn {
+      padding: 0.7rem 1.5rem; border-radius: 12px; border: none; font-weight: 600;
+      font-size: 0.85rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn-primary { background: #6d28d9; color: white; }
+    .btn-secondary { background: #f1f5f9; color: #475569; }
+    .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 0.8rem; }
+    .detail-item { background: #f8fafc; padding: 0.8rem; border-radius: 10px; }
+    .detail-item strong { 
+      display: block; font-size: 0.65rem; color: #94a3b8; text-transform: uppercase; margin-bottom: 0.2rem; 
+    }
+
+    .toast {
+      position: fixed; bottom: 30px; right: 30px; background: #10b981; color: white;
+      padding: 0.9rem 1.5rem; border-radius: 30px; font-weight: 600; z-index: 4000;
+      animation: slideIn 0.3s ease; box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
+      display: flex; align-items: center; gap: 8px; font-size: 0.85rem;
+    }
+    .toast.error { background: #ef4444; box-shadow: 0 10px 25px rgba(239, 68, 68, 0.3); }
+    @keyframes slideIn { 
+      from { transform: translateX(100%); opacity: 0; } 
+      to { transform: translateX(0); opacity: 1; } 
+    }
+
+    .loading-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(255,255,255,0.8); backdrop-filter: blur(4px);
+      display: flex; justify-content: center; align-items: center; z-index: 999;
+    }
+    .loading-overlay.hide { display: none; }
+    .spinner {
+      width: 40px; height: 40px; border: 3px solid #ede9fe;
+      border-top-color: #6d28d9; border-radius: 50%; animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .debug-info {
+      background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px;
+      padding: 1rem; margin-bottom: 1rem; font-size: 0.75rem; display: none;
+    }
+    .debug-info.show { display: block; }
+
+    @media (max-width: 768px) {
+      .container { padding: 1rem; }
+      .filter-bar { gap: 6px; }
+      .filter-btn { padding: 0.4rem 0.8rem; font-size: 0.7rem; }
+      table { font-size: 0.7rem; }
+      th, td { padding: 0.5rem 0.6rem; }
+      .detail-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+  </div>
+
+  <nav class="navbar">
+    <div class="logo">
+      <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png" alt="KazInni Logo" class="logo-img">
+      <span class="logo-text">KazInni <span>Pick Me</span></span>
+    </div>
+    <div class="nav-right">
+      <a href="/workspaces/pick-me/index.html" class="nav-btn">
+        <i class="fas fa-arrow-left"></i> Dashboard
+      </a>
+      <div class="user-badge">
+        <div class="user-avatar" id="repAvatar">PM</div>
+        <span id="repName">Dispatcher</span>
+      </div>
+      <button class="nav-btn" id="logoutBtn">
+        <i class="fas fa-sign-out-alt"></i> Logout
+      </button>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="page-header">
+      <h1><i class="fas fa-taxi"></i> All Rides</h1>
+      <a href="/workspaces/pick-me/request-ride.html" class="nav-btn" style="text-decoration:none;">
+        <i class="fas fa-plus"></i> New Ride
+      </a>
+    </div>
+
+    <div class="debug-info" id="debugInfo">
+      <strong>🔍 Debug Info:</strong> <span id="debugText"></span>
+    </div>
+
+    <div class="filter-bar">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="requested">Requested</button>
+      <button class="filter-btn" data-filter="accepted">Accepted</button>
+      <button class="filter-btn" data-filter="arrived">Arrived</button>
+      <button class="filter-btn" data-filter="ongoing">Ongoing</button>
+      <button class="filter-btn" data-filter="completed">Completed</button>
+      <button class="filter-btn" data-filter="cancelled">Cancelled</button>
+      <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input type="text" id="searchInput" placeholder="Search passenger, address, driver...">
+      </div>
+    </div>
+
+    <div class="rides-table-wrap">
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Passenger</th>
+              <th>Pickup</th>
+              <th>Dropoff</th>
+              <th>Fare</th>
+              <th>Driver</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="ridesTableBody">
+            <tr class="empty-row"><td colspan="8"><i class="fas fa-sync-alt fa-spin"></i> Loading rides...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="actionModal">
+    <div class="modal" id="modalContent"></div>
+  </div>
+
+  <div id="toastContainer"></div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+      authDomain: "mugera-e51cc.firebaseapp.com",
+      databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "mugera-e51cc",
+      storageBucket: "mugera-e51cc.firebasestorage.app",
+      messagingSenderId: "1024868637509",
+      appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    const auth = firebase.auth();
+
+    let allRides = {};
+    let allDrivers = {};
+    let currentFilter = 'all';
+    let searchQuery = '';
+
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const tableBody = document.getElementById('ridesTableBody');
+    const modal = document.getElementById('actionModal');
+    const modalContent = document.getElementById('modalContent');
+    const searchInput = document.getElementById('searchInput');
+    const toastContainer = document.getElementById('toastContainer');
+    const debugInfo = document.getElementById('debugInfo');
+    const debugText = document.getElementById('debugText');
+
+    function showDebug(msg) {
+      debugText.textContent = msg;
+      debugInfo.classList.add('show');
+      console.log('🔍', msg);
+    }
+
+    function showToast(msg, isError = false) {
+      const toast = document.createElement('div');
+      toast.className = `toast ${isError ? 'error' : ''}`;
+      toast.innerHTML = `<i class="fas fa-${isError ? 'exclamation-circle' : 'check-circle'}"></i> ${msg}`;
+      toastContainer.appendChild(toast);
+      setTimeout(() => toast.remove(), 4000);
+    }
+
+    function getInitials(name) {
+      if (!name) return 'PM';
+      return String(name).split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : m === '>' ? '&gt;' : m);
+    }
+
+    function getPassengerName(ride) {
+      if (!ride) return 'Passenger';
+      return ride.passengerName || ride.customerName || ride.userName || ride.passenger?.name || 'Passenger';
+    }
+
+    function getNormalizedStatus(ride) {
+      if (!ride) return 'requested';
+      if (ride.status) return String(ride.status).toLowerCase();
+      return 'requested';
+    }
+
+    function getStatusClass(status) {
+      const s = String(status || 'requested').toLowerCase().replace(/-/g, '_');
+      const map = {
+        'requested': 'status-requested',
+        'pending': 'status-pending',
+        'accepted': 'status-accepted',
+        'arrived': 'status-arrived',
+        'ongoing': 'status-ongoing',
+        'in_progress': 'status-in_progress',
+        'completed': 'status-completed',
+        'cancelled': 'status-cancelled'
+      };
+      return map[s] || 'status-requested';
+    }
+
+    function formatFare(ride) {
+      if (!ride) return '—';
+      if (ride.fare?.total) return `${ride.fare.total} KES`;
+      if (typeof ride.fare === 'number') return `${ride.fare} KES`;
+      if (ride.estimatedFare) return `${ride.estimatedFare} KES`;
+      return '—';
+    }
+
+    function getShortId(id) {
+      if (!id) return '—';
+      return String(id).substring(Math.max(0, id.length - 6));
+    }
+
+    function getDriverName(ride) {
+      if (!ride) return '—';
+      return ride.driverName || ride.driver?.name || ride.assignedDriver || '—';
+    }
+
+    function getPickupAddress(ride) {
+      if (!ride) return 'N/A';
+      return ride.pickup?.address || ride.pickup?.name || 
+             ride.pickup?.coordinates?.displayName || 'N/A';
+    }
+
+    function getDropoffAddress(ride) {
+      if (!ride) return 'N/A';
+      return ride.dropoff?.address || ride.dropoff?.name || 
+             ride.dropoff?.coordinates?.displayName || 'N/A';
+    }
+
+    function renderTable() {
+      let rides = Object.entries(allRides)
+        .map(([id, data]) => ({ id, ...data }));
+
+      const statuses = rides.map(r => getNormalizedStatus(r));
+      showDebug(`Total raw: ${rides.length} | Statuses: [${statuses.join(', ')}] | Filter: "${currentFilter}"`);
+
+      // Apply status filter
+      if (currentFilter !== 'all') {
+        const filterStatus = currentFilter.toLowerCase().replace(/-/g, '_');
+        rides = rides.filter(r => {
+          const status = getNormalizedStatus(r);
+          return status === filterStatus;
+        });
+      }
+
+      // Apply search
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        rides = rides.filter(r => {
+          const passenger = getPassengerName(r).toLowerCase();
+          const pickup = getPickupAddress(r).toLowerCase();
+          const dropoff = getDropoffAddress(r).toLowerCase();
+          const phone = (r.passengerPhone || r.phone || r.passenger?.phone || '').toLowerCase();
+          const driver = getDriverName(r).toLowerCase();
+          return passenger.includes(q) || pickup.includes(q) || dropoff.includes(q) || 
+                 phone.includes(q) || driver.includes(q);
+        });
+      }
+
+      // Sort by newest first
+      rides.sort((a, b) => {
+        const tA = a.requestedAt || a.timestamp || a.createdAt || 0;
+        const tB = b.requestedAt || b.timestamp || b.createdAt || 0;
+        return tB - tA;
+      });
+
+      showDebug(`After filter: ${rides.length} rides | Filter: "${currentFilter}" | Search: "${searchQuery || 'none'}"`);
+
+      if (!rides.length) {
+        tableBody.innerHTML = `<tr class="empty-row"><td colspan="8">
+          <i class="fas fa-car-side" style="font-size:2rem;display:block;margin-bottom:8px;"></i>
+          <p>No rides found</p>
+          <p style="font-size:0.7rem;color:#94a3b8;">${currentFilter !== 'all' ? 'Try changing the filter or search query' : 'Create a new ride request to get started'}</p>
+        </td></tr>`;
+        return;
+      }
+
+      tableBody.innerHTML = rides.map(ride => {
+        const status = getNormalizedStatus(ride);
+        const passenger = getPassengerName(ride);
+        const pickup = getPickupAddress(ride);
+        const dropoff = getDropoffAddress(ride);
+        const fare = formatFare(ride);
+        const driverName = getDriverName(ride);
+        const statusClass = getStatusClass(status);
+        const phone = ride.passengerPhone || ride.phone || ride.passenger?.phone || '';
+
+        return `
+          <tr>
+            <td><code style="font-size:0.7rem;background:#f1f5f9;padding:2px 6px;border-radius:4px;">#${getShortId(ride.id)}</code></td>
+            <td>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <div style="width:28px;height:28px;background:#faf5ff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.65rem;flex-shrink:0;">${getInitials(passenger)}</div>
+                <div>
+                  <strong>${escapeHtml(passenger)}</strong>
+                  ${phone ? `<div style="font-size:0.65rem;color:#94a3b8;">${escapeHtml(phone)}</div>` : ''}
+                </div>
+              </div>
+            </td>
+            <td><span title="${escapeHtml(pickup)}">${escapeHtml(String(pickup).substring(0, 25))}${String(pickup).length > 25 ? '...' : ''}</span></td>
+            <td><span title="${escapeHtml(dropoff)}">${escapeHtml(String(dropoff).substring(0, 25))}${String(dropoff).length > 25 ? '...' : ''}</span></td>
+            <td><strong>${fare}</strong></td>
+            <td>${escapeHtml(driverName)}</td>
+            <td><span class="status-badge ${statusClass}">${status.replace(/_/g, ' ').replace(/-/g, ' ')}</span></td>
+            <td>
+              <div class="action-btns">
+                <button class="action-btn btn-view" onclick="viewDetails('${ride.id}')" title="View Details"><i class="fas fa-eye"></i></button>
+                ${status === 'requested' || status === 'pending' ? `
+                  <button class="action-btn btn-accept" onclick="updateRideStatus('${ride.id}', 'accepted')" title="Accept Ride"><i class="fas fa-check"></i></button>
+                ` : ''}
+                ${status === 'accepted' ? `
+                  <button class="action-btn btn-arrive" onclick="updateRideStatus('${ride.id}', 'arrived')" title="Driver Arrived"><i class="fas fa-location-dot"></i></button>
+                ` : ''}
+                ${status === 'arrived' ? `
+                  <button class="action-btn btn-start" onclick="updateRideStatus('${ride.id}', 'ongoing')" title="Start Trip"><i class="fas fa-car"></i></button>
+                ` : ''}
+                ${status === 'ongoing' || status === 'in_progress' ? `
+                  <button class="action-btn btn-complete" onclick="updateRideStatus('${ride.id}', 'completed')" title="Complete Trip"><i class="fas fa-flag-checkered"></i></button>
+                ` : ''}
+                ${['requested', 'pending', 'accepted', 'arrived'].includes(status) ? `
+                  <button class="action-btn btn-cancel-btn" onclick="updateRideStatus('${ride.id}', 'cancelled')" title="Cancel Ride"><i class="fas fa-times"></i></button>
+                ` : ''}
+              </div>
+            </td>
+          </tr>`;
+      }).join('');
+    }
+
+    async function updateRideStatus(rideId, newStatus) {
+      const ride = allRides[rideId];
+      if (!ride) return;
+
+      const statusLabels = {
+        'accepted': 'Accept Ride',
+        'arrived': 'Driver Arrived',
+        'ongoing': 'Start Trip',
+        'completed': 'Complete Trip',
+        'cancelled': 'Cancel Ride'
+      };
+      const action = statusLabels[newStatus] || newStatus;
+
+      if (!confirm(`Are you sure you want to ${action.toLowerCase()}?`)) return;
+
+      try {
+        const updates = {
+          status: newStatus,
+          statusHistory: [
+            ...(ride.statusHistory || []),
+            { 
+              status: newStatus, 
+              note: `${action} by ${auth.currentUser?.email || 'staff'}`, 
+              timestamp: new Date().toISOString() 
+            }
+          ]
+        };
+
+        if (newStatus === 'accepted') {
+          updates.acceptedAt = new Date().toISOString();
+        }
+        if (newStatus === 'arrived') {
+          updates.arrivedAt = new Date().toISOString();
+        }
+        if (newStatus === 'ongoing') {
+          updates.startedAt = new Date().toISOString();
+          updates.tripStartTime = firebase.database.ServerValue.TIMESTAMP;
+        }
+        if (newStatus === 'completed') {
+          updates.completedAt = new Date().toISOString();
+          updates.tripEndTime = firebase.database.ServerValue.TIMESTAMP;
+        }
+        if (newStatus === 'cancelled') {
+          updates.cancelledAt = new Date().toISOString();
+        }
+
+        await database.ref(`pickme_rides/${rideId}`).update(updates);
+        showToast(`✅ Ride ${newStatus.replace(/-/g, ' ')}`);
+      } catch (e) {
+        console.error('Update error:', e);
+        showToast('Failed to update ride status', true);
+      }
+    }
+
+    function viewDetails(rideId) {
+      const ride = allRides[rideId];
+      if (!ride) return;
+
+      const passenger = getPassengerName(ride);
+      const status = getNormalizedStatus(ride);
+      const fare = formatFare(ride);
+      const pickup = getPickupAddress(ride);
+      const dropoff = getDropoffAddress(ride);
+      const driverName = getDriverName(ride);
+
+      modalContent.innerHTML = `
+        <h3><i class="fas fa-info-circle"></i> Ride Details <code style="font-size:0.7rem;">#${getShortId(rideId)}</code></h3>
+        <div class="detail-grid">
+          <div class="detail-item"><strong>Passenger</strong>${escapeHtml(passenger)}</div>
+          <div class="detail-item"><strong>Phone</strong>${escapeHtml(ride.passengerPhone || ride.phone || ride.passenger?.phone || 'N/A')}</div>
+          <div class="detail-item"><strong>Email</strong>${escapeHtml(ride.passengerEmail || ride.email || ride.passenger?.email || 'N/A')}</div>
+          <div class="detail-item"><strong>Status</strong><span class="status-badge ${getStatusClass(status)}">${status.replace(/_/g, ' ').replace(/-/g, ' ')}</span></div>
+          <div class="detail-item"><strong>Pickup</strong>${escapeHtml(pickup)}</div>
+          <div class="detail-item"><strong>Dropoff</strong>${escapeHtml(dropoff)}</div>
+          <div class="detail-item"><strong>Vehicle Type</strong>${escapeHtml(ride.vehicleType || ride.carType || 'Standard')}</div>
+          <div class="detail-item"><strong>Fare</strong>${fare}</div>
+          <div class="detail-item"><strong>Distance</strong>${ride.distance ? ride.distance + ' km' : 'N/A'}</div>
+          <div class="detail-item"><strong>Duration</strong>${ride.duration ? ride.duration + ' min' : 'N/A'}</div>
+          <div class="detail-item"><strong>Driver</strong>${escapeHtml(driverName)}</div>
+          <div class="detail-item"><strong>Payment</strong>${escapeHtml(ride.paymentMethod || 'Cash')}</div>
+          <div class="detail-item"><strong>Passengers</strong>${ride.passengers || ride.seats || 1}</div>
+          ${ride.specialInstructions ? `<div class="detail-item"><strong>Instructions</strong>${escapeHtml(ride.specialInstructions)}</div>` : ''}
+          <div class="detail-item"><strong>Requested</strong>${ride.requestedAt ? new Date(ride.requestedAt).toLocaleString() : (ride.timestamp ? new Date(ride.timestamp).toLocaleString() : 'N/A')}</div>
+          ${ride.acceptedAt ? `<div class="detail-item"><strong>Accepted</strong>${new Date(ride.acceptedAt).toLocaleString()}</div>` : ''}
+          ${ride.arrivedAt ? `<div class="detail-item"><strong>Arrived</strong>${new Date(ride.arrivedAt).toLocaleString()}</div>` : ''}
+          ${ride.startedAt ? `<div class="detail-item"><strong>Started</strong>${new Date(ride.startedAt).toLocaleString()}</div>` : ''}
+          ${ride.completedAt ? `<div class="detail-item"><strong>Completed</strong>${new Date(ride.completedAt).toLocaleString()}</div>` : ''}
+        </div>
+        ${ride.statusHistory && ride.statusHistory.length ? `
+          <h4 style="margin-top:1.5rem;margin-bottom:0.5rem;">Status History</h4>
+          ${ride.statusHistory.map(h => `
+            <div style="background:#f8fafc;padding:0.5rem 0.8rem;border-radius:8px;margin-bottom:4px;font-size:0.75rem;">
+              <strong>${h.status}</strong> · ${escapeHtml(h.note || '')} · <span style="color:#94a3b8;">${h.timestamp ? new Date(h.timestamp).toLocaleString() : ''}</span>
+            </div>
+          `).join('')}
+        ` : ''}
+        <div class="btn-row">
+          <button class="btn btn-secondary" onclick="closeModal()">Close</button>
+        </div>
+      `;
+      modal.classList.add('show');
+    }
+
+    function closeModal() { modal.classList.remove('show'); }
+
+    // Filter buttons
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentFilter = btn.dataset.filter;
+        renderTable();
+      });
+    });
+
+    // Search
+    searchInput.addEventListener('input', () => {
+      searchQuery = searchInput.value;
+      renderTable();
+    });
+
+    // Close modal on overlay click and Escape key
+    modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+    function setupRealtimeListeners() {
+      // Listen for pickme_rides
+      database.ref('pickme_rides').on('value', (snapshot) => {
+        allRides = snapshot.val() || {};
+        console.log('🚖 PickMe rides loaded:', Object.keys(allRides).length);
+        if (Object.keys(allRides).length > 0) {
+          console.log('🚖 Sample ride:', Object.entries(allRides)[0]);
+        }
+        renderTable();
+        loadingOverlay.classList.add('hide');
+      }, (error) => {
+        console.error('❌ Error loading rides:', error);
+        showDebug('Error loading: ' + error.message);
+        loadingOverlay.classList.add('hide');
+      });
+
+      // Listen for pickme_drivers
+      database.ref('pickme_drivers').on('value', (snapshot) => {
+        allDrivers = snapshot.val() || {};
+        console.log('👤 PickMe drivers loaded:', Object.keys(allDrivers).length);
+      });
+    }
+
+    auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        let userName = 'Ride Dispatcher';
+        try {
+          const staffSnap = await database.ref(`logistics_staff/${user.uid}`).once('value');
+          if (staffSnap.exists()) {
+            userName = staffSnap.val().name || user.email?.split('@')[0] || 'Dispatcher';
+          } else {
+            const brandSnap = await database.ref(`brandinn_users/${user.uid}`).once('value');
+            if (brandSnap.exists()) {
+              userName = brandSnap.val().name || brandSnap.val().businessName || user.email?.split('@')[0] || 'Dispatcher';
+            } else {
+              const driverSnap = await database.ref(`pickme_drivers/${user.uid}`).once('value');
+              if (driverSnap.exists()) {
+                userName = driverSnap.val().name || 'Driver';
+              } else {
+                userName = user.displayName || user.email?.split('@')[0] || 'Dispatcher';
+              }
+            }
+          }
+        } catch (e) {
+          userName = user.email?.split('@')[0] || 'Dispatcher';
+        }
+        document.getElementById('repName').textContent = userName;
+        document.getElementById('repAvatar').textContent = getInitials(userName);
+        setupRealtimeListeners();
+      } else {
+        window.location.href = 'https://kazinni.vercel.app';
+      }
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      if (confirm('Log out of Pick Me Rides?')) await auth.signOut();
+    });
+
+    setTimeout(() => loadingOverlay.classList.add('hide'), 8000);
+  </script>
+</body>
+</html>
