@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,8 +8,10 @@
     <meta name="theme-color" content="#0f172a">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="KazInni Assist">
     
     <link rel="icon" type="image/png" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
+    <link rel="apple-touch-icon" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
     
@@ -39,19 +40,11 @@
             --green: #22c55e;
             --green-dark: #16a34a;
             
-            --blue: #3b82f6;
-            --blue-dark: #2563eb;
-            
             --red: #ef4444;
-            --orange: #f97316;
-            --teal: #14b8a6;
-            --pink: #ec4899;
-            --cyan: #06b6d4;
-            
-            --success: #22c55e;
-            --danger: #ef4444;
             --warning: #f59e0b;
             --info: #3b82f6;
+            
+            --safe-bottom: env(safe-area-inset-bottom, 20px);
         }
 
         body {
@@ -59,32 +52,30 @@
             background: var(--bg-primary);
             color: var(--text-primary);
             min-height: 100vh;
+            min-height: 100dvh;
             line-height: 1.6;
             overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* Animated background */
         .bg-pattern {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
             background: 
                 radial-gradient(ellipse at 20% 50%, rgba(139, 92, 246, 0.06) 0%, transparent 50%),
-                radial-gradient(ellipse at 80% 20%, rgba(245, 158, 11, 0.05) 0%, transparent 50%),
-                radial-gradient(ellipse at 50% 80%, rgba(34, 197, 94, 0.04) 0%, transparent 50%);
+                radial-gradient(ellipse at 80% 20%, rgba(245, 158, 11, 0.05) 0%, transparent 50%);
             z-index: 0;
             pointer-events: none;
         }
 
-        .grid-bg {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-image: 
-                linear-gradient(rgba(38, 49, 72, 0.3) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(38, 49, 72, 0.3) 1px, transparent 1px);
-            background-size: 60px 60px;
-            z-index: 0;
-            pointer-events: none;
-            opacity: 0.5;
+        .app-container {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
         }
 
         /* Header */
@@ -92,41 +83,44 @@
             position: sticky;
             top: 0;
             z-index: 1000;
-            background: rgba(10, 15, 30, 0.85);
+            background: rgba(10, 15, 30, 0.88);
             backdrop-filter: blur(24px);
             -webkit-backdrop-filter: blur(24px);
-            border-bottom: 1px solid rgba(245, 158, 11, 0.2);
-            padding: 0 2rem;
+            border-bottom: 1px solid rgba(245, 158, 11, 0.15);
+            padding: 0 1rem;
         }
 
         .header-inner {
-            max-width: 1400px;
+            max-width: 800px;
             margin: 0 auto;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            height: 68px;
+            height: 60px;
         }
 
         .brand {
             display: flex;
             align-items: center;
-            gap: 14px;
-            text-decoration: none;
-            cursor: pointer;
+            gap: 10px;
         }
 
         .brand-logo {
-            width: 42px;
-            height: 42px;
-            border-radius: 12px;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
             object-fit: contain;
             background: white;
-            box-shadow: 0 4px 20px rgba(139, 92, 246, 0.25);
+            box-shadow: 0 4px 16px rgba(139, 92, 246, 0.25);
         }
 
-        .brand-text h1 {
-            font-size: 1.25rem;
+        .brand-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .brand-name {
+            font-size: 1.1rem;
             font-weight: 800;
             background: linear-gradient(135deg, #c084fc, #fbbf24);
             -webkit-background-clip: text;
@@ -135,167 +129,119 @@
             line-height: 1.1;
         }
 
-        .brand-text span {
-            font-size: 0.65rem;
+        .brand-sub {
+            font-size: 0.58rem;
             font-weight: 500;
             color: var(--text-muted);
             letter-spacing: 1px;
             text-transform: uppercase;
         }
 
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .status-indicator {
+        .header-actions {
             display: flex;
             align-items: center;
             gap: 8px;
-            font-size: 0.72rem;
-            color: var(--text-muted);
         }
 
         .status-dot {
-            width: 8px;
-            height: 8px;
+            width: 7px;
+            height: 7px;
             border-radius: 50%;
             background: var(--green);
             animation: pulse-dot 2s infinite;
+            display: none;
         }
+
+        .status-dot.show { display: block; }
 
         @keyframes pulse-dot {
             0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
-            50% { opacity: 0.7; box-shadow: 0 0 0 8px rgba(34, 197, 94, 0); }
+            50% { opacity: 0.6; box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); }
         }
 
-        .user-badge {
+        .user-btn {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid var(--border);
-            padding: 0.35rem 1rem 0.35rem 0.5rem;
-            border-radius: 40px;
+            padding: 0.3rem 0.8rem 0.3rem 0.4rem;
+            border-radius: 30px;
             cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            color: var(--text-primary);
+            font-size: 0.75rem;
             transition: all 0.2s;
-            position: relative;
         }
 
-        .user-badge:hover {
+        .user-btn:hover {
             border-color: var(--gold);
             background: rgba(245, 158, 11, 0.05);
         }
 
         .user-avatar {
-            width: 34px;
-            height: 34px;
+            width: 30px;
+            height: 30px;
             border-radius: 50%;
             background: linear-gradient(135deg, var(--purple), var(--gold));
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 700;
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             color: white;
+            flex-shrink: 0;
         }
 
-        .user-info {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .user-name {
+        .signin-btn {
+            padding: 0.45rem 1rem;
+            border-radius: 25px;
             font-weight: 600;
-            font-size: 0.8rem;
-            color: var(--text-primary);
-            line-height: 1.2;
-        }
-
-        .user-role {
-            font-size: 0.6rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .logout-dropdown {
-            position: absolute;
-            top: calc(100% + 8px);
-            right: 0;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 0.5rem;
-            min-width: 180px;
-            display: none;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-            z-index: 10;
-        }
-
-        .user-badge:hover .logout-dropdown {
-            display: block;
-        }
-
-        .dropdown-item {
-            padding: 0.6rem 1rem;
-            border-radius: 10px;
+            font-size: 0.72rem;
             cursor: pointer;
+            border: none;
+            background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+            color: white;
+            font-family: 'Inter', sans-serif;
             display: flex;
             align-items: center;
-            gap: 10px;
-            font-size: 0.78rem;
-            color: var(--text-secondary);
-            transition: 0.2s;
-            border: none;
-            background: none;
-            width: 100%;
-            font-family: 'Inter', sans-serif;
+            gap: 6px;
+            white-space: nowrap;
         }
 
-        .dropdown-item:hover {
-            background: rgba(245, 158, 11, 0.1);
-            color: var(--gold);
-        }
-
-        .dropdown-item.danger:hover {
-            background: rgba(239, 68, 68, 0.1);
-            color: var(--danger);
-        }
-
-        /* Main Content */
+        /* Main */
         .main-content {
-            max-width: 1400px;
+            flex: 1;
+            max-width: 800px;
+            width: 100%;
             margin: 0 auto;
-            padding: 2.5rem 2rem;
-            position: relative;
-            z-index: 1;
+            padding: 1.5rem 1rem calc(1.5rem + var(--safe-bottom));
         }
 
-        /* Hero Section */
-        .hero-section {
+        /* Hero */
+        .hero {
             text-align: center;
-            margin-bottom: 3rem;
+            margin-bottom: 2rem;
         }
 
         .hero-badge {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             background: rgba(139, 92, 246, 0.1);
-            border: 1px solid rgba(139, 92, 246, 0.3);
-            padding: 0.4rem 1.2rem;
-            border-radius: 30px;
-            font-size: 0.7rem;
+            border: 1px solid rgba(139, 92, 246, 0.25);
+            padding: 0.35rem 1rem;
+            border-radius: 25px;
+            font-size: 0.65rem;
             font-weight: 600;
             color: var(--purple-light);
             text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 1.5rem;
+            letter-spacing: 0.8px;
+            margin-bottom: 1rem;
         }
 
         .hero-badge i {
+            font-size: 0.6rem;
             animation: spin-slow 3s linear infinite;
         }
 
@@ -305,11 +251,11 @@
         }
 
         .hero-title {
-            font-size: clamp(2rem, 5vw, 3rem);
+            font-size: clamp(1.5rem, 6vw, 2.2rem);
             font-weight: 800;
-            line-height: 1.15;
-            margin-bottom: 1rem;
-            letter-spacing: -1px;
+            line-height: 1.2;
+            margin-bottom: 0.6rem;
+            letter-spacing: -0.5px;
         }
 
         .hero-title .gradient-text {
@@ -326,56 +272,59 @@
         }
 
         .hero-subtitle {
-            font-size: 1.05rem;
+            font-size: 0.85rem;
             color: var(--text-muted);
-            max-width: 650px;
+            line-height: 1.6;
+            max-width: 500px;
             margin: 0 auto;
-            line-height: 1.7;
         }
 
-        /* Stats Row */
-        .quick-stats {
+        /* Quick Stats */
+        .stats-row {
             display: flex;
-            justify-content: center;
-            gap: 2rem;
-            flex-wrap: wrap;
-            margin-bottom: 3rem;
+            gap: 0.6rem;
+            margin-bottom: 1.8rem;
         }
 
-        .quick-stat {
+        .stat-mini {
+            flex: 1;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 0.8rem;
             text-align: center;
-            padding: 0.5rem 1.5rem;
         }
 
-        .quick-stat-value {
-            font-size: 1.8rem;
+        .stat-mini-value {
+            font-size: 1.5rem;
             font-weight: 800;
             color: var(--gold);
             line-height: 1;
         }
 
-        .quick-stat-label {
-            font-size: 0.65rem;
+        .stat-mini-label {
+            font-size: 0.58rem;
             color: var(--text-muted);
             text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-top: 0.3rem;
+            letter-spacing: 0.6px;
+            margin-top: 0.2rem;
         }
 
-        /* Operations Grid */
-        .section-label {
+        /* Operations */
+        .section-header {
             display: flex;
             align-items: center;
             gap: 10px;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
         }
 
-        .section-label h2 {
-            font-size: 1.1rem;
+        .section-header h2 {
+            font-size: 0.75rem;
             font-weight: 700;
-            color: var(--text-secondary);
+            color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 1px;
+            white-space: nowrap;
         }
 
         .section-line {
@@ -385,168 +334,193 @@
         }
 
         .operations-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 1.2rem;
-            margin-bottom: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            margin-bottom: 1.5rem;
         }
 
         .operation-card {
             background: var(--bg-card);
             border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 1.8rem;
+            border-radius: 18px;
+            padding: 1.2rem;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
             position: relative;
             overflow: hidden;
-            text-decoration: none;
-            display: block;
-            color: inherit;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .operation-card:active {
+            transform: scale(0.98);
         }
 
         .operation-card::before {
             content: '';
             position: absolute;
-            top: 0;
             left: 0;
-            right: 0;
-            height: 4px;
+            top: 10%;
+            bottom: 10%;
+            width: 3px;
+            border-radius: 0 4px 4px 0;
         }
 
-        .operation-card:hover {
-            transform: translateY(-4px);
-            border-color: var(--border-light);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-        }
+        .operation-card.card-gold::before { background: var(--gold); }
+        .operation-card.card-purple::before { background: var(--purple); }
 
-        .operation-card.card-purple::before { background: linear-gradient(90deg, var(--purple), var(--purple-light)); }
-        .operation-card.card-purple:hover { border-color: rgba(139, 92, 246, 0.5); box-shadow: 0 20px 40px rgba(139, 92, 246, 0.1); }
-        .operation-card.card-purple .card-accent { color: var(--purple-light); }
-        .operation-card.card-purple .card-icon-bg { background: rgba(139, 92, 246, 0.1); }
-        .operation-card.card-purple .status-badge { background: rgba(139, 92, 246, 0.2); color: var(--purple-light); }
-
-        .operation-card.card-gold::before { background: linear-gradient(90deg, var(--gold-dark), var(--gold-light)); }
-        .operation-card.card-gold:hover { border-color: rgba(245, 158, 11, 0.5); box-shadow: 0 20px 40px rgba(245, 158, 11, 0.1); }
-        .operation-card.card-gold .card-accent { color: var(--gold); }
-        .operation-card.card-gold .card-icon-bg { background: rgba(245, 158, 11, 0.1); }
-        .operation-card.card-gold .status-badge { background: rgba(245, 158, 11, 0.2); color: var(--gold); }
-
-        .operation-card.card-green::before { background: linear-gradient(90deg, var(--green-dark), var(--green)); }
-        .operation-card.card-green:hover { border-color: rgba(34, 197, 94, 0.5); box-shadow: 0 20px 40px rgba(34, 197, 94, 0.1); }
-        .operation-card.card-green .card-accent { color: var(--green); }
-        .operation-card.card-green .card-icon-bg { background: rgba(34, 197, 94, 0.1); }
-        .operation-card.card-green .status-badge { background: rgba(34, 197, 94, 0.2); color: var(--green); }
-
-        .operation-card.card-blue::before { background: linear-gradient(90deg, var(--blue-dark), var(--blue)); }
-        .operation-card.card-blue:hover { border-color: rgba(59, 130, 246, 0.5); box-shadow: 0 20px 40px rgba(59, 130, 246, 0.1); }
-        .operation-card.card-blue .card-accent { color: var(--blue); }
-        .operation-card.card-blue .card-icon-bg { background: rgba(59, 130, 246, 0.1); }
-        .operation-card.card-blue .status-badge { background: rgba(59, 130, 246, 0.2); color: var(--blue); }
-
-        .operation-card.card-teal::before { background: linear-gradient(90deg, #0d9488, var(--teal)); }
-        .operation-card.card-teal:hover { border-color: rgba(20, 184, 166, 0.5); box-shadow: 0 20px 40px rgba(20, 184, 166, 0.1); }
-        .operation-card.card-teal .card-accent { color: var(--teal); }
-        .operation-card.card-teal .card-icon-bg { background: rgba(20, 184, 166, 0.1); }
-        .operation-card.card-teal .status-badge { background: rgba(20, 184, 166, 0.2); color: var(--teal); }
-
-        .operation-card.card-orange::before { background: linear-gradient(90deg, #ea580c, var(--orange)); }
-        .operation-card.card-orange:hover { border-color: rgba(249, 115, 22, 0.5); box-shadow: 0 20px 40px rgba(249, 115, 22, 0.1); }
-        .operation-card.card-orange .card-accent { color: var(--orange); }
-        .operation-card.card-orange .card-icon-bg { background: rgba(249, 115, 22, 0.1); }
-        .operation-card.card-orange .status-badge { background: rgba(249, 115, 22, 0.2); color: var(--orange); }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 1.2rem;
-        }
-
-        .card-icon-bg {
-            width: 52px;
-            height: 52px;
-            border-radius: 16px;
+        .card-icon-wrap {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.4rem;
+            font-size: 1.3rem;
+            flex-shrink: 0;
         }
 
-        .status-badge {
-            padding: 0.2rem 0.7rem;
-            border-radius: 20px;
-            font-size: 0.6rem;
+        .card-gold .card-icon-wrap {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--gold);
+        }
+
+        .card-purple .card-icon-wrap {
+            background: rgba(139, 92, 246, 0.1);
+            color: var(--purple-light);
+        }
+
+        .card-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .card-content h3 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            margin-bottom: 0.2rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-content p {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .card-badge {
+            display: inline-block;
+            padding: 0.15rem 0.55rem;
+            border-radius: 15px;
+            font-size: 0.55rem;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.4px;
         }
 
-        .card-body h3 {
-            font-size: 1.2rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-            color: var(--text-primary);
+        .card-gold .card-badge {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--gold);
         }
 
-        .card-body p {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            line-height: 1.6;
-            margin-bottom: 1rem;
+        .card-purple .card-badge {
+            background: rgba(139, 92, 246, 0.15);
+            color: var(--purple-light);
         }
 
-        .card-footer {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding-top: 1rem;
-            border-top: 1px solid var(--border);
-        }
-
-        .card-stats {
-            display: flex;
-            gap: 1rem;
-            font-size: 0.7rem;
-            color: var(--text-muted);
-        }
-
-        .card-stats span {
-            display: flex;
-            align-items: center;
-            gap: 4px;
+        .card-badge.locked {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--red);
         }
 
         .card-arrow {
-            width: 36px;
-            height: 36px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             border: 1px solid var(--border);
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.3s;
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             color: var(--text-muted);
+            flex-shrink: 0;
+            transition: all 0.3s;
         }
 
-        .operation-card:hover .card-arrow {
-            background: white;
-            color: var(--bg-primary);
+        .card-gold:hover .card-arrow,
+        .card-purple:hover .card-arrow {
             border-color: white;
-            transform: translateX(2px);
+            color: white;
+        }
+
+        /* Welcome State */
+        .welcome-state {
+            text-align: center;
+            padding: 2rem 1rem;
+        }
+
+        .welcome-icon {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .welcome-icon i {
+            background: linear-gradient(135deg, var(--purple-light), var(--gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .btn {
+            padding: 0.6rem 1.4rem;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            cursor: pointer;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .btn-gold {
+            background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+            color: white;
+        }
+
+        .btn-gold:active {
+            transform: scale(0.96);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1.5px solid var(--border-light);
+            color: var(--text-secondary);
         }
 
         /* Footer */
         .app-footer {
             text-align: center;
-            padding: 2rem;
+            padding: 1.2rem 1rem calc(1.2rem + var(--safe-bottom));
             color: var(--text-muted);
-            font-size: 0.7rem;
+            font-size: 0.62rem;
             border-top: 1px solid var(--border);
-            margin-top: 2rem;
-            position: relative;
-            z-index: 1;
         }
 
         .app-footer span {
@@ -557,40 +531,50 @@
         /* Toast */
         .toast-container {
             position: fixed;
-            top: 80px;
-            right: 20px;
+            top: 70px;
+            right: 12px;
+            left: 12px;
             z-index: 3000;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            pointer-events: none;
         }
 
         .toast {
             background: var(--bg-card);
             border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 1rem 1.5rem;
-            margin-bottom: 0.5rem;
+            border-radius: 14px;
+            padding: 0.8rem 1rem;
+            margin-bottom: 0.4rem;
             box-shadow: 0 10px 30px rgba(0,0,0,0.4);
             display: flex;
             align-items: center;
-            gap: 10px;
-            font-size: 0.82rem;
+            gap: 8px;
+            font-size: 0.78rem;
             animation: slideIn 0.3s ease;
+            pointer-events: auto;
+            max-width: 100%;
         }
 
-        .toast.success { border-left: 3px solid var(--success); }
-        .toast.error { border-left: 3px solid var(--danger); }
+        .toast.success { border-left: 3px solid var(--green); }
+        .toast.error { border-left: 3px solid var(--red); }
+        .toast.warning { border-left: 3px solid var(--warning); }
         .toast.info { border-left: 3px solid var(--info); }
 
         @keyframes slideIn {
-            from { opacity: 0; transform: translateX(100%); }
+            from { opacity: 0; transform: translateX(60px); }
             to { opacity: 1; transform: translateX(0); }
         }
 
+        /* Loading */
         .loading-overlay {
             position: fixed;
             top: 0; left: 0;
             width: 100%; height: 100%;
-            background: rgba(10, 15, 30, 0.75);
+            background: rgba(10, 15, 30, 0.8);
             backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -598,217 +582,252 @@
         }
         .loading-overlay.hidden { display: none; }
 
-        .spinner-ring {
-            width: 50px; height: 50px;
+        .spinner {
+            width: 44px; height: 44px;
             border-radius: 50%;
             border: 3px solid var(--border);
             border-top-color: var(--gold);
             animation: spin 0.7s linear infinite;
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* Not logged in state */
-        .welcome-overlay {
-            text-align: center;
-            padding: 4rem 2rem;
-        }
-
-        .welcome-icon {
-            font-size: 4rem;
-            margin-bottom: 1.5rem;
-            color: var(--gold);
-        }
-
-        .btn {
-            padding: 0.7rem 1.8rem;
-            border-radius: 40px;
-            font-weight: 600;
-            font-size: 0.85rem;
-            cursor: pointer;
-            border: none;
-            display: inline-flex;
+        /* Login Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.75);
+            z-index: 4000;
+            display: none;
             align-items: center;
-            gap: 8px;
-            transition: all 0.2s;
+            justify-content: center;
+            padding: 1rem;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+        }
+        .modal-overlay.show { display: flex; }
+
+        .modal {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 1.8rem;
+            width: 100%;
+            max-width: 380px;
+        }
+
+        .modal h3 {
+            text-align: center;
+            font-size: 1rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .modal p {
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+        }
+
+        .modal .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .modal label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.3rem;
+        }
+
+        .modal input {
+            width: 100%;
+            padding: 0.65rem;
+            border-radius: 10px;
+            border: 1.5px solid var(--border);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 0.85rem;
             font-family: 'Inter', sans-serif;
-            text-decoration: none;
         }
 
-        .btn-gold {
-            background: linear-gradient(135deg, var(--gold-dark), var(--gold));
-            color: white;
-        }
-        .btn-gold:hover {
-            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.3);
-            transform: translateY(-1px);
-        }
-
-        .btn-outline {
-            background: transparent;
-            border: 1.5px solid var(--border-light);
-            color: var(--text-secondary);
-        }
-        .btn-outline:hover {
+        .modal input:focus {
+            outline: none;
             border-color: var(--gold);
-            color: var(--gold);
         }
 
-        @media (max-width: 768px) {
-            .header { padding: 0 1rem; }
-            .main-content { padding: 1.5rem 1rem; }
-            .operations-grid { grid-template-columns: 1fr; }
-            .hero-title { font-size: 1.6rem; }
-            .brand-text h1 { font-size: 1rem; }
-            .user-info { display: none; }
-            .quick-stats { gap: 1rem; }
+        .modal .btn-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 1.2rem;
+        }
+
+        .modal .btn-row .btn {
+            flex: 1;
+            justify-content: center;
+        }
+
+        .error-text {
+            color: var(--red);
+            font-size: 0.7rem;
+            display: none;
+            margin-top: 0.3rem;
+        }
+
+        .hidden { display: none !important; }
+
+        @media (min-width: 600px) {
+            .header { padding: 0 1.5rem; }
+            .main-content { padding: 2rem 1.5rem calc(2rem + var(--safe-bottom)); }
+            .operations-grid {
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+            .operation-card {
+                flex: 1;
+                min-width: 280px;
+            }
+        }
+
+        @media (min-width: 800px) {
+            .operations-grid {
+                gap: 1rem;
+            }
+            .operation-card {
+                padding: 1.4rem;
+            }
         }
     </style>
 </head>
 <body>
     <div class="bg-pattern"></div>
-    <div class="grid-bg"></div>
 
     <div class="loading-overlay hidden" id="loadingOverlay">
-        <div class="spinner-ring"></div>
+        <div class="spinner"></div>
     </div>
 
     <div class="toast-container" id="toastContainer"></div>
 
-    <header class="header">
-        <div class="header-inner">
-            <div class="brand" onclick="window.location.reload()">
-                <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png" alt="KazInni" class="brand-logo">
-                <div class="brand-text">
-                    <h1>KazInni Workspaces</h1>
-                    <span>Assistant Hub</span>
+    <!-- Login Modal -->
+    <div class="modal-overlay" id="loginModalOverlay">
+        <div class="modal">
+            <h3><i class="fas fa-lock" style="color:var(--gold);margin-right:6px;"></i> Sign In</h3>
+            <p>Use your KazInni credentials</p>
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="loginEmail" placeholder="assistant@kazinni.com" required autocomplete="email">
                 </div>
-            </div>
-            <div class="header-right">
-                <div class="status-indicator" id="statusIndicator" style="display:none;">
-                    <span class="status-dot"></span>
-                    <span>System Online</span>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" placeholder="Your password" required autocomplete="current-password">
                 </div>
-                <div id="loginBtnArea">
-                    <button class="btn btn-gold" onclick="showLoginPrompt()">
-                        <i class="fas fa-sign-in-alt"></i> Sign In
-                    </button>
+                <p class="error-text" id="loginError"></p>
+                <div class="btn-row">
+                    <button type="button" class="btn btn-outline" onclick="closeLoginModal()">Cancel</button>
+                    <button type="submit" class="btn btn-gold">Sign In</button>
                 </div>
-                <div class="user-badge hidden" id="userBadge">
-                    <div class="user-avatar" id="userAvatar">KA</div>
-                    <div class="user-info">
-                        <span class="user-name" id="userName">Assistant</span>
-                        <span class="user-role" id="userRole">Field Agent</span>
-                    </div>
-                    <div class="logout-dropdown">
-                        <button class="dropdown-item" onclick="refreshData()">
-                            <i class="fas fa-sync-alt"></i> Refresh Status
-                        </button>
-                        <button class="dropdown-item danger" onclick="handleLogout()">
-                            <i class="fas fa-sign-out-alt"></i> Sign Out
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <main class="main-content">
-        <!-- Not Logged In -->
-        <div id="welcomeSection">
-            <div class="welcome-overlay">
-                <div class="welcome-icon">
-                    <i class="fas fa-rocket"></i>
-                </div>
-                <div class="hero-title">
-                    Welcome to <span class="gradient-text">KazInni</span>
-                </div>
-                <p class="hero-subtitle" style="margin-bottom:2rem;">
-                    Your unified assistant portal. Sign in to access your assigned operations, manage deliveries, rides, and field tasks across all KazInni services.
-                </p>
-                <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
-                    <button class="btn btn-gold" onclick="showLoginPrompt()">
-                        <i class="fas fa-sign-in-alt"></i> Sign In with Email
-                    </button>
-                    <button class="btn btn-outline" onclick="window.location.href='https://kazinni.vercel.app'">
-                        <i class="fas fa-globe"></i> Visit Main Site
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Logged In -->
-        <div id="dashboardSection" class="hidden">
-            <!-- Hero -->
-            <div class="hero-section">
-                <div class="hero-badge">
-                    <i class="fas fa-circle-notch"></i>
-                    Assistant Operations Center
-                </div>
-                <div class="hero-title">
-                    Select Your <span class="gradient-text">Operation</span>
-                </div>
-                <p class="hero-subtitle">
-                    Choose the service you're assigned to and access your dedicated portal. Each operation has its own tools, jobs, and workflow.
-                </p>
-            </div>
-
-            <!-- Quick Stats -->
-            <div class="quick-stats">
-                <div class="quick-stat">
-                    <div class="quick-stat-value" id="statActiveJobs">0</div>
-                    <div class="quick-stat-label">Active Jobs</div>
-                </div>
-                <div class="quick-stat">
-                    <div class="quick-stat-value" id="statPending">0</div>
-                    <div class="quick-stat-label">Pending Tasks</div>
-                </div>
-                <div class="quick-stat">
-                    <div class="quick-stat-value" id="statCompleted">0</div>
-                    <div class="quick-stat-label">Completed Today</div>
-                </div>
-            </div>
-
-            <!-- Operations -->
-            <div class="section-label">
-                <h2><i class="fas fa-grid-2" style="margin-right:6px;"></i> Available Operations</h2>
-                <div class="section-line"></div>
-            </div>
-
-            <div class="operations-grid" id="operationsGrid">
-                <!-- Cards will be dynamically rendered -->
-            </div>
-        </div>
-    </main>
-
-    <footer class="app-footer">
-        &copy; 2026 <span>KazInni Workspaces</span> · Assistant Hub · All operations managed centrally
-    </footer>
-
-    <!-- Login Prompt Modal -->
-    <div id="loginModal" style="display:none; position:fixed; top:0;left:0;right:0;bottom:0; background:rgba(0,0,0,0.7); z-index:4000; display:none; align-items:center; justify-content:center; backdrop-filter:blur(4px);">
-        <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:24px; padding:2.5rem; max-width:420px; width:90%; text-align:center;">
-            <i class="fas fa-lock" style="font-size:2.5rem; color:var(--gold); margin-bottom:1rem;"></i>
-            <h3 style="margin-bottom:0.5rem; font-size:1.2rem;">Sign In Required</h3>
-            <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:2rem;">Use your KazInni credentials to access the assistant portal.</p>
-            <form id="loginForm" onsubmit="handleLogin(event)" style="text-align:left;">
-                <div style="margin-bottom:1rem;">
-                    <label style="display:block;font-weight:600;font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;margin-bottom:0.3rem;">Email</label>
-                    <input type="email" id="loginEmail" placeholder="assistant@kazinni.com" required style="width:100%;padding:0.7rem;border-radius:12px;border:1.5px solid var(--border);background:var(--bg-secondary);color:var(--text-primary);font-size:0.9rem;font-family:'Inter',sans-serif;">
-                </div>
-                <div style="margin-bottom:1rem;">
-                    <label style="display:block;font-weight:600;font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;margin-bottom:0.3rem;">Password</label>
-                    <input type="password" id="loginPassword" placeholder="Your password" required style="width:100%;padding:0.7rem;border-radius:12px;border:1.5px solid var(--border);background:var(--bg-secondary);color:var(--text-primary);font-size:0.9rem;font-family:'Inter',sans-serif;">
-                </div>
-                <p id="loginError" style="color:var(--danger);font-size:0.75rem;display:none;margin-bottom:0.5rem;"></p>
-                <button type="submit" class="btn btn-gold" style="width:100%;justify-content:center;">
-                    <i class="fas fa-sign-in-alt"></i> Sign In
-                </button>
             </form>
-            <button onclick="closeLoginModal()" style="background:none;border:none;color:var(--text-muted);cursor:pointer;margin-top:1rem;font-size:0.8rem;font-family:'Inter',sans-serif;">Cancel</button>
         </div>
+    </div>
+
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-inner">
+                <div class="brand">
+                    <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png" alt="KazInni" class="brand-logo">
+                    <div class="brand-text">
+                        <span class="brand-name">KazInni</span>
+                        <span class="brand-sub">Assistant Hub</span>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <span class="status-dot" id="statusDot"></span>
+                    <div id="loginArea">
+                        <button class="signin-btn" onclick="openLoginModal()">
+                            <i class="fas fa-sign-in-alt"></i> Sign In
+                        </button>
+                    </div>
+                    <button class="user-btn hidden" id="userBtn" onclick="handleLogout()">
+                        <div class="user-avatar" id="userAvatar">KA</div>
+                        <span id="userNameShort">Assistant</span>
+                        <i class="fas fa-chevron-down" style="font-size:0.5rem;opacity:0.5;"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main -->
+        <main class="main-content">
+            <!-- Welcome State -->
+            <div id="welcomeState">
+                <div class="welcome-state">
+                    <span class="welcome-icon"><i class="fas fa-rocket"></i></span>
+                    <div class="hero-title" style="margin-bottom:0.6rem;">
+                        Welcome to <span class="gradient-text">KazInni</span>
+                    </div>
+                    <p class="hero-subtitle" style="margin-bottom:1.5rem;">
+                        Your assistant portal for Pick-Up deliveries and Pick Me rides. Sign in to access your operations.
+                    </p>
+                    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+                        <button class="btn btn-gold" onclick="openLoginModal()">
+                            <i class="fas fa-sign-in-alt"></i> Sign In
+                        </button>
+                        <a href="https://kazinni.vercel.app" class="btn btn-outline">
+                            <i class="fas fa-globe"></i> Main Site
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard State -->
+            <div id="dashboardState" class="hidden">
+                <div class="hero">
+                    <div class="hero-badge">
+                        <i class="fas fa-circle-notch"></i> Operations Center
+                    </div>
+                    <div class="hero-title">
+                        Select <span class="gradient-text">Operation</span>
+                    </div>
+                    <p class="hero-subtitle">
+                        Choose a service to access your dedicated portal.
+                    </p>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="stats-row">
+                    <div class="stat-mini">
+                        <div class="stat-mini-value" id="statActive">0</div>
+                        <div class="stat-mini-label">Active Jobs</div>
+                    </div>
+                    <div class="stat-mini">
+                        <div class="stat-mini-value" id="statPending">0</div>
+                        <div class="stat-mini-label">Pending</div>
+                    </div>
+                    <div class="stat-mini">
+                        <div class="stat-mini-value" id="statDone">0</div>
+                        <div class="stat-mini-label">Done Today</div>
+                    </div>
+                </div>
+
+                <!-- Operations -->
+                <div class="section-header">
+                    <h2><i class="fas fa-grid-2"></i> Available Operations</h2>
+                    <div class="section-line"></div>
+                </div>
+
+                <div class="operations-grid" id="operationsGrid"></div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            &copy; 2026 <span>KazInni Workspaces</span> · Assistant Hub
+        </footer>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -832,72 +851,40 @@
 
         const $ = id => document.getElementById(id);
         let currentUser = null;
-        let assistantRegistrations = {};
-        let allJobs = {};
+        let registrations = {};
 
         const OPERATIONS = [
             {
                 id: 'pick-up',
                 name: 'Pick-Up Deliveries',
-                description: 'Manage package deliveries, pickups, and drop-offs across registered businesses.',
+                description: 'Manage package deliveries, pickups, and drop-offs.',
                 icon: 'fa-box',
                 color: 'gold',
-                url: '/workspaces/pick-up/assistant.html',
+                page: 'pick-up.html',
                 badge: 'Deliveries',
                 node: 'delivery_assistants'
             },
             {
                 id: 'pick-me',
                 name: 'Pick Me Rides',
-                description: 'Accept ride requests, navigate to passengers, and complete trips.',
+                description: 'Accept rides, navigate to passengers, complete trips.',
                 icon: 'fa-taxi',
                 color: 'purple',
-                url: '/workspaces/pick-me/driver.html',
+                page: 'pick-me.html',
                 badge: 'Rides',
                 node: 'pickme_drivers'
-            },
-            {
-                id: 'ekazi',
-                name: 'E-Kazi Tasks',
-                description: 'Complete gig tasks, freelance jobs, and service requests from clients.',
-                icon: 'fa-laptop-code',
-                color: 'blue',
-                url: '/workspaces/ekazi/tasker.html',
-                badge: 'Tasks',
-                node: 'taskers'
-            },
-            {
-                id: 'brandinn',
-                name: 'BrandInn Services',
-                description: 'Handle brand promotions, in-store activations, and marketing tasks.',
-                icon: 'fa-store',
-                color: 'teal',
-                url: '/workspaces/brandinn/assistant.html',
-                badge: 'Branding',
-                node: 'brandinn_assistants'
-            },
-            {
-                id: 'heritage',
-                name: 'Heritage Tours',
-                description: 'Guide tourists, manage heritage site visits, and cultural experiences.',
-                icon: 'fa-landmark',
-                color: 'orange',
-                url: '/workspaces/heritage/guide.html',
-                badge: 'Tours',
-                node: 'heritage_guides'
             }
         ];
 
-        function showLoading(s) {
-            $('loadingOverlay').classList.toggle('hidden', !s);
-        }
+        function showLoading(s) { $('loadingOverlay').classList.toggle('hidden', !s); }
 
         function toast(msg, type = 'info') {
             const t = document.createElement('div');
             t.className = `toast ${type}`;
-            t.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i> ${msg}`;
+            const icons = { success: 'check-circle', error: 'exclamation-circle', warning: 'exclamation-triangle', info: 'info-circle' };
+            t.innerHTML = `<i class="fas fa-${icons[type]}"></i> ${msg}`;
             $('toastContainer').appendChild(t);
-            setTimeout(() => t.remove(), 4000);
+            setTimeout(() => t.remove(), 3500);
         }
 
         function getInitials(name) {
@@ -905,13 +892,13 @@
             return String(name).split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
         }
 
-        window.showLoginPrompt = function() {
-            $('loginModal').style.display = 'flex';
+        window.openLoginModal = function() {
+            $('loginModalOverlay').classList.add('show');
             $('loginError').style.display = 'none';
         };
 
         window.closeLoginModal = function() {
-            $('loginModal').style.display = 'none';
+            $('loginModalOverlay').classList.remove('show');
             $('loginError').style.display = 'none';
         };
 
@@ -921,7 +908,7 @@
             const password = $('loginPassword').value;
             if (!email || !password) {
                 $('loginError').style.display = 'block';
-                $('loginError').textContent = 'Please fill all fields';
+                $('loginError').textContent = 'Fill all fields';
                 return;
             }
             showLoading(true);
@@ -941,183 +928,132 @@
         window.handleLogout = async function() {
             if (confirm('Sign out of Assistant Hub?')) {
                 await auth.signOut();
-                showWelcomeUI();
                 toast('Signed out', 'info');
             }
         };
 
-        window.refreshData = async function() {
-            if (!currentUser) return;
-            await checkAllRegistrations(currentUser);
-            toast('Status refreshed', 'success');
-        };
-
-        async function checkAllRegistrations(user) {
-            const operations = [];
-            const nodes = ['delivery_assistants', 'pickme_drivers', 'taskers', 'brandinn_assistants', 'heritage_guides'];
-            
-            for (const node of nodes) {
+        async function checkRegistrations(user) {
+            registrations = {};
+            for (const op of OPERATIONS) {
                 try {
-                    const snap = await db.ref(`${node}/${user.uid}`).once('value');
+                    const snap = await db.ref(`${op.node}/${user.uid}`).once('value');
                     if (snap.exists() && snap.val().verified === true) {
-                        operations.push({ node, data: snap.val() });
+                        registrations[op.node] = { verified: true, ...snap.val() };
                     }
                 } catch (e) {
-                    console.warn(`Error checking ${node}:`, e);
+                    console.warn(`Error checking ${op.node}:`, e);
                 }
             }
-
-            assistantRegistrations = {};
-            operations.forEach(op => {
-                assistantRegistrations[op.node] = op.data;
-            });
-
-            return operations;
         }
 
         async function loadJobCounts() {
             if (!currentUser) return;
             try {
-                let activeJobs = 0;
-                let pendingTasks = 0;
-                let completedToday = 0;
+                let active = 0, pending = 0, done = 0;
                 const today = new Date().toDateString();
 
-                // Check pickup deliveries
-                const pickupSnap = await db.ref('pickup_deliveries').orderByChild('assignedTo').equalTo(currentUser.uid).once('value');
-                const pickups = pickupSnap.val() || {};
-                Object.values(pickups).forEach(d => {
-                    if (['assigned', 'out-for-delivery', 'in_progress'].includes(d.status)) activeJobs++;
-                    if (d.status === 'pending') pendingTasks++;
-                    if (d.status === 'delivered' && d.deliveryDate && new Date(d.deliveryDate).toDateString() === today) completedToday++;
+                // Pick-Up
+                const pSnap = await db.ref('pickup_deliveries').orderByChild('assignedTo').equalTo(currentUser.uid).once('value');
+                Object.values(pSnap.val() || {}).forEach(d => {
+                    if (['assigned', 'out-for-delivery', 'in_progress'].includes(d.status)) active++;
+                    if (d.status === 'pending') pending++;
+                    if (d.status === 'delivered' && d.deliveryDate && new Date(d.deliveryDate).toDateString() === today) done++;
                 });
 
-                // Check rides
-                const rideSnap = await db.ref('pickme_rides').orderByChild('driverId').equalTo(currentUser.uid).once('value');
-                const rides = rideSnap.val() || {};
-                Object.values(rides).forEach(r => {
-                    if (['accepted', 'arrived', 'ongoing'].includes(r.status)) activeJobs++;
-                    if (r.status === 'requested') pendingTasks++;
-                    if (r.status === 'completed' && r.completedAt && new Date(r.completedAt).toDateString() === today) completedToday++;
+                // Pick Me
+                const rSnap = await db.ref('pickme_rides').orderByChild('driverId').equalTo(currentUser.uid).once('value');
+                Object.values(rSnap.val() || {}).forEach(r => {
+                    if (['accepted', 'arrived', 'ongoing'].includes(r.status)) active++;
+                    if (r.status === 'requested') pending++;
+                    if (r.status === 'completed' && r.completedAt && new Date(r.completedAt).toDateString() === today) done++;
                 });
 
-                // Check tasker tasks
-                const taskSnap = await db.ref('assistant_tasks').orderByChild('assignedTo').equalTo(currentUser.uid).once('value');
-                const tasks = taskSnap.val() || {};
-                Object.values(tasks).forEach(t => {
-                    if (['assigned', 'in_progress'].includes(t.status)) activeJobs++;
-                    if (t.status === 'pending') pendingTasks++;
-                    if (t.status === 'completed' && t.completedAt && new Date(t.completedAt).toDateString() === today) completedToday++;
-                });
-
-                $('statActiveJobs').textContent = activeJobs;
-                $('statPending').textContent = pendingTasks;
-                $('statCompleted').textContent = completedToday;
+                $('statActive').textContent = active;
+                $('statPending').textContent = pending;
+                $('statDone').textContent = done;
             } catch (e) {
-                console.error('Error loading job counts:', e);
+                console.error('Job count error:', e);
             }
         }
 
         function renderOperations() {
             const grid = $('operationsGrid');
-            const availableOps = [];
+            grid.innerHTML = OPERATIONS.map(op => {
+                const isRegistered = registrations[op.node] !== undefined;
+                const cardClass = op.color === 'gold' ? 'card-gold' : 'card-purple';
 
-            OPERATIONS.forEach(op => {
-                const node = op.node;
-                const isRegistered = assistantRegistrations[node] !== undefined;
-                const data = assistantRegistrations[node];
-
-                availableOps.push({
-                    ...op,
-                    registered: isRegistered,
-                    data: data
-                });
-            });
-
-            grid.innerHTML = availableOps.map(op => {
-                const cardColor = op.color === 'gold' ? 'card-gold' : 
-                                  op.color === 'purple' ? 'card-purple' : 
-                                  op.color === 'blue' ? 'card-blue' : 
-                                  op.color === 'teal' ? 'card-teal' : 'card-orange';
-                
-                const statusText = op.registered ? 'Active' : 'Not Registered';
-                const statusIcon = op.registered ? 'fa-check-circle' : 'fa-lock';
-                
                 return `
-                <div class="operation-card ${cardColor}" onclick="${op.registered ? `window.location.href='${op.url}'` : `toast('You are not registered for ${op.name}. Contact admin.','warning')`}">
-                    <div class="card-header">
-                        <div class="card-icon-bg">
-                            <i class="fas ${op.icon} card-accent"></i>
-                        </div>
-                        <span class="status-badge">
-                            <i class="fas ${statusIcon}" style="margin-right:4px;"></i>${statusText}
-                        </span>
+                <div class="operation-card ${cardClass}" 
+                     onclick="${isRegistered ? `navigateTo('${op.page}')` : `toast('Not registered for ${op.name}. Contact admin.','warning')`}"
+                     role="button" tabindex="0">
+                    <div class="card-icon-wrap">
+                        <i class="fas ${op.icon}"></i>
                     </div>
-                    <div class="card-body">
-                        <h3>${op.name}</h3>
+                    <div class="card-content">
+                        <h3>
+                            ${op.name}
+                            <span class="card-badge ${isRegistered ? '' : 'locked'}">
+                                ${isRegistered ? 'Active' : 'Locked'}
+                            </span>
+                        </h3>
                         <p>${op.description}</p>
                     </div>
-                    <div class="card-footer">
-                        <div class="card-stats">
-                            <span><i class="fas fa-tag"></i> ${op.badge}</span>
-                            ${op.registered ? '<span><i class="fas fa-check-circle" style="color:var(--green);"></i> Verified</span>' : '<span><i class="fas fa-clock" style="color:var(--warning);"></i> Pending</span>'}
-                        </div>
-                        <div class="card-arrow">
-                            <i class="fas fa-arrow-right"></i>
-                        </div>
+                    <div class="card-arrow">
+                        <i class="fas fa-chevron-right"></i>
                     </div>
                 </div>`;
             }).join('');
         }
 
-        function showWelcomeUI() {
-            $('welcomeSection').classList.remove('hidden');
-            $('dashboardSection').classList.add('hidden');
-            $('loginBtnArea').classList.remove('hidden');
-            $('userBadge').classList.add('hidden');
-            $('statusIndicator').style.display = 'none';
+        window.navigateTo = function(page) {
+            const base = '/e-kazi/assistants/';
+            window.location.href = base + page;
+        };
+
+        function showWelcome() {
+            $('welcomeState').classList.remove('hidden');
+            $('dashboardState').classList.add('hidden');
+            $('loginArea').classList.remove('hidden');
+            $('userBtn').classList.add('hidden');
+            $('statusDot').classList.remove('show');
         }
 
-        function showDashboardUI() {
-            $('welcomeSection').classList.add('hidden');
-            $('dashboardSection').classList.remove('hidden');
-            $('loginBtnArea').classList.add('hidden');
-            $('userBadge').classList.remove('hidden');
-            $('statusIndicator').style.display = 'flex';
+        function showDashboard() {
+            $('welcomeState').classList.add('hidden');
+            $('dashboardState').classList.remove('hidden');
+            $('loginArea').classList.add('hidden');
+            $('userBtn').classList.remove('hidden');
+            $('statusDot').classList.add('show');
         }
 
         auth.onAuthStateChanged(async (user) => {
             if (user) {
                 currentUser = user;
-                $('userName').textContent = user.displayName || user.email?.split('@')[0] || 'Assistant';
                 $('userAvatar').textContent = getInitials(user.displayName || user.email);
-                $('userRole').textContent = 'Field Agent';
-                
+                $('userNameShort').textContent = (user.displayName || user.email?.split('@')[0] || 'Asst').substring(0, 12);
+
                 showLoading(true);
-                await checkAllRegistrations(user);
-                showDashboardUI();
+                await checkRegistrations(user);
+                showDashboard();
                 renderOperations();
                 await loadJobCounts();
                 showLoading(false);
-                
-                toast('Welcome back! Select an operation to begin.', 'success');
+
+                const hasOps = Object.keys(registrations).length > 0;
+                toast(hasOps ? 'Select an operation' : 'No active registrations found', hasOps ? 'success' : 'warning');
             } else {
                 currentUser = null;
-                assistantRegistrations = {};
-                showWelcomeUI();
+                registrations = {};
+                showWelcome();
             }
         });
 
-        // Close login modal on Escape
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                closeLoginModal();
-            }
-        });
-
-        // Click outside login modal to close
-        $('loginModal').addEventListener('click', function(e) {
+        // Close login modal on overlay click or Escape
+        $('loginModalOverlay').addEventListener('click', function(e) {
             if (e.target === this) closeLoginModal();
+        });
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeLoginModal();
         });
     </script>
 </body>
