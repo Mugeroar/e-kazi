@@ -109,6 +109,38 @@
       border-radius: 14px; box-shadow: 0 8px 16px rgba(139, 92, 246, 0.1); 
     }
 
+    .stats-banner {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 1.5rem;
+    }
+    .stat-mini {
+      background: white;
+      border-radius: 12px;
+      padding: 0.8rem 1rem;
+      border: 1px solid #ede9fe;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.75rem;
+    }
+    .stat-mini .stat-value {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--primary-dark);
+    }
+    .stat-mini .stat-label {
+      color: var(--text-muted);
+      font-size: 0.65rem;
+      text-transform: uppercase;
+    }
+    .stat-mini i {
+      color: var(--primary);
+      font-size: 1.2rem;
+      opacity: 0.6;
+    }
+
     .filter-bar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 1.5rem; align-items: center; }
 
     .filter-btn {
@@ -119,6 +151,8 @@
     .filter-btn.active { background: var(--primary-dark); color: white; border-color: var(--primary-dark); }
     .filter-btn:hover { border-color: var(--primary); color: var(--primary-dark); }
     .filter-btn.active:hover { color: white; }
+    .filter-btn.urgent { border-color: #fbbf24; color: #92400e; }
+    .filter-btn.urgent.active { background: #f59e0b; color: white; border-color: #f59e0b; }
 
     .search-box { flex: 1; min-width: 200px; max-width: 400px; position: relative; }
     .search-box input {
@@ -140,9 +174,13 @@
     th {
       padding: 0.8rem 1rem; text-align: left; font-weight: 700; color: #6d28d9;
       font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;
+      cursor: pointer;
     }
+    th:hover { color: var(--primary-dark); }
+    th .sort-icon { margin-left: 4px; font-size: 0.6rem; }
     td { padding: 0.8rem 1rem; border-bottom: 1px solid #f1f5f9; color: #1e293b; vertical-align: middle; }
     tr:hover td { background: #faf5ff; }
+    tr.row-urgent { background: #fffbeb; }
 
     .status-badge {
       display: inline-block; padding: 0.25rem 0.7rem; border-radius: 20px;
@@ -163,8 +201,10 @@
       font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;
       transition: all 0.2s; white-space: nowrap;
     }
-    .btn-accept { background: #e0f2fe; color: #0369a1; }
-    .btn-accept:hover { background: #0369a1; color: white; }
+    .btn-assign { background: #e0f2fe; color: #0369a1; }
+    .btn-assign:hover { background: #0369a1; color: white; }
+    .btn-accept { background: #d1fae5; color: #065f46; }
+    .btn-accept:hover { background: #065f46; color: white; }
     .btn-arrive { background: #dbeafe; color: #1e40af; }
     .btn-arrive:hover { background: #1e40af; color: white; }
     .btn-start { background: #fef3cd; color: #b45309; }
@@ -173,8 +213,12 @@
     .btn-complete:hover { background: #065f46; color: white; }
     .btn-cancel-btn { background: #fee2e2; color: #991b1b; }
     .btn-cancel-btn:hover { background: #991b1b; color: white; }
+    .btn-reschedule { background: #ede9fe; color: #6d28d9; }
+    .btn-reschedule:hover { background: #6d28d9; color: white; }
     .btn-view { background: #f1f5f9; color: #475569; }
     .btn-view:hover { background: #475569; color: white; }
+    .btn-contact { background: #d1fae5; color: #065f46; }
+    .btn-contact:hover { background: #065f46; color: white; }
 
     .empty-row td { text-align: center; padding: 3rem; color: #94a3b8; }
 
@@ -185,7 +229,7 @@
     }
     .modal-overlay.show { display: flex; }
     .modal {
-      background: white; border-radius: 24px; padding: 2rem; max-width: 600px; width: 95%;
+      background: white; border-radius: 24px; padding: 2rem; max-width: 650px; width: 95%;
       max-height: 85vh; overflow-y: auto; box-shadow: 0 25px 50px rgba(0,0,0,0.2);
     }
     .modal h3 { font-size: 1.2rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px; }
@@ -199,18 +243,42 @@
       border: 1.5px solid #e2e8f0; font-size: 0.85rem; font-family: 'Inter', sans-serif;
     }
     .modal textarea { resize: vertical; min-height: 80px; }
-    .modal .btn-row { display: flex; gap: 10px; margin-top: 1.5rem; }
+    .modal .btn-row { display: flex; gap: 10px; margin-top: 1.5rem; flex-wrap: wrap; }
     .btn {
       padding: 0.7rem 1.5rem; border-radius: 12px; border: none; font-weight: 600;
       font-size: 0.85rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
     }
     .btn-primary { background: #6d28d9; color: white; }
+    .btn-primary:hover { background: #5b21b6; }
+    .btn-success { background: #10b981; color: white; }
+    .btn-success:hover { background: #059669; }
+    .btn-danger { background: #ef4444; color: white; }
+    .btn-danger:hover { background: #dc2626; }
+    .btn-warning { background: #f59e0b; color: white; }
+    .btn-warning:hover { background: #d97706; }
     .btn-secondary { background: #f1f5f9; color: #475569; }
+    .btn-secondary:hover { background: #e2e8f0; }
     .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 0.8rem; }
     .detail-item { background: #f8fafc; padding: 0.8rem; border-radius: 10px; }
     .detail-item strong { 
       display: block; font-size: 0.65rem; color: #94a3b8; text-transform: uppercase; margin-bottom: 0.2rem; 
     }
+    .driver-list { max-height: 250px; overflow-y: auto; }
+    .driver-option {
+      display: flex; align-items: center; gap: 10px; padding: 0.6rem;
+      border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 6px;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .driver-option:hover { border-color: var(--primary); background: #faf5ff; }
+    .driver-option.selected { border-color: var(--primary); background: #ede9fe; }
+    .driver-avatar {
+      width: 36px; height: 36px; background: var(--primary-light);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 0.7rem; color: white; flex-shrink: 0;
+    }
+    .driver-info { flex: 1; min-width: 0; }
+    .driver-name { font-weight: 600; font-size: 0.8rem; }
+    .driver-meta { font-size: 0.65rem; color: var(--text-muted); }
 
     .toast {
       position: fixed; bottom: 30px; right: 30px; background: #10b981; color: white;
@@ -242,6 +310,16 @@
     }
     .debug-info.show { display: block; }
 
+    .ride-meta-tags {
+      display: flex; gap: 4px; flex-wrap: wrap; margin-top: 2px;
+    }
+    .meta-tag {
+      font-size: 0.55rem; padding: 1px 6px; border-radius: 10px;
+      background: #f1f5f9; color: #64748b;
+    }
+    .meta-tag.urgent { background: #fef3c7; color: #92400e; }
+    .meta-tag.vip { background: #ede9fe; color: #6d28d9; }
+
     @media (max-width: 768px) {
       .container { padding: 1rem; }
       .filter-bar { gap: 6px; }
@@ -249,6 +327,7 @@
       table { font-size: 0.7rem; }
       th, td { padding: 0.5rem 0.6rem; }
       .detail-grid { grid-template-columns: 1fr; }
+      .stats-banner { grid-template-columns: repeat(2, 1fr); }
     }
   </style>
 </head>
@@ -278,10 +357,22 @@
 
   <div class="container">
     <div class="page-header">
-      <h1><i class="fas fa-taxi"></i> All Rides</h1>
-      <a href="/workspaces/pick-me/request-ride.html" class="nav-btn" style="text-decoration:none;">
-        <i class="fas fa-plus"></i> New Ride
-      </a>
+      <h1><i class="fas fa-taxi"></i> Manage Rides</h1>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <a href="/workspaces/pick-me/request-ride.html" class="nav-btn" style="text-decoration:none;">
+          <i class="fas fa-plus"></i> New Ride
+        </a>
+        <button class="nav-btn" id="refreshBtn" style="text-decoration:none;">
+          <i class="fas fa-sync-alt"></i> Refresh
+        </button>
+      </div>
+    </div>
+
+    <div class="stats-banner" id="statsBanner">
+      <div class="stat-mini"><i class="fas fa-clock"></i><div><div class="stat-value" id="statPending">0</div><div class="stat-label">Pending</div></div></div>
+      <div class="stat-mini"><i class="fas fa-car"></i><div><div class="stat-value" id="statActive">0</div><div class="stat-label">Active</div></div></div>
+      <div class="stat-mini"><i class="fas fa-check-circle"></i><div><div class="stat-value" id="statCompleted">0</div><div class="stat-label">Completed Today</div></div></div>
+      <div class="stat-mini"><i class="fas fa-users"></i><div><div class="stat-value" id="statDrivers">0</div><div class="stat-label">Available Drivers</div></div></div>
     </div>
 
     <div class="debug-info" id="debugInfo">
@@ -298,7 +389,7 @@
       <button class="filter-btn" data-filter="cancelled">Cancelled</button>
       <div class="search-box">
         <i class="fas fa-search"></i>
-        <input type="text" id="searchInput" placeholder="Search passenger, address, driver...">
+        <input type="text" id="searchInput" placeholder="Search passenger, address, driver, phone...">
       </div>
     </div>
 
@@ -307,13 +398,13 @@
         <table>
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Passenger</th>
+              <th onclick="sortTable('id')">ID <i class="fas fa-sort sort-icon"></i></th>
+              <th onclick="sortTable('passenger')">Passenger <i class="fas fa-sort sort-icon"></i></th>
               <th>Pickup</th>
               <th>Dropoff</th>
-              <th>Fare</th>
+              <th onclick="sortTable('fare')">Fare <i class="fas fa-sort sort-icon"></i></th>
               <th>Driver</th>
-              <th>Status</th>
+              <th onclick="sortTable('status')">Status <i class="fas fa-sort sort-icon"></i></th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -354,6 +445,8 @@
     let allDrivers = {};
     let currentFilter = 'all';
     let searchQuery = '';
+    let sortField = 'requestedAt';
+    let sortDirection = 'desc';
 
     const loadingOverlay = document.getElementById('loadingOverlay');
     const tableBody = document.getElementById('ridesTableBody');
@@ -402,14 +495,10 @@
     function getStatusClass(status) {
       const s = String(status || 'requested').toLowerCase().replace(/-/g, '_');
       const map = {
-        'requested': 'status-requested',
-        'pending': 'status-pending',
-        'accepted': 'status-accepted',
-        'arrived': 'status-arrived',
-        'ongoing': 'status-ongoing',
-        'in_progress': 'status-in_progress',
-        'completed': 'status-completed',
-        'cancelled': 'status-cancelled'
+        'requested': 'status-requested', 'pending': 'status-pending',
+        'accepted': 'status-accepted', 'arrived': 'status-arrived',
+        'ongoing': 'status-ongoing', 'in_progress': 'status-in_progress',
+        'completed': 'status-completed', 'cancelled': 'status-cancelled'
       };
       return map[s] || 'status-requested';
     }
@@ -422,6 +511,11 @@
       return '—';
     }
 
+    function getFareValue(ride) {
+      if (!ride) return 0;
+      return ride.fare?.total || ride.fare || ride.estimatedFare || 0;
+    }
+
     function getShortId(id) {
       if (!id) return '—';
       return String(id).substring(Math.max(0, id.length - 6));
@@ -429,7 +523,7 @@
 
     function getDriverName(ride) {
       if (!ride) return '—';
-      return ride.driverName || ride.driver?.name || ride.assignedDriver || '—';
+      return ride.driverName || ride.driver?.name || ride.assignedDriver || ride.assignedTo || '—';
     }
 
     function getPickupAddress(ride) {
@@ -444,12 +538,53 @@
              ride.dropoff?.coordinates?.displayName || 'N/A';
     }
 
+    function getActiveDriversCount() {
+      return Object.values(allDrivers).filter(d => 
+        d && d.verified && d.status === 'available'
+      ).length;
+    }
+
+    function getTotalDriversCount() {
+      return Object.values(allDrivers).filter(d => d && d.verified).length;
+    }
+
+    function updateStats() {
+      const rides = Object.values(allRides);
+      const pending = rides.filter(r => {
+        const s = getNormalizedStatus(r);
+        return s === 'requested' || s === 'pending';
+      }).length;
+      const active = rides.filter(r => {
+        const s = getNormalizedStatus(r);
+        return ['accepted', 'arrived', 'ongoing', 'in_progress'].includes(s);
+      }).length;
+      const today = new Date().toISOString().split('T')[0];
+      const completed = rides.filter(r => {
+        const s = getNormalizedStatus(r);
+        if (s !== 'completed') return false;
+        const completedDate = (r.completedAt || '').toString().split('T')[0];
+        return completedDate === today;
+      }).length;
+
+      document.getElementById('statPending').textContent = pending;
+      document.getElementById('statActive').textContent = active;
+      document.getElementById('statCompleted').textContent = completed;
+      document.getElementById('statDrivers').textContent = getActiveDriversCount();
+    }
+
+    function sortTable(field) {
+      if (sortField === field) {
+        sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+      } else {
+        sortField = field;
+        sortDirection = 'asc';
+      }
+      renderTable();
+    }
+
     function renderTable() {
       let rides = Object.entries(allRides)
         .map(([id, data]) => ({ id, ...data }));
-
-      const statuses = rides.map(r => getNormalizedStatus(r));
-      showDebug(`Total raw: ${rides.length} | Statuses: [${statuses.join(', ')}] | Filter: "${currentFilter}"`);
 
       // Apply status filter
       if (currentFilter !== 'all') {
@@ -469,19 +604,28 @@
           const dropoff = getDropoffAddress(r).toLowerCase();
           const phone = (r.passengerPhone || r.phone || r.passenger?.phone || '').toLowerCase();
           const driver = getDriverName(r).toLowerCase();
+          const vehicle = (r.vehicleType || '').toLowerCase();
           return passenger.includes(q) || pickup.includes(q) || dropoff.includes(q) || 
-                 phone.includes(q) || driver.includes(q);
+                 phone.includes(q) || driver.includes(q) || vehicle.includes(q);
         });
       }
 
-      // Sort by newest first
+      // Sort
       rides.sort((a, b) => {
-        const tA = a.requestedAt || a.timestamp || a.createdAt || 0;
-        const tB = b.requestedAt || b.timestamp || b.createdAt || 0;
-        return tB - tA;
+        let valA, valB;
+        switch(sortField) {
+          case 'id': valA = a.id || ''; valB = b.id || ''; break;
+          case 'passenger': valA = getPassengerName(a); valB = getPassengerName(b); break;
+          case 'fare': valA = getFareValue(a); valB = getFareValue(b); break;
+          case 'status': valA = getNormalizedStatus(a); valB = getNormalizedStatus(b); break;
+          default: valA = a.requestedAt || a.timestamp || a.createdAt || 0;
+                   valB = b.requestedAt || b.timestamp || b.createdAt || 0;
+        }
+        if (typeof valA === 'string') return sortDirection === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+        return sortDirection === 'asc' ? valA - valB : valB - valA;
       });
 
-      showDebug(`After filter: ${rides.length} rides | Filter: "${currentFilter}" | Search: "${searchQuery || 'none'}"`);
+      showDebug(`${rides.length} rides | Filter: "${currentFilter}" | Search: "${searchQuery || 'none'}" | Sorted by: ${sortField} ${sortDirection}`);
 
       if (!rides.length) {
         tableBody.innerHTML = `<tr class="empty-row"><td colspan="8">
@@ -501,9 +645,10 @@
         const driverName = getDriverName(ride);
         const statusClass = getStatusClass(status);
         const phone = ride.passengerPhone || ride.phone || ride.passenger?.phone || '';
+        const vehicle = ride.vehicleType || 'standard';
 
         return `
-          <tr>
+          <tr class="${status === 'requested' ? 'row-urgent' : ''}">
             <td><code style="font-size:0.7rem;background:#f1f5f9;padding:2px 6px;border-radius:4px;">#${getShortId(ride.id)}</code></td>
             <td>
               <div style="display:flex;align-items:center;gap:8px;">
@@ -511,36 +656,64 @@
                 <div>
                   <strong>${escapeHtml(passenger)}</strong>
                   ${phone ? `<div style="font-size:0.65rem;color:#94a3b8;">${escapeHtml(phone)}</div>` : ''}
+                  <div class="ride-meta-tags">
+                    <span class="meta-tag">${vehicle}</span>
+                    ${ride.paymentMethod ? `<span class="meta-tag">${ride.paymentMethod}</span>` : ''}
+                    ${status === 'requested' ? '<span class="meta-tag urgent">New</span>' : ''}
+                  </div>
                 </div>
               </div>
             </td>
             <td><span title="${escapeHtml(pickup)}">${escapeHtml(String(pickup).substring(0, 25))}${String(pickup).length > 25 ? '...' : ''}</span></td>
             <td><span title="${escapeHtml(dropoff)}">${escapeHtml(String(dropoff).substring(0, 25))}${String(dropoff).length > 25 ? '...' : ''}</span></td>
             <td><strong>${fare}</strong></td>
-            <td>${escapeHtml(driverName)}</td>
+            <td>
+              ${driverName !== '—' ? 
+                `<span style="color:#6d28d9;font-weight:600;">${escapeHtml(driverName)}</span>` : 
+                '<span style="color:#94a3b8;">Unassigned</span>'}
+            </td>
             <td><span class="status-badge ${statusClass}">${status.replace(/_/g, ' ').replace(/-/g, ' ')}</span></td>
             <td>
               <div class="action-btns">
                 <button class="action-btn btn-view" onclick="viewDetails('${ride.id}')" title="View Details"><i class="fas fa-eye"></i></button>
                 ${status === 'requested' || status === 'pending' ? `
+                  <button class="action-btn btn-assign" onclick="showAssignDriverModal('${ride.id}')" title="Assign Driver"><i class="fas fa-user-plus"></i></button>
                   <button class="action-btn btn-accept" onclick="updateRideStatus('${ride.id}', 'accepted')" title="Accept Ride"><i class="fas fa-check"></i></button>
                 ` : ''}
                 ${status === 'accepted' ? `
                   <button class="action-btn btn-arrive" onclick="updateRideStatus('${ride.id}', 'arrived')" title="Driver Arrived"><i class="fas fa-location-dot"></i></button>
                 ` : ''}
                 ${status === 'arrived' ? `
-                  <button class="action-btn btn-start" onclick="updateRideStatus('${ride.id}', 'ongoing')" title="Start Trip"><i class="fas fa-car"></i></button>
+                  <button class="action-btn btn-start" onclick="updateRideStatus('${ride.id}', 'ongoing')" title="Start Trip"><i class="fas fa-play"></i></button>
                 ` : ''}
                 ${status === 'ongoing' || status === 'in_progress' ? `
                   <button class="action-btn btn-complete" onclick="updateRideStatus('${ride.id}', 'completed')" title="Complete Trip"><i class="fas fa-flag-checkered"></i></button>
                 ` : ''}
                 ${['requested', 'pending', 'accepted', 'arrived'].includes(status) ? `
-                  <button class="action-btn btn-cancel-btn" onclick="updateRideStatus('${ride.id}', 'cancelled')" title="Cancel Ride"><i class="fas fa-times"></i></button>
+                  <button class="action-btn btn-reschedule" onclick="showRescheduleModal('${ride.id}')" title="Reschedule"><i class="fas fa-calendar-alt"></i></button>
+                  <button class="action-btn btn-cancel-btn" onclick="showCancelModal('${ride.id}')" title="Cancel Ride"><i class="fas fa-times"></i></button>
+                ` : ''}
+                ${status === 'requested' || status === 'pending' ? `
+                  <button class="action-btn btn-contact" onclick="contactPassenger('${ride.id}')" title="Contact Passenger"><i class="fas fa-phone"></i></button>
                 ` : ''}
               </div>
             </td>
           </tr>`;
       }).join('');
+
+      updateStats();
+    }
+
+    function contactPassenger(rideId) {
+      const ride = allRides[rideId];
+      if (!ride) return;
+      const phone = ride.passengerPhone || ride.phone || ride.passenger?.phone;
+      if (phone) {
+        window.open(`tel:${phone}`, '_blank');
+        showToast(`Calling ${getPassengerName(ride)}...`);
+      } else {
+        showToast('No phone number available', true);
+      }
     }
 
     async function updateRideStatus(rideId, newStatus) {
@@ -551,8 +724,7 @@
         'accepted': 'Accept Ride',
         'arrived': 'Driver Arrived',
         'ongoing': 'Start Trip',
-        'completed': 'Complete Trip',
-        'cancelled': 'Cancel Ride'
+        'completed': 'Complete Trip'
       };
       const action = statusLabels[newStatus] || newStatus;
 
@@ -563,37 +735,232 @@
           status: newStatus,
           statusHistory: [
             ...(ride.statusHistory || []),
-            { 
-              status: newStatus, 
-              note: `${action} by ${auth.currentUser?.email || 'staff'}`, 
-              timestamp: new Date().toISOString() 
-            }
+            { status: newStatus, note: `${action} by ${auth.currentUser?.email || 'staff'}`, timestamp: new Date().toISOString() }
           ]
         };
 
-        if (newStatus === 'accepted') {
-          updates.acceptedAt = new Date().toISOString();
-        }
-        if (newStatus === 'arrived') {
-          updates.arrivedAt = new Date().toISOString();
-        }
-        if (newStatus === 'ongoing') {
-          updates.startedAt = new Date().toISOString();
-          updates.tripStartTime = firebase.database.ServerValue.TIMESTAMP;
-        }
-        if (newStatus === 'completed') {
-          updates.completedAt = new Date().toISOString();
-          updates.tripEndTime = firebase.database.ServerValue.TIMESTAMP;
-        }
-        if (newStatus === 'cancelled') {
-          updates.cancelledAt = new Date().toISOString();
-        }
+        if (newStatus === 'accepted') updates.acceptedAt = new Date().toISOString();
+        if (newStatus === 'arrived') updates.arrivedAt = new Date().toISOString();
+        if (newStatus === 'ongoing') { updates.startedAt = new Date().toISOString(); updates.tripStartTime = firebase.database.ServerValue.TIMESTAMP; }
+        if (newStatus === 'completed') { updates.completedAt = new Date().toISOString(); updates.tripEndTime = firebase.database.ServerValue.TIMESTAMP; }
 
         await database.ref(`pickme_rides/${rideId}`).update(updates);
         showToast(`✅ Ride ${newStatus.replace(/-/g, ' ')}`);
       } catch (e) {
         console.error('Update error:', e);
         showToast('Failed to update ride status', true);
+      }
+    }
+
+    function showAssignDriverModal(rideId) {
+      const ride = allRides[rideId];
+      if (!ride) return;
+      const drivers = Object.entries(allDrivers).filter(([_, d]) => d && d.verified);
+
+      modalContent.innerHTML = `
+        <h3><i class="fas fa-user-plus"></i> Assign Driver to Ride <code>#${getShortId(rideId)}</code></h3>
+        <p style="font-size:0.8rem;color:#64748b;margin-bottom:1rem;">
+          Passenger: <strong>${escapeHtml(getPassengerName(ride))}</strong><br>
+          Pickup: ${escapeHtml(getPickupAddress(ride))}<br>
+          Vehicle: ${escapeHtml(ride.vehicleType || 'Standard')}
+        </p>
+        ${drivers.length === 0 ? 
+          '<p style="text-align:center;color:#94a3b8;padding:2rem;">No verified drivers available.</p>' :
+          `<div class="driver-list">
+            ${drivers.map(([id, d]) => `
+              <div class="driver-option" onclick="selectDriver(this, '${id}')" data-driver-id="${id}">
+                <div class="driver-avatar">${getInitials(d.name || id)}</div>
+                <div class="driver-info">
+                  <div class="driver-name">${escapeHtml(d.name || 'Driver')}</div>
+                  <div class="driver-meta">
+                    ${d.vehicle ? `🚗 ${d.vehicle}` : ''} 
+                    ${d.phone ? `📱 ${d.phone}` : ''} 
+                    ${d.status === 'available' ? '🟢 Available' : '🔴 Busy'}
+                  </div>
+                </div>
+                <i class="fas fa-check-circle" style="color:var(--primary);display:none;"></i>
+              </div>
+            `).join('')}
+          </div>`
+        }
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="assignDriverToRide('${rideId}')" id="confirmAssignBtn" disabled>
+            <i class="fas fa-check"></i> Assign Driver
+          </button>
+          <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+        </div>
+      `;
+      modal.classList.add('show');
+      window._selectedDriverId = null;
+    }
+
+    window.selectDriver = function(element, driverId) {
+      document.querySelectorAll('.driver-option').forEach(el => {
+        el.classList.remove('selected');
+        el.querySelector('.fa-check-circle').style.display = 'none';
+      });
+      element.classList.add('selected');
+      element.querySelector('.fa-check-circle').style.display = 'inline';
+      document.getElementById('confirmAssignBtn').disabled = false;
+      window._selectedDriverId = driverId;
+    };
+
+    async function assignDriverToRide(rideId) {
+      const driverId = window._selectedDriverId;
+      if (!driverId) { showToast('Please select a driver', true); return; }
+      const driver = allDrivers[driverId];
+      if (!driver) { showToast('Driver not found', true); return; }
+
+      try {
+        await database.ref(`pickme_rides/${rideId}`).update({
+          status: 'accepted',
+          driverId: driverId,
+          driverName: driver.name || driver.email,
+          driverPhone: driver.phone || '',
+          driverVehicle: driver.vehicle || '',
+          acceptedAt: new Date().toISOString(),
+          statusHistory: [
+            ...(allRides[rideId]?.statusHistory || []),
+            { status: 'accepted', note: `Assigned to ${driver.name || driver.email}`, timestamp: new Date().toISOString() }
+          ]
+        });
+        
+        // Update driver status
+        await database.ref(`pickme_drivers/${driverId}`).update({
+          status: 'busy',
+          currentRide: rideId,
+          lastAssignedAt: new Date().toISOString()
+        });
+
+        closeModal();
+        showToast(`✅ Driver ${driver.name || 'assigned'} assigned successfully`);
+      } catch (e) {
+        console.error('Assign error:', e);
+        showToast('Failed to assign driver', true);
+      }
+    }
+
+    function showRescheduleModal(rideId) {
+      const ride = allRides[rideId];
+      if (!ride) return;
+      const now = new Date();
+      const defaultDate = now.toISOString().split('T')[0];
+      const defaultTime = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+
+      modalContent.innerHTML = `
+        <h3><i class="fas fa-calendar-alt"></i> Reschedule Ride <code>#${getShortId(rideId)}</code></h3>
+        <div class="form-group">
+          <label>New Pickup Date</label>
+          <input type="date" id="rescheduleDate" value="${defaultDate}" min="${defaultDate}">
+        </div>
+        <div class="form-group">
+          <label>New Pickup Time</label>
+          <input type="time" id="rescheduleTime" value="${defaultTime}">
+        </div>
+        <div class="form-group">
+          <label>Reason for Rescheduling</label>
+          <textarea id="rescheduleReason" placeholder="e.g., Passenger requested later time..."></textarea>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="rescheduleRide('${rideId}')">
+            <i class="fas fa-save"></i> Save Changes
+          </button>
+          <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+        </div>
+      `;
+      modal.classList.add('show');
+    }
+
+    async function rescheduleRide(rideId) {
+      const date = document.getElementById('rescheduleDate').value;
+      const time = document.getElementById('rescheduleTime').value;
+      const reason = document.getElementById('rescheduleReason').value;
+
+      if (!date || !time) { showToast('Please set date and time', true); return; }
+
+      const scheduledDateTime = new Date(`${date}T${time}:00`).toISOString();
+      try {
+        await database.ref(`pickme_rides/${rideId}`).update({
+          status: 'requested',
+          scheduledPickupTime: scheduledDateTime,
+          rescheduledAt: new Date().toISOString(),
+          rescheduledBy: auth.currentUser?.email || 'staff',
+          rescheduleReason: reason,
+          statusHistory: [
+            ...(allRides[rideId]?.statusHistory || []),
+            { status: 'requested', note: `Rescheduled to ${date} ${time}. Reason: ${reason || 'N/A'}`, timestamp: new Date().toISOString() }
+          ]
+        });
+        closeModal();
+        showToast('✅ Ride rescheduled successfully');
+      } catch (e) {
+        console.error('Reschedule error:', e);
+        showToast('Failed to reschedule ride', true);
+      }
+    }
+
+    function showCancelModal(rideId) {
+      modalContent.innerHTML = `
+        <h3><i class="fas fa-times-circle"></i> Cancel Ride <code>#${getShortId(rideId)}</code></h3>
+        <div class="form-group">
+          <label>Reason for Cancellation</label>
+          <select id="cancelReason" class="form-select" style="width:100%;">
+            <option value="">— Select reason —</option>
+            <option value="passenger_request">Passenger Requested</option>
+            <option value="no_driver">No Driver Available</option>
+            <option value="payment_issue">Payment Issue</option>
+            <option value="safety">Safety Concern</option>
+            <option value="duplicate">Duplicate Booking</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Additional Notes</label>
+          <textarea id="cancelNotes" placeholder="Additional details..."></textarea>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-danger" onclick="cancelRide('${rideId}')">
+            <i class="fas fa-times"></i> Confirm Cancellation
+          </button>
+          <button class="btn btn-secondary" onclick="closeModal()">Go Back</button>
+        </div>
+      `;
+      modal.classList.add('show');
+    }
+
+    async function cancelRide(rideId) {
+      const reason = document.getElementById('cancelReason').value;
+      const notes = document.getElementById('cancelNotes').value;
+
+      if (!reason) { showToast('Please select a cancellation reason', true); return; }
+
+      try {
+        const ride = allRides[rideId];
+        await database.ref(`pickme_rides/${rideId}`).update({
+          status: 'cancelled',
+          cancelledAt: new Date().toISOString(),
+          cancelledBy: auth.currentUser?.email || 'staff',
+          cancelReason: reason,
+          cancelNotes: notes,
+          statusHistory: [
+            ...(ride?.statusHistory || []),
+            { status: 'cancelled', note: `${reason}: ${notes || 'No additional notes'}`, timestamp: new Date().toISOString() }
+          ]
+        });
+
+        // Free up driver if assigned
+        if (ride?.driverId) {
+          await database.ref(`pickme_drivers/${ride.driverId}`).update({
+            status: 'available',
+            currentRide: null
+          });
+        }
+
+        closeModal();
+        showToast('✅ Ride cancelled successfully');
+      } catch (e) {
+        console.error('Cancel error:', e);
+        showToast('Failed to cancel ride', true);
       }
     }
 
@@ -614,24 +981,23 @@
           <div class="detail-item"><strong>Passenger</strong>${escapeHtml(passenger)}</div>
           <div class="detail-item"><strong>Phone</strong>${escapeHtml(ride.passengerPhone || ride.phone || ride.passenger?.phone || 'N/A')}</div>
           <div class="detail-item"><strong>Email</strong>${escapeHtml(ride.passengerEmail || ride.email || ride.passenger?.email || 'N/A')}</div>
-          <div class="detail-item"><strong>Status</strong><span class="status-badge ${getStatusClass(status)}">${status.replace(/_/g, ' ').replace(/-/g, ' ')}</span></div>
+          <div class="detail-item"><strong>Status</strong><span class="status-badge ${getStatusClass(status)}">${status.replace(/_/g, ' ')}</span></div>
           <div class="detail-item"><strong>Pickup</strong>${escapeHtml(pickup)}</div>
           <div class="detail-item"><strong>Dropoff</strong>${escapeHtml(dropoff)}</div>
-          <div class="detail-item"><strong>Vehicle Type</strong>${escapeHtml(ride.vehicleType || ride.carType || 'Standard')}</div>
+          <div class="detail-item"><strong>Vehicle</strong>${escapeHtml(ride.vehicleType || 'Standard')}</div>
           <div class="detail-item"><strong>Fare</strong>${fare}</div>
           <div class="detail-item"><strong>Distance</strong>${ride.distance ? ride.distance + ' km' : 'N/A'}</div>
-          <div class="detail-item"><strong>Duration</strong>${ride.duration ? ride.duration + ' min' : 'N/A'}</div>
-          <div class="detail-item"><strong>Driver</strong>${escapeHtml(driverName)}</div>
           <div class="detail-item"><strong>Payment</strong>${escapeHtml(ride.paymentMethod || 'Cash')}</div>
-          <div class="detail-item"><strong>Passengers</strong>${ride.passengers || ride.seats || 1}</div>
-          ${ride.specialInstructions ? `<div class="detail-item"><strong>Instructions</strong>${escapeHtml(ride.specialInstructions)}</div>` : ''}
-          <div class="detail-item"><strong>Requested</strong>${ride.requestedAt ? new Date(ride.requestedAt).toLocaleString() : (ride.timestamp ? new Date(ride.timestamp).toLocaleString() : 'N/A')}</div>
+          <div class="detail-item"><strong>Driver</strong>${escapeHtml(driverName)}</div>
+          <div class="detail-item"><strong>Passengers</strong>${ride.passengers || 1}</div>
+          ${ride.scheduledPickupTime ? `<div class="detail-item"><strong>Scheduled</strong>${new Date(ride.scheduledPickupTime).toLocaleString()}</div>` : ''}
+          <div class="detail-item"><strong>Requested</strong>${ride.requestedAt ? new Date(ride.requestedAt).toLocaleString() : 'N/A'}</div>
           ${ride.acceptedAt ? `<div class="detail-item"><strong>Accepted</strong>${new Date(ride.acceptedAt).toLocaleString()}</div>` : ''}
           ${ride.arrivedAt ? `<div class="detail-item"><strong>Arrived</strong>${new Date(ride.arrivedAt).toLocaleString()}</div>` : ''}
           ${ride.startedAt ? `<div class="detail-item"><strong>Started</strong>${new Date(ride.startedAt).toLocaleString()}</div>` : ''}
           ${ride.completedAt ? `<div class="detail-item"><strong>Completed</strong>${new Date(ride.completedAt).toLocaleString()}</div>` : ''}
         </div>
-        ${ride.statusHistory && ride.statusHistory.length ? `
+        ${ride.statusHistory?.length ? `
           <h4 style="margin-top:1.5rem;margin-bottom:0.5rem;">Status History</h4>
           ${ride.statusHistory.map(h => `
             <div style="background:#f8fafc;padding:0.5rem 0.8rem;border-radius:8px;margin-bottom:4px;font-size:0.75rem;">
@@ -640,6 +1006,10 @@
           `).join('')}
         ` : ''}
         <div class="btn-row">
+          ${['requested','pending','accepted','arrived'].includes(status) ? `
+            <button class="btn btn-warning" onclick="closeModal();showRescheduleModal('${rideId}')"><i class="fas fa-calendar-alt"></i> Reschedule</button>
+            <button class="btn btn-danger" onclick="closeModal();showCancelModal('${rideId}')"><i class="fas fa-times"></i> Cancel</button>
+          ` : ''}
           <button class="btn btn-secondary" onclick="closeModal()">Close</button>
         </div>
       `;
@@ -664,30 +1034,34 @@
       renderTable();
     });
 
-    // Close modal on overlay click and Escape key
+    document.getElementById('refreshBtn').addEventListener('click', () => {
+      showToast('🔄 Refreshing data...');
+      setupRealtimeListeners();
+    });
+
+    // Close modal
     modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
 
     function setupRealtimeListeners() {
-      // Listen for pickme_rides
+      database.ref('pickme_rides').off();
+      database.ref('pickme_drivers').off();
+
       database.ref('pickme_rides').on('value', (snapshot) => {
         allRides = snapshot.val() || {};
         console.log('🚖 PickMe rides loaded:', Object.keys(allRides).length);
-        if (Object.keys(allRides).length > 0) {
-          console.log('🚖 Sample ride:', Object.entries(allRides)[0]);
-        }
         renderTable();
         loadingOverlay.classList.add('hide');
       }, (error) => {
         console.error('❌ Error loading rides:', error);
-        showDebug('Error loading: ' + error.message);
+        showDebug('Error: ' + error.message);
         loadingOverlay.classList.add('hide');
       });
 
-      // Listen for pickme_drivers
       database.ref('pickme_drivers').on('value', (snapshot) => {
         allDrivers = snapshot.val() || {};
         console.log('👤 PickMe drivers loaded:', Object.keys(allDrivers).length);
+        updateStats();
       });
     }
 
