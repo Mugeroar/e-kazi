@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>KazInni Workspace | Request Ride</title>
+  
+  <meta name="theme-color" content="#8b5cf6">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  
+  <link rel="icon" type="image/png" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --primary: #8b5cf6;
+      --primary-dark: #6d28d9;
+      --primary-light: #a78bfa;
+      --card-bg: #ffffff;
+      --text-primary: #1e293b;
+      --text-muted: #64748b;
+      --border-light: #ede9fe;
+      --input-bg: #f8fafc;
+      --input-border: #e2e8f0;
+      --gold: #f59e0b;
+      --green: #22c55e;
+      --red: #ef4444;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(145deg, #faf5ff 0%, #ffffff 100%);
+      color: var(--text-primary);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .navbar {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(16px);
+      padding: 0.7rem 3%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid rgba(139, 92, 246, 0.25);
+      position: sticky;
+      top: 0;
+      z-index: 2000;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-img {
+      height: 40px;
+      width: 40px;
+      border-radius: 12px;
+      object-fit: contain;
+      background: white;
+      box-shadow: 0 6px 16px rgba(139, 92, 246, 0.3);
+    }
+
+    .logo-text {
+      font-weight: 800;
+      font-size: 1.3rem;
+      background: linear-gradient(145deg, #c084fc, #7c3aed);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.3px;
+    }
+
+    .logo-text span {
+      font-weight: 600;
+      font-size: 0.8rem;
+      background: #f59e0b;
+      -webkit-text-fill-color: #f59e0b;
+      margin-left: 4px;
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .nav-btn {
+      background: rgba(139, 92, 246, 0.08);
+      border: 1px solid var(--primary-light);
+      padding: 0.5rem 1rem;
+      border-radius: 40px;
+      color: var(--primary-dark);
+      font-weight: 600;
+      font-size: 0.75rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .nav-btn:hover {
+      background: var(--primary);
+      color: white;
+    }
+
+    .user-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: white;
+      padding: 0.3rem 0.9rem 0.3rem 0.6rem;
+      border-radius: 40px;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      border: 1px solid #e9d5ff;
+    }
+
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(145deg, #8b5cf6, #6d28d9);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.8rem;
+      color: white;
+    }
+
+    .main-layout {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .map-section {
+      flex: 1;
+      position: relative;
+      min-width: 0;
+    }
+
+    #rideMap {
+      width: 100%;
+      height: 100%;
+    }
+
+    .side-panel {
+      width: 420px;
+      background: white;
+      border-left: 1px solid #ede9fe;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      z-index: 150;
+    }
+
+    .panel-section {
+      padding: 16px;
+      border-bottom: 1px solid #ede9fe;
+    }
+
+    .panel-section h4 {
+      font-size: 0.9rem;
+      margin-bottom: 12px;
+      color: var(--primary-dark);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: 4px;
+      font-weight: 600;
+      color: #475569;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .form-input, .form-select, .form-textarea {
+      width: 100%;
+      padding: 0.65rem 0.8rem;
+      background: #f8fafc;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 10px;
+      color: #1e293b;
+      font-size: 0.8rem;
+      font-family: 'Inter', sans-serif;
+      margin-bottom: 10px;
+      transition: all 0.2s;
+    }
+
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+      background: white;
+    }
+
+    .form-textarea {
+      resize: vertical;
+      min-height: 60px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .form-row-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+    }
+
+    .address-row {
+      display: flex;
+      gap: 6px;
+      align-items: flex-end;
+    }
+
+    .address-row .form-input {
+      flex: 1;
+    }
+
+    .small-btn {
+      background: var(--primary-dark);
+      border: none;
+      color: white;
+      padding: 0.45rem 0.7rem;
+      border-radius: 8px;
+      font-size: 0.7rem;
+      cursor: pointer;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 10px;
+      transition: all 0.2s;
+    }
+
+    .small-btn:hover {
+      background: #5b21b6;
+    }
+
+    .small-btn.green {
+      background: var(--green);
+    }
+
+    .small-btn.green:hover {
+      background: #16a34a;
+    }
+
+    .selected-business-info {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 0.7rem;
+      color: #166534;
+      margin-bottom: 8px;
+      display: none;
+    }
+
+    .selected-business-info.show {
+      display: block;
+    }
+
+    .price-card {
+      background: linear-gradient(135deg, #6d28d9, #8b5cf6);
+      border-radius: 16px;
+      padding: 1rem;
+      color: white;
+      text-align: center;
+      margin: 10px 0;
+    }
+
+    .price-label {
+      font-size: 0.7rem;
+      opacity: 0.9;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .price-amount {
+      font-size: 2rem;
+      font-weight: 800;
+      line-height: 1.1;
+    }
+
+    .price-detail {
+      font-size: 0.75rem;
+      opacity: 0.8;
+    }
+
+    .price-breakdown {
+      background: white;
+      border-radius: 12px;
+      padding: 0.8rem;
+      margin-top: 0.8rem;
+      color: #1e293b;
+    }
+
+    .breakdown-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.3rem 0;
+      font-size: 0.75rem;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .breakdown-row:last-child {
+      border-bottom: none;
+      font-weight: 700;
+      color: var(--primary-dark);
+    }
+
+    .btn {
+      width: 100%;
+      padding: 0.75rem;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+      margin-top: 6px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(145deg, #6d28d9, #8b5cf6);
+      color: white;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 20px rgba(139, 92, 246, 0.25);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-outline {
+      background: white;
+      border: 1.5px solid #ede9fe;
+      color: var(--primary-dark);
+    }
+
+    .btn-outline:hover {
+      background: #faf5ff;
+    }
+
+    .legend {
+      position: absolute;
+      bottom: 20px;
+      left: 15px;
+      z-index: 1000;
+      background: rgba(255,255,255,0.95);
+      border-radius: 14px;
+      padding: 10px 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      border: 1px solid #ede9fe;
+      max-height: 180px;
+      overflow-y: auto;
+    }
+
+    .legend h5 {
+      font-size: 0.65rem;
+      margin-bottom: 6px;
+      color: #475569;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.6rem;
+      color: #64748b;
+      margin-bottom: 3px;
+      cursor: pointer;
+      padding: 2px 4px;
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
+
+    .legend-item:hover {
+      background: #f8fafc;
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      border: 2px solid white;
+      box-shadow: 0 0 6px currentColor;
+      flex-shrink: 0;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: #10b981;
+      color: white;
+      padding: 0.9rem 1.5rem;
+      border-radius: 30px;
+      font-weight: 600;
+      z-index: 3000;
+      animation: slideIn 0.3s ease;
+      box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+    }
+
+    .toast.error {
+      background: #ef4444;
+      box-shadow: 0 10px 25px rgba(239, 68, 68, 0.3);
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    .loading-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(255,255,255,0.8);
+      backdrop-filter: blur(4px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 999;
+    }
+    .loading-overlay.hide { display: none; }
+    .spinner {
+      width: 50px; height: 50px;
+      border: 3px solid #ede9fe;
+      border-top-color: #6d28d9;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .coords-display {
+      font-size: 0.6rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    @media (max-width: 768px) {
+      .main-layout {
+        flex-direction: column;
+      }
+      .side-panel {
+        width: 100%;
+        max-height: 55vh;
+      }
+      .map-section {
+        height: 45vh;
+      }
+      .navbar {
+        padding: 0.6rem 1rem;
+      }
+      .logo-text {
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+  </div>
+
+  <nav class="navbar">
+    <div class="logo">
+      <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png" alt="KazInni Logo" class="logo-img">
+      <span class="logo-text">KazInni <span>Pick Me</span></span>
+    </div>
+    <div class="nav-right">
+      <a href="/workspaces/pick-me/index.html" class="nav-btn">
+        <i class="fas fa-arrow-left"></i> Dashboard
+      </a>
+      <div class="user-badge">
+        <div class="user-avatar" id="repAvatar">PM</div>
+        <span id="repName">Dispatcher</span>
+      </div>
+      <button class="nav-btn" id="logoutBtn">
+        <i class="fas fa-sign-out-alt"></i> Logout
+      </button>
+    </div>
+  </nav>
+
+  <div class="main-layout">
+    <div class="map-section">
+      <div id="rideMap"></div>
+      <div class="legend" id="mapLegend">
+        <h5><i class="fas fa-filter"></i> Map Legend (click to toggle)</h5>
+        <div id="legendItems">Loading...</div>
+      </div>
+    </div>
+
+    <div class="side-panel" id="sidePanel">
+      <div class="panel-section">
+        <h4><i class="fas fa-user"></i> Passenger Information</h4>
+        <div class="form-row">
+          <div>
+            <label class="form-label">Passenger Name *</label>
+            <input type="text" class="form-input" id="passengerName" placeholder="Jane Muthoni" required>
+          </div>
+          <div>
+            <label class="form-label">Phone *</label>
+            <input type="tel" class="form-input" id="passengerPhone" placeholder="0712345678" required>
+          </div>
+        </div>
+        <label class="form-label">Email (Optional)</label>
+        <input type="email" class="form-input" id="passengerEmail" placeholder="passenger@email.com">
+      </div>
+
+      <div class="panel-section">
+        <h4><i class="fas fa-map-marker-alt"></i> Trip Details</h4>
+        
+        <div class="selected-business-info" id="selectedPickupInfo">
+          <i class="fas fa-check-circle"></i> <span id="selectedPickupText"></span>
+        </div>
+        
+        <div class="address-row">
+          <div style="flex:1;">
+            <label class="form-label">Pickup Location *</label>
+            <input type="text" class="form-input" id="pickupAddress" placeholder="Click business on map or type address" required>
+          </div>
+          <button class="small-btn green" id="useMyLocationBtn" title="Use my GPS location">
+            <i class="fas fa-location-dot"></i> GPS
+          </button>
+        </div>
+        <div class="coords-display" id="pickupCoords" style="display:none;"></div>
+        
+        <label class="form-label">Dropoff Location *</label>
+        <input type="text" class="form-input" id="dropoffAddress" placeholder="Westlands, Nairobi" required>
+        <div class="coords-display" id="dropoffCoords" style="display:none;"></div>
+        
+        <div class="form-row-3">
+          <div>
+            <label class="form-label">Vehicle Type</label>
+            <select class="form-select" id="vehicleType">
+              <option value="standard">🚗 Standard</option>
+              <option value="comfort">🚙 Comfort (+100 KES)</option>
+              <option value="premium" selected>🚘 Premium (+200 KES)</option>
+              <option value="boda">🏍️ Boda Boda</option>
+              <option value="tuk">🛺 Tuk Tuk</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label">Payment</label>
+            <select class="form-select" id="paymentMethod">
+              <option value="cash" selected>💵 Cash</option>
+              <option value="mpesa">📱 M-Pesa</option>
+              <option value="card">💳 Card</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label">Passengers</label>
+            <input type="number" class="form-input" id="passengers" value="1" min="1" max="6">
+          </div>
+        </div>
+        
+        <label class="form-label">Special Instructions</label>
+        <textarea class="form-textarea" id="instructions" placeholder="Call upon arrival, need baby seat..."></textarea>
+
+        <button class="btn btn-outline" type="button" id="calculateRouteBtn">
+          <i class="fas fa-route"></i> Calculate Route & Fare
+        </button>
+      </div>
+
+      <div class="panel-section" id="priceCard" style="display: none;">
+        <div class="price-card">
+          <div class="price-label">Estimated Fare</div>
+          <div class="price-amount" id="totalFare">— KES</div>
+          <div class="price-detail" id="distanceDisplay"></div>
+          <div class="price-breakdown" id="priceBreakdown"></div>
+        </div>
+        <button class="btn btn-primary" id="submitRideBtn" disabled>
+          <i class="fas fa-taxi"></i> Request Ride
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toastContainer"></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+      authDomain: "mugera-e51cc.firebaseapp.com",
+      databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "mugera-e51cc",
+      storageBucket: "mugera-e51cc.firebasestorage.app",
+      messagingSenderId: "1024868637509",
+      appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    const auth = firebase.auth();
+
+    const OP_COLORS = {
+      brandinn: '#7c3aed',
+      deliveries: '#f59e0b',
+      rides: '#22c55e',
+      ekazi: '#06b6d4',
+      heritage: '#d946ef',
+      workfit: '#f97316',
+      hekima: '#10b981'
+    };
+
+    const OP_ICONS = {
+      brandinn: 'fa-store',
+      deliveries: 'fa-box',
+      rides: 'fa-car',
+      ekazi: 'fa-laptop-code',
+      heritage: 'fa-landmark',
+      workfit: 'fa-dumbbell',
+      hekima: 'fa-book-open'
+    };
+
+    const OP_NAMES = {
+      brandinn: 'BrandInn',
+      deliveries: 'Deliveries',
+      rides: 'Rides',
+      ekazi: 'E-Kazi',
+      heritage: 'Heritage',
+      workfit: 'WorkFit',
+      hekima: 'Hekima'
+    };
+
+    const VEHICLE_PRICING = {
+      standard: { baseFare: 150, perKmRate: 50, minFare: 200 },
+      comfort: { baseFare: 250, perKmRate: 65, minFare: 300 },
+      premium: { baseFare: 350, perKmRate: 80, minFare: 400 },
+      boda: { baseFare: 80, perKmRate: 30, minFare: 100 },
+      tuk: { baseFare: 100, perKmRate: 40, minFare: 150 }
+    };
+
+    let rideMap = null;
+    let businessMarkers = {};
+    let pickupMarker = null;
+    let dropoffMarker = null;
+    let routeLine = null;
+    let currentPickupCoords = null;
+    let currentDropoffCoords = null;
+    let calculatedDistance = null;
+    let calculatedFare = null;
+    let allRegistrations = [];
+    let visibleOperations = {};
+    let selectedBusiness = null;
+    let userLocationMarker = null;
+
+    function showToast(msg, isError = false) {
+      const toast = document.createElement('div');
+      toast.className = `toast ${isError ? 'error' : ''}`;
+      toast.innerHTML = `<i class="fas fa-${isError ? 'exclamation-circle' : 'check-circle'}"></i> ${msg}`;
+      document.getElementById('toastContainer').appendChild(toast);
+      setTimeout(() => toast.remove(), 4000);
+    }
+
+    function getInitials(name) {
+      return name ? name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0,2) : 'PM';
+    }
+
+    function getBusinessMarkerIcon(operation) {
+      const color = OP_COLORS[operation] || '#7c3aed';
+      const icon = OP_ICONS[operation] || 'fa-map-pin';
+      return L.divIcon({
+        html: `<div style="background:${color}; width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:2px solid white; box-shadow:0 0 10px ${color}; cursor:pointer;"><i class="fas ${icon}" style="color:white; font-size:12px;"></i></div>`,
+        iconSize: [28, 28],
+        popupAnchor: [0, -12]
+      });
+    }
+
+    function getPickupIcon() {
+      return L.divIcon({
+        html: `<div style="background:#22c55e; width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:3px solid white; box-shadow:0 0 15px #22c55e;"><i class="fas fa-user" style="color:white; font-size:15px;"></i></div>`,
+        iconSize: [34, 34],
+        popupAnchor: [0, -15]
+      });
+    }
+
+    function getDropoffIcon() {
+      return L.divIcon({
+        html: `<div style="background:#ef4444; width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:3px solid white; box-shadow:0 0 15px #ef4444;"><i class="fas fa-flag-checkered" style="color:white; font-size:15px;"></i></div>`,
+        iconSize: [34, 34],
+        popupAnchor: [0, -15]
+      });
+    }
+
+    function addBusinessMarker(id, data) {
+      if (businessMarkers[id] && rideMap) rideMap.removeLayer(businessMarkers[id]);
+      const marker = L.marker([data.lat, data.lng], { 
+        icon: getBusinessMarkerIcon(data.operation),
+        opacity: visibleOperations[data.operation] !== false ? 1 : 0.2,
+        zIndexOffset: 100
+      }).addTo(rideMap);
+      
+      const opName = OP_NAMES[data.operation] || data.operation;
+      marker.bindPopup(`
+        <div style="font-family:'Inter',sans-serif; min-width:180px; padding:4px;">
+          <strong style="color:#1e293b;">${escapeHtml(data.businessName)}</strong><br>
+          <span style="font-size:10px; color:${OP_COLORS[data.operation]}; font-weight:600;">🏷️ ${opName}</span><br>
+          <span style="font-size:9px; color:#64748b;">👤 ${escapeHtml(data.ownerName || 'N/A')}</span><br>
+          <span style="font-size:9px; color:#64748b;">📍 ${data.lat.toFixed(5)}, ${data.lng.toFixed(5)}</span><br>
+          <button onclick="window.useBusinessAsPickup('${id}')" style="margin-top:6px; background:#22c55e; color:white; border:none; padding:4px 10px; border-radius:6px; cursor:pointer; font-size:10px; width:100%;">
+            📍 Use as Pickup Location
+          </button>
+        </div>
+      `);
+      
+      marker.on('click', () => {
+        window.useBusinessAsPickup(id);
+      });
+      
+      businessMarkers[id] = marker;
+    }
+
+    window.useBusinessAsPickup = function(id) {
+      const biz = allRegistrations.find(b => b.id === id);
+      if (!biz || !rideMap) return;
+      
+      selectedBusiness = biz;
+      currentPickupCoords = { lat: biz.lat, lon: biz.lng };
+      
+      document.getElementById('pickupAddress').value = biz.businessName;
+      document.getElementById('passengerName').value = biz.ownerName || biz.businessName;
+      
+      const pickupInfo = document.getElementById('selectedPickupInfo');
+      const pickupText = document.getElementById('selectedPickupText');
+      const opName = OP_NAMES[biz.operation] || biz.operation;
+      pickupText.textContent = `Pickup: ${biz.businessName} (${opName}) at ${biz.lat.toFixed(5)}, ${biz.lng.toFixed(5)}`;
+      pickupInfo.classList.add('show');
+      
+      document.getElementById('pickupCoords').style.display = 'block';
+      document.getElementById('pickupCoords').textContent = `📍 ${biz.lat.toFixed(6)}, ${biz.lng.toFixed(6)}`;
+      
+      if (pickupMarker) rideMap.removeLayer(pickupMarker);
+      pickupMarker = L.marker([biz.lat, biz.lng], { icon: getPickupIcon(), zIndexOffset: 500 })
+        .addTo(rideMap)
+        .bindPopup(`<strong>📍 Pickup:</strong><br>${escapeHtml(biz.businessName)}`)
+        .openPopup();
+      
+      rideMap.setView([biz.lat, biz.lng], 16);
+      
+      showToast(`✅ Pickup set to: ${biz.businessName}`);
+      
+      if (currentDropoffCoords && dropoffMarker) {
+        calculateRoute();
+      }
+    };
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : m === '>' ? '&gt;' : m);
+    }
+
+    async function loadBusinesses() {
+      for (let id in businessMarkers) {
+        if (businessMarkers[id] && rideMap) rideMap.removeLayer(businessMarkers[id]);
+      }
+      businessMarkers = {};
+      allRegistrations = [];
+      
+      try {
+        const snap = await database.ref('iam_mugera_registrations').once('value');
+        const data = snap.val();
+        if (data) {
+          Object.keys(data).forEach(key => {
+            const entry = data[key];
+            if (entry.lat && entry.lng) {
+              allRegistrations.push({ id: key, ...entry });
+              if (!visibleOperations[entry.operation]) {
+                visibleOperations[entry.operation] = true;
+              }
+              addBusinessMarker(key, entry);
+            }
+          });
+        }
+        updateLegend();
+        console.log('📦 Loaded', allRegistrations.length, 'businesses');
+      } catch (e) {
+        console.error('Load error:', e);
+      }
+    }
+
+    function updateLegend() {
+      const container = document.getElementById('legendItems');
+      const ops = {};
+      allRegistrations.forEach(b => {
+        if (!ops[b.operation]) {
+          ops[b.operation] = { count: 0, color: OP_COLORS[b.operation], name: OP_NAMES[b.operation] };
+        }
+        ops[b.operation].count++;
+      });
+
+      if (Object.keys(ops).length === 0) {
+        container.innerHTML = '<span style="font-size:0.6rem;">No businesses</span>';
+        return;
+      }
+
+      container.innerHTML = Object.entries(ops).map(([key, val]) => `
+        <div class="legend-item" onclick="window.toggleOperation('${key}')" id="legend-${key}">
+          <div class="legend-dot" style="background:${val.color}; color:${val.color};"></div>
+          <span>${val.name} (${val.count})</span>
+          <i class="fas fa-eye" style="margin-left:auto; font-size:0.55rem;"></i>
+        </div>
+      `).join('');
+    }
+
+    window.toggleOperation = function(operation) {
+      visibleOperations[operation] = !visibleOperations[operation];
+      for (let id in businessMarkers) {
+        const biz = allRegistrations.find(b => b.id === id);
+        if (biz && biz.operation === operation) {
+          businessMarkers[id].setOpacity(visibleOperations[operation] ? 1 : 0.2);
+        }
+      }
+      const item = document.getElementById(`legend-${operation}`);
+      if (item) {
+        item.querySelector('i').className = visibleOperations[operation] ? 'fas fa-eye' : 'fas fa-eye-slash';
+        item.style.opacity = visibleOperations[operation] ? '1' : '0.5';
+      }
+    };
+
+    async function geocodeAddress(address) {
+      try {
+        const resp = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1&countrycodes=ke`);
+        const data = await resp.json();
+        if (data.length > 0) {
+          return { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon), display: data[0].display_name };
+        }
+        return null;
+      } catch (e) {
+        console.error('Geocode error:', e);
+        return null;
+      }
+    }
+
+    async function getRoute(pickup, dropoff) {
+      try {
+        const url = `https://router.project-osrm.org/route/v1/driving/${pickup.lon},${pickup.lat};${dropoff.lon},${dropoff.lat}?overview=full&geometries=geojson&steps=true`;
+        const resp = await fetch(url);
+        const data = await resp.json();
+        if (data.routes && data.routes[0]) {
+          return { 
+            distance: data.routes[0].distance / 1000,
+            duration: data.routes[0].duration / 60,
+            geometry: data.routes[0].geometry 
+          };
+        }
+        return null;
+      } catch (e) {
+        console.error('Route error:', e);
+        return null;
+      }
+    }
+
+    function haversineDistance(lat1, lon1, lat2, lon2) {
+      const R = 6371;
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(lat1 * Math.PI/180) * Math.cos(lat2 * Math.PI/180) *
+                Math.sin(dLon/2) * Math.sin(dLon/2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      return R * c;
+    }
+
+    function calculateFare(distanceKm, vehicleType) {
+      const pricing = VEHICLE_PRICING[vehicleType] || VEHICLE_PRICING.standard;
+      const distanceCharge = Math.round(distanceKm * pricing.perKmRate);
+      const total = Math.max(pricing.baseFare + distanceCharge, pricing.minFare);
+      return { baseFare: pricing.baseFare, distanceCharge, total };
+    }
+
+    async function calculateRoute() {
+      if (!currentPickupCoords || !currentDropoffCoords) return;
+      
+      const btn = document.getElementById('calculateRouteBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Calculating...';
+
+      try {
+        const routeData = await getRoute(currentPickupCoords, currentDropoffCoords);
+        
+        if (routeLine) rideMap.removeLayer(routeLine);
+        
+        if (routeData && routeData.distance > 0) {
+          calculatedDistance = routeData.distance;
+          routeLine = L.geoJSON(routeData.geometry, {
+            style: { color: '#8b5cf6', weight: 5, opacity: 0.7 }
+          }).addTo(rideMap);
+          console.log('✅ OSRM distance:', calculatedDistance.toFixed(2), 'km');
+        } else {
+          calculatedDistance = haversineDistance(
+            currentPickupCoords.lat, currentPickupCoords.lon,
+            currentDropoffCoords.lat, currentDropoffCoords.lon
+          );
+          calculatedDistance *= 1.4;
+          console.log('⚠️ Fallback distance (×1.4):', calculatedDistance.toFixed(2), 'km');
+        }
+
+        const bounds = L.latLngBounds([
+          [currentPickupCoords.lat, currentPickupCoords.lon],
+          [currentDropoffCoords.lat, currentDropoffCoords.lon]
+        ]);
+        rideMap.fitBounds(bounds, { padding: [60, 60] });
+
+        const vehicleType = document.getElementById('vehicleType').value;
+        calculatedFare = calculateFare(calculatedDistance, vehicleType);
+        const duration = routeData?.duration || (calculatedDistance / 30 * 60);
+
+        document.getElementById('totalFare').textContent = `${calculatedFare.total} KES`;
+        document.getElementById('distanceDisplay').textContent = 
+          `Distance: ${calculatedDistance.toFixed(1)} km · ~${Math.round(duration)} min`;
+        document.getElementById('priceBreakdown').innerHTML = `
+          <div class="breakdown-row"><span>Base Fare</span><span>${calculatedFare.baseFare} KES</span></div>
+          <div class="breakdown-row"><span>Distance (${calculatedDistance.toFixed(1)} km × ${VEHICLE_PRICING[vehicleType].perKmRate} KES/km)</span><span>${calculatedFare.distanceCharge} KES</span></div>
+          <div class="breakdown-row"><span>Total</span><span>${calculatedFare.total} KES</span></div>
+        `;
+        document.getElementById('priceCard').style.display = 'block';
+        document.getElementById('submitRideBtn').disabled = false;
+        showToast(`Route: ${calculatedDistance.toFixed(1)} km, ~${Math.round(duration)} min`);
+      } catch (e) {
+        console.error('Route error:', e);
+        showToast('Error calculating route', true);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-route"></i> Calculate Route & Fare';
+      }
+    }
+
+    document.getElementById('calculateRouteBtn').addEventListener('click', async () => {
+      const pickupAddr = document.getElementById('pickupAddress').value.trim();
+      const dropoffAddr = document.getElementById('dropoffAddress').value.trim();
+
+      if (!pickupAddr || !dropoffAddr) {
+        showToast('Enter both pickup and dropoff locations', true);
+        return;
+      }
+
+      if (!currentPickupCoords || selectedBusiness?.businessName !== pickupAddr) {
+        const geocoded = await geocodeAddress(pickupAddr);
+        if (!geocoded) { showToast('Could not find pickup location', true); return; }
+        currentPickupCoords = { lat: geocoded.lat, lon: geocoded.lon };
+        if (pickupMarker) rideMap.removeLayer(pickupMarker);
+        pickupMarker = L.marker([geocoded.lat, geocoded.lon], { icon: getPickupIcon(), zIndexOffset: 500 })
+          .addTo(rideMap)
+          .bindPopup('📍 Pickup');
+        document.getElementById('pickupCoords').style.display = 'block';
+        document.getElementById('pickupCoords').textContent = `📍 ${geocoded.lat.toFixed(6)}, ${geocoded.lon.toFixed(6)}`;
+      }
+
+      const geocoded = await geocodeAddress(dropoffAddr);
+      if (!geocoded) { showToast('Could not find dropoff location', true); return; }
+      currentDropoffCoords = { lat: geocoded.lat, lon: geocoded.lon };
+      if (dropoffMarker) rideMap.removeLayer(dropoffMarker);
+      dropoffMarker = L.marker([geocoded.lat, geocoded.lon], { icon: getDropoffIcon(), zIndexOffset: 500 })
+        .addTo(rideMap)
+        .bindPopup('🏁 Dropoff');
+      document.getElementById('dropoffCoords').style.display = 'block';
+      document.getElementById('dropoffCoords').textContent = `📍 ${geocoded.lat.toFixed(6)}, ${geocoded.lon.toFixed(6)}`;
+
+      await calculateRoute();
+    });
+
+    document.getElementById('vehicleType').addEventListener('change', () => {
+      if (calculatedDistance) {
+        const vehicleType = document.getElementById('vehicleType').value;
+        calculatedFare = calculateFare(calculatedDistance, vehicleType);
+        document.getElementById('totalFare').textContent = `${calculatedFare.total} KES`;
+        document.getElementById('priceBreakdown').innerHTML = `
+          <div class="breakdown-row"><span>Base Fare</span><span>${calculatedFare.baseFare} KES</span></div>
+          <div class="breakdown-row"><span>Distance (${calculatedDistance.toFixed(1)} km × ${VEHICLE_PRICING[vehicleType].perKmRate} KES/km)</span><span>${calculatedFare.distanceCharge} KES</span></div>
+          <div class="breakdown-row"><span>Total</span><span>${calculatedFare.total} KES</span></div>
+        `;
+      }
+    });
+
+    document.getElementById('useMyLocationBtn').addEventListener('click', () => {
+      if (!navigator.geolocation) { showToast('GPS not supported', true); return; }
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          currentPickupCoords = { lat: pos.coords.latitude, lon: pos.coords.longitude };
+          if (pickupMarker) rideMap.removeLayer(pickupMarker);
+          if (userLocationMarker) rideMap.removeLayer(userLocationMarker);
+          
+          pickupMarker = L.marker([pos.coords.latitude, pos.coords.longitude], { icon: getPickupIcon(), zIndexOffset: 500 })
+            .addTo(rideMap)
+            .bindPopup('📍 My Location (Pickup)')
+            .openPopup();
+          
+          document.getElementById('pickupAddress').value = `GPS: ${pos.coords.latitude.toFixed(5)}, ${pos.coords.longitude.toFixed(5)}`;
+          document.getElementById('pickupCoords').style.display = 'block';
+          document.getElementById('pickupCoords').textContent = `📍 ${pos.coords.latitude.toFixed(6)}, ${pos.coords.longitude.toFixed(6)}`;
+          document.getElementById('selectedPickupInfo').classList.remove('show');
+          selectedBusiness = null;
+          
+          rideMap.setView([pos.coords.latitude, pos.coords.longitude], 18);
+          showToast('GPS location set as pickup');
+        },
+        err => showToast('GPS failed: ' + err.message, true),
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
+    });
+
+    document.getElementById('submitRideBtn').addEventListener('click', async () => {
+      const passengerName = document.getElementById('passengerName').value.trim();
+      const passengerPhone = document.getElementById('passengerPhone').value.trim();
+      const passengerEmail = document.getElementById('passengerEmail').value.trim();
+      const pickupAddress = document.getElementById('pickupAddress').value.trim();
+      const dropoffAddress = document.getElementById('dropoffAddress').value.trim();
+      const vehicleType = document.getElementById('vehicleType').value;
+      const paymentMethod = document.getElementById('paymentMethod').value;
+      const passengers = parseInt(document.getElementById('passengers').value) || 1;
+      const instructions = document.getElementById('instructions').value.trim();
+
+      if (!passengerName || !passengerPhone || !pickupAddress || !dropoffAddress) {
+        showToast('Fill all required fields', true);
+        return;
+      }
+      if (!calculatedFare) { showToast('Calculate route first', true); return; }
+
+      const user = auth.currentUser;
+      if (!user) { window.location.href = 'https://kazinni.vercel.app'; return; }
+
+      const rideData = {
+        userId: user.uid,
+        passengerName: passengerName,
+        passengerPhone: passengerPhone,
+        passengerEmail: passengerEmail || '',
+        pickup: {
+          address: pickupAddress,
+          lat: currentPickupCoords?.lat || null,
+          lng: currentPickupCoords?.lon || null,
+          isBusinessLocation: !!selectedBusiness,
+          businessId: selectedBusiness?.id || null
+        },
+        dropoff: {
+          address: dropoffAddress,
+          lat: currentDropoffCoords?.lat || null,
+          lng: currentDropoffCoords?.lon || null
+        },
+        vehicleType: vehicleType,
+        paymentMethod: paymentMethod,
+        passengers: passengers,
+        specialInstructions: instructions,
+        fare: { 
+          total: calculatedFare.total, 
+          base: calculatedFare.baseFare, 
+          distance: calculatedFare.distanceCharge 
+        },
+        estimatedFare: calculatedFare.total,
+        distance: parseFloat(calculatedDistance.toFixed(2)),
+        status: 'requested',
+        requestedAt: firebase.database.ServerValue.TIMESTAMP,
+        requestedBy: user.email || 'staff',
+        driverId: null
+      };
+
+      const btn = document.getElementById('submitRideBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Requesting...';
+
+      try {
+        const ref = database.ref('pickme_rides').push();
+        await ref.set(rideData);
+        console.log('✅ Ride saved:', ref.key);
+        showToast('Ride requested successfully!');
+        
+        // Reset form
+        ['passengerName','passengerPhone','passengerEmail','pickupAddress','dropoffAddress','instructions'].forEach(id => {
+          document.getElementById(id).value = '';
+        });
+        document.getElementById('vehicleType').value = 'premium';
+        document.getElementById('paymentMethod').value = 'cash';
+        document.getElementById('passengers').value = '1';
+        document.getElementById('priceCard').style.display = 'none';
+        document.getElementById('submitRideBtn').disabled = true;
+        document.getElementById('selectedPickupInfo').classList.remove('show');
+        document.getElementById('pickupCoords').style.display = 'none';
+        document.getElementById('dropoffCoords').style.display = 'none';
+        
+        [pickupMarker, dropoffMarker, routeLine].forEach(m => { if(m) rideMap.removeLayer(m); });
+        pickupMarker = dropoffMarker = null;
+        routeLine = null;
+        calculatedDistance = calculatedFare = null;
+        currentPickupCoords = currentDropoffCoords = null;
+        selectedBusiness = null;
+      } catch(e) {
+        console.error('❌ Error:', e);
+        showToast('Error: ' + e.message, true);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-taxi"></i> Request Ride';
+      }
+    });
+
+    function initMap() {
+      if (rideMap) return;
+      rideMap = L.map('rideMap').setView([-1.2864, 36.8172], 13);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OSM' }).addTo(rideMap);
+      L.control.scale({ metric: true, position: 'bottomright' }).addTo(rideMap);
+      
+      rideMap.on('click', async (e) => {
+        if (e.originalEvent.shiftKey) {
+          currentPickupCoords = { lat: e.latlng.lat, lon: e.latlng.lng };
+          if (pickupMarker) rideMap.removeLayer(pickupMarker);
+          pickupMarker = L.marker([e.latlng.lat, e.latlng.lng], { icon: getPickupIcon(), zIndexOffset: 500 })
+            .addTo(rideMap)
+            .bindPopup('📍 Pickup (manual)')
+            .openPopup();
+          document.getElementById('pickupAddress').value = `Manual: ${e.latlng.lat.toFixed(5)}, ${e.latlng.lng.toFixed(5)}`;
+          document.getElementById('pickupCoords').style.display = 'block';
+          document.getElementById('pickupCoords').textContent = `📍 ${e.latlng.lat.toFixed(6)}, ${e.latlng.lng.toFixed(6)}`;
+          document.getElementById('selectedPickupInfo').classList.remove('show');
+          selectedBusiness = null;
+        }
+      });
+      
+      loadBusinesses();
+      
+      database.ref('iam_mugera_registrations').on('child_added', snap => {
+        const entry = snap.val();
+        if (entry.lat && entry.lng && !businessMarkers[snap.key]) {
+          allRegistrations.push({ id: snap.key, ...entry });
+          if (!visibleOperations[entry.operation]) visibleOperations[entry.operation] = true;
+          addBusinessMarker(snap.key, entry);
+          updateLegend();
+        }
+      });
+    }
+
+    auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        let userName = 'Dispatcher';
+        try {
+          const staffSnap = await database.ref(`logistics_staff/${user.uid}`).once('value');
+          if (staffSnap.exists()) userName = staffSnap.val().name || user.email?.split('@')[0] || 'Dispatcher';
+          else {
+            const brandSnap = await database.ref(`brandinn_users/${user.uid}`).once('value');
+            if (brandSnap.exists()) userName = brandSnap.val().name || user.email?.split('@')[0] || 'Dispatcher';
+            else userName = user.displayName || user.email?.split('@')[0] || 'Dispatcher';
+          }
+        } catch(e) { userName = user.email?.split('@')[0] || 'Dispatcher'; }
+        document.getElementById('repName').textContent = userName;
+        document.getElementById('repAvatar').textContent = getInitials(userName);
+        document.getElementById('loadingOverlay').classList.add('hide');
+        initMap();
+      } else {
+        window.location.href = 'https://kazinni.vercel.app';
+      }
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      if (confirm('Log out?')) await auth.signOut();
+    });
+
+    setTimeout(() => document.getElementById('loadingOverlay').classList.add('hide'), 5000);
+  </script>
+</body>
+</html>
