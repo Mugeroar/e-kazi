@@ -52,6 +52,8 @@
             overflow-x: hidden;
             -webkit-tap-highlight-color: transparent;
             -webkit-font-smoothing: antialiased;
+            display: flex;
+            flex-direction: column;
         }
 
         .bg-gradient {
@@ -87,7 +89,7 @@
         }
 
         .header-inner {
-            max-width: 900px;
+            max-width: 100%;
             margin: 0 auto;
             display: flex;
             align-items: center;
@@ -118,6 +120,27 @@
             -webkit-text-fill-color: transparent;
             letter-spacing: -0.3px;
         }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-stat {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 0.3rem 0.6rem;
+            border-radius: 15px;
+        }
+
+        .header-stat i { font-size: 0.55rem; }
+        .header-stat span { font-weight: 700; color: var(--gold); }
 
         .user-btn {
             display: flex;
@@ -183,23 +206,88 @@
         .dropdown-item:hover { background: rgba(245,158,11,0.1); color: var(--gold); }
         .dropdown-item.danger:hover { background: rgba(239,68,68,0.1); color: var(--red); }
 
-        /* Main */
-        .main-content {
-            flex: 1;
-            max-width: 900px;
-            width: 100%;
-            margin: 0 auto;
-            padding: 1rem 1rem calc(1rem + var(--safe-bottom));
+        /* Tab Navigation */
+        .tab-nav {
+            display: flex;
+            gap: 0;
+            background: rgba(10, 15, 30, 0.9);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            padding: 0 0.5rem;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
         }
 
-        /* Verification States */
+        .tab-nav::-webkit-scrollbar { display: none; }
+
+        .tab-btn {
+            padding: 0.7rem 1rem;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.7rem;
+            cursor: pointer;
+            white-space: nowrap;
+            font-family: 'Inter', sans-serif;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .tab-btn.active {
+            color: var(--gold);
+            border-bottom-color: var(--gold);
+        }
+
+        .tab-btn .tab-badge {
+            font-size: 0.55rem;
+            padding: 1px 6px;
+            border-radius: 8px;
+            font-weight: 700;
+        }
+
+        .tab-btn.active .tab-badge {
+            background: rgba(245,158,11,0.15);
+            color: var(--gold);
+        }
+
+        .tab-btn:not(.active) .tab-badge {
+            background: rgba(148,163,184,0.1);
+            color: var(--text-muted);
+        }
+
+        /* Main Content Area */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tab-content {
+            display: none;
+            flex: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .tab-content.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* State Cards */
         .state-card {
             background: var(--bg-card);
             border: 1px solid var(--border);
             border-radius: 20px;
-            padding: 2rem 1.5rem;
+            padding: 2.5rem 1.5rem;
             text-align: center;
-            margin-bottom: 1.5rem;
+            margin: 1rem;
         }
 
         .state-card i {
@@ -224,76 +312,11 @@
         .state-rejected i { color: var(--red); }
         .state-rejected h2 { color: var(--red); }
 
-        /* Dashboard */
-        .dashboard-section {
-            animation: fadeIn 0.4s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Profile Card */
-        .profile-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 18px;
-            padding: 1.2rem;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 1.2rem;
-        }
-
-        .profile-avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--purple), var(--gold));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 1.1rem;
-            color: white;
-            flex-shrink: 0;
-        }
-
-        .profile-info h3 {
-            font-size: 0.9rem;
-            font-weight: 700;
-            margin-bottom: 0.1rem;
-        }
-
-        .profile-info span {
-            font-size: 0.65rem;
-            color: var(--text-muted);
-        }
-
-        .profile-roles {
-            display: flex;
-            gap: 4px;
-            margin-top: 4px;
-            flex-wrap: wrap;
-        }
-
-        .role-tag {
-            font-size: 0.55rem;
-            padding: 2px 8px;
-            border-radius: 8px;
-            font-weight: 600;
-        }
-
-        .role-pickup { background: rgba(245,158,11,0.15); color: var(--gold); }
-        .role-ride { background: rgba(139,92,246,0.15); color: var(--purple-light); }
-        .role-tasker { background: rgba(59,130,246,0.15); color: var(--info); }
-
-        /* Stats */
+        /* ========== PICK-UP CONTENT ========== */
         .stats-row {
             display: flex;
             gap: 0.5rem;
-            margin-bottom: 1.2rem;
+            padding: 0.8rem 1rem;
         }
 
         .stat-card {
@@ -301,173 +324,180 @@
             background: var(--bg-card);
             border: 1px solid var(--border);
             border-radius: 14px;
-            padding: 0.8rem;
+            padding: 0.7rem;
             text-align: center;
         }
 
         .stat-value {
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             font-weight: 800;
             color: var(--gold);
             line-height: 1;
         }
 
         .stat-label {
-            font-size: 0.55rem;
+            font-size: 0.52rem;
             color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin-top: 0.2rem;
+            margin-top: 0.15rem;
         }
 
-        /* Operations */
-        .section-header {
+        .filters-row {
             display: flex;
+            gap: 6px;
+            padding: 0 1rem 0.8rem;
+            flex-wrap: wrap;
             align-items: center;
-            gap: 8px;
-            margin-bottom: 0.8rem;
         }
 
-        .section-header h2 {
-            font-size: 0.68rem;
-            font-weight: 700;
+        .filter-chip {
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            border: 1px solid var(--border);
+            background: transparent;
             color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
+            font-weight: 600;
+            font-size: 0.62rem;
+            cursor: pointer;
+            transition: 0.2s;
             white-space: nowrap;
+            font-family: 'Inter', sans-serif;
         }
 
-        .section-line {
+        .filter-chip.active {
+            background: var(--gold);
+            color: #0f172a;
+            border-color: var(--gold);
+        }
+
+        .search-input {
             flex: 1;
-            height: 1px;
-            background: var(--border);
+            min-width: 120px;
+            padding: 0.35rem 0.7rem;
+            border-radius: 15px;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            color: var(--text-primary);
+            font-size: 0.65rem;
+            font-family: 'Inter', sans-serif;
         }
 
-        .ops-list {
+        .search-input:focus { outline: none; border-color: var(--gold); }
+
+        .refresh-chip {
+            padding: 0.3rem 0.6rem;
+            border-radius: 15px;
+            border: 1px solid var(--gold);
+            background: transparent;
+            color: var(--gold);
+            cursor: pointer;
+            font-size: 0.62rem;
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Delivery List */
+        .delivery-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0 1rem 1rem;
             display: flex;
             flex-direction: column;
-            gap: 0.6rem;
-            margin-bottom: 1.2rem;
+            gap: 0.5rem;
         }
 
-        .op-card {
+        .delivery-card {
             background: var(--bg-card);
             border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 1rem 1.1rem;
+            border-radius: 14px;
+            padding: 0.9rem 1rem;
+        }
+
+        .delivery-top {
             display: flex;
-            align-items: center;
-            gap: 0.8rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-decoration: none;
-            color: inherit;
-            position: relative;
-            overflow: hidden;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.5rem;
         }
 
-        .op-card:active { transform: scale(0.98); }
-
-        .op-card::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 15%;
-            bottom: 15%;
-            width: 3px;
-            border-radius: 0 3px 3px 0;
+        .delivery-id {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            font-weight: 600;
         }
 
-        .op-card.pickup::before { background: var(--gold); }
-        .op-card.ride::before { background: var(--purple); }
-        .op-card.tasker::before { background: var(--info); }
-
-        .op-card.locked {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .op-card.locked::before { background: var(--text-muted); }
-
-        .op-icon {
-            width: 42px;
-            height: 42px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.1rem;
-            flex-shrink: 0;
-        }
-
-        .op-card.pickup .op-icon { background: rgba(245,158,11,0.1); color: var(--gold); }
-        .op-card.ride .op-icon { background: rgba(139,92,246,0.1); color: var(--purple-light); }
-        .op-card.tasker .op-icon { background: rgba(59,130,246,0.1); color: var(--info); }
-        .op-card.locked .op-icon { background: rgba(148,163,184,0.08); color: var(--text-muted); }
-
-        .op-info {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .op-info h3 {
-            font-size: 0.82rem;
+        .delivery-status {
+            font-size: 0.55rem;
+            padding: 2px 8px;
+            border-radius: 10px;
             font-weight: 700;
-            margin-bottom: 0.1rem;
-            display: flex;
-            align-items: center;
-            gap: 6px;
+            text-transform: capitalize;
         }
 
-        .op-info p {
+        .status-assigned { background: rgba(59,130,246,0.15); color: var(--info); }
+        .status-out-for-delivery { background: rgba(249,115,22,0.15); color: var(--orange); }
+        .status-delivered { background: rgba(34,197,94,0.15); color: var(--green); }
+        .status-pending { background: rgba(245,158,11,0.15); color: var(--warning); }
+
+        .delivery-client {
+            font-weight: 700;
+            font-size: 0.78rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .delivery-route {
             font-size: 0.65rem;
             color: var(--text-muted);
+            margin-bottom: 0.5rem;
             line-height: 1.4;
         }
 
-        .op-badge {
+        .delivery-route i {
+            color: var(--gold);
+            margin: 0 4px;
             font-size: 0.5rem;
-            padding: 1px 6px;
-            border-radius: 8px;
-            font-weight: 700;
-            text-transform: uppercase;
         }
 
-        .op-badge.active { background: rgba(34,197,94,0.15); color: var(--green); }
-        .op-badge.locked-badge { background: rgba(239,68,68,0.12); color: var(--red); }
+        .delivery-actions {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
 
-        .op-arrow {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            border: 1px solid var(--border);
+        .action-btn {
+            padding: 0.3rem 0.7rem;
+            border-radius: 12px;
+            border: none;
+            font-size: 0.6rem;
+            font-weight: 600;
+            cursor: pointer;
             display: flex;
             align-items: center;
-            justify-content: center;
-            font-size: 0.6rem;
-            color: var(--text-muted);
-            flex-shrink: 0;
+            gap: 3px;
+            transition: 0.2s;
+            font-family: 'Inter', sans-serif;
         }
 
-        /* No Ops */
-        .no-ops {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 1.5rem;
+        .btn-pickup { background: rgba(249,115,22,0.1); color: var(--orange); }
+        .btn-pickup:hover { background: var(--orange); color: white; }
+        .btn-complete { background: rgba(34,197,94,0.1); color: var(--green); }
+        .btn-complete:hover { background: var(--green); color: white; }
+        .btn-nav { background: rgba(59,130,246,0.1); color: var(--info); }
+        .btn-nav:hover { background: var(--info); color: white; }
+        .btn-view { background: rgba(148,163,184,0.1); color: var(--text-muted); }
+        .btn-view:hover { background: var(--text-muted); color: white; }
+
+        .empty-list {
             text-align: center;
-        }
-
-        .no-ops i {
-            font-size: 2rem;
+            padding: 2rem;
             color: var(--text-muted);
-            margin-bottom: 0.5rem;
-            opacity: 0.5;
-        }
-
-        .no-ops p {
             font-size: 0.72rem;
-            color: var(--text-muted);
+        }
+
+        .empty-list i {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            opacity: 0.4;
         }
 
         /* Toast */
@@ -536,13 +566,70 @@
 
         .footer {
             text-align: center;
-            padding: 0.8rem 1rem calc(0.8rem + var(--safe-bottom));
+            padding: 0.6rem 1rem calc(0.6rem + var(--safe-bottom));
             color: var(--text-muted);
-            font-size: 0.55rem;
+            font-size: 0.5rem;
             border-top: 1px solid var(--border);
         }
 
         .footer span { color: var(--gold); font-weight: 600; }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 4000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+        }
+
+        .modal-overlay.show { display: flex; }
+
+        .modal {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 1.2rem;
+            width: 100%;
+            max-width: 380px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal h3 {
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--gold);
+        }
+
+        .modal .form-group { margin-bottom: 0.8rem; }
+        .modal label {
+            display: block;
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: 0.2rem;
+        }
+
+        .modal input, .modal textarea {
+            width: 100%;
+            padding: 0.5rem;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 0.75rem;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .modal textarea { resize: vertical; min-height: 50px; }
+        .modal .btn-row { display: flex; gap: 8px; justify-content: flex-end; margin-top: 1rem; }
     </style>
 </head>
 <body>
@@ -554,6 +641,31 @@
 
     <div class="toast-container" id="toastContainer"></div>
 
+    <!-- Pickup Modal -->
+    <div class="modal-overlay" id="pickupModalOverlay">
+        <div class="modal">
+            <h3><i class="fas fa-box"></i> Confirm Pickup</h3>
+            <div class="form-group"><label>Notes</label><textarea id="pickupNotes" placeholder="Optional..."></textarea></div>
+            <div class="btn-row">
+                <button class="action-btn btn-view" onclick="closePickupModal()">Cancel</button>
+                <button class="action-btn btn-pickup" onclick="confirmPickup()">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Complete Modal -->
+    <div class="modal-overlay" id="completeModalOverlay">
+        <div class="modal">
+            <h3><i class="fas fa-check-circle"></i> Complete Delivery</h3>
+            <div class="form-group"><label>Receiver Name</label><input type="text" id="proofName" placeholder="Who received it?"></div>
+            <div class="form-group"><label>Notes</label><textarea id="proofNotes" placeholder="Optional..."></textarea></div>
+            <div class="btn-row">
+                <button class="action-btn btn-view" onclick="closeCompleteModal()">Cancel</button>
+                <button class="action-btn btn-complete" onclick="completeDelivery()">Delivered</button>
+            </div>
+        </div>
+    </div>
+
     <div class="app-container">
         <header class="header">
             <div class="header-inner">
@@ -561,94 +673,60 @@
                     <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png" alt="E-KAZI" class="brand-logo">
                     <span class="brand-name">E-KAZI</span>
                 </div>
-                <div class="user-btn" id="userBtn">
-                    <div class="user-avatar" id="userAvatar">KA</div>
-                    <span id="userName">Assistant</span>
-                    <div class="user-dropdown">
-                        <button class="dropdown-item" onclick="refreshDashboard()">
-                            <i class="fas fa-sync-alt"></i> Refresh
-                        </button>
-                        <button class="dropdown-item danger" onclick="handleLogout()">
-                            <i class="fas fa-sign-out-alt"></i> Sign Out
-                        </button>
+                <div class="header-right">
+                    <div class="header-stat" id="headerStat">
+                        <i class="fas fa-circle" style="color:var(--green);font-size:0.4rem;"></i>
+                        <span id="headerActiveCount">0</span> active
+                    </div>
+                    <div class="user-btn" id="userBtn">
+                        <div class="user-avatar" id="userAvatar">KA</div>
+                        <span id="userName">Asst</span>
+                        <div class="user-dropdown">
+                            <button class="dropdown-item" onclick="refreshAll()">
+                                <i class="fas fa-sync-alt"></i> Refresh
+                            </button>
+                            <button class="dropdown-item danger" onclick="handleLogout()">
+                                <i class="fas fa-sign-out-alt"></i> Sign Out
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
         </header>
 
-        <main class="main-content">
+        <!-- Tab Navigation -->
+        <nav class="tab-nav" id="tabNav">
+            <!-- Dynamically populated -->
+        </nav>
+
+        <!-- Main Content -->
+        <div class="main-content">
             <!-- Pending State -->
-            <div id="pendingState" class="hidden">
+            <div id="pendingState" class="hidden" style="padding:1rem;">
                 <div class="state-card state-pending">
                     <i class="fas fa-clock"></i>
                     <h2>Verification Pending</h2>
-                    <p>Your application is under review. You'll be able to access operations once verified.</p>
+                    <p>Your application is under review. Operations will appear once verified.</p>
                 </div>
             </div>
 
             <!-- Rejected State -->
-            <div id="rejectedState" class="hidden">
+            <div id="rejectedState" class="hidden" style="padding:1rem;">
                 <div class="state-card state-rejected">
                     <i class="fas fa-times-circle"></i>
-                    <h2>Application Not Approved</h2>
-                    <p id="rejectionMsg">Your application was not approved. Contact support for more information.</p>
+                    <h2>Not Approved</h2>
+                    <p id="rejectionMsg">Contact support for details.</p>
                 </div>
             </div>
 
-            <!-- Dashboard -->
-            <div id="dashboardState" class="hidden dashboard-section">
-                <!-- Profile -->
-                <div class="profile-card">
-                    <div class="profile-avatar" id="profileAvatar">KA</div>
-                    <div class="profile-info">
-                        <h3 id="profileName">Assistant</h3>
-                        <span id="profileEmail">—</span>
-                        <div class="profile-roles" id="profileRoles"></div>
-                    </div>
-                </div>
-
-                <!-- Stats -->
-                <div class="stats-row">
-                    <div class="stat-card">
-                        <div class="stat-value" id="statActive">0</div>
-                        <div class="stat-label">Active</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="statPending">0</div>
-                        <div class="stat-label">Pending</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="statDone">0</div>
-                        <div class="stat-label">Done Today</div>
-                    </div>
-                </div>
-
-                <!-- Operations -->
-                <div class="section-header">
-                    <h2><i class="fas fa-briefcase"></i> Your Operations</h2>
-                    <div class="section-line"></div>
-                </div>
-
-                <div class="ops-list" id="opsList">
-                    <div class="op-card locked" style="cursor:default;">
-                        <div class="op-icon"><i class="fas fa-sync-alt fa-spin"></i></div>
-                        <div class="op-info">
-                            <h3>Loading...</h3>
-                            <p>Fetching your operations</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- No Operations Fallback -->
-                <div class="no-ops hidden" id="noOpsFallback">
-                    <i class="fas fa-inbox"></i>
-                    <p>No operations assigned yet. Contact your administrator.</p>
-                </div>
+            <!-- Tab Content Container -->
+            <div id="tabContents">
+                <!-- Dynamically populated tabs -->
             </div>
-        </main>
+        </div>
 
         <footer class="footer">
-            &copy; 2026 <span>E-KAZI</span> · Dashboard
+            &copy; 2026 <span>E-KAZI</span>
         </footer>
     </div>
 
@@ -673,9 +751,14 @@
         const $ = id => document.getElementById(id);
         let currentUser = null;
         let userRegistrations = {};
+        let activeTab = null;
+        let currentActionId = null;
+        let allPickups = [];
+        let allRides = [];
+        let pickupFilter = 'all';
+        let rideFilter = 'all';
 
         function showLoading(s) { $('loadingOverlay').classList.toggle('hidden', !s); }
-
         function toast(msg, type = 'info') {
             const icons = { success: 'check-circle', error: 'exclamation-circle', warning: 'exclamation-triangle', info: 'info-circle' };
             const t = document.createElement('div');
@@ -684,301 +767,352 @@
             $('toastContainer').appendChild(t);
             setTimeout(() => t.remove(), 3000);
         }
+        function getInitials(n) { return n ? String(n).split(' ').map(w => w[0]).join('').toUpperCase().substring(0,2) : 'KA'; }
+        function escapeHtml(s) { if (!s) return ''; const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 
-        function getInitials(n) {
-            return n ? String(n).split(' ').map(w => w[0]).join('').toUpperCase().substring(0,2) : 'KA';
-        }
-
-        function escapeHtml(s) {
-            if (!s) return '';
-            const d = document.createElement('div');
-            d.textContent = s;
-            return d.innerHTML;
-        }
-
-        // Check auth state
         auth.onAuthStateChanged(async user => {
-            if (!user) {
-                window.location.href = 'index.html';
-                return;
-            }
-
+            if (!user) { window.location.href = 'index.html'; return; }
             currentUser = user;
             $('userAvatar').textContent = getInitials(user.displayName || user.email);
-            $('userName').textContent = (user.displayName || user.email?.split('@')[0] || 'Asst').substring(0,14);
-
+            $('userName').textContent = (user.displayName || user.email?.split('@')[0] || 'Asst').substring(0,12);
             showLoading(true);
             await checkRegistrations(user);
-            await renderDashboard();
+            await initTabs();
             showLoading(false);
         });
 
         async function checkRegistrations(user) {
             userRegistrations = {};
             const checks = [
-                { node: 'delivery_assistants', key: 'pickup', label: 'Pick-Up', roleClass: 'role-pickup' },
-                { node: 'pickme_drivers', key: 'ride', label: 'Ride Driver', roleClass: 'role-ride' },
-                { node: 'taskers', key: 'tasker', label: 'Tasker', roleClass: 'role-tasker' }
+                { node: 'delivery_assistants', key: 'pickup', label: 'Pick-Up', icon: 'fa-box' },
+                { node: 'pickme_drivers', key: 'ride', label: 'Rides', icon: 'fa-taxi' },
+                { node: 'taskers', key: 'tasker', label: 'Tasks', icon: 'fa-clipboard-list' }
             ];
-
             for (const check of checks) {
                 try {
                     const snap = await db.ref(`${check.node}/${user.uid}`).once('value');
                     if (snap.exists()) {
                         const data = snap.val();
-                        userRegistrations[check.key] = {
-                            node: check.node,
-                            verified: data.verified === true,
-                            status: data.status || 'pending',
-                            rejectionReason: data.rejectionReason || '',
-                            label: check.label,
-                            roleClass: check.roleClass,
-                            data: data
-                        };
+                        userRegistrations[check.key] = { ...check, verified: data.verified === true, status: data.status || 'pending', rejectionReason: data.rejectionReason || '', data };
                     }
-                } catch (e) {
-                    // Node doesn't exist or no access
-                }
+                } catch (e) {}
             }
         }
 
-        async function renderDashboard() {
-            const hasVerified = Object.values(userRegistrations).some(r => r.verified);
-            const allRejected = Object.keys(userRegistrations).length > 0 && 
-                               Object.values(userRegistrations).every(r => r.status === 'rejected');
+        async function initTabs() {
+            const verifiedOps = Object.entries(userRegistrations).filter(([_, r]) => r.verified);
+            const hasVerified = verifiedOps.length > 0;
+            const allRejected = Object.keys(userRegistrations).length > 0 && Object.values(userRegistrations).every(r => r.status === 'rejected');
             const hasAny = Object.keys(userRegistrations).length > 0;
 
-            // Hide all states
             $('pendingState').classList.add('hidden');
             $('rejectedState').classList.add('hidden');
-            $('dashboardState').classList.add('hidden');
 
             if (hasVerified) {
-                // Show dashboard
-                $('dashboardState').classList.remove('hidden');
-                updateProfile();
-                renderOperations();
-                await loadJobCounts();
+                renderTabs(verifiedOps);
+                // Activate first tab
+                const firstTab = verifiedOps[0][0];
+                switchToTab(firstTab);
+                await loadTabData(firstTab);
             } else if (allRejected) {
-                // Show rejected
                 $('rejectedState').classList.remove('hidden');
-                const firstRejected = Object.values(userRegistrations).find(r => r.status === 'rejected');
-                if (firstRejected && firstRejected.rejectionReason) {
-                    $('rejectionMsg').textContent = firstRejected.rejectionReason;
-                }
-            } else if (hasAny) {
-                // Show pending
-                $('pendingState').classList.remove('hidden');
+                const firstRej = Object.values(userRegistrations).find(r => r.status === 'rejected');
+                if (firstRej?.rejectionReason) $('rejectionMsg').textContent = firstRej.rejectionReason;
+                $('tabNav').innerHTML = '';
+                $('tabContents').innerHTML = '';
             } else {
-                // No registrations at all - show pending as default
                 $('pendingState').classList.remove('hidden');
+                $('tabNav').innerHTML = '';
+                $('tabContents').innerHTML = '';
             }
         }
 
-        function updateProfile() {
-            const user = currentUser;
-            $('profileName').textContent = user.displayName || user.email?.split('@')[0] || 'Assistant';
-            $('profileEmail').textContent = user.email || '';
-            $('profileAvatar').textContent = getInitials(user.displayName || user.email);
+        function renderTabs(verifiedOps) {
+            const tabNav = $('tabNav');
+            tabNav.innerHTML = verifiedOps.map(([key, op]) => `
+                <button class="tab-btn" data-tab="${key}" onclick="switchToTab('${key}')">
+                    <i class="fas ${op.icon}"></i> ${op.label}
+                    <span class="tab-badge" id="badge-${key}">0</span>
+                </button>
+            `).join('');
 
-            // Show roles
-            const roles = [];
-            if (userRegistrations.pickup?.verified) roles.push({ label: 'Pick-Up', cls: 'role-pickup' });
-            if (userRegistrations.ride?.verified) roles.push({ label: 'Ride Driver', cls: 'role-ride' });
-            if (userRegistrations.tasker?.verified) roles.push({ label: 'Tasker', cls: 'role-tasker' });
-
-            if (roles.length === 0) {
-                roles.push({ label: 'Pending', cls: 'role-pickup' });
-            }
-
-            $('profileRoles').innerHTML = roles.map(r => `<span class="role-tag ${r.cls}">${r.label}</span>`).join('');
-        }
-
-        function renderOperations() {
-            const opsList = $('opsList');
-            const verifiedOps = [];
-
-            // Define operations based on verified registrations
-            if (userRegistrations.pickup?.verified) {
-                verifiedOps.push({
-                    id: 'pickup',
-                    name: 'Pick-Up Deliveries',
-                    description: 'Manage package deliveries and drop-offs',
-                    icon: 'fa-box',
-                    color: 'pickup',
-                    url: 'pick-up.html'
-                });
-            }
-
-            if (userRegistrations.ride?.verified) {
-                verifiedOps.push({
-                    id: 'ride',
-                    name: 'Pick Me Rides',
-                    description: 'Accept and complete ride requests',
-                    icon: 'fa-taxi',
-                    color: 'ride',
-                    url: 'pick-me.html'
-                });
-            }
-
-            if (userRegistrations.tasker?.verified) {
-                verifiedOps.push({
-                    id: 'tasker',
-                    name: 'E-Kazi Tasks',
-                    description: 'Complete assigned tasks and jobs',
-                    icon: 'fa-clipboard-list',
-                    color: 'tasker',
-                    url: 'tasks.html'
-                });
-            }
-
-            // Also check admin operations
-            db.ref('assistant_operations').once('value').then(snap => {
-                const adminOps = snap.val() || {};
-                const activeOps = Object.values(adminOps).filter(op => op.status !== 'inactive');
-
-                // Merge admin ops with verified ops
-                const allOps = [...verifiedOps];
-                
-                activeOps.forEach(adminOp => {
-                    const exists = allOps.find(o => o.name === adminOp.name || o.id === adminOp.name?.toLowerCase());
-                    if (!exists && adminOp.url) {
-                        // Check if user is verified for this operation type
-                        const opName = (adminOp.name || '').toLowerCase();
-                        let isVerified = false;
-                        let colorClass = 'pickup';
-
-                        if (opName.includes('pick-up') || opName.includes('delivery') || opName.includes('pickup')) {
-                            isVerified = userRegistrations.pickup?.verified;
-                            colorClass = 'pickup';
-                        } else if (opName.includes('pick me') || opName.includes('ride') || opName.includes('pickme')) {
-                            isVerified = userRegistrations.ride?.verified;
-                            colorClass = 'ride';
-                        } else if (opName.includes('task') || opName.includes('ekazi') || opName.includes('e-kazi')) {
-                            isVerified = userRegistrations.tasker?.verified;
-                            colorClass = 'tasker';
-                        }
-
-                        if (isVerified) {
-                            allOps.push({
-                                id: adminOp.name?.toLowerCase().replace(/\s+/g, '-'),
-                                name: adminOp.name,
-                                description: adminOp.description || '',
-                                icon: adminOp.icon || 'fa-cog',
-                                color: colorClass,
-                                url: adminOp.url
-                            });
-                        }
-                    }
-                });
-
-                renderOpsList(allOps);
-            }).catch(() => {
-                renderOpsList(verifiedOps);
-            });
-        }
-
-        function renderOpsList(operations) {
-            const opsList = $('opsList');
-            const noOps = $('noOpsFallback');
-
-            if (!operations.length) {
-                opsList.classList.add('hidden');
-                noOps.classList.remove('hidden');
-                return;
-            }
-
-            opsList.classList.remove('hidden');
-            noOps.classList.add('hidden');
-
-            opsList.innerHTML = operations.map(op => `
-                <div class="op-card ${op.color}" onclick="navigateTo('${op.url}')" role="button" tabindex="0">
-                    <div class="op-icon">
-                        <i class="fas ${op.icon || 'fa-cog'}"></i>
-                    </div>
-                    <div class="op-info">
-                        <h3>
-                            ${escapeHtml(op.name)}
-                            <span class="op-badge active">Active</span>
-                        </h3>
-                        <p>${escapeHtml(op.description || 'Access your portal')}</p>
-                    </div>
-                    <div class="op-arrow">
-                        <i class="fas fa-chevron-right"></i>
+            // Create tab content containers
+            $('tabContents').innerHTML = verifiedOps.map(([key, op]) => `
+                <div class="tab-content" id="tab-${key}">
+                    <div class="stats-row" id="stats-${key}"></div>
+                    <div class="filters-row" id="filters-${key}"></div>
+                    <div class="delivery-list" id="list-${key}">
+                        <div class="empty-list"><i class="fas fa-sync-alt fa-spin"></i><p>Loading...</p></div>
                     </div>
                 </div>
             `).join('');
         }
 
-        window.navigateTo = function(url) {
-            if (url) window.location.href = url;
+        window.switchToTab = function(key) {
+            activeTab = key;
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === key));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.toggle('active', c.id === `tab-${key}`));
+            loadTabData(key);
         };
 
-        async function loadJobCounts() {
-            if (!currentUser) return;
-            try {
-                let active = 0, pending = 0, done = 0;
-                const today = new Date().toDateString();
-                const checks = [];
-
-                if (userRegistrations.pickup?.verified) {
-                    checks.push((async () => {
-                        const snap = await db.ref('pickup_deliveries').orderByChild('assignedTo').equalTo(currentUser.uid).once('value');
-                        Object.values(snap.val() || {}).forEach(d => {
-                            if (['assigned','out-for-delivery','in_progress'].includes(d.status)) active++;
-                            if (d.status === 'pending' || d.status === 'scheduled') pending++;
-                            if (d.status === 'delivered' && d.deliveryDate && new Date(d.deliveryDate).toDateString() === today) done++;
-                        });
-                    })());
-                }
-
-                if (userRegistrations.ride?.verified) {
-                    checks.push((async () => {
-                        const snap = await db.ref('pickme_rides').orderByChild('driverId').equalTo(currentUser.uid).once('value');
-                        Object.values(snap.val() || {}).forEach(r => {
-                            if (['accepted','arrived','ongoing'].includes(r.status)) active++;
-                            if (r.status === 'requested') pending++;
-                            if (r.status === 'completed' && r.completedAt && new Date(r.completedAt).toDateString() === today) done++;
-                        });
-                    })());
-                }
-
-                if (userRegistrations.tasker?.verified) {
-                    checks.push((async () => {
-                        const snap = await db.ref('assistant_tasks').orderByChild('assignedTo').equalTo(currentUser.uid).once('value');
-                        Object.values(snap.val() || {}).forEach(t => {
-                            if (['assigned','in_progress'].includes(t.status)) active++;
-                            if (t.status === 'pending') pending++;
-                            if (t.status === 'completed' && t.completedAt && new Date(t.completedAt).toDateString() === today) done++;
-                        });
-                    })());
-                }
-
-                await Promise.all(checks);
-                $('statActive').textContent = active;
-                $('statPending').textContent = pending;
-                $('statDone').textContent = done;
-            } catch (e) {
-                console.error('Job count error:', e);
-            }
+        async function loadTabData(key) {
+            if (key === 'pickup') await loadPickupData();
+            if (key === 'ride') await loadRideData();
+            updateHeaderStats();
         }
 
-        window.handleLogout = async () => {
-            if (confirm('Sign out?')) {
-                await auth.signOut();
-                window.location.href = 'index.html';
+        // ========== PICK-UP ==========
+        async function loadPickupData() {
+            if (!currentUser) return;
+            try {
+                const snap = await db.ref('pickup_deliveries').orderByChild('assignedTo').equalTo(currentUser.uid).once('value');
+                allPickups = Object.entries(snap.val() || {}).map(([id, d]) => ({ id, ...d })).sort((a, b) => (b.createdAt||0) - (a.createdAt||0));
+                renderPickupStats();
+                renderPickupFilters();
+                renderPickupList();
+                updateBadge('pickup', allPickups.filter(d => ['assigned','out-for-delivery'].includes(d.status)).length);
+            } catch (e) { console.error(e); }
+        }
+
+        function renderPickupStats() {
+            const active = allPickups.filter(d => ['assigned','out-for-delivery','in_progress'].includes(d.status)).length;
+            const done = allPickups.filter(d => d.status === 'delivered').length;
+            const today = new Date().toDateString();
+            const todayDone = allPickups.filter(d => d.status === 'delivered' && d.deliveryDate && new Date(d.deliveryDate).toDateString() === today).length;
+            $(`stats-pickup`).innerHTML = `
+                <div class="stat-card"><div class="stat-value">${active}</div><div class="stat-label">Active</div></div>
+                <div class="stat-card"><div class="stat-value">${todayDone}</div><div class="stat-label">Today</div></div>
+                <div class="stat-card"><div class="stat-value">${done}</div><div class="stat-label">Total</div></div>
+            `;
+        }
+
+        function renderPickupFilters() {
+            $(`filters-pickup`).innerHTML = `
+                <button class="filter-chip ${pickupFilter==='all'?'active':''}" onclick="pickupFilter='all';renderPickupList()">All</button>
+                <button class="filter-chip ${pickupFilter==='assigned'?'active':''}" onclick="pickupFilter='assigned';renderPickupList()">Assigned</button>
+                <button class="filter-chip ${pickupFilter==='out-for-delivery'?'active':''}" onclick="pickupFilter='out-for-delivery';renderPickupList()">Out</button>
+                <button class="filter-chip ${pickupFilter==='delivered'?'active':''}" onclick="pickupFilter='delivered';renderPickupList()">Done</button>
+                <input type="text" class="search-input" placeholder="Search..." oninput="renderPickupList()" id="pickupSearch">
+                <button class="refresh-chip" onclick="loadPickupData()"><i class="fas fa-sync-alt"></i></button>
+            `;
+        }
+
+        function renderPickupList() {
+            let items = [...allPickups];
+            if (pickupFilter !== 'all') items = items.filter(d => d.status === pickupFilter);
+            const q = ($('pickupSearch')?.value || '').toLowerCase();
+            if (q) items = items.filter(d => {
+                const id = String(d.id).toLowerCase();
+                const client = (d.userName || d.customer?.name || '').toLowerCase();
+                const pickup = (d.pickup?.address || '').toLowerCase();
+                const delivery = (d.delivery?.address || '').toLowerCase();
+                return id.includes(q) || client.includes(q) || pickup.includes(q) || delivery.includes(q);
+            });
+
+            const list = $('list-pickup');
+            if (!items.length) {
+                list.innerHTML = '<div class="empty-list"><i class="fas fa-box-open"></i><p>No deliveries</p></div>';
+                return;
             }
+
+            list.innerHTML = items.map(d => {
+                const s = d.status || 'pending';
+                const statusClass = `status-${s}`;
+                const client = d.userName || d.customer?.name || 'Client';
+                const pickup = d.pickup?.address || '—';
+                const delivery = d.delivery?.address || '—';
+                const fare = d.fare?.total ? `KSh ${d.fare.total}` : '—';
+
+                let actions = `<button class="action-btn btn-view" onclick="viewPickupDetails('${d.id}')"><i class="fas fa-eye"></i></button>`;
+                if (s === 'assigned') actions += `<button class="action-btn btn-pickup" onclick="openPickupConfirm('${d.id}')"><i class="fas fa-box"></i> Pickup</button>`;
+                if (s === 'out-for-delivery') {
+                    actions += `<button class="action-btn btn-nav" onclick="navigateTo('${encodeURIComponent(delivery)}')"><i class="fas fa-map-marked-alt"></i></button>`;
+                    actions += `<button class="action-btn btn-complete" onclick="openCompleteModal('${d.id}')"><i class="fas fa-check"></i> Done</button>`;
+                }
+
+                return `
+                <div class="delivery-card">
+                    <div class="delivery-top">
+                        <span class="delivery-id">#${String(d.id).substring(Math.max(0,d.id.length-6))}</span>
+                        <span class="delivery-status ${statusClass}">${s.replace(/-/g,' ')}</span>
+                    </div>
+                    <div class="delivery-client">${escapeHtml(client)}</div>
+                    <div class="delivery-route">📍 ${escapeHtml(String(pickup).substring(0,25))} <i class="fas fa-arrow-right"></i> ${escapeHtml(String(delivery).substring(0,25))}</div>
+                    <div style="font-size:0.7rem;font-weight:700;margin-bottom:0.5rem;">${fare}</div>
+                    <div class="delivery-actions">${actions}</div>
+                </div>`;
+            }).join('');
+        }
+
+        window.openPickupConfirm = (id) => { currentActionId = id; $('pickupModalOverlay').classList.add('show'); };
+        window.closePickupModal = () => { $('pickupModalOverlay').classList.remove('show'); currentActionId = null; };
+        window.confirmPickup = async () => {
+            if (!currentActionId) return;
+            const notes = $('pickupNotes').value.trim();
+            showLoading(true);
+            try {
+                const snap = await db.ref(`pickup_deliveries/${currentActionId}`).once('value');
+                const ex = snap.val() || {};
+                await db.ref(`pickup_deliveries/${currentActionId}`).update({
+                    status: 'out-for-delivery',
+                    pickupConfirmedAt: new Date().toISOString(),
+                    pickupNotes: notes,
+                    statusHistory: [...(ex.statusHistory||[]), { status: 'out-for-delivery', timestamp: new Date().toISOString(), note: 'Picked up' }]
+                });
+                toast('Pickup confirmed!', 'success');
+                closePickupModal();
+                loadPickupData();
+            } catch (e) { toast('Error', 'error'); }
+            showLoading(false);
         };
 
-        window.refreshDashboard = async () => {
-            if (currentUser) {
-                showLoading(true);
-                await checkRegistrations(currentUser);
-                await renderDashboard();
-                showLoading(false);
-                toast('Dashboard refreshed', 'success');
-            }
+        window.openCompleteModal = (id) => { currentActionId = id; $('completeModalOverlay').classList.add('show'); };
+        window.closeCompleteModal = () => { $('completeModalOverlay').classList.remove('show'); currentActionId = null; };
+        window.completeDelivery = async () => {
+            const name = $('proofName').value.trim();
+            if (!name) { toast('Enter receiver name', 'warning'); return; }
+            if (!currentActionId) return;
+            showLoading(true);
+            try {
+                const snap = await db.ref(`pickup_deliveries/${currentActionId}`).once('value');
+                const ex = snap.val() || {};
+                await db.ref(`pickup_deliveries/${currentActionId}`).update({
+                    status: 'delivered',
+                    deliveryDate: new Date().toISOString(),
+                    deliveryProof: { customerName: name, notes: $('proofNotes').value.trim(), timestamp: new Date().toISOString() },
+                    statusHistory: [...(ex.statusHistory||[]), { status: 'delivered', timestamp: new Date().toISOString(), note: `Delivered to ${name}` }]
+                });
+                toast('Delivery completed!', 'success');
+                closeCompleteModal();
+                loadPickupData();
+            } catch (e) { toast('Error', 'error'); }
+            showLoading(false);
         };
+
+        window.viewPickupDetails = (id) => {
+            const d = allPickups.find(x => x.id === id);
+            if (!d) return;
+            alert(`Delivery #${String(d.id).substring(Math.max(0,d.id.length-6))}\nClient: ${d.userName||'N/A'}\nPickup: ${d.pickup?.address||'—'}\nDelivery: ${d.delivery?.address||'—'}\nStatus: ${d.status}`);
+        };
+
+        // ========== RIDES ==========
+        async function loadRideData() {
+            if (!currentUser) return;
+            try {
+                const snap = await db.ref('pickme_rides').orderByChild('driverId').equalTo(currentUser.uid).once('value');
+                allRides = Object.entries(snap.val() || {}).map(([id, r]) => ({ id, ...r })).sort((a, b) => (b.requestedAt||0) - (a.requestedAt||0));
+                renderRideStats();
+                renderRideFilters();
+                renderRideList();
+                updateBadge('ride', allRides.filter(r => ['accepted','arrived','ongoing'].includes(r.status)).length);
+            } catch (e) { console.error(e); }
+        }
+
+        function renderRideStats() {
+            const active = allRides.filter(r => ['accepted','arrived','ongoing'].includes(r.status)).length;
+            const done = allRides.filter(r => r.status === 'completed').length;
+            const today = new Date().toDateString();
+            const todayDone = allRides.filter(r => r.status === 'completed' && r.completedAt && new Date(r.completedAt).toDateString() === today).length;
+            $(`stats-ride`).innerHTML = `
+                <div class="stat-card"><div class="stat-value">${active}</div><div class="stat-label">Active</div></div>
+                <div class="stat-card"><div class="stat-value">${todayDone}</div><div class="stat-label">Today</div></div>
+                <div class="stat-card"><div class="stat-value">${done}</div><div class="stat-label">Total</div></div>
+            `;
+        }
+
+        function renderRideFilters() {
+            $(`filters-ride`).innerHTML = `
+                <button class="filter-chip ${rideFilter==='all'?'active':''}" onclick="rideFilter='all';renderRideList()">All</button>
+                <button class="filter-chip ${rideFilter==='accepted'?'active':''}" onclick="rideFilter='accepted';renderRideList()">Accepted</button>
+                <button class="filter-chip ${rideFilter==='arrived'?'active':''}" onclick="rideFilter='arrived';renderRideList()">Arrived</button>
+                <button class="filter-chip ${rideFilter==='ongoing'?'active':''}" onclick="rideFilter='ongoing';renderRideList()">Ongoing</button>
+                <button class="filter-chip ${rideFilter==='completed'?'active':''}" onclick="rideFilter='completed';renderRideList()">Done</button>
+                <input type="text" class="search-input" placeholder="Search..." oninput="renderRideList()" id="rideSearch">
+                <button class="refresh-chip" onclick="loadRideData()"><i class="fas fa-sync-alt"></i></button>
+            `;
+        }
+
+        function renderRideList() {
+            let items = [...allRides];
+            if (rideFilter !== 'all') items = items.filter(r => r.status === rideFilter);
+            const q = ($('rideSearch')?.value || '').toLowerCase();
+            if (q) items = items.filter(r => {
+                const id = String(r.id).toLowerCase();
+                const passenger = (r.passengerName || '').toLowerCase();
+                const pickup = (r.pickup?.address || '').toLowerCase();
+                const dropoff = (r.dropoff?.address || '').toLowerCase();
+                return id.includes(q) || passenger.includes(q) || pickup.includes(q) || dropoff.includes(q);
+            });
+
+            const list = $('list-ride');
+            if (!items.length) {
+                list.innerHTML = '<div class="empty-list"><i class="fas fa-car-side"></i><p>No rides</p></div>';
+                return;
+            }
+
+            list.innerHTML = items.map(r => {
+                const s = r.status || 'requested';
+                const passenger = r.passengerName || 'Passenger';
+                const pickup = r.pickup?.address || '—';
+                const dropoff = r.dropoff?.address || '—';
+                const fare = r.fare?.total ? `KSh ${r.fare.total}` : (r.estimatedFare ? `KSh ${r.estimatedFare}` : '—');
+                const statusMap = { accepted: 'status-assigned', arrived: 'status-out-for-delivery', ongoing: 'status-out-for-delivery', completed: 'status-delivered', requested: 'status-pending' };
+                const statusClass = statusMap[s] || 'status-pending';
+
+                let actions = `<button class="action-btn btn-view" onclick="alert('Ride #${String(r.id).substring(Math.max(0,r.id.length-6))}')"><i class="fas fa-eye"></i></button>`;
+                if (s === 'accepted') actions += `<button class="action-btn btn-pickup" onclick="updateRideStatus('${r.id}','arrived')"><i class="fas fa-location-dot"></i> Arrived</button>`;
+                if (s === 'arrived') actions += `<button class="action-btn btn-pickup" onclick="updateRideStatus('${r.id}','ongoing')"><i class="fas fa-play"></i> Start</button>`;
+                if (s === 'ongoing') actions += `<button class="action-btn btn-complete" onclick="updateRideStatus('${r.id}','completed')"><i class="fas fa-check"></i> Done</button>`;
+
+                return `
+                <div class="delivery-card">
+                    <div class="delivery-top">
+                        <span class="delivery-id">#${String(r.id).substring(Math.max(0,r.id.length-6))}</span>
+                        <span class="delivery-status ${statusClass}">${s.replace(/-/g,' ')}</span>
+                    </div>
+                    <div class="delivery-client">${escapeHtml(passenger)}</div>
+                    <div class="delivery-route">📍 ${escapeHtml(String(pickup).substring(0,25))} <i class="fas fa-arrow-right"></i> ${escapeHtml(String(dropoff).substring(0,25))}</div>
+                    <div style="font-size:0.7rem;font-weight:700;margin-bottom:0.5rem;">${fare}</div>
+                    <div class="delivery-actions">${actions}</div>
+                </div>`;
+            }).join('');
+        }
+
+        window.updateRideStatus = async (id, status) => {
+            showLoading(true);
+            try {
+                const snap = await db.ref(`pickme_rides/${id}`).once('value');
+                const ex = snap.val() || {};
+                const updates = { status, statusHistory: [...(ex.statusHistory||[]), { status, timestamp: new Date().toISOString() }] };
+                if (status === 'arrived') updates.arrivedAt = new Date().toISOString();
+                if (status === 'ongoing') updates.startedAt = new Date().toISOString();
+                if (status === 'completed') updates.completedAt = new Date().toISOString();
+                await db.ref(`pickme_rides/${id}`).update(updates);
+                toast(`Ride ${status}!`, 'success');
+                loadRideData();
+            } catch (e) { toast('Error', 'error'); }
+            showLoading(false);
+        };
+
+        // ========== HELPERS ==========
+        function updateBadge(key, count) {
+            const badge = $(`badge-${key}`);
+            if (badge) badge.textContent = count;
+        }
+
+        function updateHeaderStats() {
+            let total = 0;
+            if (activeTab === 'pickup') total = allPickups.filter(d => ['assigned','out-for-delivery'].includes(d.status)).length;
+            if (activeTab === 'ride') total = allRides.filter(r => ['accepted','arrived','ongoing'].includes(r.status)).length;
+            $('headerActiveCount').textContent = total;
+        }
+
+        window.navigateTo = (addr) => window.open(`https://www.google.com/maps/search/?api=1&query=${addr}`, '_blank');
+        window.handleLogout = async () => { if (confirm('Sign out?')) { await auth.signOut(); window.location.href = 'index.html'; } };
+        window.refreshAll = () => { if (activeTab) loadTabData(activeTab); toast('Refreshed', 'success'); };
+
+        $('pickupModalOverlay').addEventListener('click', e => { if (e.target === $('pickupModalOverlay')) closePickupModal(); });
+        $('completeModalOverlay').addEventListener('click', e => { if (e.target === $('completeModalOverlay')) closeCompleteModal(); });
     </script>
 </body>
 </html>
