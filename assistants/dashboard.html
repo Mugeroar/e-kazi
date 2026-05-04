@@ -312,7 +312,7 @@
         .state-rejected i { color: var(--red); }
         .state-rejected h2 { color: var(--red); }
 
-        /* ========== PICK-UP CONTENT ========== */
+        /* Stats Row */
         .stats-row {
             display: flex;
             gap: 0.5rem;
@@ -413,6 +413,17 @@
             padding: 0.9rem 1rem;
         }
 
+        .delivery-card.new-task {
+            border-color: var(--gold);
+            animation: highlightPulse 2s ease-in-out;
+        }
+
+        @keyframes highlightPulse {
+            0% { border-color: var(--gold); box-shadow: 0 0 0 0 rgba(245,158,11,0.3); }
+            50% { border-color: var(--gold); box-shadow: 0 0 0 4px rgba(245,158,11,0); }
+            100% { border-color: var(--border); box-shadow: 0 0 0 0 rgba(245,158,11,0); }
+        }
+
         .delivery-top {
             display: flex;
             justify-content: space-between;
@@ -424,6 +435,16 @@
             font-size: 0.6rem;
             color: var(--text-muted);
             font-weight: 600;
+        }
+
+        .delivery-new-badge {
+            font-size: 0.5rem;
+            padding: 1px 6px;
+            border-radius: 8px;
+            background: var(--gold);
+            color: #0f172a;
+            font-weight: 700;
+            margin-left: 6px;
         }
 
         .delivery-status {
@@ -438,6 +459,10 @@
         .status-out-for-delivery { background: rgba(249,115,22,0.15); color: var(--orange); }
         .status-delivered { background: rgba(34,197,94,0.15); color: var(--green); }
         .status-pending { background: rgba(245,158,11,0.15); color: var(--warning); }
+        .status-accepted { background: rgba(59,130,246,0.15); color: var(--info); }
+        .status-arrived { background: rgba(139,92,246,0.15); color: var(--purple-light); }
+        .status-ongoing { background: rgba(249,115,22,0.15); color: var(--orange); }
+        .status-completed { background: rgba(34,197,94,0.15); color: var(--green); }
 
         .delivery-client {
             font-weight: 700;
@@ -486,6 +511,8 @@
         .btn-nav:hover { background: var(--info); color: white; }
         .btn-view { background: rgba(148,163,184,0.1); color: var(--text-muted); }
         .btn-view:hover { background: var(--text-muted); color: white; }
+        .btn-cancel { background: rgba(239,68,68,0.1); color: var(--red); }
+        .btn-cancel:hover { background: var(--red); color: white; }
 
         .empty-list {
             text-align: center;
@@ -500,13 +527,180 @@
             opacity: 0.4;
         }
 
+        /* Modals */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 4000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            animation: fadeIn 0.2s ease;
+        }
+
+        .modal-overlay.show { display: flex; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 1.5rem;
+            width: 100%;
+            max-width: 400px;
+            max-height: 85vh;
+            overflow-y: auto;
+            animation: modalSlideUp 0.3s ease;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+        }
+
+        @keyframes modalSlideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 1.2rem;
+            padding-bottom: 0.8rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-header i {
+            font-size: 1.4rem;
+            color: var(--gold);
+        }
+
+        .modal-header h3 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .modal-close {
+            margin-left: auto;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 50%;
+            transition: 0.2s;
+        }
+
+        .modal-close:hover {
+            background: rgba(239,68,68,0.1);
+            color: var(--red);
+        }
+
+        .modal p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        .modal .form-group {
+            margin-bottom: 0.9rem;
+        }
+
+        .modal label {
+            display: block;
+            font-size: 0.62rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.25rem;
+        }
+
+        .modal input, .modal textarea, .modal select {
+            width: 100%;
+            padding: 0.6rem 0.8rem;
+            border-radius: 12px;
+            border: 1.5px solid var(--border);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 0.8rem;
+            font-family: 'Inter', sans-serif;
+            transition: border-color 0.2s;
+        }
+
+        .modal input:focus, .modal textarea:focus, .modal select:focus {
+            outline: none;
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px rgba(245,158,11,0.06);
+        }
+
+        .modal textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        .modal .btn-row {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+            margin-top: 1.2rem;
+            flex-wrap: wrap;
+        }
+
+        .modal .btn-row .action-btn {
+            padding: 0.45rem 1rem;
+            font-size: 0.7rem;
+            border-radius: 14px;
+        }
+
+        /* Details Modal */
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 0.5rem;
+        }
+
+        .detail-item {
+            background: var(--bg-secondary);
+            padding: 0.6rem 0.7rem;
+            border-radius: 10px;
+        }
+
+        .detail-item strong {
+            display: block;
+            font-size: 0.55rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            margin-bottom: 0.1rem;
+        }
+
+        .detail-item span {
+            font-size: 0.72rem;
+            color: var(--text-primary);
+        }
+
+        .detail-item.full {
+            grid-column: 1 / -1;
+        }
+
         /* Toast */
         .toast-container {
             position: fixed;
             top: calc(65px + var(--safe-top));
             right: 10px;
             left: 10px;
-            z-index: 3000;
+            z-index: 5000;
             display: flex;
             flex-direction: column;
             align-items: flex-end;
@@ -516,44 +710,51 @@
         .toast {
             background: var(--bg-card);
             border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 0.65rem 0.85rem;
-            margin-bottom: 0.35rem;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.35);
+            border-radius: 14px;
+            padding: 0.7rem 1rem;
+            margin-bottom: 0.4rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
             display: flex;
             align-items: center;
-            gap: 6px;
-            font-size: 0.7rem;
-            animation: slideIn 0.3s ease;
+            gap: 8px;
+            font-size: 0.72rem;
+            animation: toastSlideIn 0.35s ease;
             pointer-events: auto;
             max-width: 100%;
+            font-weight: 500;
         }
 
+        .toast i { font-size: 0.85rem; }
         .toast.success { border-left: 3px solid var(--green); }
+        .toast.success i { color: var(--green); }
         .toast.error { border-left: 3px solid var(--red); }
+        .toast.error i { color: var(--red); }
         .toast.warning { border-left: 3px solid var(--warning); }
+        .toast.warning i { color: var(--warning); }
+        .toast.info { border-left: 3px solid var(--info); }
+        .toast.info i { color: var(--info); }
 
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateX(40px); }
+        @keyframes toastSlideIn {
+            from { opacity: 0; transform: translateX(50px); }
             to { opacity: 1; transform: translateX(0); }
         }
 
         .loading-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(10,15,30,0.8);
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
+            background: rgba(10,15,30,0.85);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 5000;
+            z-index: 6000;
         }
 
         .loading-overlay.hidden { display: none; }
 
         .spinner {
-            width: 36px; height: 36px;
+            width: 40px; height: 40px;
             border-radius: 50%;
             border: 3px solid var(--border);
             border-top-color: var(--gold);
@@ -573,63 +774,6 @@
         }
 
         .footer span { color: var(--gold); font-weight: 600; }
-
-        /* Modal */
-        .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.8);
-            z-index: 4000;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 1rem;
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
-        }
-
-        .modal-overlay.show { display: flex; }
-
-        .modal {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 18px;
-            padding: 1.2rem;
-            width: 100%;
-            max-width: 380px;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-
-        .modal h3 {
-            font-size: 0.9rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-            color: var(--gold);
-        }
-
-        .modal .form-group { margin-bottom: 0.8rem; }
-        .modal label {
-            display: block;
-            font-size: 0.6rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            margin-bottom: 0.2rem;
-        }
-
-        .modal input, .modal textarea {
-            width: 100%;
-            padding: 0.5rem;
-            border-radius: 10px;
-            border: 1px solid var(--border);
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-            font-size: 0.75rem;
-            font-family: 'Inter', sans-serif;
-        }
-
-        .modal textarea { resize: vertical; min-height: 50px; }
-        .modal .btn-row { display: flex; gap: 8px; justify-content: flex-end; margin-top: 1rem; }
     </style>
 </head>
 <body>
@@ -642,26 +786,104 @@
     <div class="toast-container" id="toastContainer"></div>
 
     <!-- Pickup Modal -->
-    <div class="modal-overlay" id="pickupModalOverlay">
+    <div class="modal-overlay" id="pickupModalOverlay" onclick="if(event.target===this)closePickupModal()">
         <div class="modal">
-            <h3><i class="fas fa-box"></i> Confirm Pickup</h3>
-            <div class="form-group"><label>Notes</label><textarea id="pickupNotes" placeholder="Optional..."></textarea></div>
+            <div class="modal-header">
+                <i class="fas fa-box"></i>
+                <h3>Confirm Pickup</h3>
+                <button class="modal-close" onclick="closePickupModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <p>Confirm that you have collected the package and are now out for delivery.</p>
+            <div class="form-group">
+                <label>Pickup Notes (Optional)</label>
+                <textarea id="pickupNotes" placeholder="Any notes about the pickup..."></textarea>
+            </div>
             <div class="btn-row">
                 <button class="action-btn btn-view" onclick="closePickupModal()">Cancel</button>
-                <button class="action-btn btn-pickup" onclick="confirmPickup()">Confirm</button>
+                <button class="action-btn btn-pickup" onclick="confirmPickup()">
+                    <i class="fas fa-check"></i> Confirm Pickup
+                </button>
             </div>
         </div>
     </div>
 
     <!-- Complete Modal -->
-    <div class="modal-overlay" id="completeModalOverlay">
+    <div class="modal-overlay" id="completeModalOverlay" onclick="if(event.target===this)closeCompleteModal()">
         <div class="modal">
-            <h3><i class="fas fa-check-circle"></i> Complete Delivery</h3>
-            <div class="form-group"><label>Receiver Name</label><input type="text" id="proofName" placeholder="Who received it?"></div>
-            <div class="form-group"><label>Notes</label><textarea id="proofNotes" placeholder="Optional..."></textarea></div>
+            <div class="modal-header">
+                <i class="fas fa-check-circle"></i>
+                <h3>Complete Delivery</h3>
+                <button class="modal-close" onclick="closeCompleteModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <p>Mark this delivery as completed. Enter the name of the person who received the package.</p>
+            <div class="form-group">
+                <label>Receiver Name *</label>
+                <input type="text" id="proofName" placeholder="Who received the package?">
+            </div>
+            <div class="form-group">
+                <label>Delivery Notes (Optional)</label>
+                <textarea id="proofNotes" placeholder="Any notes about the delivery..."></textarea>
+            </div>
             <div class="btn-row">
                 <button class="action-btn btn-view" onclick="closeCompleteModal()">Cancel</button>
-                <button class="action-btn btn-complete" onclick="completeDelivery()">Delivered</button>
+                <button class="action-btn btn-complete" onclick="completeDelivery()">
+                    <i class="fas fa-flag-checkered"></i> Mark Delivered
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Details Modal -->
+    <div class="modal-overlay" id="detailsModalOverlay" onclick="if(event.target===this)closeDetailsModal()">
+        <div class="modal">
+            <div class="modal-header">
+                <i class="fas fa-info-circle"></i>
+                <h3 id="detailsTitle">Delivery Details</h3>
+                <button class="modal-close" onclick="closeDetailsModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="detailsBody"></div>
+            <div class="btn-row">
+                <button class="action-btn btn-view" onclick="closeDetailsModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ride Status Modal -->
+    <div class="modal-overlay" id="rideStatusModalOverlay" onclick="if(event.target===this)closeRideStatusModal()">
+        <div class="modal">
+            <div class="modal-header">
+                <i class="fas fa-taxi"></i>
+                <h3 id="rideStatusTitle">Update Ride</h3>
+                <button class="modal-close" onclick="closeRideStatusModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <p id="rideStatusMsg">Are you sure you want to update this ride status?</p>
+            <div class="btn-row">
+                <button class="action-btn btn-view" onclick="closeRideStatusModal()">Cancel</button>
+                <button class="action-btn btn-pickup" id="rideStatusConfirmBtn" onclick="confirmRideStatus()">
+                    <i class="fas fa-check"></i> Confirm
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cancel Ride Modal -->
+    <div class="modal-overlay" id="cancelRideModalOverlay" onclick="if(event.target===this)closeCancelRideModal()">
+        <div class="modal">
+            <div class="modal-header">
+                <i class="fas fa-times-circle" style="color:var(--red);"></i>
+                <h3>Cancel Ride</h3>
+                <button class="modal-close" onclick="closeCancelRideModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <p>Are you sure you want to cancel this ride? This action cannot be undone.</p>
+            <div class="form-group">
+                <label>Reason for Cancellation</label>
+                <textarea id="cancelRideReason" placeholder="Why are you cancelling this ride?"></textarea>
+            </div>
+            <div class="btn-row">
+                <button class="action-btn btn-view" onclick="closeCancelRideModal()">Go Back</button>
+                <button class="action-btn btn-cancel" onclick="confirmCancelRide()">
+                    <i class="fas fa-times"></i> Cancel Ride
+                </button>
             </div>
         </div>
     </div>
@@ -695,13 +917,10 @@
         </header>
 
         <!-- Tab Navigation -->
-        <nav class="tab-nav" id="tabNav">
-            <!-- Dynamically populated -->
-        </nav>
+        <nav class="tab-nav" id="tabNav"></nav>
 
         <!-- Main Content -->
         <div class="main-content">
-            <!-- Pending State -->
             <div id="pendingState" class="hidden" style="padding:1rem;">
                 <div class="state-card state-pending">
                     <i class="fas fa-clock"></i>
@@ -710,7 +929,6 @@
                 </div>
             </div>
 
-            <!-- Rejected State -->
             <div id="rejectedState" class="hidden" style="padding:1rem;">
                 <div class="state-card state-rejected">
                     <i class="fas fa-times-circle"></i>
@@ -719,10 +937,7 @@
                 </div>
             </div>
 
-            <!-- Tab Content Container -->
-            <div id="tabContents">
-                <!-- Dynamically populated tabs -->
-            </div>
+            <div id="tabContents"></div>
         </div>
 
         <footer class="footer">
@@ -753,20 +968,25 @@
         let userRegistrations = {};
         let activeTab = null;
         let currentActionId = null;
+        let rideStatusAction = null;
         let allPickups = [];
         let allRides = [];
         let pickupFilter = 'all';
         let rideFilter = 'all';
+        let seenPickupIds = new Set();
+        let seenRideIds = new Set();
 
         function showLoading(s) { $('loadingOverlay').classList.toggle('hidden', !s); }
+
         function toast(msg, type = 'info') {
-            const icons = { success: 'check-circle', error: 'exclamation-circle', warning: 'exclamation-triangle', info: 'info-circle' };
+            const icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', warning: 'fa-exclamation-triangle', info: 'fa-info-circle' };
             const t = document.createElement('div');
             t.className = `toast ${type}`;
-            t.innerHTML = `<i class="fas fa-${icons[type]}"></i> ${msg}`;
+            t.innerHTML = `<i class="fas ${icons[type]}"></i> ${msg}`;
             $('toastContainer').appendChild(t);
-            setTimeout(() => t.remove(), 3000);
+            setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateX(50px)'; t.style.transition = '0.3s'; setTimeout(() => t.remove(), 300); }, 3500);
         }
+
         function getInitials(n) { return n ? String(n).split(' ').map(w => w[0]).join('').toUpperCase().substring(0,2) : 'KA'; }
         function escapeHtml(s) { if (!s) return ''; const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 
@@ -803,17 +1023,20 @@
             const verifiedOps = Object.entries(userRegistrations).filter(([_, r]) => r.verified);
             const hasVerified = verifiedOps.length > 0;
             const allRejected = Object.keys(userRegistrations).length > 0 && Object.values(userRegistrations).every(r => r.status === 'rejected');
-            const hasAny = Object.keys(userRegistrations).length > 0;
 
             $('pendingState').classList.add('hidden');
             $('rejectedState').classList.add('hidden');
 
             if (hasVerified) {
+                // Initialize seen IDs
+                seenPickupIds = new Set();
+                seenRideIds = new Set();
                 renderTabs(verifiedOps);
-                // Activate first tab
                 const firstTab = verifiedOps[0][0];
                 switchToTab(firstTab);
                 await loadTabData(firstTab);
+                // Set up real-time listeners
+                setupRealtimeListeners();
             } else if (allRejected) {
                 $('rejectedState').classList.remove('hidden');
                 const firstRej = Object.values(userRegistrations).find(r => r.status === 'rejected');
@@ -827,17 +1050,48 @@
             }
         }
 
+        function setupRealtimeListeners() {
+            if (userRegistrations.pickup?.verified && currentUser) {
+                db.ref('pickup_deliveries').orderByChild('assignedTo').equalTo(currentUser.uid).on('child_added', snap => {
+                    const id = snap.key;
+                    if (!seenPickupIds.has(id)) {
+                        seenPickupIds.add(id);
+                        if (activeTab === 'pickup') {
+                            loadPickupData();
+                            toast('🆕 New delivery assigned!', 'info');
+                        }
+                    }
+                });
+                db.ref('pickup_deliveries').orderByChild('assignedTo').equalTo(currentUser.uid).on('child_changed', () => {
+                    if (activeTab === 'pickup') loadPickupData();
+                });
+            }
+            if (userRegistrations.ride?.verified && currentUser) {
+                db.ref('pickme_rides').orderByChild('driverId').equalTo(currentUser.uid).on('child_added', snap => {
+                    const id = snap.key;
+                    if (!seenRideIds.has(id)) {
+                        seenRideIds.add(id);
+                        if (activeTab === 'ride') {
+                            loadRideData();
+                            toast('🆕 New ride assigned!', 'info');
+                        }
+                    }
+                });
+                db.ref('pickme_rides').orderByChild('driverId').equalTo(currentUser.uid).on('child_changed', () => {
+                    if (activeTab === 'ride') loadRideData();
+                });
+            }
+        }
+
         function renderTabs(verifiedOps) {
-            const tabNav = $('tabNav');
-            tabNav.innerHTML = verifiedOps.map(([key, op]) => `
+            $('tabNav').innerHTML = verifiedOps.map(([key, op]) => `
                 <button class="tab-btn" data-tab="${key}" onclick="switchToTab('${key}')">
                     <i class="fas ${op.icon}"></i> ${op.label}
                     <span class="tab-badge" id="badge-${key}">0</span>
                 </button>
             `).join('');
 
-            // Create tab content containers
-            $('tabContents').innerHTML = verifiedOps.map(([key, op]) => `
+            $('tabContents').innerHTML = verifiedOps.map(([key]) => `
                 <div class="tab-content" id="tab-${key}">
                     <div class="stats-row" id="stats-${key}"></div>
                     <div class="filters-row" id="filters-${key}"></div>
@@ -866,7 +1120,19 @@
             if (!currentUser) return;
             try {
                 const snap = await db.ref('pickup_deliveries').orderByChild('assignedTo').equalTo(currentUser.uid).once('value');
-                allPickups = Object.entries(snap.val() || {}).map(([id, d]) => ({ id, ...d })).sort((a, b) => (b.createdAt||0) - (a.createdAt||0));
+                const data = snap.val() || {};
+                allPickups = Object.entries(data).map(([id, d]) => {
+                    seenPickupIds.add(id);
+                    return { id, ...d };
+                });
+                // Sort: pending/assigned first (new tasks at top), then by date newest first
+                allPickups.sort((a, b) => {
+                    const aIsNew = a.status === 'assigned' || a.status === 'pending';
+                    const bIsNew = b.status === 'assigned' || b.status === 'pending';
+                    if (aIsNew && !bIsNew) return -1;
+                    if (!aIsNew && bIsNew) return 1;
+                    return (b.createdAt || 0) - (a.createdAt || 0);
+                });
                 renderPickupStats();
                 renderPickupFilters();
                 renderPickupList();
@@ -889,7 +1155,7 @@
         function renderPickupFilters() {
             $(`filters-pickup`).innerHTML = `
                 <button class="filter-chip ${pickupFilter==='all'?'active':''}" onclick="pickupFilter='all';renderPickupList()">All</button>
-                <button class="filter-chip ${pickupFilter==='assigned'?'active':''}" onclick="pickupFilter='assigned';renderPickupList()">Assigned</button>
+                <button class="filter-chip ${pickupFilter==='assigned'?'active':''}" onclick="pickupFilter='assigned';renderPickupList()">New</button>
                 <button class="filter-chip ${pickupFilter==='out-for-delivery'?'active':''}" onclick="pickupFilter='out-for-delivery';renderPickupList()">Out</button>
                 <button class="filter-chip ${pickupFilter==='delivered'?'active':''}" onclick="pickupFilter='delivered';renderPickupList()">Done</button>
                 <input type="text" class="search-input" placeholder="Search..." oninput="renderPickupList()" id="pickupSearch">
@@ -911,30 +1177,36 @@
 
             const list = $('list-pickup');
             if (!items.length) {
-                list.innerHTML = '<div class="empty-list"><i class="fas fa-box-open"></i><p>No deliveries</p></div>';
+                list.innerHTML = '<div class="empty-list"><i class="fas fa-box-open"></i><p>No deliveries found</p></div>';
                 return;
             }
 
             list.innerHTML = items.map(d => {
                 const s = d.status || 'pending';
-                const statusClass = `status-${s}`;
+                const isNew = s === 'assigned' || s === 'pending';
+                const statusClass = `status-${s === 'in_progress' ? 'out-for-delivery' : s}`;
                 const client = d.userName || d.customer?.name || 'Client';
                 const pickup = d.pickup?.address || '—';
                 const delivery = d.delivery?.address || '—';
                 const fare = d.fare?.total ? `KSh ${d.fare.total}` : '—';
 
                 let actions = `<button class="action-btn btn-view" onclick="viewPickupDetails('${d.id}')"><i class="fas fa-eye"></i></button>`;
-                if (s === 'assigned') actions += `<button class="action-btn btn-pickup" onclick="openPickupConfirm('${d.id}')"><i class="fas fa-box"></i> Pickup</button>`;
-                if (s === 'out-for-delivery') {
-                    actions += `<button class="action-btn btn-nav" onclick="navigateTo('${encodeURIComponent(delivery)}')"><i class="fas fa-map-marked-alt"></i></button>`;
+                if (s === 'assigned' || s === 'pending') {
+                    actions += `<button class="action-btn btn-pickup" onclick="openPickupConfirm('${d.id}')"><i class="fas fa-box"></i> Pickup</button>`;
+                }
+                if (s === 'out-for-delivery' || s === 'in_progress') {
+                    actions += `<button class="action-btn btn-nav" onclick="navigateTo('${encodeURIComponent(delivery)}')"><i class="fas fa-map-marked-alt"></i> Nav</button>`;
                     actions += `<button class="action-btn btn-complete" onclick="openCompleteModal('${d.id}')"><i class="fas fa-check"></i> Done</button>`;
                 }
 
                 return `
-                <div class="delivery-card">
+                <div class="delivery-card ${isNew ? 'new-task' : ''}">
                     <div class="delivery-top">
-                        <span class="delivery-id">#${String(d.id).substring(Math.max(0,d.id.length-6))}</span>
-                        <span class="delivery-status ${statusClass}">${s.replace(/-/g,' ')}</span>
+                        <span class="delivery-id">
+                            #${String(d.id).substring(Math.max(0,d.id.length-6))}
+                            ${isNew ? '<span class="delivery-new-badge">NEW</span>' : ''}
+                        </span>
+                        <span class="delivery-status ${statusClass}">${s.replace(/-/g,' ').replace(/_/g,' ')}</span>
                     </div>
                     <div class="delivery-client">${escapeHtml(client)}</div>
                     <div class="delivery-route">📍 ${escapeHtml(String(pickup).substring(0,25))} <i class="fas fa-arrow-right"></i> ${escapeHtml(String(delivery).substring(0,25))}</div>
@@ -944,7 +1216,7 @@
             }).join('');
         }
 
-        window.openPickupConfirm = (id) => { currentActionId = id; $('pickupModalOverlay').classList.add('show'); };
+        window.openPickupConfirm = (id) => { currentActionId = id; $('pickupModalOverlay').classList.add('show'); $('pickupNotes').value = ''; };
         window.closePickupModal = () => { $('pickupModalOverlay').classList.remove('show'); currentActionId = null; };
         window.confirmPickup = async () => {
             if (!currentActionId) return;
@@ -957,20 +1229,20 @@
                     status: 'out-for-delivery',
                     pickupConfirmedAt: new Date().toISOString(),
                     pickupNotes: notes,
-                    statusHistory: [...(ex.statusHistory||[]), { status: 'out-for-delivery', timestamp: new Date().toISOString(), note: 'Picked up' }]
+                    statusHistory: [...(ex.statusHistory||[]), { status: 'out-for-delivery', timestamp: new Date().toISOString(), note: notes || 'Package picked up' }]
                 });
-                toast('Pickup confirmed!', 'success');
+                toast('Package picked up! Out for delivery.', 'success');
                 closePickupModal();
                 loadPickupData();
-            } catch (e) { toast('Error', 'error'); }
+            } catch (e) { toast('Error confirming pickup. Try again.', 'error'); }
             showLoading(false);
         };
 
-        window.openCompleteModal = (id) => { currentActionId = id; $('completeModalOverlay').classList.add('show'); };
+        window.openCompleteModal = (id) => { currentActionId = id; $('completeModalOverlay').classList.add('show'); $('proofName').value = ''; $('proofNotes').value = ''; };
         window.closeCompleteModal = () => { $('completeModalOverlay').classList.remove('show'); currentActionId = null; };
         window.completeDelivery = async () => {
             const name = $('proofName').value.trim();
-            if (!name) { toast('Enter receiver name', 'warning'); return; }
+            if (!name) { toast('Please enter the receiver\'s name', 'warning'); return; }
             if (!currentActionId) return;
             showLoading(true);
             try {
@@ -982,25 +1254,52 @@
                     deliveryProof: { customerName: name, notes: $('proofNotes').value.trim(), timestamp: new Date().toISOString() },
                     statusHistory: [...(ex.statusHistory||[]), { status: 'delivered', timestamp: new Date().toISOString(), note: `Delivered to ${name}` }]
                 });
-                toast('Delivery completed!', 'success');
+                toast('Delivery completed! Great work.', 'success');
                 closeCompleteModal();
                 loadPickupData();
-            } catch (e) { toast('Error', 'error'); }
+            } catch (e) { toast('Error completing delivery. Try again.', 'error'); }
             showLoading(false);
         };
 
         window.viewPickupDetails = (id) => {
             const d = allPickups.find(x => x.id === id);
             if (!d) return;
-            alert(`Delivery #${String(d.id).substring(Math.max(0,d.id.length-6))}\nClient: ${d.userName||'N/A'}\nPickup: ${d.pickup?.address||'—'}\nDelivery: ${d.delivery?.address||'—'}\nStatus: ${d.status}`);
+            const s = d.status || 'pending';
+            $('detailsTitle').textContent = `Delivery #${String(d.id).substring(Math.max(0,d.id.length-6))}`;
+            $('detailsBody').innerHTML = `
+                <div class="detail-grid">
+                    <div class="detail-item"><strong>Client</strong><span>${escapeHtml(d.userName || d.customer?.name || 'N/A')}</span></div>
+                    <div class="detail-item"><strong>Phone</strong><span>${escapeHtml(d.userPhone || d.customer?.phone || 'N/A')}</span></div>
+                    <div class="detail-item"><strong>Status</strong><span class="delivery-status status-${s}">${s.replace(/-/g,' ')}</span></div>
+                    <div class="detail-item"><strong>Fare</strong><span>${d.fare?.total ? 'KSh '+d.fare.total : '—'}</span></div>
+                    <div class="detail-item"><strong>Pickup</strong><span>${escapeHtml(d.pickup?.address || '—')}</span></div>
+                    <div class="detail-item"><strong>Delivery</strong><span>${escapeHtml(d.delivery?.address || '—')}</span></div>
+                    <div class="detail-item full"><strong>Package</strong><span>${escapeHtml(d.package?.type || 'N/A')} · ${d.package?.weight || 0}kg</span></div>
+                    <div class="detail-item full"><strong>Instructions</strong><span>${escapeHtml(d.package?.instructions || d.instructions || 'None')}</span></div>
+                </div>
+            `;
+            $('detailsModalOverlay').classList.add('show');
         };
+        window.closeDetailsModal = () => { $('detailsModalOverlay').classList.remove('show'); };
 
         // ========== RIDES ==========
         async function loadRideData() {
             if (!currentUser) return;
             try {
                 const snap = await db.ref('pickme_rides').orderByChild('driverId').equalTo(currentUser.uid).once('value');
-                allRides = Object.entries(snap.val() || {}).map(([id, r]) => ({ id, ...r })).sort((a, b) => (b.requestedAt||0) - (a.requestedAt||0));
+                const data = snap.val() || {};
+                allRides = Object.entries(data).map(([id, r]) => {
+                    seenRideIds.add(id);
+                    return { id, ...r };
+                });
+                // Sort: requested/accepted first (new tasks at top), then by date newest first
+                allRides.sort((a, b) => {
+                    const aIsNew = a.status === 'accepted' || a.status === 'requested';
+                    const bIsNew = b.status === 'accepted' || b.status === 'requested';
+                    if (aIsNew && !bIsNew) return -1;
+                    if (!aIsNew && bIsNew) return 1;
+                    return (b.requestedAt || 0) - (a.requestedAt || 0);
+                });
                 renderRideStats();
                 renderRideFilters();
                 renderRideList();
@@ -1023,7 +1322,7 @@
         function renderRideFilters() {
             $(`filters-ride`).innerHTML = `
                 <button class="filter-chip ${rideFilter==='all'?'active':''}" onclick="rideFilter='all';renderRideList()">All</button>
-                <button class="filter-chip ${rideFilter==='accepted'?'active':''}" onclick="rideFilter='accepted';renderRideList()">Accepted</button>
+                <button class="filter-chip ${rideFilter==='accepted'?'active':''}" onclick="rideFilter='accepted';renderRideList()">New</button>
                 <button class="filter-chip ${rideFilter==='arrived'?'active':''}" onclick="rideFilter='arrived';renderRideList()">Arrived</button>
                 <button class="filter-chip ${rideFilter==='ongoing'?'active':''}" onclick="rideFilter='ongoing';renderRideList()">Ongoing</button>
                 <button class="filter-chip ${rideFilter==='completed'?'active':''}" onclick="rideFilter='completed';renderRideList()">Done</button>
@@ -1034,7 +1333,10 @@
 
         function renderRideList() {
             let items = [...allRides];
-            if (rideFilter !== 'all') items = items.filter(r => r.status === rideFilter);
+            if (rideFilter !== 'all') items = items.filter(r => {
+                if (rideFilter === 'accepted') return r.status === 'accepted' || r.status === 'requested';
+                return r.status === rideFilter;
+            });
             const q = ($('rideSearch')?.value || '').toLowerCase();
             if (q) items = items.filter(r => {
                 const id = String(r.id).toLowerCase();
@@ -1046,28 +1348,40 @@
 
             const list = $('list-ride');
             if (!items.length) {
-                list.innerHTML = '<div class="empty-list"><i class="fas fa-car-side"></i><p>No rides</p></div>';
+                list.innerHTML = '<div class="empty-list"><i class="fas fa-car-side"></i><p>No rides found</p></div>';
                 return;
             }
 
             list.innerHTML = items.map(r => {
                 const s = r.status || 'requested';
+                const isNew = s === 'accepted' || s === 'requested';
                 const passenger = r.passengerName || 'Passenger';
                 const pickup = r.pickup?.address || '—';
                 const dropoff = r.dropoff?.address || '—';
                 const fare = r.fare?.total ? `KSh ${r.fare.total}` : (r.estimatedFare ? `KSh ${r.estimatedFare}` : '—');
-                const statusMap = { accepted: 'status-assigned', arrived: 'status-out-for-delivery', ongoing: 'status-out-for-delivery', completed: 'status-delivered', requested: 'status-pending' };
+                const statusMap = { accepted: 'status-accepted', arrived: 'status-arrived', ongoing: 'status-ongoing', completed: 'status-completed', requested: 'status-pending' };
                 const statusClass = statusMap[s] || 'status-pending';
 
-                let actions = `<button class="action-btn btn-view" onclick="alert('Ride #${String(r.id).substring(Math.max(0,r.id.length-6))}')"><i class="fas fa-eye"></i></button>`;
-                if (s === 'accepted') actions += `<button class="action-btn btn-pickup" onclick="updateRideStatus('${r.id}','arrived')"><i class="fas fa-location-dot"></i> Arrived</button>`;
-                if (s === 'arrived') actions += `<button class="action-btn btn-pickup" onclick="updateRideStatus('${r.id}','ongoing')"><i class="fas fa-play"></i> Start</button>`;
-                if (s === 'ongoing') actions += `<button class="action-btn btn-complete" onclick="updateRideStatus('${r.id}','completed')"><i class="fas fa-check"></i> Done</button>`;
+                let actions = `<button class="action-btn btn-view" onclick="viewRideDetails('${r.id}')"><i class="fas fa-eye"></i></button>`;
+                if (s === 'accepted' || s === 'requested') {
+                    actions += `<button class="action-btn btn-pickup" onclick="openRideStatusModal('${r.id}','arrived')"><i class="fas fa-location-dot"></i> Arrived</button>`;
+                    actions += `<button class="action-btn btn-cancel" onclick="openCancelRideModal('${r.id}')"><i class="fas fa-times"></i></button>`;
+                }
+                if (s === 'arrived') {
+                    actions += `<button class="action-btn btn-pickup" onclick="openRideStatusModal('${r.id}','ongoing')"><i class="fas fa-play"></i> Start</button>`;
+                }
+                if (s === 'ongoing') {
+                    actions += `<button class="action-btn btn-nav" onclick="navigateTo('${encodeURIComponent(dropoff)}')"><i class="fas fa-map-marked-alt"></i> Nav</button>`;
+                    actions += `<button class="action-btn btn-complete" onclick="openRideStatusModal('${r.id}','completed')"><i class="fas fa-check"></i> Done</button>`;
+                }
 
                 return `
-                <div class="delivery-card">
+                <div class="delivery-card ${isNew ? 'new-task' : ''}">
                     <div class="delivery-top">
-                        <span class="delivery-id">#${String(r.id).substring(Math.max(0,r.id.length-6))}</span>
+                        <span class="delivery-id">
+                            #${String(r.id).substring(Math.max(0,r.id.length-6))}
+                            ${isNew ? '<span class="delivery-new-badge">NEW</span>' : ''}
+                        </span>
                         <span class="delivery-status ${statusClass}">${s.replace(/-/g,' ')}</span>
                     </div>
                     <div class="delivery-client">${escapeHtml(passenger)}</div>
@@ -1078,20 +1392,79 @@
             }).join('');
         }
 
-        window.updateRideStatus = async (id, status) => {
+        window.openRideStatusModal = (id, newStatus) => {
+            currentActionId = id;
+            rideStatusAction = newStatus;
+            const labels = { arrived: 'Arrived at Pickup', ongoing: 'Start Trip', completed: 'Complete Trip' };
+            const msgs = { arrived: 'Confirm that you have arrived at the pickup location.', ongoing: 'Passenger is in the vehicle. Start the trip now.', completed: 'Mark this trip as completed.' };
+            $('rideStatusTitle').textContent = labels[newStatus] || 'Update Ride';
+            $('rideStatusMsg').textContent = msgs[newStatus] || 'Update this ride status?';
+            $('rideStatusConfirmBtn').innerHTML = `<i class="fas fa-check"></i> ${labels[newStatus] || 'Confirm'}`;
+            $('rideStatusModalOverlay').classList.add('show');
+        };
+        window.closeRideStatusModal = () => { $('rideStatusModalOverlay').classList.remove('show'); currentActionId = null; rideStatusAction = null; };
+        window.confirmRideStatus = async () => {
+            if (!currentActionId || !rideStatusAction) return;
             showLoading(true);
             try {
-                const snap = await db.ref(`pickme_rides/${id}`).once('value');
+                const snap = await db.ref(`pickme_rides/${currentActionId}`).once('value');
                 const ex = snap.val() || {};
-                const updates = { status, statusHistory: [...(ex.statusHistory||[]), { status, timestamp: new Date().toISOString() }] };
-                if (status === 'arrived') updates.arrivedAt = new Date().toISOString();
-                if (status === 'ongoing') updates.startedAt = new Date().toISOString();
-                if (status === 'completed') updates.completedAt = new Date().toISOString();
-                await db.ref(`pickme_rides/${id}`).update(updates);
-                toast(`Ride ${status}!`, 'success');
+                const updates = { status: rideStatusAction, statusHistory: [...(ex.statusHistory||[]), { status: rideStatusAction, timestamp: new Date().toISOString() }] };
+                if (rideStatusAction === 'arrived') updates.arrivedAt = new Date().toISOString();
+                if (rideStatusAction === 'ongoing') updates.startedAt = new Date().toISOString();
+                if (rideStatusAction === 'completed') updates.completedAt = new Date().toISOString();
+                await db.ref(`pickme_rides/${currentActionId}`).update(updates);
+                if (rideStatusAction === 'ongoing') await db.ref(`pickme_drivers/${currentUser.uid}`).update({ status: 'on_trip', currentRide: currentActionId });
+                if (rideStatusAction === 'completed') await db.ref(`pickme_drivers/${currentUser.uid}`).update({ status: 'available', currentRide: null });
+                const successMsgs = { arrived: 'Arrived at pickup!', ongoing: 'Trip started! Drive safely.', completed: 'Trip completed! Great work.' };
+                toast(successMsgs[rideStatusAction] || 'Status updated!', 'success');
+                closeRideStatusModal();
                 loadRideData();
-            } catch (e) { toast('Error', 'error'); }
+            } catch (e) { toast('Error updating ride. Try again.', 'error'); }
             showLoading(false);
+        };
+
+        window.openCancelRideModal = (id) => { currentActionId = id; $('cancelRideModalOverlay').classList.add('show'); $('cancelRideReason').value = ''; };
+        window.closeCancelRideModal = () => { $('cancelRideModalOverlay').classList.remove('show'); currentActionId = null; };
+        window.confirmCancelRide = async () => {
+            if (!currentActionId) return;
+            showLoading(true);
+            try {
+                const snap = await db.ref(`pickme_rides/${currentActionId}`).once('value');
+                const ex = snap.val() || {};
+                await db.ref(`pickme_rides/${currentActionId}`).update({
+                    status: 'cancelled',
+                    cancelledAt: new Date().toISOString(),
+                    cancelReason: $('cancelRideReason').value.trim() || 'Cancelled by driver',
+                    statusHistory: [...(ex.statusHistory||[]), { status: 'cancelled', timestamp: new Date().toISOString(), note: $('cancelRideReason').value.trim() || 'Cancelled by driver' }]
+                });
+                await db.ref(`pickme_drivers/${currentUser.uid}`).update({ status: 'available', currentRide: null });
+                toast('Ride cancelled.', 'warning');
+                closeCancelRideModal();
+                loadRideData();
+            } catch (e) { toast('Error cancelling ride.', 'error'); }
+            showLoading(false);
+        };
+
+        window.viewRideDetails = (id) => {
+            const r = allRides.find(x => x.id === id);
+            if (!r) return;
+            const s = r.status || 'requested';
+            $('detailsTitle').textContent = `Ride #${String(r.id).substring(Math.max(0,r.id.length-6))}`;
+            $('detailsBody').innerHTML = `
+                <div class="detail-grid">
+                    <div class="detail-item"><strong>Passenger</strong><span>${escapeHtml(r.passengerName || 'N/A')}</span></div>
+                    <div class="detail-item"><strong>Phone</strong><span>${escapeHtml(r.passengerPhone || r.phone || 'N/A')}</span></div>
+                    <div class="detail-item"><strong>Status</strong><span class="delivery-status status-${s}">${s.replace(/-/g,' ')}</span></div>
+                    <div class="detail-item"><strong>Vehicle</strong><span>${escapeHtml(r.vehicleType || 'Standard')}</span></div>
+                    <div class="detail-item"><strong>Pickup</strong><span>${escapeHtml(r.pickup?.address || '—')}</span></div>
+                    <div class="detail-item"><strong>Dropoff</strong><span>${escapeHtml(r.dropoff?.address || '—')}</span></div>
+                    <div class="detail-item"><strong>Fare</strong><span>${r.fare?.total ? 'KSh '+r.fare.total : (r.estimatedFare ? 'KSh '+r.estimatedFare : '—')}</span></div>
+                    <div class="detail-item"><strong>Payment</strong><span>${escapeHtml(r.paymentMethod || 'Cash')}</span></div>
+                    <div class="detail-item full"><strong>Instructions</strong><span>${escapeHtml(r.specialInstructions || 'None')}</span></div>
+                </div>
+            `;
+            $('detailsModalOverlay').classList.add('show');
         };
 
         // ========== HELPERS ==========
@@ -1109,10 +1482,7 @@
 
         window.navigateTo = (addr) => window.open(`https://www.google.com/maps/search/?api=1&query=${addr}`, '_blank');
         window.handleLogout = async () => { if (confirm('Sign out?')) { await auth.signOut(); window.location.href = 'index.html'; } };
-        window.refreshAll = () => { if (activeTab) loadTabData(activeTab); toast('Refreshed', 'success'); };
-
-        $('pickupModalOverlay').addEventListener('click', e => { if (e.target === $('pickupModalOverlay')) closePickupModal(); });
-        $('completeModalOverlay').addEventListener('click', e => { if (e.target === $('completeModalOverlay')) closeCompleteModal(); });
+        window.refreshAll = () => { if (activeTab) { loadTabData(activeTab); toast('Dashboard refreshed', 'success'); } };
     </script>
 </body>
 </html>
