@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>E-KAZI · Dashboard</title>
+    
+    <meta name="theme-color" content="#0f172a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="E-KAZI">
+    <meta name="mobile-web-app-capable" content="yes">
+    
+    <link rel="icon" type="image/png" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
+    <link rel="apple-touch-icon" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
+    <link rel="manifest" href="/e-kazi/assistants/manifest.json">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-primary: #0a0f1e;
+            --bg-secondary: #111827;
+            --bg-card: #1a2235;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --text-muted: #94a3b8;
+            --border: #263148;
+            --border-light: #334155;
+            --gold: #f59e0b;
+            --gold-dark: #b45309;
+            --purple: #8b5cf6;
+            --purple-light: #a78bfa;
+            --green: #22c55e;
+            --red: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --orange: #f97316;
+            --safe-bottom: env(safe-area-inset-bottom, 20px);
+            --safe-top: env(safe-area-inset-top, 0px);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            min-height: 100dvh;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .bg-gradient {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: 
+                radial-gradient(ellipse at 20% 20%, rgba(139, 92, 246, 0.07) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 60%, rgba(245, 158, 11, 0.05) 0%, transparent 50%);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .app-container {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: rgba(10, 15, 30, 0.88);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border-bottom: 1px solid rgba(245, 158, 11, 0.15);
+            padding: 0 1rem;
+            padding-top: var(--safe-top);
+        }
+
+        .header-inner {
+            max-width: 900px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 56px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-logo {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            object-fit: contain;
+            background: white;
+            box-shadow: 0 4px 14px rgba(139, 92, 246, 0.25);
+        }
+
+        .brand-name {
+            font-size: 0.95rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #c084fc, #fbbf24);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.3px;
+        }
+
+        .user-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            padding: 0.25rem 0.7rem 0.25rem 0.35rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            color: var(--text-primary);
+            font-size: 0.7rem;
+            position: relative;
+        }
+
+        .user-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--purple), var(--gold));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.65rem;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .user-dropdown {
+            position: absolute;
+            top: 110%;
+            right: 0;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 0.35rem;
+            min-width: 140px;
+            display: none;
+            z-index: 10;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+        }
+
+        .user-btn:hover .user-dropdown { display: block; }
+
+        .dropdown-item {
+            padding: 0.5rem 0.7rem;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            transition: 0.2s;
+            border: none;
+            background: none;
+            width: 100%;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .dropdown-item:hover { background: rgba(245,158,11,0.1); color: var(--gold); }
+        .dropdown-item.danger:hover { background: rgba(239,68,68,0.1); color: var(--red); }
+
+        /* Main */
+        .main-content {
+            flex: 1;
+            max-width: 900px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 1rem 1rem calc(1rem + var(--safe-bottom));
+        }
+
+        /* Verification States */
+        .state-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .state-card i {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .state-card h2 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .state-card p {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        .state-pending i { color: var(--warning); }
+        .state-pending h2 { color: var(--warning); }
+        .state-rejected i { color: var(--red); }
+        .state-rejected h2 { color: var(--red); }
+
+        /* Dashboard */
+        .dashboard-section {
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Profile Card */
+        .profile-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .profile-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--purple), var(--gold));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .profile-info h3 {
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-bottom: 0.1rem;
+        }
+
+        .profile-info span {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+        }
+
+        .profile-roles {
+            display: flex;
+            gap: 4px;
+            margin-top: 4px;
+            flex-wrap: wrap;
+        }
+
+        .role-tag {
+            font-size: 0.55rem;
+            padding: 2px 8px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .role-pickup { background: rgba(245,158,11,0.15); color: var(--gold); }
+        .role-ride { background: rgba(139,92,246,0.15); color: var(--purple-light); }
+        .role-tasker { background: rgba(59,130,246,0.15); color: var(--info); }
+
+        /* Stats */
+        .stats-row {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .stat-card {
+            flex: 1;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 0.8rem;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--gold);
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 0.55rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 0.2rem;
+        }
+
+        /* Operations */
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 0.8rem;
+        }
+
+        .section-header h2 {
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            white-space: nowrap;
+        }
+
+        .section-line {
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        .ops-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .op-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1rem 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            color: inherit;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .op-card:active { transform: scale(0.98); }
+
+        .op-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 15%;
+            bottom: 15%;
+            width: 3px;
+            border-radius: 0 3px 3px 0;
+        }
+
+        .op-card.pickup::before { background: var(--gold); }
+        .op-card.ride::before { background: var(--purple); }
+        .op-card.tasker::before { background: var(--info); }
+
+        .op-card.locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .op-card.locked::before { background: var(--text-muted); }
+
+        .op-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .op-card.pickup .op-icon { background: rgba(245,158,11,0.1); color: var(--gold); }
+        .op-card.ride .op-icon { background: rgba(139,92,246,0.1); color: var(--purple-light); }
+        .op-card.tasker .op-icon { background: rgba(59,130,246,0.1); color: var(--info); }
+        .op-card.locked .op-icon { background: rgba(148,163,184,0.08); color: var(--text-muted); }
+
+        .op-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .op-info h3 {
+            font-size: 0.82rem;
+            font-weight: 700;
+            margin-bottom: 0.1rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .op-info p {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        .op-badge {
+            font-size: 0.5rem;
+            padding: 1px 6px;
+            border-radius: 8px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .op-badge.active { background: rgba(34,197,94,0.15); color: var(--green); }
+        .op-badge.locked-badge { background: rgba(239,68,68,0.12); color: var(--red); }
+
+        .op-arrow {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            flex-shrink: 0;
+        }
+
+        /* No Ops */
+        .no-ops {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .no-ops i {
+            font-size: 2rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            opacity: 0.5;
+        }
+
+        .no-ops p {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+        }
+
+        /* Toast */
+        .toast-container {
+            position: fixed;
+            top: calc(65px + var(--safe-top));
+            right: 10px;
+            left: 10px;
+            z-index: 3000;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            pointer-events: none;
+        }
+
+        .toast {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 0.65rem 0.85rem;
+            margin-bottom: 0.35rem;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.35);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.7rem;
+            animation: slideIn 0.3s ease;
+            pointer-events: auto;
+            max-width: 100%;
+        }
+
+        .toast.success { border-left: 3px solid var(--green); }
+        .toast.error { border-left: 3px solid var(--red); }
+        .toast.warning { border-left: 3px solid var(--warning); }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(40px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(10,15,30,0.8);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 5000;
+        }
+
+        .loading-overlay.hidden { display: none; }
+
+        .spinner {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            border: 3px solid var(--border);
+            border-top-color: var(--gold);
+            animation: spin 0.7s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .hidden { display: none !important; }
+
+        .footer {
+            text-align: center;
+            padding: 0.8rem 1rem calc(0.8rem + var(--safe-bottom));
+            color: var(--text-muted);
+            font-size: 0.55rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .footer span { color: var(--gold); font-weight: 600; }
+    </style>
+</head>
+<body>
+    <div class="bg-gradient"></div>
+
+    <div class="loading-overlay hidden" id="loadingOverlay">
+        <div class="spinner"></div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <div class="app-container">
+        <header class="header">
+            <div class="header-inner">
+                <div class="brand">
+                    <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png" alt="E-KAZI" class="brand-logo">
+                    <span class="brand-name">E-KAZI</span>
+                </div>
+                <div class="user-btn" id="userBtn">
+                    <div class="user-avatar" id="userAvatar">KA</div>
+                    <span id="userName">Assistant</span>
+                    <div class="user-dropdown">
+                        <button class="dropdown-item" onclick="refreshDashboard()">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                        <button class="dropdown-item danger" onclick="handleLogout()">
+                            <i class="fas fa-sign-out-alt"></i> Sign Out
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <!-- Pending State -->
+            <div id="pendingState" class="hidden">
+                <div class="state-card state-pending">
+                    <i class="fas fa-clock"></i>
+                    <h2>Verification Pending</h2>
+                    <p>Your application is under review. You'll be able to access operations once verified.</p>
+                </div>
+            </div>
+
+            <!-- Rejected State -->
+            <div id="rejectedState" class="hidden">
+                <div class="state-card state-rejected">
+                    <i class="fas fa-times-circle"></i>
+                    <h2>Application Not Approved</h2>
+                    <p id="rejectionMsg">Your application was not approved. Contact support for more information.</p>
+                </div>
+            </div>
+
+            <!-- Dashboard -->
+            <div id="dashboardState" class="hidden dashboard-section">
+                <!-- Profile -->
+                <div class="profile-card">
+                    <div class="profile-avatar" id="profileAvatar">KA</div>
+                    <div class="profile-info">
+                        <h3 id="profileName">Assistant</h3>
+                        <span id="profileEmail">—</span>
+                        <div class="profile-roles" id="profileRoles"></div>
+                    </div>
+                </div>
+
+                <!-- Stats -->
+                <div class="stats-row">
+                    <div class="stat-card">
+                        <div class="stat-value" id="statActive">0</div>
+                        <div class="stat-label">Active</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="statPending">0</div>
+                        <div class="stat-label">Pending</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="statDone">0</div>
+                        <div class="stat-label">Done Today</div>
+                    </div>
+                </div>
+
+                <!-- Operations -->
+                <div class="section-header">
+                    <h2><i class="fas fa-briefcase"></i> Your Operations</h2>
+                    <div class="section-line"></div>
+                </div>
+
+                <div class="ops-list" id="opsList">
+                    <div class="op-card locked" style="cursor:default;">
+                        <div class="op-icon"><i class="fas fa-sync-alt fa-spin"></i></div>
+                        <div class="op-info">
+                            <h3>Loading...</h3>
+                            <p>Fetching your operations</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- No Operations Fallback -->
+                <div class="no-ops hidden" id="noOpsFallback">
+                    <i class="fas fa-inbox"></i>
+                    <p>No operations assigned yet. Contact your administrator.</p>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            &copy; 2026 <span>E-KAZI</span> · Dashboard
+        </footer>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+            authDomain: "mugera-e51cc.firebaseapp.com",
+            databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "mugera-e51cc",
+            storageBucket: "mugera-e51cc.firebasestorage.app",
+            messagingSenderId: "1024868637509",
+            appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const auth = firebase.auth();
+
+        const $ = id => document.getElementById(id);
+        let currentUser = null;
+        let userRegistrations = {};
+
+        function showLoading(s) { $('loadingOverlay').classList.toggle('hidden', !s); }
+
+        function toast(msg, type = 'info') {
+            const icons = { success: 'check-circle', error: 'exclamation-circle', warning: 'exclamation-triangle', info: 'info-circle' };
+            const t = document.createElement('div');
+            t.className = `toast ${type}`;
+            t.innerHTML = `<i class="fas fa-${icons[type]}"></i> ${msg}`;
+            $('toastContainer').appendChild(t);
+            setTimeout(() => t.remove(), 3000);
+        }
+
+        function getInitials(n) {
+            return n ? String(n).split(' ').map(w => w[0]).join('').toUpperCase().substring(0,2) : 'KA';
+        }
+
+        function escapeHtml(s) {
+            if (!s) return '';
+            const d = document.createElement('div');
+            d.textContent = s;
+            return d.innerHTML;
+        }
+
+        // Check auth state
+        auth.onAuthStateChanged(async user => {
+            if (!user) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            currentUser = user;
+            $('userAvatar').textContent = getInitials(user.displayName || user.email);
+            $('userName').textContent = (user.displayName || user.email?.split('@')[0] || 'Asst').substring(0,14);
+
+            showLoading(true);
+            await checkRegistrations(user);
+            await renderDashboard();
+            showLoading(false);
+        });
+
+        async function checkRegistrations(user) {
+            userRegistrations = {};
+            const checks = [
+                { node: 'delivery_assistants', key: 'pickup', label: 'Pick-Up', roleClass: 'role-pickup' },
+                { node: 'pickme_drivers', key: 'ride', label: 'Ride Driver', roleClass: 'role-ride' },
+                { node: 'taskers', key: 'tasker', label: 'Tasker', roleClass: 'role-tasker' }
+            ];
+
+            for (const check of checks) {
+                try {
+                    const snap = await db.ref(`${check.node}/${user.uid}`).once('value');
+                    if (snap.exists()) {
+                        const data = snap.val();
+                        userRegistrations[check.key] = {
+                            node: check.node,
+                            verified: data.verified === true,
+                            status: data.status || 'pending',
+                            rejectionReason: data.rejectionReason || '',
+                            label: check.label,
+                            roleClass: check.roleClass,
+                            data: data
+                        };
+                    }
+                } catch (e) {
+                    // Node doesn't exist or no access
+                }
+            }
+        }
+
+        async function renderDashboard() {
+            const hasVerified = Object.values(userRegistrations).some(r => r.verified);
+            const allRejected = Object.keys(userRegistrations).length > 0 && 
+                               Object.values(userRegistrations).every(r => r.status === 'rejected');
+            const hasAny = Object.keys(userRegistrations).length > 0;
+
+            // Hide all states
+            $('pendingState').classList.add('hidden');
+            $('rejectedState').classList.add('hidden');
+            $('dashboardState').classList.add('hidden');
+
+            if (hasVerified) {
+                // Show dashboard
+                $('dashboardState').classList.remove('hidden');
+                updateProfile();
+                renderOperations();
+                await loadJobCounts();
+            } else if (allRejected) {
+                // Show rejected
+                $('rejectedState').classList.remove('hidden');
+                const firstRejected = Object.values(userRegistrations).find(r => r.status === 'rejected');
+                if (firstRejected && firstRejected.rejectionReason) {
+                    $('rejectionMsg').textContent = firstRejected.rejectionReason;
+                }
+            } else if (hasAny) {
+                // Show pending
+                $('pendingState').classList.remove('hidden');
+            } else {
+                // No registrations at all - show pending as default
+                $('pendingState').classList.remove('hidden');
+            }
+        }
+
+        function updateProfile() {
+            const user = currentUser;
+            $('profileName').textContent = user.displayName || user.email?.split('@')[0] || 'Assistant';
+            $('profileEmail').textContent = user.email || '';
+            $('profileAvatar').textContent = getInitials(user.displayName || user.email);
+
+            // Show roles
+            const roles = [];
+            if (userRegistrations.pickup?.verified) roles.push({ label: 'Pick-Up', cls: 'role-pickup' });
+            if (userRegistrations.ride?.verified) roles.push({ label: 'Ride Driver', cls: 'role-ride' });
+            if (userRegistrations.tasker?.verified) roles.push({ label: 'Tasker', cls: 'role-tasker' });
+
+            if (roles.length === 0) {
+                roles.push({ label: 'Pending', cls: 'role-pickup' });
+            }
+
+            $('profileRoles').innerHTML = roles.map(r => `<span class="role-tag ${r.cls}">${r.label}</span>`).join('');
+        }
+
+        function renderOperations() {
+            const opsList = $('opsList');
+            const verifiedOps = [];
+
+            // Define operations based on verified registrations
+            if (userRegistrations.pickup?.verified) {
+                verifiedOps.push({
+                    id: 'pickup',
+                    name: 'Pick-Up Deliveries',
+                    description: 'Manage package deliveries and drop-offs',
+                    icon: 'fa-box',
+                    color: 'pickup',
+                    url: 'pick-up.html'
+                });
+            }
+
+            if (userRegistrations.ride?.verified) {
+                verifiedOps.push({
+                    id: 'ride',
+                    name: 'Pick Me Rides',
+                    description: 'Accept and complete ride requests',
+                    icon: 'fa-taxi',
+                    color: 'ride',
+                    url: 'pick-me.html'
+                });
+            }
+
+            if (userRegistrations.tasker?.verified) {
+                verifiedOps.push({
+                    id: 'tasker',
+                    name: 'E-Kazi Tasks',
+                    description: 'Complete assigned tasks and jobs',
+                    icon: 'fa-clipboard-list',
+                    color: 'tasker',
+                    url: 'tasks.html'
+                });
+            }
+
+            // Also check admin operations
+            db.ref('assistant_operations').once('value').then(snap => {
+                const adminOps = snap.val() || {};
+                const activeOps = Object.values(adminOps).filter(op => op.status !== 'inactive');
+
+                // Merge admin ops with verified ops
+                const allOps = [...verifiedOps];
+                
+                activeOps.forEach(adminOp => {
+                    const exists = allOps.find(o => o.name === adminOp.name || o.id === adminOp.name?.toLowerCase());
+                    if (!exists && adminOp.url) {
+                        // Check if user is verified for this operation type
+                        const opName = (adminOp.name || '').toLowerCase();
+                        let isVerified = false;
+                        let colorClass = 'pickup';
+
+                        if (opName.includes('pick-up') || opName.includes('delivery') || opName.includes('pickup')) {
+                            isVerified = userRegistrations.pickup?.verified;
+                            colorClass = 'pickup';
+                        } else if (opName.includes('pick me') || opName.includes('ride') || opName.includes('pickme')) {
+                            isVerified = userRegistrations.ride?.verified;
+                            colorClass = 'ride';
+                        } else if (opName.includes('task') || opName.includes('ekazi') || opName.includes('e-kazi')) {
+                            isVerified = userRegistrations.tasker?.verified;
+                            colorClass = 'tasker';
+                        }
+
+                        if (isVerified) {
+                            allOps.push({
+                                id: adminOp.name?.toLowerCase().replace(/\s+/g, '-'),
+                                name: adminOp.name,
+                                description: adminOp.description || '',
+                                icon: adminOp.icon || 'fa-cog',
+                                color: colorClass,
+                                url: adminOp.url
+                            });
+                        }
+                    }
+                });
+
+                renderOpsList(allOps);
+            }).catch(() => {
+                renderOpsList(verifiedOps);
+            });
+        }
+
+        function renderOpsList(operations) {
+            const opsList = $('opsList');
+            const noOps = $('noOpsFallback');
+
+            if (!operations.length) {
+                opsList.classList.add('hidden');
+                noOps.classList.remove('hidden');
+                return;
+            }
+
+            opsList.classList.remove('hidden');
+            noOps.classList.add('hidden');
+
+            opsList.innerHTML = operations.map(op => `
+                <div class="op-card ${op.color}" onclick="navigateTo('${op.url}')" role="button" tabindex="0">
+                    <div class="op-icon">
+                        <i class="fas ${op.icon || 'fa-cog'}"></i>
+                    </div>
+                    <div class="op-info">
+                        <h3>
+                            ${escapeHtml(op.name)}
+                            <span class="op-badge active">Active</span>
+                        </h3>
+                        <p>${escapeHtml(op.description || 'Access your portal')}</p>
+                    </div>
+                    <div class="op-arrow">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        window.navigateTo = function(url) {
+            if (url) window.location.href = url;
+        };
+
+        async function loadJobCounts() {
+            if (!currentUser) return;
+            try {
+                let active = 0, pending = 0, done = 0;
+                const today = new Date().toDateString();
+                const checks = [];
+
+                if (userRegistrations.pickup?.verified) {
+                    checks.push((async () => {
+                        const snap = await db.ref('pickup_deliveries').orderByChild('assignedTo').equalTo(currentUser.uid).once('value');
+                        Object.values(snap.val() || {}).forEach(d => {
+                            if (['assigned','out-for-delivery','in_progress'].includes(d.status)) active++;
+                            if (d.status === 'pending' || d.status === 'scheduled') pending++;
+                            if (d.status === 'delivered' && d.deliveryDate && new Date(d.deliveryDate).toDateString() === today) done++;
+                        });
+                    })());
+                }
+
+                if (userRegistrations.ride?.verified) {
+                    checks.push((async () => {
+                        const snap = await db.ref('pickme_rides').orderByChild('driverId').equalTo(currentUser.uid).once('value');
+                        Object.values(snap.val() || {}).forEach(r => {
+                            if (['accepted','arrived','ongoing'].includes(r.status)) active++;
+                            if (r.status === 'requested') pending++;
+                            if (r.status === 'completed' && r.completedAt && new Date(r.completedAt).toDateString() === today) done++;
+                        });
+                    })());
+                }
+
+                if (userRegistrations.tasker?.verified) {
+                    checks.push((async () => {
+                        const snap = await db.ref('assistant_tasks').orderByChild('assignedTo').equalTo(currentUser.uid).once('value');
+                        Object.values(snap.val() || {}).forEach(t => {
+                            if (['assigned','in_progress'].includes(t.status)) active++;
+                            if (t.status === 'pending') pending++;
+                            if (t.status === 'completed' && t.completedAt && new Date(t.completedAt).toDateString() === today) done++;
+                        });
+                    })());
+                }
+
+                await Promise.all(checks);
+                $('statActive').textContent = active;
+                $('statPending').textContent = pending;
+                $('statDone').textContent = done;
+            } catch (e) {
+                console.error('Job count error:', e);
+            }
+        }
+
+        window.handleLogout = async () => {
+            if (confirm('Sign out?')) {
+                await auth.signOut();
+                window.location.href = 'index.html';
+            }
+        };
+
+        window.refreshDashboard = async () => {
+            if (currentUser) {
+                showLoading(true);
+                await checkRegistrations(currentUser);
+                await renderDashboard();
+                showLoading(false);
+                toast('Dashboard refreshed', 'success');
+            }
+        };
+    </script>
+</body>
+</html>
