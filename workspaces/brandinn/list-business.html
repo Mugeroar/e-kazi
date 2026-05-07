@@ -379,19 +379,6 @@
             color: #0f172a;
         }
 
-        .plan-price {
-            font-size: 1.8rem;
-            font-weight: 800;
-            color: #7c3aed;
-            margin-bottom: 0.3rem;
-        }
-
-        .plan-price small {
-            font-size: 0.8rem;
-            font-weight: 400;
-            color: #64748b;
-        }
-
         .plan-features {
             list-style: none;
             font-size: 0.8rem;
@@ -889,7 +876,6 @@
                     <div class="plan-options">
                         <div class="plan-card selected" data-plan="basic">
                             <h4>Basic</h4>
-                            <div class="plan-price">KSh 800 <small>/mo</small></div>
                             <ul class="plan-features">
                                 <li><i class="fas fa-check"></i> Business profile page</li>
                                 <li><i class="fas fa-check"></i> Contact information</li>
@@ -899,7 +885,6 @@
                         </div>
                         <div class="plan-card" data-plan="complete_branding">
                             <h4>Complete Branding</h4>
-                            <div class="plan-price">KSh 2,500 <small>/mo</small></div>
                             <ul class="plan-features">
                                 <li><i class="fas fa-check"></i> Everything in Basic</li>
                                 <li><i class="fas fa-check"></i> Logo design included</li>
@@ -1290,8 +1275,9 @@
                 updateProgressMessage('Building business profile...');
                 await new Promise(resolve => setTimeout(resolve, 800));
                 
-                const priceMap = { basic: 800, complete_branding: 2500 };
-                const price = priceMap[businessData.plan] || 800;
+                // Default hidden price data
+                const priceMap = { basic: 0, complete_branding: 0 };
+                const price = priceMap[businessData.plan] || 0;
                 
                 const defaultPageData = {
                     business: {
@@ -1397,13 +1383,13 @@
                 // Close progress modal
                 progressModal.classList.remove('active');
                 
-                // Show success modal with details
+                // Show success modal with details (hiding price)
                 document.getElementById('successBusinessName').textContent = businessData.businessName;
                 document.getElementById('successSubdomain').textContent = `brandinn.pages/${businessData.subdomain}`;
                 document.getElementById('successEmail').textContent = businessData.email;
                 
                 const planDisplayName = businessData.plan === 'basic' ? 'Basic' : 'Complete Branding';
-                document.getElementById('successPlan').textContent = `${planDisplayName} - KSh ${price}/mo`;
+                document.getElementById('successPlan').textContent = planDisplayName;
                 
                 successModal.classList.add('active');
                 
