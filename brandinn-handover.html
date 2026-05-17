@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>BrandInn Business · Client Asset Generator</title>
+    <!-- Google Fonts + Font Awesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0A192F;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            padding: 32px 24px;
+        }
+
+        /* main dashboard two-columns */
+        .dashboard {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1.1fr;
+            gap: 28px;
+            align-items: start;
+        }
+
+        /* left panel - form style */
+        .form-panel {
+            background: #ffffff;
+            border-radius: 28px;
+            box-shadow: 0 20px 35px -12px rgba(0,0,0,0.3);
+            overflow: hidden;
+            position: sticky;
+            top: 24px;
+        }
+
+        .panel-header {
+            background: #0A192F;
+            padding: 20px 24px;
+            border-bottom: 3px solid #D4AF37;
+        }
+
+        .panel-header h2 {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .panel-header h2 i {
+            color: #D4AF37;
+        }
+
+        .panel-header p {
+            color: #8892b0;
+            font-size: 0.85rem;
+            margin-top: 6px;
+        }
+
+        .form-scroll {
+            padding: 24px;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        label {
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #0A192F;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        input, textarea, .color-input-row {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 16px;
+            font-family: 'Inter', monospace;
+            font-size: 0.9rem;
+            transition: 0.2s;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #D4AF37;
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+        }
+
+        /* credentials dynamic table style */
+        .creds-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+        }
+
+        .creds-table th, .creds-table td {
+            border: 1px solid #e2e8f0;
+            padding: 8px 6px;
+            vertical-align: middle;
+        }
+
+        .creds-table th {
+            background: #f8fafc;
+            font-weight: 600;
+        }
+
+        .creds-table input {
+            padding: 8px 6px;
+            font-size: 0.75rem;
+            border-radius: 10px;
+        }
+
+        .toggle-pwd {
+            background: none;
+            border: none;
+            cursor: pointer;
+            margin-left: 4px;
+            color: #5b6e8c;
+        }
+
+        .btn-icon {
+            background: #0A192F;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 10px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-icon i {
+            font-size: 0.8rem;
+        }
+
+        .color-palette-list {
+            background: #f1f5f9;
+            border-radius: 16px;
+            padding: 12px;
+        }
+
+        .color-item {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+
+        .color-item input[type="color"] {
+            width: 50px;
+            height: 40px;
+            border-radius: 12px;
+            border: 1px solid #cbd5e1;
+        }
+
+        .add-color {
+            background: #e9ecef;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .generate-btn {
+            background: #D4AF37;
+            color: #0A192F;
+            font-weight: 800;
+            font-size: 1rem;
+            padding: 14px 20px;
+            width: 100%;
+            border: none;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        .generate-btn:hover {
+            background: #c2a030;
+            transform: scale(0.98);
+        }
+
+        /* right panel preview */
+        .preview-panel {
+            background: #ffffff;
+            border-radius: 28px;
+            box-shadow: 0 20px 35px -12px rgba(0,0,0,0.2);
+            overflow-y: auto;
+            max-height: 90vh;
+            position: sticky;
+            top: 24px;
+        }
+
+        .preview-header {
+            background: #0A192F;
+            padding: 16px 24px;
+            color: white;
+            font-weight: 600;
+            border-radius: 28px 28px 0 0;
+        }
+
+        .preview-content {
+            padding: 28px 32px;
+            background: white;
+        }
+
+        .handover-card {
+            background: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .watermark-text {
+            position: absolute;
+            top: 30%;
+            left: 10%;
+            font-size: 80px;
+            font-weight: 800;
+            color: rgba(10, 25, 47, 0.03);
+            pointer-events: none;
+            white-space: nowrap;
+            transform: rotate(-20deg);
+            font-family: monospace;
+            z-index: 0;
+        }
+
+        .brand-header {
+            text-align: center;
+            border-bottom: 2px solid #D4AF37;
+            padding-bottom: 20px;
+            margin-bottom: 24px;
+        }
+
+        .brand-header h1 {
+            font-size: 1.9rem;
+            letter-spacing: -0.5px;
+            color: #0A192F;
+        }
+
+        .brand-header p {
+            color: #5b6e8c;
+            font-weight: 500;
+        }
+
+        .client-row {
+            background: #f8fafc;
+            padding: 16px;
+            border-radius: 20px;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 28px;
+        }
+
+        .preview-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+            margin: 20px 0;
+        }
+
+        .preview-table th, .preview-table td {
+            border: 1px solid #cbd5e1;
+            padding: 10px 8px;
+            text-align: left;
+        }
+
+        .preview-table th {
+            background: #f1f5f9;
+        }
+
+        .warning-box {
+            background: #fffbeb;
+            border-left: 5px solid #D4AF37;
+            padding: 16px;
+            border-radius: 16px;
+            margin: 20px 0;
+        }
+
+        .footer-checklist {
+            margin-top: 30px;
+            font-size: 0.8rem;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 20px;
+        }
+
+        .badge {
+            background: #0A192F10;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+        }
+
+        i {
+            margin-right: 4px;
+        }
+
+        hr {
+            margin: 16px 0;
+        }
+    </style>
+</head>
+<body>
+<div class="dashboard">
+    <!-- LEFT PANEL: INPUT FORM -->
+    <div class="form-panel">
+        <div class="panel-header">
+            <h2><i class="fas fa-envelope-open-text"></i> BrandInn Business</h2>
+            <p>Client Asset Vault · Fill once → generate handover PDF</p>
+        </div>
+        <div class="form-scroll">
+            <!-- Basic info -->
+            <div class="form-group">
+                <label><i class="fas fa-user"></i> Client Name</label>
+                <input type="text" id="clientName" placeholder="e.g., Aurora Cosmetics" value="Aurora Cosmetics">
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-briefcase"></i> Project Name</label>
+                <input type="text" id="projectName" placeholder="Digital Growth Package" value="Full Funnel Marketing">
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-calendar"></i> Handover Date</label>
+                <input type="date" id="handoverDate">
+            </div>
+
+            <!-- dynamic credentials table -->
+            <div class="form-group">
+                <label><i class="fas fa-key"></i> Credentials Matrix</label>
+                <table class="creds-table" id="credsTable">
+                    <thead>
+                        <tr><th>Platform</th><th>Email/Username</th><th>Password</th><th>2FA Code</th><th style="width:30px"></th></tr>
+                    </thead>
+                    <tbody id="credsTbody"></tbody>
+                </table>
+                <button type="button" class="btn-icon" id="addCredRowBtn"><i class="fas fa-plus"></i> Add credential</button>
+            </div>
+
+            <!-- visual assets -->
+            <div class="form-group">
+                <label><i class="fas fa-images"></i> Logo Files (formats)</label>
+                <input type="text" id="logoFiles" value="PNG, SVG, AI (full color + white version)">
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-palette"></i> Color Palette</label>
+                <div id="colorPaletteContainer" class="color-palette-list"></div>
+                <button type="button" class="add-color" id="addColorBtn"><i class="fas fa-plus"></i> Add color</button>
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-font"></i> Fonts Used</label>
+                <input type="text" id="fontsUsed" value="Inter, Montserrat, system-ui">
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-tasks"></i> Access Instructions</label>
+                <textarea id="accessInstructions" rows="3">Please log into each platform and update recovery emails. For Instagram, use the backup codes stored in the shared drive.</textarea>
+            </div>
+
+            <button class="generate-btn" id="generatePdfBtn"><i class="fas fa-file-pdf"></i> Generate Handover PDF (new window)</button>
+            <p style="font-size: 11px; text-align: center; margin-top: 12px; color: #5b6e8c;"><i class="fas fa-shield-alt"></i> After PDF opens: Save as PDF, then password-protect (ILovePDF / Adobe)</p>
+        </div>
+    </div>
+
+    <!-- RIGHT PANEL: LIVE PREVIEW -->
+    <div class="preview-panel">
+        <div class="preview-header">
+            <i class="fas fa-eye"></i> Live preview · Handover document style
+        </div>
+        <div class="preview-content" id="livePreview">
+            <!-- dynamic preview will be injected here -->
+        </div>
+    </div>
+</div>
+
+<script>
+    // ---------- STATE ----------
+    let credentialRows = [
+        { platform: "Business Email", username: "hello@auroracosmetics.com", password: "DemoPass123!", twofa: "Backup email", notes: "" },
+        { platform: "Instagram Business", username: "@aurora.beauty", password: "Insta@2025", twofa: "SMS + Authy", notes: "" },
+        { platform: "Facebook Ads", username: "ads@auroracosmetics.com", password: "fbAds#2025", twofa: "Google Auth", notes: "" },
+        { platform: "Google Analytics", username: "admin@auroracosmetics.com", password: "GA4#Secure", twofa: "Authenticator", notes: "" }
+    ];
+
+    let colorItems = [
+        { label: "Primary Navy", hex: "#0A192F" },
+        { label: "Accent Gold", hex: "#D4AF37" },
+        { label: "Soft White", hex: "#FFFFFF" }
+    ];
+
+    // helper: fill today's date
+    function setDefaultDate() {
+        const dateInput = document.getElementById('handoverDate');
+        if (!dateInput.value) {
+            const today = new Date().toISOString().split('T')[0];
+            dateInput.value = today;
+        }
+    }
+
+    // render credentials table in left panel
+    function renderCredsForm() {
+        const tbody = document.getElementById('credsTbody');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+        credentialRows.forEach((row, idx) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><input type="text" value="${escapeHtml(row.platform)}" data-idx="${idx}" data-field="platform" class="cred-input"></td>
+                <td><input type="text" value="${escapeHtml(row.username)}" data-idx="${idx}" data-field="username" class="cred-input"></td>
+                <td style="display:flex; gap:4px; align-items:center;">
+                    <input type="password" value="${escapeHtml(row.password)}" data-idx="${idx}" data-field="password" class="cred-input-pwd" style="flex:1">
+                    <button class="toggle-pwd" data-idx="${idx}"><i class="fas fa-eye"></i></button>
+                </td>
+                <td><input type="text" value="${escapeHtml(row.twofa)}" data-idx="${idx}" data-field="twofa" class="cred-input"></td>
+                <td><button class="del-row-btn" data-idx="${idx}" style="background:#fee2e2; border:none; border-radius:30px; padding:4px 8px;"><i class="fas fa-trash-alt"></i></button></td>
+            `;
+            tbody.appendChild(tr);
+        });
+        attachCredEvents();
+    }
+
+    function attachCredEvents() {
+        document.querySelectorAll('.cred-input, .cred-input-pwd').forEach(el => {
+            el.removeEventListener('change', handleCredChange);
+            el.addEventListener('change', handleCredChange);
+        });
+        document.querySelectorAll('.toggle-pwd').forEach(btn => {
+            btn.removeEventListener('click', togglePassword);
+            btn.addEventListener('click', togglePassword);
+        });
+        document.querySelectorAll('.del-row-btn').forEach(btn => {
+            btn.removeEventListener('click', deleteCredRow);
+            btn.addEventListener('click', deleteCredRow);
+        });
+    }
+
+    function handleCredChange(e) {
+        const idx = e.target.getAttribute('data-idx');
+        const field = e.target.getAttribute('data-field');
+        if (idx !== null && credentialRows[idx]) {
+            credentialRows[idx][field] = e.target.value;
+            updatePreview();
+        }
+    }
+
+    function togglePassword(e) {
+        const btn = e.currentTarget;
+        const idx = btn.getAttribute('data-idx');
+        const pwdInput = document.querySelector(`.cred-input-pwd[data-idx="${idx}"]`);
+        if (pwdInput) {
+            const type = pwdInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            pwdInput.setAttribute('type', type);
+            btn.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+        }
+    }
+
+    function deleteCredRow(e) {
+        const idx = parseInt(e.currentTarget.getAttribute('data-idx'));
+        if (!isNaN(idx) && credentialRows.length > 1) {
+            credentialRows.splice(idx, 1);
+            renderCredsForm();
+            updatePreview();
+        }
+    }
+
+    function addCredRow() {
+        credentialRows.push({ platform: "New Platform", username: "", password: "", twofa: "", notes: "" });
+        renderCredsForm();
+        updatePreview();
+    }
+
+    // color palette rendering
+    function renderColorPaletteForm() {
+        const container = document.getElementById('colorPaletteContainer');
+        if (!container) return;
+        container.innerHTML = '';
+        colorItems.forEach((item, idx) => {
+            const div = document.createElement('div');
+            div.className = 'color-item';
+            div.innerHTML = `
+                <input type="text" value="${escapeHtml(item.label)}" placeholder="Label" data-color-idx="${idx}" data-color-label="true" style="flex:1">
+                <input type="color" value="${item.hex}" data-color-idx="${idx}" data-color-hex="true">
+                <button class="remove-color" data-color-idx="${idx}" style="background:transparent; border:none; cursor:pointer; color:#b91c1c;"><i class="fas fa-times"></i></button>
+            `;
+            container.appendChild(div);
+        });
+        document.querySelectorAll('[data-color-label]').forEach(inp => {
+            inp.addEventListener('change', (e) => {
+                const idx = parseInt(e.target.getAttribute('data-color-idx'));
+                if (!isNaN(idx) && colorItems[idx]) colorItems[idx].label = e.target.value;
+                updatePreview();
+            });
+        });
+        document.querySelectorAll('[data-color-hex]').forEach(inp => {
+            inp.addEventListener('change', (e) => {
+                const idx = parseInt(e.target.getAttribute('data-color-idx'));
+                if (!isNaN(idx) && colorItems[idx]) colorItems[idx].hex = e.target.value;
+                updatePreview();
+            });
+        });
+        document.querySelectorAll('.remove-color').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const idx = parseInt(btn.getAttribute('data-color-idx'));
+                if (!isNaN(idx) && colorItems.length > 1) {
+                    colorItems.splice(idx, 1);
+                    renderColorPaletteForm();
+                    updatePreview();
+                }
+            });
+        });
+    }
+
+    function addColor() {
+        colorItems.push({ label: "New color", hex: "#CCCCCC" });
+        renderColorPaletteForm();
+        updatePreview();
+    }
+
+    // escape html
+    function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, function(m){if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
+
+    // update preview document (right pane)
+    function updatePreview() {
+        const previewDiv = document.getElementById('livePreview');
+        if (!previewDiv) return;
+
+        const client = document.getElementById('clientName').value || '[Client Name]';
+        const project = document.getElementById('projectName').value || '[Project]';
+        const date = document.getElementById('handoverDate').value || 'YYYY-MM-DD';
+        const logoVal = document.getElementById('logoFiles').value;
+        const fontsVal = document.getElementById('fontsUsed').value;
+        const instructions = document.getElementById('accessInstructions').value;
+
+        // build color html
+        let colorHtml = '<div style="display:flex; gap:16px; flex-wrap:wrap; margin-top:8px;">';
+        colorItems.forEach(c => {
+            colorHtml += `<div style="display:flex; align-items:center; gap:8px;"><div style="width:28px; height:28px; background:${c.hex}; border-radius:8px; border:1px solid #ccc;"></div><span>${escapeHtml(c.label)} (${c.hex})</span></div>`;
+        });
+        colorHtml += '</div>';
+
+        let credsHtml = '<table class="preview-table"><thead><tr><th>Platform</th><th>Email/Username</th><th>Password</th><th>2FA / Backup</th></tr></thead><tbody>';
+        credentialRows.forEach(row => {
+            credsHtml += `<tr>
+                <td>${escapeHtml(row.platform)}</td>
+                <td>${escapeHtml(row.username)}</td>
+                <td>••••••••</td>
+                <td>${escapeHtml(row.twofa)}</td>
+            </tr>`;
+        });
+        credsHtml += '</tbody></table>';
+
+        const previewHTML = `
+            <div class="handover-card" style="position:relative;">
+                <div class="watermark-text">CONFIDENTIAL</div>
+                <div class="brand-header">
+                    <h1>BRANDINN BUSINESS</h1>
+                    <p>Digital Asset Handover Envelope</p>
+                </div>
+                <div class="client-row">
+                    <span><strong>Client:</strong> ${escapeHtml(client)}</span>
+                    <span><strong>Project:</strong> ${escapeHtml(project)}</span>
+                    <span><strong>Date:</strong> ${escapeHtml(date)}</span>
+                </div>
+                <h3><i class="fas fa-lock"></i> Credentials Matrix</h3>
+                ${credsHtml}
+                <h3 style="margin-top:24px;"><i class="fas fa-palette"></i> Visual Assets</h3>
+                <p><strong>Logo files:</strong> ${escapeHtml(logoVal)}</p>
+                <p><strong>Color Palette:</strong></p> ${colorHtml}
+                <p><strong>Fonts used:</strong> ${escapeHtml(fontsVal)}</p>
+                <div class="warning-box">
+                    <i class="fas fa-exclamation-triangle"></i> <strong>Security Notice:</strong> Upon receipt, please change all passwords within 48 hours. This document is confidential.
+                </div>
+                <p><strong>Access Instructions:</strong><br>${escapeHtml(instructions).replace(/\n/g, '<br>')}</p>
+                <div class="footer-checklist">
+                    <p><strong>✓ Handover checklist (client action)</strong></p>
+                    <div>☐ Downloaded all assets & verified logins</div>
+                    <div>☐ Changed temporary passwords</div>
+                    <div>☐ Enabled 2FA where available</div>
+                    <hr>
+                    <p style="font-size:0.7rem; text-align:center;">BrandInn Business · support@brandinn.business · Confidential document</p>
+                </div>
+            </div>
+        `;
+        previewDiv.innerHTML = previewHTML;
+    }
+
+    // generate standalone window for print-ready PDF
+    function generateHandoverWindow() {
+        const client = document.getElementById('clientName').value || 'Client';
+        const project = document.getElementById('projectName').value;
+        const date = document.getElementById('handoverDate').value;
+        const logoVal = document.getElementById('logoFiles').value;
+        const fontsVal = document.getElementById('fontsUsed').value;
+        const instructions = document.getElementById('accessInstructions').value;
+
+        let colorHtml = '<div style="display:flex; gap:16px; flex-wrap:wrap; margin:12px 0;">';
+        colorItems.forEach(c => { colorHtml += `<div style="display:flex; align-items:center; gap:8px;"><div style="width:32px; height:32px; background:${c.hex}; border-radius:8px;"></div><span>${escapeHtml(c.label)} (${c.hex})</span></div>`; });
+        colorHtml += '</div>';
+
+        let credsFullHtml = '<table style="width:100%; border-collapse:collapse; margin:16px 0;"><thead><tr style="background:#f1f5f9;"><th style="border:1px solid #cbd5e1; padding:8px;">Platform</th><th style="border:1px solid #cbd5e1;">Email/Username</th><th style="border:1px solid #cbd5e1;">Password</th><th style="border:1px solid #cbd5e1;">2FA/Backup</th></tr></thead><tbody>';
+        credentialRows.forEach(row => {
+            credsFullHtml += `<tr><td style="border:1px solid #cbd5e1; padding:8px;">${escapeHtml(row.platform)}</td><td style="border:1px solid #cbd5e1;">${escapeHtml(row.username)}</td><td style="border:1px solid #cbd5e1;">${escapeHtml(row.password)}</td><td style="border:1px solid #cbd5e1;">${escapeHtml(row.twofa)}</td></tr>`;
+        });
+        credsFullHtml += '</tbody></table>';
+
+        const doc = `
+        <!DOCTYPE html>
+        <html>
+        <head><meta charset="UTF-8"><title>BrandInn_${client}_Handover</title>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+        <style>
+            body { font-family: 'Inter', sans-serif; padding: 40px; max-width: 1100px; margin: 0 auto; background: white; }
+            .handover-pdf { position: relative; }
+            .watermark-pdf { position: fixed; opacity: 0.03; font-size: 70px; font-weight: 800; transform: rotate(-25deg); top: 30%; left: 20%; pointer-events: none; z-index: 0; }
+            .header { text-align: center; border-bottom: 3px solid #D4AF37; margin-bottom: 28px; }
+            .header h1 { color: #0A192F; }
+            .client-info { background: #f8fafc; padding: 16px; border-radius: 16px; display: flex; justify-content: space-between; margin-bottom: 28px; }
+            .warning { background: #fffbeb; border-left: 5px solid #D4AF37; padding: 14px; margin: 20px 0; }
+            table { width: 100%; border-collapse: collapse; }
+            th, td { border: 1px solid #cbd5e1; padding: 10px; text-align: left; }
+            .footer { margin-top: 32px; border-top: 1px solid #e2e8f0; padding-top: 20px; font-size: 0.75rem; text-align: center; }
+            button { background: #D4AF37; border: none; padding: 10px 20px; border-radius: 30px; cursor: pointer; font-weight: bold; margin-bottom: 20px; }
+            @media print { .no-print { display: none; } .watermark-pdf { opacity: 0.1; } body { padding: 0; } }
+        </style>
+        </head>
+        <body>
+        <div class="no-print" style="text-align:center; margin-bottom:20px;"><button onclick="window.print();">📄 Save as PDF (Print)</button><p style="font-size:12px;">After saving, use ILovePDF / Adobe to add a password.</p></div>
+        <div class="handover-pdf">
+            <div class="watermark-pdf">CONFIDENTIAL</div>
+            <div class="header"><h1>BRANDINN BUSINESS</h1><p>Digital Asset Handover Envelope</p></div>
+            <div class="client-info"><span><strong>Client:</strong> ${escapeHtml(client)}</span><span><strong>Project:</strong> ${escapeHtml(project)}</span><span><strong>Date:</strong> ${escapeHtml(date)}</span></div>
+            <h3>🔐 Credentials (full access)</h3> ${credsFullHtml}
+            <h3>🖼️ Visual Assets</h3><p><strong>Logo files:</strong> ${escapeHtml(logoVal)}</p><p><strong>Colors:</strong></p>${colorHtml}<p><strong>Fonts:</strong> ${escapeHtml(fontsVal)}</p>
+            <div class="warning"><strong>⚠️ Security notice:</strong> Change all passwords within 48 hours. Store this document safely.</div>
+            <p><strong>📌 Instructions:</strong><br>${escapeHtml(instructions).replace(/\n/g, '<br>')}</p>
+            <div class="footer"><p>✓ Client checklist: downloaded assets, verified logins, changed passwords.</p><p>BrandInn Business · support@brandinn.business</p></div>
+        </div>
+        </body>
+        </html>
+        `;
+        const win = window.open();
+        win.document.write(doc);
+        win.document.close();
+    }
+
+    // sync events
+    function bindInputs() {
+        const inputs = ['clientName', 'projectName', 'handoverDate', 'logoFiles', 'fontsUsed', 'accessInstructions'];
+        inputs.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.addEventListener('input', () => updatePreview());
+        });
+        document.getElementById('addCredRowBtn')?.addEventListener('click', () => { addCredRow(); });
+        document.getElementById('addColorBtn')?.addEventListener('click', () => { addColor(); });
+        document.getElementById('generatePdfBtn')?.addEventListener('click', () => { generateHandoverWindow(); });
+    }
+
+    function init() {
+        setDefaultDate();
+        renderCredsForm();
+        renderColorPaletteForm();
+        bindInputs();
+        updatePreview();
+    }
+    init();
+</script>
+</body>
+</html>
