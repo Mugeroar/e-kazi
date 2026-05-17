@@ -289,7 +289,7 @@
 
         .creds-table th {
             background: #f8fafc;
-            padding: 10px 8px;
+            padding: 12px 8px;
             text-align: left;
             font-weight: 600;
             color: #334155;
@@ -515,7 +515,7 @@
         .preview-table th,
         .preview-table td {
             border: 1px solid #e2e8f0;
-            padding: 8px;
+            padding: 10px;
             text-align: left;
         }
 
@@ -536,7 +536,7 @@
         .warning-box {
             background: #fffbeb;
             border-left: 4px solid #D4AF37;
-            padding: 12px;
+            padding: 14px;
             border-radius: 12px;
             font-size: 0.7rem;
             margin: 1rem 0;
@@ -549,6 +549,24 @@
             margin-top: 1rem;
             padding-top: 1rem;
             border-top: 1px solid #f1f5f9;
+        }
+
+        .logo-preview {
+            margin-top: 8px;
+            max-width: 100px;
+            max-height: 50px;
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 8px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-preview img {
+            max-width: 100%;
+            max-height: 40px;
+            object-fit: contain;
         }
 
         /* Responsive */
@@ -628,11 +646,17 @@
                     <input type="date" id="handoverDate">
                 </div>
 
+                <div class="form-group">
+                    <label><i class="fas fa-image"></i> Client Logo URL</label>
+                    <input type="url" id="logoUrl" placeholder="https://example.com/client-logo.png">
+                    <div id="logoPreview" class="logo-preview"></div>
+                </div>
+
                 <h2 style="margin-top: 1.5rem;"><i class="fas fa-key"></i> Credentials Matrix</h2>
                 <div class="creds-table-container">
                     <table class="creds-table" id="credsTable">
                         <thead>
-                            <tr><th>Platform</th><th>Email/Username</th><th>Password</th><th>2FA Code</th><th style="width:40px"></th></tr>
+                            <tr><th>Platform</th><th>Email/Username</th><th>Password</th><th style="width:40px"></th></tr>
                         </thead>
                         <tbody id="credsTbody"></tbody>
                     </table>
@@ -653,11 +677,6 @@
                     <button type="button" class="btn-icon" id="addColorBtn">
                         <i class="fas fa-plus"></i> Add Color
                     </button>
-                </div>
-                
-                <div class="form-group">
-                    <label><i class="fas fa-font"></i> Fonts Used</label>
-                    <input type="text" id="fontsUsed" value="Inter, Montserrat, System UI">
                 </div>
                 
                 <div class="form-group">
@@ -689,10 +708,10 @@
     <script>
         // Initial data
         let credentialRows = [
-            { platform: "Business Email", username: "hello@auroracosmetics.com", password: "DemoPass123!", twofa: "Backup email" },
-            { platform: "Instagram Business", username: "@aurora.beauty", password: "Insta@2025", twofa: "SMS + Authy" },
-            { platform: "Facebook Ads", username: "ads@auroracosmetics.com", password: "fbAds#2025", twofa: "Google Auth" },
-            { platform: "Google Analytics", username: "admin@auroracosmetics.com", password: "GA4#Secure", twofa: "Authenticator" }
+            { platform: "Business Email", username: "hello@auroracosmetics.com", password: "DemoPass123!" },
+            { platform: "Instagram Business", username: "@aurora.beauty", password: "Insta@2025" },
+            { platform: "Facebook Ads", username: "ads@auroracosmetics.com", password: "fbAds#2025" },
+            { platform: "Google Analytics", username: "admin@auroracosmetics.com", password: "GA4#Secure" }
         ];
         
         let colorItems = [
@@ -710,6 +729,23 @@
             }
         }
 
+        // Logo preview
+        function setupLogoPreview() {
+            const logoUrlInput = document.getElementById('logoUrl');
+            const logoPreview = document.getElementById('logoPreview');
+            
+            logoUrlInput.addEventListener('input', function() {
+                const url = this.value.trim();
+                if (url && (url.startsWith('http') || url.startsWith('https'))) {
+                    logoPreview.style.display = 'flex';
+                    logoPreview.innerHTML = `<img src="${url}" alt="Logo preview" onerror="this.parentElement.style.display='none'">`;
+                } else {
+                    logoPreview.style.display = 'none';
+                }
+                updatePreview();
+            });
+        }
+
         // Render credentials table in form
         function renderCredsForm() {
             const tbody = document.getElementById('credsTbody');
@@ -721,7 +757,6 @@
                     <td><input type="text" value="${escapeHtml(row.platform)}" data-idx="${idx}" data-field="platform" class="cred-input"></td>
                     <td><input type="text" value="${escapeHtml(row.username)}" data-idx="${idx}" data-field="username" class="cred-input"></td>
                     <td><input type="password" value="${escapeHtml(row.password)}" data-idx="${idx}" data-field="password" class="cred-pwd"></td>
-                    <td><input type="text" value="${escapeHtml(row.twofa)}" data-idx="${idx}" data-field="twofa" class="cred-input"></td>
                     <td><button class="btn-small" onclick="deleteCredRow(${idx})"><i class="fas fa-trash"></i></button></td>
                 `;
                 tbody.appendChild(tr);
@@ -754,7 +789,7 @@
         };
 
         function addCredRow() {
-            credentialRows.push({ platform: "New Platform", username: "", password: "", twofa: "" });
+            credentialRows.push({ platform: "New Platform", username: "", password: "" });
             renderCredsForm();
             updatePreview();
         }
@@ -827,8 +862,8 @@
             const projectName = document.getElementById('projectName').value || '[Project]';
             const handoverDate = document.getElementById('handoverDate').value || 'YYYY-MM-DD';
             const logoFiles = document.getElementById('logoFiles').value;
-            const fontsUsed = document.getElementById('fontsUsed').value;
             const instructions = document.getElementById('accessInstructions').value;
+            const logoUrl = document.getElementById('logoUrl').value;
             
             // Build colors HTML
             let colorsHtml = '<div style="display: flex; gap: 16px; flex-wrap: wrap; margin-top: 8px;">';
@@ -837,12 +872,18 @@
             });
             colorsHtml += '</div>';
             
-            // Build credentials table
-            let credsHtml = '<table class="preview-table"><thead><tr><th>Platform</th><th>Email/Username</th><th>Password</th><th>2FA Code</th></tr></thead><tbody>';
+            // Build credentials table (no 2FA column)
+            let credsHtml = '<table class="preview-table"><thead><tr><th>Platform</th><th>Email/Username</th><th>Password</th></thead><tbody>';
             credentialRows.forEach(row => {
-                credsHtml += `<tr><td>${escapeHtml(row.platform)}</td><td>${escapeHtml(row.username)}</td><td>••••••••</td><td>${escapeHtml(row.twofa)}</td></tr>`;
+                credsHtml += `<tr><td>${escapeHtml(row.platform)}</td><td>${escapeHtml(row.username)}</td><td>••••••••</td></tr>`;
             });
-            credsHtml += '</tbody></table>';
+            credsHtml += '</tbody> nahil';
+            
+            // Logo HTML
+            let logoHtml = '';
+            if (logoUrl && (logoUrl.startsWith('http') || logoUrl.startsWith('https'))) {
+                logoHtml = `<div style="text-align: center; margin-bottom: 1.5rem;"><img src="${logoUrl}" alt="${escapeHtml(clientName)} logo" style="max-width: 150px; max-height: 60px; object-fit: contain;"></div>`;
+            }
             
             const previewHtml = `
                 <div class="watermark">CONFIDENTIAL</div>
@@ -850,6 +891,7 @@
                     <h1>BRANDINN BUSINESS</h1>
                     <p>Digital Asset Handover Envelope</p>
                 </div>
+                ${logoHtml}
                 <div class="client-info">
                     <span><strong>Client:</strong> ${escapeHtml(clientName)}</span>
                     <span><strong>Project:</strong> ${escapeHtml(projectName)}</span>
@@ -864,7 +906,6 @@
                     <p><strong>Logo files:</strong> ${escapeHtml(logoFiles)}</p>
                     <p><strong>Color palette:</strong></p>
                     ${colorsHtml}
-                    <p><strong>Fonts used:</strong> ${escapeHtml(fontsUsed)}</p>
                 </div>
                 <div class="warning-box">
                     <i class="fas fa-exclamation-triangle"></i> <strong>Security Notice:</strong> Upon receipt, please change all passwords within 48 hours. This document is confidential.
@@ -882,14 +923,14 @@
             previewDiv.innerHTML = previewHtml;
         }
 
-        // Generate PDF in new window
+        // Generate PDF in new window with clean spacing
         function generatePDF() {
             const clientName = document.getElementById('clientName').value || 'Client';
             const projectName = document.getElementById('projectName').value || 'Project';
             const handoverDate = document.getElementById('handoverDate').value || new Date().toLocaleDateString();
             const logoFiles = document.getElementById('logoFiles').value;
-            const fontsUsed = document.getElementById('fontsUsed').value;
             const instructions = document.getElementById('accessInstructions').value;
+            const logoUrl = document.getElementById('logoUrl').value;
             
             // Build colors HTML for print
             let colorsHtml = '<div style="display: flex; gap: 16px; flex-wrap: wrap; margin: 12px 0;">';
@@ -898,13 +939,19 @@
             });
             colorsHtml += '</div>';
             
-            // Build credentials table with visible passwords
+            // Build credentials table with visible passwords (no 2FA column)
             let credsHtml = '<table style="width:100%; border-collapse: collapse; margin: 16px 0;">';
-            credsHtml += '<thead><tr style="background: #f1f5f9;"><th style="border: 1px solid #cbd5e1; padding: 10px;">Platform</th><th style="border: 1px solid #cbd5e1;">Email/Username</th><th style="border: 1px solid #cbd5e1;">Password</th><th style="border: 1px solid #cbd5e1;">2FA Code</th></tr></thead><tbody>';
+            credsHtml += '<thead><tr style="background: #f1f5f9;"><th style="border: 1px solid #cbd5e1; padding: 12px;">Platform</th><th style="border: 1px solid #cbd5e1; padding: 12px;">Email/Username</th><th style="border: 1px solid #cbd5e1; padding: 12px;">Password</th></tr></thead><tbody>';
             credentialRows.forEach(row => {
-                credsHtml += `<tr><td style="border: 1px solid #cbd5e1; padding: 8px;">${escapeHtml(row.platform)}</td><td style="border: 1px solid #cbd5e1;">${escapeHtml(row.username)}</td><td style="border: 1px solid #cbd5e1; font-family: monospace;">${escapeHtml(row.password)}</td><td style="border: 1px solid #cbd5e1;">${escapeHtml(row.twofa)}</td></tr>`;
+                credsHtml += `<tr><td style="border: 1px solid #cbd5e1; padding: 10px;">${escapeHtml(row.platform)}</td><td style="border: 1px solid #cbd5e1; padding: 10px;">${escapeHtml(row.username)}</td><td style="border: 1px solid #cbd5e1; padding: 10px; font-family: monospace;">${escapeHtml(row.password)}</td></tr>`;
             });
             credsHtml += '</tbody></table>';
+            
+            // Logo HTML for print
+            let logoHtml = '';
+            if (logoUrl && (logoUrl.startsWith('http') || logoUrl.startsWith('https'))) {
+                logoHtml = `<div style="text-align: center; margin-bottom: 30px;"><img src="${logoUrl}" alt="${escapeHtml(clientName)} logo" style="max-width: 180px; max-height: 70px; object-fit: contain;"></div>`;
+            }
             
             const printWindow = window.open('', '_blank');
             printWindow.document.write(`
@@ -918,20 +965,22 @@
                         * { margin: 0; padding: 0; box-sizing: border-box; }
                         body {
                             font-family: 'Inter', sans-serif;
-                            padding: 40px;
+                            padding: 50px;
                             max-width: 1100px;
                             margin: 0 auto;
                             background: white;
                             color: #1a1a2e;
+                            line-height: 1.5;
                         }
                         .print-btn {
                             background: #7c3aed;
                             color: white;
                             border: none;
-                            padding: 12px 24px;
+                            padding: 12px 28px;
                             border-radius: 40px;
                             cursor: pointer;
                             font-weight: 600;
+                            font-size: 14px;
                             margin-bottom: 30px;
                             display: inline-flex;
                             align-items: center;
@@ -950,28 +999,45 @@
                             white-space: nowrap;
                             z-index: 0;
                         }
+                        .document-container {
+                            position: relative;
+                            background: white;
+                        }
                         .brand-header {
                             text-align: center;
                             border-bottom: 3px solid #D4AF37;
                             padding-bottom: 20px;
                             margin-bottom: 30px;
                         }
-                        .brand-header h1 { font-size: 2rem; color: #0f172a; }
+                        .brand-header h1 { 
+                            font-size: 28px; 
+                            color: #0f172a; 
+                            letter-spacing: -0.5px;
+                            margin-bottom: 5px;
+                        }
+                        .brand-header p { 
+                            color: #64748b; 
+                            font-size: 14px;
+                        }
                         .client-info {
                             background: #f8fafc;
-                            padding: 16px;
+                            padding: 16px 20px;
                             border-radius: 16px;
                             display: flex;
                             justify-content: space-between;
-                            margin-bottom: 30px;
+                            margin-bottom: 32px;
+                            font-size: 14px;
                         }
-                        .section { margin-bottom: 25px; }
+                        .section { 
+                            margin-bottom: 28px; 
+                        }
                         .section h3 {
-                            font-size: 1.1rem;
-                            margin-bottom: 12px;
+                            font-size: 18px;
+                            font-weight: 700;
+                            margin-bottom: 16px;
                             color: #0f172a;
-                            border-left: 3px solid #7c3aed;
-                            padding-left: 12px;
+                            border-left: 4px solid #7c3aed;
+                            padding-left: 14px;
                         }
                         table {
                             width: 100%;
@@ -980,68 +1046,77 @@
                         }
                         th, td {
                             border: 1px solid #cbd5e1;
-                            padding: 10px;
+                            padding: 12px;
                             text-align: left;
                         }
-                        th { background: #f1f5f9; }
+                        th { 
+                            background: #f1f5f9; 
+                            font-weight: 600;
+                        }
                         .warning {
                             background: #fffbeb;
                             border-left: 4px solid #D4AF37;
-                            padding: 16px;
+                            padding: 16px 20px;
                             border-radius: 12px;
-                            margin: 20px 0;
+                            margin: 24px 0;
+                            font-size: 14px;
                         }
                         .footer {
                             text-align: center;
-                            font-size: 0.7rem;
+                            font-size: 11px;
                             color: #94a3b8;
                             margin-top: 40px;
                             padding-top: 20px;
                             border-top: 1px solid #e2e8f0;
                         }
+                        .logo-files {
+                            margin: 8px 0;
+                        }
                         @media print {
                             .no-print { display: none; }
                             .watermark { opacity: 0.05; }
-                            body { padding: 20px; }
+                            body { padding: 0; }
                         }
                     </style>
                 </head>
                 <body>
                     <div class="no-print" style="text-align: center; margin-bottom: 20px;">
                         <button class="print-btn" onclick="window.print();"><i class="fas fa-print"></i> Save as PDF</button>
-                        <p style="font-size: 0.8rem; color: #64748b; margin-top: 8px;">After saving, password-protect the PDF before emailing to client.</p>
+                        <p style="font-size: 12px; color: #64748b; margin-top: 8px;">After saving, password-protect the PDF before emailing to client.</p>
                     </div>
-                    <div class="watermark">CONFIDENTIAL</div>
-                    <div class="brand-header">
-                        <h1>BRANDINN BUSINESS</h1>
-                        <p>Digital Asset Handover Envelope</p>
-                    </div>
-                    <div class="client-info">
-                        <span><strong>Client:</strong> ${escapeHtml(clientName)}</span>
-                        <span><strong>Project:</strong> ${escapeHtml(projectName)}</span>
-                        <span><strong>Date:</strong> ${escapeHtml(handoverDate)}</span>
-                    </div>
-                    <div class="section">
-                        <h3><i class="fas fa-lock"></i> Credentials Matrix (Full Access)</h3>
-                        ${credsHtml}
-                    </div>
-                    <div class="section">
-                        <h3><i class="fas fa-palette"></i> Visual Assets</h3>
-                        <p><strong>Logo files:</strong> ${escapeHtml(logoFiles)}</p>
-                        <p><strong>Color palette:</strong></p>
-                        ${colorsHtml}
-                        <p><strong>Fonts used:</strong> ${escapeHtml(fontsUsed)}</p>
-                    </div>
-                    <div class="warning">
-                        <strong>⚠️ Security Notice:</strong> Upon receipt, please change all passwords within 48 hours. Store this document in a secure location.
-                    </div>
-                    <div class="section">
-                        <h3><i class="fas fa-tasks"></i> Access Instructions</h3>
-                        <p>${escapeHtml(instructions).replace(/\n/g, '<br>')}</p>
-                    </div>
-                    <div class="footer">
-                        <i class="fas fa-check-circle"></i> Client handover checklist: Downloaded assets · Verified logins · Changed passwords · Enabled 2FA<br>
-                        BrandInn Business · support@brandinn.business · Confidential Document
+                    <div class="document-container">
+                        <div class="watermark">CONFIDENTIAL</div>
+                        <div class="brand-header">
+                            <h1>BRANDINN BUSINESS</h1>
+                            <p>Digital Asset Handover Envelope</p>
+                        </div>
+                        ${logoHtml}
+                        <div class="client-info">
+                            <span><strong>Client:</strong> ${escapeHtml(clientName)}</span>
+                            <span><strong>Project:</strong> ${escapeHtml(projectName)}</span>
+                            <span><strong>Date:</strong> ${escapeHtml(handoverDate)}</span>
+                        </div>
+                        <div class="section">
+                            <h3>🔐 Credentials Matrix (Full Access)</h3>
+                            ${credsHtml}
+                        </div>
+                        <div class="section">
+                            <h3>🎨 Visual Assets</h3>
+                            <p class="logo-files"><strong>Logo files:</strong> ${escapeHtml(logoFiles)}</p>
+                            <p><strong>Color palette:</strong></p>
+                            ${colorsHtml}
+                        </div>
+                        <div class="warning">
+                            <strong>⚠️ Security Notice:</strong> Upon receipt, please change all passwords within 48 hours. Store this document in a secure location.
+                        </div>
+                        <div class="section">
+                            <h3>📋 Access Instructions</h3>
+                            <p>${escapeHtml(instructions).replace(/\n/g, '<br>')}</p>
+                        </div>
+                        <div class="footer">
+                            <i class="fas fa-check-circle"></i> Client handover checklist: Downloaded assets · Verified logins · Changed passwords · Enabled 2FA<br>
+                            BrandInn Business · support@brandinn.business · Confidential Document
+                        </div>
                     </div>
                 </body>
                 </html>
@@ -1055,7 +1130,6 @@
             document.getElementById('projectName').addEventListener('input', updatePreview);
             document.getElementById('handoverDate').addEventListener('change', updatePreview);
             document.getElementById('logoFiles').addEventListener('input', updatePreview);
-            document.getElementById('fontsUsed').addEventListener('input', updatePreview);
             document.getElementById('accessInstructions').addEventListener('input', updatePreview);
             document.getElementById('addCredRowBtn').addEventListener('click', addCredRow);
             document.getElementById('addColorBtn').addEventListener('click', addColor);
@@ -1066,6 +1140,7 @@
         setDefaultDate();
         renderCredsForm();
         renderColorForm();
+        setupLogoPreview();
         bindEvents();
         updatePreview();
 
