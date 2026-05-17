@@ -273,10 +273,10 @@
       font-size: 1.7rem;
     }
 
-    /* Action cards */
+    /* Action cards - now 4 columns */
     .action-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       gap: 25px;
       margin-bottom: 2.5rem;
     }
@@ -315,14 +315,14 @@
     }
 
     .action-card h2 {
-      font-size: 1.6rem;
+      font-size: 1.4rem;
       font-weight: 800;
       margin-bottom: 0.5rem;
     }
 
     .action-card p {
       color: #64748b;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       margin-bottom: 1.5rem;
       line-height: 1.5;
     }
@@ -333,7 +333,7 @@
       gap: 8px;
       font-weight: 700;
       color: #7c3aed;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
     }
 
     .action-card:hover .action-link i {
@@ -346,6 +346,14 @@
       background: linear-gradient(145deg, #ecfdf5, #ffffff);
     }
     .map-card .action-link { color: #10b981; }
+
+    /* Asset card special styling */
+    .asset-card .action-icon {
+      color: #D4AF37;
+      border-color: rgba(212, 175, 55, 0.2);
+      background: linear-gradient(145deg, #fffbeb, #ffffff);
+    }
+    .asset-card .action-link { color: #D4AF37; }
 
     /* Quick links */
     .quick-section {
@@ -398,6 +406,8 @@
     .quick-btn:hover i { color: white; }
     .map-quick i { color: #10b981; }
     .map-quick:hover { background: #10b981; border-color: #10b981; }
+    .asset-quick i { color: #D4AF37; }
+    .asset-quick:hover { background: #D4AF37; border-color: #D4AF37; color: #0A192F; }
 
     .recent-section { margin-top: 2rem; }
     .recent-header {
@@ -465,7 +475,7 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    @media (max-width: 1000px) {
+    @media (max-width: 1200px) {
       .action-grid { grid-template-columns: repeat(2, 1fr); }
     }
     @media (max-width: 850px) {
@@ -507,7 +517,7 @@
         BrandInn Dashboard
         <span class="last-updated" id="lastUpdated"><i class="fas fa-circle"></i> Live</span>
       </h1>
-      <p>Welcome back! Manage business listings, locations, and field operations.</p>
+      <p>Welcome back! Manage business listings, locations, and client asset handovers.</p>
     </div>
 
     <div class="stats-grid">
@@ -544,6 +554,13 @@
         <p>Pin business locations on the interactive map for customer discovery.</p>
         <span class="action-link">Open Map Editor <i class="fas fa-arrow-right"></i></span>
       </a>
+      <!-- NEW: Asset Handover Generator Card -->
+      <a href="/workspaces/brandinn/asset-generator.html" class="action-card asset-card" id="assetGeneratorLink">
+        <div class="action-icon"><i class="fas fa-envelope-open-text"></i></div>
+        <h2>Asset Handover</h2>
+        <p>Generate professional digital envelopes with client credentials, logos, and assets.</p>
+        <span class="action-link">Open Generator <i class="fas fa-arrow-right"></i></span>
+      </a>
     </div>
 
     <div class="quick-section">
@@ -552,6 +569,7 @@
         <a href="/workspaces/brandinn/list-business.html" class="quick-btn"><i class="fas fa-store"></i> New Listing</a>
         <a href="/workspaces/brandinn/manage-businesses.html" class="quick-btn"><i class="fas fa-edit"></i> Edit Business</a>
         <a href="/workspaces/brandinn/map.html" class="quick-btn map-quick"><i class="fas fa-map-pin"></i> Add to Map</a>
+        <a href="/workspaces/brandinn/asset-generator.html" class="quick-btn asset-quick"><i class="fas fa-file-pdf"></i> Asset Handover</a>
         <a href="/workspaces/brandinn/manage-businesses.html?filter=basic" class="quick-btn"><i class="fas fa-tag"></i> Basic (<span id="basicBadge">0</span>)</a>
       </div>
     </div>
@@ -571,6 +589,7 @@
     <i class="far fa-copyright"></i> 2026 KazInni Workspaces • BrandInn Field Portal • <span id="footerStats">--</span>
   </div>
 
+  <!-- We'll create a full standalone HTML page for the asset generator that will be served at /workspaces/brandinn/asset-generator.html -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getDatabase, ref, onValue, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
@@ -680,6 +699,256 @@
       });
     }
 
+    // Store the asset generator HTML in localStorage when user clicks the link
+    // This way, when they navigate to /workspaces/brandinn/asset-generator.html, we can serve it
+    const assetGeneratorHTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BrandInn Business · Asset Handover Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: #0A192F;
+            padding: 32px 24px;
+        }
+        .dashboard {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1.1fr;
+            gap: 28px;
+            align-items: start;
+        }
+        .form-panel {
+            background: #ffffff;
+            border-radius: 28px;
+            box-shadow: 0 20px 35px -12px rgba(0,0,0,0.3);
+            overflow: hidden;
+            position: sticky;
+            top: 24px;
+        }
+        .panel-header {
+            background: #0A192F;
+            padding: 20px 24px;
+            border-bottom: 3px solid #D4AF37;
+        }
+        .panel-header h2 {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .panel-header h2 i { color: #D4AF37; }
+        .form-scroll {
+            padding: 24px;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        .form-group { margin-bottom: 24px; }
+        label {
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            color: #0A192F;
+            display: block;
+            margin-bottom: 8px;
+        }
+        input, textarea, .color-input-row {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 16px;
+            font-family: 'Inter', monospace;
+            font-size: 0.9rem;
+        }
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #D4AF37;
+        }
+        .creds-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+        .creds-table th, .creds-table td {
+            border: 1px solid #e2e8f0;
+            padding: 8px 6px;
+            vertical-align: middle;
+        }
+        .creds-table th { background: #f8fafc; }
+        .btn-icon {
+            background: #0A192F;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .color-palette-list {
+            background: #f1f5f9;
+            border-radius: 16px;
+            padding: 12px;
+        }
+        .color-item { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
+        .color-item input[type="color"] { width: 50px; height: 40px; border-radius: 12px; }
+        .generate-btn {
+            background: #D4AF37;
+            color: #0A192F;
+            font-weight: 800;
+            font-size: 1rem;
+            padding: 14px 20px;
+            width: 100%;
+            border: none;
+            border-radius: 40px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        .preview-panel {
+            background: #ffffff;
+            border-radius: 28px;
+            box-shadow: 0 20px 35px -12px rgba(0,0,0,0.2);
+            max-height: 90vh;
+            overflow-y: auto;
+            position: sticky;
+            top: 24px;
+        }
+        .preview-header {
+            background: #0A192F;
+            padding: 16px 24px;
+            color: white;
+            border-radius: 28px 28px 0 0;
+        }
+        .preview-content { padding: 28px 32px; background: white; }
+        .watermark-text {
+            position: absolute;
+            font-size: 80px;
+            font-weight: 800;
+            color: rgba(10, 25, 47, 0.03);
+            pointer-events: none;
+            transform: rotate(-20deg);
+            z-index: 0;
+        }
+        .brand-header {
+            text-align: center;
+            border-bottom: 2px solid #D4AF37;
+            padding-bottom: 20px;
+            margin-bottom: 24px;
+        }
+        .brand-header h1 { font-size: 1.9rem; color: #0A192F; }
+        .client-row {
+            background: #f8fafc;
+            padding: 16px;
+            border-radius: 20px;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 28px;
+        }
+        .preview-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; margin: 20px 0; }
+        .preview-table th, .preview-table td { border: 1px solid #cbd5e1; padding: 10px 8px; text-align: left; }
+        .warning-box {
+            background: #fffbeb;
+            border-left: 5px solid #D4AF37;
+            padding: 16px;
+            border-radius: 16px;
+            margin: 20px 0;
+        }
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #0A192F;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 40px;
+            text-decoration: none;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+        @media (max-width: 1000px) {
+            .dashboard { grid-template-columns: 1fr; }
+            .form-panel { position: relative; top: 0; }
+            .preview-panel { position: relative; top: 0; }
+        }
+    </style>
+</head>
+<body>
+<a href="/workspaces/brandinn/index.html" class="back-link" style="position: fixed; top: 20px; left: 20px; z-index: 1000; background: #0A192F;"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+<div class="dashboard" style="margin-top: 20px;">
+    <div class="form-panel">
+        <div class="panel-header">
+            <h2><i class="fas fa-envelope-open-text"></i> BrandInn Business · Asset Vault</h2>
+        </div>
+        <div class="form-scroll">
+            <div class="form-group"><label>Client Name</label><input type="text" id="clientName" value="Aurora Cosmetics"></div>
+            <div class="form-group"><label>Project Name</label><input type="text" id="projectName" value="Full Funnel Marketing"></div>
+            <div class="form-group"><label>Handover Date</label><input type="date" id="handoverDate"></div>
+            <div class="form-group"><label>Credentials</label><table class="creds-table" id="credsTable"><thead><tr><th>Platform</th><th>Email</th><th>Password</th><th>2FA</th></tr></thead><tbody id="credsTbody"></tbody></table><button class="btn-icon" id="addCredRowBtn"><i class="fas fa-plus"></i> Add row</button></div>
+            <div class="form-group"><label>Logo Files</label><input type="text" id="logoFiles" value="PNG, SVG, AI"></div>
+            <div class="form-group"><label>Color Palette</label><div id="colorPaletteContainer"></div><button class="btn-icon" id="addColorBtn">+ Add Color</button></div>
+            <div class="form-group"><label>Fonts</label><input type="text" id="fontsUsed" value="Inter, Montserrat"></div>
+            <div class="form-group"><label>Instructions</label><textarea id="accessInstructions" rows="3">Please update recovery emails and enable 2FA.</textarea></div>
+            <button class="generate-btn" id="generatePdfBtn"><i class="fas fa-file-pdf"></i> Generate Handover PDF</button>
+        </div>
+    </div>
+    <div class="preview-panel"><div class="preview-header"><i class="fas fa-eye"></i> Live Preview</div><div class="preview-content" id="livePreview"></div></div>
+</div>
+<script>
+    let credentialRows = [{ platform: "Business Email", username: "hello@example.com", password: "Demo123!", twofa: "Backup email" }, { platform: "Instagram", username: "@brand", password: "Insta2025", twofa: "Authy" }];
+    let colorItems = [{ label: "Primary Navy", hex: "#0A192F" }, { label: "Gold", hex: "#D4AF37" }];
+    function setDefaultDate() { const d = document.getElementById('handoverDate'); if (!d.value) d.value = new Date().toISOString().split('T')[0]; }
+    function renderCredsForm() { const tbody = document.getElementById('credsTbody'); tbody.innerHTML = ''; credentialRows.forEach((r, i) => { const tr = document.createElement('tr'); tr.innerHTML = \`<td><input value="\${r.platform}" data-idx="\${i}" data-field="platform"></td><td><input value="\${r.username}" data-idx="\${i}" data-field="username"></td><td><input type="password" value="\${r.password}" data-idx="\${i}" data-field="password"></td><td><input value="\${r.twofa}" data-idx="\${i}" data-field="twofa"></td><td><button onclick="deleteRow(\${i})">🗑️</button></td>\`; tbody.appendChild(tr); }); attachEvents(); }
+    function attachEvents() { document.querySelectorAll('.creds-table input').forEach(el => { el.addEventListener('change', function(e) { const idx = this.getAttribute('data-idx'); const field = this.getAttribute('data-field'); if (credentialRows[idx]) credentialRows[idx][field] = this.value; updatePreview(); }); }); }
+    window.deleteRow = function(i) { credentialRows.splice(i,1); renderCredsForm(); updatePreview(); };
+    function addCredRow() { credentialRows.push({ platform: "New Platform", username: "", password: "", twofa: "" }); renderCredsForm(); updatePreview(); }
+    function renderColorForm() { const c = document.getElementById('colorPaletteContainer'); c.innerHTML = ''; colorItems.forEach((item, idx) => { const div = document.createElement('div'); div.className = 'color-item'; div.innerHTML = \`<input value="\${item.label}" data-color-idx="\${idx}" data-field="label"><input type="color" value="\${item.hex}" data-color-idx="\${idx}" data-field="hex"><button onclick="removeColor(\${idx})">✖️</button>\`; c.appendChild(div); }); document.querySelectorAll('[data-color-idx]').forEach(el => { el.addEventListener('change', function() { const idx = parseInt(this.getAttribute('data-color-idx')); const field = this.getAttribute('data-field'); if (colorItems[idx]) colorItems[idx][field] = this.value; updatePreview(); }); }); }
+    window.removeColor = function(i) { colorItems.splice(i,1); renderColorForm(); updatePreview(); };
+    function addColor() { colorItems.push({ label: "New Color", hex: "#888888" }); renderColorForm(); updatePreview(); }
+    function updatePreview() { const client = document.getElementById('clientName').value; const project = document.getElementById('projectName').value; const date = document.getElementById('handoverDate').value; const logoVal = document.getElementById('logoFiles').value; const fontsVal = document.getElementById('fontsUsed').value; const inst = document.getElementById('accessInstructions').value; let colorHtml = '<div style="display:flex; gap:16px; flex-wrap:wrap;">'; colorItems.forEach(c => { colorHtml += \`<div><div style="width:30px;height:30px;background:\${c.hex};border-radius:8px;"></div><span>\${c.label}</span></div>\`; }); colorHtml += '</div>'; let credsHtml = '<table class="preview-table"><thead><tr><th>Platform</th><th>Email</th><th>Password</th><th>2FA</th></tr></thead><tbody>'; credentialRows.forEach(r => { credsHtml += \`<tr><td>\${r.platform}</td><td>\${r.username}</td><td>•••••••</td><td>\${r.twofa}</td></tr>\`; }); credsHtml += '</tbody></table>'; document.getElementById('livePreview').innerHTML = \`<div style="position:relative;"><div class="watermark-text">CONFIDENTIAL</div><div class="brand-header"><h1>BRANDINN BUSINESS</h1><p>Digital Asset Handover Envelope</p></div><div class="client-row"><span><strong>Client:</strong> \${client}</span><span><strong>Project:</strong> \${project}</span><span><strong>Date:</strong> \${date}</span></div><h3>🔐 Credentials</h3>\${credsHtml}<h3>🎨 Assets</h3><p><strong>Logos:</strong> \${logoVal}</p><p><strong>Colors:</strong></p>\${colorHtml}<p><strong>Fonts:</strong> \${fontsVal}</p><div class="warning-box"><strong>⚠️ Security:</strong> Change all passwords within 48 hours.</div><p><strong>Instructions:</strong><br>\${inst}</p><div class="footer-checklist"><p>✓ Downloaded assets · ✓ Changed passwords · ✓ Enabled 2FA</p><p style="text-align:center;">BrandInn Business · support@brandinn.business</p></div></div>\`; }
+    function generateWindow() { const client = document.getElementById('clientName').value; const project = document.getElementById('projectName').value; const date = document.getElementById('handoverDate').value; const logoVal = document.getElementById('logoFiles').value; const fontsVal = document.getElementById('fontsUsed').value; const inst = document.getElementById('accessInstructions').value; let colorHtml = ''; colorItems.forEach(c => { colorHtml += \`<div style="display:inline-block;margin:5px;"><div style="width:30px;height:30px;background:\${c.hex};border-radius:8px;"></div><span>\${c.label}</span></div>\`; }); let credsFull = '<table border="1" style="border-collapse:collapse;width:100%"><tr><th>Platform</th><th>Email</th><th>Password</th><th>2FA</th></tr>'; credentialRows.forEach(r => { credsFull += \`<tr><td>\${r.platform}</td><td>\${r.username}</td><td>\${r.password}</td><td>\${r.twofa}</td></tr>\`; }); credsFull += '</table>'; const win = window.open(); win.document.write(\`<!DOCTYPE html><html><head><title>BrandInn_\${client}_Handover</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"><style>body{font-family:Inter;padding:40px;}button{background:#D4AF37;border:none;padding:10px 20px;border-radius:30px;cursor:pointer;margin-bottom:20px;}@media print{.no-print{display:none;}}</style></head><body><div class="no-print"><button onclick="window.print()">📄 Save as PDF</button><p>After saving, use ILovePDF to add password.</p></div><div><h1 style="color:#0A192F;">BRANDINN BUSINESS</h1><p>Digital Asset Handover Envelope</p><hr><p><strong>Client:</strong> \${client}<br><strong>Project:</strong> \${project}<br><strong>Date:</strong> \${date}</p><h3>Credentials (full access)</h3>\${credsFull}<h3>Visual Assets</h3><p><strong>Logos:</strong> \${logoVal}</p><p><strong>Colors:</strong> \${colorHtml}</p><p><strong>Fonts:</strong> \${fontsVal}</p><div style="background:#fffbeb;padding:15px;border-left:5px solid #D4AF37;"><strong>⚠️ Security:</strong> Change all passwords within 48 hours.</div><p><strong>Instructions:</strong><br>\${inst}</p><hr><p>BrandInn Business · support@brandinn.business</p></div></body></html>\`); win.document.close(); }
+    document.getElementById('addCredRowBtn').onclick = addCredRow;
+    document.getElementById('addColorBtn').onclick = addColor;
+    document.getElementById('generatePdfBtn').onclick = generateWindow;
+    document.getElementById('clientName').oninput = updatePreview;
+    document.getElementById('projectName').oninput = updatePreview;
+    document.getElementById('handoverDate').onchange = updatePreview;
+    document.getElementById('logoFiles').oninput = updatePreview;
+    document.getElementById('fontsUsed').oninput = updatePreview;
+    document.getElementById('accessInstructions').oninput = updatePreview;
+    setDefaultDate(); renderCredsForm(); renderColorForm(); updatePreview();
+</script>
+</body>
+</html>`;
+
+    // Save the asset generator HTML to localStorage so it can be accessed
+    localStorage.setItem('brandinn_asset_generator', assetGeneratorHTML);
+
+    // Intercept navigation to /workspaces/brandinn/asset-generator.html
+    const assetLink = document.getElementById('assetGeneratorLink');
+    if (assetLink) {
+      assetLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        // Open a new window with the asset generator
+        const newWindow = window.open();
+        newWindow.document.write(assetGeneratorHTML);
+        newWindow.document.close();
+      });
+    }
+
+    // Also handle quick link
+    document.querySelectorAll('.asset-quick').forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const newWindow = window.open();
+        newWindow.document.write(assetGeneratorHTML);
+        newWindow.document.close();
+      });
+    });
+
     // AUTHENTICATION CHECK + REDIRECT ON LOGOUT
     onAuthStateChanged(auth, async (user) => {
       if (user) {
@@ -694,7 +963,6 @@
         repAvatarEl.textContent = getInitials(userName);
         setupRealtimeListener();
       } else {
-        // Not authenticated – redirect to kazinni.vercel.app immediately
         window.location.href = 'https://kazinni.vercel.app';
       }
     });
@@ -703,7 +971,6 @@
       if (confirm('Log out of KazInni Workspaces?')) {
         try {
           await signOut(auth);
-          // Redirect will be handled by onAuthStateChanged above
         } catch (e) {
           alert('Logout failed. Please try again.');
         }
