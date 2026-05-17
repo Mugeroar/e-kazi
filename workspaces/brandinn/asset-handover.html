@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>BrandInn | Asset Handover Generator</title>
+    
+    <!-- PWA Meta -->
+    <meta name="theme-color" content="#7c3aed">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
+    
+    <!-- Fonts & Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(145deg, #f8f6fc 0%, #ffffff 100%);
+            color: #1a1a2e;
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .page-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 0.9rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(124, 58, 237, 0.12);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-img {
+            height: 42px;
+            width: 42px;
+            border-radius: 14px;
+            object-fit: contain;
+            background: white;
+            box-shadow: 0 8px 18px rgba(124, 58, 237, 0.15);
+        }
+
+        .logo-text {
+            font-weight: 800;
+            font-size: 1.5rem;
+            background: linear-gradient(145deg, #7c3aed, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-text span {
+            font-weight: 600;
+            font-size: 0.9rem;
+            background: #64748b;
+            -webkit-text-fill-color: #64748b;
+            margin-left: 4px;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .back-btn {
+            background: white;
+            border: 1.5px solid #e2e8f0;
+            padding: 0.55rem 1.2rem;
+            border-radius: 40px;
+            color: #475569;
+            font-weight: 500;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .back-btn:hover {
+            background: #f5f0ff;
+            border-color: #7c3aed;
+            color: #7c3aed;
+        }
+
+        .rep-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #f1f5f9;
+            padding: 0.3rem 1rem 0.3rem 0.8rem;
+            border-radius: 60px;
+        }
+
+        .rep-avatar {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(145deg, #7c3aed, #c084fc);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .rep-info {
+            line-height: 1.3;
+        }
+
+        .rep-name {
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .rep-role {
+            font-size: 0.7rem;
+            color: #7c3aed;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .logout-btn {
+            background: transparent;
+            border: 1px solid rgba(124, 58, 237, 0.3);
+            padding: 0.5rem 1.2rem;
+            border-radius: 40px;
+            color: #7c3aed;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .logout-btn:hover {
+            background: #7c3aed;
+            color: white;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem 5% 3rem;
+            flex: 1;
+            width: 100%;
+        }
+
+        /* Page Title */
+        .page-title {
+            margin-bottom: 2rem;
+        }
+
+        .page-title h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .page-title h1 i {
+            color: #7c3aed;
+            background: white;
+            padding: 10px;
+            border-radius: 16px;
+            box-shadow: 0 8px 18px rgba(124, 58, 237, 0.08);
+            font-size: 1.5rem;
+        }
+
+        .page-title p {
+            color: #64748b;
+            margin-top: 0.5rem;
+            margin-left: 58px;
+        }
+
+        /* Two Column Layout */
+        .two-columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        /* Form Card */
+        .form-card {
+            background: white;
+            border-radius: 32px;
+            padding: 2rem;
+            border: 1px solid #f1eaff;
+            box-shadow: 0 15px 35px -10px rgba(124, 58, 237, 0.06);
+        }
+
+        .form-card h2 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-card h2 i {
+            color: #7c3aed;
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #334155;
+            font-size: 0.85rem;
+        }
+
+        .form-group label i {
+            color: #7c3aed;
+            width: 20px;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 16px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            background: #fafbff;
+            color: #1a1a2e;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #7c3aed;
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+            background: white;
+        }
+
+        /* Credentials Table */
+        .creds-table-container {
+            overflow-x: auto;
+            margin-bottom: 1rem;
+        }
+
+        .creds-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+        }
+
+        .creds-table th {
+            background: #f8fafc;
+            padding: 10px 8px;
+            text-align: left;
+            font-weight: 600;
+            color: #334155;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .creds-table td {
+            padding: 8px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .creds-table input {
+            width: 100%;
+            padding: 8px 6px;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            background: #fafbff;
+        }
+
+        .creds-table input:focus {
+            border-color: #7c3aed;
+            outline: none;
+        }
+
+        .btn-icon {
+            background: #7c3aed;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-icon:hover {
+            background: #6d28d9;
+        }
+
+        .btn-small {
+            background: #fee2e2;
+            color: #ef4444;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 0.7rem;
+        }
+
+        .btn-small:hover {
+            background: #fecaca;
+        }
+
+        /* Color Items */
+        .color-palette-list {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 12px;
+            margin-bottom: 0.5rem;
+        }
+
+        .color-item {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+
+        .color-item input[type="text"] {
+            flex: 1;
+            padding: 8px 12px;
+            font-size: 0.8rem;
+        }
+
+        .color-item input[type="color"] {
+            width: 50px;
+            height: 40px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            cursor: pointer;
+        }
+
+        /* Generate Button */
+        .generate-btn {
+            width: 100%;
+            background: #7c3aed;
+            color: white;
+            padding: 1rem;
+            border: none;
+            border-radius: 60px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 1.5rem;
+            transition: all 0.2s;
+        }
+
+        .generate-btn:hover {
+            background: #6d28d9;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(124, 58, 237, 0.3);
+        }
+
+        /* Preview Card */
+        .preview-card {
+            background: white;
+            border-radius: 32px;
+            padding: 2rem;
+            border: 1px solid #f1eaff;
+            box-shadow: 0 15px 35px -10px rgba(124, 58, 237, 0.06);
+            position: sticky;
+            top: 100px;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        .preview-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f1eaff;
+        }
+
+        .preview-header i {
+            color: #D4AF37;
+            font-size: 1.3rem;
+        }
+
+        .preview-header h2 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        /* Handover Document Preview */
+        .handover-preview {
+            position: relative;
+            background: white;
+        }
+
+        .watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-25deg);
+            font-size: 60px;
+            font-weight: 800;
+            color: rgba(124, 58, 237, 0.03);
+            pointer-events: none;
+            white-space: nowrap;
+            z-index: 0;
+        }
+
+        .brand-header {
+            text-align: center;
+            padding-bottom: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid #D4AF37;
+            position: relative;
+            z-index: 1;
+        }
+
+        .brand-header h1 {
+            font-size: 1.6rem;
+            color: #0f172a;
+            letter-spacing: -0.5px;
+        }
+
+        .brand-header p {
+            color: #64748b;
+            font-size: 0.8rem;
+        }
+
+        .client-info {
+            background: #f8fafc;
+            padding: 1rem;
+            border-radius: 16px;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            font-size: 0.8rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .preview-section {
+            margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .preview-section h3 {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .preview-section h3 i {
+            color: #7c3aed;
+            font-size: 0.8rem;
+        }
+
+        .preview-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.7rem;
+        }
+
+        .preview-table th,
+        .preview-table td {
+            border: 1px solid #e2e8f0;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .preview-table th {
+            background: #f8fafc;
+            font-weight: 600;
+        }
+
+        .color-swatch {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border-radius: 6px;
+            margin-right: 6px;
+            vertical-align: middle;
+        }
+
+        .warning-box {
+            background: #fffbeb;
+            border-left: 4px solid #D4AF37;
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            margin: 1rem 0;
+        }
+
+        .footer-note {
+            text-align: center;
+            font-size: 0.65rem;
+            color: #94a3b8;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #f1f5f9;
+        }
+
+        /* Responsive */
+        @media (max-width: 1000px) {
+            .two-columns {
+                grid-template-columns: 1fr;
+            }
+            
+            .preview-card {
+                position: relative;
+                top: 0;
+            }
+            
+            .page-title h1 {
+                font-size: 1.5rem;
+            }
+            
+            .page-title p {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="page-header">
+        <div class="logo">
+            <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png" alt="KazInni Logo" class="logo-img">
+            <span class="logo-text">KazInni <span>Workspaces</span></span>
+        </div>
+        <div class="nav-right">
+            <a href="./index.html" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+                <span>Dashboard</span>
+            </a>
+            <div class="rep-profile">
+                <div class="rep-avatar" id="repAvatar">KA</div>
+                <div class="rep-info">
+                    <div class="rep-name" id="repName">Field Rep</div>
+                    <div class="rep-role"><i class="fas fa-badge-check"></i> Asset Manager</div>
+                </div>
+            </div>
+            <button class="logout-btn" id="logoutBtn">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="container">
+        <div class="page-title">
+            <h1>
+                <i class="fas fa-envelope-open-text"></i>
+                Asset Handover Generator
+            </h1>
+            <p>Create professional digital handover documents for your clients with credentials, assets, and brand guidelines</p>
+        </div>
+
+        <div class="two-columns">
+            <!-- Left Column - Form -->
+            <div class="form-card">
+                <h2><i class="fas fa-pen-alt"></i> Client Information</h2>
+                
+                <div class="form-group">
+                    <label><i class="fas fa-user"></i> Client Name</label>
+                    <input type="text" id="clientName" placeholder="e.g., Aurora Cosmetics" value="Aurora Cosmetics">
+                </div>
+                
+                <div class="form-group">
+                    <label><i class="fas fa-briefcase"></i> Project Name</label>
+                    <input type="text" id="projectName" placeholder="e.g., Digital Marketing Package" value="Full Funnel Marketing">
+                </div>
+                
+                <div class="form-group">
+                    <label><i class="fas fa-calendar"></i> Handover Date</label>
+                    <input type="date" id="handoverDate">
+                </div>
+
+                <h2 style="margin-top: 1.5rem;"><i class="fas fa-key"></i> Credentials Matrix</h2>
+                <div class="creds-table-container">
+                    <table class="creds-table" id="credsTable">
+                        <thead>
+                            <tr><th>Platform</th><th>Email/Username</th><th>Password</th><th>2FA Code</th><th style="width:40px"></th></tr>
+                        </thead>
+                        <tbody id="credsTbody"></tbody>
+                    </table>
+                </div>
+                <button type="button" class="btn-icon" id="addCredRowBtn">
+                    <i class="fas fa-plus"></i> Add Credential
+                </button>
+
+                <h2 style="margin-top: 1.5rem;"><i class="fas fa-images"></i> Visual Assets</h2>
+                <div class="form-group">
+                    <label><i class="fas fa-file-image"></i> Logo Files (formats)</label>
+                    <input type="text" id="logoFiles" value="PNG, SVG, AI (full color + white version)">
+                </div>
+                
+                <div class="form-group">
+                    <label><i class="fas fa-palette"></i> Color Palette</label>
+                    <div id="colorPaletteContainer" class="color-palette-list"></div>
+                    <button type="button" class="btn-icon" id="addColorBtn">
+                        <i class="fas fa-plus"></i> Add Color
+                    </button>
+                </div>
+                
+                <div class="form-group">
+                    <label><i class="fas fa-font"></i> Fonts Used</label>
+                    <input type="text" id="fontsUsed" value="Inter, Montserrat, System UI">
+                </div>
+                
+                <div class="form-group">
+                    <label><i class="fas fa-tasks"></i> Access Instructions</label>
+                    <textarea id="accessInstructions" rows="3" placeholder="Add any special instructions for the client...">Please log into each platform and update recovery emails. Enable 2FA where available. Store these credentials in a secure password manager.</textarea>
+                </div>
+
+                <button class="generate-btn" id="generateBtn">
+                    <i class="fas fa-file-pdf"></i> Generate Handover PDF
+                </button>
+                <p style="font-size: 0.7rem; text-align: center; margin-top: 1rem; color: #94a3b8;">
+                    <i class="fas fa-shield-alt"></i> After PDF opens: Save as PDF, then password-protect using Adobe Acrobat or ILovePDF
+                </p>
+            </div>
+
+            <!-- Right Column - Live Preview -->
+            <div class="preview-card">
+                <div class="preview-header">
+                    <i class="fas fa-eye"></i>
+                    <h2>Live Preview</h2>
+                </div>
+                <div class="handover-preview" id="livePreview">
+                    <!-- Dynamic preview will appear here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initial data
+        let credentialRows = [
+            { platform: "Business Email", username: "hello@auroracosmetics.com", password: "DemoPass123!", twofa: "Backup email" },
+            { platform: "Instagram Business", username: "@aurora.beauty", password: "Insta@2025", twofa: "SMS + Authy" },
+            { platform: "Facebook Ads", username: "ads@auroracosmetics.com", password: "fbAds#2025", twofa: "Google Auth" },
+            { platform: "Google Analytics", username: "admin@auroracosmetics.com", password: "GA4#Secure", twofa: "Authenticator" }
+        ];
+        
+        let colorItems = [
+            { label: "Primary Navy", hex: "#0A192F" },
+            { label: "Accent Gold", hex: "#D4AF37" },
+            { label: "Soft White", hex: "#FFFFFF" }
+        ];
+
+        // Set default date
+        function setDefaultDate() {
+            const dateInput = document.getElementById('handoverDate');
+            if (!dateInput.value) {
+                const today = new Date().toISOString().split('T')[0];
+                dateInput.value = today;
+            }
+        }
+
+        // Render credentials table in form
+        function renderCredsForm() {
+            const tbody = document.getElementById('credsTbody');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+            credentialRows.forEach((row, idx) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><input type="text" value="${escapeHtml(row.platform)}" data-idx="${idx}" data-field="platform" class="cred-input"></td>
+                    <td><input type="text" value="${escapeHtml(row.username)}" data-idx="${idx}" data-field="username" class="cred-input"></td>
+                    <td><input type="password" value="${escapeHtml(row.password)}" data-idx="${idx}" data-field="password" class="cred-pwd"></td>
+                    <td><input type="text" value="${escapeHtml(row.twofa)}" data-idx="${idx}" data-field="twofa" class="cred-input"></td>
+                    <td><button class="btn-small" onclick="deleteCredRow(${idx})"><i class="fas fa-trash"></i></button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+            attachCredEvents();
+        }
+
+        function attachCredEvents() {
+            document.querySelectorAll('.cred-input, .cred-pwd').forEach(el => {
+                el.removeEventListener('change', handleCredChange);
+                el.addEventListener('change', handleCredChange);
+            });
+        }
+
+        function handleCredChange(e) {
+            const idx = parseInt(e.target.getAttribute('data-idx'));
+            const field = e.target.getAttribute('data-field');
+            if (!isNaN(idx) && credentialRows[idx]) {
+                credentialRows[idx][field] = e.target.value;
+                updatePreview();
+            }
+        }
+
+        window.deleteCredRow = function(idx) {
+            if (credentialRows.length > 1) {
+                credentialRows.splice(idx, 1);
+                renderCredsForm();
+                updatePreview();
+            }
+        };
+
+        function addCredRow() {
+            credentialRows.push({ platform: "New Platform", username: "", password: "", twofa: "" });
+            renderCredsForm();
+            updatePreview();
+        }
+
+        // Color palette functions
+        function renderColorForm() {
+            const container = document.getElementById('colorPaletteContainer');
+            if (!container) return;
+            container.innerHTML = '';
+            colorItems.forEach((item, idx) => {
+                const div = document.createElement('div');
+                div.className = 'color-item';
+                div.innerHTML = `
+                    <input type="text" value="${escapeHtml(item.label)}" data-color-idx="${idx}" data-field="label" style="flex:1">
+                    <input type="color" value="${item.hex}" data-color-idx="${idx}" data-field="hex">
+                    <button class="btn-small" onclick="deleteColor(${idx})"><i class="fas fa-trash"></i></button>
+                `;
+                container.appendChild(div);
+            });
+            attachColorEvents();
+        }
+
+        function attachColorEvents() {
+            document.querySelectorAll('[data-color-idx]').forEach(el => {
+                el.removeEventListener('change', handleColorChange);
+                el.addEventListener('change', handleColorChange);
+            });
+        }
+
+        function handleColorChange(e) {
+            const idx = parseInt(e.target.getAttribute('data-color-idx'));
+            const field = e.target.getAttribute('data-field');
+            if (!isNaN(idx) && colorItems[idx]) {
+                colorItems[idx][field] = e.target.value;
+                updatePreview();
+            }
+        }
+
+        window.deleteColor = function(idx) {
+            if (colorItems.length > 1) {
+                colorItems.splice(idx, 1);
+                renderColorForm();
+                updatePreview();
+            }
+        };
+
+        function addColor() {
+            colorItems.push({ label: "New Color", hex: "#CCCCCC" });
+            renderColorForm();
+            updatePreview();
+        }
+
+        // Helper functions
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+
+        // Update live preview
+        function updatePreview() {
+            const previewDiv = document.getElementById('livePreview');
+            if (!previewDiv) return;
+            
+            const clientName = document.getElementById('clientName').value || '[Client Name]';
+            const projectName = document.getElementById('projectName').value || '[Project]';
+            const handoverDate = document.getElementById('handoverDate').value || 'YYYY-MM-DD';
+            const logoFiles = document.getElementById('logoFiles').value;
+            const fontsUsed = document.getElementById('fontsUsed').value;
+            const instructions = document.getElementById('accessInstructions').value;
+            
+            // Build colors HTML
+            let colorsHtml = '<div style="display: flex; gap: 16px; flex-wrap: wrap; margin-top: 8px;">';
+            colorItems.forEach(c => {
+                colorsHtml += `<div style="display: flex; align-items: center; gap: 6px;"><span class="color-swatch" style="background: ${c.hex}; border:1px solid #e2e8f0;"></span><span style="font-size:0.7rem;">${escapeHtml(c.label)} (${c.hex})</span></div>`;
+            });
+            colorsHtml += '</div>';
+            
+            // Build credentials table
+            let credsHtml = '<table class="preview-table"><thead><tr><th>Platform</th><th>Email/Username</th><th>Password</th><th>2FA Code</th></tr></thead><tbody>';
+            credentialRows.forEach(row => {
+                credsHtml += `<tr><td>${escapeHtml(row.platform)}</td><td>${escapeHtml(row.username)}</td><td>••••••••</td><td>${escapeHtml(row.twofa)}</td></tr>`;
+            });
+            credsHtml += '</tbody></table>';
+            
+            const previewHtml = `
+                <div class="watermark">CONFIDENTIAL</div>
+                <div class="brand-header">
+                    <h1>BRANDINN BUSINESS</h1>
+                    <p>Digital Asset Handover Envelope</p>
+                </div>
+                <div class="client-info">
+                    <span><strong>Client:</strong> ${escapeHtml(clientName)}</span>
+                    <span><strong>Project:</strong> ${escapeHtml(projectName)}</span>
+                    <span><strong>Date:</strong> ${escapeHtml(handoverDate)}</span>
+                </div>
+                <div class="preview-section">
+                    <h3><i class="fas fa-lock"></i> Credentials Matrix</h3>
+                    ${credsHtml}
+                </div>
+                <div class="preview-section">
+                    <h3><i class="fas fa-palette"></i> Visual Assets</h3>
+                    <p><strong>Logo files:</strong> ${escapeHtml(logoFiles)}</p>
+                    <p><strong>Color palette:</strong></p>
+                    ${colorsHtml}
+                    <p><strong>Fonts used:</strong> ${escapeHtml(fontsUsed)}</p>
+                </div>
+                <div class="warning-box">
+                    <i class="fas fa-exclamation-triangle"></i> <strong>Security Notice:</strong> Upon receipt, please change all passwords within 48 hours. This document is confidential.
+                </div>
+                <div class="preview-section">
+                    <h3><i class="fas fa-tasks"></i> Access Instructions</h3>
+                    <p>${escapeHtml(instructions).replace(/\n/g, '<br>')}</p>
+                </div>
+                <div class="footer-note">
+                    <i class="fas fa-check-circle"></i> Client checklist: Downloaded assets · Verified logins · Changed passwords<br>
+                    BrandInn Business · support@brandinn.business
+                </div>
+            `;
+            
+            previewDiv.innerHTML = previewHtml;
+        }
+
+        // Generate PDF in new window
+        function generatePDF() {
+            const clientName = document.getElementById('clientName').value || 'Client';
+            const projectName = document.getElementById('projectName').value || 'Project';
+            const handoverDate = document.getElementById('handoverDate').value || new Date().toLocaleDateString();
+            const logoFiles = document.getElementById('logoFiles').value;
+            const fontsUsed = document.getElementById('fontsUsed').value;
+            const instructions = document.getElementById('accessInstructions').value;
+            
+            // Build colors HTML for print
+            let colorsHtml = '<div style="display: flex; gap: 16px; flex-wrap: wrap; margin: 12px 0;">';
+            colorItems.forEach(c => {
+                colorsHtml += `<div style="display: flex; align-items: center; gap: 8px;"><div style="width: 24px; height: 24px; background: ${c.hex}; border-radius: 6px; border: 1px solid #ccc;"></div><span>${escapeHtml(c.label)} (${c.hex})</span></div>`;
+            });
+            colorsHtml += '</div>';
+            
+            // Build credentials table with visible passwords
+            let credsHtml = '<table style="width:100%; border-collapse: collapse; margin: 16px 0;">';
+            credsHtml += '<thead><tr style="background: #f1f5f9;"><th style="border: 1px solid #cbd5e1; padding: 10px;">Platform</th><th style="border: 1px solid #cbd5e1;">Email/Username</th><th style="border: 1px solid #cbd5e1;">Password</th><th style="border: 1px solid #cbd5e1;">2FA Code</th></tr></thead><tbody>';
+            credentialRows.forEach(row => {
+                credsHtml += `<tr><td style="border: 1px solid #cbd5e1; padding: 8px;">${escapeHtml(row.platform)}</td><td style="border: 1px solid #cbd5e1;">${escapeHtml(row.username)}</td><td style="border: 1px solid #cbd5e1; font-family: monospace;">${escapeHtml(row.password)}</td><td style="border: 1px solid #cbd5e1;">${escapeHtml(row.twofa)}</td></tr>`;
+            });
+            credsHtml += '</tbody></table>';
+            
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <title>BrandInn_${clientName}_AssetHandover</title>
+                    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+                    <style>
+                        * { margin: 0; padding: 0; box-sizing: border-box; }
+                        body {
+                            font-family: 'Inter', sans-serif;
+                            padding: 40px;
+                            max-width: 1100px;
+                            margin: 0 auto;
+                            background: white;
+                            color: #1a1a2e;
+                        }
+                        .print-btn {
+                            background: #7c3aed;
+                            color: white;
+                            border: none;
+                            padding: 12px 24px;
+                            border-radius: 40px;
+                            cursor: pointer;
+                            font-weight: 600;
+                            margin-bottom: 30px;
+                            display: inline-flex;
+                            align-items: center;
+                            gap: 10px;
+                        }
+                        .print-btn:hover { background: #6d28d9; }
+                        .watermark {
+                            position: fixed;
+                            top: 50%;
+                            left: 50%;
+                            transform: translate(-50%, -50%) rotate(-25deg);
+                            font-size: 80px;
+                            font-weight: 800;
+                            color: rgba(124, 58, 237, 0.03);
+                            pointer-events: none;
+                            white-space: nowrap;
+                            z-index: 0;
+                        }
+                        .brand-header {
+                            text-align: center;
+                            border-bottom: 3px solid #D4AF37;
+                            padding-bottom: 20px;
+                            margin-bottom: 30px;
+                        }
+                        .brand-header h1 { font-size: 2rem; color: #0f172a; }
+                        .client-info {
+                            background: #f8fafc;
+                            padding: 16px;
+                            border-radius: 16px;
+                            display: flex;
+                            justify-content: space-between;
+                            margin-bottom: 30px;
+                        }
+                        .section { margin-bottom: 25px; }
+                        .section h3 {
+                            font-size: 1.1rem;
+                            margin-bottom: 12px;
+                            color: #0f172a;
+                            border-left: 3px solid #7c3aed;
+                            padding-left: 12px;
+                        }
+                        table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin: 16px 0;
+                        }
+                        th, td {
+                            border: 1px solid #cbd5e1;
+                            padding: 10px;
+                            text-align: left;
+                        }
+                        th { background: #f1f5f9; }
+                        .warning {
+                            background: #fffbeb;
+                            border-left: 4px solid #D4AF37;
+                            padding: 16px;
+                            border-radius: 12px;
+                            margin: 20px 0;
+                        }
+                        .footer {
+                            text-align: center;
+                            font-size: 0.7rem;
+                            color: #94a3b8;
+                            margin-top: 40px;
+                            padding-top: 20px;
+                            border-top: 1px solid #e2e8f0;
+                        }
+                        @media print {
+                            .no-print { display: none; }
+                            .watermark { opacity: 0.05; }
+                            body { padding: 20px; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="no-print" style="text-align: center; margin-bottom: 20px;">
+                        <button class="print-btn" onclick="window.print();"><i class="fas fa-print"></i> Save as PDF</button>
+                        <p style="font-size: 0.8rem; color: #64748b; margin-top: 8px;">After saving, password-protect the PDF before emailing to client.</p>
+                    </div>
+                    <div class="watermark">CONFIDENTIAL</div>
+                    <div class="brand-header">
+                        <h1>BRANDINN BUSINESS</h1>
+                        <p>Digital Asset Handover Envelope</p>
+                    </div>
+                    <div class="client-info">
+                        <span><strong>Client:</strong> ${escapeHtml(clientName)}</span>
+                        <span><strong>Project:</strong> ${escapeHtml(projectName)}</span>
+                        <span><strong>Date:</strong> ${escapeHtml(handoverDate)}</span>
+                    </div>
+                    <div class="section">
+                        <h3><i class="fas fa-lock"></i> Credentials Matrix (Full Access)</h3>
+                        ${credsHtml}
+                    </div>
+                    <div class="section">
+                        <h3><i class="fas fa-palette"></i> Visual Assets</h3>
+                        <p><strong>Logo files:</strong> ${escapeHtml(logoFiles)}</p>
+                        <p><strong>Color palette:</strong></p>
+                        ${colorsHtml}
+                        <p><strong>Fonts used:</strong> ${escapeHtml(fontsUsed)}</p>
+                    </div>
+                    <div class="warning">
+                        <strong>⚠️ Security Notice:</strong> Upon receipt, please change all passwords within 48 hours. Store this document in a secure location.
+                    </div>
+                    <div class="section">
+                        <h3><i class="fas fa-tasks"></i> Access Instructions</h3>
+                        <p>${escapeHtml(instructions).replace(/\n/g, '<br>')}</p>
+                    </div>
+                    <div class="footer">
+                        <i class="fas fa-check-circle"></i> Client handover checklist: Downloaded assets · Verified logins · Changed passwords · Enabled 2FA<br>
+                        BrandInn Business · support@brandinn.business · Confidential Document
+                    </div>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+        }
+
+        // Event listeners
+        function bindEvents() {
+            document.getElementById('clientName').addEventListener('input', updatePreview);
+            document.getElementById('projectName').addEventListener('input', updatePreview);
+            document.getElementById('handoverDate').addEventListener('change', updatePreview);
+            document.getElementById('logoFiles').addEventListener('input', updatePreview);
+            document.getElementById('fontsUsed').addEventListener('input', updatePreview);
+            document.getElementById('accessInstructions').addEventListener('input', updatePreview);
+            document.getElementById('addCredRowBtn').addEventListener('click', addCredRow);
+            document.getElementById('addColorBtn').addEventListener('click', addColor);
+            document.getElementById('generateBtn').addEventListener('click', generatePDF);
+        }
+
+        // Initialize
+        setDefaultDate();
+        renderCredsForm();
+        renderColorForm();
+        bindEvents();
+        updatePreview();
+
+        // Set rep name from localStorage if available
+        const repName = localStorage.getItem('brandinn_rep_name') || 'Field Rep';
+        document.getElementById('repName').textContent = repName;
+        document.getElementById('repAvatar').textContent = repName.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+        
+        // Logout button
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            window.location.href = 'https://kazinni.vercel.app';
+        });
+    </script>
+</body>
+</html>
