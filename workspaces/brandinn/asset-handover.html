@@ -384,6 +384,51 @@
             background: #fecaca;
         }
 
+        /* Plan Cards */
+        .plan-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 1rem;
+        }
+
+        .plan-card {
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: white;
+        }
+
+        .plan-card:hover {
+            border-color: #c9b3ff;
+        }
+
+        .plan-card.selected {
+            border-color: #7c3aed;
+            background: #f5f0ff;
+        }
+
+        .plan-card h4 {
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+            color: #0f172a;
+        }
+
+        .plan-card p {
+            font-size: 0.65rem;
+            color: #64748b;
+        }
+
+        .plan-price {
+            font-weight: 700;
+            color: #7c3aed;
+            margin-top: 5px;
+            font-size: 0.75rem;
+        }
+
         /* Export Options */
         .export-options {
             display: flex;
@@ -691,6 +736,10 @@
             .page-title p {
                 margin-left: 0;
             }
+
+            .plan-options {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -727,7 +776,7 @@
                 <i class="fas fa-envelope-open-text"></i>
                 Asset Handover Generator
             </h1>
-            <p>Create professional digital handover documents with credentials and downloadable assets</p>
+            <p>Create professional digital handover documents with credentials, service agreement, and downloadable assets</p>
         </div>
 
         <div class="two-columns">
@@ -736,18 +785,23 @@
                 <h2><i class="fas fa-pen-alt"></i> Client Information</h2>
                 
                 <div class="form-group">
-                    <label><i class="fas fa-user"></i> Client Name <span style="color:#ef4444;">*</span></label>
+                    <label><i class="fas fa-user"></i> Client/Business Name <span style="color:#ef4444;">*</span></label>
                     <input type="text" id="clientName" placeholder="e.g., Aurora Cosmetics" value="Aurora Cosmetics">
                 </div>
                 
                 <div class="form-group">
-                    <label><i class="fas fa-briefcase"></i> Project Name</label>
-                    <input type="text" id="projectName" placeholder="e.g., Digital Marketing Package" value="Full Funnel Marketing">
+                    <label><i class="fas fa-phone"></i> Client Phone</label>
+                    <input type="text" id="clientPhone" placeholder="e.g., 07XX XXX XXX" value="+254 712 345 678">
                 </div>
                 
                 <div class="form-group">
-                    <label><i class="fas fa-calendar"></i> Handover Date</label>
-                    <input type="date" id="handoverDate">
+                    <label><i class="fas fa-envelope"></i> Client Email</label>
+                    <input type="email" id="clientEmail" placeholder="client@business.com" value="hello@auroracosmetics.com">
+                </div>
+                
+                <div class="form-group">
+                    <label><i class="fas fa-calendar"></i> Effective Date</label>
+                    <input type="date" id="effectiveDate">
                 </div>
 
                 <div class="form-group">
@@ -757,9 +811,49 @@
                     <small style="color: #64748b; font-size: 0.7rem;">Paste a direct download link to the logo file (Google Drive, Dropbox, or your server)</small>
                 </div>
 
+                <h2 style="margin-top: 1.5rem;"><i class="fas fa-file-signature"></i> Service Agreement</h2>
+                
                 <div class="form-group">
-                    <label><i class="fas fa-file-alt"></i> Executive Summary</label>
-                    <textarea id="executiveSummary" rows="2" placeholder="Brief overview of deliverables and key milestones...">We are pleased to hand over the complete digital assets for your brand. This package includes all login credentials and visual assets required to manage your online presence.</textarea>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="includeAgreement" checked>
+                        <label style="margin-bottom: 0;">Include Service Agreement in handover document</label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-crown"></i> Select Plan</label>
+                    <div class="plan-options">
+                        <div class="plan-card" data-plan="one-time">
+                            <h4>One-Time Branding</h4>
+                            <p>Complete setup delivered once</p>
+                            <div class="plan-price">KES 2,050</div>
+                        </div>
+                        <div class="plan-card" data-plan="continued">
+                            <h4>Continued Business Support</h4>
+                            <p>Weekly support + monthly billing</p>
+                            <div class="plan-price">KES 1,000/month</div>
+                        </div>
+                        <div class="plan-card" data-plan="marketing">
+                            <h4>Marketing Support</h4>
+                            <p>Digital & physical marketing</p>
+                            <div class="plan-price">KES 1,000/month</div>
+                        </div>
+                        <div class="plan-card" data-plan="social-media">
+                            <h4>Social Media Management</h4>
+                            <p>Full social media management</p>
+                            <div class="plan-price">KES 3,500/month</div>
+                        </div>
+                        <div class="plan-card" data-plan="other">
+                            <h4>Other Support</h4>
+                            <p>Custom package</p>
+                            <div class="plan-price">Custom pricing</div>
+                        </div>
+                    </div>
+                    <div class="form-group" id="otherPlanGroup" style="display: none;">
+                        <label><i class="fas fa-pencil"></i> Other Support Details</label>
+                        <input type="text" id="otherPlanDetails" placeholder="Describe the custom support package...">
+                    </div>
+                    <input type="hidden" id="selectedPlan" value="one-time">
                 </div>
 
                 <h2 style="margin-top: 1.5rem;"><i class="fas fa-key"></i> Credentials Matrix</h2>
@@ -796,23 +890,16 @@
                     <textarea id="timeline" rows="2" placeholder="Recommended actions with deadlines...">Day 1: Change all passwords\nDay 2: Set up social media profiles\nDay 3: Launch first campaign\nDay 7: Schedule kickoff call</textarea>
                 </div>
 
-                <div class="form-group">
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="requireAcknowledgement">
-                        <label style="margin-bottom: 0;">Require client acknowledgment signature</label>
-                    </div>
-                </div>
-
                 <div class="export-options">
                     <button class="export-btn" id="copyCredentialsBtn"><i class="fas fa-copy"></i> Copy All Credentials</button>
                     <button class="export-btn" id="revealAllPreviewBtn"><i class="fas fa-eye"></i> Reveal Passwords</button>
                 </div>
 
                 <button class="generate-btn" id="generateBtn">
-                    <i class="fas fa-file-pdf"></i> Generate Professional Handover
+                    <i class="fas fa-file-pdf"></i> Generate Complete Handover Package
                 </button>
                 <p style="font-size: 0.7rem; text-align: center; margin-top: 1rem; color: #94a3b8;">
-                    <i class="fas fa-shield-alt"></i> Document includes: Cover page · Executive summary · Credentials · Downloadable assets · Timeline · Acknowledgment
+                    <i class="fas fa-shield-alt"></i> Document includes: Cover page · Service Agreement · Credentials · Downloadable assets · Timeline
                 </p>
             </div>
 
@@ -846,9 +933,21 @@
         ];
         
         let passwordsRevealed = false;
+        let selectedPlan = "one-time";
 
         // BrandInn communication email
         const BRANDINN_EMAIL = "business.brandinn@gmail.com";
+        const IAMMUGERA_EMAIL = "info.iammugera@gmail.com";
+        const IAMMUGERA_PHONE = "+254 727 211191";
+
+        // Plan details mapping
+        const planDetails = {
+            "one-time": { name: "One-Time Branding – KES 2,050", price: "KES 2,050", description: "A complete setup delivered once. Includes: Google Business Profile creation, Social media page setup (basic profiles on agreed platforms), Logo or banner design (digital format), Initial business listing optimization. Delivery timeline: within 7 business days of receiving all required information from you." },
+            "continued": { name: "Continued Business Support – KES 1,000/month", price: "KES 1,000/month", description: "Everything in One-Time Branding plus ongoing weekly support. Includes: Weekly Google Profile updates, Weekly social media posting assistance, Weekly digital adverts, Physical branded tools on request, Priority support, Access to integrated services." },
+            "marketing": { name: "Marketing Support – KES 1,000/month", price: "KES 1,000/month", description: "Digital and physical marketing support including banners, posters, and promotional materials. Weekly marketing consultations and strategy sessions." },
+            "social-media": { name: "Social Media Management – KES 3,500/month", price: "KES 3,500/month", description: "Full social media management including content creation, daily posting, engagement monitoring, analytics reporting, and community management across all platforms." },
+            "other": { name: "Other Support", price: "Custom pricing", description: "Custom support package tailored to your specific business needs." }
+        };
 
         // Generate document ID
         function generateDocumentId() {
@@ -867,11 +966,62 @@
 
         // Set default date
         function setDefaultDate() {
-            const dateInput = document.getElementById('handoverDate');
+            const dateInput = document.getElementById('effectiveDate');
             if (!dateInput.value) {
                 const today = new Date().toISOString().split('T')[0];
                 dateInput.value = today;
             }
+        }
+
+        // Plan selection
+        function setupPlanSelection() {
+            const planCards = document.querySelectorAll('.plan-card');
+            const otherPlanGroup = document.getElementById('otherPlanGroup');
+            const otherPlanDetails = document.getElementById('otherPlanDetails');
+            
+            planCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    planCards.forEach(c => c.classList.remove('selected'));
+                    card.classList.add('selected');
+                    selectedPlan = card.dataset.plan;
+                    document.getElementById('selectedPlan').value = selectedPlan;
+                    
+                    // Show/hide other plan details input
+                    if (selectedPlan === 'other') {
+                        otherPlanGroup.style.display = 'block';
+                    } else {
+                        otherPlanGroup.style.display = 'none';
+                    }
+                    
+                    updatePreview();
+                });
+            });
+            
+            otherPlanDetails.addEventListener('input', updatePreview);
+        }
+
+        // Get selected plan display text
+        function getSelectedPlanText() {
+            if (selectedPlan === 'other') {
+                const otherDetails = document.getElementById('otherPlanDetails').value;
+                if (otherDetails) {
+                    return `Other Support – ${otherDetails}`;
+                }
+                return "Other Support – Custom package";
+            }
+            return planDetails[selectedPlan]?.name || "One-Time Branding – KES 2,050";
+        }
+
+        // Get selected plan description
+        function getSelectedPlanDescription() {
+            if (selectedPlan === 'other') {
+                const otherDetails = document.getElementById('otherPlanDetails').value;
+                if (otherDetails) {
+                    return `Custom support package: ${otherDetails}. Terms and pricing to be agreed upon separately.`;
+                }
+                return "Custom support package tailored to your specific business needs. Detailed scope and pricing to be discussed.";
+            }
+            return planDetails[selectedPlan]?.description || planDetails["one-time"].description;
         }
 
         // Logo preview
@@ -906,7 +1056,7 @@
                             <input type="password" value="${escapeHtml(row.password)}" data-idx="${idx}" data-field="password" class="cred-pwd">
                             <button class="btn-icon-sm" onclick="togglePasswordField(this, ${idx})"><i class="fas fa-eye"></i></button>
                         </div>
-                    </td>
+                    </div>
                     <td><button class="btn-small" onclick="deleteCredRow(${idx})"><i class="fas fa-trash"></i></button></td>
                 `;
                 tbody.appendChild(tr);
@@ -981,20 +1131,103 @@
             showToast("Credentials copied to clipboard", "success");
         }
 
+        // Get full service agreement HTML
+        function getServiceAgreementHTML(clientName, clientPhone, clientEmail, effectiveDate) {
+            const selectedPlanText = getSelectedPlanText();
+            const selectedPlanDescription = getSelectedPlanDescription();
+            
+            return `
+                <div class="section" style="margin: 30px 0; page-break-before: avoid;">
+                    <h3>📄 SERVICE AGREEMENT</h3>
+                    <p style="font-size: 0.7rem; color: #64748b; margin-bottom: 20px;">A service by I AM MUGERA</p>
+
+                    <p><strong>Effective Date:</strong> ${escapeHtml(effectiveDate)}</p>
+                    <p><strong>Client/Business Name:</strong> ${escapeHtml(clientName)}</p>
+                    <p><strong>Client Contact (Phone/Email):</strong> ${escapeHtml(clientPhone)} / ${escapeHtml(clientEmail)}</p>
+
+                    <h4 style="margin: 20px 0 10px;">1. WELCOME</h4>
+                    <p>BrandInn Business provides digital marketing and online presence services. This Agreement explains what we offer, how we work, and the terms that apply when you sign up for a One-Time Branding package or Continued Business Support. By signing, you agree to these terms.</p>
+
+                    <h4 style="margin: 20px 0 10px;">2. SERVICES WE OFFER</h4>
+                    <p>BrandInn Business covers the following:</p>
+                    <ul style="margin-left: 20px; margin-bottom: 15px;">
+                        <li>Google Business Profile creation and weekly updates</li>
+                        <li>Social media page creation and professional branding</li>
+                        <li>Marketing (digital and physical, including banners and posters)</li>
+                        <li>Business branding (physical print materials and digital identity)</li>
+                        <li>New business creation support and marketing tools setup</li>
+                        <li>Social Media Management</li>
+                    </ul>
+
+                    <h4 style="margin: 20px 0 10px;">3. SELECTED PLAN</h4>
+                    <p><strong>${escapeHtml(selectedPlanText)}</strong></p>
+                    <p>${escapeHtml(selectedPlanDescription)}</p>
+
+                    <h4 style="margin: 20px 0 10px;">4. PAYMENT TERMS</h4>
+                    ${selectedPlan === "one-time" ? 
+                        `<p>Full payment of KES 2,050 is due before work begins. Once work has begun, the fee is non-refundable. If you cancel before work begins, a full refund will be issued.</p>` :
+                        `<p>Payment is due at the start of each 30-day billing cycle. You may cancel at any time. Your access and services will continue until the end of the current paid 30-day period. No refunds for partial months. Payments are made via agreed channels (M-Pesa, bank transfer, or other methods communicated at sign-up). Late or missed payments may result in suspension of weekly services until payment is received.</p>`
+                    }
+
+                    <h4 style="margin: 20px 0 10px;">5. CLIENT RESPONSIBILITIES</h4>
+                    <p>You agree to:</p>
+                    <ul style="margin-left: 20px; margin-bottom: 15px;">
+                        <li>Provide accurate business information, logos, images, and access needed for us to perform the services</li>
+                        <li>Respond to requests for approval or feedback within a reasonable time (delays may affect delivery timelines)</li>
+                        <li>Not share or transfer your account access to third parties in a way that interferes with our ability to serve you</li>
+                    </ul>
+
+                    <h4 style="margin: 20px 0 10px;">6. INTELLECTUAL PROPERTY</h4>
+                    <p>Any original designs, logos, or content created specifically for you by BrandInn Business become yours upon full payment. We reserve the right to showcase completed work in our portfolio or marketing materials unless you request otherwise in writing.</p>
+
+                    <h4 style="margin: 20px 0 10px;">7. LIMITATION OF LIABILITY</h4>
+                    <p>BrandInn Business and I AM MUGERA provide marketing support and branding services. We do not guarantee specific business results, sales increases, or follower growth. We deliver the services described. Our liability is limited to the amount you have paid for the specific service in question.</p>
+
+                    <h4 style="margin: 20px 0 10px;">8. PRIVACY</h4>
+                    <p>We collect only the information needed to provide our services (business name, contact details, account access where required). We do not sell or share your information with third parties except as necessary to deliver integrated services you have requested. Full privacy terms are in the I AM MUGERA Privacy Policy.</p>
+
+                    <h4 style="margin: 20px 0 10px;">9. CHANGES TO THIS AGREEMENT</h4>
+                    <p>We may update this Agreement from time to time. For monthly plan clients, we will notify you of any material changes at least 14 days before they take effect. Continued use of the service after changes means you accept the updated terms.</p>
+
+                    <h4 style="margin: 20px 0 10px;">10. CONTACT</h4>
+                    <p>Questions about this Agreement or your service:</p>
+                    <p>Email: ${IAMMUGERA_EMAIL}<br>Phone: ${IAMMUGERA_PHONE}<br>Hours (East Africa Time): Mon–Fri 8:30–17:30, Sat 9:00–17:00. Closed Sundays.</p>
+
+                    <h4 style="margin: 20px 0 10px;">11. ACKNOWLEDGMENT AND SIGNATURE</h4>
+                    <p>By signing below, you confirm that you have read, understood, and agree to this Service Agreement. You also select your preferred plan.</p>
+
+                    <div style="margin: 30px 0;">
+                        <p><strong>Plan Selected:</strong> ${escapeHtml(selectedPlanText)}</p>
+                        <p><strong>Client Name:</strong> ${escapeHtml(clientName)}</p>
+                        <p><strong>Client Signature:</strong> _________________________</p>
+                        <p><strong>Date:</strong> ${escapeHtml(effectiveDate)}</p>
+                        <p style="margin-top: 20px;"><strong>BrandInn Business Representative:</strong> _________________________</p>
+                        <p><strong>Date:</strong> ${escapeHtml(effectiveDate)}</p>
+                    </div>
+
+                    <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
+                        <p style="font-size: 0.7rem;">© 2026 BrandInn Business – A service by I AM MUGERA</p>
+                        <p style="font-size: 0.7rem;">DREAM | ASPIRE | INNOVATE | INSPIRE</p>
+                    </div>
+                </div>
+            `;
+        }
+
         // Update live preview
         function updatePreview() {
             const previewDiv = document.getElementById('livePreview');
             if (!previewDiv) return;
             
             const clientName = document.getElementById('clientName').value || '[Client Name]';
-            const projectName = document.getElementById('projectName').value || '[Project]';
-            const handoverDate = document.getElementById('handoverDate').value || 'YYYY-MM-DD';
+            const clientPhone = document.getElementById('clientPhone').value || '';
+            const clientEmail = document.getElementById('clientEmail').value || '';
+            const effectiveDate = document.getElementById('effectiveDate').value || 'YYYY-MM-DD';
             const logoFiles = document.getElementById('logoFiles').value;
             const instructions = document.getElementById('accessInstructions').value;
-            const executiveSummary = document.getElementById('executiveSummary').value;
             const timeline = document.getElementById('timeline').value;
             const typography = document.getElementById('typography').value;
             const logoUrl = document.getElementById('logoUrl').value;
+            const includeAgreement = document.getElementById('includeAgreement').checked;
             const documentId = generateDocumentId();
             
             // Build credentials table
@@ -1023,6 +1256,12 @@
                 });
                 timelineHtml += '</ul>';
             }
+
+            // Service Agreement HTML
+            let agreementHtml = '';
+            if (includeAgreement) {
+                agreementHtml = getServiceAgreementHTML(clientName, clientPhone, clientEmail, effectiveDate);
+            }
             
             const previewHtml = `
                 <div class="watermark">CONFIDENTIAL</div>
@@ -1030,21 +1269,14 @@
                 <div style="text-align: center; padding: 40px 0 60px 0; margin-bottom: 30px; border-bottom: 1px solid #e2e8f0;">
                     <div style="margin-bottom: 50px;">
                         <h1 style="font-size: 28px; color: #0A192F;">BRANDINN BUSINESS</h1>
-                        <p style="color: #7c3aed; font-weight: 600;">Digital Asset Handover</p>
+                        <p style="color: #7c3aed; font-weight: 600;">Digital Asset Handover & Service Agreement</p>
                     </div>
                     <h2 style="font-size: 20px; margin: 30px 0 15px;">${escapeHtml(clientName)}</h2>
-                    <p style="color: #64748b;">${escapeHtml(projectName)}</p>
                     <div style="margin-top: 50px;">
                         <p><strong>Document ID:</strong> ${documentId}</p>
-                        <p><strong>Issue Date:</strong> ${escapeHtml(handoverDate)}</p>
-                        <p><strong>Valid Until:</strong> ${escapeHtml(handoverDate)} + 30 days</p>
+                        <p><strong>Issue Date:</strong> ${escapeHtml(effectiveDate)}</p>
+                        <p><strong>Valid Until:</strong> ${escapeHtml(effectiveDate)} + 30 days</p>
                     </div>
-                </div>
-
-                <!-- Executive Summary -->
-                <div class="preview-section">
-                    <h3><i class="fas fa-file-alt"></i> Executive Summary</h3>
-                    <p style="font-size: 0.8rem; line-height: 1.5;">${escapeHtml(executiveSummary).replace(/\n/g, '<br>')}</p>
                 </div>
 
                 <!-- Credentials -->
@@ -1075,20 +1307,23 @@
                     <p style="font-size: 0.75rem;">${escapeHtml(instructions).replace(/\n/g, '<br>')}</p>
                 </div>
 
-                <!-- Checklist -->
+                <!-- Client Action Checklist -->
                 <div class="preview-section">
                     <h3><i class="fas fa-check-circle"></i> Client Action Checklist</h3>
                     <div class="checklist-item"><i class="fas fa-square" style="color: #cbd5e1;"></i> Download all logo assets</div>
                     <div class="checklist-item"><i class="fas fa-square" style="color: #cbd5e1;"></i> Change all passwords</div>
                     <div class="checklist-item"><i class="fas fa-square" style="color: #cbd5e1;"></i> Enable 2FA on all accounts</div>
-                    <div class="checklist-item"><i class="fas fa-square" style="color: #cbd5e1;"></i> Review brand guidelines</div>
+                    <div class="checklist-item"><i class="fas fa-square" style="color: #cbd5e1;"></i> Review and sign Service Agreement</div>
                     <div class="checklist-item"><i class="fas fa-square" style="color: #cbd5e1;"></i> Schedule kickoff call</div>
                 </div>
+
+                <!-- Service Agreement (if included) -->
+                ${agreementHtml}
 
                 <div class="footer-note">
                     <i class="fas fa-envelope"></i> For support, contact: ${BRANDINN_EMAIL}<br>
                     <i class="fas fa-shield-alt"></i> This document is for ${escapeHtml(clientName)} only. Do not forward.<br>
-                    BrandInn Business · Document ID: ${documentId}
+                    BrandInn Business · A service by I AM MUGERA · Document ID: ${documentId}
                 </div>
             `;
             
@@ -1110,15 +1345,15 @@
         // Generate complete PDF
         function generatePDF() {
             const clientName = document.getElementById('clientName').value || 'Client';
-            const projectName = document.getElementById('projectName').value || 'Project';
-            const handoverDate = document.getElementById('handoverDate').value || new Date().toLocaleDateString();
+            const clientPhone = document.getElementById('clientPhone').value || '';
+            const clientEmail = document.getElementById('clientEmail').value || '';
+            const effectiveDate = document.getElementById('effectiveDate').value || new Date().toLocaleDateString();
             const logoFiles = document.getElementById('logoFiles').value;
             const instructions = document.getElementById('accessInstructions').value;
-            const executiveSummary = document.getElementById('executiveSummary').value;
             const timeline = document.getElementById('timeline').value;
             const typography = document.getElementById('typography').value;
             const logoUrl = document.getElementById('logoUrl').value;
-            const requireAcknowledgement = document.getElementById('requireAcknowledgement').checked;
+            const includeAgreement = document.getElementById('includeAgreement').checked;
             const documentId = generateDocumentId();
             const expiryDate = new Date();
             expiryDate.setDate(expiryDate.getDate() + 30);
@@ -1150,19 +1385,84 @@
                 timelineHtml += '</ul>';
             }
 
-            // Acknowledgment HTML
-            let acknowledgmentHtml = '';
-            if (requireAcknowledgement) {
-                acknowledgmentHtml = `
-                    <div class="section" style="margin-top: 40px;">
-                        <h3>📝 Client Acknowledgment</h3>
-                        <p>By signing below, I acknowledge receipt of all assets and credentials listed in this document.</p>
-                        <div style="display: flex; justify-content: space-between; margin-top: 30px;">
-                            <div><strong>Client Signature:</strong> _________________________</div>
-                            <div><strong>Date:</strong> _____________</div>
+            // Service Agreement HTML
+            let agreementHtml = '';
+            if (includeAgreement) {
+                const selectedPlanText = getSelectedPlanText();
+                const selectedPlanDescription = getSelectedPlanDescription();
+                
+                agreementHtml = `
+                    <div class="section" style="margin: 40px 0; page-break-before: avoid;">
+                        <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 16px; color: #0f172a; border-left: 4px solid #7c3aed; padding-left: 14px;">📄 SERVICE AGREEMENT</h3>
+                        <p style="font-size: 12px; color: #64748b; margin-bottom: 20px;">A service by I AM MUGERA</p>
+
+                        <p><strong>Effective Date:</strong> ${escapeHtml(effectiveDate)}</p>
+                        <p><strong>Client/Business Name:</strong> ${escapeHtml(clientName)}</p>
+                        <p><strong>Client Contact (Phone/Email):</strong> ${escapeHtml(clientPhone)} / ${escapeHtml(clientEmail)}</p>
+
+                        <h4 style="margin: 20px 0 10px; font-size: 14px;">1. WELCOME</h4>
+                        <p>BrandInn Business provides digital marketing and online presence services. This Agreement explains what we offer, how we work, and the terms that apply when you sign up for a One-Time Branding package or Continued Business Support. By signing, you agree to these terms.</p>
+
+                        <h4 style="margin: 20px 0 10px; font-size: 14px;">2. SERVICES WE OFFER</h4>
+                        <p>BrandInn Business covers the following:</p>
+                        <ul style="margin-left: 20px; margin-bottom: 15px;">
+                            <li>Google Business Profile creation and weekly updates</li>
+                            <li>Social media page creation and professional branding</li>
+                            <li>Marketing (digital and physical, including banners and posters)</li>
+                            <li>Business branding (physical print materials and digital identity)</li>
+                            <li>New business creation support and marketing tools setup</li>
+                            <li>Social Media Management</li>
+                        </ul>
+
+                        <h4 style="margin: 20px 0 10px; font-size: 14px;">3. SELECTED PLAN</h4>
+                        <p><strong>${escapeHtml(selectedPlanText)}</strong></p>
+                        <p>${escapeHtml(selectedPlanDescription)}</p>
+
+                        <h4 style="margin: 20px 0 10px; font-size: 14px;">4. PAYMENT TERMS</h4>
+                        ${selectedPlan === "one-time" ? 
+                            `<p>Full payment of KES 2,050 is due before work begins. Once work has begun, the fee is non-refundable. If you cancel before work begins, a full refund will be issued.</p>` :
+                            `<p>Payment is due at the start of each 30-day billing cycle. You may cancel at any time. Your access and services will continue until the end of the current paid 30-day period. No refunds for partial months. Payments are made via agreed channels (M-Pesa, bank transfer, or other methods communicated at sign-up). Late or missed payments may result in suspension of weekly services until payment is received.</p>`
+                        }
+
+                        <h4 style="margin: 20px 0 10px; font-size: 14px;">5. CLIENT RESPONSIBILITIES</h4>
+                        <p>You agree to:</p>
+                        <ul style="margin-left: 20px; margin-bottom: 15px;">
+                            <li>Provide accurate business information, logos, images, and access needed for us to perform the services</li>
+                            <li>Respond to requests for approval or feedback within a reasonable time (delays may affect delivery timelines)</li>
+                            <li>Not share or transfer your account access to third parties in a way that interferes with our ability to serve you</li>
+                        </ul>
+
+                        <h4 style="margin: 20px 0 10px; font-size: 14px;">6. INTELLECTUAL PROPERTY</h4>
+                        <p>Any original designs, logos, or content created specifically for you by BrandInn Business become yours upon full payment. We reserve the right to showcase completed work in our portfolio or marketing materials unless you request otherwise in writing.</p>
+
+                        <h4 style="margin: 20px 0 10px; font-size: 14px;">7. LIMITATION OF LIABILITY</h4>
+                        <p>BrandInn Business and I AM MUGERA provide marketing support and branding services. We do not guarantee specific business results, sales increases, or follower growth. We deliver the services described. Our liability is limited to the amount you have paid for the specific service in question.</p>
+
+                        <h4 style="margin: 20px 0 10px; font-size: 14px;">8. PRIVACY</h4>
+                        <p>We collect only the information needed to provide our services (business name, contact details, account access where required). We do not sell or share your information with third parties except as necessary to deliver integrated services you have requested. Full privacy terms are in the I AM MUGERA Privacy Policy.</p>
+
+                        <h4 style="margin: 20px 0 10px; font-size: 14px;">9. CHANGES TO THIS AGREEMENT</h4>
+                        <p>We may update this Agreement from time to time. For monthly plan clients, we will notify you of any material changes at least 14 days before they take effect. Continued use of the service after changes means you accept the updated terms.</p>
+
+                        <h4 style="margin: 20px 0 10px; font-size: 14px;">10. CONTACT</h4>
+                        <p>Questions about this Agreement or your service:</p>
+                        <p>Email: ${IAMMUGERA_EMAIL}<br>Phone: ${IAMMUGERA_PHONE}<br>Hours (East Africa Time): Mon–Fri 8:30–17:30, Sat 9:00–17:00. Closed Sundays.</p>
+
+                        <h4 style="margin: 20px 0 10px; font-size: 14px;">11. ACKNOWLEDGMENT AND SIGNATURE</h4>
+                        <p>By signing below, you confirm that you have read, understood, and agree to this Service Agreement. You also select your preferred plan.</p>
+
+                        <div style="margin: 30px 0;">
+                            <p><strong>Plan Selected:</strong> ${escapeHtml(selectedPlanText)}</p>
+                            <p><strong>Client Name:</strong> ${escapeHtml(clientName)}</p>
+                            <p><strong>Client Signature:</strong> _________________________</p>
+                            <p><strong>Date:</strong> ${escapeHtml(effectiveDate)}</p>
+                            <p style="margin-top: 20px;"><strong>BrandInn Business Representative:</strong> _________________________</p>
+                            <p><strong>Date:</strong> ${escapeHtml(effectiveDate)}</p>
                         </div>
-                        <div style="margin-top: 20px;">
-                            <div><strong>Print Name:</strong> _________________________</div>
+
+                        <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
+                            <p style="font-size: 11px;">© 2026 BrandInn Business – A service by I AM MUGERA</p>
+                            <p style="font-size: 11px;">DREAM | ASPIRE | INNOVATE | INSPIRE</p>
                         </div>
                     </div>
                 `;
@@ -1174,7 +1474,7 @@
                 <html>
                 <head>
                     <meta charset="UTF-8">
-                    <title>BrandInn_${clientName.replace(/\s/g, '_')}_AssetHandover</title>
+                    <title>BrandInn_${clientName.replace(/\s/g, '_')}_Handover_Agreement</title>
                     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
                     <style>
                         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -1219,13 +1519,6 @@
                             padding: 60px 0;
                             page-break-after: always;
                         }
-                        .brand-header {
-                            text-align: center;
-                            border-bottom: 3px solid #D4AF37;
-                            padding-bottom: 20px;
-                            margin-bottom: 30px;
-                        }
-                        .brand-header h1 { font-size: 28px; color: #0f172a; }
                         .section { margin-bottom: 28px; }
                         .section h3 {
                             font-size: 18px;
@@ -1268,6 +1561,8 @@
                             align-items: center;
                             gap: 10px;
                         }
+                        h4 { font-size: 14px; margin-top: 20px; }
+                        ul { margin-left: 20px; }
                         @media print {
                             .no-print { display: none; }
                             .watermark { opacity: 0.05; }
@@ -1286,75 +1581,70 @@
                     <div class="cover-page">
                         <div style="margin-bottom: 60px;">
                             <h1 style="font-size: 36px; color: #0A192F;">BRANDINN BUSINESS</h1>
-                            <p style="color: #7c3aed; font-weight: 600; letter-spacing: 2px;">DIGITAL ASSET HANDOVER</p>
+                            <p style="color: #7c3aed; font-weight: 600; letter-spacing: 2px;">DIGITAL ASSET HANDOVER & SERVICE AGREEMENT</p>
                         </div>
                         <h2 style="font-size: 28px; margin: 40px 0 15px;">${escapeHtml(clientName)}</h2>
-                        <p style="color: #64748b; font-size: 16px;">${escapeHtml(projectName)}</p>
                         <div style="margin-top: 60px;">
                             <p><strong>Document ID:</strong> ${documentId}</p>
-                            <p><strong>Issue Date:</strong> ${escapeHtml(handoverDate)}</p>
+                            <p><strong>Issue Date:</strong> ${escapeHtml(effectiveDate)}</p>
                             <p><strong>Valid Until:</strong> ${expiryDate.toLocaleDateString()}</p>
                             <p><strong>Prepared By:</strong> ${document.getElementById('repName').textContent}</p>
                         </div>
                     </div>
 
-                    <!-- Executive Summary -->
-                    <div class="section">
-                        <h3>Executive Summary</h3>
-                        <p>${escapeHtml(executiveSummary).replace(/\n/g, '<br>')}</p>
-                    </div>
-
                     <!-- Credentials -->
                     <div class="section">
-                        <h3>Credentials Matrix</h3>
+                        <h3>🔐 Credentials Matrix</h3>
                         ${credsHtml}
                     </div>
 
                     <!-- Visual Assets -->
                     <div class="section">
-                        <h3>Visual Assets</h3>
+                        <h3>🎨 Visual Assets</h3>
                         <p><strong>Logo files:</strong> ${escapeHtml(logoFiles)}</p>
                         ${logoDownloadHtml}
                         ${typography ? `<p><strong>Typography:</strong> ${escapeHtml(typography)}</p>` : ''}
                     </div>
 
-                    ${timelineHtml ? `<div class="section"><h3>Recommended Timeline</h3>${timelineHtml}</div>` : ''}
+                    ${timelineHtml ? `<div class="section"><h3>📅 Recommended Timeline</h3>${timelineHtml}</div>` : ''}
 
                     <div class="warning">
-                        <strong>⚠️ Security Notice:</strong> Upon receipt, please change all passwords within 48 hours. This document expires 30 days from issue date. Store this document in a secure location.
+                        <strong>⚠️ Security Notice:</strong> Upon receipt, please change all passwords within 48 hours. This document expires 30 days from issue date.
                     </div>
 
                     <div class="section">
-                        <h3>Access Instructions</h3>
+                        <h3>📋 Access Instructions</h3>
                         <p>${escapeHtml(instructions).replace(/\n/g, '<br>')}</p>
                     </div>
 
                     <div class="section">
-                        <h3>Client Action Checklist</h3>
+                        <h3>✅ Client Action Checklist</h3>
                         <div class="checklist-item">☐ Download all logo assets</div>
                         <div class="checklist-item">☐ Change all passwords</div>
                         <div class="checklist-item">☐ Enable 2FA on all accounts</div>
-                        <div class="checklist-item">☐ Review brand guidelines</div>
+                        <div class="checklist-item">☐ Review and sign Service Agreement</div>
                         <div class="checklist-item">☐ Schedule kickoff call</div>
                     </div>
 
-                    ${acknowledgmentHtml}
+                    ${agreementHtml}
 
                     <div class="footer">
                         <i class="fas fa-envelope"></i> For support, contact: ${BRANDINN_EMAIL}<br>
                         <i class="fas fa-shield-alt"></i> This document is for ${escapeHtml(clientName)} only. Do not forward.<br>
-                        BrandInn Business · Confidential Document · ${documentId}
+                        BrandInn Business · A service by I AM MUGERA · Confidential Document · ${documentId}
                     </div>
                 </body>
                 </html>
             `);
             printWindow.document.close();
-            showToast("Handover document generated! Ready to save as PDF.", "success");
+            showToast("Complete handover package generated! Ready to save as PDF.", "success");
             
             // Log for audit trail
             console.log('Handover generated:', {
                 clientName, documentId, timestamp: new Date().toISOString(),
                 credentialsCount: credentialRows.length,
+                includeAgreement: includeAgreement,
+                plan: selectedPlan,
                 generatedBy: document.getElementById('repName').textContent
             });
         }
@@ -1362,13 +1652,14 @@
         // Event listeners
         function bindEvents() {
             document.getElementById('clientName').addEventListener('input', updatePreview);
-            document.getElementById('projectName').addEventListener('input', updatePreview);
-            document.getElementById('handoverDate').addEventListener('change', updatePreview);
+            document.getElementById('clientPhone').addEventListener('input', updatePreview);
+            document.getElementById('clientEmail').addEventListener('input', updatePreview);
+            document.getElementById('effectiveDate').addEventListener('change', updatePreview);
             document.getElementById('logoFiles').addEventListener('input', updatePreview);
             document.getElementById('accessInstructions').addEventListener('input', updatePreview);
-            document.getElementById('executiveSummary').addEventListener('input', updatePreview);
             document.getElementById('timeline').addEventListener('input', updatePreview);
             document.getElementById('typography').addEventListener('input', updatePreview);
+            document.getElementById('includeAgreement').addEventListener('change', updatePreview);
             document.getElementById('addCredRowBtn').addEventListener('click', addCredRow);
             document.getElementById('generateBtn').addEventListener('click', generatePDF);
             document.getElementById('copyCredentialsBtn').addEventListener('click', copyAllCredentials);
@@ -1379,6 +1670,7 @@
         setDefaultDate();
         renderCredsForm();
         setupLogoPreview();
+        setupPlanSelection();
         bindEvents();
         updatePreview();
 
