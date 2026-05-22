@@ -527,6 +527,56 @@
             opacity: 0.4;
         }
 
+        /* Notification Permission Banner */
+        .notification-banner {
+            position: fixed;
+            top: 60px;
+            left: 10px;
+            right: 10px;
+            background: var(--bg-card);
+            border: 1px solid var(--gold);
+            border-radius: 12px;
+            padding: 0.8rem 1rem;
+            z-index: 3000;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.7rem;
+            color: var(--text-primary);
+            animation: slideDown 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .notification-banner i {
+            color: var(--gold);
+            font-size: 1.2rem;
+        }
+
+        .notification-banner button {
+            margin-left: auto;
+            padding: 0.4rem 0.8rem;
+            border-radius: 10px;
+            border: none;
+            background: var(--gold);
+            color: #0f172a;
+            font-weight: 700;
+            font-size: 0.6rem;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .notification-banner .close-banner {
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            padding: 0.2rem 0.4rem;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         /* Modals */
         .modal-overlay {
             position: fixed;
@@ -785,6 +835,14 @@
 
     <div class="toast-container" id="toastContainer"></div>
 
+    <!-- Notification Permission Banner -->
+    <div class="notification-banner hidden" id="notificationBanner">
+        <i class="fas fa-bell"></i>
+        <span>Enable notifications to get alerts for new requests</span>
+        <button onclick="requestNotificationPermission()">Enable</button>
+        <button class="close-banner" onclick="dismissNotificationBanner()"><i class="fas fa-times"></i></button>
+    </div>
+
     <!-- Pickup Modal -->
     <div class="modal-overlay" id="pickupModalOverlay" onclick="if(event.target===this)closePickupModal()">
         <div class="modal">
@@ -907,6 +965,9 @@
                             <button class="dropdown-item" onclick="refreshAll()">
                                 <i class="fas fa-sync-alt"></i> Refresh
                             </button>
+                            <button class="dropdown-item" onclick="testNotification()">
+                                <i class="fas fa-bell"></i> Test Alert
+                            </button>
                             <button class="dropdown-item danger" onclick="handleLogout()">
                                 <i class="fas fa-sign-out-alt"></i> Sign Out
                             </button>
@@ -975,6 +1036,193 @@
         let rideFilter = 'all';
         let seenPickupIds = new Set();
         let seenRideIds = new Set();
+        
+        // Audio context for notification sounds
+        let audioContext = null;
+        let notificationSoundEnabled = true;
+        let vibrateEnabled = true;
+        let notificationPermission = 'default';
+
+        // Initialize audio context
+        function initAudioContext() {
+            if (!audioContext) {
+                try {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                } catch (e) {
+                    console.warn('AudioContext not supported');
+                }
+            }
+            // Resume if suspended (browsers require user gesture)
+            if (audioContext && audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+        }
+
+        // Play notification sound using Web Audio API
+        function playNotificationSound() {
+            if (!notificationSoundEnabled || !audioContext) return;
+            
+            try {
+                const now = audioContext.currentTime;
+                
+                // Create oscillators for a pleasant "ding-dong" sound
+                const notes = [
+                    { freq: 880, start: 0, duration: 0.15 },    // A5
+                    { freq: 1108.73, start: 0.15, duration: 0.2 }, // C#6
+                    { freq: 1318.51, start: 0.35, duration: 0.3 }  // E6
+                ];
+                
+                notes.forEach(note => {
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.type = 'sine';
+                    oscillator.frequency.setValueAtTime(note.freq, now + note.start);
+                    
+                    gainNode.gain.setValueAtTime(0, now + note.start);
+                    gainNode.gain.linearRampToValueAtTime(0.3, now + note.start + 0.02);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, now + note.start + note.duration);
+                    
+                    oscillator.start(now + note.start);
+                    oscillator.stop(now + note.start + note.duration);
+                });
+                
+                // Add a subtle harmonic layer
+                const harmonic = audioContext.createOscillator();
+                const harmonicGain = audioContext.createGain();
+                harmonic.connect(harmonicGain);
+                harmonicGain.connect(audioContext.destination);
+                harmonic.type = 'triangle';
+                harmonic.frequency.setValueAtTime(1760, now); // A6
+                harmonicGain.gain.setValueAtTime(0, now);
+                harmonicGain.gain.linearRampToValueAtTime(0.15, now + 0.05);
+                harmonicGain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+                harmonic.start(now);
+                harmonic.stop(now + 0.4);
+                
+            } catch (e) {
+                console.warn('Error playing notification sound:', e);
+            }
+        }
+
+        // Trigger vibration pattern
+        function vibrateDevice() {
+            if (!vibrateEnabled || !navigator.vibrate) return;
+            
+            try {
+                // Pattern: vibrate 200ms, pause 100ms, vibrate 200ms, pause 100ms, vibrate 400ms
+                navigator.vibrate([200, 100, 200, 100, 400]);
+            } catch (e) {
+                console.warn('Vibration not supported');
+            }
+        }
+
+        // Main notification function - combines sound, vibration, and visual toast
+        function sendNewRequestNotification(type, details) {
+            // Initialize audio on user interaction
+            initAudioContext();
+            
+            // Play sound
+            playNotificationSound();
+            
+            // Vibrate device
+            vibrateDevice();
+            
+            // Show toast
+            const typeLabel = type === 'pickup' ? 'Delivery' : 'Ride';
+            toast(`🔔 New ${typeLabel} request! ${details}`, 'info');
+            
+            // If notification permission granted, show browser notification
+            if (notificationPermission === 'granted' && 'Notification' in window) {
+                try {
+                    const notification = new Notification('E-KAZI · New Request', {
+                        body: `New ${typeLabel} request: ${details}`,
+                        icon: 'https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png',
+                        badge: 'https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png',
+                        tag: 'new-request',
+                        requireInteraction: true,
+                        vibrate: [200, 100, 200, 100, 400]
+                    });
+                    
+                    // Auto-close after 10 seconds
+                    setTimeout(() => notification.close(), 10000);
+                    
+                    // Click to focus window
+                    notification.onclick = () => {
+                        window.focus();
+                        notification.close();
+                    };
+                } catch (e) {
+                    console.warn('Browser notification failed:', e);
+                }
+            }
+        }
+
+        // Request notification permission
+        function requestNotificationPermission() {
+            initAudioContext();
+            
+            if ('Notification' in window) {
+                Notification.requestPermission().then(permission => {
+                    notificationPermission = permission;
+                    if (permission === 'granted') {
+                        toast('Notifications enabled! You\'ll be alerted for new requests.', 'success');
+                        $('notificationBanner').classList.add('hidden');
+                        // Send a test notification
+                        setTimeout(() => {
+                            if (Notification.permission === 'granted') {
+                                new Notification('E-KAZI', {
+                                    body: 'You will now receive alerts for new requests!',
+                                    icon: 'https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png',
+                                    vibrate: [100, 50, 100]
+                                });
+                            }
+                        }, 1000);
+                    } else {
+                        toast('Notification permission denied. You can enable them in browser settings.', 'warning');
+                    }
+                });
+            } else {
+                toast('Notifications not supported in this browser.', 'error');
+            }
+        }
+
+        // Dismiss notification banner
+        function dismissNotificationBanner() {
+            $('notificationBanner').classList.add('hidden');
+        }
+
+        // Test notification function
+        function testNotification() {
+            initAudioContext();
+            playNotificationSound();
+            vibrateDevice();
+            toast('Testing notification alert...', 'info');
+        }
+
+        // Check notification permission on load
+        function checkNotificationPermission() {
+            if ('Notification' in window) {
+                notificationPermission = Notification.permission;
+                if (notificationPermission === 'default') {
+                    // Show banner to request permission
+                    setTimeout(() => {
+                        $('notificationBanner').classList.remove('hidden');
+                    }, 2000);
+                } else if (notificationPermission === 'granted') {
+                    console.log('Notifications already enabled');
+                }
+            }
+            
+            // Check vibration support
+            if (!navigator.vibrate) {
+                console.log('Vibration API not supported');
+                vibrateEnabled = false;
+            }
+        }
 
         function showLoading(s) { $('loadingOverlay').classList.toggle('hidden', !s); }
 
@@ -996,6 +1244,13 @@
             $('userAvatar').textContent = getInitials(user.displayName || user.email);
             $('userName').textContent = (user.displayName || user.email?.split('@')[0] || 'Asst').substring(0,12);
             showLoading(true);
+            
+            // Initialize audio context on user gesture (login)
+            initAudioContext();
+            
+            // Check notification permissions
+            checkNotificationPermission();
+            
             await checkRegistrations(user);
             await initTabs();
             showLoading(false);
@@ -1028,14 +1283,12 @@
             $('rejectedState').classList.add('hidden');
 
             if (hasVerified) {
-                // Initialize seen IDs
                 seenPickupIds = new Set();
                 seenRideIds = new Set();
                 renderTabs(verifiedOps);
                 const firstTab = verifiedOps[0][0];
                 switchToTab(firstTab);
                 await loadTabData(firstTab);
-                // Set up real-time listeners
                 setupRealtimeListeners();
             } else if (allRejected) {
                 $('rejectedState').classList.remove('hidden');
@@ -1056,10 +1309,13 @@
                     const id = snap.key;
                     if (!seenPickupIds.has(id)) {
                         seenPickupIds.add(id);
+                        const data = snap.val();
+                        const client = data.userName || data.customer?.name || 'Unknown';
                         if (activeTab === 'pickup') {
                             loadPickupData();
-                            toast('🆕 New delivery assigned!', 'info');
                         }
+                        // Always send notification for new requests
+                        sendNewRequestNotification('pickup', `Pickup for ${client}`);
                     }
                 });
                 db.ref('pickup_deliveries').orderByChild('assignedTo').equalTo(currentUser.uid).on('child_changed', () => {
@@ -1071,10 +1327,13 @@
                     const id = snap.key;
                     if (!seenRideIds.has(id)) {
                         seenRideIds.add(id);
+                        const data = snap.val();
+                        const passenger = data.passengerName || 'Unknown';
                         if (activeTab === 'ride') {
                             loadRideData();
-                            toast('🆕 New ride assigned!', 'info');
                         }
+                        // Always send notification for new requests
+                        sendNewRequestNotification('ride', `Ride for ${passenger}`);
                     }
                 });
                 db.ref('pickme_rides').orderByChild('driverId').equalTo(currentUser.uid).on('child_changed', () => {
@@ -1106,6 +1365,8 @@
             activeTab = key;
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === key));
             document.querySelectorAll('.tab-content').forEach(c => c.classList.toggle('active', c.id === `tab-${key}`));
+            // Initialize audio on user interaction
+            initAudioContext();
             loadTabData(key);
         };
 
@@ -1125,7 +1386,6 @@
                     seenPickupIds.add(id);
                     return { id, ...d };
                 });
-                // Sort: pending/assigned first (new tasks at top), then by date newest first
                 allPickups.sort((a, b) => {
                     const aIsNew = a.status === 'assigned' || a.status === 'pending';
                     const bIsNew = b.status === 'assigned' || b.status === 'pending';
@@ -1292,7 +1552,6 @@
                     seenRideIds.add(id);
                     return { id, ...r };
                 });
-                // Sort: requested/accepted first (new tasks at top), then by date newest first
                 allRides.sort((a, b) => {
                     const aIsNew = a.status === 'accepted' || a.status === 'requested';
                     const bIsNew = b.status === 'accepted' || b.status === 'requested';
@@ -1483,6 +1742,11 @@
         window.navigateTo = (addr) => window.open(`https://www.google.com/maps/search/?api=1&query=${addr}`, '_blank');
         window.handleLogout = async () => { if (confirm('Sign out?')) { await auth.signOut(); window.location.href = 'index.html'; } };
         window.refreshAll = () => { if (activeTab) { loadTabData(activeTab); toast('Dashboard refreshed', 'success'); } };
+
+        // Make notification functions globally accessible
+        window.requestNotificationPermission = requestNotificationPermission;
+        window.dismissNotificationBanner = dismissNotificationBanner;
+        window.testNotification = testNotification;
     </script>
 </body>
 </html>
