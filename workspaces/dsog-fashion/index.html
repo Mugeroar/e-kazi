@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>KazInni Workspaces | DSOG Fashion Dashboard</title>
+  <title>KazInni Workspaces | DSOG Fashion Franchise Dashboard</title>
   
   <meta name="theme-color" content="#ec4899">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -27,7 +26,9 @@
       --text-primary: #1e293b;
       --text-muted: #64748b;
       --border-light: #fbcfe8;
-      --purple: #7c3aed;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
     }
 
     body {
@@ -208,6 +209,12 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
+      transition: all 0.2s;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(236, 72, 153, 0.08);
     }
 
     .stat-left h4 {
@@ -249,9 +256,15 @@
 
     .action-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(2, 1fr);
       gap: 20px;
       margin-bottom: 2rem;
+    }
+
+    @media (min-width: 1200px) {
+      .action-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
     }
 
     .action-card {
@@ -288,14 +301,14 @@
     }
 
     .action-card h2 {
-      font-size: 1.3rem;
+      font-size: 1.2rem;
       font-weight: 800;
       margin-bottom: 0.3rem;
     }
 
     .action-card p {
       color: #64748b;
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       margin-bottom: 1rem;
       line-height: 1.4;
     }
@@ -398,6 +411,11 @@
       padding: 0.8rem 1.2rem;
       border-bottom: 1px solid #fdf2f8;
       font-size: 0.85rem;
+      transition: all 0.2s;
+    }
+
+    .recent-item:hover {
+      background: #fdf2f8;
     }
 
     .recent-item:last-child {
@@ -414,16 +432,15 @@
       white-space: nowrap;
     }
 
-    .status-tag.completed { background: #fce7f3; color: #9d174d; }
-    .status-tag.delivered { background: #fce7f3; color: #9d174d; }
+    .status-tag.active { background: #d1fae5; color: #065f46; }
+    .status-tag.inactive { background: #fee2e2; color: #991b1b; }
     .status-tag.pending { background: #fef3c7; color: #b45309; }
     .status-tag.processing { background: #fce7f3; color: #9d174d; }
     .status-tag.shipped { background: #fce7f3; color: #be185d; }
-    .status-tag.confirmed { background: #fce7f3; color: #9d174d; }
+    .status-tag.delivered { background: #d1fae5; color: #065f46; }
     .status-tag.cancelled { background: #fee2e2; color: #991b1b; }
-    .status-tag.new_order { background: #fdf2f8; color: #be185d; }
 
-    .category-tag {
+    .franchise-badge {
       padding: 0.15rem 0.5rem;
       border-radius: 12px;
       font-size: 0.6rem;
@@ -432,6 +449,10 @@
       color: #be185d;
       margin-right: 4px;
     }
+
+    .franchise-badge.premium { background: #fef3c7; color: #92400e; }
+    .franchise-badge.standard { background: #e0f2fe; color: #0369a1; }
+    .franchise-badge.basic { background: #f1f5f9; color: #475569; }
 
     .empty-state {
       text-align: center;
@@ -468,6 +489,21 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
+    /* Section divider */
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin: 2rem 0 1rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-title i {
+      color: #be185d;
+    }
+
     @media (max-width: 1000px) {
       .stats-grid { grid-template-columns: repeat(2, 1fr); }
       .action-grid { grid-template-columns: repeat(2, 1fr); }
@@ -496,9 +532,12 @@
       <a href="index.html" class="nav-btn">
         <i class="fas fa-arrow-left"></i> Workspaces
       </a>
+      <button class="nav-btn" id="mapViewBtn">
+        <i class="fas fa-map-marked-alt"></i> Map View
+      </button>
       <div class="user-badge">
         <div class="user-avatar" id="userAvatar">DS</div>
-        <span id="userName">Designer</span>
+        <span id="userName">Franchise Manager</span>
       </div>
     </div>
   </nav>
@@ -507,13 +546,22 @@
     <div class="page-header">
       <h1>
         <i class="fas fa-tshirt"></i>
-        DSOG Fashion Dashboard
+        DSOG Fashion · Franchise Management
         <span class="last-updated" id="lastUpdated"><i class="fas fa-circle"></i> Live</span>
       </h1>
-      <p>Manage fashion collections, track orders, and showcase your designs across Kenya.</p>
+      <p>Manage fashion franchises, track orders, oversee franchisees, and grow your brand across Kenya.</p>
     </div>
 
+    <!-- Stats Overview -->
     <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-left">
+          <h4>Total Franchises</h4>
+          <div class="stat-number" id="totalFranchises">0</div>
+          <div class="stat-trend"><i class="fas fa-store"></i> Active outlets</div>
+        </div>
+        <div class="stat-icon"><i class="fas fa-store"></i></div>
+      </div>
       <div class="stat-card">
         <div class="stat-left">
           <h4>Total Orders</h4>
@@ -524,7 +572,7 @@
       </div>
       <div class="stat-card">
         <div class="stat-left">
-          <h4>Pending</h4>
+          <h4>Pending Orders</h4>
           <div class="stat-number" id="pendingOrders">0</div>
           <div class="stat-trend"><i class="fas fa-clock"></i> Awaiting action</div>
         </div>
@@ -532,55 +580,67 @@
       </div>
       <div class="stat-card">
         <div class="stat-left">
-          <h4>In Production</h4>
-          <div class="stat-number" id="inProduction">0</div>
-          <div class="stat-trend"><i class="fas fa-palette"></i> Being crafted</div>
+          <h4>Revenue (KES)</h4>
+          <div class="stat-number" id="totalRevenue">0</div>
+          <div class="stat-trend"><i class="fas fa-chart-line"></i> This month</div>
         </div>
-        <div class="stat-icon"><i class="fas fa-palette"></i></div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-left">
-          <h4>Products Listed</h4>
-          <div class="stat-number" id="productsListed">0</div>
-          <div class="stat-trend"><i class="fas fa-tags"></i> In catalog</div>
-        </div>
-        <div class="stat-icon"><i class="fas fa-tags"></i></div>
+        <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
       </div>
     </div>
 
+    <!-- Main Action Cards -->
     <div class="action-grid">
       <a href="dsog-fashion-orders.html" class="action-card">
         <div class="action-icon"><i class="fas fa-clipboard-list"></i></div>
-        <h2>All Orders</h2>
-        <p>View and manage all fashion orders, track production status, and process deliveries.</p>
-        <span class="action-link">View Orders <i class="fas fa-arrow-right"></i></span>
+        <h2>Orders</h2>
+        <p>View, manage and process all fashion orders from your franchises and direct customers.</p>
+        <span class="action-link">Manage Orders <i class="fas fa-arrow-right"></i></span>
       </a>
-      <a href="dsog-fashion-collections.html" class="action-card">
-        <div class="action-icon"><i class="fas fa-tshirt"></i></div>
-        <h2>Collections</h2>
-        <p>Manage your fashion collections, add new designs, and update your catalog.</p>
-        <span class="action-link">Browse Collections <i class="fas fa-arrow-right"></i></span>
+      <a href="dsog-fashion-add-franchise.html" class="action-card">
+        <div class="action-icon"><i class="fas fa-plus-circle"></i></div>
+        <h2>Add Franchisee</h2>
+        <p>Register a new franchise outlet, assign location, and set up their inventory access.</p>
+        <span class="action-link">Register Franchise <i class="fas fa-arrow-right"></i></span>
       </a>
-      <a href="dsog-fashion-customers.html" class="action-card">
-        <div class="action-icon"><i class="fas fa-users"></i></div>
-        <h2>Customers</h2>
-        <p>View your customer base, track preferences, and manage client relationships.</p>
-        <span class="action-link">View Customers <i class="fas fa-arrow-right"></i></span>
+      <a href="dsog-fashion-franchisees.html" class="action-card">
+        <div class="action-icon"><i class="fas fa-users-gear"></i></div>
+        <h2>Manage Franchisees</h2>
+        <p>View all franchisees, monitor performance, update status, and manage territories.</p>
+        <span class="action-link">View Franchisees <i class="fas fa-arrow-right"></i></span>
+      </a>
+      <a href="dsog-fashion-products.html" class="action-card">
+        <div class="action-icon"><i class="fas fa-boxes-stacked"></i></div>
+        <h2>Product Management</h2>
+        <p>Manage your fashion catalog, add new collections, update pricing, and control stock.</p>
+        <span class="action-link">Manage Products <i class="fas fa-arrow-right"></i></span>
       </a>
     </div>
 
+    <!-- Quick Actions -->
     <div class="quick-section">
       <div class="quick-header"><i class="fas fa-bolt"></i> Quick Actions</div>
       <div class="quick-links">
-        <a href="dsog-fashion-new-product.html" class="quick-btn"><i class="fas fa-plus-circle"></i> Add Product</a>
-        <a href="dsog-fashion-orders.html" class="quick-btn"><i class="fas fa-list-check"></i> All Orders</a>
-        <a href="dsog-fashion-orders.html?filter=pending" class="quick-btn"><i class="fas fa-clock"></i> Pending (<span id="pendingBadge">0</span>)</a>
-        <a href="dsog-fashion-collections.html" class="quick-btn"><i class="fas fa-layer-group"></i> Collections</a>
-        <a href="dsog-fashion-inventory.html" class="quick-btn"><i class="fas fa-box-open"></i> Inventory</a>
-        <a href="dsog-fashion-analytics.html" class="quick-btn"><i class="fas fa-chart-line"></i> Analytics</a>
+        <a href="dsog-fashion-add-franchise.html" class="quick-btn"><i class="fas fa-plus-circle"></i> Add Franchisee</a>
+        <a href="dsog-fashion-orders.html?filter=pending" class="quick-btn"><i class="fas fa-clock"></i> Pending Orders (<span id="pendingBadge">0</span>)</a>
+        <a href="dsog-fashion-franchisees.html" class="quick-btn"><i class="fas fa-list-check"></i> All Franchisees</a>
+        <a href="dsog-fashion-products.html" class="quick-btn"><i class="fas fa-tags"></i> Product Catalog</a>
+        <a href="dsog-fashion-new-product.html" class="quick-btn"><i class="fas fa-tshirt"></i> Add Product</a>
+        <a href="dsog-fashion-analytics.html" class="quick-btn"><i class="fas fa-chart-pie"></i> Analytics</a>
       </div>
     </div>
 
+    <!-- Recent Franchisees -->
+    <div class="recent-section">
+      <div class="recent-header">
+        <h3><i class="fas fa-store" style="color:#be185d;"></i> Recent Franchisees</h3>
+        <a href="dsog-fashion-franchisees.html" style="color:#be185d; font-weight:600; font-size:0.8rem;">View all <i class="fas fa-chevron-right"></i></a>
+      </div>
+      <div class="recent-list" id="recentFranchisees">
+        <div class="empty-state"><i class="fas fa-sync-alt fa-spin"></i><p>Loading franchisees...</p></div>
+      </div>
+    </div>
+
+    <!-- Recent Orders -->
     <div class="recent-section">
       <div class="recent-header">
         <h3><i class="fas fa-clock-rotate-left" style="color:#be185d;"></i> Recent Orders</h3>
@@ -593,7 +653,7 @@
   </div>
 
   <div class="footer">
-    <i class="far fa-copyright"></i> 2026 DSOG Fashion • Style & Design • <span id="footerStats">Loading...</span>
+    <i class="far fa-copyright"></i> 2026 DSOG Fashion · Franchise Management · <span id="footerStats">Loading...</span>
   </div>
 
   <script type="importmap">
@@ -629,16 +689,17 @@
     let currentStoreSlug = null;
     let currentStoreData = null;
     let allOrders = {};
+    let allFranchisees = {};
     let allProducts = {};
-    let allCustomers = {};
 
     const loadingOverlay = document.getElementById('loadingOverlay');
+    const totalFranchisesEl = document.getElementById('totalFranchises');
     const totalOrdersEl = document.getElementById('totalOrders');
     const pendingOrdersEl = document.getElementById('pendingOrders');
-    const inProductionEl = document.getElementById('inProduction');
-    const productsListedEl = document.getElementById('productsListed');
+    const totalRevenueEl = document.getElementById('totalRevenue');
     const pendingBadgeEl = document.getElementById('pendingBadge');
     const recentListEl = document.getElementById('recentList');
+    const recentFranchiseesEl = document.getElementById('recentFranchisees');
     const lastUpdatedEl = document.getElementById('lastUpdated');
     const footerStatsEl = document.getElementById('footerStats');
 
@@ -670,13 +731,27 @@
       return 'Just now';
     }
 
+    function getFranchiseStatusClass(status) {
+      const s = (status || 'active').toLowerCase();
+      if (s === 'active') return 'active';
+      if (s === 'inactive' || s === 'suspended') return 'inactive';
+      if (s === 'pending') return 'pending';
+      return 'active';
+    }
+
+    function getFranchiseTierClass(tier) {
+      const t = (tier || 'standard').toLowerCase();
+      if (t === 'premium') return 'premium';
+      if (t === 'basic') return 'basic';
+      return 'standard';
+    }
+
     function getStatusClass(status) {
       const s = (status || 'pending').toLowerCase().replace(/\s+/g, '_');
-      if (s === 'completed' || s === 'delivered') return 'completed';
+      if (s === 'completed' || s === 'delivered') return 'delivered';
       if (s === 'processing' || s === 'confirmed') return 'processing';
       if (s === 'shipped' || s === 'in_transit' || s === 'in_production') return 'shipped';
       if (s === 'cancelled') return 'cancelled';
-      if (s === 'new_order' || s === 'new') return 'new_order';
       return 'pending';
     }
 
@@ -685,7 +760,22 @@
       return status.toLowerCase().replace(/_/g, ' ');
     }
 
-    function getCategoryIcon(category) {
+    function formatCurrency(amount) {
+      if (!amount) return '0';
+      const num = Number(amount);
+      if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+      if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+      return num.toLocaleString();
+    }
+
+    function getFranchiseIcon(tier) {
+      const t = (tier || '').toLowerCase();
+      if (t === 'premium') return '⭐';
+      if (t === 'basic') return '🏪';
+      return '🏪';
+    }
+
+    function getOrderIcon(category) {
       const cat = (category || '').toLowerCase();
       if (cat.includes('dress') || cat.includes('gown')) return '👗';
       if (cat.includes('shirt') || cat.includes('top')) return '👚';
@@ -696,31 +786,69 @@
       if (cat.includes('jacket') || cat.includes('coat')) return '🧥';
       if (cat.includes('suit') || cat.includes('formal')) return '🤵';
       if (cat.includes('traditional') || cat.includes('kitenge') || cat.includes('ankara')) return '🥻';
-      if (cat.includes('casual')) return '👕';
-      if (cat.includes('active') || cat.includes('sport')) return '🎽';
       return '👗';
     }
 
-    function renderRecentList() {
+    function renderRecentFranchisees() {
+      const franchisees = Object.entries(allFranchisees)
+        .map(([id, data]) => ({ id, ...data }))
+        .sort((a, b) => {
+          const timeA = a.createdAt || a.registeredAt || a.timestamp || 0;
+          const timeB = b.createdAt || b.registeredAt || b.timestamp || 0;
+          return timeB - timeA;
+        })
+        .slice(0, 5);
+
+      if (!franchisees.length) {
+        recentFranchiseesEl.innerHTML = '<div class="empty-state"><i class="fas fa-store-slash"></i><p>No franchisees yet. <a href="dsog-fashion-add-franchise.html" style="color:#be185d;">Add your first franchise</a></p></div>';
+        return;
+      }
+
+      recentFranchiseesEl.innerHTML = franchisees.map(f => {
+        const status = f.status || 'active';
+        const tier = f.tier || 'standard';
+        const timeAgo = formatTimeAgo(f.createdAt || f.registeredAt || f.timestamp);
+        const location = f.location || f.city || f.county || '';
+        const statusClass = getFranchiseStatusClass(status);
+        const tierClass = getFranchiseTierClass(tier);
+        
+        return `
+          <div class="recent-item">
+            <div style="display:flex; align-items:center; gap:12px; min-width:0;">
+              <div style="width:38px;height:38px;background:#fdf2f8;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;">${getFranchiseIcon(tier)}</div>
+              <div style="min-width:0;">
+                <strong style="font-size:0.85rem;">${escapeHtml(f.businessName || f.name || 'Franchisee')}</strong>
+                <p style="font-size:0.7rem;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                  <span class="franchise-badge ${tierClass}">${tier.toUpperCase()}</span>
+                  ${location ? '· ' + escapeHtml(location) : ''} ${timeAgo ? '· ' + timeAgo : ''}
+                </p>
+              </div>
+            </div>
+            <span class="status-tag ${statusClass}" style="flex-shrink:0;margin-left:8px;">${status}</span>
+          </div>`;
+      }).join('');
+    }
+
+    function renderRecentOrders() {
       const orders = Object.entries(allOrders)
-        .filter(([_, o]) => o && (o.customerName || o.businessName || o.userName || o.clientName))
+        .filter(([_, o]) => o && (o.customerName || o.franchiseName || o.businessName || o.userName))
         .map(([id, data]) => ({ id, ...data }))
         .sort((a, b) => {
           const timeA = a.createdAt || a.timestamp || a.orderDate || 0;
           const timeB = b.createdAt || b.timestamp || b.orderDate || 0;
           return timeB - timeA;
         })
-        .slice(0, 6);
+        .slice(0, 5);
 
       if (!orders.length) {
-        recentListEl.innerHTML = '<div class="empty-state"><i class="fas fa-shopping-bag"></i><p>No orders yet. Start by adding products to your catalog.</p></div>';
+        recentListEl.innerHTML = '<div class="empty-state"><i class="fas fa-shopping-bag"></i><p>No orders yet. Orders from your franchises will appear here.</p></div>';
         return;
       }
 
       recentListEl.innerHTML = orders.map(order => {
         const status = order.status || 'pending';
         const timeAgo = formatTimeAgo(order.createdAt || order.timestamp || order.orderDate);
-        const customer = order.customerName || order.businessName || order.userName || order.clientName || 'Customer';
+        const customer = order.customerName || order.franchiseName || order.businessName || order.userName || 'Customer';
         const items = order.items || order.products || [];
         const itemCount = Array.isArray(items) ? items.length : (typeof items === 'object' ? Object.keys(items).length : 0);
         const category = order.category || (Array.isArray(items) && items[0]?.category) || '';
@@ -730,11 +858,11 @@
         return `
           <div class="recent-item">
             <div style="display:flex; align-items:center; gap:12px; min-width:0;">
-              <div style="width:38px;height:38px;background:#fdf2f8;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;">${getCategoryIcon(category)}</div>
+              <div style="width:38px;height:38px;background:#fdf2f8;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;">${getOrderIcon(category)}</div>
               <div style="min-width:0;">
                 <strong style="font-size:0.85rem;">${escapeHtml(customer)}</strong>
                 <p style="font-size:0.7rem;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-                  ${itemCount} item${itemCount !== 1 ? 's' : ''} ${category ? '· ' + escapeHtml(category) : ''} ${total ? '· KES ' + Number(total).toLocaleString() : ''} ${timeAgo ? '· ' + timeAgo : ''}
+                  ${itemCount} item${itemCount !== 1 ? 's' : ''} ${category ? '· ' + escapeHtml(category) : ''} ${total ? '· KES ' + formatCurrency(total) : ''} ${timeAgo ? '· ' + timeAgo : ''}
                 </p>
               </div>
             </div>
@@ -743,54 +871,62 @@
       }).join('');
     }
 
-    function getUniqueCustomers() {
-      const customers = new Set();
+    function calculateMonthlyRevenue() {
+      const now = new Date();
+      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+      let total = 0;
       Object.values(allOrders).forEach(order => {
-        if (order && (order.customerName || order.clientName || order.businessName)) {
-          customers.add(order.customerName || order.clientName || order.businessName);
+        const orderTime = order.createdAt || order.timestamp || order.orderDate || 0;
+        if (orderTime >= startOfMonth) {
+          total += Number(order.total || order.totalAmount || order.fare?.total || 0);
         }
       });
-      Object.values(allCustomers).forEach(c => {
-        if (c && c.name) customers.add(c.name);
-      });
-      return customers.size;
+      return total;
     }
 
     function updateStats() {
-      const orders = Object.values(allOrders).filter(o => o && (o.customerName || o.clientName || o.businessName || o.userName));
-      const total = orders.length;
+      const franchisees = Object.values(allFranchisees).filter(f => f && (f.businessName || f.name));
+      const orders = Object.values(allOrders).filter(o => o && (o.customerName || o.franchiseName || o.businessName || o.userName));
+      const totalF = franchisees.length;
+      const totalO = orders.length;
       const pending = orders.filter(o => {
         const s = (o.status || '').toLowerCase();
         return s === 'pending' || s === 'new_order' || s === 'new';
       }).length;
-      const production = orders.filter(o => {
-        const s = (o.status || '').toLowerCase();
-        return s === 'in_production' || s === 'processing' || s === 'confirmed';
-      }).length;
-      const products = Object.keys(allProducts).length;
-      const customers = getUniqueCustomers();
+      const revenue = calculateMonthlyRevenue();
 
-      totalOrdersEl.textContent = total;
+      totalFranchisesEl.textContent = totalF;
+      totalOrdersEl.textContent = totalO;
       pendingOrdersEl.textContent = pending;
-      inProductionEl.textContent = production;
-      productsListedEl.textContent = products;
+      totalRevenueEl.textContent = formatCurrency(revenue);
       pendingBadgeEl.textContent = pending;
       
-      footerStatsEl.textContent = `${total} orders · ${pending} pending · ${production} in production · ${products} products · ${customers} customers`;
+      footerStatsEl.textContent = `${totalF} franchises · ${totalO} orders · ${pending} pending · ${Object.keys(allProducts).length} products`;
       lastUpdatedEl.innerHTML = `<i class="fas fa-circle" style="color:#ec4899;"></i> Live · ${new Date().toLocaleTimeString()}`;
-      renderRecentList();
+      renderRecentFranchisees();
+      renderRecentOrders();
     }
 
     function setupRealtimeListeners() {
-      // 1. Listen for dsog_fashion_orders
-      onValue(ref(db, 'dsog_fashion_orders'), (snapshot) => {
-        allOrders = snapshot.val() || {};
-        console.log('👗 DSOG Fashion orders loaded:', Object.keys(allOrders).length);
+      // 1. Listen for dsog_fashion_franchisees
+      onValue(ref(db, 'dsog_fashion_franchisees'), (snapshot) => {
+        allFranchisees = snapshot.val() || {};
+        console.log('🏪 Franchisees loaded:', Object.keys(allFranchisees).length);
         updateStats();
         loadingOverlay.classList.add('hide');
       }, (error) => {
-        console.error('❌ dsog_fashion_orders error:', error);
-        // Fallback: check pickup_deliveries for fashion-related deliveries
+        console.error('❌ Franchisees error:', error);
+        loadingOverlay.classList.add('hide');
+      });
+
+      // 2. Listen for dsog_fashion_orders
+      onValue(ref(db, 'dsog_fashion_orders'), (snapshot) => {
+        allOrders = snapshot.val() || {};
+        console.log('👗 Orders loaded:', Object.keys(allOrders).length);
+        updateStats();
+      }, (error) => {
+        console.error('❌ Orders error:', error);
+        // Fallback: check pickup_deliveries for fashion deliveries
         onValue(ref(db, 'pickup_deliveries'), (snapshot) => {
           const deliveries = snapshot.val() || {};
           allOrders = {};
@@ -801,44 +937,18 @@
               allOrders[key] = val;
             }
           });
-          console.log('👗 Fashion deliveries (from pickup_deliveries):', Object.keys(allOrders).length);
           updateStats();
-          loadingOverlay.classList.add('hide');
         });
       });
 
-      // 2. Listen for registered fashion products
+      // 3. Listen for dsog_fashion_products
       onValue(ref(db, 'dsog_fashion_products'), (snapshot) => {
         allProducts = snapshot.val() || {};
-        console.log('🏷️ Fashion products loaded:', Object.keys(allProducts).length);
+        console.log('🏷️ Products loaded:', Object.keys(allProducts).length);
         updateStats();
       }, () => {
-        // Fallback: check brandinn_subdomains for fashion businesses
-        onValue(ref(db, 'brandinn_subdomains'), (snapshot) => {
-          const subdomains = snapshot.val() || {};
-          allProducts = {};
-          Object.entries(subdomains).forEach(([key, val]) => {
-            if (val && val.category && (
-              val.category.toLowerCase().includes('fashion') ||
-              val.category.toLowerCase().includes('cloth') ||
-              val.category.toLowerCase().includes('apparel') ||
-              val.category.toLowerCase().includes('design')
-            )) {
-              allProducts[key] = val;
-            }
-          });
-          console.log('🏷️ Fashion businesses loaded:', Object.keys(allProducts).length);
-          updateStats();
-        });
-      });
-
-      // 3. Listen for customers
-      onValue(ref(db, 'dsog_fashion_customers'), (snapshot) => {
-        allCustomers = snapshot.val() || {};
-        console.log('👥 Fashion customers loaded:', Object.keys(allCustomers).length);
+        allProducts = {};
         updateStats();
-      }, () => {
-        allCustomers = {};
       });
     }
 
@@ -847,7 +957,6 @@
       if (user) {
         currentUser = user;
         
-        // Parse URL for slug
         const path = window.location.pathname;
         let urlSlug = path.split('/').pop().replace('.html', '');
         urlSlug = urlSlug.replace(/^\/+|\/+$/g, '');
@@ -860,11 +969,10 @@
         
         currentStoreSlug = urlSlug;
 
-        // Get user data
         const userRef = ref(db, `brandinn_users/${user.uid}`);
         const userSnap = await get(userRef);
         
-        let userName = user.email?.split('@')[0] || 'Designer';
+        let userName = user.email?.split('@')[0] || 'Manager';
         let businessName = 'DSOG Fashion';
         let businessEmail = user.email || 'info@brandinn.com';
         let businessLogo = null;
@@ -874,7 +982,6 @@
           userName = userData.name || userName;
         }
 
-        // Get business data if slug exists
         if (currentStoreSlug) {
           const subdomainRef = ref(db, `brandinn_subdomains/${currentStoreSlug}`);
           const subdomainSnap = await get(subdomainRef);
@@ -893,7 +1000,6 @@
 
         currentStoreData = { businessName, email: businessEmail, slug: currentStoreSlug };
 
-        // Update UI
         document.getElementById('userName').textContent = userName;
         document.getElementById('userAvatar').textContent = getInitials(userName);
         document.getElementById('businessName').innerHTML = `${escapeHtml(businessName)} <span>Fashion</span>`;
@@ -905,6 +1011,10 @@
         document.getElementById('logoClick').onclick = () => {
           window.location.href = currentStoreSlug ? `/p/${currentStoreSlug}.html` : '/';
         };
+
+        document.getElementById('mapViewBtn').addEventListener('click', () => {
+          window.location.href = 'map-operations.html?service=dsog';
+        });
 
         setupRealtimeListeners();
       } else {
