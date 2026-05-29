@@ -118,6 +118,16 @@
       color: white;
     }
 
+    .nav-btn.map-btn {
+      background: var(--pink);
+      color: white;
+      border-color: var(--pink-dark);
+    }
+
+    .nav-btn.map-btn:hover {
+      background: var(--pink-dark);
+    }
+
     .user-badge {
       display: flex;
       align-items: center;
@@ -278,12 +288,30 @@
       color: inherit;
       display: block;
       cursor: pointer;
+      position: relative;
+      overflow: hidden;
     }
 
     .action-card:hover {
       transform: translateY(-4px);
       box-shadow: 0 20px 40px -12px rgba(190, 24, 93, 0.15);
       border-color: #f472b6;
+    }
+
+    .action-card.map-card {
+      border: 2px solid var(--pink);
+      background: linear-gradient(145deg, #fff, #fdf2f8);
+    }
+
+    .action-card.map-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 80px;
+      height: 80px;
+      background: radial-gradient(circle, rgba(236,72,153,0.08) 0%, transparent 70%);
+      border-radius: 0 0 0 80px;
     }
 
     .action-icon {
@@ -298,6 +326,12 @@
       color: #be185d;
       font-size: 1.6rem;
       border: 1px solid rgba(190, 24, 93, 0.15);
+    }
+
+    .action-card.map-card .action-icon {
+      background: var(--pink);
+      color: white;
+      border-color: var(--pink-dark);
     }
 
     .action-card h2 {
@@ -321,6 +355,10 @@
       color: #be185d;
       font-size: 0.8rem;
       transition: all 0.2s;
+    }
+
+    .action-card.map-card .action-link {
+      color: var(--pink-dark);
     }
 
     .action-card:hover .action-link i {
@@ -381,6 +419,20 @@
     }
     .quick-btn:hover i { color: white; }
 
+    .quick-btn.highlight {
+      background: var(--pink);
+      color: white;
+      border-color: var(--pink-dark);
+      animation: pulse-btn 2s infinite;
+    }
+
+    .quick-btn.highlight i { color: white; }
+
+    @keyframes pulse-btn {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(236, 72, 153, 0.4); }
+      50% { box-shadow: 0 0 0 8px rgba(236, 72, 153, 0); }
+    }
+
     .recent-section { margin-top: 1.5rem; }
     .recent-header {
       display: flex;
@@ -412,6 +464,7 @@
       border-bottom: 1px solid #fdf2f8;
       font-size: 0.85rem;
       transition: all 0.2s;
+      cursor: pointer;
     }
 
     .recent-item:hover {
@@ -458,6 +511,16 @@
       text-align: center;
       padding: 2rem;
       color: #94a3b8;
+    }
+
+    .empty-state a {
+      color: #be185d;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .empty-state a:hover {
+      text-decoration: underline;
     }
 
     .footer {
@@ -532,9 +595,9 @@
       <a href="index.html" class="nav-btn">
         <i class="fas fa-arrow-left"></i> Workspaces
       </a>
-      <button class="nav-btn" id="mapViewBtn">
-        <i class="fas fa-map-marked-alt"></i> Map View
-      </button>
+      <a href="map-operations.html?service=dsog" class="nav-btn map-btn">
+        <i class="fas fa-map-marked-alt"></i> Operations Map
+      </a>
       <div class="user-badge">
         <div class="user-avatar" id="userAvatar">DS</div>
         <span id="userName">Franchise Manager</span>
@@ -596,11 +659,11 @@
         <p>View, manage and process all fashion orders from your franchises and direct customers.</p>
         <span class="action-link">Manage Orders <i class="fas fa-arrow-right"></i></span>
       </a>
-      <a href="dsog-fashion-add-franchise.html" class="action-card">
-        <div class="action-icon"><i class="fas fa-plus-circle"></i></div>
-        <h2>Add Franchisee</h2>
-        <p>Register a new franchise outlet, assign location, and set up their inventory access.</p>
-        <span class="action-link">Register Franchise <i class="fas fa-arrow-right"></i></span>
+      <a href="map-operations.html?service=dsog" class="action-card map-card">
+        <div class="action-icon"><i class="fas fa-map-marked-alt"></i></div>
+        <h2>Operations Map</h2>
+        <p>View all franchise locations on an interactive map. Register new franchisees and manage territories.</p>
+        <span class="action-link">Open Map <i class="fas fa-arrow-right"></i></span>
       </a>
       <a href="dsog-fashion-franchisees.html" class="action-card">
         <div class="action-icon"><i class="fas fa-users-gear"></i></div>
@@ -620,7 +683,7 @@
     <div class="quick-section">
       <div class="quick-header"><i class="fas fa-bolt"></i> Quick Actions</div>
       <div class="quick-links">
-        <a href="dsog-fashion-add-franchise.html" class="quick-btn"><i class="fas fa-plus-circle"></i> Add Franchisee</a>
+        <a href="map-operations.html?service=dsog" class="quick-btn highlight"><i class="fas fa-map-marked-alt"></i> Operations Map</a>
         <a href="dsog-fashion-orders.html?filter=pending" class="quick-btn"><i class="fas fa-clock"></i> Pending Orders (<span id="pendingBadge">0</span>)</a>
         <a href="dsog-fashion-franchisees.html" class="quick-btn"><i class="fas fa-list-check"></i> All Franchisees</a>
         <a href="dsog-fashion-products.html" class="quick-btn"><i class="fas fa-tags"></i> Product Catalog</a>
@@ -800,7 +863,7 @@
         .slice(0, 5);
 
       if (!franchisees.length) {
-        recentFranchiseesEl.innerHTML = '<div class="empty-state"><i class="fas fa-store-slash"></i><p>No franchisees yet. <a href="dsog-fashion-add-franchise.html" style="color:#be185d;">Add your first franchise</a></p></div>';
+        recentFranchiseesEl.innerHTML = '<div class="empty-state"><i class="fas fa-store-slash"></i><p>No franchisees yet. <a href="map-operations.html?service=dsog">Register via Operations Map</a></p></div>';
         return;
       }
 
@@ -813,7 +876,7 @@
         const tierClass = getFranchiseTierClass(tier);
         
         return `
-          <div class="recent-item">
+          <div class="recent-item" onclick="window.location.href='dsog-fashion-franchisees.html?id=${f.id}'">
             <div style="display:flex; align-items:center; gap:12px; min-width:0;">
               <div style="width:38px;height:38px;background:#fdf2f8;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;">${getFranchiseIcon(tier)}</div>
               <div style="min-width:0;">
@@ -856,7 +919,7 @@
         const statusClass = getStatusClass(status);
         
         return `
-          <div class="recent-item">
+          <div class="recent-item" onclick="window.location.href='dsog-fashion-orders.html?id=${order.id}'">
             <div style="display:flex; align-items:center; gap:12px; min-width:0;">
               <div style="width:38px;height:38px;background:#fdf2f8;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;">${getOrderIcon(category)}</div>
               <div style="min-width:0;">
@@ -908,7 +971,6 @@
     }
 
     function setupRealtimeListeners() {
-      // 1. Listen for dsog_fashion_franchisees
       onValue(ref(db, 'dsog_fashion_franchisees'), (snapshot) => {
         allFranchisees = snapshot.val() || {};
         console.log('🏪 Franchisees loaded:', Object.keys(allFranchisees).length);
@@ -919,14 +981,12 @@
         loadingOverlay.classList.add('hide');
       });
 
-      // 2. Listen for dsog_fashion_orders
       onValue(ref(db, 'dsog_fashion_orders'), (snapshot) => {
         allOrders = snapshot.val() || {};
         console.log('👗 Orders loaded:', Object.keys(allOrders).length);
         updateStats();
       }, (error) => {
         console.error('❌ Orders error:', error);
-        // Fallback: check pickup_deliveries for fashion deliveries
         onValue(ref(db, 'pickup_deliveries'), (snapshot) => {
           const deliveries = snapshot.val() || {};
           allOrders = {};
@@ -941,7 +1001,6 @@
         });
       });
 
-      // 3. Listen for dsog_fashion_products
       onValue(ref(db, 'dsog_fashion_products'), (snapshot) => {
         allProducts = snapshot.val() || {};
         console.log('🏷️ Products loaded:', Object.keys(allProducts).length);
@@ -952,7 +1011,6 @@
       });
     }
 
-    // ========== AUTH & INIT ==========
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         currentUser = user;
@@ -1011,10 +1069,6 @@
         document.getElementById('logoClick').onclick = () => {
           window.location.href = currentStoreSlug ? `/p/${currentStoreSlug}.html` : '/';
         };
-
-        document.getElementById('mapViewBtn').addEventListener('click', () => {
-          window.location.href = 'map-operations.html?service=dsog';
-        });
 
         setupRealtimeListeners();
       } else {
