@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Franchise Manager | KazInni Workspaces</title>
+  
+  <meta name="theme-color" content="#7c3aed">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  
+  <link rel="icon" type="image/png" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --primary: #7c3aed;
+      --primary-dark: #5b21b6;
+      --primary-light: #a78bfa;
+      --gold: #f59e0b;
+      --text-primary: #1e293b;
+      --text-muted: #64748b;
+      --border-light: #ede9fe;
+      --green: #10b981;
+      --red: #ef4444;
+      --blue: #3b82f6;
+      --pink: #ec4899;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(145deg, #f8f6fc 0%, #ffffff 100%);
+      color: var(--text-primary);
+      line-height: 1.4;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .navbar {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(16px);
+      padding: 0.5rem 2%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(124, 58, 237, 0.12);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .logo-img { height: 34px; width: 34px; border-radius: 10px; object-fit: contain; background: white; box-shadow: 0 4px 12px rgba(124,58,237,0.15); }
+    .logo-text {
+      font-weight: 800; font-size: 1.1rem;
+      background: linear-gradient(145deg, #a78bfa, #7c3aed);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .logo-text span { font-weight: 600; font-size: 0.7rem; background: linear-gradient(145deg, #ec4899, #db2777); -webkit-text-fill-color: transparent; margin-left: 3px; }
+
+    .nav-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .nav-btn {
+      background: rgba(124,58,237,0.06); border: 1px solid rgba(124,58,237,0.15);
+      padding: 0.4rem 0.8rem; border-radius: 25px; color: var(--primary-dark);
+      font-weight: 600; font-size: 0.7rem; cursor: pointer; display: inline-flex;
+      align-items: center; gap: 5px; text-decoration: none; transition: all 0.2s;
+    }
+    .nav-btn:hover { background: var(--primary); color: white; }
+    .nav-btn.active { background: var(--pink); color: white; border-color: var(--pink); }
+
+    .container { padding: 1rem 2%; flex: 1; }
+
+    .page-header { margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.8rem; }
+    .page-header h1 { font-size: 1.3rem; font-weight: 800; color: #0f172a; }
+    .page-header h1 i { color: var(--pink); margin-right: 6px; }
+
+    /* Tab Navigation */
+    .tab-nav {
+      display: flex; gap: 4px; margin-bottom: 1rem; background: #f1f5f9;
+      padding: 4px; border-radius: 30px; width: fit-content;
+    }
+    .tab-btn {
+      padding: 0.45rem 1.1rem; border-radius: 25px; border: none; font-weight: 600;
+      font-size: 0.7rem; cursor: pointer; transition: all 0.2s; font-family: inherit;
+      background: transparent; color: var(--text-muted); display: flex; align-items: center; gap: 5px;
+    }
+    .tab-btn.active { background: white; color: var(--pink); box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .tab-btn:hover:not(.active) { color: var(--pink); }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* Stats Row */
+    .stats-row {
+      display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 1rem;
+    }
+    .stat-mini {
+      background: white; border-radius: 14px; padding: 0.8rem 1rem; text-align: center;
+      border: 1px solid #ede9fe; box-shadow: 0 2px 8px rgba(124,58,237,0.03);
+    }
+    .stat-mini .stat-num { font-size: 1.5rem; font-weight: 800; color: var(--pink); line-height: 1.1; }
+    .stat-mini .stat-label { font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.3px; }
+
+    /* Cards Grid */
+    .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; margin-bottom: 1rem; }
+
+    .franchise-card {
+      background: white; border-radius: 16px; padding: 1.2rem;
+      border: 1px solid #ede9fe; box-shadow: 0 3px 12px rgba(124,58,237,0.03);
+      transition: all 0.2s;
+    }
+    .franchise-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(124,58,237,0.08); }
+    .franchise-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.8rem; }
+    .franchise-card-header h3 { font-size: 0.9rem; font-weight: 700; }
+    .franchise-card-header .badge {
+      padding: 0.15rem 0.5rem; border-radius: 12px; font-size: 0.6rem; font-weight: 700;
+    }
+    .badge-active { background: #d1fae5; color: #065f46; }
+    .badge-pending { background: #fef3c7; color: #92400e; }
+    .badge-inactive { background: #fee2e2; color: #991b1b; }
+
+    .franchise-info { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 0.7rem; margin-bottom: 0.8rem; }
+    .franchise-info div { color: var(--text-muted); }
+    .franchise-info strong { color: var(--text-primary); display: block; font-size: 0.65rem; text-transform: uppercase; }
+
+    .franchise-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+    .btn-sm {
+      padding: 0.3rem 0.7rem; border-radius: 8px; border: none; font-weight: 600;
+      font-size: 0.65rem; cursor: pointer; display: inline-flex; align-items: center;
+      gap: 4px; transition: all 0.15s; font-family: inherit;
+    }
+    .btn-view { background: #f1f5f9; color: #475569; }
+    .btn-view:hover { background: #475569; color: white; }
+    .btn-edit { background: #ede9fe; color: #5b21b6; }
+    .btn-edit:hover { background: #7c3aed; color: white; }
+    .btn-assign { background: #fef3cd; color: #92400e; }
+    .btn-assign:hover { background: #f59e0b; color: white; }
+    .btn-active { background: #d1fae5; color: #065f46; }
+    .btn-active:hover { background: #10b981; color: white; }
+
+    /* Table */
+    .table-wrap {
+      background: white; border-radius: 16px; border: 1px solid #ede9fe;
+      overflow: hidden; box-shadow: 0 4px 16px rgba(124,58,237,0.03);
+    }
+    .table-scroll { overflow-x: auto; max-height: 55vh; overflow-y: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
+    thead { position: sticky; top: 0; z-index: 2; background: #fdf2f8; }
+    th {
+      padding: 0.6rem 0.7rem; text-align: left; font-weight: 700; color: #be185d;
+      font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.4px; white-space: nowrap;
+    }
+    td { padding: 0.5rem 0.7rem; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+    tr:hover td { background: #fdf2f8; }
+
+    .status-badge {
+      display: inline-block; padding: 0.15rem 0.5rem; border-radius: 12px;
+      font-size: 0.6rem; font-weight: 700; white-space: nowrap;
+    }
+    .status-new { background: #dbeafe; color: #1e40af; }
+    .status-pending { background: #fef3c7; color: #b45309; }
+    .status-printing { background: #ede9fe; color: #5b21b6; }
+    .status-completed { background: #d1fae5; color: #065f46; }
+
+    .empty-row td { text-align: center; padding: 2rem; color: #94a3b8; }
+
+    /* Modal */
+    .modal-overlay {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5); z-index: 3000; justify-content: center;
+      align-items: center; backdrop-filter: blur(2px);
+    }
+    .modal-overlay.show { display: flex; }
+    .modal {
+      background: white; border-radius: 20px; padding: 1.5rem; max-width: 550px;
+      width: 95%; max-height: 85vh; overflow-y: auto; box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+    }
+    .modal h3 { font-size: 0.95rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px; color: var(--pink); }
+    .modal h3 i { color: var(--pink); }
+    .form-group { margin-bottom: 0.7rem; }
+    .form-group label {
+      display: block; font-size: 0.65rem; font-weight: 700; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 0.15rem;
+    }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%; padding: 0.5rem 0.7rem; border-radius: 10px;
+      border: 1.5px solid #e2e8f0; font-size: 0.8rem; font-family: 'Inter', sans-serif;
+      background: #f8fafc;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      border-color: var(--pink); outline: none; background: white;
+    }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+    .btn-row { display: flex; gap: 8px; margin-top: 1rem; }
+    .btn {
+      padding: 0.6rem 1.2rem; border-radius: 10px; border: none; font-weight: 700;
+      font-size: 0.8rem; cursor: pointer; display: inline-flex; align-items: center;
+      gap: 5px; font-family: inherit; transition: all 0.15s;
+    }
+    .btn-primary { background: var(--pink); color: white; }
+    .btn-primary:hover { background: #db2777; }
+    .btn-secondary { background: #f1f5f9; color: #475569; }
+    .btn-secondary:hover { background: #e2e8f0; }
+
+    .toast {
+      position: fixed; bottom: 25px; right: 25px; background: var(--green); color: white;
+      padding: 0.7rem 1.2rem; border-radius: 20px; font-weight: 600; z-index: 4000;
+      animation: slideIn 0.3s ease; box-shadow: 0 8px 20px rgba(16,185,129,0.25);
+      display: flex; align-items: center; gap: 6px; font-size: 0.75rem;
+    }
+    .toast.error { background: var(--red); }
+    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+    @media (max-width: 768px) {
+      .stats-row { grid-template-columns: repeat(3, 1fr); }
+      .cards-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 500px) {
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+      .tab-nav { width: 100%; overflow-x: auto; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <a href="/workspaces/brandinn-print/dashboard.html" class="logo">
+      <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png" alt="KazInni Logo" class="logo-img">
+      <span class="logo-text">KazInni <span>Franchise</span></span>
+    </a>
+    <div class="nav-right">
+      <a href="/workspaces/brandinn-print/dashboard.html" class="nav-btn"><i class="fas fa-chart-pie"></i> Dashboard</a>
+      <a href="/workspaces/brandinn-print/orders.html" class="nav-btn"><i class="fas fa-clipboard-list"></i> Orders</a>
+      <a href="/workspaces/brandinn-print/print-jobs.html" class="nav-btn"><i class="fas fa-cogs"></i> Print Jobs</a>
+      <button class="nav-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="page-header">
+      <h1><i class="fas fa-store-alt"></i> Franchise Management</h1>
+      <button class="btn btn-primary" onclick="showAddFranchiseModal()" style="padding:0.5rem 1rem;font-size:0.7rem;">
+        <i class="fas fa-plus"></i> Add Franchise
+      </button>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row" id="statsRow">
+      <div class="stat-mini"><div class="stat-num" id="statTotal">0</div><div class="stat-label">Total Shops</div></div>
+      <div class="stat-mini"><div class="stat-num" id="statActive">0</div><div class="stat-label">Active</div></div>
+      <div class="stat-mini"><div class="stat-num" id="statOrders">0</div><div class="stat-label">Total Orders</div></div>
+      <div class="stat-mini"><div class="stat-num" id="statPending">0</div><div class="stat-label">Pending Jobs</div></div>
+      <div class="stat-mini"><div class="stat-num" id="statRevenue">0</div><div class="stat-label">Revenue (KES)</div></div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tab-nav">
+      <button class="tab-btn active" onclick="switchTab('shops', this)"><i class="fas fa-store"></i> Shops</button>
+      <button class="tab-btn" onclick="switchTab('orders', this)"><i class="fas fa-shopping-cart"></i> All Orders</button>
+      <button class="tab-btn" onclick="switchTab('jobs', this)"><i class="fas fa-print"></i> Job Assignments</button>
+      <button class="tab-btn" onclick="switchTab('stock', this)"><i class="fas fa-boxes"></i> Stock</button>
+    </div>
+
+    <!-- Shops Tab -->
+    <div class="tab-content active" id="tab-shops">
+      <div class="cards-grid" id="shopsGrid">
+        <div class="empty-row" style="grid-column:1/-1;text-align:center;padding:2rem;">Loading shops...</div>
+      </div>
+    </div>
+
+    <!-- Orders Tab -->
+    <div class="tab-content" id="tab-orders">
+      <div class="table-wrap">
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr><th>Order ID</th><th>Customer</th><th>Product</th><th>Shop</th><th>Qty</th><th>Total</th><th>Status</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="ordersTableBody">
+              <tr class="empty-row"><td colspan="8">Loading orders...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Jobs Tab -->
+    <div class="tab-content" id="tab-jobs">
+      <div class="table-wrap">
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr><th>Job ID</th><th>Order</th><th>Assigned Shop</th><th>Assigned To</th><th>Deadline</th><th>Status</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="jobsTableBody">
+              <tr class="empty-row"><td colspan="7">Loading jobs...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stock Tab -->
+    <div class="tab-content" id="tab-stock">
+      <div class="cards-grid" id="stockGrid">
+        <div class="empty-row" style="grid-column:1/-1;text-align:center;padding:2rem;">Loading stock...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal-overlay" id="modal"><div class="modal" id="modalContent"></div></div>
+  <div id="toastContainer"></div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+      authDomain: "mugera-e51cc.firebaseapp.com",
+      databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "mugera-e51cc",
+      storageBucket: "mugera-e51cc.firebasestorage.app",
+      messagingSenderId: "1024868637509",
+      appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    const auth = firebase.auth();
+
+    let allFranchises = {};
+    let allOrders = {};
+    let allJobs = {};
+    let allStock = {};
+
+    function showToast(msg, isError = false) {
+      const container = document.getElementById('toastContainer');
+      const existing = container.querySelector('.toast');
+      if (existing) existing.remove();
+      const toast = document.createElement('div');
+      toast.className = `toast ${isError ? 'error' : ''}`;
+      toast.innerHTML = `<i class="fas fa-${isError ? 'exclamation-circle' : 'check-circle'}"></i> ${msg}`;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 3500);
+    }
+
+    function getInitials(name) {
+      return name ? String(name).split(' ').map(n => n[0]).join('').toUpperCase().substring(0,2) : 'SH';
+    }
+
+    function getStatusClass(status) {
+      const map = { new:'status-new', pending:'status-pending', printing:'status-printing', completed:'status-completed' };
+      return map[status] || 'status-new';
+    }
+
+    function getProductIcon(type) {
+      const icons = { tshirt:'👕', banner:'🪧', sticker:'🏷️' };
+      return icons[type] || '📦';
+    }
+
+    function switchTab(tab, btn) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      document.getElementById('tab-' + tab).classList.add('active');
+    }
+
+    // ========== RENDER SHOPS ==========
+    function renderShops() {
+      const grid = document.getElementById('shopsGrid');
+      const shops = Object.entries(allFranchises).map(([id, data]) => ({ id, ...data }));
+      
+      if (!shops.length) {
+        grid.innerHTML = `<div class="empty-row" style="grid-column:1/-1;text-align:center;padding:2rem;"><i class="fas fa-store-slash" style="font-size:2rem;display:block;margin-bottom:8px;"></i>No franchises yet. Add your first print shop!</div>`;
+        return;
+      }
+
+      grid.innerHTML = shops.map(shop => {
+        const status = shop.status || 'active';
+        const badgeClass = status === 'active' ? 'badge-active' : status === 'pending' ? 'badge-pending' : 'badge-inactive';
+        const shopOrders = Object.values(allOrders).filter(o => o && o.shopId === shop.id);
+        const orderCount = shopOrders.length;
+        const revenue = shopOrders.reduce((s, o) => s + (o.total || 0), 0);
+
+        return `
+          <div class="franchise-card">
+            <div class="franchise-card-header">
+              <h3>${shop.name || 'Unnamed Shop'}</h3>
+              <span class="badge ${badgeClass}">${status.toUpperCase()}</span>
+            </div>
+            <div class="franchise-info">
+              <div><strong>Location</strong>${shop.location || 'N/A'}</div>
+              <div><strong>Manager</strong>${shop.manager || 'N/A'}</div>
+              <div><strong>Phone</strong>${shop.phone || 'N/A'}</div>
+              <div><strong>Email</strong>${shop.email || 'N/A'}</div>
+              <div><strong>Orders</strong>${orderCount}</div>
+              <div><strong>Revenue</strong>KES ${revenue.toLocaleString()}</div>
+            </div>
+            <div class="franchise-actions">
+              <button class="btn-sm btn-view" onclick="viewShop('${shop.id}')"><i class="fas fa-eye"></i> View</button>
+              <button class="btn-sm btn-edit" onclick="editShop('${shop.id}')"><i class="fas fa-edit"></i> Edit</button>
+              <button class="btn-sm btn-assign" onclick="assignJob('${shop.id}')"><i class="fas fa-tasks"></i> Assign Job</button>
+              <button class="btn-sm btn-active" onclick="toggleShopStatus('${shop.id}', '${status}')">
+                <i class="fas fa-power-off"></i> ${status === 'active' ? 'Deactivate' : 'Activate'}
+              </button>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    // ========== RENDER ORDERS ==========
+    function renderOrders() {
+      const tbody = document.getElementById('ordersTableBody');
+      const orders = Object.entries(allOrders).map(([id, data]) => ({ id, ...data }))
+        .filter(o => o).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+      if (!orders.length) {
+        tbody.innerHTML = `<tr class="empty-row"><td colspan="8">No orders found</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = orders.map(order => {
+        const status = order.status || 'new';
+        const shop = allFranchises[order.shopId];
+        const shopName = shop ? shop.name : 'Main Shop';
+        return `
+          <tr>
+            <td><code style="font-size:0.65rem;">#${String(order.id).slice(-6)}</code></td>
+            <td>${order.customerName || 'Walk-in'}</td>
+            <td>${getProductIcon(order.type)} ${order.product || order.type || 'Order'}</td>
+            <td>${shopName}</td>
+            <td>${order.quantity || 1}</td>
+            <td><strong>KES ${(order.total || 0).toLocaleString()}</strong></td>
+            <td><span class="status-badge ${getStatusClass(status)}">${status}</span></td>
+            <td>
+              <button class="btn-sm btn-view" onclick="viewOrderDetails('${order.id}')"><i class="fas fa-eye"></i></button>
+              ${status !== 'completed' ? `<button class="btn-sm btn-assign" onclick="reassignOrder('${order.id}')"><i class="fas fa-exchange-alt"></i></button>` : ''}
+            </td>
+          </tr>`;
+      }).join('');
+    }
+
+    // ========== RENDER JOBS ==========
+    function renderJobs() {
+      const tbody = document.getElementById('jobsTableBody');
+      const jobs = Object.entries(allJobs).map(([id, data]) => ({ id, ...data }))
+        .filter(j => j).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+      if (!jobs.length) {
+        tbody.innerHTML = `<tr class="empty-row"><td colspan="7">No jobs assigned</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = jobs.map(job => {
+        const shop = allFranchises[job.shopId];
+        return `
+          <tr>
+            <td><code style="font-size:0.65rem;">#${String(job.id).slice(-6)}</code></td>
+            <td>${job.orderRef || 'N/A'}</td>
+            <td>${shop ? shop.name : 'Unassigned'}</td>
+            <td>${job.assignedTo || '—'}</td>
+            <td>${job.deadline || '—'}</td>
+            <td><span class="status-badge ${getStatusClass(job.status)}">${job.status || 'pending'}</span></td>
+            <td>
+              <button class="btn-sm btn-view" onclick="viewJobDetails('${job.id}')"><i class="fas fa-eye"></i></button>
+              <button class="btn-sm btn-edit" onclick="editJob('${job.id}')"><i class="fas fa-edit"></i></button>
+            </td>
+          </tr>`;
+      }).join('');
+    }
+
+    // ========== RENDER STOCK ==========
+    function renderStock() {
+      const grid = document.getElementById('stockGrid');
+      const stock = Object.entries(allStock).map(([id, data]) => ({ id, ...data }));
+
+      if (!stock.length) {
+        grid.innerHTML = `<div class="empty-row" style="grid-column:1/-1;text-align:center;padding:2rem;"><i class="fas fa-box-open" style="font-size:2rem;display:block;margin-bottom:8px;"></i>No stock records</div>`;
+        return;
+      }
+
+      grid.innerHTML = stock.map(item => {
+        const shop = allFranchises[item.shopId];
+        return `
+          <div class="franchise-card">
+            <div class="franchise-card-header">
+              <h3>${item.name || 'Stock Item'}</h3>
+              <span class="badge ${item.quantity > 10 ? 'badge-active' : item.quantity > 0 ? 'badge-pending' : 'badge-inactive'}">${item.quantity || 0} units</span>
+            </div>
+            <div class="franchise-info">
+              <div><strong>Shop</strong>${shop ? shop.name : 'Main'}</div>
+              <div><strong>Category</strong>${item.category || 'General'}</div>
+              <div><strong>Unit Price</strong>KES ${(item.unitPrice || 0).toLocaleString()}</div>
+              <div><strong>Value</strong>KES ${((item.quantity || 0) * (item.unitPrice || 0)).toLocaleString()}</div>
+            </div>
+            <div class="franchise-actions">
+              <button class="btn-sm btn-edit" onclick="updateStock('${item.id}')"><i class="fas fa-edit"></i> Update</button>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    function updateStats() {
+      const shops = Object.values(allFranchises).filter(s => s);
+      const active = shops.filter(s => s.status === 'active' || !s.status).length;
+      const orders = Object.values(allOrders).filter(o => o);
+      const pending = orders.filter(o => o.status === 'pending' || o.status === 'printing').length;
+      const revenue = orders.reduce((s, o) => s + (o.total || 0), 0);
+
+      document.getElementById('statTotal').textContent = shops.length;
+      document.getElementById('statActive').textContent = active;
+      document.getElementById('statOrders').textContent = orders.length;
+      document.getElementById('statPending').textContent = pending;
+      document.getElementById('statRevenue').textContent = revenue.toLocaleString();
+    }
+
+    // ========== MODALS ==========
+    function showAddFranchiseModal() {
+      document.getElementById('modalContent').innerHTML = `
+        <h3><i class="fas fa-plus-circle"></i> Add New Franchise</h3>
+        <div class="form-row">
+          <div class="form-group"><label>Shop Name *</label><input type="text" id="fName" placeholder="e.g., BrandInn Print - Westlands"></div>
+          <div class="form-group"><label>Location *</label><input type="text" id="fLocation" placeholder="e.g., Westlands, Nairobi"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Manager Name</label><input type="text" id="fManager" placeholder="Full name"></div>
+          <div class="form-group"><label>Phone *</label><input type="tel" id="fPhone" placeholder="+254..."></div>
+        </div>
+        <div class="form-group"><label>Email</label><input type="email" id="fEmail" placeholder="shop@email.com"></div>
+        <div class="form-group"><label>Notes</label><textarea id="fNotes" rows="2" placeholder="Any additional info..."></textarea></div>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="saveFranchise()"><i class="fas fa-save"></i> Save Franchise</button>
+          <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+        </div>
+      `;
+      document.getElementById('modal').classList.add('show');
+    }
+
+    async function saveFranchise() {
+      const name = document.getElementById('fName').value.trim();
+      const location = document.getElementById('fLocation').value.trim();
+      const phone = document.getElementById('fPhone').value.trim();
+      if (!name || !location || !phone) { showToast('Fill required fields', true); return; }
+
+      const data = {
+        name, location, phone,
+        manager: document.getElementById('fManager').value.trim(),
+        email: document.getElementById('fEmail').value.trim(),
+        notes: document.getElementById('fNotes').value.trim(),
+        status: 'active',
+        createdAt: firebase.database.ServerValue.TIMESTAMP
+      };
+
+      try {
+        await database.ref('brandinn_franchises').push().set(data);
+        showToast('✅ Franchise added!');
+        closeModal();
+      } catch (e) { showToast('Failed to save', true); }
+    }
+
+    function viewShop(shopId) {
+      const shop = allFranchises[shopId];
+      if (!shop) return;
+      const orders = Object.values(allOrders).filter(o => o.shopId === shopId);
+      document.getElementById('modalContent').innerHTML = `
+        <h3><i class="fas fa-store"></i> ${shop.name}</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:0.8rem;margin-bottom:1rem;">
+          <div><strong>Location:</strong> ${shop.location || 'N/A'}</div>
+          <div><strong>Manager:</strong> ${shop.manager || 'N/A'}</div>
+          <div><strong>Phone:</strong> ${shop.phone || 'N/A'}</div>
+          <div><strong>Email:</strong> ${shop.email || 'N/A'}</div>
+          <div><strong>Status:</strong> ${shop.status || 'active'}</div>
+          <div><strong>Orders:</strong> ${orders.length}</div>
+          <div><strong>Revenue:</strong> KES ${orders.reduce((s,o) => s+(o.total||0), 0).toLocaleString()}</div>
+        </div>
+        ${orders.length ? `<p style="font-weight:700;font-size:0.75rem;margin-bottom:0.5rem;">Recent Orders:</p>
+        ${orders.slice(0,5).map(o => `<div style="background:#f8fafc;padding:0.5rem;border-radius:8px;margin-bottom:4px;font-size:0.7rem;">${getProductIcon(o.type)} ${o.customerName||'Walk-in'} — KES ${(o.total||0).toLocaleString()} <span class="status-badge ${getStatusClass(o.status||'new')}">${o.status||'new'}</span></div>`).join('')}` : ''}
+        <div class="btn-row"><button class="btn btn-secondary" onclick="closeModal()">Close</button></div>
+      `;
+      document.getElementById('modal').classList.add('show');
+    }
+
+    function editShop(shopId) {
+      const shop = allFranchises[shopId];
+      if (!shop) return;
+      document.getElementById('modalContent').innerHTML = `
+        <h3><i class="fas fa-edit"></i> Edit Franchise</h3>
+        <div class="form-row">
+          <div class="form-group"><label>Shop Name</label><input type="text" id="efName" value="${shop.name || ''}"></div>
+          <div class="form-group"><label>Location</label><input type="text" id="efLocation" value="${shop.location || ''}"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Manager</label><input type="text" id="efManager" value="${shop.manager || ''}"></div>
+          <div class="form-group"><label>Phone</label><input type="tel" id="efPhone" value="${shop.phone || ''}"></div>
+        </div>
+        <div class="form-group"><label>Email</label><input type="email" id="efEmail" value="${shop.email || ''}"></div>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="updateFranchise('${shopId}')"><i class="fas fa-save"></i> Update</button>
+          <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+        </div>
+      `;
+      document.getElementById('modal').classList.add('show');
+    }
+
+    async function updateFranchise(shopId) {
+      const data = {
+        name: document.getElementById('efName').value.trim(),
+        location: document.getElementById('efLocation').value.trim(),
+        manager: document.getElementById('efManager').value.trim(),
+        phone: document.getElementById('efPhone').value.trim(),
+        email: document.getElementById('efEmail').value.trim(),
+        updatedAt: firebase.database.ServerValue.TIMESTAMP
+      };
+      try {
+        await database.ref(`brandinn_franchises/${shopId}`).update(data);
+        showToast('✅ Updated!');
+        closeModal();
+      } catch (e) { showToast('Failed to update', true); }
+    }
+
+    async function toggleShopStatus(shopId, currentStatus) {
+      const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+      if (!confirm(`${newStatus === 'active' ? 'Activate' : 'Deactivate'} this franchise?`)) return;
+      try {
+        await database.ref(`brandinn_franchises/${shopId}`).update({ status: newStatus });
+        showToast(`✅ Franchise ${newStatus}`);
+      } catch (e) { showToast('Failed to update', true); }
+    }
+
+    function assignJob(shopId) {
+      const shop = allFranchises[shopId];
+      document.getElementById('modalContent').innerHTML = `
+        <h3><i class="fas fa-tasks"></i> Assign Job to ${shop?.name || 'Shop'}</h3>
+        <div class="form-group"><label>Order Reference</label><input type="text" id="jobOrderRef" placeholder="Order ID or description"></div>
+        <div class="form-group"><label>Assigned To (Staff)</label><input type="text" id="jobStaff" placeholder="Staff name"></div>
+        <div class="form-group"><label>Deadline</label><input type="date" id="jobDeadline"></div>
+        <div class="form-group"><label>Notes</label><textarea id="jobNotes" rows="2"></textarea></div>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="saveJob('${shopId}')"><i class="fas fa-save"></i> Assign Job</button>
+          <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+        </div>
+      `;
+      document.getElementById('modal').classList.add('show');
+    }
+
+    async function saveJob(shopId) {
+      const data = {
+        shopId,
+        orderRef: document.getElementById('jobOrderRef').value.trim(),
+        assignedTo: document.getElementById('jobStaff').value.trim(),
+        deadline: document.getElementById('jobDeadline').value,
+        notes: document.getElementById('jobNotes').value.trim(),
+        status: 'pending',
+        createdAt: firebase.database.ServerValue.TIMESTAMP
+      };
+      try {
+        await database.ref('brandinn_print_jobs').push().set(data);
+        showToast('✅ Job assigned!');
+        closeModal();
+      } catch (e) { showToast('Failed to assign', true); }
+    }
+
+    function viewOrderDetails(orderId) {
+      const order = allOrders[orderId];
+      if (!order) return;
+      document.getElementById('modalContent').innerHTML = `
+        <h3><i class="fas fa-info-circle"></i> Order #${String(orderId).slice(-6)}</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:0.75rem;">
+          <div><strong>Customer:</strong> ${order.customerName||'N/A'}</div>
+          <div><strong>Phone:</strong> ${order.customerPhone||'N/A'}</div>
+          <div><strong>Product:</strong> ${order.product||'N/A'}</div>
+          <div><strong>Qty:</strong> ${order.quantity||1}</div>
+          <div><strong>Total:</strong> KES ${(order.total||0).toLocaleString()}</div>
+          <div><strong>Status:</strong> <span class="status-badge ${getStatusClass(order.status)}">${order.status||'new'}</span></div>
+        </div>
+        <div class="btn-row"><button class="btn btn-secondary" onclick="closeModal()">Close</button></div>
+      `;
+      document.getElementById('modal').classList.add('show');
+    }
+
+    function closeModal() { document.getElementById('modal').classList.remove('show'); }
+
+    // ========== FIREBASE LISTENERS ==========
+    database.ref('brandinn_franchises').on('value', (snap) => {
+      allFranchises = snap.val() || {};
+      updateStats();
+      renderShops();
+    });
+
+    database.ref('brandinn_print_orders').on('value', (snap) => {
+      allOrders = snap.val() || {};
+      updateStats();
+      renderOrders();
+    });
+
+    database.ref('brandinn_print_jobs').on('value', (snap) => {
+      allJobs = snap.val() || {};
+      renderJobs();
+    });
+
+    database.ref('brandinn_print_stock').on('value', (snap) => {
+      allStock = snap.val() || {};
+      renderStock();
+    });
+
+    document.getElementById('modal').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('modal')) closeModal();
+    });
+
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+    auth.onAuthStateChanged((user) => { if (!user) window.location.href = 'https://kazinni-staff.vercel.app'; });
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      if (confirm('Log out?')) await auth.signOut();
+    });
+
+    window.switchTab = switchTab;
+  </script>
+</body>
+</html>
