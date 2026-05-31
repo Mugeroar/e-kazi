@@ -1,1 +1,541 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Place Order | Fusion Foods</title>
+  
+  <meta name="theme-color" content="#10b981">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  
+  <link rel="icon" type="image/png" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --green: #10b981;
+      --green-dark: #059669;
+      --green-light: #34d399;
+      --text-primary: #1e293b;
+      --text-muted: #64748b;
+      --border-light: #a7f3d0;
+      --purple: #7c3aed;
+      --red: #ef4444;
+      --orange: #f59e0b;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(145deg, #ecfdf5 0%, #ffffff 100%);
+      color: var(--text-primary);
+      line-height: 1.4;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .navbar {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(16px);
+      padding: 0.5rem 2%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(16, 185, 129, 0.2);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .logo-img { height: 34px; width: 34px; border-radius: 10px; object-fit: contain; background: white; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2); }
+    .logo-text {
+      font-weight: 800; font-size: 1.1rem;
+      background: linear-gradient(145deg, #34d399, #059669);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .logo-text span { font-weight: 600; font-size: 0.7rem; background: #10b981; -webkit-text-fill-color: #10b981; margin-left: 3px; }
+
+    .nav-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .nav-btn {
+      background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2);
+      padding: 0.4rem 0.8rem; border-radius: 25px; color: var(--green-dark);
+      font-weight: 600; font-size: 0.7rem; cursor: pointer; display: inline-flex;
+      align-items: center; gap: 5px; text-decoration: none; transition: all 0.2s;
+    }
+    .nav-btn:hover { background: var(--green); color: white; }
+
+    .container { max-width: 1100px; margin: 0 auto; padding: 1.2rem 2%; flex: 1; width: 100%; }
+
+    .page-header { margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; }
+    .page-header h1 { font-size: 1.3rem; font-weight: 800; color: #0f172a; }
+    .page-header h1 i { color: var(--green-dark); margin-right: 6px; }
+    .page-header p { color: var(--text-muted); font-size: 0.75rem; }
+
+    .form-layout { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.8rem; }
+
+    .form-card {
+      background: white; border-radius: 16px; padding: 1rem;
+      border: 1px solid #a7f3d0; box-shadow: 0 3px 12px rgba(5,150,105,0.03);
+      display: flex; flex-direction: column;
+    }
+    .form-card h3 { font-size: 0.85rem; font-weight: 700; margin-bottom: 0.7rem; display: flex; align-items: center; gap: 6px; color: var(--green-dark); flex-shrink: 0; }
+    .form-card h3 i { color: var(--green); font-size: 0.7rem; }
+
+    .form-card-scroll { flex: 1; overflow-y: auto; padding-right: 4px; }
+    .form-card-scroll::-webkit-scrollbar { width: 3px; }
+    .form-card-scroll::-webkit-scrollbar-thumb { background: #a7f3d0; border-radius: 3px; }
+
+    .form-group { margin-bottom: 0.5rem; }
+    .form-group label {
+      display: block; font-size: 0.65rem; font-weight: 700; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 0.15rem;
+    }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%; padding: 0.5rem 0.7rem; border-radius: 10px;
+      border: 1.5px solid #e2e8f0; font-size: 0.8rem; font-family: 'Inter', sans-serif;
+      background: #f8fafc; transition: all 0.15s;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      border-color: var(--green); outline: none; background: white;
+      box-shadow: 0 0 0 3px rgba(16,185,129,0.06);
+    }
+    .form-group textarea { resize: none; height: 55px; }
+    .form-group input[readonly] { background: #ecfdf5; font-weight: 700; cursor: default; }
+
+    .inline-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; }
+    .inline-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.4rem; }
+
+    .product-row {
+      display: flex; gap: 6px; align-items: flex-end; margin-bottom: 0.4rem;
+      background: #f8fafc; padding: 0.5rem; border-radius: 10px;
+    }
+    .product-row .form-group { margin-bottom: 0; flex: 1; }
+    .product-row .btn-remove {
+      background: #fee2e2; color: #991b1b; border: none; padding: 0.4rem 0.6rem;
+      border-radius: 8px; cursor: pointer; font-size: 0.7rem; flex-shrink: 0;
+    }
+    .btn-add-item {
+      background: #ecfdf5; color: #059669; border: 2px dashed #a7f3d0;
+      padding: 0.4rem; border-radius: 10px; cursor: pointer; font-size: 0.7rem;
+      font-weight: 600; width: 100%; font-family: inherit; transition: all 0.15s;
+    }
+    .btn-add-item:hover { background: #d1fae5; }
+
+    .category-pills { display: flex; gap: 4px; flex-wrap: wrap; }
+    .category-pill {
+      padding: 0.3rem 0.7rem; border-radius: 15px; border: 2px solid #e2e8f0;
+      cursor: pointer; font-size: 0.65rem; font-weight: 600; transition: all 0.15s;
+      background: white; -webkit-tap-highlight-color: transparent;
+    }
+    .category-pill:hover { border-color: var(--green); }
+    .category-pill.active { background: var(--green); color: white; border-color: var(--green); }
+
+    .price-display {
+      background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+      border-radius: 12px; padding: 0.7rem; text-align: center;
+      flex-shrink: 0; margin-top: 0.5rem;
+    }
+    .price-display .total-amount { font-size: 1.6rem; font-weight: 900; color: var(--green-dark); line-height: 1.2; }
+    .price-display .breakdown { font-size: 0.65rem; color: var(--text-muted); margin-top: 0.1rem; }
+
+    .btn-row { display: flex; gap: 6px; flex-shrink: 0; margin-top: 0.5rem; }
+    .btn {
+      padding: 0.6rem 1rem; border-radius: 10px; border: none; font-weight: 700;
+      font-size: 0.8rem; cursor: pointer; display: inline-flex; align-items: center;
+      gap: 5px; transition: all 0.15s; font-family: inherit; justify-content: center;
+    }
+    .btn-primary { background: var(--green); color: white; flex: 2; }
+    .btn-primary:hover { background: var(--green-dark); }
+    .btn-secondary { background: #f1f5f9; color: #475569; flex: 1; }
+    .btn-secondary:hover { background: #e2e8f0; }
+
+    .toast {
+      position: fixed; bottom: 25px; right: 25px; background: var(--green); color: white;
+      padding: 0.7rem 1.2rem; border-radius: 20px; font-weight: 600; z-index: 4000;
+      animation: slideIn 0.3s ease; box-shadow: 0 8px 20px rgba(16,185,129,0.25);
+      display: flex; align-items: center; gap: 6px; font-size: 0.75rem;
+    }
+    .toast.error { background: var(--red); }
+    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+    @media (max-width: 900px) { .form-layout { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 600px) { .form-layout { grid-template-columns: 1fr; } .container { padding: 0.8rem; } }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <a href="fusion-foods-dashboard.html" class="logo">
+      <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png" alt="Fusion Foods" class="logo-img">
+      <span class="logo-text">Fusion <span>Foods</span></span>
+    </a>
+    <div class="nav-right">
+      <a href="fusion-foods-dashboard.html" class="nav-btn"><i class="fas fa-arrow-left"></i> Dashboard</a>
+      <a href="fusion-foods-inventory.html" class="nav-btn"><i class="fas fa-boxes"></i> Inventory</a>
+      <a href="fusion-foods-receive.html" class="nav-btn"><i class="fas fa-inbox"></i> Orders</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="page-header">
+      <h1><i class="fas fa-cart-plus"></i> Place New Order</h1>
+      <p>Create a food supply order for a restaurant or business</p>
+    </div>
+
+    <div class="form-layout">
+      
+      <!-- COLUMN 1: Customer & Store -->
+      <div class="form-card">
+        <h3><i class="fas fa-store"></i> Restaurant Details</h3>
+        <div class="form-card-scroll">
+          <div class="form-group">
+            <label>Restaurant Name *</label>
+            <input type="text" id="restaurantName" placeholder="e.g., Sunrise Cafe">
+          </div>
+          <div class="form-group">
+            <label>Contact Person *</label>
+            <input type="text" id="contactPerson" placeholder="Full name">
+          </div>
+          <div class="form-group">
+            <label>Phone Number *</label>
+            <input type="tel" id="phone" placeholder="+254 700 000000">
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="email" placeholder="restaurant@email.com">
+          </div>
+          <div class="form-group">
+            <label>Delivery Location *</label>
+            <input type="text" id="location" placeholder="e.g., Westlands, Nairobi">
+          </div>
+          <div class="form-group">
+            <label>Food Category</label>
+            <div class="category-pills" id="categoryPills">
+              <span class="category-pill active" data-cat="vegetables" onclick="selectPill(this, 'categoryPills')">🥬 Vegetables</span>
+              <span class="category-pill" data-cat="meat" onclick="selectPill(this, 'categoryPills')">🥩 Meat</span>
+              <span class="category-pill" data-cat="dairy" onclick="selectPill(this, 'categoryPills')">🥛 Dairy</span>
+              <span class="category-pill" data-cat="grains" onclick="selectPill(this, 'categoryPills')">🌾 Grains</span>
+              <span class="category-pill" data-cat="spices" onclick="selectPill(this, 'categoryPills')">🌶️ Spices</span>
+              <span class="category-pill" data-cat="beverages" onclick="selectPill(this, 'categoryPills')">🥤 Beverages</span>
+              <span class="category-pill" data-cat="oils" onclick="selectPill(this, 'categoryPills')">🫒 Oils</span>
+              <span class="category-pill" data-cat="other" onclick="selectPill(this, 'categoryPills')">📦 Other</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- COLUMN 2: Order Items from Inventory -->
+      <div class="form-card">
+        <h3><i class="fas fa-shopping-basket"></i> Order Items</h3>
+        <div class="form-card-scroll">
+          <div id="productRows">
+            <!-- Product rows added dynamically -->
+            <div class="product-row" data-index="0">
+              <div class="form-group" style="flex:2;">
+                <label>Product</label>
+                <select class="product-select" onchange="onProductChange(this)" style="width:100%;">
+                  <option value="">— Select from inventory —</option>
+                </select>
+              </div>
+              <div class="form-group" style="flex:1;">
+                <label>Qty</label>
+                <input type="number" class="product-qty" value="1" min="1" onchange="updatePrice()" oninput="updatePrice()">
+              </div>
+              <button class="btn-remove" onclick="removeProductRow(this)" title="Remove">✕</button>
+            </div>
+          </div>
+          <button class="btn-add-item" onclick="addProductRow()">
+            <i class="fas fa-plus"></i> Add Another Product
+          </button>
+          <div class="form-group" style="margin-top:0.5rem;">
+            <label>Package Type</label>
+            <select id="packageType">
+              <option value="bulk">Bulk Supply</option>
+              <option value="crated">Crated</option>
+              <option value="boxed">Boxed</option>
+              <option value="bagged">Bagged</option>
+              <option value="fresh">Fresh Produce</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Additional Notes (items not in inventory)</label>
+            <textarea id="additionalItems" placeholder="Any items not listed in inventory..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- COLUMN 3: Pricing & Confirm -->
+      <div class="form-card">
+        <h3><i class="fas fa-money-bill"></i> Pricing & Confirm</h3>
+        <div class="form-card-scroll">
+          <div class="form-group">
+            <label>Delivery Fee (KES)</label>
+            <input type="number" id="deliveryFee" value="0" min="0" onchange="updatePrice()" oninput="updatePrice()">
+          </div>
+          <div class="form-group">
+            <label>Special Instructions</label>
+            <textarea id="notes" placeholder="Delivery time, handling..."></textarea>
+          </div>
+          <div class="form-group">
+            <label>Order Type</label>
+            <select id="orderType">
+              <option value="instant">Instant Delivery</option>
+              <option value="scheduled">Scheduled</option>
+              <option value="recurring">Recurring/Standing Order</option>
+            </select>
+          </div>
+        </div>
+        <div class="price-display">
+          <div class="total-amount" id="displayTotal">KES 0</div>
+          <div class="breakdown" id="breakdown">0 items selected</div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="saveOrder()">
+            <i class="fas fa-check-circle"></i> Confirm & Save Order
+          </button>
+          <button class="btn btn-secondary" onclick="resetForm()">
+            <i class="fas fa-undo"></i> Reset
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="toastContainer"></div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+      authDomain: "mugera-e51cc.firebaseapp.com",
+      databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "mugera-e51cc",
+      storageBucket: "mugera-e51cc.firebasestorage.app",
+      messagingSenderId: "1024868637509",
+      appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    const auth = firebase.auth();
+
+    let allInventory = {};
+    let rowCount = 1;
+
+    function showToast(msg, isError = false) {
+      const container = document.getElementById('toastContainer');
+      const existing = container.querySelector('.toast');
+      if (existing) existing.remove();
+      const toast = document.createElement('div');
+      toast.className = `toast ${isError ? 'error' : ''}`;
+      toast.innerHTML = `<i class="fas fa-${isError ? 'exclamation-circle' : 'check-circle'}"></i> ${msg}`;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 3500);
+    }
+
+    function selectPill(el, groupId) {
+      document.querySelectorAll(`#${groupId} .category-pill`).forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+    }
+
+    function populateInventoryDropdowns() {
+      const products = Object.values(allInventory).filter(p => p && p.name);
+      const options = products.map(p => 
+        `<option value="${p.name}" data-price="${p.unitPrice || 0}" data-unit="${p.unit || ''}" data-category="${p.category || ''}">${p.name} — KES ${(p.unitPrice || 0).toLocaleString()}/${p.unit || 'unit'} (${p.quantity || 0} in stock)</option>`
+      ).join('');
+      
+      document.querySelectorAll('.product-select').forEach(select => {
+        const currentVal = select.value;
+        select.innerHTML = '<option value="">— Select from inventory —</option>' + options;
+        if (currentVal) select.value = currentVal;
+      });
+    }
+
+    function addProductRow() {
+      rowCount++;
+      const row = document.createElement('div');
+      row.className = 'product-row';
+      row.dataset.index = rowCount;
+      row.innerHTML = `
+        <div class="form-group" style="flex:2;">
+          <label>Product</label>
+          <select class="product-select" onchange="onProductChange(this)" style="width:100%;">
+            <option value="">— Select from inventory —</option>
+          </select>
+        </div>
+        <div class="form-group" style="flex:1;">
+          <label>Qty</label>
+          <input type="number" class="product-qty" value="1" min="1" onchange="updatePrice()" oninput="updatePrice()">
+        </div>
+        <button class="btn-remove" onclick="removeProductRow(this)" title="Remove">✕</button>
+      `;
+      document.getElementById('productRows').appendChild(row);
+      populateInventoryDropdowns();
+    }
+
+    function removeProductRow(btn) {
+      const rows = document.querySelectorAll('.product-row');
+      if (rows.length <= 1) {
+        showToast('Need at least one product row', true);
+        return;
+      }
+      btn.closest('.product-row').remove();
+      updatePrice();
+    }
+
+    function onProductChange(select) {
+      updatePrice();
+    }
+
+    function updatePrice() {
+      let total = 0;
+      let itemCount = 0;
+      
+      document.querySelectorAll('.product-row').forEach(row => {
+        const select = row.querySelector('.product-select');
+        const qtyInput = row.querySelector('.product-qty');
+        if (select && select.value && qtyInput) {
+          const price = parseInt(select.selectedOptions[0]?.dataset?.price) || 0;
+          const qty = parseInt(qtyInput.value) || 0;
+          total += price * qty;
+          itemCount++;
+        }
+      });
+
+      const delivery = parseInt(document.getElementById('deliveryFee').value) || 0;
+      total += delivery;
+      
+      document.getElementById('displayTotal').textContent = `KES ${total.toLocaleString()}`;
+      document.getElementById('breakdown').textContent = `${itemCount} item${itemCount !== 1 ? 's' : ''} + KES ${delivery.toLocaleString()} delivery`;
+    }
+
+    function getSelectedPill(groupId) {
+      const active = document.querySelector(`#${groupId} .category-pill.active`);
+      return active ? active.dataset.cat : '';
+    }
+
+    function getOrderData() {
+      const restaurantName = document.getElementById('restaurantName').value.trim();
+      const contactPerson = document.getElementById('contactPerson').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const location = document.getElementById('location').value.trim();
+
+      if (!restaurantName) { showToast('Enter restaurant name', true); return null; }
+      if (!contactPerson) { showToast('Enter contact person', true); return null; }
+      if (!phone) { showToast('Enter phone number', true); return null; }
+      if (!location) { showToast('Enter delivery location', true); return null; }
+
+      // Collect products
+      const products = [];
+      document.querySelectorAll('.product-row').forEach(row => {
+        const select = row.querySelector('.product-select');
+        const qtyInput = row.querySelector('.product-qty');
+        if (select && select.value && qtyInput) {
+          products.push({
+            name: select.value,
+            price: parseInt(select.selectedOptions[0]?.dataset?.price) || 0,
+            unit: select.selectedOptions[0]?.dataset?.unit || '',
+            category: select.selectedOptions[0]?.dataset?.category || '',
+            quantity: parseInt(qtyInput.value) || 1
+          });
+        }
+      });
+
+      if (!products.length && !document.getElementById('additionalItems').value.trim()) {
+        showToast('Select at least one product', true); return null;
+      }
+
+      const deliveryFee = parseInt(document.getElementById('deliveryFee').value) || 0;
+      const subtotal = products.reduce((s, p) => s + (p.price * p.quantity), 0);
+      const total = subtotal + deliveryFee;
+
+      return {
+        restaurantName, contactPerson, phone,
+        email: document.getElementById('email').value.trim(),
+        location,
+        category: getSelectedPill('categoryPills'),
+        products,
+        additionalItems: document.getElementById('additionalItems').value.trim(),
+        packageType: document.getElementById('packageType').value,
+        deliveryFee,
+        subtotal,
+        total,
+        orderType: document.getElementById('orderType').value,
+        notes: document.getElementById('notes').value.trim(),
+        status: 'new',
+        source: 'fusion_foods',
+        createdBy: auth.currentUser?.email || 'staff',
+        createdAt: firebase.database.ServerValue.TIMESTAMP
+      };
+    }
+
+    async function saveOrder() {
+      const orderData = getOrderData();
+      if (!orderData) return;
+      try {
+        await database.ref('fusion_foods_orders').push().set(orderData);
+        showToast('✅ Order saved!');
+        resetForm();
+      } catch (e) { console.error(e); showToast('Failed to save', true); }
+    }
+
+    function resetForm() {
+      document.getElementById('restaurantName').value = '';
+      document.getElementById('contactPerson').value = '';
+      document.getElementById('phone').value = '';
+      document.getElementById('email').value = '';
+      document.getElementById('location').value = '';
+      document.getElementById('additionalItems').value = '';
+      document.getElementById('deliveryFee').value = '0';
+      document.getElementById('notes').value = '';
+      document.querySelectorAll('#categoryPills .category-pill').forEach((c, i) => {
+        if (i === 0) c.classList.add('active'); else c.classList.remove('active');
+      });
+      
+      // Reset to one row
+      document.getElementById('productRows').innerHTML = `
+        <div class="product-row" data-index="0">
+          <div class="form-group" style="flex:2;">
+            <label>Product</label>
+            <select class="product-select" onchange="onProductChange(this)" style="width:100%;">
+              <option value="">— Select from inventory —</option>
+            </select>
+          </div>
+          <div class="form-group" style="flex:1;">
+            <label>Qty</label>
+            <input type="number" class="product-qty" value="1" min="1" onchange="updatePrice()" oninput="updatePrice()">
+          </div>
+          <button class="btn-remove" onclick="removeProductRow(this)" title="Remove">✕</button>
+        </div>
+      `;
+      rowCount = 1;
+      populateInventoryDropdowns();
+      updatePrice();
+    }
+
+    // Firebase: Load inventory
+    database.ref('fusion_foods_inventory').on('value', (snapshot) => {
+      allInventory = snapshot.val() || {};
+      populateInventoryDropdowns();
+    });
+
+    auth.onAuthStateChanged((user) => { if (!user) window.location.href = '/'; });
+    updatePrice();
+    window.addProductRow = addProductRow;
+    window.removeProductRow = removeProductRow;
+    window.onProductChange = onProductChange;
+  </script>
+</body>
+</html>
