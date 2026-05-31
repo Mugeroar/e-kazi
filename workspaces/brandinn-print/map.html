@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <meta name="theme-color" content="#7c3aed">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>KazInni Workspaces | Map Operations</title>
+    
+    <link rel="icon" type="image/png" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #7c3aed;
+            --primary-dark: #5b21b6;
+            --primary-light: #a78bfa;
+            --bg-deep: #0f0f1a;
+            --card-bg: rgba(20, 18, 30, 0.96);
+            --text-light: #f1f5f9;
+            --text-muted: #94a3b8;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-deep);
+            color: var(--text-light);
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .navbar {
+            background: rgba(15, 15, 26, 0.97);
+            backdrop-filter: blur(16px);
+            padding: 0.7rem 3%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid rgba(124, 58, 237, 0.5);
+            z-index: 2000;
+            flex-shrink: 0;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-img {
+            height: 40px;
+            width: 40px;
+            border-radius: 12px;
+            object-fit: contain;
+            background: white;
+            box-shadow: 0 6px 16px rgba(124, 58, 237, 0.3);
+        }
+
+        .logo-text {
+            font-weight: 800;
+            font-size: 1.3rem;
+            background: linear-gradient(145deg, #c084fc, #7c3aed);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.3px;
+        }
+
+        .logo-text span {
+            font-weight: 600;
+            font-size: 0.8rem;
+            background: #64748b;
+            -webkit-text-fill-color: #64748b;
+            margin-left: 4px;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            background: rgba(124, 58, 237, 0.15);
+            border: 1px solid var(--primary);
+            padding: 0.5rem 1rem;
+            border-radius: 40px;
+            color: var(--primary-light);
+            font-weight: 600;
+            font-size: 0.75rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .nav-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .user-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.05);
+            padding: 0.3rem 0.9rem 0.3rem 0.6rem;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(145deg, #7c3aed, #c084fc);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.8rem;
+        }
+
+        .main-layout {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .map-container {
+            flex: 1;
+            position: relative;
+            min-width: 0;
+        }
+
+        #coverageMap {
+            width: 100%;
+            height: 100%;
+        }
+
+        .side-panel {
+            width: 420px;
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border-left: 1px solid rgba(124, 58, 237, 0.3);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            z-index: 150;
+        }
+
+        .panel-section {
+            background: rgba(0,0,0,0.3);
+            border-radius: 16px;
+            padding: 16px;
+            margin: 10px 12px;
+            border: 1px solid rgba(124, 58, 237, 0.2);
+        }
+
+        .panel-section h4 {
+            font-size: 0.85rem;
+            margin-bottom: 12px;
+            color: var(--primary-light);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .panel-section label {
+            display: block;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .panel-section select,
+        .panel-section input {
+            width: 100%;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid #334155;
+            padding: 10px 14px;
+            border-radius: 12px;
+            color: white;
+            font-size: 0.8rem;
+            font-family: 'Inter', sans-serif;
+            margin-bottom: 12px;
+            transition: all 0.2s;
+        }
+
+        .panel-section select:focus,
+        .panel-section input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
+        }
+
+        .panel-section select option {
+            background: #1a1a2e;
+            color: white;
+        }
+
+        .selected-location {
+            background: rgba(124, 58, 237, 0.12);
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 12px;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            border: 1px dashed rgba(124, 58, 237, 0.3);
+            min-height: 40px;
+        }
+
+        .selected-location strong {
+            color: var(--primary-light);
+        }
+
+        .search-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .search-row input {
+            flex: 1;
+        }
+
+        .search-row button {
+            background: var(--primary);
+            border: none;
+            padding: 10px 16px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+
+        .search-row button:hover {
+            background: var(--primary-dark);
+        }
+
+        .coords-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .coords-row input {
+            flex: 1;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 11px;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+            border: none;
+            color: white;
+            margin-top: 6px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background: #334155;
+        }
+
+        .btn-info {
+            background: #06b6d4;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .stat-mini {
+            flex: 1;
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            padding: 10px;
+            text-align: center;
+            border-left: 3px solid var(--primary);
+        }
+
+        .stat-mini .number {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary-light);
+        }
+
+        .stat-mini .label {
+            font-size: 0.55rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .stat-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .operation-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 8px;
+            font-size: 0.6rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .recent-list {
+            max-height: 250px;
+            overflow-y: auto;
+            font-size: 0.7rem;
+        }
+
+        .recent-item {
+            padding: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .recent-item:hover {
+            background: rgba(124, 58, 237, 0.1);
+        }
+
+        .recent-item strong {
+            color: var(--text-light);
+            display: block;
+            margin-bottom: 3px;
+        }
+
+        /* View Business Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(4px);
+            z-index: 3000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border-radius: 24px;
+            padding: 24px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            border: 1px solid rgba(124, 58, 237, 0.4);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h3 {
+            color: var(--primary-light);
+            font-size: 1.2rem;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .modal-close:hover {
+            color: white;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .detail-label {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+        }
+
+        .detail-value {
+            color: var(--text-light);
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+
+        .search-business-input {
+            width: 100%;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid #334155;
+            padding: 10px 14px;
+            border-radius: 12px;
+            color: white;
+            font-size: 0.8rem;
+            font-family: 'Inter', sans-serif;
+            margin-bottom: 12px;
+        }
+
+        .search-results {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .search-result-item {
+            padding: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .search-result-item:hover {
+            background: rgba(124, 58, 237, 0.15);
+        }
+
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 4000;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .toast {
+            background: #1e1b2e;
+            border-left: 4px solid var(--primary);
+            padding: 12px 18px;
+            border-radius: 12px;
+            color: white;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+            animation: slideIn 0.25s ease;
+        }
+
+        .toast.success { border-left-color: var(--success); }
+        .toast.error { border-left-color: var(--danger); }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(60px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .spinner-small {
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.2);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            display: inline-block;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        @media (max-width: 768px) {
+            .navbar { padding: 0.6rem 1rem; }
+            .logo-text { font-size: 1rem; }
+            .side-panel {
+                width: 100%;
+                position: fixed;
+                right: 0;
+                top: 60px;
+                height: calc(100vh - 60px);
+                transform: translateX(100%);
+                transition: transform 0.3s ease;
+                z-index: 1000;
+            }
+            .side-panel.open {
+                transform: translateX(0);
+                box-shadow: -5px 0 25px rgba(0,0,0,0.5);
+            }
+            .menu-toggle-mobile {
+                display: flex !important;
+                background: var(--primary);
+                border: none;
+                color: white;
+                padding: 8px 14px;
+                border-radius: 20px;
+                font-size: 0.75rem;
+                cursor: pointer;
+                align-items: center;
+                gap: 6px;
+                font-weight: 600;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .side-panel { display: flex !important; transform: translateX(0) !important; }
+            .menu-toggle-mobile { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="logo">
+            <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png" alt="KazInni Logo" class="logo-img">
+            <span class="logo-text">KazInni <span>Workspaces</span></span>
+        </div>
+        <div class="nav-right">
+            <a href="/workspaces/brandinn/index.html" class="nav-btn">
+                <i class="fas fa-arrow-left"></i> Dashboard
+            </a>
+            <button class="nav-btn" id="viewBusinessesBtn">
+                <i class="fas fa-list"></i> View Businesses
+            </button>
+            <div class="user-badge">
+                <div class="user-avatar" id="userAvatar">KA</div>
+                <span id="userName">Field Agent</span>
+            </div>
+            <button class="nav-btn" id="logoutBtn">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+            <button class="menu-toggle-mobile" id="menuToggleMobile" style="display:none;">
+                <i class="fas fa-bars"></i> Panel
+            </button>
+        </div>
+    </nav>
+
+    <div class="main-layout">
+        <div class="map-container">
+            <div id="coverageMap"></div>
+        </div>
+
+        <div class="side-panel" id="sidePanel">
+            <div class="panel-section">
+                <h4><i class="fas fa-search-location"></i> Search Location</h4>
+                <div class="search-row">
+                    <input type="text" id="placeSearchInput" placeholder="Search place or address...">
+                    <button id="searchPlaceBtn"><i class="fas fa-search"></i> Find</button>
+                </div>
+                <div class="coords-row" style="margin-top:8px;">
+                    <input type="text" id="latInput" placeholder="Latitude">
+                    <input type="text" id="lngInput" placeholder="Longitude">
+                </div>
+                <button class="btn btn-secondary" id="searchCoordsBtn">
+                    <i class="fas fa-crosshairs"></i> Go to Coordinates
+                </button>
+                <button class="btn btn-secondary" id="useGpsBtn">
+                    <i class="fas fa-location-dot"></i> Use My GPS Location
+                </button>
+                <div class="selected-location" id="selectedLocationDisplay">
+                    <i class="fas fa-info-circle"></i> Search or click map to select location
+                </div>
+            </div>
+
+            <div class="panel-section">
+                <h4><i class="fas fa-plus-circle"></i> Add Business to Map</h4>
+                
+                <label><i class="fas fa-building"></i> Operation *</label>
+                <select id="operationSelect">
+                    <option value="">-- Choose Operation --</option>
+                    <option value="brandinn">🏪 BrandInn Business</option>
+                    <option value="deliveries">📦 Pick Up Deliveries</option>
+                    <option value="rides">🚗 Pick Me Rides</option>
+                    <option value="dsog">👗 DSOG Fashion</option>
+                    <option value="mugsndines">🍽️ Mugs N Dines</option>
+                    <option value="heritage">🏛️ Heritage Marketplace</option>
+                    <option value="workfit">💪 WorkFit Club</option>
+                    <option value="fusion">🔥 Fusion Foods</option>
+                    <option value="hekima">📚 Hekima Hub</option>
+                </select>
+
+                <label><i class="fas fa-store-alt"></i> Business Name *</label>
+                <input type="text" id="businessNameInput" placeholder="Enter business name (max 100 chars)" maxlength="100">
+
+                <label><i class="fas fa-user"></i> Owner / Contact Person</label>
+                <input type="text" id="contactPersonInput" placeholder="Full name (max 100 chars)" maxlength="100">
+
+                <button class="btn btn-primary" id="addBusinessBtn" disabled>
+                    <i class="fas fa-map-pin"></i> Add Business to Map
+                </button>
+                <small style="color:var(--text-muted); display:block; text-align:center; margin-top:6px; font-size:0.6rem;">
+                    Only business name and owner are saved per rules
+                </small>
+            </div>
+
+            <div class="stat-row" style="margin: 0 12px;">
+                <div class="stat-mini">
+                    <div class="number" id="totalOnMap">0</div>
+                    <div class="label">Total on Map</div>
+                </div>
+                <div class="stat-mini" style="border-left-color: var(--success);">
+                    <div class="number" id="sessionAdded">0</div>
+                    <div class="label">Added Now</div>
+                </div>
+            </div>
+
+            <div style="padding: 0 12px; margin-top: 4px;">
+                <h4 style="font-size:0.8rem; color:var(--text-muted); margin-bottom:8px;">
+                    <i class="fas fa-history"></i> Recently Added
+                </h4>
+            </div>
+            <div class="recent-list" id="recentList" style="margin: 0 12px 12px;">
+                <p style="color:var(--text-muted); text-align:center; padding:20px;">No businesses added yet</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Businesses Modal -->
+    <div class="modal-overlay" id="viewBusinessesModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-list"></i> View Businesses</h3>
+                <button class="modal-close" onclick="document.getElementById('viewBusinessesModal').classList.remove('active')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <input type="text" class="search-business-input" id="businessSearchInput" placeholder="Search by name or operation...">
+            <div class="search-results" id="businessSearchResults">
+                <p style="color:var(--text-muted); text-align:center;">Loading...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Business Detail Modal -->
+    <div class="modal-overlay" id="businessDetailModal">
+        <div class="modal-content" id="businessDetailContent">
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+            authDomain: "mugera-e51cc.firebaseapp.com",
+            databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "mugera-e51cc",
+            storageBucket: "mugera-e51cc.firebasestorage.app",
+            messagingSenderId: "1024868637509",
+            appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const auth = firebase.auth();
+
+        const OP_COLORS = {
+            brandinn: '#7c3aed',
+            deliveries: '#f59e0b',
+            rides: '#22c55e',
+            dsog: '#ec4899',
+            mugsndines: '#8b5cf6',
+            heritage: '#d946ef',
+            workfit: '#f97316',
+            fusion: '#10b981',
+            hekima: '#10b981'
+        };
+
+        const OP_ICONS = {
+            brandinn: 'fa-store',
+            deliveries: 'fa-box',
+            rides: 'fa-car',
+            dsog: 'fa-tshirt',
+            mugsndines: 'fa-utensils',
+            heritage: 'fa-landmark',
+            workfit: 'fa-dumbbell',
+            fusion: 'fa-fire',
+            hekima: 'fa-book-open'
+        };
+
+        const OP_NAMES = {
+            brandinn: 'BrandInn',
+            deliveries: 'Deliveries',
+            rides: 'Rides',
+            dsog: 'DSOG Fashion',
+            mugsndines: 'Mugs N Dines',
+            heritage: 'Heritage',
+            workfit: 'WorkFit',
+            fusion: 'Fusion Foods',
+            hekima: 'Hekima'
+        };
+
+        let map, streetLayer, satelliteLayer;
+        let businessMarkers = {};
+        let searchMarker = null;
+        let selectedLocation = null;
+        let currentUser = null;
+        let allMapEntries = [];
+        let sessionAddedCount = 0;
+
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            const icon = type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle';
+            toast.innerHTML = `<i class="fas ${icon}"></i> <span>${message}</span>`;
+            document.getElementById('toastContainer').appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : m === '>' ? '&gt;' : m);
+        }
+
+        function getInitials(name) {
+            return name ? name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2) : 'KA';
+        }
+
+        function getMarkerIcon(operation) {
+            const color = OP_COLORS[operation] || '#7c3aed';
+            const icon = OP_ICONS[operation] || 'fa-map-pin';
+            return L.divIcon({
+                html: `<div style="background:${color}; width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:3px solid white; box-shadow:0 0 15px ${color};"><i class="fas ${icon}" style="color:white; font-size:14px;"></i></div>`,
+                iconSize: [34, 34],
+                popupAnchor: [0, -15]
+            });
+        }
+
+        function updateSelectedLocation(lat, lng, displayName) {
+            selectedLocation = { lat, lng, displayName };
+            if (searchMarker) map.removeLayer(searchMarker);
+            searchMarker = L.marker([lat, lng], {
+                icon: L.divIcon({
+                    html: `<div style="background:#7c3aed; width:20px; height:20px; border-radius:50%; border:3px solid white; box-shadow:0 0 12px rgba(124,58,237,0.6);"></div>`,
+                    iconSize: [20, 20],
+                    className: ''
+                })
+            }).addTo(map);
+            searchMarker.bindPopup(`<strong>📍 Selected</strong><br>${lat.toFixed(6)}, ${lng.toFixed(6)}`).openPopup();
+            document.getElementById('selectedLocationDisplay').innerHTML = `
+                <strong><i class="fas fa-map-pin"></i> Selected:</strong><br>
+                🎯 ${lat.toFixed(6)}, ${lng.toFixed(6)}
+            `;
+            document.getElementById('addBusinessBtn').disabled = false;
+        }
+
+        async function searchByPlaceName(query) {
+            if (!query || query.trim().length < 2) { showToast('Enter a place name', 'error'); return; }
+            document.getElementById('searchPlaceBtn').disabled = true;
+            try {
+                const resp = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`);
+                const data = await resp.json();
+                if (data && data.length > 0) {
+                    const r = data[0];
+                    updateSelectedLocation(parseFloat(r.lat), parseFloat(r.lon), r.display_name || query);
+                    map.setView([parseFloat(r.lat), parseFloat(r.lon)], 17);
+                    showToast(`📍 Found: ${r.display_name.split(',')[0]}`, 'success');
+                } else {
+                    showToast('Location not found. Try coordinates.', 'error');
+                }
+            } catch (e) { showToast('Search failed', 'error'); }
+            document.getElementById('searchPlaceBtn').disabled = false;
+        }
+
+        function searchByCoordinates(lat, lng) {
+            const la = parseFloat(lat), lo = parseFloat(lng);
+            if (isNaN(la) || isNaN(lo) || la < -90 || la > 90 || lo < -180 || lo > 180) {
+                showToast('Invalid coordinates', 'error'); return;
+            }
+            updateSelectedLocation(la, lo, `${la.toFixed(6)}, ${lo.toFixed(6)}`);
+            map.setView([la, lo], 17);
+            showToast('📍 Coordinates set', 'success');
+        }
+
+        function getUserLocation() {
+            if (!navigator.geolocation) { showToast('Geolocation not supported', 'error'); return; }
+            navigator.geolocation.getCurrentPosition(
+                pos => {
+                    updateSelectedLocation(pos.coords.latitude, pos.coords.longitude, `GPS (${Math.round(pos.coords.accuracy)}m)`);
+                    map.setView([pos.coords.latitude, pos.coords.longitude], 18);
+                    showToast('📍 GPS acquired', 'success');
+                },
+                err => { showToast('GPS unavailable. Search manually.', 'error'); },
+                { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+            );
+        }
+
+        async function addBusinessToMap() {
+            if (!selectedLocation) { showToast('Select a location first', 'error'); return; }
+            if (!currentUser) { showToast('You must be logged in', 'error'); return; }
+
+            const operation = document.getElementById('operationSelect').value;
+            if (!operation) { showToast('Select an operation', 'error'); return; }
+
+            const businessName = document.getElementById('businessNameInput').value.trim();
+            const contactPerson = document.getElementById('contactPersonInput').value.trim();
+
+            if (!businessName) { showToast('Business name is required', 'error'); return; }
+            if (businessName.length > 100) { showToast('Business name too long (max 100 chars)', 'error'); return; }
+            if (contactPerson.length > 100) { showToast('Owner name too long (max 100 chars)', 'error'); return; }
+
+            const registrationId = Date.now().toString() + '_' + Math.random().toString(36).substr(2, 6);
+            const timestamp = new Date().toISOString();
+            
+            const businessData = {
+                businessName: businessName,
+                ownerName: contactPerson || 'Not provided',
+                operation: operation,
+                lat: selectedLocation.lat,
+                lng: selectedLocation.lng,
+                timestamp: timestamp,
+                recordedBy: currentUser.email,
+                clerkId: currentUser.uid
+            };
+
+            const addBtn = document.getElementById('addBusinessBtn');
+            addBtn.disabled = true;
+            addBtn.innerHTML = '<span class="spinner-small"></span> Saving...';
+
+            try {
+                console.log('📤 Attempting to save:', businessData);
+                await database.ref('iam_mugera_registrations/' + registrationId).set(businessData);
+                console.log('✅ Saved successfully!');
+                
+                allMapEntries.unshift({ id: registrationId, ...businessData });
+                addBusinessMarker(registrationId, businessData);
+                sessionAddedCount++;
+                updateStats();
+                
+                showToast(`✅ "${businessName}" added!`, 'success');
+                
+                document.getElementById('businessNameInput').value = '';
+                document.getElementById('contactPersonInput').value = '';
+                
+            } catch (error) {
+                console.error('❌ Save error:', error);
+                console.error('Error code:', error.code);
+                console.error('Error message:', error.message);
+                showToast('Error: ' + (error.message || 'Permission denied'), 'error');
+            } finally {
+                addBtn.disabled = false;
+                addBtn.innerHTML = '<i class="fas fa-map-pin"></i> Add Business to Map';
+                if (selectedLocation) addBtn.disabled = false;
+            }
+        }
+
+        function addBusinessMarker(id, data) {
+            if (businessMarkers[id] && map) map.removeLayer(businessMarkers[id]);
+            const marker = L.marker([data.lat, data.lng], { icon: getMarkerIcon(data.operation) }).addTo(map);
+            const opName = OP_NAMES[data.operation] || data.operation;
+            marker.bindPopup(`
+                <div style="font-family:'Inter',sans-serif; min-width:180px;">
+                    <strong>${escapeHtml(data.businessName)}</strong><br>
+                    <span style="font-size:11px;">🏷️ ${opName}</span><br>
+                    <span style="font-size:10px;">👤 ${escapeHtml(data.ownerName)}</span><br>
+                    <span style="font-size:10px;">📍 ${data.lat.toFixed(5)}, ${data.lng.toFixed(5)}</span><br>
+                    <span style="font-size:10px;">📅 ${new Date(data.timestamp).toLocaleDateString()}</span>
+                </div>
+            `);
+            businessMarkers[id] = marker;
+        }
+
+        async function loadMapEntries() {
+            for (let id in businessMarkers) { if (businessMarkers[id] && map) map.removeLayer(businessMarkers[id]); }
+            businessMarkers = {};
+            allMapEntries = [];
+            try {
+                const snap = await database.ref('iam_mugera_registrations').once('value');
+                const data = snap.val();
+                console.log('📦 Loaded entries:', data ? Object.keys(data).length : 0);
+                if (data) {
+                    Object.keys(data).forEach(key => {
+                        const entry = data[key];
+                        if (entry.lat && entry.lng) {
+                            allMapEntries.push({ id: key, ...entry });
+                            addBusinessMarker(key, entry);
+                        }
+                    });
+                }
+                allMapEntries.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                updateStats();
+            } catch (e) { 
+                console.error('Load error:', e);
+            }
+        }
+
+        function updateStats() {
+            document.getElementById('totalOnMap').textContent = allMapEntries.length;
+            document.getElementById('sessionAdded').textContent = sessionAddedCount;
+            const list = document.getElementById('recentList');
+            if (allMapEntries.length === 0) {
+                list.innerHTML = '<p style="color:var(--text-muted); text-align:center; padding:20px;">No businesses added yet</p>';
+            } else {
+                list.innerHTML = allMapEntries.slice(0, 15).map(b => {
+                    const color = OP_COLORS[b.operation] || '#7c3aed';
+                    const opName = OP_NAMES[b.operation] || b.operation;
+                    return `
+                        <div class="recent-item" onclick="if(map) map.setView([${b.lat}, ${b.lng}], 17)">
+                            <strong>${escapeHtml(b.businessName)}</strong>
+                            <span class="operation-badge" style="background:${color};">${opName}</span><br>
+                            📍 ${b.lat.toFixed(5)}, ${b.lng.toFixed(5)}
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        // View Businesses Functions
+        function showViewBusinessesModal() {
+            document.getElementById('viewBusinessesModal').classList.add('active');
+            document.getElementById('businessSearchInput').value = '';
+            displayBusinessSearchResults(allMapEntries);
+        }
+
+        function displayBusinessSearchResults(entries) {
+            const container = document.getElementById('businessSearchResults');
+            if (entries.length === 0) {
+                container.innerHTML = '<p style="color:var(--text-muted); text-align:center; padding:20px;">No businesses found</p>';
+                return;
+            }
+            container.innerHTML = entries.slice(0, 50).map(b => {
+                const color = OP_COLORS[b.operation] || '#7c3aed';
+                const opName = OP_NAMES[b.operation] || b.operation;
+                return `
+                    <div class="search-result-item" onclick="showBusinessDetail('${b.id}')">
+                        <div>
+                            <strong>${escapeHtml(b.businessName)}</strong>
+                            <span class="operation-badge" style="background:${color}; margin-left:8px;">${opName}</span>
+                            <br><span style="font-size:0.65rem; color:var(--text-muted);">📍 ${b.lat?.toFixed(4)}, ${b.lng?.toFixed(4)}</span>
+                        </div>
+                        <i class="fas fa-chevron-right" style="color:var(--text-muted);"></i>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function showBusinessDetail(id) {
+            const biz = allMapEntries.find(b => b.id === id);
+            if (!biz) return;
+            
+            document.getElementById('viewBusinessesModal').classList.remove('active');
+            
+            const color = OP_COLORS[biz.operation] || '#7c3aed';
+            const opName = OP_NAMES[biz.operation] || biz.operation;
+            
+            document.getElementById('businessDetailContent').innerHTML = `
+                <div class="modal-header">
+                    <h3><i class="fas fa-store"></i> Business Details</h3>
+                    <button class="modal-close" onclick="document.getElementById('businessDetailModal').classList.remove('active')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div style="margin-bottom:16px;">
+                    <span class="operation-badge" style="background:${color}; font-size:0.8rem; padding:6px 12px;">${opName}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Business Name</span>
+                    <span class="detail-value">${escapeHtml(biz.businessName)}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Owner / Contact</span>
+                    <span class="detail-value">${escapeHtml(biz.ownerName || 'N/A')}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Operation</span>
+                    <span class="detail-value">${opName}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Latitude</span>
+                    <span class="detail-value">${biz.lat?.toFixed(6)}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Longitude</span>
+                    <span class="detail-value">${biz.lng?.toFixed(6)}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Recorded By</span>
+                    <span class="detail-value">${escapeHtml(biz.recordedBy || 'N/A')}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Date Added</span>
+                    <span class="detail-value">${new Date(biz.timestamp).toLocaleString()}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Status</span>
+                    <span class="detail-value" style="color:var(--success);">Active</span>
+                </div>
+                <button class="btn btn-primary" style="margin-top:16px;" onclick="if(map) { map.setView([${biz.lat}, ${biz.lng}], 17); document.getElementById('businessDetailModal').classList.remove('active'); }">
+                    <i class="fas fa-map-pin"></i> Show on Map
+                </button>
+                <button class="btn btn-secondary" style="margin-top:8px;" onclick="document.getElementById('businessDetailModal').classList.remove('active'); document.getElementById('viewBusinessesModal').classList.add('active');">
+                    <i class="fas fa-arrow-left"></i> Back to List
+                </button>
+            `;
+            document.getElementById('businessDetailModal').classList.add('active');
+        }
+
+        function searchBusinesses(query) {
+            const q = query.toLowerCase().trim();
+            if (!q) {
+                displayBusinessSearchResults(allMapEntries);
+                return;
+            }
+            const filtered = allMapEntries.filter(b => 
+                b.businessName?.toLowerCase().includes(q) ||
+                b.operation?.toLowerCase().includes(q) ||
+                b.ownerName?.toLowerCase().includes(q) ||
+                OP_NAMES[b.operation]?.toLowerCase().includes(q)
+            );
+            displayBusinessSearchResults(filtered);
+        }
+
+        function initMap() {
+            streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OSM', maxZoom: 19 });
+            satelliteLayer = L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', { subdomains: ['mt0','mt1','mt2','mt3'], maxZoom: 19 });
+            map = L.map('coverageMap', { center: [-1.2864, 36.8172], zoom: 13 });
+            streetLayer.addTo(map);
+            L.control.scale({ metric: true, position: 'bottomleft' }).addTo(map);
+            
+            map.on('click', e => {
+                updateSelectedLocation(e.latlng.lat, e.latlng.lng, `Map click`);
+            });
+
+            loadMapEntries();
+            getUserLocation();
+
+            database.ref('iam_mugera_registrations').on('child_added', snap => {
+                const entry = snap.val();
+                if (entry.lat && entry.lng && !businessMarkers[snap.key]) {
+                    allMapEntries.unshift({ id: snap.key, ...entry });
+                    addBusinessMarker(snap.key, entry);
+                    updateStats();
+                }
+            });
+        }
+
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('userName').textContent = user.email?.split('@')[0] || 'Agent';
+                document.getElementById('userAvatar').textContent = getInitials(user.email?.split('@')[0] || 'KA');
+                console.log('👤 Logged in as:', user.email);
+                if (!map) initMap();
+                else { loadMapEntries(); }
+            } else {
+                window.location.href = 'https://kazinni.vercel.app';
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('logoutBtn').addEventListener('click', async () => {
+                await auth.signOut();
+                window.location.href = 'https://kazinni.vercel.app';
+            });
+
+            document.getElementById('searchPlaceBtn').addEventListener('click', () => {
+                searchByPlaceName(document.getElementById('placeSearchInput').value.trim());
+            });
+            
+            document.getElementById('placeSearchInput').addEventListener('keypress', e => {
+                if (e.key === 'Enter') searchByPlaceName(e.target.value.trim());
+            });
+
+            document.getElementById('searchCoordsBtn').addEventListener('click', () => {
+                searchByCoordinates(document.getElementById('latInput').value, document.getElementById('lngInput').value);
+            });
+
+            document.getElementById('useGpsBtn').addEventListener('click', getUserLocation);
+            document.getElementById('addBusinessBtn').addEventListener('click', addBusinessToMap);
+
+            // View Businesses
+            document.getElementById('viewBusinessesBtn').addEventListener('click', showViewBusinessesModal);
+            document.getElementById('businessSearchInput').addEventListener('input', (e) => {
+                searchBusinesses(e.target.value);
+            });
+
+            // Close modals on overlay click
+            document.getElementById('viewBusinessesModal').addEventListener('click', function(e) {
+                if (e.target === this) this.classList.remove('active');
+            });
+            document.getElementById('businessDetailModal').addEventListener('click', function(e) {
+                if (e.target === this) this.classList.remove('active');
+            });
+
+            const menuToggle = document.getElementById('menuToggleMobile');
+            if (menuToggle) {
+                menuToggle.addEventListener('click', () => {
+                    document.getElementById('sidePanel').classList.toggle('open');
+                });
+            }
+
+            function checkScreen() {
+                const toggle = document.getElementById('menuToggleMobile');
+                if (window.innerWidth <= 768) {
+                    if (toggle) toggle.style.display = 'flex';
+                } else {
+                    if (toggle) toggle.style.display = 'none';
+                    document.getElementById('sidePanel').classList.remove('open');
+                }
+            }
+            checkScreen();
+            window.addEventListener('resize', checkScreen);
+        });
+    </script>
+</body>
+</html>
