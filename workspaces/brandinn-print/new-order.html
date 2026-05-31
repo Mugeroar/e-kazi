@@ -96,11 +96,8 @@
     .product-type-card span { font-size: 0.75rem; font-weight: 700; }
     .product-type-card small { display: block; font-size: 0.6rem; color: var(--text-muted); margin-top: 0.2rem; }
 
-    /* Form Layout - Two Column */
-    .form-layout {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;
-    }
-
+    /* Form Layout */
+    .form-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
     .form-card {
       background: white; border-radius: 20px; padding: 1.8rem;
       border: 1px solid #ede9fe; box-shadow: 0 8px 25px rgba(124, 58, 237, 0.05);
@@ -124,7 +121,6 @@
       box-shadow: 0 0 0 3px rgba(124,58,237,0.06);
     }
     .form-group textarea { resize: vertical; min-height: 70px; }
-    .form-group input[readonly] { background: #ede9fe; font-weight: 700; cursor: default; }
 
     .color-pills { display: flex; gap: 8px; flex-wrap: wrap; }
     .color-pill {
@@ -147,27 +143,23 @@
     .tshirt-fields { display: none; }
     .tshirt-fields.show { display: block; }
 
-    /* Price summary */
-    .price-summary {
+    /* Price display */
+    .price-display {
       background: linear-gradient(135deg, #f8f6fc, #ede9fe);
-      border-radius: 16px; padding: 1.2rem; margin-top: 1rem;
-      display: flex; justify-content: space-between; align-items: center;
-      flex-wrap: wrap; gap: 1rem;
+      border-radius: 16px; padding: 1.5rem; text-align: center; margin-top: 1rem;
     }
-    .price-summary .total-label { font-weight: 700; color: var(--primary-dark); font-size: 0.9rem; }
-    .price-summary .total-amount { font-size: 2rem; font-weight: 900; color: var(--primary); }
+    .price-display .total-amount { font-size: 2.5rem; font-weight: 900; color: var(--primary); }
+    .price-display .breakdown { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.3rem; }
 
     .btn-row { display: flex; gap: 10px; margin-top: 1.2rem; }
     .btn {
-      padding: 0.8rem 1.5rem; border-radius: 12px; border: none; font-weight: 700;
-      font-size: 0.85rem; cursor: pointer; display: inline-flex; align-items: center;
+      padding: 0.9rem 1.5rem; border-radius: 12px; border: none; font-weight: 700;
+      font-size: 0.9rem; cursor: pointer; display: inline-flex; align-items: center;
       gap: 8px; transition: all 0.2s; font-family: inherit; justify-content: center;
     }
-    .btn-primary { background: var(--primary); color: white; flex: 2; }
+    .btn-primary { background: var(--primary); color: white; flex: 1; }
     .btn-primary:hover { background: var(--primary-dark); }
-    .btn-wa { background: #25D366; color: white; flex: 2; }
-    .btn-wa:hover { background: #128C7E; }
-    .btn-secondary { background: #f1f5f9; color: #475569; flex: 1; }
+    .btn-secondary { background: #f1f5f9; color: #475569; }
     .btn-secondary:hover { background: #e2e8f0; }
 
     .toast {
@@ -184,13 +176,8 @@
       .product-type-grid { grid-template-columns: repeat(2, 1fr); }
       .container { padding: 1rem 2%; }
       .form-card { padding: 1.2rem; }
-      .btn-row { flex-wrap: wrap; }
-      .btn { flex: 1 1 100%; }
-    }
-    @media (max-width: 400px) {
-      .product-type-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
-      .product-type-card { padding: 0.8rem; }
-      .product-type-card i { font-size: 1.5rem; }
+      .btn-row { flex-direction: column; }
+      .btn { width: 100%; }
     }
   </style>
 </head>
@@ -214,7 +201,7 @@
   <div class="container">
     <div class="page-header">
       <h1><i class="fas fa-plus-circle"></i> New Print Order</h1>
-      <p>Log a new order from a client — fill in details below and save to the system.</p>
+      <p>Log a new order — fill in details and save to the system.</p>
     </div>
 
     <!-- Product Type Selector -->
@@ -241,10 +228,10 @@
       </div>
     </div>
 
-    <!-- Form Layout -->
+    <!-- Form -->
     <div class="form-layout">
       
-      <!-- LEFT COLUMN: Customer & Basic Info -->
+      <!-- LEFT: Customer & Basic Info -->
       <div class="form-card">
         <h3><i class="fas fa-user"></i> Customer Details</h3>
         <div class="form-group">
@@ -279,11 +266,21 @@
         </div>
         <div class="form-group">
           <label>Quantity *</label>
-          <input type="number" id="quantity" value="1" min="1" max="500" onchange="updatePrice()">
+          <input type="number" id="quantity" value="1" min="1" max="500" onchange="updatePrice()" oninput="updatePrice()">
+        </div>
+        <div class="form-group">
+          <label>Unit Price (KES) *</label>
+          <input type="number" id="unitPrice" value="1300" min="0" onchange="updatePrice()" oninput="updatePrice()">
+        </div>
+
+        <!-- Price Display -->
+        <div class="price-display">
+          <div class="total-amount" id="displayTotal">KES 1,300</div>
+          <div class="breakdown" id="breakdown">1 × KES 1,300</div>
         </div>
       </div>
 
-      <!-- RIGHT COLUMN: Product Details & Pricing -->
+      <!-- RIGHT: Product Details -->
       <div class="form-card">
         <!-- T-Shirt Fields -->
         <div class="tshirt-fields show" id="tshirtFields">
@@ -344,55 +341,37 @@
           <h3><i class="fas fa-ruler"></i> Measurements</h3>
           <div class="form-group">
             <label>Size (metres)</label>
-            <input type="number" id="bannerMetres" value="1" min="0.5" max="50" step="0.5">
+            <input type="number" id="bannerMetres" value="1" min="0.5" max="50" step="0.5" onchange="updateBannerPrice()" oninput="updateBannerPrice()">
           </div>
           <div class="form-group">
             <label>Design Option</label>
-            <select id="bannerDesign">
+            <select id="bannerDesign" onchange="updateBannerPrice()">
               <option value="print-only">Print Only (client has design)</option>
               <option value="design-included">Design + Print</option>
             </select>
           </div>
+          <p style="font-size:0.7rem;color:var(--text-muted);margin-top:0.5rem;">
+            <i class="fas fa-info-circle"></i> Banner price: KES 600/metre | Sticker price: KES 650/metre
+          </p>
         </div>
 
-        <!-- Pricing -->
+        <!-- Notes -->
         <hr style="border: none; border-top: 1px solid #ede9fe; margin: 1rem 0;">
-        <h3><i class="fas fa-money-bill"></i> Pricing</h3>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
-          <div class="form-group">
-            <label>Unit Price (KES)</label>
-            <input type="number" id="unitPrice" value="1300" min="0" onchange="updatePrice()">
-          </div>
-          <div class="form-group">
-            <label>Total Amount (KES)</label>
-            <input type="number" id="totalAmount" value="1300" min="0" readonly>
-          </div>
-        </div>
-
-        <!-- Price Summary -->
-        <div class="price-summary">
-          <span class="total-label">Order Total</span>
-          <span class="total-amount" id="displayTotal">KES 1,300</span>
+        <h3><i class="fas fa-sticky-note"></i> Notes</h3>
+        <div class="form-group">
+          <label>Special Instructions</label>
+          <textarea id="notes" rows="3" placeholder="Any special requests, artwork notes, delivery instructions..."></textarea>
         </div>
       </div>
 
-      <!-- FULL WIDTH: Notes & Actions -->
+      <!-- FULL WIDTH: Actions -->
       <div class="form-card full-width">
-        <h3><i class="fas fa-sticky-note"></i> Notes & Actions</h3>
-        <div class="form-group">
-          <label>Notes / Special Instructions</label>
-          <textarea id="notes" rows="3" placeholder="Any special requests, artwork notes, delivery instructions..."></textarea>
-        </div>
-
         <div class="btn-row">
           <button class="btn btn-primary" onclick="saveOrder()">
-            <i class="fas fa-save"></i> Save Order
-          </button>
-          <button class="btn btn-wa" onclick="saveAndSendWhatsApp()">
-            <i class="fab fa-whatsapp"></i> Save & Send WhatsApp
+            <i class="fas fa-save"></i> Save Order to Database
           </button>
           <button class="btn btn-secondary" onclick="resetForm()">
-            <i class="fas fa-undo"></i> Reset
+            <i class="fas fa-undo"></i> Reset Form
           </button>
         </div>
       </div>
@@ -439,12 +418,22 @@
       selectedProduct = type;
       document.querySelectorAll('.product-type-card').forEach(c => c.classList.remove('active'));
       el.classList.add('active');
+      
+      // Show/hide fields
       document.getElementById('tshirtFields').classList.toggle('show', type === 'tshirt');
       document.getElementById('bannerFields').classList.toggle('show', type === 'banner' || type === 'sticker');
-      document.getElementById('unitPrice').value = productPrices[type] || 0;
+      
+      // Update price based on product type
+      if (type === 'banner' || type === 'sticker') {
+        updateBannerPrice();
+      } else {
+        document.getElementById('unitPrice').value = productPrices[type] || 0;
+        updatePrice();
+      }
+      
+      // Auto-fill product name
       const names = { tshirt: 'Custom T-Shirt Printing', banner: 'Banner Printing', sticker: 'Sticker Printing', other: '' };
       document.getElementById('productName').value = names[type] || '';
-      updatePrice();
     }
 
     function selectPill(el, groupId) {
@@ -458,11 +447,27 @@
     }
 
     function updatePrice() {
-      const qty = parseInt(document.getElementById('quantity').value) || 1;
+      const qty = parseInt(document.getElementById('quantity').value) || 0;
       const unit = parseInt(document.getElementById('unitPrice').value) || 0;
       const total = qty * unit;
-      document.getElementById('totalAmount').value = total;
       document.getElementById('displayTotal').textContent = `KES ${total.toLocaleString()}`;
+      document.getElementById('breakdown').textContent = `${qty} × KES ${unit.toLocaleString()} = KES ${total.toLocaleString()}`;
+    }
+
+    function updateBannerPrice() {
+      const metres = parseFloat(document.getElementById('bannerMetres').value) || 0;
+      const pricePerMetre = selectedProduct === 'sticker' ? 650 : 600;
+      const designOption = document.getElementById('bannerDesign').value;
+      let unitPrice = metres * pricePerMetre;
+      
+      // If design included, add design fee
+      if (designOption === 'design-included') {
+        unitPrice += 1000; // Design fee
+      }
+      
+      document.getElementById('unitPrice').value = Math.round(unitPrice);
+      document.getElementById('quantity').value = 1; // Banner qty is always 1
+      updatePrice();
     }
 
     function getSelectedPill(groupId) {
@@ -473,8 +478,13 @@
     function getOrderData() {
       const customerName = document.getElementById('customerName').value.trim();
       const customerPhone = document.getElementById('customerPhone').value.trim();
+      
       if (!customerName) { showToast('Please enter customer name', true); return null; }
       if (!customerPhone) { showToast('Please enter phone number', true); return null; }
+
+      const qty = parseInt(document.getElementById('quantity').value) || 0;
+      const unitPrice = parseInt(document.getElementById('unitPrice').value) || 0;
+      const total = qty * unitPrice;
 
       const orderData = {
         customerName,
@@ -482,9 +492,9 @@
         customerEmail: document.getElementById('customerEmail').value.trim(),
         type: selectedProduct,
         product: document.getElementById('productName').value.trim() || 'Print Order',
-        quantity: parseInt(document.getElementById('quantity').value) || 1,
-        unitPrice: parseInt(document.getElementById('unitPrice').value) || 0,
-        total: parseInt(document.getElementById('totalAmount').value) || 0,
+        quantity: qty,
+        unitPrice: unitPrice,
+        total: total,
         size: document.querySelector('#sizePills .size-pill.active')?.dataset?.size || 'M',
         notes: document.getElementById('notes').value.trim(),
         status: 'new',
@@ -492,6 +502,7 @@
         createdAt: firebase.database.ServerValue.TIMESTAMP
       };
 
+      // T-Shirt specific
       if (selectedProduct === 'tshirt') {
         orderData.designText = document.getElementById('designText').value.trim();
         orderData.designText2 = document.getElementById('designText2').value.trim();
@@ -501,6 +512,7 @@
         orderData.textColor = getSelectedPill('textColorPills');
       }
 
+      // Banner/Sticker specific
       if (selectedProduct === 'banner' || selectedProduct === 'sticker') {
         orderData.metres = parseFloat(document.getElementById('bannerMetres').value) || 1;
         orderData.designOption = document.getElementById('bannerDesign').value;
@@ -512,47 +524,14 @@
     async function saveOrder() {
       const orderData = getOrderData();
       if (!orderData) return;
+      
       try {
         await database.ref('brandinn_print_orders').push().set(orderData);
         showToast('✅ Order saved successfully!');
         resetForm();
       } catch (e) {
         console.error('Save error:', e);
-        showToast('Failed to save order', true);
-      }
-    }
-
-    async function saveAndSendWhatsApp() {
-      const orderData = getOrderData();
-      if (!orderData) return;
-      try {
-        await database.ref('brandinn_print_orders').push().set(orderData);
-        
-        let msg = `*🖨️ NEW PRINT ORDER — BrandInn Print Shop*%0A%0A`;
-        msg += `*Customer:* ${orderData.customerName}%0A`;
-        msg += `*Phone:* ${orderData.customerPhone}%0A`;
-        if (orderData.customerEmail) msg += `*Email:* ${orderData.customerEmail}%0A`;
-        msg += `%0A*Product:* ${orderData.product}%0A`;
-        msg += `*Type:* ${orderData.type}%0A`;
-        msg += `*Quantity:* ${orderData.quantity}%0A`;
-        msg += `*Size:* ${orderData.size}%0A`;
-        msg += `*Total:* KES ${orderData.total.toLocaleString()}%0A`;
-        
-        if (orderData.type === 'tshirt') {
-          if (orderData.designText) msg += `%0A*Design:* ${orderData.designText}%0A`;
-          msg += `*Position:* ${orderData.position === 'breast' ? 'Left Breast' : 'Center Chest'}%0A`;
-          msg += `*Fabric:* ${orderData.fabricColor}%0A`;
-        }
-        
-        if (orderData.notes) msg += `%0A*Notes:* ${orderData.notes}%0A`;
-        msg += `%0A✅ _Order saved to system._`;
-
-        window.open(`https://wa.me/${orderData.customerPhone.replace(/[^0-9]/g, '')}?text=${msg}`, '_blank');
-        showToast('✅ Order saved & WhatsApp opened!');
-        resetForm();
-      } catch (e) {
-        console.error('Save error:', e);
-        showToast('Failed to save order', true);
+        showToast('Failed to save order. Check console.', true);
       }
     }
 
@@ -565,12 +544,16 @@
       document.getElementById('designText').value = '';
       document.getElementById('designText2').value = '';
       document.getElementById('bannerMetres').value = '1';
+      
+      // Reset pills
       document.querySelectorAll('.color-pill').forEach((c, i) => {
         if (i === 0) c.classList.add('active'); else c.classList.remove('active');
       });
-      document.querySelectorAll('#sizePills .size-pill').forEach((s, i) => {
+      document.querySelectorAll('#sizePills .size-pill').forEach((s) => {
         if (s.dataset.size === 'M') s.classList.add('active'); else s.classList.remove('active');
       });
+      
+      // Reset product type
       selectProductType('tshirt', document.querySelector('[data-type="tshirt"]'));
       updatePrice();
       showToast('Form reset');
@@ -584,6 +567,7 @@
       if (confirm('Log out?')) await auth.signOut();
     });
 
+    // Initialize
     updatePrice();
   </script>
 </body>
