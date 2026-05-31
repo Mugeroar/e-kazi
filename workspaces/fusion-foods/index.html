@@ -107,7 +107,7 @@
     .stat-trend { font-size: 0.6rem; margin-top: 2px; display: flex; align-items: center; gap: 3px; color: #64748b; }
     .stat-icon { width: 42px; height: 42px; background: #ecfdf5; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #059669; font-size: 1.2rem; }
 
-    .action-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 1.2rem; }
+    .action-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-bottom: 1.2rem; }
     .action-card {
       background: white; border-radius: 20px; padding: 1.2rem;
       border: 1px solid #a7f3d0; box-shadow: 0 8px 20px -6px rgba(5,150,105,0.04);
@@ -128,6 +128,10 @@
     .map-card .action-link { color: #2563eb; }
     .store-card .action-icon { color: #7c3aed; border-color: rgba(124,58,237,0.2); background: linear-gradient(145deg, #f5f0ff, #ffffff); }
     .store-card .action-link { color: #7c3aed; }
+    .inventory-card .action-icon { color: #f59e0b; border-color: rgba(245,158,11,0.2); background: linear-gradient(145deg, #fffbeb, #ffffff); }
+    .inventory-card .action-link { color: #d97706; }
+    .dispatch-card .action-icon { color: #8b5cf6; border-color: rgba(139,92,246,0.2); background: linear-gradient(145deg, #f5f0ff, #ffffff); }
+    .dispatch-card .action-link { color: #7c3aed; }
 
     .quick-section {
       background: white; border-radius: 18px; padding: 1rem 1.2rem;
@@ -180,12 +184,15 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    @media (max-width: 1100px) { .action-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 1100px) { .action-grid { grid-template-columns: repeat(3, 1fr); } }
     @media (max-width: 768px) {
       .stats-grid { grid-template-columns: 1fr 1fr; }
-      .action-grid { grid-template-columns: 1fr; }
+      .action-grid { grid-template-columns: 1fr 1fr; }
       .container { padding: 0.8rem; }
       .page-header h1 { font-size: 1.1rem; }
+    }
+    @media (max-width: 500px) {
+      .action-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -214,7 +221,7 @@
         Fusion Foods Dashboard
         <span class="last-updated" id="lastUpdated"><i class="fas fa-circle"></i> Live</span>
       </h1>
-      <p>Receive orders, dispatch shipments & manage your food supply stores.</p>
+      <p>Receive orders, manage inventory, dispatch shipments & manage your stores.</p>
     </div>
 
     <div class="stats-grid">
@@ -227,8 +234,8 @@
         <div class="stat-icon"><i class="fas fa-spinner"></i></div>
       </div>
       <div class="stat-card">
-        <div class="stat-left"><h4>Dispatched</h4><div class="stat-number" id="dispatchedOrders">0</div><div class="stat-trend"><i class="fas fa-truck-fast"></i> Out for delivery</div></div>
-        <div class="stat-icon"><i class="fas fa-truck-fast"></i></div>
+        <div class="stat-left"><h4>In Stock</h4><div class="stat-number" id="inStock">0</div><div class="stat-trend"><i class="fas fa-boxes"></i> Products available</div></div>
+        <div class="stat-icon"><i class="fas fa-boxes"></i></div>
       </div>
       <div class="stat-card">
         <div class="stat-left"><h4>Stores Served</h4><div class="stat-number" id="storesServed">0</div><div class="stat-trend"><i class="fas fa-store"></i> Active clients</div></div>
@@ -237,28 +244,34 @@
     </div>
 
     <div class="action-grid">
-      <a href="fusion-foods-receive.html" class="action-card">
-        <div class="action-icon"><i class="fas fa-inbox"></i></div>
-        <h2>Receive Orders</h2>
-        <p>View incoming food supply orders from restaurants & businesses.</p>
-        <span class="action-link">View Orders <i class="fas fa-arrow-right"></i></span>
-      </a>
-      <a href="fusion-foods-new-order.html" class="action-card">
+      <a href="new-order.html" class="action-card">
         <div class="action-icon"><i class="fas fa-cart-plus"></i></div>
         <h2>Place Order</h2>
-        <p>Create a new food or grocery supply order for a restaurant.</p>
+        <p>Create a new food supply order for a restaurant.</p>
         <span class="action-link">New Order <i class="fas fa-arrow-right"></i></span>
       </a>
-      <a href="fusion-foods-dispatch.html" class="action-card">
+      <a href="orders.html" class="action-card">
+        <div class="action-icon"><i class="fas fa-inbox"></i></div>
+        <h2>Receive Orders</h2>
+        <p>View & process incoming food supply orders.</p>
+        <span class="action-link">View Orders <i class="fas fa-arrow-right"></i></span>
+      </a>
+      <a href="inventory.html" class="action-card inventory-card">
+        <div class="action-icon"><i class="fas fa-boxes-stacked"></i></div>
+        <h2>Inventory</h2>
+        <p>Manage stock, update quantities & track supplies.</p>
+        <span class="action-link">Browse Stock <i class="fas fa-arrow-right"></i></span>
+      </a>
+      <a href="dispatch.html" class="action-card dispatch-card">
         <div class="action-icon"><i class="fas fa-truck-fast"></i></div>
-        <h2>Dispatch Orders</h2>
-        <p>Ship out confirmed orders, assign drivers & track deliveries.</p>
+        <h2>Dispatch</h2>
+        <p>Ship orders, assign drivers & track deliveries.</p>
         <span class="action-link">Dispatch <i class="fas fa-arrow-right"></i></span>
       </a>
-      <a href="fusion-foods-stores.html" class="action-card store-card">
+      <a href="stores.html" class="action-card store-card">
         <div class="action-icon"><i class="fas fa-store-alt"></i></div>
         <h2>Manage Stores</h2>
-        <p>View & manage restaurant clients, store locations & order history.</p>
+        <p>View & manage restaurant clients & locations.</p>
         <span class="action-link">Stores <i class="fas fa-arrow-right"></i></span>
       </a>
     </div>
@@ -266,19 +279,19 @@
     <div class="quick-section">
       <div class="quick-header"><i class="fas fa-bolt"></i> Quick Actions</div>
       <div class="quick-links">
-        <a href="fusion-foods-receive.html" class="quick-btn"><i class="fas fa-inbox"></i> Receive Orders (<span id="newBadge">0</span>)</a>
-        <a href="fusion-foods-new-order.html" class="quick-btn"><i class="fas fa-plus-circle"></i> Place Order</a>
-        <a href="fusion-foods-dispatch.html" class="quick-btn"><i class="fas fa-truck"></i> Dispatch (<span id="dispatchBadge">0</span>)</a>
-        <a href="fusion-foods-stores.html" class="quick-btn"><i class="fas fa-store"></i> My Stores</a>
+        <a href="new-order.html" class="quick-btn"><i class="fas fa-plus-circle"></i> Place Order</a>
+        <a href="orders.html" class="quick-btn"><i class="fas fa-inbox"></i> Orders (<span id="newBadge">0</span>)</a>
+        <a href="inventory.html" class="quick-btn"><i class="fas fa-box"></i> Inventory</a>
+        <a href="dispatch.html" class="quick-btn"><i class="fas fa-truck"></i> Dispatch (<span id="dispatchBadge">0</span>)</a>
+        <a href="stores.html" class="quick-btn"><i class="fas fa-store"></i> My Stores</a>
         <a href="/workspaces/brandinn/map.html" class="quick-btn"><i class="fas fa-map-pin"></i> Add to Map</a>
-        <a href="/workspaces/brandinn/dashboard.html" class="quick-btn"><i class="fas fa-chart-pie"></i> BrandInn</a>
       </div>
     </div>
 
     <div class="recent-section">
       <div class="recent-header">
         <h3><i class="fas fa-clock-rotate-left" style="color:#059669;"></i> Recent Orders</h3>
-        <a href="fusion-foods-receive.html" style="color:#059669;font-weight:600;font-size:0.75rem;">View all</a>
+        <a href="orders.html" style="color:#059669;font-weight:600;font-size:0.75rem;">View all</a>
       </div>
       <div class="recent-list" id="recentList">
         <div class="empty-state">Loading orders...</div>
@@ -320,6 +333,7 @@
     const db = getDatabase(app);
 
     let allOrders = {};
+    let allInventory = {};
     let allStores = {};
 
     const loadingOverlay = document.getElementById('loadingOverlay');
@@ -390,15 +404,14 @@
         const status = order.status || 'new';
         const timeAgo = formatTimeAgo(order.createdAt || order.timestamp);
         const restaurant = order.restaurantName || order.businessName || order.customerName || 'Restaurant';
-        const items = order.items || order.products || [];
-        const itemCount = Array.isArray(items) ? items.length : (typeof items === 'object' ? Object.keys(items).length : 0);
-        const category = order.category || (Array.isArray(items) && items[0]?.category) || '';
-        const total = order.total || order.totalAmount || 0;
+        const products = order.products || [];
+        const itemCount = products.length;
+        const total = order.total || 0;
 
         return `
           <div class="recent-item">
             <div style="display:flex;align-items:center;gap:10px;">
-              <div style="width:32px;height:32px;background:#ecfdf5;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1rem;">${getCategoryIcon(category)}</div>
+              <div style="width:32px;height:32px;background:#ecfdf5;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1rem;">${getCategoryIcon(order.category)}</div>
               <div>
                 <strong>${escapeHtml(restaurant)}</strong>
                 <p style="font-size:0.65rem;color:#64748b;">${itemCount} item${itemCount !== 1 ? 's' : ''} · KES ${Number(total).toLocaleString()} ${timeAgo ? '· ' + timeAgo : ''}</p>
@@ -415,27 +428,24 @@
         const s = (o.status || 'new').toLowerCase();
         return s === 'new' || s === 'pending';
       }).length;
-      const processing = orders.filter(o => (o.status || '').toLowerCase() === 'processing' || (o.status || '').toLowerCase() === 'confirmed').length;
-      const dispatched = orders.filter(o => {
+      const processing = orders.filter(o => {
         const s = (o.status || '').toLowerCase();
-        return s === 'shipped' || s === 'dispatched' || s === 'out_for_delivery';
+        return s === 'processing' || s === 'confirmed';
       }).length;
+      const inStock = Object.values(allInventory).filter(p => p && (p.quantity || 0) > 0).length;
       
       const stores = new Set();
-      orders.forEach(o => {
-        if (o.restaurantName) stores.add(o.restaurantName);
-        if (o.businessName) stores.add(o.businessName);
-      });
-      Object.values(allStores).forEach(s => { if (s && s.businessName) stores.add(s.businessName); });
+      orders.forEach(o => { if (o.restaurantName) stores.add(o.restaurantName); });
+      Object.values(allStores).forEach(s => { if (s && (s.name || s.businessName)) stores.add(s.name || s.businessName); });
 
       document.getElementById('newOrders').textContent = newOrders;
       document.getElementById('processingOrders').textContent = processing;
-      document.getElementById('dispatchedOrders').textContent = dispatched;
+      document.getElementById('inStock').textContent = inStock;
       document.getElementById('storesServed').textContent = stores.size;
       document.getElementById('newBadge').textContent = newOrders;
       document.getElementById('dispatchBadge').textContent = processing;
       
-      document.getElementById('footerStats').textContent = `${orders.length} total · ${newOrders} new · ${dispatched} dispatched · ${stores.size} stores`;
+      document.getElementById('footerStats').textContent = `${orders.length} orders · ${inStock} products · ${stores.size} stores`;
       document.getElementById('lastUpdated').innerHTML = `<i class="fas fa-circle" style="color:#10b981;"></i> Live`;
       renderRecentList();
     }
@@ -460,17 +470,13 @@
         });
       });
 
-      onValue(ref(db, 'brandinn_subdomains'), (snapshot) => {
-        const subdomains = snapshot.val() || {};
-        allStores = {};
-        Object.entries(subdomains).forEach(([key, val]) => {
-          if (val && val.category && (
-            val.category.toLowerCase().includes('food') || val.category.toLowerCase().includes('restaurant') ||
-            val.category.toLowerCase().includes('cafe') || val.category.toLowerCase().includes('grocery')
-          )) {
-            allStores[key] = val;
-          }
-        });
+      onValue(ref(db, 'fusion_foods_inventory'), (snapshot) => {
+        allInventory = snapshot.val() || {};
+        updateStats();
+      });
+
+      onValue(ref(db, 'fusion_foods_stores'), (snapshot) => {
+        allStores = snapshot.val() || {};
         updateStats();
       });
     }
