@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Dispatch Orders | Fusion Foods</title>
+  
+  <meta name="theme-color" content="#10b981">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  
+  <link rel="icon" type="image/png" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --green: #10b981;
+      --green-dark: #059669;
+      --green-light: #34d399;
+      --text-primary: #1e293b;
+      --text-muted: #64748b;
+      --border-light: #a7f3d0;
+      --red: #ef4444;
+      --orange: #f59e0b;
+      --blue: #3b82f6;
+      --purple: #7c3aed;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(145deg, #ecfdf5 0%, #ffffff 100%);
+      color: var(--text-primary);
+      line-height: 1.4;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .navbar {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(16px);
+      padding: 0.5rem 2%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(16, 185, 129, 0.2);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .logo-img { height: 34px; width: 34px; border-radius: 10px; object-fit: contain; background: white; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2); }
+    .logo-text {
+      font-weight: 800; font-size: 1.1rem;
+      background: linear-gradient(145deg, #34d399, #059669);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .logo-text span { font-weight: 600; font-size: 0.7rem; background: #10b981; -webkit-text-fill-color: #10b981; margin-left: 3px; }
+
+    .nav-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .nav-btn {
+      background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2);
+      padding: 0.4rem 0.8rem; border-radius: 25px; color: var(--green-dark);
+      font-weight: 600; font-size: 0.7rem; cursor: pointer; display: inline-flex;
+      align-items: center; gap: 5px; text-decoration: none; transition: all 0.2s;
+    }
+    .nav-btn:hover { background: var(--green); color: white; }
+
+    .container { padding: 1rem 2%; flex: 1; }
+
+    .page-header { margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.8rem; }
+    .page-header h1 { font-size: 1.3rem; font-weight: 800; color: #0f172a; }
+    .page-header h1 i { color: var(--green-dark); margin-right: 6px; }
+
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 1rem; }
+    .stat-mini {
+      background: white; border-radius: 14px; padding: 0.8rem 1rem; text-align: center;
+      border: 1px solid #a7f3d0; box-shadow: 0 2px 8px rgba(5,150,105,0.03);
+    }
+    .stat-mini .stat-num { font-size: 1.4rem; font-weight: 800; color: var(--green-dark); line-height: 1.1; }
+    .stat-mini .stat-label { font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.3px; }
+
+    .filter-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1rem; align-items: center; }
+    .filter-btn {
+      padding: 0.35rem 0.8rem; border-radius: 20px; border: 1.5px solid #e2e8f0;
+      background: white; color: #64748b; font-weight: 600; font-size: 0.65rem;
+      cursor: pointer; transition: all 0.15s; font-family: inherit;
+    }
+    .filter-btn:hover { border-color: var(--green); color: var(--green-dark); }
+    .filter-btn.active { background: var(--green); color: white; border-color: var(--green); }
+    .filter-btn .count { background: rgba(255,255,255,0.25); padding: 0.1rem 0.4rem; border-radius: 10px; font-size: 0.55rem; margin-left: 4px; }
+
+    .search-box { flex: 1; min-width: 150px; max-width: 300px; position: relative; }
+    .search-box input {
+      width: 100%; padding: 0.35rem 0.8rem 0.35rem 2rem; border-radius: 20px;
+      border: 1.5px solid #e2e8f0; font-size: 0.7rem; font-family: 'Inter', sans-serif;
+    }
+    .search-box i { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 0.7rem; }
+
+    .table-wrap {
+      background: white; border-radius: 16px; border: 1px solid #a7f3d0;
+      overflow: hidden; box-shadow: 0 4px 16px rgba(5,150,105,0.03);
+    }
+    .table-scroll { overflow-x: auto; max-height: 60vh; overflow-y: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
+    thead { position: sticky; top: 0; z-index: 2; background: #ecfdf5; }
+    th {
+      padding: 0.6rem 0.7rem; text-align: left; font-weight: 700; color: #059669;
+      font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.4px; white-space: nowrap;
+    }
+    td { padding: 0.5rem 0.7rem; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+    tr:hover td { background: #f0fdf4; }
+
+    .status-badge {
+      display: inline-block; padding: 0.15rem 0.5rem; border-radius: 12px;
+      font-size: 0.6rem; font-weight: 700; white-space: nowrap;
+    }
+    .status-confirmed { background: #d1fae5; color: #065f46; }
+    .status-processing { background: #e0f2fe; color: #0369a1; }
+    .status-ready { background: #fef3c7; color: #b45309; }
+    .status-shipped { background: #ede9fe; color: #5b21b6; }
+    .status-delivered { background: #d1fae5; color: #065f46; }
+
+    .action-btns { display: flex; gap: 4px; flex-wrap: wrap; }
+    .action-btn {
+      padding: 0.25rem 0.5rem; border-radius: 6px; border: none; font-size: 0.6rem;
+      font-weight: 600; cursor: pointer; display: inline-flex; align-items: center;
+      gap: 3px; transition: all 0.15s; font-family: inherit;
+    }
+    .btn-dispatch { background: #fef3cd; color: #b45309; }
+    .btn-dispatch:hover { background: #f59e0b; color: white; }
+    .btn-ship { background: #ede9fe; color: #5b21b6; }
+    .btn-ship:hover { background: #7c3aed; color: white; }
+    .btn-deliver { background: #d1fae5; color: #065f46; }
+    .btn-deliver:hover { background: #10b981; color: white; }
+    .btn-view { background: #f1f5f9; color: #475569; }
+    .btn-view:hover { background: #475569; color: white; }
+    .btn-assign { background: #e0f2fe; color: #0369a1; }
+    .btn-assign:hover { background: #3b82f6; color: white; }
+
+    .empty-row td { text-align: center; padding: 2rem; color: #94a3b8; }
+
+    /* Modal */
+    .modal-overlay {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5); z-index: 3000; justify-content: center;
+      align-items: center; backdrop-filter: blur(2px);
+    }
+    .modal-overlay.show { display: flex; }
+    .modal {
+      background: white; border-radius: 20px; padding: 1.5rem; max-width: 500px;
+      width: 95%; max-height: 85vh; overflow-y: auto; box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+    }
+    .modal h3 { font-size: 0.95rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px; color: var(--green-dark); }
+    .form-group { margin-bottom: 0.7rem; }
+    .form-group label {
+      display: block; font-size: 0.65rem; font-weight: 700; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 0.15rem;
+    }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%; padding: 0.5rem 0.7rem; border-radius: 10px;
+      border: 1.5px solid #e2e8f0; font-size: 0.8rem; font-family: 'Inter', sans-serif;
+      background: #f8fafc;
+    }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+    .btn-row { display: flex; gap: 8px; margin-top: 1rem; }
+    .btn {
+      padding: 0.6rem 1.2rem; border-radius: 10px; border: none; font-weight: 700;
+      font-size: 0.8rem; cursor: pointer; display: inline-flex; align-items: center;
+      gap: 5px; font-family: inherit; transition: all 0.15s;
+    }
+    .btn-primary { background: var(--green); color: white; }
+    .btn-primary:hover { background: var(--green-dark); }
+    .btn-secondary { background: #f1f5f9; color: #475569; }
+    .btn-secondary:hover { background: #e2e8f0; }
+
+    .toast {
+      position: fixed; bottom: 25px; right: 25px; background: var(--green); color: white;
+      padding: 0.7rem 1.2rem; border-radius: 20px; font-weight: 600; z-index: 4000;
+      animation: slideIn 0.3s ease; box-shadow: 0 8px 20px rgba(16,185,129,0.25);
+      display: flex; align-items: center; gap: 6px; font-size: 0.75rem;
+    }
+    .toast.error { background: var(--red); }
+    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+    @media (max-width: 768px) {
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <a href="fusion-foods-dashboard.html" class="logo">
+      <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png" alt="Fusion Foods" class="logo-img">
+      <span class="logo-text">Fusion <span>Foods</span></span>
+    </a>
+    <div class="nav-right">
+      <a href="fusion-foods-dashboard.html" class="nav-btn"><i class="fas fa-arrow-left"></i> Dashboard</a>
+      <a href="fusion-foods-receive.html" class="nav-btn"><i class="fas fa-inbox"></i> Orders</a>
+      <a href="fusion-foods-new-order.html" class="nav-btn"><i class="fas fa-plus"></i> New Order</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="page-header">
+      <h1><i class="fas fa-truck-fast"></i> Dispatch Orders</h1>
+      <p style="font-size:0.75rem;color:var(--text-muted);" id="orderCount">Loading...</p>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-mini"><div class="stat-num" id="statReady">0</div><div class="stat-label">Ready to Ship</div></div>
+      <div class="stat-mini"><div class="stat-num" id="statTransit">0</div><div class="stat-label">In Transit</div></div>
+      <div class="stat-mini"><div class="stat-num" id="statDelivered">0</div><div class="stat-label">Delivered Today</div></div>
+      <div class="stat-mini"><div class="stat-num" id="statDrivers">0</div><div class="stat-label">Active Drivers</div></div>
+    </div>
+
+    <div class="filter-bar">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="confirmed">Confirmed<span class="count" id="countConfirmed">0</span></button>
+      <button class="filter-btn" data-filter="processing">Processing<span class="count" id="countProcessing">0</span></button>
+      <button class="filter-btn" data-filter="ready">Ready<span class="count" id="countReady">0</span></button>
+      <button class="filter-btn" data-filter="shipped">Shipped<span class="count" id="countShipped">0</span></button>
+      <button class="filter-btn" data-filter="delivered">Delivered<span class="count" id="countDelivered">0</span></button>
+      <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input type="text" id="searchInput" placeholder="Search restaurant, driver...">
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Restaurant</th>
+              <th>Items</th>
+              <th>Total</th>
+              <th>Driver</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <tr class="empty-row"><td colspan="7">Loading orders...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modal"><div class="modal" id="modalContent"></div></div>
+  <div id="toastContainer"></div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+      authDomain: "mugera-e51cc.firebaseapp.com",
+      databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "mugera-e51cc",
+      storageBucket: "mugera-e51cc.firebasestorage.app",
+      messagingSenderId: "1024868637509",
+      appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    const auth = firebase.auth();
+
+    let allOrders = {};
+    let allDrivers = {};
+    let currentFilter = 'all';
+    let searchQuery = '';
+
+    const tableBody = document.getElementById('tableBody');
+    const modal = document.getElementById('modal');
+    const modalContent = document.getElementById('modalContent');
+
+    function showToast(msg, isError = false) {
+      const container = document.getElementById('toastContainer');
+      const existing = container.querySelector('.toast');
+      if (existing) existing.remove();
+      const toast = document.createElement('div');
+      toast.className = `toast ${isError ? 'error' : ''}`;
+      toast.innerHTML = `<i class="fas fa-${isError ? 'exclamation-circle' : 'check-circle'}"></i> ${msg}`;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 3500);
+    }
+
+    function getInitials(name) {
+      if (!name) return '??';
+      return String(name).split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+    }
+
+    function getStatusClass(status) {
+      const map = { confirmed:'status-confirmed', processing:'status-processing', ready:'status-ready', shipped:'status-shipped', delivered:'status-delivered' };
+      return map[status] || 'status-confirmed';
+    }
+
+    function updateStats() {
+      const orders = Object.values(allOrders).filter(o => o);
+      const ready = orders.filter(o => o.status === 'ready').length;
+      const transit = orders.filter(o => o.status === 'shipped').length;
+      const delivered = orders.filter(o => o.status === 'delivered' && o.deliveredAt && new Date(o.deliveredAt).toDateString() === new Date().toDateString()).length;
+      const drivers = Object.values(allDrivers).filter(d => d && d.verified).length;
+
+      document.getElementById('statReady').textContent = ready;
+      document.getElementById('statTransit').textContent = transit;
+      document.getElementById('statDelivered').textContent = delivered;
+      document.getElementById('statDrivers').textContent = drivers;
+
+      document.getElementById('countConfirmed').textContent = orders.filter(o => o.status === 'confirmed').length;
+      document.getElementById('countProcessing').textContent = orders.filter(o => o.status === 'processing').length;
+      document.getElementById('countReady').textContent = ready;
+      document.getElementById('countShipped').textContent = transit;
+      document.getElementById('countDelivered').textContent = orders.filter(o => o.status === 'delivered').length;
+      document.getElementById('orderCount').textContent = `${orders.length} total · ${ready} ready · ${transit} in transit`;
+    }
+
+    function renderTable() {
+      let orders = Object.entries(allOrders).map(([id, data]) => ({ id, ...data })).filter(o => o);
+      
+      if (currentFilter !== 'all') {
+        orders = orders.filter(o => (o.status || 'confirmed') === currentFilter);
+      }
+      
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        orders = orders.filter(o => 
+          (o.restaurantName || '').toLowerCase().includes(q) ||
+          (o.driverName || o.assignedDriver || '').toLowerCase().includes(q)
+        );
+      }
+      
+      orders.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+      
+      if (!orders.length) {
+        tableBody.innerHTML = '<tr class="empty-row"><td colspan="7"><i class="fas fa-box-open" style="font-size:2rem;display:block;margin-bottom:8px;"></i>No orders to dispatch</td></tr>';
+        return;
+      }
+
+      tableBody.innerHTML = orders.map(order => {
+        const status = order.status || 'confirmed';
+        const products = order.products || [];
+        const itemCount = products.length;
+        const driver = order.driverName || order.assignedDriver || '—';
+        const shortId = String(order.id).slice(-6);
+
+        let actions = `<button class="action-btn btn-view" onclick="viewOrder('${order.id}')"><i class="fas fa-eye"></i></button>`;
+        
+        if (status === 'confirmed' || status === 'processing') {
+          actions += `<button class="action-btn btn-dispatch" onclick="updateStatus('${order.id}','ready')"><i class="fas fa-box"></i> Ready</button>`;
+        }
+        if (status === 'ready') {
+          actions += `<button class="action-btn btn-assign" onclick="showAssignModal('${order.id}')"><i class="fas fa-user-plus"></i> Assign</button>`;
+        }
+        if (status === 'ready' && driver !== '—') {
+          actions += `<button class="action-btn btn-ship" onclick="updateStatus('${order.id}','shipped')"><i class="fas fa-truck"></i> Ship</button>`;
+        }
+        if (status === 'shipped') {
+          actions += `<button class="action-btn btn-deliver" onclick="updateStatus('${order.id}','delivered')"><i class="fas fa-check-double"></i> Delivered</button>`;
+        }
+
+        return `
+          <tr>
+            <td><code style="font-size:0.65rem;background:#f0fdf4;padding:2px 6px;border-radius:4px;">#${shortId}</code></td>
+            <td>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <div style="width:28px;height:28px;background:#ecfdf5;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.65rem;color:#059669;">${getInitials(order.restaurantName)}</div>
+                <div>
+                  <strong>${order.restaurantName || 'Restaurant'}</strong>
+                  <div style="font-size:0.6rem;color:#94a3b8;">${order.location || ''}</div>
+                </div>
+              </div>
+            </td>
+            <td>${itemCount} item${itemCount !== 1 ? 's' : ''}</td>
+            <td><strong>KES ${(order.total || 0).toLocaleString()}</strong></td>
+            <td>${driver}</td>
+            <td><span class="status-badge ${getStatusClass(status)}">${status}</span></td>
+            <td><div class="action-btns">${actions}</div></td>
+          </tr>`;
+      }).join('');
+    }
+
+    async function updateStatus(orderId, newStatus) {
+      if (!confirm(`Update order to "${newStatus}"?`)) return;
+      try {
+        const updates = { status: newStatus, updatedAt: firebase.database.ServerValue.TIMESTAMP };
+        if (newStatus === 'delivered') updates.deliveredAt = firebase.database.ServerValue.TIMESTAMP;
+        if (newStatus === 'shipped') updates.shippedAt = firebase.database.ServerValue.TIMESTAMP;
+        await database.ref(`fusion_foods_orders/${orderId}`).update(updates);
+        showToast(`✅ Order ${newStatus}`);
+      } catch (e) { console.error(e); showToast('Failed to update', true); }
+    }
+
+    function viewOrder(orderId) {
+      const order = allOrders[orderId];
+      if (!order) return;
+      const products = order.products || [];
+      modalContent.innerHTML = `
+        <h3><i class="fas fa-info-circle"></i> Order #${String(orderId).slice(-6)}</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:0.75rem;margin-bottom:1rem;">
+          <div><strong>Restaurant:</strong> ${order.restaurantName || 'N/A'}</div>
+          <div><strong>Contact:</strong> ${order.contactPerson || 'N/A'}</div>
+          <div><strong>Phone:</strong> ${order.phone || 'N/A'}</div>
+          <div><strong>Location:</strong> ${order.location || 'N/A'}</div>
+          <div><strong>Status:</strong> <span class="status-badge ${getStatusClass(order.status)}">${order.status || 'confirmed'}</span></div>
+          <div><strong>Total:</strong> KES ${(order.total || 0).toLocaleString()}</div>
+          <div><strong>Driver:</strong> ${order.driverName || 'Unassigned'}</div>
+          <div><strong>Type:</strong> ${order.orderType || 'N/A'}</div>
+        </div>
+        ${products.length ? `
+          <p style="font-weight:700;font-size:0.7rem;margin-bottom:0.5rem;">Products:</p>
+          ${products.map(p => `
+            <div style="background:#f8fafc;padding:0.5rem;border-radius:8px;margin-bottom:4px;font-size:0.7rem;display:flex;justify-content:space-between;">
+              <span>${p.name} × ${p.quantity}</span>
+              <span>KES ${((p.price || 0) * (p.quantity || 1)).toLocaleString()}</span>
+            </div>
+          `).join('')}
+        ` : ''}
+        <div class="btn-row"><button class="btn btn-secondary" onclick="closeModal()">Close</button></div>
+      `;
+      modal.classList.add('show');
+    }
+
+    function showAssignModal(orderId) {
+      const drivers = Object.entries(allDrivers).filter(([_, d]) => d && d.verified);
+      modalContent.innerHTML = `
+        <h3><i class="fas fa-user-plus"></i> Assign Driver</h3>
+        <div class="form-group">
+          <label>Select Driver</label>
+          <select id="driverSelect">
+            <option value="">— Choose driver —</option>
+            ${drivers.map(([id, d]) => `<option value="${id}">${d.name || id} · ${d.vehicle || 'N/A'} · ${d.phone || ''}</option>`).join('')}
+          </select>
+        </div>
+        ${!drivers.length ? '<p style="color:#94a3b8;text-align:center;padding:1rem;">No verified drivers available</p>' : ''}
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="assignDriver('${orderId}')" ${!drivers.length ? 'disabled' : ''}>Assign Driver</button>
+          <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+        </div>
+      `;
+      modal.classList.add('show');
+    }
+
+    async function assignDriver(orderId) {
+      const driverId = document.getElementById('driverSelect').value;
+      if (!driverId) { showToast('Select a driver', true); return; }
+      const driver = allDrivers[driverId];
+      try {
+        await database.ref(`fusion_foods_orders/${orderId}`).update({
+          driverId, driverName: driver.name || driver.email,
+          driverPhone: driver.phone || '',
+          driverVehicle: driver.vehicle || '',
+          assignedAt: firebase.database.ServerValue.TIMESTAMP
+        });
+        showToast('✅ Driver assigned!');
+        closeModal();
+      } catch (e) { showToast('Failed to assign', true); }
+    }
+
+    function closeModal() { modal.classList.remove('show'); }
+
+    // Filters
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentFilter = btn.dataset.filter;
+        renderTable();
+      });
+    });
+
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+      searchQuery = e.target.value;
+      renderTable();
+    });
+
+    modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+    // Firebase listeners
+    database.ref('fusion_foods_orders').on('value', (snapshot) => {
+      allOrders = snapshot.val() || {};
+      updateStats();
+      renderTable();
+    });
+
+    database.ref('delivery_assistants').on('value', (snapshot) => {
+      allDrivers = snapshot.val() || {};
+      updateStats();
+    });
+
+    auth.onAuthStateChanged((user) => { if (!user) window.location.href = '/'; });
+    window.viewOrder = viewOrder;
+    window.showAssignModal = showAssignModal;
+    window.assignDriver = assignDriver;
+    window.updateStatus = updateStatus;
+    window.closeModal = closeModal;
+  </script>
+</body>
+</html>
