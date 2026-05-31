@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Manage Orders | KazInni Workspaces</title>
+  
+  <meta name="theme-color" content="#7c3aed">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  
+  <link rel="icon" type="image/png" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --primary: #7c3aed;
+      --primary-dark: #5b21b6;
+      --primary-light: #a78bfa;
+      --gold: #f59e0b;
+      --text-primary: #1e293b;
+      --text-muted: #64748b;
+      --border-light: #ede9fe;
+      --green: #10b981;
+      --red: #ef4444;
+      --blue: #3b82f6;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(145deg, #f8f6fc 0%, #ffffff 100%);
+      color: var(--text-primary);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .navbar {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(16px);
+      padding: 0.6rem 2%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(124, 58, 237, 0.12);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .logo-img { height: 36px; width: 36px; border-radius: 10px; object-fit: contain; background: white; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.15); }
+    .logo-text {
+      font-weight: 800; font-size: 1.2rem;
+      background: linear-gradient(145deg, #a78bfa, #7c3aed);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .logo-text span { font-weight: 600; font-size: 0.75rem; background: linear-gradient(145deg, #f59e0b, #d97706); -webkit-text-fill-color: transparent; margin-left: 3px; }
+
+    .nav-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .nav-btn {
+      background: rgba(124, 58, 237, 0.06); border: 1px solid rgba(124, 58, 237, 0.15);
+      padding: 0.45rem 0.9rem; border-radius: 30px; color: var(--primary-dark);
+      font-weight: 600; font-size: 0.75rem; cursor: pointer; display: inline-flex;
+      align-items: center; gap: 5px; text-decoration: none; transition: all 0.2s;
+    }
+    .nav-btn:hover { background: var(--primary); color: white; }
+    .nav-btn.active { background: var(--primary); color: white; }
+
+    .container { max-width: 100%; margin: 0 auto; padding: 1rem 2%; flex: 1; }
+
+    .page-header { margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.8rem; }
+    .page-header h1 { font-size: 1.4rem; font-weight: 800; color: #0f172a; }
+    .page-header h1 i { color: var(--primary); margin-right: 6px; }
+
+    /* Stats Row */
+    .stats-row {
+      display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 1rem;
+    }
+    .stat-mini {
+      background: white; border-radius: 12px; padding: 0.8rem 1rem; text-align: center;
+      border: 1px solid #ede9fe; box-shadow: 0 2px 8px rgba(124,58,237,0.03);
+    }
+    .stat-mini .stat-num { font-size: 1.6rem; font-weight: 800; color: var(--primary); line-height: 1.1; }
+    .stat-mini .stat-label { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.3px; }
+
+    /* Filter Bar */
+    .filter-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1rem; align-items: center; }
+    .filter-btn {
+      padding: 0.45rem 1rem; border-radius: 25px; border: 1.5px solid #e2e8f0;
+      background: white; color: #64748b; font-weight: 600; font-size: 0.7rem;
+      cursor: pointer; transition: all 0.15s; white-space: nowrap; font-family: inherit;
+    }
+    .filter-btn:hover { border-color: var(--primary); color: var(--primary); }
+    .filter-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+    .filter-btn .count { background: rgba(255,255,255,0.25); padding: 0.1rem 0.4rem; border-radius: 10px; font-size: 0.6rem; margin-left: 4px; }
+
+    .search-box { flex: 1; min-width: 180px; max-width: 350px; position: relative; }
+    .search-box input {
+      width: 100%; padding: 0.45rem 1rem 0.45rem 2.2rem; border-radius: 25px;
+      border: 1.5px solid #e2e8f0; background: white; font-size: 0.75rem; font-family: 'Inter', sans-serif;
+    }
+    .search-box input:focus { border-color: var(--primary); outline: none; }
+    .search-box i { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 0.8rem; }
+
+    /* Table */
+    .table-wrap {
+      background: white; border-radius: 16px; border: 1px solid #ede9fe;
+      overflow: hidden; box-shadow: 0 4px 16px rgba(124,58,237,0.03);
+    }
+    .table-scroll { overflow-x: auto; max-height: calc(100vh - 320px); overflow-y: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.8rem; min-width: 900px; }
+    thead { position: sticky; top: 0; z-index: 2; background: #f8f6fc; }
+    th {
+      padding: 0.7rem 0.8rem; text-align: left; font-weight: 700; color: var(--primary-dark);
+      font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.4px; white-space: nowrap;
+    }
+    td { padding: 0.6rem 0.8rem; border-bottom: 1px solid #f1f5f9; color: #1e293b; vertical-align: middle; }
+    tr:hover td { background: #f8f6fc; }
+
+    .status-badge {
+      display: inline-block; padding: 0.2rem 0.6rem; border-radius: 15px;
+      font-size: 0.65rem; font-weight: 700; text-transform: capitalize; white-space: nowrap;
+    }
+    .status-new { background: #dbeafe; color: #1e40af; }
+    .status-pending { background: #fef3c7; color: #b45309; }
+    .status-printing { background: #ede9fe; color: #5b21b6; }
+    .status-completed { background: #d1fae5; color: #065f46; }
+    .status-delivered { background: #d1fae5; color: #065f46; }
+    .status-cancelled { background: #fee2e2; color: #991b1b; }
+
+    .action-btns { display: flex; gap: 4px; flex-wrap: wrap; }
+    .action-btn {
+      padding: 0.25rem 0.5rem; border-radius: 6px; border: none; font-size: 0.6rem;
+      font-weight: 600; cursor: pointer; display: inline-flex; align-items: center;
+      gap: 3px; transition: all 0.15s; white-space: nowrap; font-family: inherit;
+    }
+    .btn-accept { background: #ede9fe; color: #5b21b6; }
+    .btn-accept:hover { background: #7c3aed; color: white; }
+    .btn-print { background: #fef3cd; color: #b45309; }
+    .btn-print:hover { background: #f59e0b; color: white; }
+    .btn-done { background: #d1fae5; color: #065f46; }
+    .btn-done:hover { background: #10b981; color: white; }
+    .btn-deliver { background: #dbeafe; color: #1e40af; }
+    .btn-deliver:hover { background: #3b82f6; color: white; }
+    .btn-cancel { background: #fee2e2; color: #991b1b; }
+    .btn-cancel:hover { background: #ef4444; color: white; }
+    .btn-view { background: #f1f5f9; color: #475569; }
+    .btn-view:hover { background: #475569; color: white; }
+    .btn-edit { background: #e0e7ff; color: #4338ca; }
+    .btn-edit:hover { background: #4338ca; color: white; }
+
+    .empty-row td { text-align: center; padding: 3rem; color: #94a3b8; }
+
+    /* Modal */
+    .modal-overlay {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5); z-index: 3000; justify-content: center;
+      align-items: center; backdrop-filter: blur(2px);
+    }
+    .modal-overlay.show { display: flex; }
+    .modal {
+      background: white; border-radius: 20px; padding: 1.5rem; max-width: 550px;
+      width: 95%; max-height: 85vh; overflow-y: auto; box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+    }
+    .modal h3 { font-size: 1rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px; }
+    .modal h3 i { color: var(--primary); }
+    .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.8rem; }
+    .detail-item { background: #f8fafc; padding: 0.7rem; border-radius: 10px; }
+    .detail-item strong { display: block; font-size: 0.6rem; color: var(--primary); text-transform: uppercase; margin-bottom: 0.15rem; }
+    .btn-row { display: flex; gap: 8px; margin-top: 1rem; }
+    .btn {
+      padding: 0.6rem 1.2rem; border-radius: 10px; border: none; font-weight: 700;
+      font-size: 0.8rem; cursor: pointer; display: inline-flex; align-items: center;
+      gap: 5px; font-family: inherit;
+    }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-secondary { background: #f1f5f9; color: #475569; }
+
+    .toast {
+      position: fixed; bottom: 25px; right: 25px; background: var(--green); color: white;
+      padding: 0.8rem 1.5rem; border-radius: 25px; font-weight: 600; z-index: 4000;
+      animation: slideIn 0.3s ease; box-shadow: 0 10px 25px rgba(16,185,129,0.3);
+      display: flex; align-items: center; gap: 8px; font-size: 0.85rem;
+    }
+    .toast.error { background: var(--red); }
+    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+    @media (max-width: 768px) {
+      .stats-row { grid-template-columns: repeat(3, 1fr); }
+      .filter-bar { gap: 4px; }
+      .filter-btn { padding: 0.35rem 0.7rem; font-size: 0.65rem; }
+    }
+    @media (max-width: 500px) {
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <a href="/workspaces/brandinn-prints/dashboard.html" class="logo">
+      <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png" alt="KazInni Logo" class="logo-img">
+      <span class="logo-text">KazInni <span>Print Shop</span></span>
+    </a>
+    <div class="nav-right">
+      <a href="/workspaces/brandinn-prints/dashboard.html" class="nav-btn">
+        <i class="fas fa-chart-pie"></i> Dashboard
+      </a>
+      <a href="/workspaces/brandinn-prints/new-order.html" class="nav-btn">
+        <i class="fas fa-plus"></i> New Order
+      </a>
+      <button class="nav-btn" id="logoutBtn">
+        <i class="fas fa-sign-out-alt"></i> Logout
+      </button>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="page-header">
+      <h1><i class="fas fa-clipboard-list"></i> Manage Orders</h1>
+      <p style="font-size:0.8rem;color:var(--text-muted);" id="orderCount">Loading...</p>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row" id="statsRow">
+      <div class="stat-mini"><div class="stat-num" id="statAll">0</div><div class="stat-label">Total</div></div>
+      <div class="stat-mini"><div class="stat-num" id="statNew">0</div><div class="stat-label">New</div></div>
+      <div class="stat-mini"><div class="stat-num" id="statPending">0</div><div class="stat-label">Pending</div></div>
+      <div class="stat-mini"><div class="stat-num" id="statPrinting">0</div><div class="stat-label">Printing</div></div>
+      <div class="stat-mini"><div class="stat-num" id="statCompleted">0</div><div class="stat-label">Completed</div></div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filter-bar" id="filterBar">
+      <button class="filter-btn active" data-filter="all">All<span class="count" id="countAll">0</span></button>
+      <button class="filter-btn" data-filter="new">New<span class="count" id="countNew">0</span></button>
+      <button class="filter-btn" data-filter="pending">Pending<span class="count" id="countPending">0</span></button>
+      <button class="filter-btn" data-filter="printing">Printing<span class="count" id="countPrinting">0</span></button>
+      <button class="filter-btn" data-filter="completed">Completed<span class="count" id="countCompleted">0</span></button>
+      <button class="filter-btn" data-filter="delivered">Delivered<span class="count" id="countDelivered">0</span></button>
+      <button class="filter-btn" data-filter="cancelled">Cancelled<span class="count" id="countCancelled">0</span></button>
+      <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input type="text" id="searchInput" placeholder="Search customer, phone, product...">
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrap">
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Customer</th>
+              <th>Product</th>
+              <th>Details</th>
+              <th>Qty</th>
+              <th>Total</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <tr class="empty-row"><td colspan="8">Loading orders...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal-overlay" id="modal">
+    <div class="modal" id="modalContent"></div>
+  </div>
+
+  <div id="toastContainer"></div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+      authDomain: "mugera-e51cc.firebaseapp.com",
+      databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "mugera-e51cc",
+      storageBucket: "mugera-e51cc.firebasestorage.app",
+      messagingSenderId: "1024868637509",
+      appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    const auth = firebase.auth();
+
+    let allOrders = {};
+    let currentFilter = 'all';
+    let searchQuery = '';
+
+    const tableBody = document.getElementById('tableBody');
+    const modal = document.getElementById('modal');
+    const modalContent = document.getElementById('modalContent');
+
+    function showToast(msg, isError = false) {
+      const container = document.getElementById('toastContainer');
+      const existing = container.querySelector('.toast');
+      if (existing) existing.remove();
+      const toast = document.createElement('div');
+      toast.className = `toast ${isError ? 'error' : ''}`;
+      toast.innerHTML = `<i class="fas fa-${isError ? 'exclamation-circle' : 'check-circle'}"></i> ${msg}`;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 3500);
+    }
+
+    function getInitials(name) {
+      if (!name) return '??';
+      return String(name).split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+    }
+
+    function getStatusClass(status) {
+      const map = { new:'status-new', pending:'status-pending', printing:'status-printing', completed:'status-completed', delivered:'status-delivered', cancelled:'status-cancelled' };
+      return map[status] || 'status-new';
+    }
+
+    function getProductIcon(type) {
+      const icons = { tshirt:'👕', banner:'🪧', sticker:'🏷️', apron:'🧥', dustcoat:'🥼' };
+      return icons[type] || '📦';
+    }
+
+    function getOrderDetails(order) {
+      const parts = [];
+      if (order.fabricColor) parts.push(order.fabricColor);
+      if (order.position) parts.push(order.position === 'breast' ? 'Left Breast' : 'Center');
+      if (order.size) parts.push('Size: ' + order.size);
+      if (order.font) parts.push(order.font);
+      return parts.join(' · ') || '—';
+    }
+
+    function updateStats() {
+      const orders = Object.values(allOrders).filter(o => o);
+      const counts = { all: orders.length, new: 0, pending: 0, printing: 0, completed: 0, delivered: 0, cancelled: 0 };
+      orders.forEach(o => { const s = o.status || 'new'; if (counts[s] !== undefined) counts[s]++; });
+      
+      document.getElementById('statAll').textContent = counts.all;
+      document.getElementById('statNew').textContent = counts.new;
+      document.getElementById('statPending').textContent = counts.pending;
+      document.getElementById('statPrinting').textContent = counts.printing;
+      document.getElementById('statCompleted').textContent = counts.completed + counts.delivered;
+      
+      document.getElementById('countAll').textContent = counts.all;
+      document.getElementById('countNew').textContent = counts.new;
+      document.getElementById('countPending').textContent = counts.pending;
+      document.getElementById('countPrinting').textContent = counts.printing;
+      document.getElementById('countCompleted').textContent = counts.completed;
+      document.getElementById('countDelivered').textContent = counts.delivered;
+      document.getElementById('countCancelled').textContent = counts.cancelled;
+      
+      document.getElementById('orderCount').textContent = `${counts.all} total · ${counts.new} new · ${counts.printing} printing`;
+    }
+
+    function renderTable() {
+      let orders = Object.entries(allOrders).map(([id, data]) => ({ id, ...data })).filter(o => o);
+      
+      if (currentFilter !== 'all') {
+        orders = orders.filter(o => (o.status || 'new') === currentFilter);
+      }
+      
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        orders = orders.filter(o => {
+          return (o.customerName || '').toLowerCase().includes(q) ||
+                 (o.customerPhone || '').toLowerCase().includes(q) ||
+                 (o.product || o.type || '').toLowerCase().includes(q);
+        });
+      }
+      
+      orders.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+      
+      if (!orders.length) {
+        tableBody.innerHTML = `<tr class="empty-row"><td colspan="8"><i class="fas fa-box-open" style="font-size:2rem;display:block;margin-bottom:8px;"></i><p>No orders found</p></td></tr>`;
+        return;
+      }
+      
+      tableBody.innerHTML = orders.map(order => {
+        const status = order.status || 'new';
+        const customer = order.customerName || 'Walk-in';
+        const product = order.product || order.type || 'Order';
+        const icon = getProductIcon(order.type);
+        const details = getOrderDetails(order);
+        const qty = order.quantity || 1;
+        const total = order.total || 0;
+        const shortId = String(order.id).slice(-6);
+        
+        let actions = `<button class="action-btn btn-view" onclick="viewDetails('${order.id}')"><i class="fas fa-eye"></i></button>`;
+        
+        if (status === 'new') actions += `<button class="action-btn btn-accept" onclick="updateStatus('${order.id}','pending')"><i class="fas fa-check"></i> Accept</button>`;
+        if (status === 'pending') actions += `<button class="action-btn btn-print" onclick="updateStatus('${order.id}','printing')"><i class="fas fa-print"></i> Print</button>`;
+        if (status === 'printing') actions += `<button class="action-btn btn-done" onclick="updateStatus('${order.id}','completed')"><i class="fas fa-check-double"></i> Done</button>`;
+        if (status === 'completed') actions += `<button class="action-btn btn-deliver" onclick="updateStatus('${order.id}','delivered')"><i class="fas fa-truck"></i> Deliver</button>`;
+        if (['new','pending'].includes(status)) actions += `<button class="action-btn btn-cancel" onclick="updateStatus('${order.id}','cancelled')"><i class="fas fa-times"></i></button>`;
+        
+        return `
+          <tr>
+            <td><code style="font-size:0.7rem;background:#f8f6fc;padding:2px 6px;border-radius:4px;">#${shortId}</code></td>
+            <td>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <div style="width:28px;height:28px;background:#ede9fe;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.65rem;color:#5b21b6;flex-shrink:0;">${getInitials(customer)}</div>
+                <div>
+                  <strong>${customer}</strong>
+                  ${order.customerPhone ? `<div style="font-size:0.65rem;color:#94a3b8;">${order.customerPhone}</div>` : ''}
+                </div>
+              </div>
+            </td>
+            <td>${icon} ${product}</td>
+            <td><span style="font-size:0.7rem;">${details}</span></td>
+            <td>${qty}</td>
+            <td><strong>KES ${total.toLocaleString()}</strong></td>
+            <td><span class="status-badge ${getStatusClass(status)}">${status}</span></td>
+            <td><div class="action-btns">${actions}</div></td>
+          </tr>`;
+      }).join('');
+    }
+
+    async function updateStatus(orderId, newStatus) {
+      if (!confirm(`Update order #${String(orderId).slice(-6)} to "${newStatus}"?`)) return;
+      try {
+        const updates = { status: newStatus, updatedAt: firebase.database.ServerValue.TIMESTAMP };
+        if (newStatus === 'completed') updates.completedAt = firebase.database.ServerValue.TIMESTAMP;
+        if (newStatus === 'delivered') updates.deliveredAt = firebase.database.ServerValue.TIMESTAMP;
+        if (newStatus === 'cancelled') updates.cancelledAt = firebase.database.ServerValue.TIMESTAMP;
+        if (newStatus === 'printing') updates.startedAt = firebase.database.ServerValue.TIMESTAMP;
+        await database.ref(`brandinn_print_orders/${orderId}`).update(updates);
+        showToast(`✅ Order marked as ${newStatus}`);
+      } catch (e) {
+        console.error(e);
+        showToast('Failed to update', true);
+      }
+    }
+
+    function viewDetails(orderId) {
+      const order = allOrders[orderId];
+      if (!order) return;
+      const status = order.status || 'new';
+      
+      modalContent.innerHTML = `
+        <h3><i class="fas fa-info-circle"></i> Order Details <code style="font-size:0.7rem;background:#ede9fe;padding:2px 8px;border-radius:4px;">#${String(orderId).slice(-6)}</code></h3>
+        <div class="detail-grid">
+          <div class="detail-item"><strong>Customer</strong>${order.customerName || 'N/A'}</div>
+          <div class="detail-item"><strong>Phone</strong>${order.customerPhone || 'N/A'}</div>
+          <div class="detail-item"><strong>Email</strong>${order.customerEmail || 'N/A'}</div>
+          <div class="detail-item"><strong>Status</strong><span class="status-badge ${getStatusClass(status)}">${status}</span></div>
+          <div class="detail-item"><strong>Product</strong>${getProductIcon(order.type)} ${order.product || order.type || 'N/A'}</div>
+          <div class="detail-item"><strong>Quantity</strong>${order.quantity || 1}</div>
+          <div class="detail-item"><strong>Unit Price</strong>KES ${(order.unitPrice || 0).toLocaleString()}</div>
+          <div class="detail-item"><strong>Total</strong>KES ${(order.total || 0).toLocaleString()}</div>
+          ${order.fabricColor ? `<div class="detail-item"><strong>Fabric</strong>${order.fabricColor}</div>` : ''}
+          ${order.position ? `<div class="detail-item"><strong>Position</strong>${order.position === 'breast' ? 'Left Breast' : 'Center Chest'}</div>` : ''}
+          ${order.size ? `<div class="detail-item"><strong>Size</strong>${order.size}</div>` : ''}
+          ${order.font ? `<div class="detail-item"><strong>Font</strong>${order.font}</div>` : ''}
+          ${order.textColor ? `<div class="detail-item"><strong>Text Color</strong>${order.textColor}</div>` : ''}
+          ${order.designText ? `<div class="detail-item"><strong>Design</strong>${order.designText}</div>` : ''}
+          ${order.notes ? `<div class="detail-item" style="grid-column:1/-1;"><strong>Notes</strong>${order.notes}</div>` : ''}
+          <div class="detail-item"><strong>Created</strong>${order.createdAt ? new Date(order.createdAt).toLocaleString() : 'N/A'}</div>
+          ${order.completedAt ? `<div class="detail-item"><strong>Completed</strong>${new Date(order.completedAt).toLocaleString()}</div>` : ''}
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-secondary" onclick="closeModal()">Close</button>
+        </div>
+      `;
+      modal.classList.add('show');
+    }
+
+    function closeModal() { modal.classList.remove('show'); }
+
+    // Filters
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentFilter = btn.dataset.filter;
+        renderTable();
+      });
+    });
+
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+      searchQuery = e.target.value;
+      renderTable();
+    });
+
+    modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+    // Firebase listener
+    database.ref('brandinn_print_orders').on('value', (snapshot) => {
+      allOrders = snapshot.val() || {};
+      updateStats();
+      renderTable();
+    });
+
+    auth.onAuthStateChanged((user) => { if (!user) window.location.href = 'https://kazinni.vercel.app'; });
+    document.getElementById('logoutBtn').addEventListener('click', async () => { if (confirm('Log out?')) await auth.signOut(); });
+  </script>
+</body>
+</html>
