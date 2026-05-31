@@ -1,1 +1,618 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>New Order | KazInni Workspaces</title>
+  
+  <meta name="theme-color" content="#7c3aed">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  
+  <link rel="icon" type="image/png" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --primary: #7c3aed;
+      --primary-dark: #5b21b6;
+      --primary-light: #a78bfa;
+      --gold: #f59e0b;
+      --text-primary: #1e293b;
+      --text-muted: #64748b;
+      --border-light: #ede9fe;
+      --green: #10b981;
+      --red: #ef4444;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(145deg, #f8f6fc 0%, #ffffff 100%);
+      color: var(--text-primary);
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+
+    .navbar {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(16px);
+      padding: 0.7rem 3%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(124, 58, 237, 0.15);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+    .logo-img { height: 40px; width: 40px; border-radius: 12px; object-fit: contain; background: white; box-shadow: 0 6px 16px rgba(124, 58, 237, 0.2); }
+    .logo-text {
+      font-weight: 800; font-size: 1.3rem;
+      background: linear-gradient(145deg, #a78bfa, #7c3aed);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .logo-text span { font-weight: 600; font-size: 0.8rem; background: linear-gradient(145deg, #f59e0b, #d97706); -webkit-text-fill-color: transparent; margin-left: 4px; }
+
+    .nav-right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .nav-btn {
+      background: rgba(124, 58, 237, 0.08); border: 1px solid rgba(124, 58, 237, 0.2);
+      padding: 0.5rem 1rem; border-radius: 40px; color: var(--primary-dark);
+      font-weight: 600; font-size: 0.75rem; cursor: pointer; display: inline-flex;
+      align-items: center; gap: 6px; text-decoration: none; transition: all 0.2s;
+    }
+    .nav-btn:hover { background: var(--primary); color: white; }
+
+    .container { max-width: 800px; margin: 0 auto; padding: 2rem 3%; }
+
+    .page-header { margin-bottom: 2rem; text-align: center; }
+    .page-header h1 { font-size: 1.6rem; font-weight: 800; color: #0f172a; }
+    .page-header h1 i { color: var(--primary); margin-right: 8px; }
+    .page-header p { color: var(--text-muted); font-size: 0.85rem; margin-top: 0.3rem; }
+
+    /* Product Type Selector */
+    .product-type-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 1.5rem;
+    }
+    .product-type-card {
+      background: white; border: 2px solid #e2e8f0; border-radius: 16px;
+      padding: 1rem; text-align: center; cursor: pointer; transition: all 0.2s;
+    }
+    .product-type-card:hover { border-color: var(--primary-light); background: #f8f6fc; }
+    .product-type-card.active { border-color: var(--primary); background: #ede9fe; }
+    .product-type-card i { font-size: 1.8rem; display: block; margin-bottom: 0.4rem; }
+    .product-type-card .icon-tshirt { color: #7c3aed; }
+    .product-type-card .icon-banner { color: #f59e0b; }
+    .product-type-card .icon-sticker { color: #10b981; }
+    .product-type-card .icon-other { color: #64748b; }
+    .product-type-card span { font-size: 0.7rem; font-weight: 700; }
+
+    /* Form Card */
+    .form-card {
+      background: white; border-radius: 20px; padding: 2rem;
+      border: 1px solid #ede9fe; box-shadow: 0 8px 25px rgba(124, 58, 237, 0.05);
+    }
+    .form-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 1.2rem; display: flex; align-items: center; gap: 8px; color: var(--primary-dark); }
+    .form-card h3 i { color: var(--primary); }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+    .form-row.full { grid-template-columns: 1fr; }
+
+    .form-group { margin-bottom: 1rem; }
+    .form-group label {
+      display: block; font-size: 0.7rem; font-weight: 700; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.3rem;
+    }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%; padding: 0.65rem 0.9rem; border-radius: 12px;
+      border: 1.5px solid #e2e8f0; font-size: 0.85rem; font-family: 'Inter', sans-serif;
+      background: #f8fafc; transition: all 0.2s;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      border-color: var(--primary); outline: none; background: white;
+      box-shadow: 0 0 0 3px rgba(124,58,237,0.06);
+    }
+    .form-group textarea { resize: vertical; min-height: 70px; }
+
+    /* T-Shirt specific fields */
+    .tshirt-fields { display: none; }
+    .tshirt-fields.show { display: block; }
+
+    .color-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+    .color-pill {
+      padding: 0.4rem 1rem; border-radius: 20px; border: 2px solid #e2e8f0;
+      cursor: pointer; font-size: 0.75rem; font-weight: 600; transition: all 0.2s;
+      background: white;
+    }
+    .color-pill:hover { border-color: var(--primary); }
+    .color-pill.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+    .size-pills { display: flex; gap: 6px; flex-wrap: wrap; }
+    .size-pill {
+      padding: 0.4rem 0.9rem; border-radius: 20px; border: 2px solid #e2e8f0;
+      cursor: pointer; font-size: 0.75rem; font-weight: 600; transition: all 0.2s;
+      background: white;
+    }
+    .size-pill:hover { border-color: var(--primary); }
+    .size-pill.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+    /* Price summary */
+    .price-summary {
+      background: linear-gradient(135deg, #f8f6fc, #ede9fe);
+      border-radius: 16px; padding: 1.2rem; margin-top: 1.5rem;
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 1rem;
+    }
+    .price-summary .total-label { font-weight: 700; color: var(--primary-dark); }
+    .price-summary .total-amount { font-size: 1.8rem; font-weight: 900; color: var(--primary); }
+
+    .btn-row { display: flex; gap: 10px; margin-top: 1.5rem; }
+    .btn {
+      padding: 0.8rem 2rem; border-radius: 12px; border: none; font-weight: 700;
+      font-size: 0.9rem; cursor: pointer; display: inline-flex; align-items: center;
+      gap: 8px; transition: all 0.2s; font-family: inherit; flex: 1;
+      justify-content: center;
+    }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-secondary { background: #f1f5f9; color: #475569; }
+    .btn-secondary:hover { background: #e2e8f0; }
+    .btn-wa { background: #25D366; color: white; }
+    .btn-wa:hover { background: #128C7E; }
+
+    .toast {
+      position: fixed; bottom: 30px; right: 30px; background: var(--green); color: white;
+      padding: 0.9rem 1.5rem; border-radius: 30px; font-weight: 600; z-index: 4000;
+      animation: slideIn 0.3s ease; box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
+      display: flex; align-items: center; gap: 8px; font-size: 0.85rem;
+    }
+    .toast.error { background: var(--red); }
+    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+    .loading-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(255,255,255,0.7); backdrop-filter: blur(2px);
+      display: flex; justify-content: center; align-items: center; z-index: 999;
+    }
+    .loading-overlay.hide { display: none; }
+    .spinner {
+      width: 40px; height: 40px; border: 3px solid #ede9fe;
+      border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 600px) {
+      .product-type-grid { grid-template-columns: repeat(2, 1fr); }
+      .form-row { grid-template-columns: 1fr; }
+      .container { padding: 1rem 2%; }
+      .form-card { padding: 1.2rem; }
+      .btn-row { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div></div>
+
+  <nav class="navbar">
+    <a href="/workspaces/brandinn-prints/dashboard.html" class="logo">
+      <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png" alt="KazInni Logo" class="logo-img">
+      <span class="logo-text">KazInni <span>Print Shop</span></span>
+    </a>
+    <div class="nav-right">
+      <a href="/workspaces/brandinn-prints/orders.html" class="nav-btn">
+        <i class="fas fa-arrow-left"></i> All Orders
+      </a>
+      <button class="nav-btn" id="logoutBtn">
+        <i class="fas fa-sign-out-alt"></i> Logout
+      </button>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="page-header">
+      <h1><i class="fas fa-plus-circle"></i> New Print Order</h1>
+      <p>Log a new order from a client — fill in details below.</p>
+    </div>
+
+    <!-- Product Type Selector -->
+    <div class="product-type-grid" id="productTypeGrid">
+      <div class="product-type-card active" data-type="tshirt" onclick="selectProductType('tshirt', this)">
+        <i class="fas fa-tshirt icon-tshirt"></i>
+        <span>T-Shirt</span>
+      </div>
+      <div class="product-type-card" data-type="banner" onclick="selectProductType('banner', this)">
+        <i class="fas fa-flag-checkered icon-banner"></i>
+        <span>Banner</span>
+      </div>
+      <div class="product-type-card" data-type="sticker" onclick="selectProductType('sticker', this)">
+        <i class="fas fa-sticky-note icon-sticker"></i>
+        <span>Sticker</span>
+      </div>
+      <div class="product-type-card" data-type="other" onclick="selectProductType('other', this)">
+        <i class="fas fa-box icon-other"></i>
+        <span>Other</span>
+      </div>
+    </div>
+
+    <!-- Order Form -->
+    <div class="form-card">
+      <h3><i class="fas fa-user"></i> Customer Details</h3>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label>Customer Name *</label>
+          <input type="text" id="customerName" placeholder="Full name of client">
+        </div>
+        <div class="form-group">
+          <label>Phone Number *</label>
+          <input type="tel" id="customerPhone" placeholder="+254 700 000000">
+        </div>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label>Email (optional)</label>
+          <input type="email" id="customerEmail" placeholder="client@email.com">
+        </div>
+        <div class="form-group">
+          <label>Product Name</label>
+          <input type="text" id="productName" placeholder="e.g., Custom T-Shirt Printing">
+        </div>
+      </div>
+
+      <hr style="border: none; border-top: 1px solid #ede9fe; margin: 1.2rem 0;">
+
+      <h3><i class="fas fa-cog"></i> Order Details</h3>
+
+      <!-- T-Shirt Specific Fields -->
+      <div class="tshirt-fields show" id="tshirtFields">
+        <div class="form-group">
+          <label>Design Text</label>
+          <input type="text" id="designText" placeholder="Text to print on the shirt">
+        </div>
+        <div class="form-group">
+          <label>Second Line (optional)</label>
+          <input type="text" id="designText2" placeholder="Slogan or tagline">
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label>Print Position</label>
+            <select id="position">
+              <option value="center">Center Chest</option>
+              <option value="breast">Left Breast</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Font Style</label>
+            <select id="font">
+              <option value="Inter">Inter Bold</option>
+              <option value="Playfair Display">Playfair</option>
+              <option value="Bebas Neue">Bebas Neue</option>
+              <option value="Dancing Script">Dancing Script</option>
+              <option value="Oswald">Oswald</option>
+              <option value="Poppins">Poppins</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Fabric Color</label>
+          <div class="color-pills" id="colorPills">
+            <span class="color-pill active" data-color="White" onclick="selectColor(this)">White</span>
+            <span class="color-pill" data-color="Black" onclick="selectColor(this)">Black</span>
+            <span class="color-pill" data-color="Green" onclick="selectColor(this)">Green</span>
+            <span class="color-pill" data-color="Navy Blue" onclick="selectColor(this)">Navy Blue</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Text Color</label>
+          <div class="color-pills" id="textColorPills">
+            <span class="color-pill active" data-color="White" onclick="selectTextColor(this)">White</span>
+            <span class="color-pill" data-color="Black" onclick="selectTextColor(this)">Black</span>
+            <span class="color-pill" data-color="Gold" onclick="selectTextColor(this)">Gold</span>
+            <span class="color-pill" data-color="Red" onclick="selectTextColor(this)">Red</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Banner/Sticker Fields -->
+      <div class="tshirt-fields" id="bannerFields">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Size (metres)</label>
+            <input type="number" id="bannerMetres" value="1" min="0.5" max="50" step="0.5">
+          </div>
+          <div class="form-group">
+            <label>Design Option</label>
+            <select id="bannerDesign">
+              <option value="print-only">Print Only (client has design)</option>
+              <option value="design-included">Design + Print</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Size (if applicable)</label>
+          <div class="size-pills" id="sizePills">
+            <span class="size-pill" data-size="S" onclick="selectSize(this)">S</span>
+            <span class="size-pill active" data-size="M" onclick="selectSize(this)">M</span>
+            <span class="size-pill" data-size="L" onclick="selectSize(this)">L</span>
+            <span class="size-pill" data-size="XL" onclick="selectSize(this)">XL</span>
+            <span class="size-pill" data-size="2XL" onclick="selectSize(this)">2XL</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Quantity *</label>
+          <input type="number" id="quantity" value="1" min="1" max="500" onchange="updatePrice()">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Unit Price (KES)</label>
+          <input type="number" id="unitPrice" value="1300" min="0" onchange="updatePrice()">
+        </div>
+        <div class="form-group">
+          <label>Total Amount (KES)</label>
+          <input type="number" id="totalAmount" value="1300" min="0" readonly style="background:#ede9fe;font-weight:700;">
+        </div>
+      </div>
+
+      <div class="form-row full">
+        <div class="form-group">
+          <label>Notes / Special Instructions</label>
+          <textarea id="notes" placeholder="Any special requests, artwork notes, delivery instructions..."></textarea>
+        </div>
+      </div>
+
+      <!-- Price Summary -->
+      <div class="price-summary">
+        <span class="total-label">Order Total</span>
+        <span class="total-amount" id="displayTotal">KES 1,300</span>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="saveOrder()">
+          <i class="fas fa-save"></i> Save Order
+        </button>
+        <button class="btn btn-wa" onclick="saveAndSendWhatsApp()">
+          <i class="fab fa-whatsapp"></i> Save & Send WhatsApp
+        </button>
+      </div>
+      <div class="btn-row" style="margin-top:0.5rem;">
+        <button class="btn btn-secondary" onclick="resetForm()">
+          <i class="fas fa-undo"></i> Reset Form
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toastContainer"></div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+      authDomain: "mugera-e51cc.firebaseapp.com",
+      databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "mugera-e51cc",
+      storageBucket: "mugera-e51cc.firebasestorage.app",
+      messagingSenderId: "1024868637509",
+      appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    const auth = firebase.auth();
+
+    let selectedProduct = 'tshirt';
+    let selectedColor = 'White';
+    let selectedTextColor = 'White';
+    let selectedSize = 'M';
+
+    const productPrices = { tshirt: 1300, banner: 600, sticker: 650, other: 0 };
+
+    function showToast(msg, isError = false) {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast ${isError ? 'error' : ''}`;
+      toast.innerHTML = `<i class="fas fa-${isError ? 'exclamation-circle' : 'check-circle'}"></i> ${msg}`;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 4000);
+    }
+
+    function selectProductType(type, el) {
+      selectedProduct = type;
+      document.querySelectorAll('.product-type-card').forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+
+      // Show/hide relevant fields
+      document.getElementById('tshirtFields').classList.toggle('show', type === 'tshirt');
+      document.getElementById('bannerFields').classList.toggle('show', type === 'banner' || type === 'sticker');
+      document.getElementById('sizePills').parentElement.parentElement.style.display = type === 'tshirt' ? '' : 'none';
+
+      // Update default price
+      document.getElementById('unitPrice').value = productPrices[type] || 0;
+      updatePrice();
+
+      // Update product name placeholder
+      const names = { tshirt: 'Custom T-Shirt Printing', banner: 'Banner Printing', sticker: 'Sticker Printing', other: 'Custom Print Order' };
+      document.getElementById('productName').value = names[type] || '';
+    }
+
+    function selectColor(el) {
+      document.querySelectorAll('#colorPills .color-pill').forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+      selectedColor = el.dataset.color;
+    }
+
+    function selectTextColor(el) {
+      document.querySelectorAll('#textColorPills .color-pill').forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+      selectedTextColor = el.dataset.color;
+    }
+
+    function selectSize(el) {
+      document.querySelectorAll('#sizePills .size-pill').forEach(s => s.classList.remove('active'));
+      el.classList.add('active');
+      selectedSize = el.dataset.size;
+    }
+
+    function updatePrice() {
+      const qty = parseInt(document.getElementById('quantity').value) || 1;
+      const unit = parseInt(document.getElementById('unitPrice').value) || 0;
+      const total = qty * unit;
+      document.getElementById('totalAmount').value = total;
+      document.getElementById('displayTotal').textContent = `KES ${total.toLocaleString()}`;
+    }
+
+    function getOrderData() {
+      const customerName = document.getElementById('customerName').value.trim();
+      const customerPhone = document.getElementById('customerPhone').value.trim();
+      const customerEmail = document.getElementById('customerEmail').value.trim();
+      const productName = document.getElementById('productName').value.trim();
+      const quantity = parseInt(document.getElementById('quantity').value) || 1;
+      const unitPrice = parseInt(document.getElementById('unitPrice').value) || 0;
+      const total = parseInt(document.getElementById('totalAmount').value) || 0;
+      const notes = document.getElementById('notes').value.trim();
+
+      if (!customerName) { showToast('Please enter customer name', true); return null; }
+      if (!customerPhone) { showToast('Please enter phone number', true); return null; }
+
+      const orderData = {
+        customerName,
+        customerPhone,
+        customerEmail,
+        type: selectedProduct,
+        product: productName || 'Print Order',
+        quantity,
+        unitPrice,
+        total,
+        notes,
+        status: 'new',
+        createdBy: auth.currentUser?.email || 'staff',
+        createdAt: firebase.database.ServerValue.TIMESTAMP
+      };
+
+      // Add product-specific fields
+      if (selectedProduct === 'tshirt') {
+        orderData.designText = document.getElementById('designText').value.trim();
+        orderData.designText2 = document.getElementById('designText2').value.trim();
+        orderData.position = document.getElementById('position').value;
+        orderData.font = document.getElementById('font').value;
+        orderData.fabricColor = selectedColor;
+        orderData.textColor = selectedTextColor;
+        orderData.size = selectedSize;
+      }
+
+      if (selectedProduct === 'banner' || selectedProduct === 'sticker') {
+        orderData.metres = parseFloat(document.getElementById('bannerMetres').value) || 1;
+        orderData.designOption = document.getElementById('bannerDesign').value;
+      }
+
+      return orderData;
+    }
+
+    async function saveOrder() {
+      const orderData = getOrderData();
+      if (!orderData) return;
+
+      document.getElementById('loadingOverlay').classList.remove('hide');
+      try {
+        const newRef = database.ref('brandinn_print_orders').push();
+        await newRef.set(orderData);
+        document.getElementById('loadingOverlay').classList.add('hide');
+        showToast('✅ Order saved successfully!');
+        resetForm();
+      } catch (e) {
+        document.getElementById('loadingOverlay').classList.add('hide');
+        console.error('Save error:', e);
+        showToast('Failed to save order', true);
+      }
+    }
+
+    async function saveAndSendWhatsApp() {
+      const orderData = getOrderData();
+      if (!orderData) return;
+
+      document.getElementById('loadingOverlay').classList.remove('hide');
+      try {
+        const newRef = database.ref('brandinn_print_orders').push();
+        await newRef.set(orderData);
+        document.getElementById('loadingOverlay').classList.add('hide');
+
+        // Build WhatsApp message
+        let msg = `*🖨️ NEW PRINT ORDER — BrandInn Print Shop*%0A%0A`;
+        msg += `*Customer:* ${orderData.customerName}%0A`;
+        msg += `*Phone:* ${orderData.customerPhone}%0A`;
+        if (orderData.customerEmail) msg += `*Email:* ${orderData.customerEmail}%0A`;
+        msg += `%0A*Product:* ${orderData.product}%0A`;
+        msg += `*Type:* ${orderData.type}%0A`;
+        msg += `*Quantity:* ${orderData.quantity}%0A`;
+        msg += `*Unit Price:* KES ${orderData.unitPrice}%0A`;
+        msg += `*Total:* KES ${orderData.total.toLocaleString()}%0A`;
+        
+        if (orderData.type === 'tshirt') {
+          msg += `%0A*Design Text:* ${orderData.designText || 'N/A'}%0A`;
+          if (orderData.designText2) msg += `*Second Line:* ${orderData.designText2}%0A`;
+          msg += `*Position:* ${orderData.position === 'breast' ? 'Left Breast' : 'Center Chest'}%0A`;
+          msg += `*Font:* ${orderData.font}%0A`;
+          msg += `*Fabric Color:* ${orderData.fabricColor}%0A`;
+          msg += `*Text Color:* ${orderData.textColor}%0A`;
+          msg += `*Size:* ${orderData.size}%0A`;
+        }
+
+        if (orderData.notes) msg += `%0A*Notes:* ${orderData.notes}%0A`;
+        msg += `%0A✅ _Order saved to database._`;
+
+        window.open(`https://wa.me/${orderData.customerPhone.replace(/[^0-9]/g, '')}?text=${msg}`, '_blank');
+        showToast('✅ Order saved & WhatsApp opened!');
+        resetForm();
+      } catch (e) {
+        document.getElementById('loadingOverlay').classList.add('hide');
+        console.error('Save error:', e);
+        showToast('Failed to save order', true);
+      }
+    }
+
+    function resetForm() {
+      document.getElementById('customerName').value = '';
+      document.getElementById('customerPhone').value = '';
+      document.getElementById('customerEmail').value = '';
+      document.getElementById('quantity').value = '1';
+      document.getElementById('notes').value = '';
+      document.getElementById('designText').value = '';
+      document.getElementById('designText2').value = '';
+      document.getElementById('bannerMetres').value = '1';
+      selectProductType('tshirt', document.querySelector('[data-type="tshirt"]'));
+      updatePrice();
+      showToast('Form reset');
+    }
+
+    auth.onAuthStateChanged(async (user) => {
+      if (!user) window.location.href = 'https://kazinni.vercel.app';
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      if (confirm('Log out?')) await auth.signOut();
+    });
+
+    // Init
+    updatePrice();
+  </script>
+</body>
+</html>
