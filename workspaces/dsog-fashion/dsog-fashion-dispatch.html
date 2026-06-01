@@ -126,7 +126,6 @@
     .status-ready { background: #fef3c7; color: #b45309; }
     .status-shipped { background: #ede9fe; color: #5b21b6; }
     .status-delivered { background: #d1fae5; color: #065f46; }
-    .status-cancelled { background: #fee2e2; color: #991b1b; }
 
     .action-btns { display: flex; gap: 4px; flex-wrap: wrap; }
     .action-btn {
@@ -224,7 +223,7 @@
       <button class="filter-btn" data-filter="delivered">Delivered<span class="count" id="countDelivered">0</span></button>
       <div class="search-box">
         <i class="fas fa-search"></i>
-        <input type="text" id="searchInput" placeholder="Search customer, driver...">
+        <input type="text" id="searchInput" placeholder="Search customer, driver, location...">
       </div>
     </div>
 
@@ -235,6 +234,7 @@
             <tr>
               <th>Order ID</th>
               <th>Customer</th>
+              <th>Phone</th>
               <th>Items</th>
               <th>Total</th>
               <th>Location</th>
@@ -244,7 +244,7 @@
             </tr>
           </thead>
           <tbody id="tableBody">
-            <tr class="empty-row"><td colspan="8">Loading orders...</td></tr>
+            <tr class="empty-row"><td colspan="9">Loading orders...</td></tr>
           </tbody>
         </table>
       </div>
@@ -299,7 +299,7 @@
     }
 
     function getStatusClass(status) {
-      const map = { ready:'status-ready', shipped:'status-shipped', delivered:'status-delivered', cancelled:'status-cancelled' };
+      const map = { ready:'status-ready', shipped:'status-shipped', delivered:'status-delivered' };
       return map[status] || 'status-ready';
     }
 
@@ -331,6 +331,7 @@
         const q = searchQuery.toLowerCase();
         orders = orders.filter(o => 
           (o.customerName || '').toLowerCase().includes(q) ||
+          (o.customerPhone || '').toLowerCase().includes(q) ||
           (o.driverName || o.assignedDriver || '').toLowerCase().includes(q) ||
           (o.location || '').toLowerCase().includes(q)
         );
@@ -339,7 +340,7 @@
       orders.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
       
       if (!orders.length) {
-        tableBody.innerHTML = '<tr class="empty-row"><td colspan="8"><i class="fas fa-box-open" style="font-size:2rem;display:block;margin-bottom:8px;"></i>No orders to dispatch</td></tr>';
+        tableBody.innerHTML = '<tr class="empty-row"><td colspan="9"><i class="fas fa-box-open" style="font-size:2rem;display:block;margin-bottom:8px;"></i>No orders to dispatch</td></tr>';
         return;
       }
 
@@ -355,14 +356,14 @@
         
         if (status === 'ready') {
           if (hasDriver) {
-            actions += `<button class="action-btn btn-assigned" disabled><i class="fas fa-check"></i> Assigned</button>`;
-            actions += `<button class="action-btn btn-ship" onclick="updateStatus('${order.id}','shipped')"><i class="fas fa-truck"></i> Ship</button>`;
+            actions += `<button class="action-btn btn-assigned" disabled><i class="fas fa-check"></i> ${driver.split(' ')[0]}</button>`;
+            actions += `<button class="action-btn btn-ship" onclick="updateStatus('${order.id}','shipped')"><i class="fas fa-truck"></i> Ship Now</button>`;
           } else {
-            actions += `<button class="action-btn btn-assign" onclick="showAssignModal('${order.id}')"><i class="fas fa-user-plus"></i> Assign</button>`;
+            actions += `<button class="action-btn btn-assign" onclick="showAssignModal('${order.id}')"><i class="fas fa-user-plus"></i> Assign Driver</button>`;
           }
         }
         if (status === 'shipped') {
-          actions += `<button class="action-btn btn-deliver" onclick="updateStatus('${order.id}','delivered')"><i class="fas fa-check-double"></i> Deliver</button>`;
+          actions += `<button class="action-btn btn-deliver" onclick="updateStatus('${order.id}','delivered')"><i class="fas fa-check-double"></i> Mark Delivered</button>`;
         }
 
         return `
@@ -371,13 +372,14 @@
             <td>
               <div style="display:flex;align-items:center;gap:8px;">
                 <div style="width:28px;height:28px;background:#fdf2f8;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.65rem;color:#be185d;">${getInitials(order.customerName)}</div>
-                <div><strong>${order.customerName || 'Customer'}</strong><div style="font-size:0.6rem;color:#94a3b8;">${order.customerPhone || ''}</div></div>
+                <strong>${order.customerName || 'Customer'}</strong>
               </div>
             </td>
+            <td><span style="font-size:0.7rem;">${order.customerPhone || order.phone || '—'}</span></td>
             <td>${itemCount} item${itemCount !== 1 ? 's' : ''}</td>
             <td><strong>KES ${(order.total || 0).toLocaleString()}</strong></td>
-            <td>${order.location || 'N/A'}</td>
-            <td>${driver || '—'}</td>
+            <td>${order.location || '—'}</td>
+            <td>${driver || '<span style="color:#94a3b8;">Unassigned</span>'}</td>
             <td><span class="status-badge ${getStatusClass(status)}">${status}</span></td>
             <td><div class="action-btns">${actions}</div></td>
           </tr>`;
@@ -385,33 +387,53 @@
     }
 
     async function updateStatus(orderId, newStatus) {
-      if (!confirm(`Update order to "${newStatus}"?`)) return;
+      const order = allOrders[orderId];
+      const driverName = order?.driverName || 'Unassigned';
+      const confirmMsg = newStatus === 'shipped' ? `Ship this order with ${driverName}?` : `Mark order as ${newStatus}?`;
+      
+      if (!confirm(confirmMsg)) return;
+      
       try {
-        const updates = { status: newStatus, updatedAt: firebase.database.ServerValue.TIMESTAMP };
+        const updates = { 
+          status: newStatus, 
+          updatedAt: firebase.database.ServerValue.TIMESTAMP 
+        };
         if (newStatus === 'delivered') updates.deliveredAt = firebase.database.ServerValue.TIMESTAMP;
         if (newStatus === 'shipped') updates.shippedAt = firebase.database.ServerValue.TIMESTAMP;
+        
         await database.ref(`dsog_fashion_orders/${orderId}`).update(updates);
-        showToast(`✅ Order ${newStatus}`);
-      } catch (e) { console.error(e); showToast('Failed to update', true); }
+        showToast(`✅ Order ${newStatus}!`);
+      } catch (e) { 
+        console.error('Update error:', e); 
+        showToast('Failed to update. Check console.', true); 
+      }
     }
 
     function viewOrder(orderId) {
       const order = allOrders[orderId];
       if (!order) return;
       const products = order.products || [];
+      const driver = order.driverName || 'Unassigned';
+      
       modalContent.innerHTML = `
         <h3><i class="fas fa-info-circle"></i> Order #${String(orderId).slice(-6)}</h3>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:0.75rem;margin-bottom:1rem;">
           <div><strong>Customer:</strong> ${order.customerName || 'N/A'}</div>
-          <div><strong>Phone:</strong> ${order.customerPhone || 'N/A'}</div>
+          <div><strong>Phone:</strong> ${order.customerPhone || order.phone || 'N/A'}</div>
+          <div><strong>Email:</strong> ${order.customerEmail || order.email || 'N/A'}</div>
           <div><strong>Location:</strong> ${order.location || 'N/A'}</div>
           <div><strong>Status:</strong> <span class="status-badge ${getStatusClass(order.status)}">${order.status || 'ready'}</span></div>
           <div><strong>Total:</strong> KES ${(order.total || 0).toLocaleString()}</div>
-          <div><strong>Driver:</strong> ${order.driverName || 'Unassigned'}</div>
+          <div><strong>Driver:</strong> ${driver}</div>
+          <div><strong>Vehicle:</strong> ${order.driverVehicle || 'N/A'}</div>
+          <div><strong>Driver Phone:</strong> ${order.driverPhone || 'N/A'}</div>
+          <div><strong>Package:</strong> ${order.packageType || 'N/A'}</div>
+          <div><strong>Order Type:</strong> ${order.orderType || 'N/A'}</div>
+          <div><strong>Notes:</strong> ${order.notes || 'None'}</div>
         </div>
         ${products.length ? `
           <p style="font-weight:700;font-size:0.7rem;margin-bottom:0.5rem;">Products:</p>
-          ${products.map(p => `<div style="background:#fdf2f8;padding:0.5rem;border-radius:8px;margin-bottom:4px;font-size:0.7rem;display:flex;justify-content:space-between;"><span>${p.name} × ${p.quantity}</span><span>KES ${((p.price||0)*(p.quantity||1)).toLocaleString()}</span></div>`).join('')}
+          ${products.map(p => `<div style="background:#fdf2f8;padding:0.5rem;border-radius:8px;margin-bottom:4px;font-size:0.7rem;display:flex;justify-content:space-between;"><span>${p.name} × ${p.quantity} ${p.size || ''}</span><span>KES ${((p.price||0)*(p.quantity||1)).toLocaleString()}</span></div>`).join('')}
         ` : ''}
         <div class="btn-row"><button class="btn btn-secondary" onclick="closeModal()">Close</button></div>
       `;
@@ -425,11 +447,11 @@
       
       modalContent.innerHTML = `
         <h3><i class="fas fa-user-plus"></i> Assign Driver</h3>
-        ${currentDriver ? `<p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:1rem;">Current driver: <strong>${currentDriver}</strong></p>` : ''}
+        ${currentDriver ? `<p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:1rem;">Current driver: <strong>${currentDriver}</strong> — you can reassign</p>` : '<p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:1rem;">No driver assigned yet</p>'}
         <div class="form-group"><label>Select Driver</label><select id="driverSelect"><option value="">— Choose driver —</option>${drivers.map(([id, d]) => `<option value="${id}">${d.name || id} · ${d.vehicle || 'N/A'} · ${d.phone || ''}</option>`).join('')}</select></div>
         ${!drivers.length ? '<p style="color:#94a3b8;text-align:center;padding:1rem;">No verified drivers available</p>' : ''}
         <div class="btn-row">
-          <button class="btn btn-primary" onclick="assignDriver('${orderId}')" ${!drivers.length ? 'disabled' : ''}>Assign Driver</button>
+          <button class="btn btn-primary" onclick="assignDriver('${orderId}')" ${!drivers.length ? 'disabled' : ''}>Confirm Assignment</button>
           <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
         </div>
       `;
@@ -441,6 +463,7 @@
       if (!driverId) { showToast('Select a driver', true); return; }
       const driver = allDrivers[driverId];
       if (!driver) { showToast('Driver not found', true); return; }
+      
       try {
         await database.ref(`dsog_fashion_orders/${orderId}`).update({
           driverId: driverId,
@@ -449,9 +472,12 @@
           driverVehicle: driver.vehicle || '',
           assignedAt: firebase.database.ServerValue.TIMESTAMP
         });
-        showToast('✅ Driver assigned! Click Ship to dispatch');
+        showToast('✅ Driver assigned! You can now ship the order.');
         closeModal();
-      } catch (e) { console.error(e); showToast('Failed to assign', true); }
+      } catch (e) { 
+        console.error('Assign error:', e); 
+        showToast('Failed to assign driver', true); 
+      }
     }
 
     function closeModal() { modal.classList.remove('show'); }
@@ -481,6 +507,8 @@
     });
 
     auth.onAuthStateChanged((user) => { if (!user) window.location.href = '/'; });
+    
+    // Expose functions globally
     window.viewOrder = viewOrder;
     window.showAssignModal = showAssignModal;
     window.assignDriver = assignDriver;
