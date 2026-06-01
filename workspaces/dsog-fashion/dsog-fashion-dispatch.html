@@ -136,6 +136,7 @@
     }
     .btn-assign { background: #e0f2fe; color: #0369a1; }
     .btn-assign:hover { background: #3b82f6; color: white; }
+    .btn-assigned { background: #d1fae5; color: #065f46; cursor: default; }
     .btn-ship { background: #ede9fe; color: #5b21b6; }
     .btn-ship:hover { background: #7c3aed; color: white; }
     .btn-deliver { background: #d1fae5; color: #065f46; }
@@ -145,7 +146,6 @@
 
     .empty-row td { text-align: center; padding: 2rem; color: #94a3b8; }
 
-    /* Modal */
     .modal-overlay {
       display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(0,0,0,0.5); z-index: 3000; justify-content: center;
@@ -162,7 +162,7 @@
       display: block; font-size: 0.65rem; font-weight: 700; color: var(--text-muted);
       text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 0.15rem;
     }
-    .form-group input, .form-group select, .form-group textarea {
+    .form-group input, .form-group select {
       width: 100%; padding: 0.5rem 0.7rem; border-radius: 10px;
       border: 1.5px solid #e2e8f0; font-size: 0.8rem; font-family: 'Inter', sans-serif;
       background: #f8fafc;
@@ -187,9 +187,7 @@
     .toast.error { background: var(--red); }
     @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
-    @media (max-width: 768px) {
-      .stats-row { grid-template-columns: repeat(2, 1fr); }
-    }
+    @media (max-width: 768px) { .stats-row { grid-template-columns: repeat(2, 1fr); } }
   </style>
 </head>
 <body>
@@ -323,7 +321,7 @@
     }
 
     function renderTable() {
-      let orders = Object.entries(allOrders).map(([id, data]) => ({ id, ...data })).filter(o => o);
+      let orders = Object.entries(allOrders).map(([id, data]) => ({ id, ...data })).filter(o => o && (o.status === 'ready' || o.status === 'shipped' || o.status === 'delivered'));
       
       if (currentFilter !== 'all') {
         orders = orders.filter(o => (o.status || 'ready') === currentFilter);
@@ -349,15 +347,18 @@
         const status = order.status || 'ready';
         const products = order.products || [];
         const itemCount = products.length;
-        const driver = order.driverName || order.assignedDriver || '—';
+        const driver = order.driverName || order.assignedDriver || '';
+        const hasDriver = driver !== '';
         const shortId = String(order.id).slice(-6);
 
         let actions = `<button class="action-btn btn-view" onclick="viewOrder('${order.id}')"><i class="fas fa-eye"></i></button>`;
         
         if (status === 'ready') {
-          actions += `<button class="action-btn btn-assign" onclick="showAssignModal('${order.id}')"><i class="fas fa-user-plus"></i> Assign</button>`;
-          if (driver !== '—') {
+          if (hasDriver) {
+            actions += `<button class="action-btn btn-assigned" disabled><i class="fas fa-check"></i> Assigned</button>`;
             actions += `<button class="action-btn btn-ship" onclick="updateStatus('${order.id}','shipped')"><i class="fas fa-truck"></i> Ship</button>`;
+          } else {
+            actions += `<button class="action-btn btn-assign" onclick="showAssignModal('${order.id}')"><i class="fas fa-user-plus"></i> Assign</button>`;
           }
         }
         if (status === 'shipped') {
@@ -376,7 +377,7 @@
             <td>${itemCount} item${itemCount !== 1 ? 's' : ''}</td>
             <td><strong>KES ${(order.total || 0).toLocaleString()}</strong></td>
             <td>${order.location || 'N/A'}</td>
-            <td>${driver}</td>
+            <td>${driver || '—'}</td>
             <td><span class="status-badge ${getStatusClass(status)}">${status}</span></td>
             <td><div class="action-btns">${actions}</div></td>
           </tr>`;
@@ -419,8 +420,12 @@
 
     function showAssignModal(orderId) {
       const drivers = Object.entries(allDrivers).filter(([_, d]) => d && d.verified);
+      const order = allOrders[orderId];
+      const currentDriver = order?.driverName || '';
+      
       modalContent.innerHTML = `
         <h3><i class="fas fa-user-plus"></i> Assign Driver</h3>
+        ${currentDriver ? `<p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:1rem;">Current driver: <strong>${currentDriver}</strong></p>` : ''}
         <div class="form-group"><label>Select Driver</label><select id="driverSelect"><option value="">— Choose driver —</option>${drivers.map(([id, d]) => `<option value="${id}">${d.name || id} · ${d.vehicle || 'N/A'} · ${d.phone || ''}</option>`).join('')}</select></div>
         ${!drivers.length ? '<p style="color:#94a3b8;text-align:center;padding:1rem;">No verified drivers available</p>' : ''}
         <div class="btn-row">
@@ -435,14 +440,18 @@
       const driverId = document.getElementById('driverSelect').value;
       if (!driverId) { showToast('Select a driver', true); return; }
       const driver = allDrivers[driverId];
+      if (!driver) { showToast('Driver not found', true); return; }
       try {
         await database.ref(`dsog_fashion_orders/${orderId}`).update({
-          driverId, driverName: driver.name || driver.email, driverPhone: driver.phone || '', driverVehicle: driver.vehicle || '',
+          driverId: driverId,
+          driverName: driver.name || driver.email || 'Driver',
+          driverPhone: driver.phone || '',
+          driverVehicle: driver.vehicle || '',
           assignedAt: firebase.database.ServerValue.TIMESTAMP
         });
-        showToast('✅ Driver assigned!');
+        showToast('✅ Driver assigned! Click Ship to dispatch');
         closeModal();
-      } catch (e) { showToast('Failed to assign', true); }
+      } catch (e) { console.error(e); showToast('Failed to assign', true); }
     }
 
     function closeModal() { modal.classList.remove('show'); }
