@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Inventory | DSOG Fashion</title>
+  
+  <meta name="theme-color" content="#ec4899">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  
+  <link rel="icon" type="image/png" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --pink: #ec4899;
+      --pink-dark: #be185d;
+      --pink-light: #f472b6;
+      --text-primary: #1e293b;
+      --text-muted: #64748b;
+      --border-light: #fbcfe8;
+      --red: #ef4444;
+      --orange: #f59e0b;
+      --green: #10b981;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(145deg, #fdf2f8 0%, #ffffff 100%);
+      color: var(--text-primary);
+      line-height: 1.4;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .navbar {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(16px);
+      padding: 0.5rem 2%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(236, 72, 153, 0.2);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .logo-img { height: 34px; width: 34px; border-radius: 10px; object-fit: contain; background: white; box-shadow: 0 4px 12px rgba(236, 72, 153, 0.2); }
+    .logo-text {
+      font-weight: 800; font-size: 1.1rem;
+      background: linear-gradient(145deg, #f472b6, #be185d);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .logo-text span { font-weight: 600; font-size: 0.7rem; background: #ec4899; -webkit-text-fill-color: #ec4899; margin-left: 3px; }
+
+    .nav-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .nav-btn {
+      background: rgba(236, 72, 153, 0.08); border: 1px solid rgba(236, 72, 153, 0.2);
+      padding: 0.4rem 0.8rem; border-radius: 25px; color: var(--pink-dark);
+      font-weight: 600; font-size: 0.7rem; cursor: pointer; display: inline-flex;
+      align-items: center; gap: 5px; text-decoration: none; transition: all 0.2s;
+    }
+    .nav-btn:hover { background: var(--pink); color: white; }
+
+    .container { padding: 1rem 2%; flex: 1; }
+
+    .page-header { margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.8rem; }
+    .page-header h1 { font-size: 1.3rem; font-weight: 800; color: #0f172a; }
+    .page-header h1 i { color: var(--pink-dark); margin-right: 6px; }
+
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 1rem; }
+    .stat-mini {
+      background: white; border-radius: 14px; padding: 0.8rem 1rem; text-align: center;
+      border: 1px solid #fbcfe8; box-shadow: 0 2px 8px rgba(190,24,93,0.03);
+    }
+    .stat-mini .stat-num { font-size: 1.4rem; font-weight: 800; color: var(--pink-dark); line-height: 1.1; }
+    .stat-mini .stat-label { font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.3px; }
+
+    .filter-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1rem; align-items: center; }
+    .filter-btn {
+      padding: 0.35rem 0.8rem; border-radius: 20px; border: 1.5px solid #e2e8f0;
+      background: white; color: #64748b; font-weight: 600; font-size: 0.65rem;
+      cursor: pointer; transition: all 0.15s; font-family: inherit;
+    }
+    .filter-btn:hover { border-color: var(--pink); color: var(--pink-dark); }
+    .filter-btn.active { background: var(--pink); color: white; border-color: var(--pink); }
+    .search-box { flex: 1; min-width: 150px; max-width: 300px; position: relative; }
+    .search-box input {
+      width: 100%; padding: 0.35rem 0.8rem 0.35rem 2rem; border-radius: 20px;
+      border: 1.5px solid #e2e8f0; font-size: 0.7rem; font-family: 'Inter', sans-serif;
+    }
+    .search-box i { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 0.7rem; }
+
+    .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px; }
+
+    .product-card {
+      background: white; border-radius: 16px; padding: 1rem;
+      border: 1px solid #fbcfe8; box-shadow: 0 3px 12px rgba(190,24,93,0.03);
+      transition: all 0.2s;
+    }
+    .product-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(190,24,93,0.08); }
+    .product-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.6rem; }
+    .product-card-header h3 { font-size: 0.9rem; font-weight: 700; }
+    .stock-badge {
+      padding: 0.15rem 0.5rem; border-radius: 12px; font-size: 0.6rem; font-weight: 700;
+    }
+    .stock-high { background: #d1fae5; color: #065f46; }
+    .stock-medium { background: #fef3c7; color: #92400e; }
+    .stock-low { background: #fee2e2; color: #991b1b; }
+    .stock-out { background: #f1f5f9; color: #64748b; }
+
+    .product-info { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; font-size: 0.7rem; margin-bottom: 0.6rem; }
+    .product-info div { color: var(--text-muted); }
+    .product-info strong { color: var(--text-primary); display: block; font-size: 0.6rem; text-transform: uppercase; }
+
+    .product-actions { display: flex; gap: 4px; flex-wrap: wrap; }
+    .btn-sm {
+      padding: 0.25rem 0.6rem; border-radius: 8px; border: none; font-weight: 600;
+      font-size: 0.6rem; cursor: pointer; display: inline-flex; align-items: center;
+      gap: 3px; transition: all 0.15s; font-family: inherit;
+    }
+    .btn-edit { background: #fdf2f8; color: #be185d; }
+    .btn-edit:hover { background: #ec4899; color: white; }
+    .btn-delete { background: #fee2e2; color: #991b1b; }
+    .btn-delete:hover { background: #ef4444; color: white; }
+
+    .empty-state { text-align: center; padding: 3rem; color: #94a3b8; grid-column: 1 / -1; }
+
+    /* Modal */
+    .modal-overlay {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5); z-index: 3000; justify-content: center;
+      align-items: center; backdrop-filter: blur(2px);
+    }
+    .modal-overlay.show { display: flex; }
+    .modal {
+      background: white; border-radius: 20px; padding: 1.5rem; max-width: 500px;
+      width: 95%; max-height: 85vh; overflow-y: auto; box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+    }
+    .modal h3 { font-size: 0.95rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px; color: var(--pink-dark); }
+    .form-group { margin-bottom: 0.7rem; }
+    .form-group label {
+      display: block; font-size: 0.65rem; font-weight: 700; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 0.15rem;
+    }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%; padding: 0.5rem 0.7rem; border-radius: 10px;
+      border: 1.5px solid #e2e8f0; font-size: 0.8rem; font-family: 'Inter', sans-serif;
+      background: #f8fafc;
+    }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+    .btn-row { display: flex; gap: 8px; margin-top: 1rem; }
+    .btn {
+      padding: 0.6rem 1.2rem; border-radius: 10px; border: none; font-weight: 700;
+      font-size: 0.8rem; cursor: pointer; display: inline-flex; align-items: center;
+      gap: 5px; font-family: inherit; transition: all 0.15s;
+    }
+    .btn-primary { background: var(--pink); color: white; }
+    .btn-primary:hover { background: var(--pink-dark); }
+    .btn-secondary { background: #f1f5f9; color: #475569; }
+    .btn-secondary:hover { background: #e2e8f0; }
+
+    .toast {
+      position: fixed; bottom: 25px; right: 25px; background: var(--green); color: white;
+      padding: 0.7rem 1.2rem; border-radius: 20px; font-weight: 600; z-index: 4000;
+      animation: slideIn 0.3s ease; box-shadow: 0 8px 20px rgba(16,185,129,0.25);
+      display: flex; align-items: center; gap: 6px; font-size: 0.75rem;
+    }
+    .toast.error { background: var(--red); }
+    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+    @media (max-width: 768px) {
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+      .cards-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <a href="dsog-fashion-dashboard.html" class="logo">
+      <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png" alt="DSOG Fashion" class="logo-img">
+      <span class="logo-text">DSOG <span>Fashion</span></span>
+    </a>
+    <div class="nav-right">
+      <a href="dsog-fashion-dashboard.html" class="nav-btn"><i class="fas fa-arrow-left"></i> Dashboard</a>
+      <a href="dsog-fashion-orders.html" class="nav-btn"><i class="fas fa-shopping-bag"></i> Orders</a>
+      <a href="dsog-fashion-products.html" class="nav-btn"><i class="fas fa-tags"></i> Products</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="page-header">
+      <h1><i class="fas fa-boxes-stacked"></i> Inventory Management</h1>
+      <button class="btn btn-primary" onclick="showAddModal()" style="padding:0.5rem 1rem;font-size:0.7rem;">
+        <i class="fas fa-plus"></i> Add Item
+      </button>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-mini"><div class="stat-num" id="statTotal">0</div><div class="stat-label">Total Items</div></div>
+      <div class="stat-mini"><div class="stat-num" id="statInStock">0</div><div class="stat-label">In Stock</div></div>
+      <div class="stat-mini"><div class="stat-num" id="statLow">0</div><div class="stat-label">Low Stock</div></div>
+      <div class="stat-mini"><div class="stat-num" id="statValue">0</div><div class="stat-label">Total Value (KES)</div></div>
+    </div>
+
+    <div class="filter-bar">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="dresses">👗 Dresses</button>
+      <button class="filter-btn" data-filter="tops">👚 Tops</button>
+      <button class="filter-btn" data-filter="bottoms">👖 Bottoms</button>
+      <button class="filter-btn" data-filter="shoes">👟 Shoes</button>
+      <button class="filter-btn" data-filter="accessories">👜 Accessories</button>
+      <button class="filter-btn" data-filter="outerwear">🧥 Outerwear</button>
+      <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input type="text" id="searchInput" placeholder="Search items...">
+      </div>
+    </div>
+
+    <div class="cards-grid" id="productsGrid">
+      <div class="empty-state">Loading inventory...</div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modal"><div class="modal" id="modalContent"></div></div>
+  <div id="toastContainer"></div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+      authDomain: "mugera-e51cc.firebaseapp.com",
+      databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "mugera-e51cc",
+      storageBucket: "mugera-e51cc.firebasestorage.app",
+      messagingSenderId: "1024868637509",
+      appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    const auth = firebase.auth();
+
+    let allInventory = {};
+    let currentFilter = 'all';
+    let searchQuery = '';
+
+    function showToast(msg, isError = false) {
+      const container = document.getElementById('toastContainer');
+      const existing = container.querySelector('.toast');
+      if (existing) existing.remove();
+      const toast = document.createElement('div');
+      toast.className = `toast ${isError ? 'error' : ''}`;
+      toast.innerHTML = `<i class="fas fa-${isError ? 'exclamation-circle' : 'check-circle'}"></i> ${msg}`;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 3500);
+    }
+
+    function getStockClass(qty) {
+      if (qty <= 0) return 'stock-out';
+      if (qty <= 10) return 'stock-low';
+      if (qty <= 50) return 'stock-medium';
+      return 'stock-high';
+    }
+
+    function getStockLabel(qty) {
+      if (qty <= 0) return 'Out of Stock';
+      if (qty <= 10) return 'Low Stock';
+      if (qty <= 50) return 'In Stock';
+      return 'Well Stocked';
+    }
+
+    function renderInventory() {
+      const grid = document.getElementById('productsGrid');
+      let items = Object.entries(allInventory).map(([id, data]) => ({ id, ...data }));
+
+      if (currentFilter !== 'all') {
+        items = items.filter(p => (p.category || '').toLowerCase() === currentFilter);
+      }
+
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        items = items.filter(p => (p.name || '').toLowerCase().includes(q) || (p.sku || '').toLowerCase().includes(q));
+      }
+
+      if (!items.length) {
+        grid.innerHTML = '<div class="empty-state"><i class="fas fa-box-open" style="font-size:2rem;display:block;margin-bottom:8px;"></i>No items found</div>';
+        return;
+      }
+
+      grid.innerHTML = items.map(p => {
+        const qty = p.quantity || 0;
+        const value = qty * (p.unitPrice || 0);
+        return `
+          <div class="product-card">
+            <div class="product-card-header">
+              <h3>${p.name || 'Unnamed'}</h3>
+              <span class="stock-badge ${getStockClass(qty)}">${getStockLabel(qty)}</span>
+            </div>
+            <div class="product-info">
+              <div><strong>Category</strong>${p.category || 'N/A'}</div>
+              <div><strong>SKU</strong>${p.sku || 'N/A'}</div>
+              <div><strong>Size</strong>${p.size || 'N/A'}</div>
+              <div><strong>Color</strong>${p.color || 'N/A'}</div>
+              <div><strong>Quantity</strong>${qty} ${p.unit || 'pcs'}</div>
+              <div><strong>Unit Price</strong>KES ${(p.unitPrice || 0).toLocaleString()}</div>
+              <div><strong>Value</strong>KES ${value.toLocaleString()}</div>
+              <div><strong>Supplier</strong>${p.supplier || 'N/A'}</div>
+            </div>
+            <div class="product-actions">
+              <button class="btn-sm btn-edit" onclick="editItem('${p.id}')"><i class="fas fa-edit"></i> Edit</button>
+              <button class="btn-sm btn-delete" onclick="deleteItem('${p.id}')"><i class="fas fa-trash"></i> Delete</button>
+            </div>
+          </div>`;
+      }).join('');
+
+      updateStats();
+    }
+
+    function updateStats() {
+      const items = Object.values(allInventory);
+      const total = items.length;
+      const inStock = items.filter(p => (p.quantity || 0) > 10).length;
+      const low = items.filter(p => (p.quantity || 0) > 0 && (p.quantity || 0) <= 10).length;
+      const value = items.reduce((s, p) => s + ((p.quantity || 0) * (p.unitPrice || 0)), 0);
+
+      document.getElementById('statTotal').textContent = total;
+      document.getElementById('statInStock').textContent = inStock;
+      document.getElementById('statLow').textContent = low;
+      document.getElementById('statValue').textContent = value.toLocaleString();
+    }
+
+    function showAddModal() {
+      document.getElementById('modalContent').innerHTML = `
+        <h3><i class="fas fa-plus-circle"></i> Add Inventory Item</h3>
+        <div class="form-group"><label>Item Name *</label><input type="text" id="pName" placeholder="e.g., Ankara Maxi Dress"></div>
+        <div class="form-row">
+          <div class="form-group"><label>Category</label><select id="pCategory">
+            <option value="dresses">👗 Dresses</option><option value="tops">👚 Tops</option>
+            <option value="bottoms">👖 Bottoms</option><option value="shoes">👟 Shoes</option>
+            <option value="accessories">👜 Accessories</option><option value="outerwear">🧥 Outerwear</option>
+            <option value="traditional">🥻 Traditional</option><option value="other">📦 Other</option>
+          </select></div>
+          <div class="form-group"><label>SKU</label><input type="text" id="pSku" placeholder="e.g., DSOG-001"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Size</label><select id="pSize">
+            <option value="XS">XS</option><option value="S">S</option><option value="M" selected>M</option>
+            <option value="L">L</option><option value="XL">XL</option><option value="2XL">2XL</option>
+            <option value="Free Size">Free Size</option>
+          </select></div>
+          <div class="form-group"><label>Color</label><input type="text" id="pColor" placeholder="e.g., Red, Blue"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Quantity *</label><input type="number" id="pQty" value="1" min="0"></div>
+          <div class="form-group"><label>Unit Price (KES) *</label><input type="number" id="pPrice" value="0" min="0"></div>
+        </div>
+        <div class="form-group"><label>Supplier</label><input type="text" id="pSupplier" placeholder="Supplier name"></div>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="saveItem()"><i class="fas fa-save"></i> Save</button>
+          <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+        </div>
+      `;
+      document.getElementById('modal').classList.add('show');
+    }
+
+    async function saveItem() {
+      const name = document.getElementById('pName').value.trim();
+      const qty = parseInt(document.getElementById('pQty').value) || 0;
+      const price = parseInt(document.getElementById('pPrice').value) || 0;
+      if (!name) { showToast('Enter item name', true); return; }
+
+      try {
+        await database.ref('dsog_fashion_inventory').push().set({
+          name, category: document.getElementById('pCategory').value,
+          sku: document.getElementById('pSku').value.trim(),
+          size: document.getElementById('pSize').value,
+          color: document.getElementById('pColor').value.trim(),
+          quantity: qty, unitPrice: price,
+          supplier: document.getElementById('pSupplier').value.trim(),
+          updatedAt: firebase.database.ServerValue.TIMESTAMP
+        });
+        showToast('✅ Item added!');
+        closeModal();
+      } catch (e) { showToast('Failed to save', true); }
+    }
+
+    function editItem(itemId) {
+      const p = allInventory[itemId];
+      if (!p) return;
+      document.getElementById('modalContent').innerHTML = `
+        <h3><i class="fas fa-edit"></i> Edit Item</h3>
+        <div class="form-group"><label>Item Name</label><input type="text" id="epName" value="${p.name || ''}"></div>
+        <div class="form-row">
+          <div class="form-group"><label>Category</label><select id="epCategory">
+            ${['dresses','tops','bottoms','shoes','accessories','outerwear','traditional','other'].map(c => `<option value="${c}" ${p.category === c ? 'selected' : ''}>${c}</option>`).join('')}
+          </select></div>
+          <div class="form-group"><label>SKU</label><input type="text" id="epSku" value="${p.sku || ''}"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Size</label><select id="epSize">
+            ${['XS','S','M','L','XL','2XL','Free Size'].map(s => `<option value="${s}" ${p.size === s ? 'selected' : ''}>${s}</option>`).join('')}
+          </select></div>
+          <div class="form-group"><label>Color</label><input type="text" id="epColor" value="${p.color || ''}"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Quantity</label><input type="number" id="epQty" value="${p.quantity || 0}"></div>
+          <div class="form-group"><label>Unit Price (KES)</label><input type="number" id="epPrice" value="${p.unitPrice || 0}"></div>
+        </div>
+        <div class="form-group"><label>Supplier</label><input type="text" id="epSupplier" value="${p.supplier || ''}"></div>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="updateItem('${itemId}')"><i class="fas fa-save"></i> Update</button>
+          <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+        </div>
+      `;
+      document.getElementById('modal').classList.add('show');
+    }
+
+    async function updateItem(itemId) {
+      try {
+        await database.ref(`dsog_fashion_inventory/${itemId}`).update({
+          name: document.getElementById('epName').value.trim(),
+          category: document.getElementById('epCategory').value,
+          sku: document.getElementById('epSku').value.trim(),
+          size: document.getElementById('epSize').value,
+          color: document.getElementById('epColor').value.trim(),
+          quantity: parseInt(document.getElementById('epQty').value) || 0,
+          unitPrice: parseInt(document.getElementById('epPrice').value) || 0,
+          supplier: document.getElementById('epSupplier').value.trim(),
+          updatedAt: firebase.database.ServerValue.TIMESTAMP
+        });
+        showToast('✅ Updated!');
+        closeModal();
+      } catch (e) { showToast('Failed to update', true); }
+    }
+
+    async function deleteItem(itemId) {
+      if (!confirm('Delete this item?')) return;
+      try {
+        await database.ref(`dsog_fashion_inventory/${itemId}`).remove();
+        showToast('✅ Deleted');
+      } catch (e) { showToast('Failed to delete', true); }
+    }
+
+    function closeModal() { document.getElementById('modal').classList.remove('show'); }
+
+    // Filters
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentFilter = btn.dataset.filter;
+        renderInventory();
+      });
+    });
+
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+      searchQuery = e.target.value;
+      renderInventory();
+    });
+
+    document.getElementById('modal').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('modal')) closeModal();
+    });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+    // Firebase listener
+    database.ref('dsog_fashion_inventory').on('value', (snapshot) => {
+      allInventory = snapshot.val() || {};
+      renderInventory();
+    });
+
+    auth.onAuthStateChanged((user) => { if (!user) window.location.href = '/'; });
+    window.showAddModal = showAddModal;
+    window.editItem = editItem;
+    window.deleteItem = deleteItem;
+    window.saveItem = saveItem;
+    window.updateItem = updateItem;
+    window.closeModal = closeModal;
+  </script>
+</body>
+</html>
