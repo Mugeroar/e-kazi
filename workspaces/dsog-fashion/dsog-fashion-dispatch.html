@@ -120,184 +120,297 @@
   <div class="modal-overlay" id="modal"><div class="modal" id="modalContent"></div></div>
   <div id="toastContainer"></div>
 
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 
-  <script>
-    // Firebase init
-    firebase.initializeApp({
-      apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
-      authDomain: "mugera-e51cc.firebaseapp.com",
-      databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
-      projectId: "mugera-e51cc",
-      storageBucket: "mugera-e51cc.firebasestorage.app",
-      messagingSenderId: "1024868637509",
-      appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
-    });
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+    authDomain: "mugera-e51cc.firebaseapp.com",
+    databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "mugera-e51cc",
+    storageBucket: "mugera-e51cc.firebasestorage.app",
+    messagingSenderId: "1024868637509",
+    appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const database = firebase.database();
+  const auth = firebase.auth();
+
+  let allOrders = {};
+  let allDrivers = {};
+  let currentFilter = 'all';
+  let searchQuery = '';
+
+  const tableBody = document.getElementById('tableBody');
+  const modal = document.getElementById('modal');
+  const modalContent = document.getElementById('modalContent');
+
+  function showToast(msg, isError) {
+    const container = document.getElementById('toastContainer');
+    const existing = container.querySelector('.toast');
+    if (existing) existing.remove();
+    const toast = document.createElement('div');
+    toast.className = 'toast' + (isError ? ' error' : '');
+    toast.innerHTML = '<i class="fas fa-' + (isError ? 'exclamation-circle' : 'check-circle') + '"></i> ' + msg;
+    container.appendChild(toast);
+    setTimeout(function() { toast.remove(); }, 3500);
+  }
+
+  function getInitials(name) {
+    if (!name) return '??';
+    return String(name).split(' ').map(function(n) { return n[0]; }).join('').toUpperCase().substring(0, 2);
+  }
+
+  function getStatusClass(status) {
+    var map = { ready:'status-ready', shipped:'status-shipped', delivered:'status-delivered' };
+    return map[status] || 'status-ready';
+  }
+
+  function updateStats() {
+    var orders = Object.values(allOrders).filter(function(o) { return o; });
+    var ready = orders.filter(function(o) { return o.status === 'ready'; }).length;
+    var transit = orders.filter(function(o) { return o.status === 'shipped'; }).length;
+    var delivered = orders.filter(function(o) { return o.status === 'delivered' && o.deliveredAt && new Date(o.deliveredAt).toDateString() === new Date().toDateString(); }).length;
+    var drivers = Object.values(allDrivers).filter(function(d) { return d && d.verified; }).length;
+
+    document.getElementById('statReady').textContent = ready;
+    document.getElementById('statTransit').textContent = transit;
+    document.getElementById('statDelivered').textContent = delivered;
+    document.getElementById('statDrivers').textContent = drivers;
+    document.getElementById('countReady').textContent = ready;
+    document.getElementById('countShipped').textContent = transit;
+    document.getElementById('countDelivered').textContent = orders.filter(function(o) { return o.status === 'delivered'; }).length;
+    document.getElementById('orderCount').textContent = orders.length + ' total · ' + ready + ' ready · ' + transit + ' in transit';
+  }
+
+  function renderTable() {
+    var orders = Object.entries(allOrders).map(function(entry) { return Object.assign({ id: entry[0] }, entry[1]); }).filter(function(o) { return o && (o.status === 'ready' || o.status === 'shipped' || o.status === 'delivered'); });
     
-    var db = firebase.database();
-    var auth = firebase.auth();
-    var allOrders = {};
-    var allDrivers = {};
-    var currentFilter = 'all';
-    var searchQuery = '';
-
-    // Toast
-    function toast(msg, err) {
-      var c = document.getElementById('toastContainer');
-      var t = document.createElement('div');
-      t.className = 'toast' + (err ? ' error' : '');
-      t.innerHTML = '<i class="fas fa-' + (err ? 'exclamation-circle' : 'check-circle') + '"></i> ' + msg;
-      c.appendChild(t);
-      setTimeout(function(){ t.remove(); }, 3000);
+    if (currentFilter !== 'all') {
+      orders = orders.filter(function(o) { return (o.status || 'ready') === currentFilter; });
     }
-
-    // Render
-    function render() {
-      var orders = [];
-      for (var k in allOrders) {
-        if (allOrders[k] && (allOrders[k].status === 'ready' || allOrders[k].status === 'shipped' || allOrders[k].status === 'delivered')) {
-          orders.push(Object.assign({ id: k }, allOrders[k]));
-        }
-      }
-      
-      if (currentFilter !== 'all') orders = orders.filter(function(o){ return o.status === currentFilter; });
-      if (searchQuery) {
-        var q = searchQuery.toLowerCase();
-        orders = orders.filter(function(o){ return (o.customerName||'').toLowerCase().indexOf(q) !== -1 || (o.customerPhone||'').indexOf(q) !== -1 || (o.driverName||'').indexOf(q) !== -1; });
-      }
-      
-      orders.sort(function(a,b){ return (b.createdAt||0) - (a.createdAt||0); });
-      
-      var tbody = document.getElementById('tableBody');
-      if (!orders.length) {
-        tbody.innerHTML = '<tr class="empty-row"><td colspan="9">No orders to dispatch</td></tr>';
-        return;
-      }
-      
-      var html = '';
-      orders.forEach(function(o){
-        var s = o.status || 'ready';
-        var d = o.driverName || '';
-        var id = String(o.id).slice(-6);
-        var items = (o.products||[]).length;
-        var init = (o.customerName||'??').split(' ').map(function(n){return n[0];}).join('').toUpperCase().substring(0,2);
-        
-        html += '<tr>';
-        html += '<td><code style="font-size:0.65rem;background:#fdf2f8;padding:2px 6px;border-radius:4px;">#'+id+'</code></td>';
-        html += '<td><div style="display:flex;align-items:center;gap:8px;"><div style="width:28px;height:28px;background:#fdf2f8;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.65rem;color:#be185d;">'+init+'</div><strong>'+(o.customerName||'Customer')+'</strong></div></td>';
-        html += '<td><span style="font-size:0.7rem;">'+(o.customerPhone||o.phone||'—')+'</span></td>';
-        html += '<td>'+items+' item'+(items!==1?'s':'')+'</td>';
-        html += '<td><strong>KES '+(o.total||0).toLocaleString()+'</strong></td>';
-        html += '<td>'+(o.location||'—')+'</td>';
-        html += '<td>'+(d||'<span style="color:#94a3b8;">Unassigned</span>')+'</td>';
-        html += '<td><span class="status-badge status-'+s+'">'+s+'</span></td>';
-        html += '<td><div class="action-btns">';
-        html += '<button class="action-btn btn-view" onclick="viewOrd(\''+k+'\')"><i class="fas fa-eye"></i></button>';
-        if (s === 'ready' && d) {
-          html += '<button class="action-btn btn-assigned" disabled><i class="fas fa-check"></i> '+d.split(' ')[0]+'</button>';
-          html += '<button class="action-btn btn-ship" onclick="updateOrd(\''+k+'\',\'shipped\')"><i class="fas fa-truck"></i> Ship</button>';
-        } else if (s === 'ready' && !d) {
-          html += '<button class="action-btn btn-assign" onclick="assignModal(\''+k+'\')"><i class="fas fa-user-plus"></i> Assign</button>';
-        } else if (s === 'shipped') {
-          html += '<button class="action-btn btn-deliver" onclick="updateOrd(\''+k+'\',\'delivered\')"><i class="fas fa-check-double"></i> Deliver</button>';
-        }
-        html += '</div></td></tr>';
+    
+    if (searchQuery) {
+      var q = searchQuery.toLowerCase();
+      orders = orders.filter(function(o) {
+        return (o.customerName || '').toLowerCase().indexOf(q) !== -1 ||
+               (o.customerPhone || '').toLowerCase().indexOf(q) !== -1 ||
+               (o.driverName || '').toLowerCase().indexOf(q) !== -1 ||
+               (o.location || '').toLowerCase().indexOf(q) !== -1;
       });
-      tbody.innerHTML = html;
-      
-      // Stats
-      var all = Object.values(allOrders).filter(function(o){return o;});
-      document.getElementById('statReady').textContent = all.filter(function(o){return o.status==='ready';}).length;
-      document.getElementById('statTransit').textContent = all.filter(function(o){return o.status==='shipped';}).length;
-      document.getElementById('statDelivered').textContent = all.filter(function(o){return o.status==='delivered';}).length;
-      document.getElementById('statDrivers').textContent = Object.values(allDrivers).filter(function(d){return d&&d.verified;}).length;
-      document.getElementById('countReady').textContent = all.filter(function(o){return o.status==='ready';}).length;
-      document.getElementById('countShipped').textContent = all.filter(function(o){return o.status==='shipped';}).length;
-      document.getElementById('countDelivered').textContent = all.filter(function(o){return o.status==='delivered';}).length;
-      document.getElementById('orderCount').textContent = all.length+' total';
+    }
+    
+    orders.sort(function(a, b) { return (b.createdAt || 0) - (a.createdAt || 0); });
+    
+    if (!orders.length) {
+      tableBody.innerHTML = '<tr class="empty-row"><td colspan="9"><i class="fas fa-box-open" style="font-size:2rem;display:block;margin-bottom:8px;"></i>No orders to dispatch</td></tr>';
+      return;
     }
 
-    // Update status
-    window.updateOrd = function(orderId, newStatus) {
-      if (!confirm('Update to '+newStatus+'?')) return;
-      var u = { status: newStatus, updatedAt: firebase.database.ServerValue.TIMESTAMP };
-      if (newStatus === 'delivered') u.deliveredAt = firebase.database.ServerValue.TIMESTAMP;
-      if (newStatus === 'shipped') u.shippedAt = firebase.database.ServerValue.TIMESTAMP;
-      db.ref('dsog_fashion_orders/'+orderId).update(u).then(function(){ toast('Order '+newStatus+'!'); }).catch(function(e){ toast('Failed: '+e.message, true); });
-    };
+    tableBody.innerHTML = orders.map(function(order) {
+      var status = order.status || 'ready';
+      var products = order.products || [];
+      var itemCount = products.length;
+      var driver = order.driverName || '';
+      var hasDriver = driver !== '';
+      var shortId = String(order.id).slice(-6);
 
-    // View order
-    window.viewOrd = function(orderId) {
-      var o = allOrders[orderId];
-      if (!o) return;
-      var h = '<h3>Order #'+String(orderId).slice(-6)+'</h3>';
-      h += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:0.75rem;margin-bottom:1rem;">';
-      h += '<div><strong>Customer:</strong> '+(o.customerName||'N/A')+'</div>';
-      h += '<div><strong>Phone:</strong> '+(o.customerPhone||o.phone||'N/A')+'</div>';
-      h += '<div><strong>Location:</strong> '+(o.location||'N/A')+'</div>';
-      h += '<div><strong>Total:</strong> KES '+(o.total||0).toLocaleString()+'</div>';
-      h += '<div><strong>Driver:</strong> '+(o.driverName||'Unassigned')+'</div>';
-      h += '<div><strong>Vehicle:</strong> '+(o.driverVehicle||'N/A')+'</div>';
-      h += '</div>';
-      var products = o.products || [];
-      if (products.length) {
-        h += '<p style="font-weight:700;font-size:0.7rem;">Products:</p>';
-        products.forEach(function(p){
-          h += '<div style="background:#fdf2f8;padding:0.5rem;border-radius:8px;margin-bottom:4px;font-size:0.7rem;display:flex;justify-content:space-between;"><span>'+p.name+' × '+p.quantity+'</span><span>KES '+((p.price||0)*(p.quantity||1)).toLocaleString()+'</span></div>';
+      var actions = '<button class="action-btn btn-view" data-action="view" data-id="' + order.id + '"><i class="fas fa-eye"></i></button>';
+      
+      if (status === 'ready') {
+        if (hasDriver) {
+          actions += '<button class="action-btn btn-assigned" disabled><i class="fas fa-check"></i> ' + driver.split(' ')[0] + '</button>';
+          actions += '<button class="action-btn btn-ship" data-action="ship" data-id="' + order.id + '"><i class="fas fa-truck"></i> Ship Now</button>';
+        } else {
+          actions += '<button class="action-btn btn-assign" data-action="assign" data-id="' + order.id + '"><i class="fas fa-user-plus"></i> Assign Driver</button>';
+        }
+      }
+      if (status === 'shipped') {
+        actions += '<button class="action-btn btn-deliver" data-action="deliver" data-id="' + order.id + '"><i class="fas fa-check-double"></i> Mark Delivered</button>';
+      }
+
+      return '<tr>' +
+        '<td><code style="font-size:0.65rem;background:#fdf2f8;padding:2px 6px;border-radius:4px;">#' + shortId + '</code></td>' +
+        '<td><div style="display:flex;align-items:center;gap:8px;"><div style="width:28px;height:28px;background:#fdf2f8;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.65rem;color:#be185d;">' + getInitials(order.customerName) + '</div><strong>' + (order.customerName || 'Customer') + '</strong></div></td>' +
+        '<td><span style="font-size:0.7rem;">' + (order.customerPhone || order.phone || '—') + '</span></td>' +
+        '<td>' + itemCount + ' item' + (itemCount !== 1 ? 's' : '') + '</td>' +
+        '<td><strong>KES ' + (order.total || 0).toLocaleString() + '</strong></td>' +
+        '<td>' + (order.location || '—') + '</td>' +
+        '<td>' + (driver || '<span style="color:#94a3b8;">Unassigned</span>') + '</td>' +
+        '<td><span class="status-badge ' + getStatusClass(status) + '">' + status + '</span></td>' +
+        '<td><div class="action-btns">' + actions + '</div></td>' +
+      '</tr>';
+    }).join('');
+  }
+
+  // EVENT DELEGATION - this is the key fix
+  tableBody.addEventListener('click', function(e) {
+    var btn = e.target.closest('.action-btn');
+    if (!btn || btn.disabled) return;
+    
+    var action = btn.getAttribute('data-action');
+    var orderId = btn.getAttribute('data-id');
+    
+    if (!orderId) return;
+    
+    if (action === 'view') {
+      viewOrder(orderId);
+    } else if (action === 'ship') {
+      updateStatus(orderId, 'shipped');
+    } else if (action === 'deliver') {
+      updateStatus(orderId, 'delivered');
+    } else if (action === 'assign') {
+      showAssignModal(orderId);
+    }
+  });
+
+  function updateStatus(orderId, newStatus) {
+    var order = allOrders[orderId];
+    var driverName = order ? (order.driverName || 'Unassigned') : 'Unassigned';
+    var confirmMsg = newStatus === 'shipped' ? 'Ship this order with ' + driverName + '?' : 'Mark order as ' + newStatus + '?';
+    
+    if (!confirm(confirmMsg)) return;
+    
+    var updates = { status: newStatus, updatedAt: firebase.database.ServerValue.TIMESTAMP };
+    if (newStatus === 'delivered') updates.deliveredAt = firebase.database.ServerValue.TIMESTAMP;
+    if (newStatus === 'shipped') updates.shippedAt = firebase.database.ServerValue.TIMESTAMP;
+    
+    database.ref('dsog_fashion_orders/' + orderId).update(updates).then(function() {
+      showToast('Order ' + newStatus + '!');
+    }).catch(function(e) {
+      console.error('Update error:', e);
+      showToast('Failed: ' + e.message, true);
+    });
+  }
+
+  function viewOrder(orderId) {
+    var order = allOrders[orderId];
+    if (!order) { showToast('Order not found', true); return; }
+    var products = order.products || [];
+    var driver = order.driverName || 'Unassigned';
+    
+    var html = '<h3><i class="fas fa-info-circle"></i> Order #' + String(orderId).slice(-6) + '</h3>';
+    html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:0.75rem;margin-bottom:1rem;">';
+    html += '<div><strong>Customer:</strong> ' + (order.customerName || 'N/A') + '</div>';
+    html += '<div><strong>Phone:</strong> ' + (order.customerPhone || order.phone || 'N/A') + '</div>';
+    html += '<div><strong>Email:</strong> ' + (order.customerEmail || order.email || 'N/A') + '</div>';
+    html += '<div><strong>Location:</strong> ' + (order.location || 'N/A') + '</div>';
+    html += '<div><strong>Status:</strong> <span class="status-badge ' + getStatusClass(order.status) + '">' + (order.status || 'ready') + '</span></div>';
+    html += '<div><strong>Total:</strong> KES ' + (order.total || 0).toLocaleString() + '</div>';
+    html += '<div><strong>Driver:</strong> ' + driver + '</div>';
+    html += '<div><strong>Vehicle:</strong> ' + (order.driverVehicle || 'N/A') + '</div>';
+    html += '<div><strong>Driver Phone:</strong> ' + (order.driverPhone || 'N/A') + '</div>';
+    html += '<div><strong>Package:</strong> ' + (order.packageType || 'N/A') + '</div>';
+    html += '<div><strong>Order Type:</strong> ' + (order.orderType || 'N/A') + '</div>';
+    html += '<div><strong>Notes:</strong> ' + (order.notes || 'None') + '</div>';
+    html += '</div>';
+    
+    if (products.length) {
+      html += '<p style="font-weight:700;font-size:0.7rem;margin-bottom:0.5rem;">Products:</p>';
+      products.forEach(function(p) {
+        html += '<div style="background:#fdf2f8;padding:0.5rem;border-radius:8px;margin-bottom:4px;font-size:0.7rem;display:flex;justify-content:space-between;">';
+        html += '<span>' + p.name + ' × ' + p.quantity + ' ' + (p.size || '') + '</span>';
+        html += '<span>KES ' + ((p.price||0)*(p.quantity||1)).toLocaleString() + '</span>';
+        html += '</div>';
+      });
+    }
+    
+    html += '<div class="btn-row"><button class="btn btn-secondary" onclick="closeModal()">Close</button></div>';
+    
+    modalContent.innerHTML = html;
+    modal.classList.add('show');
+  }
+
+  function showAssignModal(orderId) {
+    var drivers = Object.entries(allDrivers).filter(function(entry) { return entry[1] && entry[1].verified; });
+    var order = allOrders[orderId];
+    var currentDriver = order ? (order.driverName || '') : '';
+    
+    var driverOptions = drivers.map(function(entry) {
+      var d = entry[1];
+      return '<option value="' + entry[0] + '">' + (d.name || entry[0]) + ' · ' + (d.vehicle || 'N/A') + ' · ' + (d.phone || '') + '</option>';
+    }).join('');
+    
+    var html = '<h3><i class="fas fa-user-plus"></i> Assign Driver</h3>';
+    html += currentDriver ? '<p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:1rem;">Current driver: <strong>' + currentDriver + '</strong> — you can reassign</p>' : '<p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:1rem;">No driver assigned yet</p>';
+    html += '<div class="form-group"><label>Select Driver</label><select id="driverSelect"><option value="">— Choose driver —</option>' + driverOptions + '</select></div>';
+    html += !drivers.length ? '<p style="color:#94a3b8;text-align:center;padding:1rem;">No verified drivers available</p>' : '';
+    html += '<div class="btn-row"><button class="btn btn-primary" id="confirmAssignBtn" ' + (!drivers.length ? 'disabled' : '') + '>Confirm Assignment</button><button class="btn btn-secondary" onclick="closeModal()">Cancel</button></div>';
+    
+    modalContent.innerHTML = html;
+    modal.classList.add('show');
+    
+    // Attach listener to confirm button
+    setTimeout(function() {
+      var confirmBtn = document.getElementById('confirmAssignBtn');
+      if (confirmBtn) {
+        confirmBtn.addEventListener('click', function() {
+          var driverId = document.getElementById('driverSelect').value;
+          if (!driverId) { showToast('Select a driver', true); return; }
+          var driver = allDrivers[driverId];
+          if (!driver) { showToast('Driver not found', true); return; }
+          
+          database.ref('dsog_fashion_orders/' + orderId).update({
+            driverId: driverId,
+            driverName: driver.name || driver.email || 'Driver',
+            driverPhone: driver.phone || '',
+            driverVehicle: driver.vehicle || '',
+            assignedAt: firebase.database.ServerValue.TIMESTAMP
+          }).then(function() {
+            showToast('Driver assigned! You can now ship the order.');
+            closeModal();
+          }).catch(function(e) {
+            showToast('Failed to assign driver', true);
+          });
         });
       }
-      h += '<div class="btn-row"><button class="btn btn-secondary" onclick="closeMod()">Close</button></div>';
-      document.getElementById('modalContent').innerHTML = h;
-      document.getElementById('modal').classList.add('show');
-    };
+    }, 100);
+  }
 
-    // Assign modal
-    window.assignModal = function(orderId) {
-      var drivers = [];
-      for (var k in allDrivers) { if (allDrivers[k] && allDrivers[k].verified) drivers.push({id:k, data:allDrivers[k]}); }
-      var h = '<h3>Assign Driver</h3>';
-      h += '<div class="form-group"><label>Select Driver</label><select id="driverSelect"><option value="">— Choose —</option>';
-      drivers.forEach(function(d){ h += '<option value="'+d.id+'">'+(d.data.name||d.id)+' · '+(d.data.vehicle||'N/A')+'</option>'; });
-      h += '</select></div>';
-      h += '<div class="btn-row"><button class="btn btn-primary" onclick="assignDrv(\''+orderId+'\')">Confirm</button><button class="btn btn-secondary" onclick="closeMod()">Cancel</button></div>';
-      document.getElementById('modalContent').innerHTML = h;
-      document.getElementById('modal').classList.add('show');
-    };
+  function closeModal() { modal.classList.remove('show'); }
 
-    // Assign driver
-    window.assignDrv = function(orderId) {
-      var driverId = document.getElementById('driverSelect').value;
-      if (!driverId) { toast('Select a driver', true); return; }
-      var driver = allDrivers[driverId];
-      db.ref('dsog_fashion_orders/'+orderId).update({
-        driverId: driverId, driverName: driver.name||'Driver', driverPhone: driver.phone||'', driverVehicle: driver.vehicle||'',
-        assignedAt: firebase.database.ServerValue.TIMESTAMP
-      }).then(function(){ toast('Driver assigned!'); closeMod(); }).catch(function(e){ toast('Failed', true); });
-    };
-
-    window.closeMod = function() { document.getElementById('modal').classList.remove('show'); };
-
-    // Filters
-    document.querySelectorAll('.filter-btn').forEach(function(b){
-      b.onclick = function(){
-        document.querySelectorAll('.filter-btn').forEach(function(x){ x.classList.remove('active'); });
-        this.classList.add('active');
-        currentFilter = this.dataset.filter;
-        render();
-      };
+  // Filter buttons
+  document.querySelectorAll('.filter-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.filter-btn').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      currentFilter = btn.dataset.filter;
+      renderTable();
     });
+  });
 
-    document.getElementById('searchInput').oninput = function(){ searchQuery = this.value; render(); };
-    document.getElementById('modal').onclick = function(e){ if(e.target===this) closeMod(); };
-    document.onkeydown = function(e){ if(e.key==='Escape') closeMod(); };
+  // Search
+  document.getElementById('searchInput').addEventListener('input', function(e) {
+    searchQuery = e.target.value;
+    renderTable();
+  });
 
-    // Firebase
-    db.ref('dsog_fashion_orders').on('value', function(s){ allOrders = s.val()||{}; render(); });
-    db.ref('delivery_assistants').on('value', function(s){ allDrivers = s.val()||{}; render(); });
-    
-    auth.onAuthStateChanged(function(u){ if(!u) location.href='https://kazinni.vercel.app'; });
-  </script>
+  // Modal close
+  modal.addEventListener('click', function(e) { if (e.target === modal) closeModal(); });
+  document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeModal(); });
+
+  // Firebase listeners
+  database.ref('dsog_fashion_orders').on('value', function(snapshot) {
+    allOrders = snapshot.val() || {};
+    updateStats();
+    renderTable();
+  });
+
+  database.ref('delivery_assistants').on('value', function(snapshot) {
+    allDrivers = snapshot.val() || {};
+    updateStats();
+  });
+
+  // Auth
+  auth.onAuthStateChanged(function(user) {
+    if (!user) window.location.href = 'https://kazinni.vercel.app';
+  });
+
+  // Expose closeModal for the close button in the modal
+  window.closeModal = closeModal;
+</script>
 </body>
 </html>
