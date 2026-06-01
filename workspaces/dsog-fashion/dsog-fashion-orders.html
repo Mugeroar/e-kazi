@@ -153,23 +153,21 @@
     }
     .modal-overlay.show { display: flex; }
     .modal {
-      background: white; border-radius: 20px; padding: 1.5rem; max-width: 550px;
+      background: white; border-radius: 20px; padding: 1.5rem; max-width: 600px;
       width: 95%; max-height: 85vh; overflow-y: auto; box-shadow: 0 25px 50px rgba(0,0,0,0.2);
     }
     .modal h3 { font-size: 0.95rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px; color: var(--pink-dark); }
     .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.75rem; margin-bottom: 1rem; }
     .detail-item { background: #fdf2f8; padding: 0.6rem; border-radius: 10px; }
     .detail-item strong { display: block; font-size: 0.6rem; color: var(--pink-dark); text-transform: uppercase; margin-bottom: 0.1rem; }
+    .detail-item.full { grid-column: 1 / -1; }
     .btn-row { display: flex; gap: 8px; margin-top: 1rem; }
     .btn {
       padding: 0.6rem 1.2rem; border-radius: 10px; border: none; font-weight: 700;
       font-size: 0.8rem; cursor: pointer; display: inline-flex; align-items: center;
       gap: 5px; font-family: inherit; transition: all 0.15s;
     }
-    .btn-primary { background: var(--pink); color: white; }
-    .btn-primary:hover { background: var(--pink-dark); }
     .btn-secondary { background: #f1f5f9; color: #475569; }
-    .btn-secondary:hover { background: #e2e8f0; }
 
     .toast {
       position: fixed; bottom: 25px; right: 25px; background: var(--green); color: white;
@@ -277,31 +275,31 @@
     const modal = document.getElementById('modal');
     const modalContent = document.getElementById('modalContent');
 
-    function showToast(msg, isError = false) {
+    function showToast(msg, isError) {
       const container = document.getElementById('toastContainer');
       const existing = container.querySelector('.toast');
       if (existing) existing.remove();
       const toast = document.createElement('div');
-      toast.className = `toast ${isError ? 'error' : ''}`;
-      toast.innerHTML = `<i class="fas fa-${isError ? 'exclamation-circle' : 'check-circle'}"></i> ${msg}`;
+      toast.className = 'toast' + (isError ? ' error' : '');
+      toast.innerHTML = '<i class="fas fa-' + (isError ? 'exclamation-circle' : 'check-circle') + '"></i> ' + msg;
       container.appendChild(toast);
-      setTimeout(() => toast.remove(), 3500);
+      setTimeout(function() { toast.remove(); }, 3500);
     }
 
     function getInitials(name) {
       if (!name) return '??';
-      return String(name).split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+      return String(name).split(' ').map(function(n) { return n[0]; }).join('').toUpperCase().substring(0, 2);
     }
 
     function getStatusClass(status) {
-      const map = { new:'status-new', confirmed:'status-confirmed', processing:'status-processing', ready:'status-ready', shipped:'status-shipped', delivered:'status-delivered', cancelled:'status-cancelled' };
+      var map = { new:'status-new', confirmed:'status-confirmed', processing:'status-processing', ready:'status-ready', shipped:'status-shipped', delivered:'status-delivered', cancelled:'status-cancelled' };
       return map[status] || 'status-new';
     }
 
     function updateStats() {
-      const orders = Object.values(allOrders).filter(o => o);
-      const counts = { all: orders.length, new: 0, confirmed: 0, processing: 0, ready: 0, delivered: 0, cancelled: 0 };
-      orders.forEach(o => { const s = o.status || 'new'; if (counts[s] !== undefined) counts[s]++; });
+      var orders = Object.values(allOrders).filter(function(o) { return o; });
+      var counts = { all: orders.length, new: 0, confirmed: 0, processing: 0, ready: 0, delivered: 0, cancelled: 0 };
+      orders.forEach(function(o) { var s = o.status || 'new'; if (counts[s] !== undefined) counts[s]++; });
 
       document.getElementById('statNew').textContent = counts.new;
       document.getElementById('statConfirmed').textContent = counts.confirmed;
@@ -316,140 +314,189 @@
       document.getElementById('countDelivered').textContent = counts.delivered;
       document.getElementById('countCancelled').textContent = counts.cancelled;
 
-      document.getElementById('orderCount').textContent = `${counts.all} total · ${counts.new} new · ${counts.processing} processing`;
+      document.getElementById('orderCount').textContent = counts.all + ' total · ' + counts.new + ' new · ' + counts.processing + ' processing';
     }
 
     function renderTable() {
-      let orders = Object.entries(allOrders).map(([id, data]) => ({ id, ...data })).filter(o => o);
+      var orders = Object.entries(allOrders).map(function(entry) { return Object.assign({ id: entry[0] }, entry[1]); }).filter(function(o) { return o; });
       
       if (currentFilter !== 'all') {
-        orders = orders.filter(o => (o.status || 'new') === currentFilter);
+        orders = orders.filter(function(o) { return (o.status || 'new') === currentFilter; });
       }
       
       if (searchQuery) {
-        const q = searchQuery.toLowerCase();
-        orders = orders.filter(o => 
-          (o.customerName || '').toLowerCase().includes(q) ||
-          (o.customerPhone || '').toLowerCase().includes(q) ||
-          (o.products || []).some(p => (p.name || '').toLowerCase().includes(q))
-        );
+        var q = searchQuery.toLowerCase();
+        orders = orders.filter(function(o) {
+          return (o.customerName || '').toLowerCase().indexOf(q) !== -1 ||
+                 (o.customerPhone || '').toLowerCase().indexOf(q) !== -1 ||
+                 (o.products || []).some(function(p) { return (p.name || '').toLowerCase().indexOf(q) !== -1; });
+        });
       }
       
-      orders.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+      orders.sort(function(a, b) { return (b.createdAt || 0) - (a.createdAt || 0); });
       
       if (!orders.length) {
         tableBody.innerHTML = '<tr class="empty-row"><td colspan="8"><i class="fas fa-shopping-bag" style="font-size:2rem;display:block;margin-bottom:8px;"></i>No orders found</td></tr>';
         return;
       }
 
-      tableBody.innerHTML = orders.map(order => {
-        const status = order.status || 'new';
-        const products = order.products || [];
-        const productNames = products.map(p => p.name).join(', ');
-        const totalQty = products.reduce((s, p) => s + (p.quantity || 0), 0);
-        const shortId = String(order.id).slice(-6);
+      tableBody.innerHTML = orders.map(function(order) {
+        var status = order.status || 'new';
+        var products = order.products || [];
+        var productNames = products.map(function(p) { return p.name; }).join(', ');
+        var totalQty = products.reduce(function(s, p) { return s + (p.quantity || 0); }, 0);
+        var shortId = String(order.id).slice(-6);
 
-        let actions = `<button class="action-btn btn-view" onclick="viewOrder('${order.id}')"><i class="fas fa-eye"></i></button>`;
+        var actions = '<button class="action-btn btn-view" onclick="viewOrder(\'' + order.id + '\')"><i class="fas fa-eye"></i></button>';
         
         if (status === 'new') {
-          actions += `<button class="action-btn btn-confirm" onclick="updateStatus('${order.id}','confirmed')"><i class="fas fa-check"></i> Confirm</button>`;
-          actions += `<button class="action-btn btn-cancel" onclick="updateStatus('${order.id}','cancelled')"><i class="fas fa-times"></i></button>`;
+          actions += '<button class="action-btn btn-confirm" onclick="updateStatus(\'' + order.id + '\',\'confirmed\')"><i class="fas fa-check"></i> Confirm</button>';
+          actions += '<button class="action-btn btn-cancel" onclick="updateStatus(\'' + order.id + '\',\'cancelled\')"><i class="fas fa-times"></i></button>';
         }
         if (status === 'confirmed') {
-          actions += `<button class="action-btn btn-process" onclick="updateStatus('${order.id}','processing')"><i class="fas fa-spinner"></i> Process</button>`;
+          actions += '<button class="action-btn btn-process" onclick="updateStatus(\'' + order.id + '\',\'processing\')"><i class="fas fa-spinner"></i> Process</button>';
         }
         if (status === 'processing') {
-          actions += `<button class="action-btn btn-ready" onclick="updateStatus('${order.id}','ready')"><i class="fas fa-box"></i> Ready</button>`;
+          actions += '<button class="action-btn btn-ready" onclick="updateStatus(\'' + order.id + '\',\'ready\')"><i class="fas fa-box"></i> Ready</button>';
         }
 
-        return `
-          <tr>
-            <td><code style="font-size:0.65rem;background:#fdf2f8;padding:2px 6px;border-radius:4px;">#${shortId}</code></td>
-            <td>
-              <div style="display:flex;align-items:center;gap:8px;">
-                <div style="width:28px;height:28px;background:#fdf2f8;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.65rem;color:#be185d;">${getInitials(order.customerName)}</div>
-                <div><strong>${order.customerName || 'Customer'}</strong><div style="font-size:0.6rem;color:#94a3b8;">${order.customerPhone || ''}</div></div>
-              </div>
-            </td>
-            <td><span style="font-size:0.7rem;" title="${productNames}">${productNames.substring(0, 25)}${productNames.length > 25 ? '...' : ''}</span></td>
-            <td>${totalQty}</td>
-            <td><strong>KES ${(order.total || 0).toLocaleString()}</strong></td>
-            <td>${order.franchiseName || 'Direct'}</td>
-            <td><span class="status-badge ${getStatusClass(status)}">${status}</span></td>
-            <td><div class="action-btns">${actions}</div></td>
-          </tr>`;
+        return '<tr>' +
+          '<td><code style="font-size:0.65rem;background:#fdf2f8;padding:2px 6px;border-radius:4px;">#' + shortId + '</code></td>' +
+          '<td><div style="display:flex;align-items:center;gap:8px;"><div style="width:28px;height:28px;background:#fdf2f8;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.65rem;color:#be185d;">' + getInitials(order.customerName) + '</div><div><strong>' + (order.customerName || 'Customer') + '</strong><div style="font-size:0.6rem;color:#94a3b8;">' + (order.customerPhone || '') + '</div></div></div></td>' +
+          '<td><span style="font-size:0.7rem;" title="' + productNames + '">' + productNames.substring(0, 25) + (productNames.length > 25 ? '...' : '') + '</span></td>' +
+          '<td>' + totalQty + '</td>' +
+          '<td><strong>KES ' + (order.total || 0).toLocaleString() + '</strong></td>' +
+          '<td>' + (order.franchiseName || 'Direct') + '</td>' +
+          '<td><span class="status-badge ' + getStatusClass(status) + '">' + status + '</span></td>' +
+          '<td><div class="action-btns">' + actions + '</div></td>' +
+        '</tr>';
       }).join('');
     }
 
-    async function updateStatus(orderId, newStatus) {
-      if (!confirm(`Update order #${String(orderId).slice(-6)} to "${newStatus}"?`)) return;
-      
-      try {
-        console.log('Updating order:', orderId, 'to status:', newStatus);
-        await database.ref(`dsog_fashion_orders/${orderId}`).update({
-          status: newStatus,
-          updatedAt: firebase.database.ServerValue.TIMESTAMP
-        });
-        console.log('Update successful');
-        showToast(`✅ Order ${newStatus}!`);
-      } catch (e) {
-        console.error('Update error:', e);
+    function updateStatus(orderId, newStatus) {
+      if (!confirm('Update order #' + String(orderId).slice(-6) + ' to "' + newStatus + '"?')) return;
+      database.ref('dsog_fashion_orders/' + orderId).update({
+        status: newStatus,
+        updatedAt: firebase.database.ServerValue.TIMESTAMP
+      }).then(function() {
+        showToast('Order ' + newStatus + '!');
+      }).catch(function(e) {
         showToast('Failed: ' + e.message, true);
-      }
+      });
     }
 
     function viewOrder(orderId) {
-      const order = allOrders[orderId];
+      var order = allOrders[orderId];
       if (!order) return;
-      const products = order.products || [];
-      const status = order.status || 'new';
+      var products = order.products || [];
+      var status = order.status || 'new';
+      var driver = order.driverName || '';
 
-      modalContent.innerHTML = `
-        <h3><i class="fas fa-info-circle"></i> Order #${String(orderId).slice(-6)}</h3>
-        <div class="detail-grid">
-          <div class="detail-item"><strong>Customer</strong>${order.customerName || 'N/A'}</div>
-          <div class="detail-item"><strong>Phone</strong>${order.customerPhone || 'N/A'}</div>
-          <div class="detail-item"><strong>Email</strong>${order.customerEmail || 'N/A'}</div>
-          <div class="detail-item"><strong>Status</strong><span class="status-badge ${getStatusClass(status)}">${status}</span></div>
-          <div class="detail-item"><strong>Franchise</strong>${order.franchiseName || 'Direct'}</div>
-          <div class="detail-item"><strong>Location</strong>${order.location || 'N/A'}</div>
-          <div class="detail-item"><strong>Subtotal</strong>KES ${(order.subtotal || 0).toLocaleString()}</div>
-          <div class="detail-item"><strong>Delivery Fee</strong>KES ${(order.deliveryFee || 0).toLocaleString()}</div>
-          <div class="detail-item"><strong>Total</strong>KES ${(order.total || 0).toLocaleString()}</div>
-          <div class="detail-item"><strong>Created</strong>${order.createdAt ? new Date(order.createdAt).toLocaleString() : 'N/A'}</div>
-        </div>
-        ${products.length ? `
-          <p style="font-weight:700;font-size:0.75rem;margin:0.8rem 0 0.5rem;">Products:</p>
-          ${products.map(p => `<div style="background:#fdf2f8;padding:0.5rem;border-radius:8px;margin-bottom:4px;font-size:0.7rem;display:flex;justify-content:space-between;"><span>${p.name} × ${p.quantity} ${p.size || ''}</span><span>KES ${((p.price||0)*(p.quantity||1)).toLocaleString()}</span></div>`).join('')}
-        ` : ''}
-        ${order.notes ? `<div class="detail-item" style="margin-top:0.5rem;"><strong>Notes</strong>${order.notes}</div>` : ''}
-        <div class="btn-row"><button class="btn btn-secondary" onclick="closeModal()">Close</button></div>
-      `;
+      var html = '<h3><i class="fas fa-info-circle"></i> Order #' + String(orderId).slice(-6) + '</h3>';
+      
+      // Main details
+      html += '<div class="detail-grid">';
+      html += '<div class="detail-item"><strong>Customer Name</strong>' + (order.customerName || 'N/A') + '</div>';
+      html += '<div class="detail-item"><strong>Phone Number</strong>' + (order.customerPhone || order.phone || 'N/A') + '</div>';
+      html += '<div class="detail-item"><strong>Email</strong>' + (order.customerEmail || order.email || 'N/A') + '</div>';
+      html += '<div class="detail-item"><strong>Delivery Location</strong>' + (order.location || 'N/A') + '</div>';
+      html += '<div class="detail-item"><strong>Status</strong><span class="status-badge ' + getStatusClass(status) + '">' + status + '</span></div>';
+      html += '<div class="detail-item"><strong>Order Type</strong>' + (order.orderType || 'N/A') + '</div>';
+      html += '<div class="detail-item"><strong>Franchise</strong>' + (order.franchiseName || 'Direct Customer') + '</div>';
+      html += '<div class="detail-item"><strong>Package Type</strong>' + (order.packageType || 'N/A') + '</div>';
+      html += '<div class="detail-item"><strong>Subtotal</strong>KES ' + (order.subtotal || 0).toLocaleString() + '</div>';
+      html += '<div class="detail-item"><strong>Delivery Fee</strong>KES ' + (order.deliveryFee || 0).toLocaleString() + '</div>';
+      html += '<div class="detail-item"><strong>Total</strong>KES ' + (order.total || 0).toLocaleString() + '</div>';
+      html += '<div class="detail-item"><strong>Created</strong>' + (order.createdAt ? new Date(order.createdAt).toLocaleString() : 'N/A') + '</div>';
+      html += '<div class="detail-item"><strong>Created By</strong>' + (order.createdBy || 'N/A') + '</div>';
+      
+      // Driver info
+      if (driver) {
+        html += '<div class="detail-item"><strong>Driver</strong>' + driver + '</div>';
+        html += '<div class="detail-item"><strong>Driver Phone</strong>' + (order.driverPhone || 'N/A') + '</div>';
+        html += '<div class="detail-item"><strong>Vehicle</strong>' + (order.driverVehicle || 'N/A') + '</div>';
+      }
+      
+      // Timestamps
+      if (order.confirmedAt) html += '<div class="detail-item"><strong>Confirmed</strong>' + new Date(order.confirmedAt).toLocaleString() + '</div>';
+      if (order.startedAt) html += '<div class="detail-item"><strong>Processing</strong>' + new Date(order.startedAt).toLocaleString() + '</div>';
+      if (order.shippedAt) html += '<div class="detail-item"><strong>Shipped</strong>' + new Date(order.shippedAt).toLocaleString() + '</div>';
+      if (order.deliveredAt) html += '<div class="detail-item"><strong>Delivered</strong>' + new Date(order.deliveredAt).toLocaleString() + '</div>';
+      html += '</div>';
+      
+      // Products
+      if (products.length) {
+        html += '<p style="font-weight:700;font-size:0.75rem;margin:0.8rem 0 0.5rem;">Products Ordered:</p>';
+        products.forEach(function(p) {
+          html += '<div style="background:#fdf2f8;padding:0.5rem;border-radius:8px;margin-bottom:4px;font-size:0.7rem;display:flex;justify-content:space-between;">';
+          html += '<span><strong>' + p.name + '</strong> × ' + p.quantity + (p.size ? ' (' + p.size + ')' : '') + '</span>';
+          html += '<span>KES ' + ((p.price||0)*(p.quantity||1)).toLocaleString() + '</span>';
+          html += '</div>';
+        });
+      }
+      
+      // Design details (T-shirt)
+      if (order.designText || order.fabricColor || order.position) {
+        html += '<p style="font-weight:700;font-size:0.75rem;margin:0.8rem 0 0.5rem;">Design Details:</p>';
+        html += '<div class="detail-grid">';
+        if (order.designText) html += '<div class="detail-item"><strong>Design Text</strong>' + order.designText + '</div>';
+        if (order.designText2) html += '<div class="detail-item"><strong>Second Line</strong>' + order.designText2 + '</div>';
+        if (order.position) html += '<div class="detail-item"><strong>Position</strong>' + (order.position === 'breast' ? 'Left Breast' : 'Center Chest') + '</div>';
+        if (order.font) html += '<div class="detail-item"><strong>Font</strong>' + order.font + '</div>';
+        if (order.fabricColor) html += '<div class="detail-item"><strong>Fabric Color</strong>' + order.fabricColor + '</div>';
+        if (order.textColor) html += '<div class="detail-item"><strong>Text Color</strong>' + order.textColor + '</div>';
+        if (order.size) html += '<div class="detail-item"><strong>Size</strong>' + order.size + '</div>';
+        html += '</div>';
+      }
+      
+      // Banner/Sticker details
+      if (order.metres) {
+        html += '<div class="detail-item full" style="margin-top:0.5rem;"><strong>Size</strong>' + order.metres + ' metres</div>';
+      }
+      if (order.designOption) {
+        html += '<div class="detail-item full"><strong>Design Option</strong>' + (order.designOption === 'design-included' ? 'Design + Print' : 'Print Only') + '</div>';
+      }
+      
+      // Notes
+      if (order.notes) {
+        html += '<div class="detail-item full" style="margin-top:0.5rem;"><strong>Notes</strong>' + order.notes + '</div>';
+      }
+      
+      html += '<div class="btn-row"><button class="btn btn-secondary" onclick="closeModal()">Close</button></div>';
+      
+      modalContent.innerHTML = html;
       modal.classList.add('show');
     }
 
     function closeModal() { modal.classList.remove('show'); }
 
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.filter-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.filter-btn').forEach(function(b) { b.classList.remove('active'); });
         btn.classList.add('active');
         currentFilter = btn.dataset.filter;
         renderTable();
       });
     });
 
-    document.getElementById('searchInput').addEventListener('input', (e) => { searchQuery = e.target.value; renderTable(); });
-    modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+    document.getElementById('searchInput').addEventListener('input', function(e) {
+      searchQuery = e.target.value;
+      renderTable();
+    });
 
-    database.ref('dsog_fashion_orders').on('value', (snapshot) => {
+    modal.addEventListener('click', function(e) { if (e.target === modal) closeModal(); });
+    document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeModal(); });
+
+    database.ref('dsog_fashion_orders').on('value', function(snapshot) {
       allOrders = snapshot.val() || {};
       updateStats();
       renderTable();
     });
 
-    auth.onAuthStateChanged((user) => { if (!user) window.location.href = '/'; });
+    auth.onAuthStateChanged(function(user) {
+      if (!user) window.location.href = 'https://kazinni.vercel.app';
+    });
+
     window.viewOrder = viewOrder;
     window.updateStatus = updateStatus;
     window.closeModal = closeModal;
