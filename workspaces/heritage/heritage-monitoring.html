@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Ad Monitoring | The Heritage</title>
+  
+  <meta name="theme-color" content="#d946ef">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  
+  <link rel="icon" type="image/png" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --heritage: #d946ef;
+      --heritage-dark: #a21caf;
+      --heritage-light: #f0abfc;
+      --text-primary: #1e293b;
+      --text-muted: #64748b;
+      --border-light: #f0abfc;
+      --red: #ef4444;
+      --green: #10b981;
+      --orange: #f59e0b;
+      --blue: #3b82f6;
+      --purple: #7c3aed;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(145deg, #fdf4ff 0%, #ffffff 100%);
+      color: var(--text-primary);
+      line-height: 1.4;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .navbar {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(16px);
+      padding: 0.5rem 2%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(217, 70, 239, 0.2);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .logo-img { height: 34px; width: 34px; border-radius: 10px; object-fit: contain; background: white; box-shadow: 0 4px 12px rgba(217, 70, 239, 0.2); }
+    .logo-text {
+      font-weight: 800; font-size: 1.1rem;
+      background: linear-gradient(145deg, #f0abfc, #a21caf);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .logo-text span { font-weight: 600; font-size: 0.7rem; background: #d946ef; -webkit-text-fill-color: #d946ef; margin-left: 3px; }
+
+    .nav-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .nav-btn {
+      background: rgba(217, 70, 239, 0.08); border: 1px solid rgba(217, 70, 239, 0.2);
+      padding: 0.4rem 0.8rem; border-radius: 25px; color: var(--heritage-dark);
+      font-weight: 600; font-size: 0.7rem; cursor: pointer; display: inline-flex;
+      align-items: center; gap: 5px; text-decoration: none; transition: all 0.2s;
+    }
+    .nav-btn:hover { background: var(--heritage); color: white; }
+
+    .container { padding: 1rem 2%; flex: 1; }
+
+    .page-header { margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.8rem; }
+    .page-header h1 { font-size: 1.3rem; font-weight: 800; color: #0f172a; }
+    .page-header h1 i { color: var(--heritage-dark); margin-right: 6px; }
+    .page-header p { color: var(--text-muted); font-size: 0.75rem; }
+
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 1rem; }
+    .stat-mini {
+      background: white; border-radius: 14px; padding: 0.8rem 1rem; text-align: center;
+      border: 1px solid #f0abfc; box-shadow: 0 2px 8px rgba(162,28,175,0.03);
+    }
+    .stat-mini .stat-num { font-size: 1.4rem; font-weight: 800; color: var(--heritage-dark); line-height: 1.1; }
+    .stat-mini .stat-label { font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.3px; }
+
+    .table-wrap {
+      background: white; border-radius: 16px; border: 1px solid #f0abfc;
+      overflow: hidden; box-shadow: 0 4px 16px rgba(162,28,175,0.03);
+    }
+    .table-scroll { overflow-x: auto; max-height: 60vh; overflow-y: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
+    thead { position: sticky; top: 0; z-index: 2; background: #fdf4ff; }
+    th {
+      padding: 0.6rem 0.7rem; text-align: left; font-weight: 700; color: #a21caf;
+      font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.4px; white-space: nowrap;
+    }
+    td { padding: 0.5rem 0.7rem; border-bottom: 1px solid #fdf4ff; vertical-align: middle; }
+    tr:hover td { background: #fdf4ff; }
+
+    .status-badge {
+      display: inline-block; padding: 0.15rem 0.5rem; border-radius: 12px;
+      font-size: 0.6rem; font-weight: 700; white-space: nowrap;
+    }
+    .status-live { background: #d1fae5; color: #065f46; }
+    .status-ended { background: #f1f5f9; color: #475569; }
+    .status-paused { background: #fee2e2; color: #991b1b; }
+
+    .action-btns { display: flex; gap: 4px; flex-wrap: wrap; }
+    .action-btn {
+      padding: 0.25rem 0.5rem; border-radius: 6px; border: none; font-size: 0.6rem;
+      font-weight: 600; cursor: pointer; display: inline-flex; align-items: center;
+      gap: 3px; transition: all 0.15s; font-family: inherit;
+    }
+    .btn-update { background: #fdf4ff; color: #a21caf; }
+    .btn-update:hover { background: #d946ef; color: white; }
+    .btn-view { background: #f1f5f9; color: #475569; }
+    .btn-view:hover { background: #475569; color: white; }
+
+    .empty-row td { text-align: center; padding: 2rem; color: #94a3b8; }
+
+    .modal-overlay {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5); z-index: 3000; justify-content: center;
+      align-items: center; backdrop-filter: blur(2px);
+    }
+    .modal-overlay.show { display: flex; }
+    .modal {
+      background: white; border-radius: 20px; padding: 1.5rem; max-width: 500px;
+      width: 95%; max-height: 85vh; overflow-y: auto; box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+    }
+    .modal h3 { font-size: 0.95rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px; color: var(--heritage-dark); }
+    .form-group { margin-bottom: 0.7rem; }
+    .form-group label {
+      display: block; font-size: 0.65rem; font-weight: 700; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 0.15rem;
+    }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%; padding: 0.5rem 0.7rem; border-radius: 10px;
+      border: 1.5px solid #e2e8f0; font-size: 0.8rem; font-family: 'Inter', sans-serif;
+      background: #f8fafc;
+    }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+    .btn-row { display: flex; gap: 8px; margin-top: 1rem; }
+    .btn {
+      padding: 0.6rem 1.2rem; border-radius: 10px; border: none; font-weight: 700;
+      font-size: 0.8rem; cursor: pointer; display: inline-flex; align-items: center;
+      gap: 5px; font-family: inherit; transition: all 0.15s;
+    }
+    .btn-primary { background: var(--heritage); color: white; }
+    .btn-primary:hover { background: var(--heritage-dark); }
+    .btn-secondary { background: #f1f5f9; color: #475569; }
+
+    .toast {
+      position: fixed; bottom: 25px; right: 25px; background: var(--green); color: white;
+      padding: 0.7rem 1.2rem; border-radius: 20px; font-weight: 600; z-index: 4000;
+      animation: slideIn 0.3s ease; box-shadow: 0 8px 20px rgba(16,185,129,0.25);
+      display: flex; align-items: center; gap: 6px; font-size: 0.75rem;
+    }
+    .toast.error { background: var(--red); }
+    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+    @media (max-width: 768px) { .stats-row { grid-template-columns: repeat(2, 1fr); } }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <a href="index.html" class="logo">
+      <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png" alt="The Heritage" class="logo-img">
+      <span class="logo-text">The Heritage <span>Ads</span></span>
+    </a>
+    <div class="nav-right">
+      <a href="index.html" class="nav-btn"><i class="fas fa-arrow-left"></i> Dashboard</a>
+      <a href="heritage-listings.html" class="nav-btn"><i class="fas fa-th-large"></i> Listings</a>
+      <a href="heritage-campaigns.html" class="nav-btn"><i class="fas fa-bullhorn"></i> Campaigns</a>
+      <a href="heritage-partners.html" class="nav-btn"><i class="fas fa-handshake"></i> Partners</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="page-header">
+      <h1><i class="fas fa-chart-line"></i> Ad Monitoring</h1>
+      <p style="font-size:0.75rem;color:var(--text-muted);">Track impressions, reach, clicks & ROI across all active campaigns</p>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-mini"><div class="stat-num" id="statTotalImpressions">0</div><div class="stat-label">Total Impressions</div></div>
+      <div class="stat-mini"><div class="stat-num" id="statTotalReach">0</div><div class="stat-label">Total Reach</div></div>
+      <div class="stat-mini"><div class="stat-num" id="statTotalClicks">0</div><div class="stat-label">Total Clicks/Inquiries</div></div>
+      <div class="stat-mini"><div class="stat-num" id="statAvgROI">0%</div><div class="stat-label">Avg ROI</div></div>
+    </div>
+
+    <div class="table-wrap">
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Campaign</th>
+              <th>Client</th>
+              <th>Placements</th>
+              <th>Budget</th>
+              <th>Impressions</th>
+              <th>Reach</th>
+              <th>Clicks</th>
+              <th>Conversions</th>
+              <th>ROI</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <tr class="empty-row"><td colspan="11">Loading campaigns...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modal"><div class="modal" id="modalContent"></div></div>
+  <div id="toastContainer"></div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+      authDomain: "mugera-e51cc.firebaseapp.com",
+      databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "mugera-e51cc",
+      storageBucket: "mugera-e51cc.firebasestorage.app",
+      messagingSenderId: "1024868637509",
+      appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    const auth = firebase.auth();
+
+    let allCampaigns = {};
+
+    function showToast(msg, isError) {
+      const container = document.getElementById('toastContainer');
+      const existing = container.querySelector('.toast');
+      if (existing) existing.remove();
+      const toast = document.createElement('div');
+      toast.className = 'toast' + (isError ? ' error' : '');
+      toast.innerHTML = '<i class="fas fa-' + (isError ? 'exclamation-circle' : 'check-circle') + '"></i> ' + msg;
+      container.appendChild(toast);
+      setTimeout(function() { toast.remove(); }, 3500);
+    }
+
+    function getStatusClass(status) {
+      const map = { active:'status-live', live:'status-live', paused:'status-paused', completed:'status-ended', ended:'status-ended' };
+      return map[status] || 'status-live';
+    }
+
+    function formatNumber(num) {
+      if (!num) return '0';
+      const n = Number(num);
+      if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+      if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
+      return n.toLocaleString();
+    }
+
+    function calcROI(campaign) {
+      const budget = campaign.totalBudget || 0;
+      const revenue = campaign.revenue || campaign.conversionValue || 0;
+      if (!budget || !revenue) return 0;
+      return Math.round(((revenue - budget) / budget) * 100);
+    }
+
+    function updateStats() {
+      const campaigns = Object.values(allCampaigns);
+      const totalImpressions = campaigns.reduce(function(s, c) { return s + (c.impressions || 0); }, 0);
+      const totalReach = campaigns.reduce(function(s, c) { return s + (c.reach || 0); }, 0);
+      const totalClicks = campaigns.reduce(function(s, c) { return s + (c.clicks || c.inquiries || 0); }, 0);
+      const avgROI = campaigns.length ? Math.round(campaigns.reduce(function(s, c) { return s + calcROI(c); }, 0) / campaigns.length) : 0;
+
+      document.getElementById('statTotalImpressions').textContent = formatNumber(totalImpressions);
+      document.getElementById('statTotalReach').textContent = formatNumber(totalReach);
+      document.getElementById('statTotalClicks').textContent = formatNumber(totalClicks);
+      document.getElementById('statAvgROI').textContent = avgROI + '%';
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById('tableBody');
+      const campaigns = Object.entries(allCampaigns).map(function(entry) { return Object.assign({ id: entry[0] }, entry[1]); });
+      
+      if (!campaigns.length) {
+        tbody.innerHTML = '<tr class="empty-row"><td colspan="11"><i class="fas fa-chart-line" style="font-size:2rem;display:block;margin-bottom:8px;"></i>No campaigns to monitor</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = campaigns.map(function(c) {
+        const status = c.status || 'draft';
+        const placements = c.placements || [];
+        const impressions = c.impressions || 0;
+        const reach = c.reach || 0;
+        const clicks = c.clicks || c.inquiries || 0;
+        const conversions = c.conversions || c.sales || 0;
+        const budget = c.totalBudget || 0;
+        const roi = calcROI(c);
+        const roiClass = roi > 50 ? 'color:#10b981;' : roi > 0 ? 'color:#f59e0b;' : 'color:#ef4444;';
+
+        return '<tr>' +
+          '<td><strong>' + (c.name || 'Campaign') + '</strong></td>' +
+          '<td>' + (c.clientName || 'N/A') + '</td>' +
+          '<td>' + placements.length + ' placements</td>' +
+          '<td>KES ' + budget.toLocaleString() + '</td>' +
+          '<td>' + formatNumber(impressions) + '</td>' +
+          '<td>' + formatNumber(reach) + '</td>' +
+          '<td>' + formatNumber(clicks) + '</td>' +
+          '<td>' + conversions + '</td>' +
+          '<td><strong style="' + roiClass + '">' + roi + '%</strong></td>' +
+          '<td><span class="status-badge ' + getStatusClass(status) + '">' + status + '</span></td>' +
+          '<td><div class="action-btns">' +
+            '<button class="action-btn btn-update" onclick="showUpdateModal(\'' + c.id + '\')"><i class="fas fa-edit"></i> Update Metrics</button>' +
+            '<button class="action-btn btn-view" onclick="viewDetails(\'' + c.id + '\')"><i class="fas fa-eye"></i></button>' +
+          '</div></td>' +
+        '</tr>';
+      }).join('');
+
+      updateStats();
+    }
+
+    function showUpdateModal(campaignId) {
+      const c = allCampaigns[campaignId];
+      if (!c) return;
+
+      document.getElementById('modalContent').innerHTML = 
+        '<h3><i class="fas fa-chart-line"></i> Update Metrics: ' + (c.name || 'Campaign') + '</h3>' +
+        '<div class="form-row">' +
+          '<div class="form-group"><label>Impressions</label><input type="number" id="mImpressions" value="' + (c.impressions || 0) + '" min="0"></div>' +
+          '<div class="form-group"><label>Reach</label><input type="number" id="mReach" value="' + (c.reach || 0) + '" min="0"></div>' +
+        '</div>' +
+        '<div class="form-row">' +
+          '<div class="form-group"><label>Clicks / Inquiries</label><input type="number" id="mClicks" value="' + (c.clicks || c.inquiries || 0) + '" min="0"></div>' +
+          '<div class="form-group"><label>Conversions / Sales</label><input type="number" id="mConversions" value="' + (c.conversions || c.sales || 0) + '" min="0"></div>' +
+        '</div>' +
+        '<div class="form-row">' +
+          '<div class="form-group"><label>Revenue Generated (KES)</label><input type="number" id="mRevenue" value="' + (c.revenue || c.conversionValue || 0) + '" min="0"></div>' +
+          '<div class="form-group"><label>Money Spent (KES)</label><input type="number" id="mSpent" value="' + (c.spent || 0) + '" min="0"></div>' +
+        '</div>' +
+        '<div class="form-group"><label>Performance Notes</label><textarea id="mNotes" rows="2">' + (c.performanceNotes || '') + '</textarea></div>' +
+        '<div class="btn-row">' +
+          '<button class="btn btn-primary" onclick="updateMetrics(\'' + campaignId + '\')"><i class="fas fa-save"></i> Save Metrics</button>' +
+          '<button class="btn btn-secondary" onclick="closeModal()">Cancel</button>' +
+        '</div>';
+      document.getElementById('modal').classList.add('show');
+    }
+
+    async function updateMetrics(campaignId) {
+      try {
+        await database.ref('heritage_campaigns/' + campaignId).update({
+          impressions: parseInt(document.getElementById('mImpressions').value) || 0,
+          reach: parseInt(document.getElementById('mReach').value) || 0,
+          clicks: parseInt(document.getElementById('mClicks').value) || 0,
+          conversions: parseInt(document.getElementById('mConversions').value) || 0,
+          revenue: parseInt(document.getElementById('mRevenue').value) || 0,
+          spent: parseInt(document.getElementById('mSpent').value) || 0,
+          performanceNotes: document.getElementById('mNotes').value.trim(),
+          lastUpdated: firebase.database.ServerValue.TIMESTAMP
+        });
+        showToast('Metrics updated!');
+        closeModal();
+      } catch (e) { showToast('Failed to update', true); }
+    }
+
+    function viewDetails(campaignId) {
+      const c = allCampaigns[campaignId];
+      if (!c) return;
+      const roi = calcROI(c);
+      const placements = c.placements || [];
+
+      document.getElementById('modalContent').innerHTML = 
+        '<h3><i class="fas fa-info-circle"></i> ' + (c.name || 'Campaign') + '</h3>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:0.75rem;margin-bottom:1rem;">' +
+          '<div><strong>Client:</strong> ' + (c.clientName || 'N/A') + '</div>' +
+          '<div><strong>Status:</strong> <span class="status-badge ' + getStatusClass(c.status) + '">' + (c.status || 'draft') + '</span></div>' +
+          '<div><strong>Budget:</strong> KES ' + (c.totalBudget || 0).toLocaleString() + '</div>' +
+          '<div><strong>Spent:</strong> KES ' + (c.spent || 0).toLocaleString() + '</div>' +
+          '<div><strong>Impressions:</strong> ' + formatNumber(c.impressions || 0) + '</div>' +
+          '<div><strong>Reach:</strong> ' + formatNumber(c.reach || 0) + '</div>' +
+          '<div><strong>Clicks:</strong> ' + formatNumber(c.clicks || c.inquiries || 0) + '</div>' +
+          '<div><strong>Conversions:</strong> ' + (c.conversions || c.sales || 0) + '</div>' +
+          '<div><strong>Revenue:</strong> KES ' + (c.revenue || c.conversionValue || 0).toLocaleString() + '</div>' +
+          '<div><strong>ROI:</strong> ' + roi + '%</div>' +
+          '<div><strong>Start:</strong> ' + (c.startDate || 'N/A') + '</div>' +
+          '<div><strong>End:</strong> ' + (c.endDate || 'N/A') + '</div>' +
+        '</div>' +
+        (placements.length ? '<p style="font-weight:700;font-size:0.7rem;margin-bottom:0.4rem;">Placements:</p>' + 
+          placements.map(function(p) { return '<div style="background:#fdf4ff;padding:0.4rem 0.6rem;border-radius:8px;margin-bottom:3px;font-size:0.7rem;display:flex;justify-content:space-between;"><span>' + (p.name || 'Ad Space') + '</span><span>KES ' + (p.cost || 0).toLocaleString() + '</span></div>'; }).join('') : '') +
+        (c.performanceNotes ? '<div style="margin-top:0.5rem;font-size:0.7rem;"><strong>Notes:</strong> ' + c.performanceNotes + '</div>' : '') +
+        '<div class="btn-row"><button class="btn btn-secondary" onclick="closeModal()">Close</button></div>';
+      document.getElementById('modal').classList.add('show');
+    }
+
+    function closeModal() { document.getElementById('modal').classList.remove('show'); }
+
+    document.getElementById('modal').addEventListener('click', function(e) { if (e.target === document.getElementById('modal')) closeModal(); });
+    document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeModal(); });
+
+    database.ref('heritage_campaigns').on('value', function(snapshot) {
+      allCampaigns = snapshot.val() || {};
+      renderTable();
+    });
+
+    auth.onAuthStateChanged(function(user) { if (!user) window.location.href = '/'; });
+
+    window.showUpdateModal = showUpdateModal;
+    window.updateMetrics = updateMetrics;
+    window.viewDetails = viewDetails;
+    window.closeModal = closeModal;
+  </script>
+</body>
+</html>
