@@ -26,7 +26,6 @@
       --red: #ef4444;
       --green: #10b981;
       --orange: #f59e0b;
-      --blue: #3b82f6;
     }
 
     body {
@@ -95,8 +94,6 @@
     }
     .filter-btn:hover { border-color: var(--heritage); color: var(--heritage-dark); }
     .filter-btn.active { background: var(--heritage); color: white; border-color: var(--heritage); }
-    .filter-btn .count { background: rgba(255,255,255,0.25); padding: 0.1rem 0.4rem; border-radius: 10px; font-size: 0.55rem; margin-left: 4px; }
-
     .search-box { flex: 1; min-width: 150px; max-width: 300px; position: relative; }
     .search-box input {
       width: 100%; padding: 0.35rem 0.8rem 0.35rem 2rem; border-radius: 20px;
@@ -104,42 +101,34 @@
     }
     .search-box i { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 0.7rem; }
 
-    .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 12px; }
-
-    .campaign-card {
-      background: white; border-radius: 16px; padding: 1.2rem;
-      border: 1px solid #f0abfc; box-shadow: 0 3px 12px rgba(162,28,175,0.03);
-      transition: all 0.2s;
+    .table-wrap {
+      background: white; border-radius: 16px; border: 1px solid #f0abfc;
+      overflow: hidden; box-shadow: 0 4px 16px rgba(162,28,175,0.03);
     }
-    .campaign-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(162,28,175,0.08); }
-    .campaign-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.8rem; }
-    .campaign-card-header h3 { font-size: 0.95rem; font-weight: 700; }
-    .campaign-badge {
-      padding: 0.15rem 0.5rem; border-radius: 12px; font-size: 0.6rem; font-weight: 700;
+    .table-scroll { overflow-x: auto; max-height: 60vh; overflow-y: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
+    thead { position: sticky; top: 0; z-index: 2; background: #fdf4ff; }
+    th {
+      padding: 0.6rem 0.7rem; text-align: left; font-weight: 700; color: #a21caf;
+      font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.4px; white-space: nowrap;
     }
-    .badge-active { background: #d1fae5; color: #065f46; }
-    .badge-pending { background: #fef3c7; color: #92400e; }
-    .badge-completed { background: #f1f5f9; color: #475569; }
-    .badge-paused { background: #fee2e2; color: #991b1b; }
-    .badge-draft { background: #fdf4ff; color: #a21caf; }
+    td { padding: 0.5rem 0.7rem; border-bottom: 1px solid #fdf4ff; vertical-align: middle; }
+    tr:hover td { background: #fdf4ff; }
 
-    .campaign-info { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 0.7rem; margin-bottom: 0.8rem; }
-    .campaign-info div { color: var(--text-muted); }
-    .campaign-info strong { color: var(--text-primary); display: block; font-size: 0.6rem; text-transform: uppercase; }
-
-    .campaign-placements { margin-bottom: 0.8rem; }
-    .campaign-placements h4 { font-size: 0.65rem; color: var(--heritage-dark); text-transform: uppercase; margin-bottom: 0.4rem; }
-    .placement-tag {
-      display: inline-block; padding: 0.15rem 0.5rem; border-radius: 10px;
-      font-size: 0.6rem; font-weight: 600; margin: 2px;
-      background: #fdf4ff; color: #a21caf;
+    .status-badge {
+      display: inline-block; padding: 0.15rem 0.5rem; border-radius: 12px;
+      font-size: 0.6rem; font-weight: 700; white-space: nowrap;
     }
+    .status-active { background: #d1fae5; color: #065f46; }
+    .status-draft { background: #fdf4ff; color: #a21caf; }
+    .status-completed { background: #f1f5f9; color: #475569; }
+    .status-paused { background: #fee2e2; color: #991b1b; }
 
-    .campaign-actions { display: flex; gap: 6px; flex-wrap: wrap; }
-    .btn-sm {
-      padding: 0.3rem 0.7rem; border-radius: 8px; border: none; font-weight: 600;
-      font-size: 0.65rem; cursor: pointer; display: inline-flex; align-items: center;
-      gap: 4px; transition: all 0.15s; font-family: inherit;
+    .action-btns { display: flex; gap: 4px; flex-wrap: wrap; }
+    .action-btn {
+      padding: 0.25rem 0.5rem; border-radius: 6px; border: none; font-size: 0.6rem;
+      font-weight: 600; cursor: pointer; display: inline-flex; align-items: center;
+      gap: 3px; transition: all 0.15s; font-family: inherit;
     }
     .btn-edit { background: #fdf4ff; color: #a21caf; }
     .btn-edit:hover { background: #d946ef; color: white; }
@@ -149,10 +138,8 @@
     .btn-pause:hover { background: #f59e0b; color: white; }
     .btn-complete { background: #dbeafe; color: #1e40af; }
     .btn-complete:hover { background: #3b82f6; color: white; }
-    .btn-delete { background: #fee2e2; color: #991b1b; }
-    .btn-delete:hover { background: #ef4444; color: white; }
 
-    .empty-state { text-align: center; padding: 3rem; color: #94a3b8; grid-column: 1 / -1; }
+    .empty-row td { text-align: center; padding: 2rem; color: #94a3b8; }
 
     .modal-overlay {
       display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -161,7 +148,7 @@
     }
     .modal-overlay.show { display: flex; }
     .modal {
-      background: white; border-radius: 20px; padding: 1.5rem; max-width: 600px;
+      background: white; border-radius: 20px; padding: 1.5rem; max-width: 500px;
       width: 95%; max-height: 85vh; overflow-y: auto; box-shadow: 0 25px 50px rgba(0,0,0,0.2);
     }
     .modal h3 { font-size: 0.95rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px; color: var(--heritage-dark); }
@@ -176,20 +163,6 @@
       background: #f8fafc;
     }
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
-    .placements-row {
-      display: flex; gap: 6px; align-items: flex-end; margin-bottom: 0.4rem;
-      background: #fdf4ff; padding: 0.5rem; border-radius: 10px;
-    }
-    .placements-row .form-group { margin-bottom: 0; flex: 1; }
-    .placements-row .btn-remove {
-      background: #fee2e2; color: #991b1b; border: none; padding: 0.4rem 0.6rem;
-      border-radius: 8px; cursor: pointer; font-size: 0.7rem; flex-shrink: 0;
-    }
-    .btn-add-placement {
-      background: #fdf4ff; color: #a21caf; border: 2px dashed #f0abfc;
-      padding: 0.4rem; border-radius: 10px; cursor: pointer; font-size: 0.7rem;
-      font-weight: 600; width: 100%; font-family: inherit; margin-top: 0.3rem;
-    }
     .btn-row { display: flex; gap: 8px; margin-top: 1rem; }
     .btn {
       padding: 0.6rem 1.2rem; border-radius: 10px; border: none; font-weight: 700;
@@ -209,21 +182,18 @@
     .toast.error { background: var(--red); }
     @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
-    @media (max-width: 768px) {
-      .stats-row { grid-template-columns: repeat(2, 1fr); }
-      .cards-grid { grid-template-columns: 1fr; }
-    }
+    @media (max-width: 768px) { .stats-row { grid-template-columns: repeat(2, 1fr); } }
   </style>
 </head>
 <body>
 
   <nav class="navbar">
-    <a href="heritage-dashboard.html" class="logo">
+    <a href="index.html" class="logo">
       <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png" alt="The Heritage" class="logo-img">
       <span class="logo-text">The Heritage <span>Ads</span></span>
     </a>
     <div class="nav-right">
-      <a href="heritage-dashboard.html" class="nav-btn"><i class="fas fa-arrow-left"></i> Dashboard</a>
+      <a href="index.html" class="nav-btn"><i class="fas fa-arrow-left"></i> Dashboard</a>
       <a href="heritage-listings.html" class="nav-btn"><i class="fas fa-th-large"></i> Listings</a>
       <a href="heritage-partners.html" class="nav-btn"><i class="fas fa-handshake"></i> Partners</a>
       <a href="heritage-monitoring.html" class="nav-btn"><i class="fas fa-chart-line"></i> Monitoring</a>
@@ -241,25 +211,42 @@
     <div class="stats-row">
       <div class="stat-mini"><div class="stat-num" id="statTotal">0</div><div class="stat-label">Total Campaigns</div></div>
       <div class="stat-mini"><div class="stat-num" id="statActive">0</div><div class="stat-label">Active</div></div>
-      <div class="stat-mini"><div class="stat-num" id="statPending">0</div><div class="stat-label">Pending</div></div>
+      <div class="stat-mini"><div class="stat-num" id="statDraft">0</div><div class="stat-label">Draft</div></div>
       <div class="stat-mini"><div class="stat-num" id="statBudget">0</div><div class="stat-label">Total Budget (KES)</div></div>
     </div>
 
     <div class="filter-bar">
       <button class="filter-btn active" data-filter="all">All</button>
-      <button class="filter-btn" data-filter="active">Active<span class="count" id="countActive">0</span></button>
-      <button class="filter-btn" data-filter="pending">Pending<span class="count" id="countPending">0</span></button>
-      <button class="filter-btn" data-filter="paused">Paused<span class="count" id="countPaused">0</span></button>
-      <button class="filter-btn" data-filter="completed">Completed<span class="count" id="countCompleted">0</span></button>
-      <button class="filter-btn" data-filter="draft">Draft<span class="count" id="countDraft">0</span></button>
+      <button class="filter-btn" data-filter="active">Active</button>
+      <button class="filter-btn" data-filter="draft">Draft</button>
+      <button class="filter-btn" data-filter="paused">Paused</button>
+      <button class="filter-btn" data-filter="completed">Completed</button>
       <div class="search-box">
         <i class="fas fa-search"></i>
-        <input type="text" id="searchInput" placeholder="Search campaigns, clients...">
+        <input type="text" id="searchInput" placeholder="Search campaigns...">
       </div>
     </div>
 
-    <div class="cards-grid" id="campaignsGrid">
-      <div class="empty-state">Loading campaigns...</div>
+    <div class="table-wrap">
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Campaign Name</th>
+              <th>Partner</th>
+              <th>Type</th>
+              <th>Budget</th>
+              <th>Start</th>
+              <th>End</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <tr class="empty-row"><td colspan="8">Loading campaigns...</td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 
@@ -286,9 +273,9 @@
     const auth = firebase.auth();
 
     let allCampaigns = {};
+    let allPartners = {};
     let currentFilter = 'all';
     let searchQuery = '';
-    let placementRowCount = 1;
 
     function showToast(msg, isError) {
       const container = document.getElementById('toastContainer');
@@ -301,13 +288,21 @@
       setTimeout(function() { toast.remove(); }, 3500);
     }
 
-    function getBadgeClass(status) {
-      const map = { active:'badge-active', pending:'badge-pending', completed:'badge-completed', paused:'badge-paused', draft:'badge-draft' };
-      return map[status] || 'badge-draft';
+    function getStatusClass(status) {
+      const map = { active:'status-active', draft:'status-draft', completed:'status-completed', paused:'status-paused' };
+      return map[status] || 'status-draft';
     }
 
-    function renderCampaigns() {
-      const grid = document.getElementById('campaignsGrid');
+    function getPartnerOptions(selected) {
+      const partners = Object.values(allPartners).filter(function(p) { return p && p.status === 'active'; });
+      return partners.map(function(p) {
+        const name = p.businessName || p.name || '';
+        return '<option value="' + name + '" ' + (selected === name ? 'selected' : '') + '>' + name + '</option>';
+      }).join('');
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById('tableBody');
       let campaigns = Object.entries(allCampaigns).map(function(entry) { return Object.assign({ id: entry[0] }, entry[1]); });
 
       if (currentFilter !== 'all') {
@@ -321,41 +316,31 @@
         });
       }
 
+      campaigns.sort(function(a, b) { return (b.createdAt || 0) - (a.createdAt || 0); });
+
       if (!campaigns.length) {
-        grid.innerHTML = '<div class="empty-state"><i class="fas fa-bullhorn" style="font-size:2rem;display:block;margin-bottom:8px;"></i>No campaigns found</div>';
+        tbody.innerHTML = '<tr class="empty-row"><td colspan="8"><i class="fas fa-bullhorn" style="font-size:2rem;display:block;margin-bottom:8px;"></i>No campaigns found</td></tr>';
         return;
       }
 
-      grid.innerHTML = campaigns.map(function(c) {
+      tbody.innerHTML = campaigns.map(function(c) {
         const status = c.status || 'draft';
-        const placements = c.placements || [];
-        
-        return '<div class="campaign-card">' +
-          '<div class="campaign-card-header">' +
-            '<h3>' + (c.name || 'Campaign') + '</h3>' +
-            '<span class="campaign-badge ' + getBadgeClass(status) + '">' + status.toUpperCase() + '</span>' +
-          '</div>' +
-          '<div class="campaign-info">' +
-            '<div><strong>Client</strong>' + (c.clientName || 'N/A') + '</div>' +
-            '<div><strong>Budget</strong>KES ' + (c.totalBudget || 0).toLocaleString() + '</div>' +
-            '<div><strong>Start</strong>' + (c.startDate || 'N/A') + '</div>' +
-            '<div><strong>End</strong>' + (c.endDate || 'N/A') + '</div>' +
-            '<div><strong>Type</strong>' + (c.campaignType || 'N/A') + '</div>' +
-            '<div><strong>Created</strong>' + (c.createdAt ? new Date(c.createdAt).toLocaleDateString() : 'N/A') + '</div>' +
-          '</div>' +
-          (placements.length ? '<div class="campaign-placements"><h4>Ad Placements (' + placements.length + ')</h4>' +
-            placements.map(function(p) { return '<span class="placement-tag">' + (p.type || p.name || 'Ad Space') + ' — KES ' + (p.cost || 0).toLocaleString() + '</span>'; }).join('') +
-          '</div>' : '') +
-          (c.notes ? '<div style="font-size:0.7rem;color:var(--text-muted);margin-bottom:0.5rem;"><strong>Notes:</strong> ' + c.notes + '</div>' : '') +
-          '<div class="campaign-actions">' +
-            '<button class="btn-sm btn-edit" onclick="editCampaign(\'' + c.id + '\')"><i class="fas fa-edit"></i> Edit</button>' +
-            (status === 'draft' || status === 'pending' ? '<button class="btn-sm btn-activate" onclick="updateStatus(\'' + c.id + '\',\'active\')"><i class="fas fa-play"></i> Activate</button>' : '') +
-            (status === 'active' ? '<button class="btn-sm btn-pause" onclick="updateStatus(\'' + c.id + '\',\'paused\')"><i class="fas fa-pause"></i> Pause</button>' : '') +
-            (status === 'paused' ? '<button class="btn-sm btn-activate" onclick="updateStatus(\'' + c.id + '\',\'active\')"><i class="fas fa-play"></i> Resume</button>' : '') +
-            (status === 'active' || status === 'paused' ? '<button class="btn-sm btn-complete" onclick="updateStatus(\'' + c.id + '\',\'completed\')"><i class="fas fa-check"></i> Complete</button>' : '') +
-            '<button class="btn-sm btn-delete" onclick="deleteCampaign(\'' + c.id + '\')"><i class="fas fa-trash"></i> Delete</button>' +
-          '</div>' +
-        '</div>';
+        return '<tr>' +
+          '<td><strong>' + (c.name || 'Campaign') + '</strong></td>' +
+          '<td>' + (c.clientName || 'N/A') + '</td>' +
+          '<td>' + (c.campaignType || 'N/A') + '</td>' +
+          '<td><strong>KES ' + (c.totalBudget || 0).toLocaleString() + '</strong></td>' +
+          '<td>' + (c.startDate || '—') + '</td>' +
+          '<td>' + (c.endDate || '—') + '</td>' +
+          '<td><span class="status-badge ' + getStatusClass(status) + '">' + status + '</span></td>' +
+          '<td><div class="action-btns">' +
+            '<button class="action-btn btn-edit" onclick="editCampaign(\'' + c.id + '\')"><i class="fas fa-edit"></i></button>' +
+            (status === 'draft' ? '<button class="action-btn btn-activate" onclick="updateStatus(\'' + c.id + '\',\'active\')"><i class="fas fa-play"></i> Activate</button>' : '') +
+            (status === 'active' ? '<button class="action-btn btn-pause" onclick="updateStatus(\'' + c.id + '\',\'paused\')"><i class="fas fa-pause"></i> Pause</button>' : '') +
+            (status === 'paused' ? '<button class="action-btn btn-activate" onclick="updateStatus(\'' + c.id + '\',\'active\')"><i class="fas fa-play"></i> Resume</button>' : '') +
+            (status === 'active' || status === 'paused' ? '<button class="action-btn btn-complete" onclick="updateStatus(\'' + c.id + '\',\'completed\')"><i class="fas fa-check"></i> Complete</button>' : '') +
+          '</div></td>' +
+        '</tr>';
       }).join('');
 
       updateStats();
@@ -364,35 +349,29 @@
     function updateStats() {
       const campaigns = Object.values(allCampaigns);
       const active = campaigns.filter(function(c) { return c.status === 'active'; }).length;
-      const pending = campaigns.filter(function(c) { return c.status === 'pending'; }).length;
+      const draft = campaigns.filter(function(c) { return c.status === 'draft'; }).length;
       const budget = campaigns.reduce(function(s, c) { return s + (c.totalBudget || 0); }, 0);
 
       document.getElementById('statTotal').textContent = campaigns.length;
       document.getElementById('statActive').textContent = active;
-      document.getElementById('statPending').textContent = pending;
+      document.getElementById('statDraft').textContent = draft;
       document.getElementById('statBudget').textContent = budget.toLocaleString();
-      document.getElementById('countActive').textContent = active;
-      document.getElementById('countPending').textContent = pending;
-      document.getElementById('countPaused').textContent = campaigns.filter(function(c) { return c.status === 'paused'; }).length;
-      document.getElementById('countCompleted').textContent = campaigns.filter(function(c) { return c.status === 'completed'; }).length;
-      document.getElementById('countDraft').textContent = campaigns.filter(function(c) { return c.status === 'draft'; }).length;
     }
 
     function showAddModal() {
-      placementRowCount = 1;
       document.getElementById('modalContent').innerHTML = 
         '<h3><i class="fas fa-plus-circle"></i> New Campaign</h3>' +
         '<div class="form-row">' +
-          '<div class="form-group"><label>Campaign Name *</label><input type="text" id="cName" placeholder="e.g., Sunrise Cafe Launch"></div>' +
-          '<div class="form-group"><label>Client Name *</label><input type="text" id="cClient" placeholder="Business name"></div>' +
+          '<div class="form-group"><label>Campaign Name *</label><input type="text" id="cName" placeholder="e.g., Holiday Sale"></div>' +
+          '<div class="form-group"><label>Partner *</label><select id="cPartner"><option value="">— Select partner —</option>' + getPartnerOptions('') + '</select></div>' +
         '</div>' +
         '<div class="form-row">' +
           '<div class="form-group"><label>Campaign Type</label><select id="cType">' +
-            '<option value="brand-awareness">Brand Awareness</option>' +
-            '<option value="product-launch">Product Launch</option>' +
-            '<option value="sales-promotion">Sales Promotion</option>' +
-            '<option value="event">Event Promotion</option>' +
-            '<option value="seasonal">Seasonal Campaign</option>' +
+            '<option value="Brand Awareness">Brand Awareness</option>' +
+            '<option value="Product Launch">Product Launch</option>' +
+            '<option value="Sales Promotion">Sales Promotion</option>' +
+            '<option value="Event">Event Promotion</option>' +
+            '<option value="Seasonal">Seasonal</option>' +
           '</select></div>' +
           '<div class="form-group"><label>Total Budget (KES)</label><input type="number" id="cBudget" value="0" min="0"></div>' +
         '</div>' +
@@ -400,16 +379,7 @@
           '<div class="form-group"><label>Start Date</label><input type="date" id="cStartDate"></div>' +
           '<div class="form-group"><label>End Date</label><input type="date" id="cEndDate"></div>' +
         '</div>' +
-        '<p style="font-weight:700;font-size:0.7rem;color:var(--heritage-dark);margin:0.8rem 0 0.4rem;">Ad Placements</p>' +
-        '<div id="placementRows">' +
-          '<div class="placements-row" data-index="0">' +
-            '<div class="form-group" style="flex:2;"><label>Ad Space/Placement</label><input type="text" class="pName" placeholder="e.g., Moi Ave Billboard"></div>' +
-            '<div class="form-group" style="flex:1;"><label>Cost (KES)</label><input type="number" class="pCost" value="0" min="0" onchange="updateBudgetTotal()" oninput="updateBudgetTotal()"></div>' +
-            '<button class="btn-remove" onclick="removePlacementRow(this)">✕</button>' +
-          '</div>' +
-        '</div>' +
-        '<button class="btn-add-placement" onclick="addPlacementRow()"><i class="fas fa-plus"></i> Add Placement</button>' +
-        '<div class="form-group" style="margin-top:0.5rem;"><label>Notes</label><textarea id="cNotes" rows="2"></textarea></div>' +
+        '<div class="form-group"><label>Notes</label><textarea id="cNotes" rows="2"></textarea></div>' +
         '<div class="btn-row">' +
           '<button class="btn btn-primary" onclick="saveCampaign()"><i class="fas fa-save"></i> Save Campaign</button>' +
           '<button class="btn btn-secondary" onclick="closeModal()">Cancel</button>' +
@@ -417,54 +387,20 @@
       document.getElementById('modal').classList.add('show');
     }
 
-    function addPlacementRow() {
-      placementRowCount++;
-      const row = document.createElement('div');
-      row.className = 'placements-row';
-      row.dataset.index = placementRowCount;
-      row.innerHTML = 
-        '<div class="form-group" style="flex:2;"><label>Ad Space/Placement</label><input type="text" class="pName" placeholder="e.g., Instagram Ads"></div>' +
-        '<div class="form-group" style="flex:1;"><label>Cost (KES)</label><input type="number" class="pCost" value="0" min="0" onchange="updateBudgetTotal()" oninput="updateBudgetTotal()"></div>' +
-        '<button class="btn-remove" onclick="removePlacementRow(this)">✕</button>';
-      document.getElementById('placementRows').appendChild(row);
-    }
-
-    function removePlacementRow(btn) {
-      const rows = document.querySelectorAll('.placements-row');
-      if (rows.length <= 1) { showToast('Need at least one placement', true); return; }
-      btn.closest('.placements-row').remove();
-      updateBudgetTotal();
-    }
-
-    function updateBudgetTotal() {
-      let total = 0;
-      document.querySelectorAll('.pCost').forEach(function(input) {
-        total += parseInt(input.value) || 0;
-      });
-      document.getElementById('cBudget').value = total;
-    }
-
     async function saveCampaign() {
       const name = document.getElementById('cName').value.trim();
-      const client = document.getElementById('cClient').value.trim();
-      if (!name || !client) { showToast('Fill required fields', true); return; }
-
-      const placements = [];
-      document.querySelectorAll('.placements-row').forEach(function(row) {
-        const pName = row.querySelector('.pName').value.trim();
-        const pCost = parseInt(row.querySelector('.pCost').value) || 0;
-        if (pName) placements.push({ name: pName, cost: pCost });
-      });
+      const partner = document.getElementById('cPartner').value;
+      if (!name) { showToast('Enter campaign name', true); return; }
+      if (!partner) { showToast('Select a partner', true); return; }
 
       try {
         await database.ref('heritage_campaigns').push().set({
           name: name,
-          clientName: client,
+          clientName: partner,
           campaignType: document.getElementById('cType').value,
           totalBudget: parseInt(document.getElementById('cBudget').value) || 0,
           startDate: document.getElementById('cStartDate').value,
           endDate: document.getElementById('cEndDate').value,
-          placements: placements,
           notes: document.getElementById('cNotes').value.trim(),
           status: 'draft',
           createdAt: firebase.database.ServerValue.TIMESTAMP
@@ -477,42 +413,27 @@
     function editCampaign(campaignId) {
       const c = allCampaigns[campaignId];
       if (!c) return;
-      const placements = c.placements || [];
-      
-      let placementHTML = '';
-      placements.forEach(function(p, i) {
-        placementHTML += '<div class="placements-row" data-index="' + i + '">' +
-          '<div class="form-group" style="flex:2;"><label>Ad Space/Placement</label><input type="text" class="pName" value="' + (p.name || '') + '"></div>' +
-          '<div class="form-group" style="flex:1;"><label>Cost (KES)</label><input type="number" class="pCost" value="' + (p.cost || 0) + '" onchange="updateEditBudget()" oninput="updateEditBudget()"></div>' +
-          (i > 0 ? '<button class="btn-remove" onclick="removePlacementRow(this)">✕</button>' : '') +
-        '</div>';
-      });
 
       document.getElementById('modalContent').innerHTML = 
         '<h3><i class="fas fa-edit"></i> Edit Campaign</h3>' +
         '<div class="form-row">' +
           '<div class="form-group"><label>Campaign Name</label><input type="text" id="ecName" value="' + (c.name || '') + '"></div>' +
-          '<div class="form-group"><label>Client Name</label><input type="text" id="ecClient" value="' + (c.clientName || '') + '"></div>' +
+          '<div class="form-group"><label>Partner</label><select id="ecPartner">' + getPartnerOptions(c.clientName || '') + '</select></div>' +
         '</div>' +
         '<div class="form-row">' +
           '<div class="form-group"><label>Campaign Type</label><select id="ecType">' +
-            ['brand-awareness','product-launch','sales-promotion','event','seasonal'].map(function(t) { return '<option value="' + t + '" ' + (c.campaignType === t ? 'selected' : '') + '>' + t.replace(/-/g, ' ').replace(/\b\w/g, function(l){ return l.toUpperCase(); }) + '</option>'; }).join('') +
+            ['Brand Awareness','Product Launch','Sales Promotion','Event','Seasonal'].map(function(t) { return '<option value="' + t + '" ' + (c.campaignType === t ? 'selected' : '') + '>' + t + '</option>'; }).join('') +
           '</select></div>' +
-          '<div class="form-group"><label>Total Budget (KES)</label><input type="number" id="ecBudget" value="' + (c.totalBudget || 0) + '" readonly></div>' +
+          '<div class="form-group"><label>Total Budget (KES)</label><input type="number" id="ecBudget" value="' + (c.totalBudget || 0) + '"></div>' +
         '</div>' +
         '<div class="form-row">' +
           '<div class="form-group"><label>Start Date</label><input type="date" id="ecStartDate" value="' + (c.startDate || '') + '"></div>' +
           '<div class="form-group"><label>End Date</label><input type="date" id="ecEndDate" value="' + (c.endDate || '') + '"></div>' +
         '</div>' +
-        '<div class="form-row">' +
-          '<div class="form-group"><label>Status</label><select id="ecStatus">' +
-            ['draft','pending','active','paused','completed'].map(function(s) { return '<option value="' + s + '" ' + (c.status === s ? 'selected' : '') + '>' + s + '</option>'; }).join('') +
-          '</select></div>' +
-        '</div>' +
-        '<p style="font-weight:700;font-size:0.7rem;color:var(--heritage-dark);margin:0.8rem 0 0.4rem;">Ad Placements</p>' +
-        '<div id="placementRows">' + placementHTML + '</div>' +
-        '<button class="btn-add-placement" onclick="addPlacementRow()"><i class="fas fa-plus"></i> Add Placement</button>' +
-        '<div class="form-group" style="margin-top:0.5rem;"><label>Notes</label><textarea id="ecNotes" rows="2">' + (c.notes || '') + '</textarea></div>' +
+        '<div class="form-group"><label>Status</label><select id="ecStatus">' +
+          ['draft','active','paused','completed'].map(function(s) { return '<option value="' + s + '" ' + (c.status === s ? 'selected' : '') + '>' + s + '</option>'; }).join('') +
+        '</select></div>' +
+        '<div class="form-group"><label>Notes</label><textarea id="ecNotes" rows="2">' + (c.notes || '') + '</textarea></div>' +
         '<div class="btn-row">' +
           '<button class="btn btn-primary" onclick="updateCampaign(\'' + campaignId + '\')"><i class="fas fa-save"></i> Update</button>' +
           '<button class="btn btn-secondary" onclick="closeModal()">Cancel</button>' +
@@ -520,33 +441,16 @@
       document.getElementById('modal').classList.add('show');
     }
 
-    function updateEditBudget() {
-      let total = 0;
-      document.querySelectorAll('#placementRows .pCost').forEach(function(input) {
-        total += parseInt(input.value) || 0;
-      });
-      const budgetEl = document.getElementById('ecBudget');
-      if (budgetEl) budgetEl.value = total;
-    }
-
     async function updateCampaign(campaignId) {
-      const placements = [];
-      document.querySelectorAll('#placementRows .placements-row').forEach(function(row) {
-        const pName = row.querySelector('.pName').value.trim();
-        const pCost = parseInt(row.querySelector('.pCost').value) || 0;
-        if (pName) placements.push({ name: pName, cost: pCost });
-      });
-
       try {
         await database.ref('heritage_campaigns/' + campaignId).update({
           name: document.getElementById('ecName').value.trim(),
-          clientName: document.getElementById('ecClient').value.trim(),
+          clientName: document.getElementById('ecPartner').value,
           campaignType: document.getElementById('ecType').value,
           totalBudget: parseInt(document.getElementById('ecBudget').value) || 0,
           startDate: document.getElementById('ecStartDate').value,
           endDate: document.getElementById('ecEndDate').value,
           status: document.getElementById('ecStatus').value,
-          placements: placements,
           notes: document.getElementById('ecNotes').value.trim(),
           updatedAt: firebase.database.ServerValue.TIMESTAMP
         });
@@ -558,60 +462,42 @@
     async function updateStatus(campaignId, newStatus) {
       if (!confirm('Update campaign to "' + newStatus + '"?')) return;
       try {
-        await database.ref('heritage_campaigns/' + campaignId).update({
-          status: newStatus,
-          updatedAt: firebase.database.ServerValue.TIMESTAMP
-        });
+        await database.ref('heritage_campaigns/' + campaignId).update({ status: newStatus, updatedAt: firebase.database.ServerValue.TIMESTAMP });
         showToast('Campaign ' + newStatus + '!');
       } catch (e) { showToast('Failed to update', true); }
     }
 
-    async function deleteCampaign(campaignId) {
-      if (!confirm('Delete this campaign?')) return;
-      try {
-        await database.ref('heritage_campaigns/' + campaignId).remove();
-        showToast('Deleted');
-      } catch (e) { showToast('Failed to delete', true); }
-    }
-
     function closeModal() { document.getElementById('modal').classList.remove('show'); }
 
-    // Filters
     document.querySelectorAll('.filter-btn').forEach(function(btn) {
       btn.addEventListener('click', function() {
         document.querySelectorAll('.filter-btn').forEach(function(b) { b.classList.remove('active'); });
         btn.classList.add('active');
         currentFilter = btn.dataset.filter;
-        renderCampaigns();
+        renderTable();
       });
     });
 
-    document.getElementById('searchInput').addEventListener('input', function(e) {
-      searchQuery = e.target.value;
-      renderCampaigns();
-    });
-
+    document.getElementById('searchInput').addEventListener('input', function(e) { searchQuery = e.target.value; renderTable(); });
     document.getElementById('modal').addEventListener('click', function(e) { if (e.target === document.getElementById('modal')) closeModal(); });
     document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeModal(); });
 
-    // Firebase listener
     database.ref('heritage_campaigns').on('value', function(snapshot) {
       allCampaigns = snapshot.val() || {};
-      renderCampaigns();
+      renderTable();
+    });
+
+    database.ref('heritage_partners').on('value', function(snapshot) {
+      allPartners = snapshot.val() || {};
     });
 
     auth.onAuthStateChanged(function(user) { if (!user) window.location.href = '/'; });
 
     window.showAddModal = showAddModal;
     window.editCampaign = editCampaign;
-    window.deleteCampaign = deleteCampaign;
     window.saveCampaign = saveCampaign;
     window.updateCampaign = updateCampaign;
     window.updateStatus = updateStatus;
-    window.addPlacementRow = addPlacementRow;
-    window.removePlacementRow = removePlacementRow;
-    window.updateBudgetTotal = updateBudgetTotal;
-    window.updateEditBudget = updateEditBudget;
     window.closeModal = closeModal;
   </script>
 </body>
