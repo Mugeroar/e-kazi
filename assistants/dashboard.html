@@ -8,12 +8,9 @@
     <meta name="theme-color" content="#0f172a">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="E-KAZI">
-    <meta name="mobile-web-app-capable" content="yes">
     
     <link rel="icon" type="image/png" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
     <link rel="apple-touch-icon" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
-    <link rel="manifest" href="/e-kazi/assistants/manifest.json">
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
@@ -39,6 +36,7 @@
             --warning: #f59e0b;
             --info: #3b82f6;
             --orange: #f97316;
+            --pink: #ec4899;
             --safe-bottom: env(safe-area-inset-bottom, 20px);
             --safe-top: env(safe-area-inset-top, 0px);
         }
@@ -75,7 +73,6 @@
             flex-direction: column;
         }
 
-        /* Header */
         .header {
             position: sticky;
             top: 0;
@@ -206,7 +203,6 @@
         .dropdown-item:hover { background: rgba(245,158,11,0.1); color: var(--gold); }
         .dropdown-item.danger:hover { background: rgba(239,68,68,0.1); color: var(--red); }
 
-        /* Tab Navigation */
         .tab-nav {
             display: flex;
             gap: 0;
@@ -261,26 +257,10 @@
             color: var(--text-muted);
         }
 
-        /* Main Content Area */
-        .main-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
+        .main-content { flex: 1; display: flex; flex-direction: column; }
+        .tab-content { display: none; flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+        .tab-content.active { display: flex; flex-direction: column; }
 
-        .tab-content {
-            display: none;
-            flex: 1;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .tab-content.active {
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* State Cards */
         .state-card {
             background: var(--bg-card);
             border: 1px solid var(--border);
@@ -290,171 +270,62 @@
             margin: 1rem;
         }
 
-        .state-card i {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .state-card h2 {
-            font-size: 1.2rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-
-        .state-card p {
-            font-size: 0.78rem;
-            color: var(--text-muted);
-            line-height: 1.5;
-        }
-
+        .state-card i { font-size: 2.5rem; margin-bottom: 1rem; }
+        .state-card h2 { font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .state-card p { font-size: 0.78rem; color: var(--text-muted); line-height: 1.5; }
         .state-pending i { color: var(--warning); }
         .state-pending h2 { color: var(--warning); }
         .state-rejected i { color: var(--red); }
         .state-rejected h2 { color: var(--red); }
 
-        /* Stats Row */
-        .stats-row {
-            display: flex;
-            gap: 0.5rem;
-            padding: 0.8rem 1rem;
-        }
+        .stats-row { display: flex; gap: 0.5rem; padding: 0.8rem 1rem; }
+        .stat-card { flex: 1; background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 0.7rem; text-align: center; }
+        .stat-value { font-size: 1.2rem; font-weight: 800; color: var(--gold); line-height: 1; }
+        .stat-label { font-size: 0.52rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 0.15rem; }
 
-        .stat-card {
-            flex: 1;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 0.7rem;
-            text-align: center;
-        }
-
-        .stat-value {
-            font-size: 1.2rem;
-            font-weight: 800;
-            color: var(--gold);
-            line-height: 1;
-        }
-
-        .stat-label {
-            font-size: 0.52rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-top: 0.15rem;
-        }
-
-        .filters-row {
-            display: flex;
-            gap: 6px;
-            padding: 0 1rem 0.8rem;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-
+        .filters-row { display: flex; gap: 6px; padding: 0 1rem 0.8rem; flex-wrap: wrap; align-items: center; }
         .filter-chip {
-            padding: 0.3rem 0.8rem;
-            border-radius: 15px;
-            border: 1px solid var(--border);
-            background: transparent;
-            color: var(--text-muted);
-            font-weight: 600;
-            font-size: 0.62rem;
-            cursor: pointer;
-            transition: 0.2s;
-            white-space: nowrap;
-            font-family: 'Inter', sans-serif;
+            padding: 0.3rem 0.8rem; border-radius: 15px; border: 1px solid var(--border);
+            background: transparent; color: var(--text-muted); font-weight: 600;
+            font-size: 0.62rem; cursor: pointer; transition: 0.2s; white-space: nowrap; font-family: 'Inter', sans-serif;
         }
-
-        .filter-chip.active {
-            background: var(--gold);
-            color: #0f172a;
-            border-color: var(--gold);
-        }
-
+        .filter-chip.active { background: var(--gold); color: #0f172a; border-color: var(--gold); }
         .search-input {
-            flex: 1;
-            min-width: 120px;
-            padding: 0.35rem 0.7rem;
-            border-radius: 15px;
-            border: 1px solid var(--border);
-            background: var(--bg-card);
-            color: var(--text-primary);
-            font-size: 0.65rem;
-            font-family: 'Inter', sans-serif;
+            flex: 1; min-width: 120px; padding: 0.35rem 0.7rem; border-radius: 15px;
+            border: 1px solid var(--border); background: var(--bg-card); color: var(--text-primary);
+            font-size: 0.65rem; font-family: 'Inter', sans-serif;
         }
-
         .search-input:focus { outline: none; border-color: var(--gold); }
-
         .refresh-chip {
-            padding: 0.3rem 0.6rem;
-            border-radius: 15px;
-            border: 1px solid var(--gold);
-            background: transparent;
-            color: var(--gold);
-            cursor: pointer;
-            font-size: 0.62rem;
-            font-family: 'Inter', sans-serif;
+            padding: 0.3rem 0.6rem; border-radius: 15px; border: 1px solid var(--gold);
+            background: transparent; color: var(--gold); cursor: pointer; font-size: 0.62rem; font-family: 'Inter', sans-serif;
         }
 
-        /* Delivery List */
-        .delivery-list {
-            flex: 1;
-            overflow-y: auto;
-            padding: 0 1rem 1rem;
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
+        .delivery-list { flex: 1; overflow-y: auto; padding: 0 1rem 1rem; display: flex; flex-direction: column; gap: 0.5rem; }
 
         .delivery-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 0.9rem 1rem;
+            background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 0.9rem 1rem;
         }
-
-        .delivery-card.new-task {
-            border-color: var(--gold);
-            animation: highlightPulse 2s ease-in-out;
-        }
-
+        .delivery-card.new-task { border-color: var(--gold); animation: highlightPulse 2s ease-in-out; }
         @keyframes highlightPulse {
             0% { border-color: var(--gold); box-shadow: 0 0 0 0 rgba(245,158,11,0.3); }
             50% { border-color: var(--gold); box-shadow: 0 0 0 4px rgba(245,158,11,0); }
             100% { border-color: var(--border); box-shadow: 0 0 0 0 rgba(245,158,11,0); }
         }
 
-        .delivery-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 0.5rem;
-        }
-
-        .delivery-id {
-            font-size: 0.6rem;
-            color: var(--text-muted);
-            font-weight: 600;
-        }
-
-        .delivery-new-badge {
-            font-size: 0.5rem;
-            padding: 1px 6px;
-            border-radius: 8px;
-            background: var(--gold);
-            color: #0f172a;
-            font-weight: 700;
-            margin-left: 6px;
-        }
+        .delivery-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem; }
+        .delivery-id { font-size: 0.6rem; color: var(--text-muted); font-weight: 600; }
+        .delivery-new-badge { font-size: 0.5rem; padding: 1px 6px; border-radius: 8px; background: var(--gold); color: #0f172a; font-weight: 700; margin-left: 6px; }
+        .delivery-source { font-size: 0.5rem; padding: 1px 6px; border-radius: 8px; font-weight: 700; margin-left: 6px; }
+        .source-dsog { background: rgba(236,72,153,0.2); color: var(--pink); }
+        .source-fusion { background: rgba(16,185,129,0.2); color: #10b981; }
+        .source-brandinn { background: rgba(139,92,246,0.2); color: var(--purple-light); }
+        .source-heritage { background: rgba(217,70,239,0.2); color: #d946ef; }
+        .source-pickup { background: rgba(249,115,22,0.2); color: var(--orange); }
 
         .delivery-status {
-            font-size: 0.55rem;
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-weight: 700;
-            text-transform: capitalize;
+            font-size: 0.55rem; padding: 2px 8px; border-radius: 10px; font-weight: 700; text-transform: capitalize;
         }
-
         .status-assigned { background: rgba(59,130,246,0.15); color: var(--info); }
         .status-out-for-delivery { background: rgba(249,115,22,0.15); color: var(--orange); }
         .status-delivered { background: rgba(34,197,94,0.15); color: var(--green); }
@@ -463,46 +334,21 @@
         .status-arrived { background: rgba(139,92,246,0.15); color: var(--purple-light); }
         .status-ongoing { background: rgba(249,115,22,0.15); color: var(--orange); }
         .status-completed { background: rgba(34,197,94,0.15); color: var(--green); }
+        .status-ready { background: rgba(245,158,11,0.15); color: var(--warning); }
+        .status-shipped { background: rgba(139,92,246,0.15); color: var(--purple-light); }
+        .status-confirmed { background: rgba(34,197,94,0.15); color: var(--green); }
+        .status-processing { background: rgba(59,130,246,0.15); color: var(--info); }
 
-        .delivery-client {
-            font-weight: 700;
-            font-size: 0.78rem;
-            margin-bottom: 0.2rem;
-        }
+        .delivery-client { font-weight: 700; font-size: 0.78rem; margin-bottom: 0.2rem; }
+        .delivery-route { font-size: 0.65rem; color: var(--text-muted); margin-bottom: 0.5rem; line-height: 1.4; }
+        .delivery-route i { color: var(--gold); margin: 0 4px; font-size: 0.5rem; }
 
-        .delivery-route {
-            font-size: 0.65rem;
-            color: var(--text-muted);
-            margin-bottom: 0.5rem;
-            line-height: 1.4;
-        }
-
-        .delivery-route i {
-            color: var(--gold);
-            margin: 0 4px;
-            font-size: 0.5rem;
-        }
-
-        .delivery-actions {
-            display: flex;
-            gap: 6px;
-            flex-wrap: wrap;
-        }
-
+        .delivery-actions { display: flex; gap: 6px; flex-wrap: wrap; }
         .action-btn {
-            padding: 0.3rem 0.7rem;
-            border-radius: 12px;
-            border: none;
-            font-size: 0.6rem;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 3px;
-            transition: 0.2s;
-            font-family: 'Inter', sans-serif;
+            padding: 0.3rem 0.7rem; border-radius: 12px; border: none; font-size: 0.6rem;
+            font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 3px;
+            transition: 0.2s; font-family: 'Inter', sans-serif;
         }
-
         .btn-pickup { background: rgba(249,115,22,0.1); color: var(--orange); }
         .btn-pickup:hover { background: var(--orange); color: white; }
         .btn-complete { background: rgba(34,197,94,0.1); color: var(--green); }
@@ -514,266 +360,83 @@
         .btn-cancel { background: rgba(239,68,68,0.1); color: var(--red); }
         .btn-cancel:hover { background: var(--red); color: white; }
 
-        .empty-list {
-            text-align: center;
-            padding: 2rem;
-            color: var(--text-muted);
-            font-size: 0.72rem;
-        }
+        .empty-list { text-align: center; padding: 2rem; color: var(--text-muted); font-size: 0.72rem; }
+        .empty-list i { font-size: 1.5rem; margin-bottom: 0.5rem; opacity: 0.4; }
 
-        .empty-list i {
-            font-size: 1.5rem;
-            margin-bottom: 0.5rem;
-            opacity: 0.4;
-        }
-
-        /* Notification Permission Banner */
         .notification-banner {
-            position: fixed;
-            top: 60px;
-            left: 10px;
-            right: 10px;
-            background: var(--bg-card);
-            border: 1px solid var(--gold);
-            border-radius: 12px;
-            padding: 0.8rem 1rem;
-            z-index: 3000;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.7rem;
-            color: var(--text-primary);
-            animation: slideDown 0.3s ease;
+            position: fixed; top: 60px; left: 10px; right: 10px;
+            background: var(--bg-card); border: 1px solid var(--gold); border-radius: 12px;
+            padding: 0.8rem 1rem; z-index: 3000; display: flex; align-items: center; gap: 8px;
+            font-size: 0.7rem; color: var(--text-primary); animation: slideDown 0.3s ease;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
-
-        .notification-banner i {
-            color: var(--gold);
-            font-size: 1.2rem;
-        }
-
+        .notification-banner i { color: var(--gold); font-size: 1.2rem; }
         .notification-banner button {
-            margin-left: auto;
-            padding: 0.4rem 0.8rem;
-            border-radius: 10px;
-            border: none;
-            background: var(--gold);
-            color: #0f172a;
-            font-weight: 700;
-            font-size: 0.6rem;
-            cursor: pointer;
-            font-family: 'Inter', sans-serif;
+            margin-left: auto; padding: 0.4rem 0.8rem; border-radius: 10px; border: none;
+            background: var(--gold); color: #0f172a; font-weight: 700; font-size: 0.6rem;
+            cursor: pointer; font-family: 'Inter', sans-serif;
         }
-
-        .notification-banner .close-banner {
-            background: transparent;
-            color: var(--text-muted);
-            font-size: 0.8rem;
-            padding: 0.2rem 0.4rem;
-        }
-
+        .notification-banner .close-banner { background: transparent; color: var(--text-muted); font-size: 0.8rem; padding: 0.2rem 0.4rem; }
         @keyframes slideDown {
             from { opacity: 0; transform: translateY(-20px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Modals */
         .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.8);
-            z-index: 4000;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 1.5rem;
-            backdrop-filter: blur(6px);
-            -webkit-backdrop-filter: blur(6px);
-            animation: fadeIn 0.2s ease;
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.8); z-index: 4000; display: none;
+            align-items: center; justify-content: center; padding: 1.5rem;
+            backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); animation: fadeIn 0.2s ease;
         }
-
         .modal-overlay.show { display: flex; }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         .modal {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 1.5rem;
-            width: 100%;
-            max-width: 400px;
-            max-height: 85vh;
-            overflow-y: auto;
-            animation: modalSlideUp 0.3s ease;
-            box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+            background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px;
+            padding: 1.5rem; width: 100%; max-width: 400px; max-height: 85vh;
+            overflow-y: auto; animation: modalSlideUp 0.3s ease; box-shadow: 0 25px 60px rgba(0,0,0,0.5);
         }
-
         @keyframes modalSlideUp {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .modal-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 1.2rem;
-            padding-bottom: 0.8rem;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .modal-header i {
-            font-size: 1.4rem;
-            color: var(--gold);
-        }
-
-        .modal-header h3 {
-            font-size: 0.95rem;
-            font-weight: 700;
-            color: var(--text-primary);
-        }
-
-        .modal-close {
-            margin-left: auto;
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            font-size: 1.1rem;
-            cursor: pointer;
-            padding: 4px;
-            border-radius: 50%;
-            transition: 0.2s;
-        }
-
-        .modal-close:hover {
-            background: rgba(239,68,68,0.1);
-            color: var(--red);
-        }
-
-        .modal p {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            margin-bottom: 1rem;
-            line-height: 1.5;
-        }
-
-        .modal .form-group {
-            margin-bottom: 0.9rem;
-        }
-
-        .modal label {
-            display: block;
-            font-size: 0.62rem;
-            font-weight: 600;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 0.25rem;
-        }
-
+        .modal-header { display: flex; align-items: center; gap: 10px; margin-bottom: 1.2rem; padding-bottom: 0.8rem; border-bottom: 1px solid var(--border); }
+        .modal-header i { font-size: 1.4rem; color: var(--gold); }
+        .modal-header h3 { font-size: 0.95rem; font-weight: 700; color: var(--text-primary); }
+        .modal-close { margin-left: auto; background: none; border: none; color: var(--text-muted); font-size: 1.1rem; cursor: pointer; padding: 4px; border-radius: 50%; transition: 0.2s; }
+        .modal-close:hover { background: rgba(239,68,68,0.1); color: var(--red); }
+        .modal p { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1rem; line-height: 1.5; }
+        .modal .form-group { margin-bottom: 0.9rem; }
+        .modal label { display: block; font-size: 0.62rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.25rem; }
         .modal input, .modal textarea, .modal select {
-            width: 100%;
-            padding: 0.6rem 0.8rem;
-            border-radius: 12px;
-            border: 1.5px solid var(--border);
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-            font-size: 0.8rem;
-            font-family: 'Inter', sans-serif;
-            transition: border-color 0.2s;
+            width: 100%; padding: 0.6rem 0.8rem; border-radius: 12px; border: 1.5px solid var(--border);
+            background: var(--bg-secondary); color: var(--text-primary); font-size: 0.8rem;
+            font-family: 'Inter', sans-serif; transition: border-color 0.2s;
         }
-
         .modal input:focus, .modal textarea:focus, .modal select:focus {
-            outline: none;
-            border-color: var(--gold);
-            box-shadow: 0 0 0 3px rgba(245,158,11,0.06);
+            outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(245,158,11,0.06);
         }
+        .modal textarea { resize: vertical; min-height: 60px; }
+        .modal .btn-row { display: flex; gap: 8px; justify-content: flex-end; margin-top: 1.2rem; flex-wrap: wrap; }
+        .modal .btn-row .action-btn { padding: 0.45rem 1rem; font-size: 0.7rem; border-radius: 14px; }
 
-        .modal textarea {
-            resize: vertical;
-            min-height: 60px;
-        }
+        .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 0.5rem; }
+        .detail-item { background: var(--bg-secondary); padding: 0.6rem 0.7rem; border-radius: 10px; }
+        .detail-item strong { display: block; font-size: 0.55rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 0.1rem; }
+        .detail-item span { font-size: 0.72rem; color: var(--text-primary); }
+        .detail-item.full { grid-column: 1 / -1; }
 
-        .modal .btn-row {
-            display: flex;
-            gap: 8px;
-            justify-content: flex-end;
-            margin-top: 1.2rem;
-            flex-wrap: wrap;
-        }
-
-        .modal .btn-row .action-btn {
-            padding: 0.45rem 1rem;
-            font-size: 0.7rem;
-            border-radius: 14px;
-        }
-
-        /* Details Modal */
-        .detail-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin-bottom: 0.5rem;
-        }
-
-        .detail-item {
-            background: var(--bg-secondary);
-            padding: 0.6rem 0.7rem;
-            border-radius: 10px;
-        }
-
-        .detail-item strong {
-            display: block;
-            font-size: 0.55rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            margin-bottom: 0.1rem;
-        }
-
-        .detail-item span {
-            font-size: 0.72rem;
-            color: var(--text-primary);
-        }
-
-        .detail-item.full {
-            grid-column: 1 / -1;
-        }
-
-        /* Toast */
         .toast-container {
-            position: fixed;
-            top: calc(65px + var(--safe-top));
-            right: 10px;
-            left: 10px;
-            z-index: 5000;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            pointer-events: none;
+            position: fixed; top: calc(65px + var(--safe-top)); right: 10px; left: 10px;
+            z-index: 5000; display: flex; flex-direction: column; align-items: flex-end; pointer-events: none;
         }
-
         .toast {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 0.7rem 1rem;
-            margin-bottom: 0.4rem;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.72rem;
-            animation: toastSlideIn 0.35s ease;
-            pointer-events: auto;
-            max-width: 100%;
-            font-weight: 500;
+            background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px;
+            padding: 0.7rem 1rem; margin-bottom: 0.4rem; box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            display: flex; align-items: center; gap: 8px; font-size: 0.72rem;
+            animation: toastSlideIn 0.35s ease; pointer-events: auto; max-width: 100%; font-weight: 500;
         }
-
         .toast i { font-size: 0.85rem; }
         .toast.success { border-left: 3px solid var(--green); }
         .toast.success i { color: var(--green); }
@@ -783,165 +446,90 @@
         .toast.warning i { color: var(--warning); }
         .toast.info { border-left: 3px solid var(--info); }
         .toast.info i { color: var(--info); }
-
         @keyframes toastSlideIn {
             from { opacity: 0; transform: translateX(50px); }
             to { opacity: 1; transform: translateX(0); }
         }
 
         .loading-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(10,15,30,0.85);
-            backdrop-filter: blur(6px);
-            -webkit-backdrop-filter: blur(6px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 6000;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(10,15,30,0.85); backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px); display: flex; align-items: center;
+            justify-content: center; z-index: 6000;
         }
-
         .loading-overlay.hidden { display: none; }
-
-        .spinner {
-            width: 40px; height: 40px;
-            border-radius: 50%;
-            border: 3px solid var(--border);
-            border-top-color: var(--gold);
-            animation: spin 0.7s linear infinite;
-        }
-
+        .spinner { width: 40px; height: 40px; border-radius: 50%; border: 3px solid var(--border); border-top-color: var(--gold); animation: spin 0.7s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
         .hidden { display: none !important; }
-
-        .footer {
-            text-align: center;
-            padding: 0.6rem 1rem calc(0.6rem + var(--safe-bottom));
-            color: var(--text-muted);
-            font-size: 0.5rem;
-            border-top: 1px solid var(--border);
-        }
-
+        .footer { text-align: center; padding: 0.6rem 1rem calc(0.6rem + var(--safe-bottom)); color: var(--text-muted); font-size: 0.5rem; border-top: 1px solid var(--border); }
         .footer span { color: var(--gold); font-weight: 600; }
     </style>
 </head>
 <body>
     <div class="bg-gradient"></div>
-
-    <div class="loading-overlay hidden" id="loadingOverlay">
-        <div class="spinner"></div>
-    </div>
-
+    <div class="loading-overlay hidden" id="loadingOverlay"><div class="spinner"></div></div>
     <div class="toast-container" id="toastContainer"></div>
 
-    <!-- Notification Permission Banner -->
     <div class="notification-banner hidden" id="notificationBanner">
         <i class="fas fa-bell"></i>
-        <span>Enable notifications to get alerts for new requests</span>
+        <span>Enable notifications for new delivery requests</span>
         <button onclick="requestNotificationPermission()">Enable</button>
         <button class="close-banner" onclick="dismissNotificationBanner()"><i class="fas fa-times"></i></button>
     </div>
 
-    <!-- Pickup Modal -->
     <div class="modal-overlay" id="pickupModalOverlay" onclick="if(event.target===this)closePickupModal()">
         <div class="modal">
-            <div class="modal-header">
-                <i class="fas fa-box"></i>
-                <h3>Confirm Pickup</h3>
-                <button class="modal-close" onclick="closePickupModal()"><i class="fas fa-times"></i></button>
-            </div>
+            <div class="modal-header"><i class="fas fa-box"></i><h3>Confirm Pickup</h3><button class="modal-close" onclick="closePickupModal()"><i class="fas fa-times"></i></button></div>
             <p>Confirm that you have collected the package and are now out for delivery.</p>
-            <div class="form-group">
-                <label>Pickup Notes (Optional)</label>
-                <textarea id="pickupNotes" placeholder="Any notes about the pickup..."></textarea>
-            </div>
+            <div class="form-group"><label>Pickup Notes (Optional)</label><textarea id="pickupNotes" placeholder="Any notes..."></textarea></div>
             <div class="btn-row">
                 <button class="action-btn btn-view" onclick="closePickupModal()">Cancel</button>
-                <button class="action-btn btn-pickup" onclick="confirmPickup()">
-                    <i class="fas fa-check"></i> Confirm Pickup
-                </button>
+                <button class="action-btn btn-pickup" onclick="confirmPickup()"><i class="fas fa-check"></i> Confirm Pickup</button>
             </div>
         </div>
     </div>
 
-    <!-- Complete Modal -->
     <div class="modal-overlay" id="completeModalOverlay" onclick="if(event.target===this)closeCompleteModal()">
         <div class="modal">
-            <div class="modal-header">
-                <i class="fas fa-check-circle"></i>
-                <h3>Complete Delivery</h3>
-                <button class="modal-close" onclick="closeCompleteModal()"><i class="fas fa-times"></i></button>
-            </div>
-            <p>Mark this delivery as completed. Enter the name of the person who received the package.</p>
-            <div class="form-group">
-                <label>Receiver Name *</label>
-                <input type="text" id="proofName" placeholder="Who received the package?">
-            </div>
-            <div class="form-group">
-                <label>Delivery Notes (Optional)</label>
-                <textarea id="proofNotes" placeholder="Any notes about the delivery..."></textarea>
-            </div>
+            <div class="modal-header"><i class="fas fa-check-circle"></i><h3>Complete Delivery</h3><button class="modal-close" onclick="closeCompleteModal()"><i class="fas fa-times"></i></button></div>
+            <p>Mark this delivery as completed.</p>
+            <div class="form-group"><label>Receiver Name *</label><input type="text" id="proofName" placeholder="Who received it?"></div>
+            <div class="form-group"><label>Notes (Optional)</label><textarea id="proofNotes" placeholder="Any notes..."></textarea></div>
             <div class="btn-row">
                 <button class="action-btn btn-view" onclick="closeCompleteModal()">Cancel</button>
-                <button class="action-btn btn-complete" onclick="completeDelivery()">
-                    <i class="fas fa-flag-checkered"></i> Mark Delivered
-                </button>
+                <button class="action-btn btn-complete" onclick="completeDelivery()"><i class="fas fa-flag-checkered"></i> Mark Delivered</button>
             </div>
         </div>
     </div>
 
-    <!-- Details Modal -->
     <div class="modal-overlay" id="detailsModalOverlay" onclick="if(event.target===this)closeDetailsModal()">
         <div class="modal">
-            <div class="modal-header">
-                <i class="fas fa-info-circle"></i>
-                <h3 id="detailsTitle">Delivery Details</h3>
-                <button class="modal-close" onclick="closeDetailsModal()"><i class="fas fa-times"></i></button>
-            </div>
+            <div class="modal-header"><i class="fas fa-info-circle"></i><h3 id="detailsTitle">Delivery Details</h3><button class="modal-close" onclick="closeDetailsModal()"><i class="fas fa-times"></i></button></div>
             <div id="detailsBody"></div>
-            <div class="btn-row">
-                <button class="action-btn btn-view" onclick="closeDetailsModal()">Close</button>
-            </div>
+            <div class="btn-row"><button class="action-btn btn-view" onclick="closeDetailsModal()">Close</button></div>
         </div>
     </div>
 
-    <!-- Ride Status Modal -->
     <div class="modal-overlay" id="rideStatusModalOverlay" onclick="if(event.target===this)closeRideStatusModal()">
         <div class="modal">
-            <div class="modal-header">
-                <i class="fas fa-taxi"></i>
-                <h3 id="rideStatusTitle">Update Ride</h3>
-                <button class="modal-close" onclick="closeRideStatusModal()"><i class="fas fa-times"></i></button>
-            </div>
-            <p id="rideStatusMsg">Are you sure you want to update this ride status?</p>
+            <div class="modal-header"><i class="fas fa-taxi"></i><h3 id="rideStatusTitle">Update Ride</h3><button class="modal-close" onclick="closeRideStatusModal()"><i class="fas fa-times"></i></button></div>
+            <p id="rideStatusMsg">Update this ride status?</p>
             <div class="btn-row">
                 <button class="action-btn btn-view" onclick="closeRideStatusModal()">Cancel</button>
-                <button class="action-btn btn-pickup" id="rideStatusConfirmBtn" onclick="confirmRideStatus()">
-                    <i class="fas fa-check"></i> Confirm
-                </button>
+                <button class="action-btn btn-pickup" id="rideStatusConfirmBtn" onclick="confirmRideStatus()"><i class="fas fa-check"></i> Confirm</button>
             </div>
         </div>
     </div>
 
-    <!-- Cancel Ride Modal -->
     <div class="modal-overlay" id="cancelRideModalOverlay" onclick="if(event.target===this)closeCancelRideModal()">
         <div class="modal">
-            <div class="modal-header">
-                <i class="fas fa-times-circle" style="color:var(--red);"></i>
-                <h3>Cancel Ride</h3>
-                <button class="modal-close" onclick="closeCancelRideModal()"><i class="fas fa-times"></i></button>
-            </div>
-            <p>Are you sure you want to cancel this ride? This action cannot be undone.</p>
-            <div class="form-group">
-                <label>Reason for Cancellation</label>
-                <textarea id="cancelRideReason" placeholder="Why are you cancelling this ride?"></textarea>
-            </div>
+            <div class="modal-header"><i class="fas fa-times-circle" style="color:var(--red);"></i><h3>Cancel Ride</h3><button class="modal-close" onclick="closeCancelRideModal()"><i class="fas fa-times"></i></button></div>
+            <p>Are you sure you want to cancel this ride?</p>
+            <div class="form-group"><label>Reason</label><textarea id="cancelRideReason" placeholder="Why cancelling?"></textarea></div>
             <div class="btn-row">
                 <button class="action-btn btn-view" onclick="closeCancelRideModal()">Go Back</button>
-                <button class="action-btn btn-cancel" onclick="confirmCancelRide()">
-                    <i class="fas fa-times"></i> Cancel Ride
-                </button>
+                <button class="action-btn btn-cancel" onclick="confirmCancelRide()"><i class="fas fa-times"></i> Cancel Ride</button>
             </div>
         </div>
     </div>
@@ -954,56 +542,33 @@
                     <span class="brand-name">E-KAZI</span>
                 </div>
                 <div class="header-right">
-                    <div class="header-stat" id="headerStat">
-                        <i class="fas fa-circle" style="color:var(--green);font-size:0.4rem;"></i>
-                        <span id="headerActiveCount">0</span> active
-                    </div>
-                    <div class="user-btn" id="userBtn">
+                    <div class="header-stat"><i class="fas fa-circle" style="color:var(--green);font-size:0.4rem;"></i><span id="headerActiveCount">0</span> active</div>
+                    <div class="user-btn">
                         <div class="user-avatar" id="userAvatar">KA</div>
                         <span id="userName">Asst</span>
                         <div class="user-dropdown">
-                            <button class="dropdown-item" onclick="refreshAll()">
-                                <i class="fas fa-sync-alt"></i> Refresh
-                            </button>
-                            <button class="dropdown-item" onclick="testNotification()">
-                                <i class="fas fa-bell"></i> Test Alert
-                            </button>
-                            <button class="dropdown-item danger" onclick="handleLogout()">
-                                <i class="fas fa-sign-out-alt"></i> Sign Out
-                            </button>
+                            <button class="dropdown-item" onclick="refreshAll()"><i class="fas fa-sync-alt"></i> Refresh</button>
+                            <button class="dropdown-item" onclick="testNotification()"><i class="fas fa-bell"></i> Test Alert</button>
+                            <button class="dropdown-item danger" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
                         </div>
                     </div>
                 </div>
             </div>
         </header>
 
-        <!-- Tab Navigation -->
         <nav class="tab-nav" id="tabNav"></nav>
 
-        <!-- Main Content -->
         <div class="main-content">
             <div id="pendingState" class="hidden" style="padding:1rem;">
-                <div class="state-card state-pending">
-                    <i class="fas fa-clock"></i>
-                    <h2>Verification Pending</h2>
-                    <p>Your application is under review. Operations will appear once verified.</p>
-                </div>
+                <div class="state-card state-pending"><i class="fas fa-clock"></i><h2>Verification Pending</h2><p>Your application is under review.</p></div>
             </div>
-
             <div id="rejectedState" class="hidden" style="padding:1rem;">
-                <div class="state-card state-rejected">
-                    <i class="fas fa-times-circle"></i>
-                    <h2>Not Approved</h2>
-                    <p id="rejectionMsg">Contact support for details.</p>
-                </div>
+                <div class="state-card state-rejected"><i class="fas fa-times-circle"></i><h2>Not Approved</h2><p id="rejectionMsg">Contact support for details.</p></div>
             </div>
-
             <div id="tabContents"></div>
         </div>
 
-        <footer class="footer">
-            &copy; 2026 <span>E-KAZI</span>
-        </footer>
+        <footer class="footer">&copy; 2026 <span>E-KAZI</span></footer>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -1029,199 +594,26 @@
         let userRegistrations = {};
         let activeTab = null;
         let currentActionId = null;
+        let currentActionSource = null;
         let rideStatusAction = null;
-        let allPickups = [];
+        let allDeliveries = [];
         let allRides = [];
-        let pickupFilter = 'all';
+        let deliveryFilter = 'all';
         let rideFilter = 'all';
-        let seenPickupIds = new Set();
-        let seenRideIds = new Set();
-        
-        // Audio context for notification sounds
-        let audioContext = null;
-        let notificationSoundEnabled = true;
-        let vibrateEnabled = true;
         let notificationPermission = 'default';
 
-        // Initialize audio context
-        function initAudioContext() {
-            if (!audioContext) {
-                try {
-                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                } catch (e) {
-                    console.warn('AudioContext not supported');
-                }
-            }
-            // Resume if suspended (browsers require user gesture)
-            if (audioContext && audioContext.state === 'suspended') {
-                audioContext.resume();
-            }
-        }
+        // ========== OPERATION SOURCES ==========
+        const operationSources = [
+            { path: 'pickup_deliveries', label: 'Pick-Up', icon: 'fa-box', badge: 'source-pickup', assignedField: 'assignedTo', customerField: 'userName', phoneField: 'userPhone', pickupField: 'pickup.address', deliveryField: 'delivery.address', fareField: 'fare.total', statusField: 'status', readyStatuses: ['assigned','pending'], activeStatuses: ['out-for-delivery','in_progress'], doneStatus: 'delivered' },
+            { path: 'dsog_fashion_orders', label: 'DSOG Fashion', icon: 'fa-tshirt', badge: 'source-dsog', assignedField: 'driverId', customerField: 'customerName', phoneField: 'customerPhone', pickupField: 'location', deliveryField: 'location', fareField: 'total', statusField: 'status', readyStatuses: ['ready','confirmed','processing'], activeStatuses: ['shipped'], doneStatus: 'delivered' },
+            { path: 'fusion_foods_orders', label: 'Fusion Foods', icon: 'fa-utensils', badge: 'source-fusion', assignedField: 'driverId', customerField: 'restaurantName', phoneField: 'phone', pickupField: 'location', deliveryField: 'location', fareField: 'total', statusField: 'status', readyStatuses: ['ready','confirmed','processing'], activeStatuses: ['shipped'], doneStatus: 'delivered' },
+            { path: 'brandinn_print_orders', label: 'BrandInn Print', icon: 'fa-print', badge: 'source-brandinn', assignedField: 'driverId', customerField: 'customerName', phoneField: 'customerPhone', pickupField: 'location', deliveryField: 'location', fareField: 'total', statusField: 'status', readyStatuses: ['ready','completed'], activeStatuses: ['delivered'], doneStatus: 'delivered' },
+            { path: 'heritage_listings', label: 'Heritage Ads', icon: 'fa-landmark', badge: 'source-heritage', assignedField: 'driverId', customerField: 'partnerName', phoneField: '', pickupField: 'location', deliveryField: 'location', fareField: 'price', statusField: 'status', readyStatuses: ['active'], activeStatuses: ['active'], doneStatus: 'expired' }
+        ];
 
-        // Play notification sound using Web Audio API
-        function playNotificationSound() {
-            if (!notificationSoundEnabled || !audioContext) return;
-            
-            try {
-                const now = audioContext.currentTime;
-                
-                // Create oscillators for a pleasant "ding-dong" sound
-                const notes = [
-                    { freq: 880, start: 0, duration: 0.15 },    // A5
-                    { freq: 1108.73, start: 0.15, duration: 0.2 }, // C#6
-                    { freq: 1318.51, start: 0.35, duration: 0.3 }  // E6
-                ];
-                
-                notes.forEach(note => {
-                    const oscillator = audioContext.createOscillator();
-                    const gainNode = audioContext.createGain();
-                    
-                    oscillator.connect(gainNode);
-                    gainNode.connect(audioContext.destination);
-                    
-                    oscillator.type = 'sine';
-                    oscillator.frequency.setValueAtTime(note.freq, now + note.start);
-                    
-                    gainNode.gain.setValueAtTime(0, now + note.start);
-                    gainNode.gain.linearRampToValueAtTime(0.3, now + note.start + 0.02);
-                    gainNode.gain.exponentialRampToValueAtTime(0.01, now + note.start + note.duration);
-                    
-                    oscillator.start(now + note.start);
-                    oscillator.stop(now + note.start + note.duration);
-                });
-                
-                // Add a subtle harmonic layer
-                const harmonic = audioContext.createOscillator();
-                const harmonicGain = audioContext.createGain();
-                harmonic.connect(harmonicGain);
-                harmonicGain.connect(audioContext.destination);
-                harmonic.type = 'triangle';
-                harmonic.frequency.setValueAtTime(1760, now); // A6
-                harmonicGain.gain.setValueAtTime(0, now);
-                harmonicGain.gain.linearRampToValueAtTime(0.15, now + 0.05);
-                harmonicGain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
-                harmonic.start(now);
-                harmonic.stop(now + 0.4);
-                
-            } catch (e) {
-                console.warn('Error playing notification sound:', e);
-            }
-        }
-
-        // Trigger vibration pattern
-        function vibrateDevice() {
-            if (!vibrateEnabled || !navigator.vibrate) return;
-            
-            try {
-                // Pattern: vibrate 200ms, pause 100ms, vibrate 200ms, pause 100ms, vibrate 400ms
-                navigator.vibrate([200, 100, 200, 100, 400]);
-            } catch (e) {
-                console.warn('Vibration not supported');
-            }
-        }
-
-        // Main notification function - combines sound, vibration, and visual toast
-        function sendNewRequestNotification(type, details) {
-            // Initialize audio on user interaction
-            initAudioContext();
-            
-            // Play sound
-            playNotificationSound();
-            
-            // Vibrate device
-            vibrateDevice();
-            
-            // Show toast
-            const typeLabel = type === 'pickup' ? 'Delivery' : 'Ride';
-            toast(`🔔 New ${typeLabel} request! ${details}`, 'info');
-            
-            // If notification permission granted, show browser notification
-            if (notificationPermission === 'granted' && 'Notification' in window) {
-                try {
-                    const notification = new Notification('E-KAZI · New Request', {
-                        body: `New ${typeLabel} request: ${details}`,
-                        icon: 'https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png',
-                        badge: 'https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png',
-                        tag: 'new-request',
-                        requireInteraction: true,
-                        vibrate: [200, 100, 200, 100, 400]
-                    });
-                    
-                    // Auto-close after 10 seconds
-                    setTimeout(() => notification.close(), 10000);
-                    
-                    // Click to focus window
-                    notification.onclick = () => {
-                        window.focus();
-                        notification.close();
-                    };
-                } catch (e) {
-                    console.warn('Browser notification failed:', e);
-                }
-            }
-        }
-
-        // Request notification permission
-        function requestNotificationPermission() {
-            initAudioContext();
-            
-            if ('Notification' in window) {
-                Notification.requestPermission().then(permission => {
-                    notificationPermission = permission;
-                    if (permission === 'granted') {
-                        toast('Notifications enabled! You\'ll be alerted for new requests.', 'success');
-                        $('notificationBanner').classList.add('hidden');
-                        // Send a test notification
-                        setTimeout(() => {
-                            if (Notification.permission === 'granted') {
-                                new Notification('E-KAZI', {
-                                    body: 'You will now receive alerts for new requests!',
-                                    icon: 'https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png',
-                                    vibrate: [100, 50, 100]
-                                });
-                            }
-                        }, 1000);
-                    } else {
-                        toast('Notification permission denied. You can enable them in browser settings.', 'warning');
-                    }
-                });
-            } else {
-                toast('Notifications not supported in this browser.', 'error');
-            }
-        }
-
-        // Dismiss notification banner
-        function dismissNotificationBanner() {
-            $('notificationBanner').classList.add('hidden');
-        }
-
-        // Test notification function
-        function testNotification() {
-            initAudioContext();
-            playNotificationSound();
-            vibrateDevice();
-            toast('Testing notification alert...', 'info');
-        }
-
-        // Check notification permission on load
-        function checkNotificationPermission() {
-            if ('Notification' in window) {
-                notificationPermission = Notification.permission;
-                if (notificationPermission === 'default') {
-                    // Show banner to request permission
-                    setTimeout(() => {
-                        $('notificationBanner').classList.remove('hidden');
-                    }, 2000);
-                } else if (notificationPermission === 'granted') {
-                    console.log('Notifications already enabled');
-                }
-            }
-            
-            // Check vibration support
-            if (!navigator.vibrate) {
-                console.log('Vibration API not supported');
-                vibrateEnabled = false;
-            }
+        function getNestedValue(obj, path) {
+            if (!obj || !path) return null;
+            return path.split('.').reduce((o, k) => (o || {})[k], obj) || null;
         }
 
         function showLoading(s) { $('loadingOverlay').classList.toggle('hidden', !s); }
@@ -1238,19 +630,40 @@
         function getInitials(n) { return n ? String(n).split(' ').map(w => w[0]).join('').toUpperCase().substring(0,2) : 'KA'; }
         function escapeHtml(s) { if (!s) return ''; const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 
+        function requestNotificationPermission() {
+            if ('Notification' in window) {
+                Notification.requestPermission().then(permission => {
+                    notificationPermission = permission;
+                    if (permission === 'granted') { toast('Notifications enabled!', 'success'); $('notificationBanner').classList.add('hidden'); }
+                    else { toast('Permission denied.', 'warning'); }
+                });
+            }
+        }
+
+        function dismissNotificationBanner() { $('notificationBanner').classList.add('hidden'); }
+        function testNotification() { toast('Notification test!', 'info'); }
+
+        function sendNewRequestNotification(type, details) {
+            if (notificationPermission === 'granted' && 'Notification' in window) {
+                try {
+                    new Notification('E-KAZI · New Request', { body: `New ${type}: ${details}`, icon: 'https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png', tag: 'new-request', requireInteraction: true });
+                } catch (e) {}
+            }
+            if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+            toast(`🔔 New ${type} request! ${details}`, 'info');
+        }
+
+        // ========== AUTH ==========
         auth.onAuthStateChanged(async user => {
             if (!user) { window.location.href = 'index.html'; return; }
             currentUser = user;
             $('userAvatar').textContent = getInitials(user.displayName || user.email);
             $('userName').textContent = (user.displayName || user.email?.split('@')[0] || 'Asst').substring(0,12);
             showLoading(true);
-            
-            // Initialize audio context on user gesture (login)
-            initAudioContext();
-            
-            // Check notification permissions
-            checkNotificationPermission();
-            
+            if ('Notification' in window) {
+                notificationPermission = Notification.permission;
+                if (notificationPermission === 'default') setTimeout(() => $('notificationBanner').classList.remove('hidden'), 2000);
+            }
             await checkRegistrations(user);
             await initTabs();
             showLoading(false);
@@ -1259,9 +672,8 @@
         async function checkRegistrations(user) {
             userRegistrations = {};
             const checks = [
-                { node: 'delivery_assistants', key: 'pickup', label: 'Pick-Up', icon: 'fa-box' },
-                { node: 'pickme_drivers', key: 'ride', label: 'Rides', icon: 'fa-taxi' },
-                { node: 'taskers', key: 'tasker', label: 'Tasks', icon: 'fa-clipboard-list' }
+                { node: 'delivery_assistants', key: 'pickup', label: 'Deliveries', icon: 'fa-box' },
+                { node: 'pickme_drivers', key: 'ride', label: 'Rides', icon: 'fa-taxi' }
             ];
             for (const check of checks) {
                 try {
@@ -1283,13 +695,10 @@
             $('rejectedState').classList.add('hidden');
 
             if (hasVerified) {
-                seenPickupIds = new Set();
-                seenRideIds = new Set();
                 renderTabs(verifiedOps);
                 const firstTab = verifiedOps[0][0];
                 switchToTab(firstTab);
                 await loadTabData(firstTab);
-                setupRealtimeListeners();
             } else if (allRejected) {
                 $('rejectedState').classList.remove('hidden');
                 const firstRej = Object.values(userRegistrations).find(r => r.status === 'rejected');
@@ -1300,45 +709,6 @@
                 $('pendingState').classList.remove('hidden');
                 $('tabNav').innerHTML = '';
                 $('tabContents').innerHTML = '';
-            }
-        }
-
-        function setupRealtimeListeners() {
-            if (userRegistrations.pickup?.verified && currentUser) {
-                db.ref('pickup_deliveries').orderByChild('assignedTo').equalTo(currentUser.uid).on('child_added', snap => {
-                    const id = snap.key;
-                    if (!seenPickupIds.has(id)) {
-                        seenPickupIds.add(id);
-                        const data = snap.val();
-                        const client = data.userName || data.customer?.name || 'Unknown';
-                        if (activeTab === 'pickup') {
-                            loadPickupData();
-                        }
-                        // Always send notification for new requests
-                        sendNewRequestNotification('pickup', `Pickup for ${client}`);
-                    }
-                });
-                db.ref('pickup_deliveries').orderByChild('assignedTo').equalTo(currentUser.uid).on('child_changed', () => {
-                    if (activeTab === 'pickup') loadPickupData();
-                });
-            }
-            if (userRegistrations.ride?.verified && currentUser) {
-                db.ref('pickme_rides').orderByChild('driverId').equalTo(currentUser.uid).on('child_added', snap => {
-                    const id = snap.key;
-                    if (!seenRideIds.has(id)) {
-                        seenRideIds.add(id);
-                        const data = snap.val();
-                        const passenger = data.passengerName || 'Unknown';
-                        if (activeTab === 'ride') {
-                            loadRideData();
-                        }
-                        // Always send notification for new requests
-                        sendNewRequestNotification('ride', `Ride for ${passenger}`);
-                    }
-                });
-                db.ref('pickme_rides').orderByChild('driverId').equalTo(currentUser.uid).on('child_changed', () => {
-                    if (activeTab === 'ride') loadRideData();
-                });
             }
         }
 
@@ -1365,74 +735,100 @@
             activeTab = key;
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === key));
             document.querySelectorAll('.tab-content').forEach(c => c.classList.toggle('active', c.id === `tab-${key}`));
-            // Initialize audio on user interaction
-            initAudioContext();
             loadTabData(key);
         };
 
         async function loadTabData(key) {
-            if (key === 'pickup') await loadPickupData();
+            if (key === 'pickup') await loadAllDeliveries();
             if (key === 'ride') await loadRideData();
             updateHeaderStats();
         }
 
-        // ========== PICK-UP ==========
-        async function loadPickupData() {
+        // ========== LOAD ALL DELIVERIES FROM ALL OPERATIONS ==========
+        async function loadAllDeliveries() {
             if (!currentUser) return;
-            try {
-                const snap = await db.ref('pickup_deliveries').orderByChild('assignedTo').equalTo(currentUser.uid).once('value');
-                const data = snap.val() || {};
-                allPickups = Object.entries(data).map(([id, d]) => {
-                    seenPickupIds.add(id);
-                    return { id, ...d };
-                });
-                allPickups.sort((a, b) => {
-                    const aIsNew = a.status === 'assigned' || a.status === 'pending';
-                    const bIsNew = b.status === 'assigned' || b.status === 'pending';
-                    if (aIsNew && !bIsNew) return -1;
-                    if (!aIsNew && bIsNew) return 1;
-                    return (b.createdAt || 0) - (a.createdAt || 0);
-                });
-                renderPickupStats();
-                renderPickupFilters();
-                renderPickupList();
-                updateBadge('pickup', allPickups.filter(d => ['assigned','out-for-delivery'].includes(d.status)).length);
-            } catch (e) { console.error(e); }
+            allDeliveries = [];
+            showLoading(true);
+
+            for (const source of operationSources) {
+                try {
+                    const snap = await db.ref(source.path).once('value');
+                    const data = snap.val() || {};
+                    
+                    Object.entries(data).forEach(([id, item]) => {
+                        const assignedTo = getNestedValue(item, source.assignedField) || item.assignedTo || item.driverId || item.assistant?.id || '';
+                        if (assignedTo === currentUser.uid) {
+                            allDeliveries.push({
+                                id,
+                                source: source.label,
+                                sourceIcon: source.icon,
+                                sourceBadge: source.badge,
+                                sourcePath: source.path,
+                                customer: getNestedValue(item, source.customerField) || item.customerName || item.restaurantName || item.partnerName || 'Customer',
+                                phone: getNestedValue(item, source.phoneField) || item.phone || item.customerPhone || '',
+                                pickup: getNestedValue(item, source.pickupField) || item.pickup?.address || item.location || '—',
+                                delivery: getNestedValue(item, source.deliveryField) || item.delivery?.address || item.location || '—',
+                                fare: getNestedValue(item, source.fareField) || item.total || item.price || 0,
+                                status: getNestedValue(item, source.statusField) || item.status || 'pending',
+                                readyStatuses: source.readyStatuses,
+                                activeStatuses: source.activeStatuses,
+                                doneStatus: source.doneStatus,
+                                rawData: item
+                            });
+                        }
+                    });
+                } catch (e) {
+                    console.warn(`Could not load ${source.label}:`, e.message);
+                }
+            }
+
+            // Sort: ready/active first, then by date
+            allDeliveries.sort((a, b) => {
+                const aIsActive = a.readyStatuses.includes(a.status) || a.activeStatuses.includes(a.status);
+                const bIsActive = b.readyStatuses.includes(b.status) || b.activeStatuses.includes(b.status);
+                if (aIsActive && !bIsActive) return -1;
+                if (!aIsActive && bIsActive) return 1;
+                return (b.rawData?.createdAt || 0) - (a.rawData?.createdAt || 0);
+            });
+
+            renderDeliveryStats();
+            renderDeliveryFilters();
+            renderDeliveryList();
+            updateBadge('pickup', allDeliveries.filter(d => d.readyStatuses.includes(d.status) || d.activeStatuses.includes(d.status)).length);
+            showLoading(false);
         }
 
-        function renderPickupStats() {
-            const active = allPickups.filter(d => ['assigned','out-for-delivery','in_progress'].includes(d.status)).length;
-            const done = allPickups.filter(d => d.status === 'delivered').length;
-            const today = new Date().toDateString();
-            const todayDone = allPickups.filter(d => d.status === 'delivered' && d.deliveryDate && new Date(d.deliveryDate).toDateString() === today).length;
-            $(`stats-pickup`).innerHTML = `
+        function renderDeliveryStats() {
+            const active = allDeliveries.filter(d => d.readyStatuses.includes(d.status) || d.activeStatuses.includes(d.status)).length;
+            const done = allDeliveries.filter(d => d.status === d.doneStatus).length;
+            $('stats-pickup').innerHTML = `
                 <div class="stat-card"><div class="stat-value">${active}</div><div class="stat-label">Active</div></div>
-                <div class="stat-card"><div class="stat-value">${todayDone}</div><div class="stat-label">Today</div></div>
-                <div class="stat-card"><div class="stat-value">${done}</div><div class="stat-label">Total</div></div>
+                <div class="stat-card"><div class="stat-value">${done}</div><div class="stat-label">Completed</div></div>
+                <div class="stat-card"><div class="stat-value">${allDeliveries.length}</div><div class="stat-label">Total</div></div>
             `;
         }
 
-        function renderPickupFilters() {
-            $(`filters-pickup`).innerHTML = `
-                <button class="filter-chip ${pickupFilter==='all'?'active':''}" onclick="pickupFilter='all';renderPickupList()">All</button>
-                <button class="filter-chip ${pickupFilter==='assigned'?'active':''}" onclick="pickupFilter='assigned';renderPickupList()">New</button>
-                <button class="filter-chip ${pickupFilter==='out-for-delivery'?'active':''}" onclick="pickupFilter='out-for-delivery';renderPickupList()">Out</button>
-                <button class="filter-chip ${pickupFilter==='delivered'?'active':''}" onclick="pickupFilter='delivered';renderPickupList()">Done</button>
-                <input type="text" class="search-input" placeholder="Search..." oninput="renderPickupList()" id="pickupSearch">
-                <button class="refresh-chip" onclick="loadPickupData()"><i class="fas fa-sync-alt"></i></button>
+        function renderDeliveryFilters() {
+            $('filters-pickup').innerHTML = `
+                <button class="filter-chip ${deliveryFilter==='all'?'active':''}" onclick="deliveryFilter='all';renderDeliveryList()">All</button>
+                <button class="filter-chip ${deliveryFilter==='active'?'active':''}" onclick="deliveryFilter='active';renderDeliveryList()">Active</button>
+                <button class="filter-chip ${deliveryFilter==='done'?'active':''}" onclick="deliveryFilter='done';renderDeliveryList()">Done</button>
+                <input type="text" class="search-input" placeholder="Search..." oninput="renderDeliveryList()" id="deliverySearch">
+                <button class="refresh-chip" onclick="loadAllDeliveries()"><i class="fas fa-sync-alt"></i></button>
             `;
         }
 
-        function renderPickupList() {
-            let items = [...allPickups];
-            if (pickupFilter !== 'all') items = items.filter(d => d.status === pickupFilter);
-            const q = ($('pickupSearch')?.value || '').toLowerCase();
+        function renderDeliveryList() {
+            let items = [...allDeliveries];
+            if (deliveryFilter === 'active') items = items.filter(d => d.readyStatuses.includes(d.status) || d.activeStatuses.includes(d.status));
+            if (deliveryFilter === 'done') items = items.filter(d => d.status === d.doneStatus);
+            const q = ($('deliverySearch')?.value || '').toLowerCase();
             if (q) items = items.filter(d => {
                 const id = String(d.id).toLowerCase();
-                const client = (d.userName || d.customer?.name || '').toLowerCase();
-                const pickup = (d.pickup?.address || '').toLowerCase();
-                const delivery = (d.delivery?.address || '').toLowerCase();
-                return id.includes(q) || client.includes(q) || pickup.includes(q) || delivery.includes(q);
+                const customer = d.customer.toLowerCase();
+                const pickup = d.pickup.toLowerCase();
+                const delivery = d.delivery.toLowerCase();
+                return id.includes(q) || customer.includes(q) || pickup.includes(q) || delivery.includes(q);
             });
 
             const list = $('list-pickup');
@@ -1442,21 +838,18 @@
             }
 
             list.innerHTML = items.map(d => {
-                const s = d.status || 'pending';
-                const isNew = s === 'assigned' || s === 'pending';
-                const statusClass = `status-${s === 'in_progress' ? 'out-for-delivery' : s}`;
-                const client = d.userName || d.customer?.name || 'Client';
-                const pickup = d.pickup?.address || '—';
-                const delivery = d.delivery?.address || '—';
-                const fare = d.fare?.total ? `KSh ${d.fare.total}` : '—';
+                const isNew = d.readyStatuses.includes(d.status);
+                const isActive = d.activeStatuses.includes(d.status);
+                const statusClass = isActive ? 'status-out-for-delivery' : (d.status === d.doneStatus ? 'status-delivered' : 'status-pending');
+                const fareDisplay = d.fare ? `KSh ${Number(d.fare).toLocaleString()}` : '—';
 
-                let actions = `<button class="action-btn btn-view" onclick="viewPickupDetails('${d.id}')"><i class="fas fa-eye"></i></button>`;
-                if (s === 'assigned' || s === 'pending') {
-                    actions += `<button class="action-btn btn-pickup" onclick="openPickupConfirm('${d.id}')"><i class="fas fa-box"></i> Pickup</button>`;
+                let actions = `<button class="action-btn btn-view" onclick="viewDeliveryDetails('${d.id}','${d.sourcePath}')"><i class="fas fa-eye"></i></button>`;
+                if (isNew) {
+                    actions += `<button class="action-btn btn-pickup" onclick="openPickupConfirm('${d.id}','${d.sourcePath}')"><i class="fas fa-box"></i> Pickup</button>`;
                 }
-                if (s === 'out-for-delivery' || s === 'in_progress') {
-                    actions += `<button class="action-btn btn-nav" onclick="navigateTo('${encodeURIComponent(delivery)}')"><i class="fas fa-map-marked-alt"></i> Nav</button>`;
-                    actions += `<button class="action-btn btn-complete" onclick="openCompleteModal('${d.id}')"><i class="fas fa-check"></i> Done</button>`;
+                if (isActive) {
+                    actions += `<button class="action-btn btn-nav" onclick="navigateTo('${encodeURIComponent(d.delivery)}')"><i class="fas fa-map-marked-alt"></i> Nav</button>`;
+                    actions += `<button class="action-btn btn-complete" onclick="openCompleteModal('${d.id}','${d.sourcePath}','${d.doneStatus}')"><i class="fas fa-check"></i> Done</button>`;
                 }
 
                 return `
@@ -1464,78 +857,79 @@
                     <div class="delivery-top">
                         <span class="delivery-id">
                             #${String(d.id).substring(Math.max(0,d.id.length-6))}
+                            <span class="delivery-source ${d.sourceBadge}">${d.source}</span>
                             ${isNew ? '<span class="delivery-new-badge">NEW</span>' : ''}
                         </span>
-                        <span class="delivery-status ${statusClass}">${s.replace(/-/g,' ').replace(/_/g,' ')}</span>
+                        <span class="delivery-status ${statusClass}">${d.status.replace(/-/g,' ')}</span>
                     </div>
-                    <div class="delivery-client">${escapeHtml(client)}</div>
-                    <div class="delivery-route">📍 ${escapeHtml(String(pickup).substring(0,25))} <i class="fas fa-arrow-right"></i> ${escapeHtml(String(delivery).substring(0,25))}</div>
-                    <div style="font-size:0.7rem;font-weight:700;margin-bottom:0.5rem;">${fare}</div>
+                    <div class="delivery-client">${escapeHtml(d.customer)}</div>
+                    <div class="delivery-route">📍 ${escapeHtml(String(d.pickup).substring(0,25))} <i class="fas fa-arrow-right"></i> ${escapeHtml(String(d.delivery).substring(0,25))}</div>
+                    <div style="font-size:0.7rem;font-weight:700;margin-bottom:0.5rem;">${fareDisplay}</div>
                     <div class="delivery-actions">${actions}</div>
                 </div>`;
             }).join('');
         }
 
-        window.openPickupConfirm = (id) => { currentActionId = id; $('pickupModalOverlay').classList.add('show'); $('pickupNotes').value = ''; };
-        window.closePickupModal = () => { $('pickupModalOverlay').classList.remove('show'); currentActionId = null; };
+        // ========== DELIVERY ACTIONS ==========
+        window.openPickupConfirm = (id, sourcePath) => { currentActionId = id; currentActionSource = sourcePath; $('pickupModalOverlay').classList.add('show'); $('pickupNotes').value = ''; };
+        window.closePickupModal = () => { $('pickupModalOverlay').classList.remove('show'); currentActionId = null; currentActionSource = null; };
+        
         window.confirmPickup = async () => {
-            if (!currentActionId) return;
-            const notes = $('pickupNotes').value.trim();
+            if (!currentActionId || !currentActionSource) return;
             showLoading(true);
             try {
-                const snap = await db.ref(`pickup_deliveries/${currentActionId}`).once('value');
-                const ex = snap.val() || {};
-                await db.ref(`pickup_deliveries/${currentActionId}`).update({
-                    status: 'out-for-delivery',
+                const source = operationSources.find(s => s.path === currentActionSource);
+                const activeStatus = source?.activeStatuses[0] || 'shipped';
+                await db.ref(`${currentActionSource}/${currentActionId}`).update({
+                    status: activeStatus,
                     pickupConfirmedAt: new Date().toISOString(),
-                    pickupNotes: notes,
-                    statusHistory: [...(ex.statusHistory||[]), { status: 'out-for-delivery', timestamp: new Date().toISOString(), note: notes || 'Package picked up' }]
+                    pickupNotes: $('pickupNotes').value.trim(),
+                    updatedAt: firebase.database.ServerValue.TIMESTAMP
                 });
                 toast('Package picked up! Out for delivery.', 'success');
                 closePickupModal();
-                loadPickupData();
-            } catch (e) { toast('Error confirming pickup. Try again.', 'error'); }
+                loadAllDeliveries();
+            } catch (e) { toast('Error confirming pickup.', 'error'); }
             showLoading(false);
         };
 
-        window.openCompleteModal = (id) => { currentActionId = id; $('completeModalOverlay').classList.add('show'); $('proofName').value = ''; $('proofNotes').value = ''; };
-        window.closeCompleteModal = () => { $('completeModalOverlay').classList.remove('show'); currentActionId = null; };
+        window.openCompleteModal = (id, sourcePath, doneStatus) => { currentActionId = id; currentActionSource = sourcePath; $('completeModalOverlay').classList.add('show'); $('proofName').value = ''; $('proofNotes').value = ''; };
+        window.closeCompleteModal = () => { $('completeModalOverlay').classList.remove('show'); currentActionId = null; currentActionSource = null; };
+        
         window.completeDelivery = async () => {
             const name = $('proofName').value.trim();
-            if (!name) { toast('Please enter the receiver\'s name', 'warning'); return; }
-            if (!currentActionId) return;
+            if (!name) { toast('Enter receiver name', 'warning'); return; }
+            if (!currentActionId || !currentActionSource) return;
             showLoading(true);
             try {
-                const snap = await db.ref(`pickup_deliveries/${currentActionId}`).once('value');
-                const ex = snap.val() || {};
-                await db.ref(`pickup_deliveries/${currentActionId}`).update({
-                    status: 'delivered',
-                    deliveryDate: new Date().toISOString(),
-                    deliveryProof: { customerName: name, notes: $('proofNotes').value.trim(), timestamp: new Date().toISOString() },
-                    statusHistory: [...(ex.statusHistory||[]), { status: 'delivered', timestamp: new Date().toISOString(), note: `Delivered to ${name}` }]
+                const source = operationSources.find(s => s.path === currentActionSource);
+                const doneStatus = source?.doneStatus || 'delivered';
+                await db.ref(`${currentActionSource}/${currentActionId}`).update({
+                    status: doneStatus,
+                    deliveredAt: firebase.database.ServerValue.TIMESTAMP,
+                    deliveryProof: { receiverName: name, notes: $('proofNotes').value.trim(), timestamp: new Date().toISOString() },
+                    updatedAt: firebase.database.ServerValue.TIMESTAMP
                 });
-                toast('Delivery completed! Great work.', 'success');
+                toast('Delivery completed!', 'success');
                 closeCompleteModal();
-                loadPickupData();
-            } catch (e) { toast('Error completing delivery. Try again.', 'error'); }
+                loadAllDeliveries();
+            } catch (e) { toast('Error completing delivery.', 'error'); }
             showLoading(false);
         };
 
-        window.viewPickupDetails = (id) => {
-            const d = allPickups.find(x => x.id === id);
+        window.viewDeliveryDetails = (id, sourcePath) => {
+            const d = allDeliveries.find(x => x.id === id);
             if (!d) return;
-            const s = d.status || 'pending';
-            $('detailsTitle').textContent = `Delivery #${String(d.id).substring(Math.max(0,d.id.length-6))}`;
+            $('detailsTitle').textContent = `Delivery #${String(id).substring(Math.max(0,id.length-6))}`;
             $('detailsBody').innerHTML = `
                 <div class="detail-grid">
-                    <div class="detail-item"><strong>Client</strong><span>${escapeHtml(d.userName || d.customer?.name || 'N/A')}</span></div>
-                    <div class="detail-item"><strong>Phone</strong><span>${escapeHtml(d.userPhone || d.customer?.phone || 'N/A')}</span></div>
-                    <div class="detail-item"><strong>Status</strong><span class="delivery-status status-${s}">${s.replace(/-/g,' ')}</span></div>
-                    <div class="detail-item"><strong>Fare</strong><span>${d.fare?.total ? 'KSh '+d.fare.total : '—'}</span></div>
-                    <div class="detail-item"><strong>Pickup</strong><span>${escapeHtml(d.pickup?.address || '—')}</span></div>
-                    <div class="detail-item"><strong>Delivery</strong><span>${escapeHtml(d.delivery?.address || '—')}</span></div>
-                    <div class="detail-item full"><strong>Package</strong><span>${escapeHtml(d.package?.type || 'N/A')} · ${d.package?.weight || 0}kg</span></div>
-                    <div class="detail-item full"><strong>Instructions</strong><span>${escapeHtml(d.package?.instructions || d.instructions || 'None')}</span></div>
+                    <div class="detail-item"><strong>Source</strong><span>${d.source}</span></div>
+                    <div class="detail-item"><strong>Status</strong><span class="delivery-status status-${d.status === d.doneStatus ? 'delivered' : 'pending'}">${d.status.replace(/-/g,' ')}</span></div>
+                    <div class="detail-item"><strong>Customer</strong><span>${escapeHtml(d.customer)}</span></div>
+                    <div class="detail-item"><strong>Phone</strong><span>${escapeHtml(d.phone || 'N/A')}</span></div>
+                    <div class="detail-item full"><strong>Pickup</strong><span>${escapeHtml(d.pickup)}</span></div>
+                    <div class="detail-item full"><strong>Delivery</strong><span>${escapeHtml(d.delivery)}</span></div>
+                    <div class="detail-item"><strong>Fare</strong><span>${d.fare ? 'KSh '+Number(d.fare).toLocaleString() : '—'}</span></div>
                 </div>
             `;
             $('detailsModalOverlay').classList.add('show');
@@ -1548,10 +942,7 @@
             try {
                 const snap = await db.ref('pickme_rides').orderByChild('driverId').equalTo(currentUser.uid).once('value');
                 const data = snap.val() || {};
-                allRides = Object.entries(data).map(([id, r]) => {
-                    seenRideIds.add(id);
-                    return { id, ...r };
-                });
+                allRides = Object.entries(data).map(([id, r]) => ({ id, ...r }));
                 allRides.sort((a, b) => {
                     const aIsNew = a.status === 'accepted' || a.status === 'requested';
                     const bIsNew = b.status === 'accepted' || b.status === 'requested';
@@ -1569,22 +960,18 @@
         function renderRideStats() {
             const active = allRides.filter(r => ['accepted','arrived','ongoing'].includes(r.status)).length;
             const done = allRides.filter(r => r.status === 'completed').length;
-            const today = new Date().toDateString();
-            const todayDone = allRides.filter(r => r.status === 'completed' && r.completedAt && new Date(r.completedAt).toDateString() === today).length;
-            $(`stats-ride`).innerHTML = `
+            $('stats-ride').innerHTML = `
                 <div class="stat-card"><div class="stat-value">${active}</div><div class="stat-label">Active</div></div>
-                <div class="stat-card"><div class="stat-value">${todayDone}</div><div class="stat-label">Today</div></div>
-                <div class="stat-card"><div class="stat-value">${done}</div><div class="stat-label">Total</div></div>
+                <div class="stat-card"><div class="stat-value">${done}</div><div class="stat-label">Completed</div></div>
+                <div class="stat-card"><div class="stat-value">${allRides.length}</div><div class="stat-label">Total</div></div>
             `;
         }
 
         function renderRideFilters() {
-            $(`filters-ride`).innerHTML = `
+            $('filters-ride').innerHTML = `
                 <button class="filter-chip ${rideFilter==='all'?'active':''}" onclick="rideFilter='all';renderRideList()">All</button>
-                <button class="filter-chip ${rideFilter==='accepted'?'active':''}" onclick="rideFilter='accepted';renderRideList()">New</button>
-                <button class="filter-chip ${rideFilter==='arrived'?'active':''}" onclick="rideFilter='arrived';renderRideList()">Arrived</button>
-                <button class="filter-chip ${rideFilter==='ongoing'?'active':''}" onclick="rideFilter='ongoing';renderRideList()">Ongoing</button>
-                <button class="filter-chip ${rideFilter==='completed'?'active':''}" onclick="rideFilter='completed';renderRideList()">Done</button>
+                <button class="filter-chip ${rideFilter==='active'?'active':''}" onclick="rideFilter='active';renderRideList()">Active</button>
+                <button class="filter-chip ${rideFilter==='done'?'active':''}" onclick="rideFilter='done';renderRideList()">Done</button>
                 <input type="text" class="search-input" placeholder="Search..." oninput="renderRideList()" id="rideSearch">
                 <button class="refresh-chip" onclick="loadRideData()"><i class="fas fa-sync-alt"></i></button>
             `;
@@ -1592,10 +979,8 @@
 
         function renderRideList() {
             let items = [...allRides];
-            if (rideFilter !== 'all') items = items.filter(r => {
-                if (rideFilter === 'accepted') return r.status === 'accepted' || r.status === 'requested';
-                return r.status === rideFilter;
-            });
+            if (rideFilter === 'active') items = items.filter(r => ['accepted','arrived','ongoing'].includes(r.status));
+            if (rideFilter === 'done') items = items.filter(r => r.status === 'completed');
             const q = ($('rideSearch')?.value || '').toLowerCase();
             if (q) items = items.filter(r => {
                 const id = String(r.id).toLowerCase();
@@ -1614,21 +999,19 @@
             list.innerHTML = items.map(r => {
                 const s = r.status || 'requested';
                 const isNew = s === 'accepted' || s === 'requested';
+                const statusMap = { accepted: 'status-accepted', arrived: 'status-arrived', ongoing: 'status-ongoing', completed: 'status-completed', requested: 'status-pending' };
+                const statusClass = statusMap[s] || 'status-pending';
                 const passenger = r.passengerName || 'Passenger';
                 const pickup = r.pickup?.address || '—';
                 const dropoff = r.dropoff?.address || '—';
                 const fare = r.fare?.total ? `KSh ${r.fare.total}` : (r.estimatedFare ? `KSh ${r.estimatedFare}` : '—');
-                const statusMap = { accepted: 'status-accepted', arrived: 'status-arrived', ongoing: 'status-ongoing', completed: 'status-completed', requested: 'status-pending' };
-                const statusClass = statusMap[s] || 'status-pending';
 
                 let actions = `<button class="action-btn btn-view" onclick="viewRideDetails('${r.id}')"><i class="fas fa-eye"></i></button>`;
                 if (s === 'accepted' || s === 'requested') {
                     actions += `<button class="action-btn btn-pickup" onclick="openRideStatusModal('${r.id}','arrived')"><i class="fas fa-location-dot"></i> Arrived</button>`;
                     actions += `<button class="action-btn btn-cancel" onclick="openCancelRideModal('${r.id}')"><i class="fas fa-times"></i></button>`;
                 }
-                if (s === 'arrived') {
-                    actions += `<button class="action-btn btn-pickup" onclick="openRideStatusModal('${r.id}','ongoing')"><i class="fas fa-play"></i> Start</button>`;
-                }
+                if (s === 'arrived') actions += `<button class="action-btn btn-pickup" onclick="openRideStatusModal('${r.id}','ongoing')"><i class="fas fa-play"></i> Start</button>`;
                 if (s === 'ongoing') {
                     actions += `<button class="action-btn btn-nav" onclick="navigateTo('${encodeURIComponent(dropoff)}')"><i class="fas fa-map-marked-alt"></i> Nav</button>`;
                     actions += `<button class="action-btn btn-complete" onclick="openRideStatusModal('${r.id}','completed')"><i class="fas fa-check"></i> Done</button>`;
@@ -1637,10 +1020,7 @@
                 return `
                 <div class="delivery-card ${isNew ? 'new-task' : ''}">
                     <div class="delivery-top">
-                        <span class="delivery-id">
-                            #${String(r.id).substring(Math.max(0,r.id.length-6))}
-                            ${isNew ? '<span class="delivery-new-badge">NEW</span>' : ''}
-                        </span>
+                        <span class="delivery-id">#${String(r.id).substring(Math.max(0,r.id.length-6))}${isNew ? '<span class="delivery-new-badge">NEW</span>' : ''}</span>
                         <span class="delivery-status ${statusClass}">${s.replace(/-/g,' ')}</span>
                     </div>
                     <div class="delivery-client">${escapeHtml(passenger)}</div>
@@ -1651,35 +1031,23 @@
             }).join('');
         }
 
-        window.openRideStatusModal = (id, newStatus) => {
-            currentActionId = id;
-            rideStatusAction = newStatus;
-            const labels = { arrived: 'Arrived at Pickup', ongoing: 'Start Trip', completed: 'Complete Trip' };
-            const msgs = { arrived: 'Confirm that you have arrived at the pickup location.', ongoing: 'Passenger is in the vehicle. Start the trip now.', completed: 'Mark this trip as completed.' };
-            $('rideStatusTitle').textContent = labels[newStatus] || 'Update Ride';
-            $('rideStatusMsg').textContent = msgs[newStatus] || 'Update this ride status?';
-            $('rideStatusConfirmBtn').innerHTML = `<i class="fas fa-check"></i> ${labels[newStatus] || 'Confirm'}`;
-            $('rideStatusModalOverlay').classList.add('show');
-        };
+        window.openRideStatusModal = (id, newStatus) => { currentActionId = id; rideStatusAction = newStatus; const labels = { arrived: 'Arrived at Pickup', ongoing: 'Start Trip', completed: 'Complete Trip' }; $('rideStatusTitle').textContent = labels[newStatus] || 'Update'; $('rideStatusMsg').textContent = `Confirm ${labels[newStatus]?.toLowerCase() || 'this action'}?`; $('rideStatusModalOverlay').classList.add('show'); };
         window.closeRideStatusModal = () => { $('rideStatusModalOverlay').classList.remove('show'); currentActionId = null; rideStatusAction = null; };
         window.confirmRideStatus = async () => {
             if (!currentActionId || !rideStatusAction) return;
             showLoading(true);
             try {
-                const snap = await db.ref(`pickme_rides/${currentActionId}`).once('value');
-                const ex = snap.val() || {};
-                const updates = { status: rideStatusAction, statusHistory: [...(ex.statusHistory||[]), { status: rideStatusAction, timestamp: new Date().toISOString() }] };
+                const updates = { status: rideStatusAction, updatedAt: firebase.database.ServerValue.TIMESTAMP };
                 if (rideStatusAction === 'arrived') updates.arrivedAt = new Date().toISOString();
                 if (rideStatusAction === 'ongoing') updates.startedAt = new Date().toISOString();
                 if (rideStatusAction === 'completed') updates.completedAt = new Date().toISOString();
                 await db.ref(`pickme_rides/${currentActionId}`).update(updates);
                 if (rideStatusAction === 'ongoing') await db.ref(`pickme_drivers/${currentUser.uid}`).update({ status: 'on_trip', currentRide: currentActionId });
                 if (rideStatusAction === 'completed') await db.ref(`pickme_drivers/${currentUser.uid}`).update({ status: 'available', currentRide: null });
-                const successMsgs = { arrived: 'Arrived at pickup!', ongoing: 'Trip started! Drive safely.', completed: 'Trip completed! Great work.' };
-                toast(successMsgs[rideStatusAction] || 'Status updated!', 'success');
+                toast('Ride updated!', 'success');
                 closeRideStatusModal();
                 loadRideData();
-            } catch (e) { toast('Error updating ride. Try again.', 'error'); }
+            } catch (e) { toast('Error updating ride.', 'error'); }
             showLoading(false);
         };
 
@@ -1689,61 +1057,44 @@
             if (!currentActionId) return;
             showLoading(true);
             try {
-                const snap = await db.ref(`pickme_rides/${currentActionId}`).once('value');
-                const ex = snap.val() || {};
-                await db.ref(`pickme_rides/${currentActionId}`).update({
-                    status: 'cancelled',
-                    cancelledAt: new Date().toISOString(),
-                    cancelReason: $('cancelRideReason').value.trim() || 'Cancelled by driver',
-                    statusHistory: [...(ex.statusHistory||[]), { status: 'cancelled', timestamp: new Date().toISOString(), note: $('cancelRideReason').value.trim() || 'Cancelled by driver' }]
-                });
+                await db.ref(`pickme_rides/${currentActionId}`).update({ status: 'cancelled', cancelledAt: new Date().toISOString(), cancelReason: $('cancelRideReason').value.trim() || 'Cancelled by driver', updatedAt: firebase.database.ServerValue.TIMESTAMP });
                 await db.ref(`pickme_drivers/${currentUser.uid}`).update({ status: 'available', currentRide: null });
                 toast('Ride cancelled.', 'warning');
                 closeCancelRideModal();
                 loadRideData();
-            } catch (e) { toast('Error cancelling ride.', 'error'); }
+            } catch (e) { toast('Error cancelling.', 'error'); }
             showLoading(false);
         };
 
         window.viewRideDetails = (id) => {
             const r = allRides.find(x => x.id === id);
             if (!r) return;
-            const s = r.status || 'requested';
-            $('detailsTitle').textContent = `Ride #${String(r.id).substring(Math.max(0,r.id.length-6))}`;
+            $('detailsTitle').textContent = `Ride #${String(id).substring(Math.max(0,id.length-6))}`;
             $('detailsBody').innerHTML = `
                 <div class="detail-grid">
                     <div class="detail-item"><strong>Passenger</strong><span>${escapeHtml(r.passengerName || 'N/A')}</span></div>
-                    <div class="detail-item"><strong>Phone</strong><span>${escapeHtml(r.passengerPhone || r.phone || 'N/A')}</span></div>
-                    <div class="detail-item"><strong>Status</strong><span class="delivery-status status-${s}">${s.replace(/-/g,' ')}</span></div>
-                    <div class="detail-item"><strong>Vehicle</strong><span>${escapeHtml(r.vehicleType || 'Standard')}</span></div>
-                    <div class="detail-item"><strong>Pickup</strong><span>${escapeHtml(r.pickup?.address || '—')}</span></div>
-                    <div class="detail-item"><strong>Dropoff</strong><span>${escapeHtml(r.dropoff?.address || '—')}</span></div>
-                    <div class="detail-item"><strong>Fare</strong><span>${r.fare?.total ? 'KSh '+r.fare.total : (r.estimatedFare ? 'KSh '+r.estimatedFare : '—')}</span></div>
-                    <div class="detail-item"><strong>Payment</strong><span>${escapeHtml(r.paymentMethod || 'Cash')}</span></div>
-                    <div class="detail-item full"><strong>Instructions</strong><span>${escapeHtml(r.specialInstructions || 'None')}</span></div>
+                    <div class="detail-item"><strong>Phone</strong><span>${escapeHtml(r.passengerPhone || 'N/A')}</span></div>
+                    <div class="detail-item"><strong>Status</strong><span>${r.status || 'N/A'}</span></div>
+                    <div class="detail-item"><strong>Fare</strong><span>${r.fare?.total ? 'KSh '+r.fare.total : '—'}</span></div>
+                    <div class="detail-item full"><strong>Pickup</strong><span>${escapeHtml(r.pickup?.address || '—')}</span></div>
+                    <div class="detail-item full"><strong>Dropoff</strong><span>${escapeHtml(r.dropoff?.address || '—')}</span></div>
                 </div>
             `;
             $('detailsModalOverlay').classList.add('show');
         };
 
-        // ========== HELPERS ==========
-        function updateBadge(key, count) {
-            const badge = $(`badge-${key}`);
-            if (badge) badge.textContent = count;
-        }
-
+        function updateBadge(key, count) { const badge = $(`badge-${key}`); if (badge) badge.textContent = count; }
         function updateHeaderStats() {
             let total = 0;
-            if (activeTab === 'pickup') total = allPickups.filter(d => ['assigned','out-for-delivery'].includes(d.status)).length;
+            if (activeTab === 'pickup') total = allDeliveries.filter(d => d.readyStatuses.includes(d.status) || d.activeStatuses.includes(d.status)).length;
             if (activeTab === 'ride') total = allRides.filter(r => ['accepted','arrived','ongoing'].includes(r.status)).length;
             $('headerActiveCount').textContent = total;
         }
 
         window.navigateTo = (addr) => window.open(`https://www.google.com/maps/search/?api=1&query=${addr}`, '_blank');
         window.handleLogout = async () => { if (confirm('Sign out?')) { await auth.signOut(); window.location.href = 'index.html'; } };
-        window.refreshAll = () => { if (activeTab) { loadTabData(activeTab); toast('Dashboard refreshed', 'success'); } };
+        window.refreshAll = () => { if (activeTab) { loadTabData(activeTab); toast('Refreshed!', 'success'); } };
 
-        // Make notification functions globally accessible
         window.requestNotificationPermission = requestNotificationPermission;
         window.dismissNotificationBanner = dismissNotificationBanner;
         window.testNotification = testNotification;
