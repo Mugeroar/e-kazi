@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>E-KAZI · Dashboard</title>
+    <title>E-KAZI · Deliveries Dashboard</title>
     
     <meta name="theme-color" content="#ffffff">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -21,9 +21,10 @@
         :root {
             --bg-primary: #f8fafc; --bg-secondary: #f1f5f9; --bg-card: #ffffff;
             --text-primary: #1e293b; --text-secondary: #475569; --text-muted: #94a3b8;
-            --border: #e2e8f0; --border-light: #cbd5e1;
+            --border: #e2e8f0;
             --gold: #f59e0b; --gold-dark: #b45309; --purple: #8b5cf6;
             --green: #22c55e; --red: #ef4444; --warning: #f59e0b; --info: #3b82f6; --orange: #f97316;
+            --pink: #ec4899; --emerald: #10b981;
             --shadow-sm: 0 1px 2px rgba(0,0,0,0.05); --shadow: 0 4px 6px -1px rgba(0,0,0,0.07);
             --shadow-md: 0 10px 15px -3px rgba(0,0,0,0.1);
             --safe-bottom: env(safe-area-inset-bottom, 20px); --safe-top: env(safe-area-inset-top, 0px);
@@ -63,17 +64,17 @@
         /* Tab Navigation */
         .tab-nav {
             display: flex; gap: 0; background: var(--bg-primary); border-bottom: 1px solid var(--border);
-            padding: 0 0.8rem; overflow-x: auto; scrollbar-width: none;
+            padding: 0 0.5rem; overflow-x: auto; scrollbar-width: none;
         }
         .tab-nav::-webkit-scrollbar { display: none; }
         .tab-btn {
-            padding: 0.5rem 0.8rem; border: none; background: transparent; color: var(--text-muted);
-            font-weight: 600; font-size: 0.68rem; cursor: pointer; white-space: nowrap;
+            padding: 0.5rem 0.7rem; border: none; background: transparent; color: var(--text-muted);
+            font-weight: 600; font-size: 0.65rem; cursor: pointer; white-space: nowrap;
             font-family: 'Inter', sans-serif; border-bottom: 2px solid transparent; transition: all 0.2s;
             display: flex; align-items: center; gap: 5px;
         }
         .tab-btn.active { color: var(--gold-dark); border-bottom-color: var(--gold); }
-        .tab-btn .tab-badge { font-size: 0.55rem; padding: 1px 6px; border-radius: 8px; font-weight: 700; }
+        .tab-btn .tab-badge { font-size: 0.5rem; padding: 1px 6px; border-radius: 8px; font-weight: 700; }
         .tab-btn.active .tab-badge { background: rgba(245,158,11,0.12); color: var(--gold-dark); }
         .tab-btn:not(.active) .tab-badge { background: rgba(148,163,184,0.1); color: var(--text-muted); }
 
@@ -91,12 +92,6 @@
 
         .delivery-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.35rem; }
         .delivery-id { font-size: 0.6rem; color: var(--text-muted); font-weight: 600; display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
-        .source-badge { font-size: 0.5rem; padding: 1px 5px; border-radius: 5px; font-weight: 700; }
-        .source-dsog { background: rgba(236,72,153,0.1); color: #be185d; }
-        .source-fusion { background: rgba(16,185,129,0.1); color: #059669; }
-        .source-brandinn { background: rgba(139,92,246,0.1); color: #6d28d9; }
-        .source-heritage { background: rgba(217,70,239,0.1); color: #a21caf; }
-        .source-pickup { background: rgba(249,115,22,0.1); color: #c2410c; }
         .new-badge { font-size: 0.5rem; padding: 1px 5px; border-radius: 5px; background: var(--gold); color: white; font-weight: 700; }
 
         .delivery-status { font-size: 0.55rem; padding: 2px 7px; border-radius: 7px; font-weight: 700; text-transform: capitalize; white-space: nowrap; }
@@ -120,8 +115,6 @@
         .btn-nav:hover { background: var(--info); color: white; }
         .btn-cancel { background: rgba(148,163,184,0.1); color: var(--text-secondary); }
         .btn-cancel:hover { background: var(--text-muted); color: white; }
-        .btn-danger { background: rgba(239,68,68,0.1); color: #991b1b; }
-        .btn-danger:hover { background: var(--red); color: white; }
 
         .empty-list { text-align: center; padding: 2.5rem 1rem; color: var(--text-muted); font-size: 0.72rem; }
         .empty-list i { font-size: 1.5rem; margin-bottom: 0.5rem; opacity: 0.4; display: block; }
@@ -173,6 +166,12 @@
         .hidden { display: none !important; }
         .footer { text-align: center; padding: 0.5rem 1rem calc(0.5rem + var(--safe-bottom)); color: var(--text-muted); font-size: 0.55rem; border-top: 1px solid var(--border); }
         .footer span { color: var(--gold-dark); font-weight: 600; }
+
+        .tab-icon-pickup { color: var(--orange); }
+        .tab-icon-dsog { color: var(--pink); }
+        .tab-icon-fusion { color: var(--emerald); }
+        .tab-icon-brandinn { color: var(--purple); }
+        .tab-icon-heritage { color: #d946ef; }
     </style>
 </head>
 <body>
@@ -208,21 +207,6 @@
         <div class="btn-row"><button class="action-btn btn-nav" onclick="navigateFromModal()" id="navFromModalBtn" style="display:none;"><i class="fas fa-map-marked-alt"></i> Navigate</button><button class="action-btn btn-cancel" onclick="closeDetailsModal()">Close</button></div>
     </div></div>
 
-    <!-- Ride Status Modal -->
-    <div class="modal-overlay" id="rideStatusModal"><div class="modal">
-        <div class="modal-header"><i class="fas fa-taxi"></i><h3 id="rideStatusTitle">Update</h3><button class="modal-close" onclick="closeRideStatusModal()"><i class="fas fa-times"></i></button></div>
-        <p id="rideStatusMsg"></p>
-        <div class="btn-row"><button class="action-btn btn-cancel" onclick="closeRideStatusModal()">Cancel</button><button class="action-btn btn-start" id="rideStatusConfirmBtn" onclick="confirmRideStatus()"><i class="fas fa-check"></i> Confirm</button></div>
-    </div></div>
-
-    <!-- Cancel Ride Modal -->
-    <div class="modal-overlay" id="cancelRideModal"><div class="modal">
-        <div class="modal-header"><i class="fas fa-times-circle" style="color:var(--red);"></i><h3>Cancel Ride</h3><button class="modal-close" onclick="closeCancelRideModal()"><i class="fas fa-times"></i></button></div>
-        <p>Are you sure? This cannot be undone.</p>
-        <div class="form-group"><label>Reason</label><textarea id="cancelRideReason" rows="2"></textarea></div>
-        <div class="btn-row"><button class="action-btn btn-cancel" onclick="closeCancelRideModal()">Go Back</button><button class="action-btn btn-danger" onclick="confirmCancelRide()"><i class="fas fa-times"></i> Cancel Ride</button></div>
-    </div></div>
-
     <div class="app-container">
         <header class="header">
             <div class="header-inner">
@@ -248,7 +232,7 @@
             <div id="tabContents"></div>
         </div>
 
-        <footer class="footer">&copy; 2026 <span>E-KAZI</span></footer>
+        <footer class="footer">&copy; 2026 <span>E-KAZI</span> · Deliveries</footer>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -270,19 +254,19 @@
         const auth = firebase.auth();
 
         const $ = id => document.getElementById(id);
-        let currentUser = null, userRegistrations = {}, activeTab = null;
+        let currentUser = null, activeTab = 'all';
         let currentActionId = null, currentActionSource = null, currentNavAddress = null;
-        let allDeliveries = [], allRides = [];
+        let allDeliveries = [];
         let notificationPermission = 'default', notificationsEnabled = false;
-        let seenIds = new Set(); // Prevents ALL duplicates
+        let seenIds = new Set();
         let audioCtx = null;
 
-        const operationSources = [
-            { path: 'pickup_deliveries', label: 'Pick-Up', badge: 'source-pickup', assignedField: 'assignedTo', customerField: 'userName', phoneField: 'userPhone', emailField: '', pickupField: 'pickup.address', deliveryField: 'delivery.address', fareField: 'fare.total', statusField: 'status', packageField: 'package.type', instructionsField: 'package.instructions', newStatuses: ['assigned','pending'], activeStatuses: ['out-for-delivery','in_progress'], doneStatus: 'delivered' },
-            { path: 'dsog_fashion_orders', label: 'DSOG', badge: 'source-dsog', assignedField: 'driverId', customerField: 'customerName', phoneField: 'customerPhone', emailField: 'customerEmail', pickupField: 'location', deliveryField: 'location', fareField: 'total', statusField: 'status', packageField: 'packageType', instructionsField: 'notes', newStatuses: ['ready'], activeStatuses: ['shipped'], doneStatus: 'delivered' },
-            { path: 'fusion_foods_orders', label: 'Fusion', badge: 'source-fusion', assignedField: 'driverId', customerField: 'restaurantName', phoneField: 'phone', emailField: 'email', pickupField: 'location', deliveryField: 'location', fareField: 'total', statusField: 'status', packageField: 'packageType', instructionsField: 'notes', newStatuses: ['ready'], activeStatuses: ['shipped'], doneStatus: 'delivered' },
-            { path: 'brandinn_print_orders', label: 'Print', badge: 'source-brandinn', assignedField: 'driverId', customerField: 'customerName', phoneField: 'customerPhone', emailField: 'customerEmail', pickupField: 'location', deliveryField: 'location', fareField: 'total', statusField: 'status', packageField: 'product', instructionsField: 'notes', newStatuses: ['ready','completed'], activeStatuses: [], doneStatus: 'delivered' },
-            { path: 'heritage_listings', label: 'Heritage', badge: 'source-heritage', assignedField: 'driverId', customerField: 'partnerName', phoneField: '', emailField: '', pickupField: 'location', deliveryField: 'location', fareField: 'price', statusField: 'status', packageField: 'adType', instructionsField: 'notes', newStatuses: ['active'], activeStatuses: [], doneStatus: 'expired' }
+        const sources = [
+            { key: 'pickup', path: 'pickup_deliveries', label: 'Pick-Up', icon: 'fa-box', iconClass: 'tab-icon-pickup', assignedField: 'assignedTo', customerField: 'userName', phoneField: 'userPhone', emailField: '', pickupField: 'pickup.address', deliveryField: 'delivery.address', fareField: 'fare.total', statusField: 'status', packageField: 'package.type', instructionsField: 'package.instructions', newStatuses: ['assigned','pending'], activeStatuses: ['out-for-delivery','in_progress'], doneStatus: 'delivered' },
+            { key: 'dsog', path: 'dsog_fashion_orders', label: 'DSOG', icon: 'fa-tshirt', iconClass: 'tab-icon-dsog', assignedField: 'driverId', customerField: 'customerName', phoneField: 'customerPhone', emailField: 'customerEmail', pickupField: 'location', deliveryField: 'location', fareField: 'total', statusField: 'status', packageField: 'packageType', instructionsField: 'notes', newStatuses: ['ready'], activeStatuses: ['shipped'], doneStatus: 'delivered' },
+            { key: 'fusion', path: 'fusion_foods_orders', label: 'Fusion', icon: 'fa-utensils', iconClass: 'tab-icon-fusion', assignedField: 'driverId', customerField: 'restaurantName', phoneField: 'phone', emailField: 'email', pickupField: 'location', deliveryField: 'location', fareField: 'total', statusField: 'status', packageField: 'packageType', instructionsField: 'notes', newStatuses: ['ready'], activeStatuses: ['shipped'], doneStatus: 'delivered' },
+            { key: 'brandinn', path: 'brandinn_print_orders', label: 'Print', icon: 'fa-print', iconClass: 'tab-icon-brandinn', assignedField: 'driverId', customerField: 'customerName', phoneField: 'customerPhone', emailField: 'customerEmail', pickupField: 'location', deliveryField: 'location', fareField: 'total', statusField: 'status', packageField: 'product', instructionsField: 'notes', newStatuses: ['ready','completed'], activeStatuses: [], doneStatus: 'delivered' },
+            { key: 'heritage', path: 'heritage_listings', label: 'Heritage', icon: 'fa-landmark', iconClass: 'tab-icon-heritage', assignedField: 'driverId', customerField: 'partnerName', phoneField: '', emailField: '', pickupField: 'location', deliveryField: 'location', fareField: 'price', statusField: 'status', packageField: 'adType', instructionsField: 'notes', newStatuses: ['active'], activeStatuses: [], doneStatus: 'expired' }
         ];
 
         function getNested(obj, path) { return path.split('.').reduce((o, k) => (o || {})[k], obj) || null; }
@@ -299,10 +283,7 @@
         function initAudio() { if (!audioCtx) { try { audioCtx = new (window.AudioContext||window.webkitAudioContext)(); } catch(e) {} } if (audioCtx?.state === 'suspended') audioCtx.resume(); }
         function playNotificationSound() {
             if (!audioCtx) return;
-            try {
-                const now = audioCtx.currentTime;
-                [{ freq: 880, start: 0, duration: 0.2, vol: 0.4 },{ freq: 1108.73, start: 0.2, duration: 0.25, vol: 0.5 },{ freq: 1318.51, start: 0.45, duration: 0.35, vol: 0.45 },{ freq: 1760, start: 0.8, duration: 0.3, vol: 0.35 }].forEach(n => { const o = audioCtx.createOscillator(); const g = audioCtx.createGain(); o.connect(g); g.connect(audioCtx.destination); o.type = 'sine'; o.frequency.setValueAtTime(n.freq, now + n.start); g.gain.setValueAtTime(0, now + n.start); g.gain.linearRampToValueAtTime(n.vol, now + n.start + 0.03); g.gain.exponentialRampToValueAtTime(0.01, now + n.start + n.duration); o.start(now + n.start); o.stop(now + n.start + n.duration); });
-            } catch(e) {}
+            try { const now = audioCtx.currentTime; [{ freq: 880, start: 0, duration: 0.2, vol: 0.4 },{ freq: 1108.73, start: 0.2, duration: 0.25, vol: 0.5 },{ freq: 1318.51, start: 0.45, duration: 0.35, vol: 0.45 },{ freq: 1760, start: 0.8, duration: 0.3, vol: 0.35 }].forEach(n => { const o = audioCtx.createOscillator(); const g = audioCtx.createGain(); o.connect(g); g.connect(audioCtx.destination); o.type = 'sine'; o.frequency.setValueAtTime(n.freq, now + n.start); g.gain.setValueAtTime(0, now + n.start); g.gain.linearRampToValueAtTime(n.vol, now + n.start + 0.03); g.gain.exponentialRampToValueAtTime(0.01, now + n.start + n.duration); o.start(now + n.start); o.stop(now + n.start + n.duration); }); } catch(e) {}
         }
         function vibrateStrong() { if (navigator.vibrate) navigator.vibrate([300, 150, 300, 150, 500, 200, 300]); }
 
@@ -329,7 +310,7 @@
             } catch(e) {}
         }
 
-        function notifyNewRequest(type, details) { initAudio(); playNotificationSound(); vibrateStrong(); sendBrowserNotification('E-KAZI · New Request', details); toast(`🔔 ${details}`, 'info'); }
+        function notifyNewRequest(label, details) { initAudio(); playNotificationSound(); vibrateStrong(); sendBrowserNotification('E-KAZI · New Request', details); toast(`🔔 ${details}`, 'info'); }
         function testNotification() { initAudio(); playNotificationSound(); vibrateStrong(); sendBrowserNotification('E-KAZI · Test', 'Notification test!'); toast('Test alert sent!', 'success'); }
 
         // ========== AUTH ==========
@@ -340,86 +321,110 @@
             $('userName').textContent = (user.displayName || user.email?.split('@')[0] || 'Asst').substring(0,10);
             showLoading(true);
             if ('Notification' in window) { notificationPermission = Notification.permission; notificationsEnabled = notificationPermission === 'granted'; if (notificationPermission === 'default') setTimeout(() => $('notificationBanner').classList.remove('hidden'), 1500); }
-            await checkRegistrations(user);
+            await checkRegistration();
             showLoading(false);
         });
 
-        async function checkRegistrations(user) {
-            userRegistrations = {};
-            for (const c of [{ node: 'delivery_assistants', key: 'deliveries', label: 'Deliveries', icon: 'fa-box' },{ node: 'pickme_drivers', key: 'rides', label: 'Rides', icon: 'fa-taxi' }]) {
-                try { const snap = await db.ref(`${c.node}/${user.uid}`).once('value'); if (snap.exists()) userRegistrations[c.key] = { ...c, verified: snap.val().verified === true, status: snap.val().status || 'pending', rejectionReason: snap.val().rejectionReason || '' }; } catch(e) {}
-            }
-            initUI();
+        async function checkRegistration() {
+            try {
+                const snap = await db.ref(`delivery_assistants/${currentUser.uid}`).once('value');
+                if (snap.exists() && snap.val().verified === true) {
+                    renderTabs();
+                    activeTab = 'all';
+                    switchTab('all');
+                    loadAllDeliveries();
+                    setupListeners();
+                } else if (snap.exists() && snap.val().status === 'rejected') {
+                    $('rejectedState').classList.remove('hidden');
+                    if (snap.val().rejectionReason) $('rejectionMsg').textContent = snap.val().rejectionReason;
+                } else {
+                    $('pendingState').classList.remove('hidden');
+                }
+            } catch(e) { $('pendingState').classList.remove('hidden'); }
         }
 
-        function initUI() {
-            const verified = Object.entries(userRegistrations).filter(([_,r]) => r.verified);
-            const allRejected = Object.keys(userRegistrations).length > 0 && Object.values(userRegistrations).every(r => r.status === 'rejected');
-            $('pendingState').classList.add('hidden'); $('rejectedState').classList.add('hidden');
-            if (verified.length) {
-                renderTabs(verified);
-                activeTab = verified[0][0];
-                switchTab(activeTab);
-                if (userRegistrations.deliveries?.verified) { loadDeliveries(); setupDeliveryListeners(); }
-                if (userRegistrations.rides?.verified) { loadRides(); setupRideListeners(); }
-            } else if (allRejected) {
-                $('rejectedState').classList.remove('hidden');
-                const r = Object.values(userRegistrations).find(r => r.status === 'rejected');
-                if (r?.rejectionReason) $('rejectionMsg').textContent = r.rejectionReason;
-                $('tabNav').innerHTML = ''; $('tabContents').innerHTML = '';
-            } else { $('pendingState').classList.remove('hidden'); $('tabNav').innerHTML = ''; $('tabContents').innerHTML = ''; }
-        }
-
-        function renderTabs(ops) {
-            $('tabNav').innerHTML = ops.map(([key, op]) => `<button class="tab-btn" data-tab="${key}" onclick="switchTab('${key}')"><i class="fas ${op.icon}"></i> ${op.label} <span class="tab-badge" id="badge-${key}">0</span></button>`).join('');
-            $('tabContents').innerHTML = ops.map(([key]) => `<div class="tab-content" id="tab-${key}"><div class="delivery-list" id="list-${key}"><div class="empty-list"><i class="fas fa-sync-alt fa-spin"></i><p>Loading...</p></div></div></div>`).join('');
+        function renderTabs() {
+            let html = `<button class="tab-btn active" data-tab="all" onclick="switchTab('all')"><i class="fas fa-layer-group"></i> All <span class="tab-badge" id="badge-all">0</span></button>`;
+            sources.forEach(s => {
+                html += `<button class="tab-btn" data-tab="${s.key}" onclick="switchTab('${s.key}')"><i class="fas ${s.icon} ${s.iconClass}"></i> ${s.label} <span class="tab-badge" id="badge-${s.key}">0</span></button>`;
+            });
+            $('tabNav').innerHTML = html;
+            
+            let content = `<div class="tab-content active" id="tab-all"><div class="delivery-list" id="list-all"><div class="empty-list"><i class="fas fa-sync-alt fa-spin"></i><p>Loading...</p></div></div></div>`;
+            sources.forEach(s => {
+                content += `<div class="tab-content" id="tab-${s.key}"><div class="delivery-list" id="list-${s.key}"><div class="empty-list"><i class="fas fa-sync-alt fa-spin"></i><p>Loading...</p></div></div></div>`;
+            });
+            $('tabContents').innerHTML = content;
         }
 
         window.switchTab = function(key) {
             activeTab = key;
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === key));
             document.querySelectorAll('.tab-content').forEach(c => c.classList.toggle('active', c.id === `tab-${key}`));
-            if (key === 'deliveries') renderDeliveryList();
-            if (key === 'rides') renderRideList();
-            updateBadges();
+            renderCurrentList();
         };
 
-        // ========== DELIVERIES (NO DUPLICATES) ==========
-        async function loadDeliveries() {
+        // ========== LOAD DELIVERIES ==========
+        async function loadAllDeliveries() {
             if (!currentUser) return;
-            const newDeliveries = [];
-            for (const src of operationSources) {
+            const all = [];
+            for (const src of sources) {
                 try {
                     const snap = await db.ref(src.path).once('value');
                     Object.entries(snap.val()||{}).forEach(([id, item]) => {
-                        const compositeKey = `${src.path}_${id}`;
+                        const compositeKey = `${src.key}_${id}`;
                         const assigned = getNested(item, src.assignedField) || item.assignedTo || item.driverId || '';
                         if (assigned === currentUser.uid) {
                             const status = getNested(item, src.statusField) || item.status || 'pending';
-                            newDeliveries.push({ compositeKey, id, source: src.label, sourceBadge: src.badge, sourcePath: src.path, customer: getNested(item, src.customerField) || 'Customer', phone: getNested(item, src.phoneField) || item.customerPhone || item.phone || '', email: getNested(item, src.emailField) || item.customerEmail || item.email || '', pickup: getNested(item, src.pickupField) || '—', delivery: getNested(item, src.deliveryField) || '—', fare: getNested(item, src.fareField) || 0, packageInfo: getNested(item, src.packageField) || item.package?.type || '', instructions: getNested(item, src.instructionsField) || item.instructions || item.package?.instructions || '', status, src, rawData: item, isNew: src.newStatuses.includes(status), isActive: src.activeStatuses.includes(status), isDone: status === src.doneStatus });
+                            all.push({
+                                compositeKey, id, sourceKey: src.key, sourceLabel: src.label,
+                                customer: getNested(item, src.customerField) || 'Customer',
+                                phone: getNested(item, src.phoneField) || item.customerPhone || item.phone || '',
+                                email: getNested(item, src.emailField) || item.customerEmail || item.email || '',
+                                pickup: getNested(item, src.pickupField) || '—',
+                                delivery: getNested(item, src.deliveryField) || '—',
+                                fare: getNested(item, src.fareField) || 0,
+                                packageInfo: getNested(item, src.packageField) || item.package?.type || '',
+                                instructions: getNested(item, src.instructionsField) || item.instructions || item.package?.instructions || '',
+                                status, src, rawData: item,
+                                isNew: src.newStatuses.includes(status),
+                                isActive: src.activeStatuses.includes(status),
+                                isDone: status === src.doneStatus
+                            });
                         }
                     });
                 } catch(e) {}
             }
-            allDeliveries = newDeliveries.filter((d, i, arr) => arr.findIndex(x => x.compositeKey === d.compositeKey) === i);
-            allDeliveries.sort((a, b) => { if (a.isNew && !b.isNew) return -1; if (!a.isNew && b.isNew) return 1; if (a.isActive && !b.isActive) return -1; if (!a.isActive && b.isActive) return 1; return (b.rawData?.createdAt || 0) - (a.rawData?.createdAt || 0); });
-            if (activeTab === 'deliveries') renderDeliveryList();
+            allDeliveries = all.filter((d, i, arr) => arr.findIndex(x => x.compositeKey === d.compositeKey) === i);
+            allDeliveries.sort((a, b) => {
+                if (a.isNew && !b.isNew) return -1; if (!a.isNew && b.isNew) return 1;
+                if (a.isActive && !b.isActive) return -1; if (!a.isActive && b.isActive) return 1;
+                return (b.rawData?.createdAt || 0) - (a.rawData?.createdAt || 0);
+            });
+            renderCurrentList();
             updateBadges();
         }
 
-        function renderDeliveryList() {
-            const list = $('list-deliveries'); if (!list) return;
-            let items = [...allDeliveries];
-            items.sort((a,b) => { if(a.isNew&&!b.isNew)return -1; if(!a.isNew&&b.isNew)return 1; if(a.isActive&&!b.isActive)return -1; if(!a.isActive&&b.isActive)return 1; return 0; });
-            if (!items.length) { list.innerHTML = '<div class="empty-list"><i class="fas fa-check-circle"></i><p>No deliveries assigned</p></div>'; return; }
+        function renderCurrentList() {
+            if (activeTab === 'all') {
+                renderList('all', [...allDeliveries]);
+            } else {
+                const filtered = allDeliveries.filter(d => d.sourceKey === activeTab);
+                renderList(activeTab, filtered);
+            }
+        }
+
+        function renderList(tabKey, items) {
+            const list = $(`list-${tabKey}`); if (!list) return;
+            if (!items.length) { list.innerHTML = '<div class="empty-list"><i class="fas fa-check-circle"></i><p>No deliveries here</p></div>'; return; }
             list.innerHTML = items.map(d => {
                 const cardClass = d.isNew ? 'new-task' : (d.isActive ? 'active-task' : 'done-task');
                 const statusClass = d.isNew ? 'status-new' : (d.isActive ? 'status-active' : 'status-done');
-                let actions = `<button class="action-btn btn-cancel" onclick="event.stopPropagation();viewDeliveryDetails('${d.compositeKey}')">📋 Info</button>`;
-                if (d.isNew) actions += `<button class="action-btn btn-start" onclick="event.stopPropagation();startDelivery('${d.id}','${d.sourcePath}')"><i class="fas fa-truck"></i> Start</button>`;
-                if (d.isActive) { actions += `<button class="action-btn btn-nav" onclick="event.stopPropagation();navigate('${encodeURIComponent(d.delivery)}')"><i class="fas fa-map-marked-alt"></i> Nav</button>`; actions += `<button class="action-btn btn-done" onclick="event.stopPropagation();markDone('${d.id}','${d.sourcePath}','${d.src.doneStatus}')"><i class="fas fa-check"></i> Done</button>`; }
-                return `<div class="delivery-card ${cardClass}" onclick="viewDeliveryDetails('${d.compositeKey}')">
-                    <div class="delivery-top"><span class="delivery-id">#${d.id.slice(-6)} <span class="source-badge ${d.sourceBadge}">${d.source}</span>${d.isNew?'<span class="new-badge">NEW</span>':''}</span><span class="delivery-status ${statusClass}">${d.status.replace(/-/g,' ')}</span></div>
+                let actions = `<button class="action-btn btn-cancel" onclick="event.stopPropagation();viewDetails('${d.compositeKey}')">📋 Info</button>`;
+                if (d.isNew) actions += `<button class="action-btn btn-start" onclick="event.stopPropagation();startDelivery('${d.id}','${d.src.path}')"><i class="fas fa-truck"></i> Start</button>`;
+                if (d.isActive) { actions += `<button class="action-btn btn-nav" onclick="event.stopPropagation();navigate('${encodeURIComponent(d.delivery)}')"><i class="fas fa-map-marked-alt"></i> Nav</button>`; actions += `<button class="action-btn btn-done" onclick="event.stopPropagation();markDone('${d.id}','${d.src.path}','${d.src.doneStatus}')"><i class="fas fa-check"></i> Done</button>`; }
+                return `<div class="delivery-card ${cardClass}" onclick="viewDetails('${d.compositeKey}')">
+                    <div class="delivery-top"><span class="delivery-id">#${d.id.slice(-6)}${d.isNew?' <span class="new-badge">NEW</span>':''}</span><span class="delivery-status ${statusClass}">${d.status.replace(/-/g,' ')}</span></div>
                     <div class="delivery-client">${escapeHtml(d.customer)}</div>
                     ${d.phone ? `<div class="delivery-phone">📞 ${escapeHtml(d.phone)}</div>` : ''}
                     <div class="delivery-route">📍 ${escapeHtml(String(d.pickup).substring(0,30))} <i class="fas fa-arrow-right"></i> ${escapeHtml(String(d.delivery).substring(0,30))}</div>
@@ -429,27 +434,39 @@
             }).join('');
         }
 
-        function setupDeliveryListeners() {
-            operationSources.forEach(src => {
+        function setupListeners() {
+            sources.forEach(src => {
                 db.ref(src.path).on('child_added', snap => {
-                    const compositeKey = `${src.path}_${snap.key}`;
+                    const compositeKey = `${src.key}_${snap.key}`;
                     if (seenIds.has(compositeKey)) return;
                     const item = snap.val();
                     if ((getNested(item, src.assignedField) || item.assignedTo || item.driverId || '') === currentUser?.uid) {
                         seenIds.add(compositeKey);
-                        notifyNewRequest('Delivery', `New ${src.label} delivery for ${getNested(item, src.customerField) || 'Customer'}`);
-                        loadDeliveries();
+                        notifyNewRequest(src.label, `New ${src.label} delivery for ${getNested(item, src.customerField) || 'Customer'}`);
+                        loadAllDeliveries();
                     }
                 });
-                db.ref(src.path).on('child_changed', () => { if (activeTab === 'deliveries') loadDeliveries(); });
+                db.ref(src.path).on('child_changed', () => loadAllDeliveries());
             });
         }
 
+        function updateBadges() {
+            let total = 0;
+            sources.forEach(s => {
+                const count = allDeliveries.filter(d => d.sourceKey === s.key && (d.isNew || d.isActive)).length;
+                const badge = $(`badge-${s.key}`); if (badge) badge.textContent = count;
+                total += count;
+            });
+            const allBadge = $('badge-all'); if (allBadge) allBadge.textContent = total;
+            $('headerActiveCount').textContent = total;
+        }
+
+        // ========== ACTIONS ==========
         window.startDelivery = (id, sourcePath) => { currentActionId = id; currentActionSource = sourcePath; $('pickupModal').classList.add('show'); };
         window.closePickupModal = () => $('pickupModal').classList.remove('show');
         window.confirmPickup = async () => {
             if (!currentActionId || !currentActionSource) return; showLoading(true);
-            try { const src = operationSources.find(s => s.path === currentActionSource); await db.ref(`${currentActionSource}/${currentActionId}`).update({ status: src?.activeStatuses[0] || 'shipped', startedAt: firebase.database.ServerValue.TIMESTAMP, pickupNotes: $('pickupNotes').value.trim(), updatedAt: firebase.database.ServerValue.TIMESTAMP }); toast('Delivery started!', 'success'); closePickupModal(); loadDeliveries(); } catch(e) { toast('Error', 'error'); }
+            try { const src = sources.find(s => s.path === currentActionSource); await db.ref(`${currentActionSource}/${currentActionId}`).update({ status: src?.activeStatuses[0] || 'shipped', startedAt: firebase.database.ServerValue.TIMESTAMP, pickupNotes: $('pickupNotes').value.trim(), updatedAt: firebase.database.ServerValue.TIMESTAMP }); toast('Delivery started!', 'success'); closePickupModal(); loadAllDeliveries(); } catch(e) { toast('Error', 'error'); }
             showLoading(false);
         };
 
@@ -458,14 +475,14 @@
         window.completeDelivery = async () => {
             const name = $('proofName').value.trim(); if (!name) { toast('Enter receiver name', 'warning'); return; }
             if (!currentActionId || !currentActionSource) return; showLoading(true);
-            try { const src = operationSources.find(s => s.path === currentActionSource); await db.ref(`${currentActionSource}/${currentActionId}`).update({ status: src?.doneStatus || 'delivered', deliveredAt: firebase.database.ServerValue.TIMESTAMP, deliveryProof: { receiverName: name, notes: $('proofNotes').value.trim() }, updatedAt: firebase.database.ServerValue.TIMESTAMP }); toast('Completed!', 'success'); closeCompleteModal(); loadDeliveries(); } catch(e) { toast('Error', 'error'); }
+            try { const src = sources.find(s => s.path === currentActionSource); await db.ref(`${currentActionSource}/${currentActionId}`).update({ status: src?.doneStatus || 'delivered', deliveredAt: firebase.database.ServerValue.TIMESTAMP, deliveryProof: { receiverName: name, notes: $('proofNotes').value.trim() }, updatedAt: firebase.database.ServerValue.TIMESTAMP }); toast('Completed!', 'success'); closeCompleteModal(); loadAllDeliveries(); } catch(e) { toast('Error', 'error'); }
             showLoading(false);
         };
 
-        window.viewDeliveryDetails = (compositeKey) => {
+        window.viewDetails = (compositeKey) => {
             const d = allDeliveries.find(x => x.compositeKey === compositeKey); if (!d) return;
             currentNavAddress = d.delivery;
-            $('detailsTitle').textContent = `${d.source} · #${d.id.slice(-6)}`;
+            $('detailsTitle').textContent = `${d.sourceLabel} · #${d.id.slice(-6)}`;
             $('navFromModalBtn').style.display = d.delivery ? 'inline-flex' : 'none';
             $('detailsBody').innerHTML = `<div class="detail-grid">
                 <div class="detail-item"><strong>Customer</strong><span>${escapeHtml(d.customer)}</span></div>
@@ -483,83 +500,9 @@
         window.closeDetailsModal = () => $('detailsModal').classList.remove('show');
         window.navigateFromModal = () => { if (currentNavAddress) window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(currentNavAddress)}`, '_blank'); };
 
-        // ========== RIDES ==========
-        async function loadRides() {
-            if (!currentUser) return;
-            try {
-                const snap = await db.ref('pickme_rides').orderByChild('driverId').equalTo(currentUser.uid).once('value');
-                const data = snap.val() || {};
-                const newRides = Object.entries(data).map(([id, r]) => { const s = r.status||'requested'; return { compositeKey: `ride_${id}`, id, ...r, isActive: ['accepted','arrived','ongoing'].includes(s), isNew: ['accepted','requested'].includes(s), isDone: s==='completed' }; });
-                allRides = newRides.filter((r, i, arr) => arr.findIndex(x => x.compositeKey === r.compositeKey) === i);
-                allRides.sort((a,b) => { if(a.isNew&&!b.isNew)return -1; if(!a.isNew&&b.isNew)return 1; return (b.requestedAt||0)-(a.requestedAt||0); });
-                if (activeTab === 'rides') renderRideList();
-                updateBadges();
-            } catch(e) {}
-        }
-
-        function renderRideList() {
-            const list = $('list-rides'); if (!list) return;
-            let items = [...allRides];
-            items.sort((a,b) => { if(a.isNew&&!b.isNew)return -1; if(!a.isNew&&b.isNew)return 1; return 0; });
-            if (!items.length) { list.innerHTML = '<div class="empty-list"><i class="fas fa-car-side"></i><p>No rides</p></div>'; return; }
-            list.innerHTML = items.map(r => {
-                const s = r.status||'requested';
-                const cardClass = r.isNew?'new-task':(r.isActive?'active-task':'done-task');
-                const statusClass = r.isNew?'status-new':(r.isActive?'status-active':'status-done');
-                let actions = `<button class="action-btn btn-cancel" onclick="event.stopPropagation();viewRideDetails('${r.compositeKey}')">📋 Info</button>`;
-                if(s==='accepted'||s==='requested'){actions+=`<button class="action-btn btn-start" onclick="event.stopPropagation();updateRide('${r.id}','arrived')"><i class="fas fa-location-dot"></i> Arrived</button>`;actions+=`<button class="action-btn btn-danger" onclick="event.stopPropagation();cancelRidePrompt('${r.id}')"><i class="fas fa-times"></i></button>`;}
-                if(s==='arrived')actions+=`<button class="action-btn btn-start" onclick="event.stopPropagation();updateRide('${r.id}','ongoing')"><i class="fas fa-play"></i> Start</button>`;
-                if(s==='ongoing'){actions+=`<button class="action-btn btn-nav" onclick="event.stopPropagation();navigate('${encodeURIComponent(r.dropoff?.address||'')}')"><i class="fas fa-map-marked-alt"></i> Nav</button>`;actions+=`<button class="action-btn btn-done" onclick="event.stopPropagation();updateRide('${r.id}','completed')"><i class="fas fa-check"></i> Done</button>`;}
-                return `<div class="delivery-card ${cardClass}" onclick="viewRideDetails('${r.compositeKey}')">
-                    <div class="delivery-top"><span class="delivery-id">#${r.id.slice(-6)}${r.isNew?'<span class="new-badge">NEW</span>':''}</span><span class="delivery-status ${statusClass}">${s}</span></div>
-                    <div class="delivery-client">${escapeHtml(r.passengerName||'Passenger')}</div>
-                    ${r.passengerPhone?`<div class="delivery-phone">📞 ${escapeHtml(r.passengerPhone)}</div>`:''}
-                    <div class="delivery-route">📍 ${escapeHtml(String(r.pickup?.address||'—').substring(0,30))} <i class="fas fa-arrow-right"></i> ${escapeHtml(String(r.dropoff?.address||'—').substring(0,30))}</div>
-                    <div class="delivery-fare">${r.fare?.total?'💰 KSh '+r.fare.total:r.estimatedFare?'💰 KSh '+r.estimatedFare:''}</div>
-                    <div class="delivery-actions" onclick="event.stopPropagation()">${actions}</div>
-                </div>`;
-            }).join('');
-        }
-
-        function setupRideListeners() {
-            db.ref('pickme_rides').orderByChild('driverId').equalTo(currentUser?.uid).on('child_added', snap => {
-                const compositeKey = `ride_${snap.key}`; if (seenIds.has(compositeKey)) return;
-                seenIds.add(compositeKey); notifyNewRequest('Ride', `New ride for ${snap.val().passengerName||'Passenger'}`); loadRides();
-            });
-            db.ref('pickme_rides').orderByChild('driverId').equalTo(currentUser?.uid).on('child_changed', () => { if (activeTab === 'rides') loadRides(); });
-        }
-
-        window.viewRideDetails = (compositeKey) => {
-            const r = allRides.find(x => x.compositeKey === compositeKey); if (!r) return;
-            currentNavAddress = r.dropoff?.address || r.pickup?.address || '';
-            $('detailsTitle').textContent = `Ride #${r.id.slice(-6)}`; $('navFromModalBtn').style.display = currentNavAddress ? 'inline-flex' : 'none';
-            $('detailsBody').innerHTML = `<div class="detail-grid">
-                <div class="detail-item"><strong>Passenger</strong><span>${escapeHtml(r.passengerName||'N/A')}</span></div>
-                <div class="detail-item"><strong>Phone</strong><span style="color:var(--info);cursor:pointer;" onclick="window.open('tel:${escapeHtml(r.passengerPhone||'')}')">📞 ${escapeHtml(r.passengerPhone||'N/A')}</span></div>
-                <div class="detail-item"><strong>Status</strong><span>${r.status}</span></div>
-                <div class="detail-item"><strong>Fare</strong><span>${r.fare?.total?'KSh '+r.fare.total:'—'}</span></div>
-                <div class="detail-item full"><strong>Pickup</strong><span>${escapeHtml(r.pickup?.address||'—')}</span></div>
-                <div class="detail-item full"><strong>Dropoff</strong><span>${escapeHtml(r.dropoff?.address||'—')}</span></div>
-                <div class="detail-item"><strong>Vehicle</strong><span>${escapeHtml(r.vehicleType||'Standard')}</span></div>
-                <div class="detail-item"><strong>Payment</strong><span>${escapeHtml(r.paymentMethod||'Cash')}</span></div>
-            </div>`;
-            $('detailsModal').classList.add('show');
-        };
-
-        window.updateRide = async (id, status) => { showLoading(true); try { const u = { status, updatedAt: firebase.database.ServerValue.TIMESTAMP }; if(status==='arrived')u.arrivedAt=new Date().toISOString(); if(status==='ongoing')u.startedAt=new Date().toISOString(); if(status==='completed')u.completedAt=new Date().toISOString(); await db.ref(`pickme_rides/${id}`).update(u); if(status==='ongoing')await db.ref(`pickme_drivers/${currentUser.uid}`).update({status:'on_trip'}); if(status==='completed')await db.ref(`pickme_drivers/${currentUser.uid}`).update({status:'available'}); toast('Updated!','success'); loadRides(); } catch(e) { toast('Error','error'); } showLoading(false); };
-        window.cancelRidePrompt = (id) => { currentActionId = id; $('cancelRideModal').classList.add('show'); };
-        window.closeCancelRideModal = () => $('cancelRideModal').classList.remove('show');
-        window.confirmCancelRide = async () => { showLoading(true); try { await db.ref(`pickme_rides/${currentActionId}`).update({status:'cancelled',cancelReason:$('cancelRideReason').value.trim()||'Cancelled',updatedAt:firebase.database.ServerValue.TIMESTAMP}); await db.ref(`pickme_drivers/${currentUser.uid}`).update({status:'available'}); toast('Cancelled','warning'); closeCancelRideModal(); loadRides(); } catch(e) { toast('Error','error'); } showLoading(false); };
-
-        function updateBadges() {
-            const dBadge = $('badge-deliveries'); if (dBadge) dBadge.textContent = allDeliveries.filter(d => d.isNew || d.isActive).length;
-            const rBadge = $('badge-rides'); if (rBadge) rBadge.textContent = allRides.filter(r => r.isNew || r.isActive).length;
-            $('headerActiveCount').textContent = allDeliveries.filter(d => d.isNew || d.isActive).length + allRides.filter(r => r.isNew || r.isActive).length;
-        }
-
         window.navigate = (addr) => window.open(`https://www.google.com/maps/search/?api=1&query=${addr}`, '_blank');
         window.handleLogout = async () => { if (confirm('Sign out?')) { await auth.signOut(); window.location.href = 'index.html'; } };
-        window.refreshAll = () => { loadDeliveries(); loadRides(); toast('Refreshed!', 'success'); };
+        window.refreshAll = () => { loadAllDeliveries(); toast('Refreshed!', 'success'); };
         window.enableNotifications = enableNotifications;
         window.testNotification = testNotification;
     </script>
