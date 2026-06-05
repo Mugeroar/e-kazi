@@ -169,12 +169,12 @@
 
     .preview-close {
       position: absolute; top: 16px; right: 16px; width: 36px; height: 36px;
-      background: rgba(0,0,0,0.05); border: none; border-radius: 50%;
+      background: rgba(255,255,255,0.2); border: none; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      cursor: pointer; font-size: 1.1rem; color: #64748b;
-      transition: all 0.2s; z-index: 10;
+      cursor: pointer; font-size: 1.1rem; color: white;
+      transition: all 0.2s; z-index: 10; backdrop-filter: blur(4px);
     }
-    .preview-close:hover { background: rgba(0,0,0,0.1); color: #0f172a; }
+    .preview-close:hover { background: rgba(255,255,255,0.3); transform: scale(1.1); }
 
     .preview-hero {
       background: linear-gradient(135deg, #0d9488 0%, #14b8a6 100%);
@@ -186,10 +186,14 @@
       background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
     }
     .preview-hero-icon {
-      width: 80px; height: 80px; background: white; border-radius: 20px;
+      width: 100px; height: 100px; background: white; border-radius: 20px;
       display: flex; align-items: center; justify-content: center;
-      font-size: 2.5rem; margin: 0 auto 1rem;
+      font-size: 3rem; margin: 0 auto 1rem;
       box-shadow: 0 8px 24px rgba(0,0,0,0.15); position: relative; z-index: 1;
+      overflow: hidden;
+    }
+    .preview-hero-icon img {
+      width: 100%; height: 100%; object-fit: cover;
     }
     .preview-hero h2 {
       font-size: 1.4rem; font-weight: 800; color: white;
@@ -309,6 +313,7 @@
       .stats-row { grid-template-columns: repeat(2, 1fr); }
       .cards-grid { grid-template-columns: 1fr; }
       .preview-info-grid { grid-template-columns: 1fr; }
+      .preview-hero-icon { width: 80px; height: 80px; font-size: 2.5rem; }
     }
   </style>
 </head>
@@ -441,6 +446,14 @@
       const icon = getCategoryIcon(product.category);
       const categoryName = getCategoryName(product.category);
       const sku = product.sku || generateSKU(product.name, product.id);
+      const imageUrl = product.imageUrl || '';
+      
+      let heroIconContent;
+      if (imageUrl) {
+        heroIconContent = `<img src="${imageUrl}" alt="${product.name || 'Product'}" onerror="this.onerror=null; this.style.display='none'; this.parentElement.innerHTML='<span style=\\'font-size:3rem;\\'>${icon}</span>';">`;
+      } else {
+        heroIconContent = icon;
+      }
       
       overlay.innerHTML = `
         <div class="preview-modal" onclick="event.stopPropagation()">
@@ -452,7 +465,9 @@
             <span class="preview-status ${product.isActive !== false ? 'status-active' : 'status-inactive'}">
               ${product.isActive !== false ? '● Active' : '○ Inactive'}
             </span>
-            <div class="preview-hero-icon">${icon}</div>
+            <div class="preview-hero-icon">
+              ${heroIconContent}
+            </div>
             <h2>${product.name || 'Unnamed Product'}</h2>
             <span class="sku">${sku}</span>
           </div>
@@ -569,12 +584,13 @@
         const sku = p.sku || generateSKU(p.name, p.id);
         const icon = getCategoryIcon(p.category);
         const imageUrl = p.imageUrl || '';
+        const productJSON = JSON.stringify(p).replace(/'/g, "&#39;").replace(/"/g, '&quot;');
         
         return `
           <div class="product-card">
             <div class="product-card-header">
               <div class="product-image">
-                ${imageUrl ? `<img src="${imageUrl}" alt="${p.name}" onerror="this.style.display='none';this.parentElement.innerHTML='${icon}';">` : icon}
+                ${imageUrl ? `<img src="${imageUrl}" alt="${p.name || ''}" onerror="this.style.display='none';this.parentElement.innerHTML='<span style=\\'font-size:2rem;\\'>${icon}</span>';">` : icon}
               </div>
               <div class="product-main-info">
                 <h3>${p.name || 'Unnamed Product'}</h3>
@@ -584,7 +600,7 @@
             </div>
             
             <div class="product-meta">
-              <span class="meta-tag category">${getCategoryIcon(p.category)} ${getCategoryName(p.category)}</span>
+              <span class="meta-tag category">${icon} ${getCategoryName(p.category)}</span>
               ${p.unitPrice ? `<span class="meta-tag price">KES ${p.unitPrice.toLocaleString()}/${p.unit || 'unit'}</span>` : ''}
               ${p.isActive !== false ? '<span class="meta-tag" style="background:#d1fae5;color:#065f46;">Active</span>' : '<span class="meta-tag" style="background:#fee2e2;color:#991b1b;">Inactive</span>'}
             </div>
@@ -598,13 +614,20 @@
 
             <div class="product-actions">
               <button class="btn-sm btn-edit" onclick="editProduct('${p.id}')"><i class="fas fa-edit"></i> Edit</button>
-              <button class="btn-sm btn-preview" onclick="showPreview(${JSON.stringify(p).replace(/"/g, '&quot;')})"><i class="fas fa-eye"></i> Preview</button>
+              <button class="btn-sm btn-preview" onclick="showPreviewFromId('${p.id}')"><i class="fas fa-eye"></i> Preview</button>
               <button class="btn-sm btn-delete" onclick="deleteProduct('${p.id}')"><i class="fas fa-trash"></i> Delete</button>
             </div>
           </div>`;
       }).join('');
 
       updateStats();
+    }
+
+    function showPreviewFromId(productId) {
+      const product = allProducts[productId];
+      if (product) {
+        showPreview({ id: productId, ...product });
+      }
     }
 
     function updateStats() {
@@ -807,6 +830,7 @@
     window.editProduct = editProduct;
     window.deleteProduct = deleteProduct;
     window.showPreview = showPreview;
+    window.showPreviewFromId = showPreviewFromId;
     window.closePreview = closePreview;
     window.saveProduct = saveProduct;
     window.updateProduct = updateProduct;
