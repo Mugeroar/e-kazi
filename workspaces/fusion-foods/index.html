@@ -29,6 +29,8 @@
       --purple: #7c3aed;
       --orange: #f59e0b;
       --blue: #3b82f6;
+      --rose: #f43f5e;
+      --amber: #d97706;
     }
 
     body {
@@ -132,6 +134,10 @@
     .inventory-card .action-link { color: #d97706; }
     .dispatch-card .action-icon { color: #8b5cf6; border-color: rgba(139,92,246,0.2); background: linear-gradient(145deg, #f5f0ff, #ffffff); }
     .dispatch-card .action-link { color: #7c3aed; }
+    .products-card .action-icon { color: #0d9488; border-color: rgba(13,148,136,0.2); background: linear-gradient(145deg, #f0fdfa, #ffffff); }
+    .products-card .action-link { color: #0f766e; }
+    .prices-card .action-icon { color: #db2777; border-color: rgba(219,39,119,0.2); background: linear-gradient(145deg, #fdf2f8, #ffffff); }
+    .prices-card .action-link { color: #be185d; }
 
     .quick-section {
       background: white; border-radius: 18px; padding: 1rem 1.2rem;
@@ -184,7 +190,7 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    @media (max-width: 1100px) { .action-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 1100px) { .action-grid { grid-template-columns: repeat(4, 1fr); } }
     @media (max-width: 768px) {
       .stats-grid { grid-template-columns: 1fr 1fr; }
       .action-grid { grid-template-columns: 1fr 1fr; }
@@ -221,7 +227,7 @@
         Fusion Foods Dashboard
         <span class="last-updated" id="lastUpdated"><i class="fas fa-circle"></i> Live</span>
       </h1>
-      <p>Receive orders, manage inventory, dispatch shipments & manage your stores.</p>
+      <p>Receive orders, manage products, inventory, weekly prices & dispatch shipments.</p>
     </div>
 
     <div class="stats-grid">
@@ -243,6 +249,7 @@
       </div>
     </div>
 
+    <!-- Updated action grid with 7 cards now including Products & Weekly Prices -->
     <div class="action-grid">
       <a href="/workspaces/fusion-foods/new-order.html" class="action-card">
         <div class="action-icon"><i class="fas fa-cart-plus"></i></div>
@@ -274,6 +281,20 @@
         <p>View & manage restaurant clients & locations.</p>
         <span class="action-link">Stores <i class="fas fa-arrow-right"></i></span>
       </a>
+      <!-- New Products Card -->
+      <a href="/workspaces/fusion-foods/products.html" class="action-card products-card">
+        <div class="action-icon"><i class="fas fa-tags"></i></div>
+        <h2>Products</h2>
+        <p>Add, edit or remove your food product catalog.</p>
+        <span class="action-link">Manage Products <i class="fas fa-arrow-right"></i></span>
+      </a>
+      <!-- New Weekly Prices Card -->
+      <a href="/workspaces/fusion-foods/weekly-prices.html" class="action-card prices-card">
+        <div class="action-icon"><i class="fas fa-calendar-check"></i></div>
+        <h2>Weekly Prices</h2>
+        <p>Update special weekly prices for products.</p>
+        <span class="action-link">Update Prices <i class="fas fa-arrow-right"></i></span>
+      </a>
     </div>
 
     <div class="quick-section">
@@ -284,6 +305,8 @@
         <a href="/workspaces/fusion-foods/inventory.html" class="quick-btn"><i class="fas fa-box"></i> Inventory</a>
         <a href="/workspaces/fusion-foods/dispatch.html" class="quick-btn"><i class="fas fa-truck"></i> Dispatch (<span id="dispatchBadge">0</span>)</a>
         <a href="/workspaces/fusion-foods/stores.html" class="quick-btn"><i class="fas fa-store"></i> My Stores</a>
+        <a href="/workspaces/fusion-foods/products.html" class="quick-btn"><i class="fas fa-tag"></i> Products</a>
+        <a href="/workspaces/fusion-foods/weekly-prices.html" class="quick-btn"><i class="fas fa-calendar-alt"></i> Weekly Prices</a>
         <a href="/workspaces/fusion-foods/map.html" class="quick-btn"><i class="fas fa-map-pin"></i> Add to Map</a>
       </div>
     </div>
@@ -451,11 +474,13 @@
     }
 
     function setupRealtimeListeners() {
+      // Listen to fusion_foods_orders
       onValue(ref(db, 'fusion_foods_orders'), (snapshot) => {
         allOrders = snapshot.val() || {};
         updateStats();
         loadingOverlay.classList.add('hide');
       }, () => {
+        // Fallback to pickup_deliveries if the main path fails
         onValue(ref(db, 'pickup_deliveries'), (snapshot) => {
           const deliveries = snapshot.val() || {};
           allOrders = {};
