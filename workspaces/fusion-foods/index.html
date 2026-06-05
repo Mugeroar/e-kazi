@@ -108,6 +108,84 @@
     .stat-trend { font-size: 0.6rem; margin-top: 2px; display: flex; align-items: center; gap: 3px; color: #64748b; }
     .stat-icon { width: 42px; height: 42px; background: #ecfdf5; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #059669; font-size: 1.2rem; }
 
+    /* Skeleton Loading Styles */
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+    
+    .skeleton {
+      background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s ease-in-out infinite;
+      border-radius: 4px;
+    }
+    
+    .skeleton-text {
+      height: 1rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .skeleton-text-sm {
+      height: 0.7rem;
+      width: 60%;
+    }
+    
+    .skeleton-number {
+      height: 2rem;
+      width: 50%;
+      margin-bottom: 0.3rem;
+    }
+    
+    .skeleton-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+    }
+    
+    .skeleton-card {
+      background: white;
+      border-radius: 16px;
+      padding: 1rem 1.2rem;
+      border: 1px solid #e5e7eb;
+    }
+    
+    .skeleton-action-card {
+      background: white;
+      border-radius: 20px;
+      padding: 1.2rem;
+      border: 1px solid #e5e7eb;
+    }
+    
+    .skeleton-action-icon {
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
+      margin-bottom: 0.8rem;
+    }
+    
+    .skeleton-recent-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0.7rem 1rem;
+      border-bottom: 1px solid #f3f4f6;
+    }
+    
+    .skeleton-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      flex-shrink: 0;
+    }
+    
+    .skeleton-badge {
+      width: 60px;
+      height: 20px;
+      border-radius: 12px;
+      margin-left: auto;
+    }
+
     .action-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 1.2rem; }
     .action-card {
       background: white; border-radius: 20px; padding: 1.2rem;
@@ -125,7 +203,6 @@
     .action-card p { color: #64748b; font-size: 0.7rem; margin-bottom: 0.8rem; line-height: 1.4; }
     .action-link { display: inline-flex; align-items: center; gap: 5px; font-weight: 700; color: #059669; font-size: 0.7rem; }
 
-    /* Card color variations */
     .map-card .action-icon { color: #3b82f6; border-color: rgba(59,130,246,0.2); background: linear-gradient(145deg, #eff6ff, #ffffff); }
     .map-card .action-link { color: #2563eb; }
     .store-card .action-icon { color: #7c3aed; border-color: rgba(124,58,237,0.2); background: linear-gradient(145deg, #f5f0ff, #ffffff); }
@@ -157,6 +234,12 @@
     .quick-btn:hover { background: #059669; color: white; border-color: #059669; }
     .quick-btn:hover i { color: white; }
 
+    .skeleton-quick-btn {
+      height: 32px;
+      width: 100px;
+      border-radius: 30px;
+    }
+
     .recent-section { margin-top: 1.2rem; }
     .recent-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem; }
     .recent-header h3 { font-size: 0.85rem; font-weight: 700; }
@@ -182,15 +265,10 @@
 
     .loading-overlay {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(255,255,255,0.8); backdrop-filter: blur(4px);
+      background: rgba(255,255,255,0.5); backdrop-filter: blur(2px);
       display: flex; justify-content: center; align-items: center; z-index: 999;
     }
     .loading-overlay.hide { display: none; }
-    .spinner {
-      width: 35px; height: 35px; border: 3px solid #a7f3d0;
-      border-top-color: #059669; border-radius: 50%; animation: spin 0.8s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
 
     @media (max-width: 1100px) { .action-grid { grid-template-columns: repeat(4, 1fr); } }
     @media (max-width: 768px) {
@@ -205,8 +283,6 @@
   </style>
 </head>
 <body>
-  <div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div></div>
-
   <nav class="navbar">
     <div class="logo" id="logoClick">
       <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png" alt="Fusion Foods Logo" class="logo-img" id="logoIcon">
@@ -216,7 +292,7 @@
       <a href="/workspaces/fusion-foods/map.html" class="nav-btn map-btn"><i class="fas fa-map-location-dot"></i> Add to Map</a>
       <a href="index.html" class="nav-btn"><i class="fas fa-arrow-left"></i> Workspaces</a>
       <div class="user-badge">
-        <div class="user-avatar" id="userAvatar">FF</div>
+        <div class="user-avatar skeleton" id="userAvatar" style="width:30px;height:30px;border-radius:50%;">FF</div>
         <span id="userName">Supplier</span>
       </div>
     </div>
@@ -232,100 +308,157 @@
       <p>Receive orders, manage products, suppliers, inventory & dispatch shipments.</p>
     </div>
 
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-left"><h4>New Orders</h4><div class="stat-number" id="newOrders">0</div><div class="stat-trend"><i class="fas fa-inbox"></i> Awaiting action</div></div>
-        <div class="stat-icon"><i class="fas fa-inbox"></i></div>
+    <!-- Stats Grid with Skeleton Support -->
+    <div class="stats-grid" id="statsGrid">
+      <div class="stat-card skeleton-card">
+        <div class="stat-left">
+          <div class="skeleton skeleton-text-sm" style="width:80px;"></div>
+          <div class="skeleton skeleton-number" style="width:40px;"></div>
+          <div class="skeleton skeleton-text-sm" style="width:100px;"></div>
+        </div>
+        <div class="skeleton skeleton-icon"></div>
       </div>
-      <div class="stat-card">
-        <div class="stat-left"><h4>Processing</h4><div class="stat-number" id="processingOrders">0</div><div class="stat-trend"><i class="fas fa-spinner"></i> Being prepared</div></div>
-        <div class="stat-icon"><i class="fas fa-spinner"></i></div>
+      <div class="stat-card skeleton-card">
+        <div class="stat-left">
+          <div class="skeleton skeleton-text-sm" style="width:80px;"></div>
+          <div class="skeleton skeleton-number" style="width:40px;"></div>
+          <div class="skeleton skeleton-text-sm" style="width:100px;"></div>
+        </div>
+        <div class="skeleton skeleton-icon"></div>
       </div>
-      <div class="stat-card">
-        <div class="stat-left"><h4>In Stock</h4><div class="stat-number" id="inStock">0</div><div class="stat-trend"><i class="fas fa-boxes"></i> Products available</div></div>
-        <div class="stat-icon"><i class="fas fa-boxes"></i></div>
+      <div class="stat-card skeleton-card">
+        <div class="stat-left">
+          <div class="skeleton skeleton-text-sm" style="width:80px;"></div>
+          <div class="skeleton skeleton-number" style="width:40px;"></div>
+          <div class="skeleton skeleton-text-sm" style="width:100px;"></div>
+        </div>
+        <div class="skeleton skeleton-icon"></div>
       </div>
-      <div class="stat-card">
-        <div class="stat-left"><h4>Suppliers</h4><div class="stat-number" id="supplierCount">0</div><div class="stat-trend"><i class="fas fa-truck"></i> Active partners</div></div>
-        <div class="stat-icon"><i class="fas fa-truck"></i></div>
+      <div class="stat-card skeleton-card">
+        <div class="stat-left">
+          <div class="skeleton skeleton-text-sm" style="width:80px;"></div>
+          <div class="skeleton skeleton-number" style="width:40px;"></div>
+          <div class="skeleton skeleton-text-sm" style="width:100px;"></div>
+        </div>
+        <div class="skeleton skeleton-icon"></div>
       </div>
     </div>
 
-    <!-- Updated action grid with 8 cards now including Suppliers -->
-    <div class="action-grid">
-      <a href="/workspaces/fusion-foods/new-order.html" class="action-card">
-        <div class="action-icon"><i class="fas fa-cart-plus"></i></div>
-        <h2>Place Order</h2>
-        <p>Create a new food supply order for a restaurant.</p>
-        <span class="action-link">New Order <i class="fas fa-arrow-right"></i></span>
-      </a>
-      <a href="/workspaces/fusion-foods/orders.html" class="action-card">
-        <div class="action-icon"><i class="fas fa-inbox"></i></div>
-        <h2>Receive Orders</h2>
-        <p>View & process incoming food supply orders.</p>
-        <span class="action-link">View Orders <i class="fas fa-arrow-right"></i></span>
-      </a>
-      <a href="/workspaces/fusion-foods/inventory.html" class="action-card inventory-card">
-        <div class="action-icon"><i class="fas fa-boxes-stacked"></i></div>
-        <h2>Inventory</h2>
-        <p>Manage stock, update quantities & track supplies.</p>
-        <span class="action-link">Browse Stock <i class="fas fa-arrow-right"></i></span>
-      </a>
-      <a href="/workspaces/fusion-foods/dispatch.html" class="action-card dispatch-card">
-        <div class="action-icon"><i class="fas fa-truck-fast"></i></div>
-        <h2>Dispatch</h2>
-        <p>Ship orders, assign drivers & track deliveries.</p>
-        <span class="action-link">Dispatch <i class="fas fa-arrow-right"></i></span>
-      </a>
-      <a href="/workspaces/fusion-foods/stores.html" class="action-card store-card">
-        <div class="action-icon"><i class="fas fa-store-alt"></i></div>
-        <h2>Manage Stores</h2>
-        <p>View & manage restaurant clients & locations.</p>
-        <span class="action-link">Stores <i class="fas fa-arrow-right"></i></span>
-      </a>
-      <a href="/workspaces/fusion-foods/products.html" class="action-card products-card">
-        <div class="action-icon"><i class="fas fa-tags"></i></div>
-        <h2>Products</h2>
-        <p>Add, edit or remove your food product catalog.</p>
-        <span class="action-link">Manage Products <i class="fas fa-arrow-right"></i></span>
-      </a>
-      <a href="/workspaces/fusion-foods/weekly-prices.html" class="action-card prices-card">
-        <div class="action-icon"><i class="fas fa-calendar-check"></i></div>
-        <h2>Weekly Prices</h2>
-        <p>Update special weekly prices for products.</p>
-        <span class="action-link">Update Prices <i class="fas fa-arrow-right"></i></span>
-      </a>
-      <!-- New Suppliers Card -->
-      <a href="/workspaces/fusion-foods/suppliers.html" class="action-card supplier-card">
-        <div class="action-icon"><i class="fas fa-people-carry"></i></div>
-        <h2>Suppliers</h2>
-        <p>Manage your food suppliers, contacts & orders.</p>
-        <span class="action-link">View Suppliers <i class="fas fa-arrow-right"></i></span>
-      </a>
+    <!-- Action Grid with Skeleton Support -->
+    <div class="action-grid" id="actionGrid">
+      <div class="skeleton-action-card">
+        <div class="skeleton skeleton-action-icon"></div>
+        <div class="skeleton skeleton-text" style="width:80%;"></div>
+        <div class="skeleton skeleton-text-sm" style="width:100%;"></div>
+        <div class="skeleton skeleton-text-sm" style="width:60%;"></div>
+      </div>
+      <div class="skeleton-action-card">
+        <div class="skeleton skeleton-action-icon"></div>
+        <div class="skeleton skeleton-text" style="width:80%;"></div>
+        <div class="skeleton skeleton-text-sm" style="width:100%;"></div>
+        <div class="skeleton skeleton-text-sm" style="width:60%;"></div>
+      </div>
+      <div class="skeleton-action-card">
+        <div class="skeleton skeleton-action-icon"></div>
+        <div class="skeleton skeleton-text" style="width:80%;"></div>
+        <div class="skeleton skeleton-text-sm" style="width:100%;"></div>
+        <div class="skeleton skeleton-text-sm" style="width:60%;"></div>
+      </div>
+      <div class="skeleton-action-card">
+        <div class="skeleton skeleton-action-icon"></div>
+        <div class="skeleton skeleton-text" style="width:80%;"></div>
+        <div class="skeleton skeleton-text-sm" style="width:100%;"></div>
+        <div class="skeleton skeleton-text-sm" style="width:60%;"></div>
+      </div>
+      <div class="skeleton-action-card">
+        <div class="skeleton skeleton-action-icon"></div>
+        <div class="skeleton skeleton-text" style="width:80%;"></div>
+        <div class="skeleton skeleton-text-sm" style="width:100%;"></div>
+        <div class="skeleton skeleton-text-sm" style="width:60%;"></div>
+      </div>
+      <div class="skeleton-action-card">
+        <div class="skeleton skeleton-action-icon"></div>
+        <div class="skeleton skeleton-text" style="width:80%;"></div>
+        <div class="skeleton skeleton-text-sm" style="width:100%;"></div>
+        <div class="skeleton skeleton-text-sm" style="width:60%;"></div>
+      </div>
+      <div class="skeleton-action-card">
+        <div class="skeleton skeleton-action-icon"></div>
+        <div class="skeleton skeleton-text" style="width:80%;"></div>
+        <div class="skeleton skeleton-text-sm" style="width:100%;"></div>
+        <div class="skeleton skeleton-text-sm" style="width:60%;"></div>
+      </div>
+      <div class="skeleton-action-card">
+        <div class="skeleton skeleton-action-icon"></div>
+        <div class="skeleton skeleton-text" style="width:80%;"></div>
+        <div class="skeleton skeleton-text-sm" style="width:100%;"></div>
+        <div class="skeleton skeleton-text-sm" style="width:60%;"></div>
+      </div>
     </div>
 
-    <div class="quick-section">
+    <!-- Quick Actions with Skeleton -->
+    <div class="quick-section" id="quickSection">
       <div class="quick-header"><i class="fas fa-bolt"></i> Quick Actions</div>
-      <div class="quick-links">
-        <a href="/workspaces/fusion-foods/new-order.html" class="quick-btn"><i class="fas fa-plus-circle"></i> Place Order</a>
-        <a href="/workspaces/fusion-foods/orders.html" class="quick-btn"><i class="fas fa-inbox"></i> Orders (<span id="newBadge">0</span>)</a>
-        <a href="/workspaces/fusion-foods/inventory.html" class="quick-btn"><i class="fas fa-box"></i> Inventory</a>
-        <a href="/workspaces/fusion-foods/dispatch.html" class="quick-btn"><i class="fas fa-truck"></i> Dispatch (<span id="dispatchBadge">0</span>)</a>
-        <a href="/workspaces/fusion-foods/stores.html" class="quick-btn"><i class="fas fa-store"></i> My Stores</a>
-        <a href="/workspaces/fusion-foods/products.html" class="quick-btn"><i class="fas fa-tag"></i> Products</a>
-        <a href="/workspaces/fusion-foods/weekly-prices.html" class="quick-btn"><i class="fas fa-calendar-alt"></i> Weekly Prices</a>
-        <a href="/workspaces/fusion-foods/suppliers.html" class="quick-btn"><i class="fas fa-people-carry"></i> Suppliers (<span id="supplierBadge">0</span>)</a>
-        <a href="/workspaces/fusion-foods/map.html" class="quick-btn"><i class="fas fa-map-pin"></i> Add to Map</a>
+      <div class="quick-links" id="quickLinks">
+        <div class="skeleton skeleton-quick-btn"></div>
+        <div class="skeleton skeleton-quick-btn"></div>
+        <div class="skeleton skeleton-quick-btn" style="width:80px;"></div>
+        <div class="skeleton skeleton-quick-btn"></div>
+        <div class="skeleton skeleton-quick-btn" style="width:90px;"></div>
+        <div class="skeleton skeleton-quick-btn"></div>
+        <div class="skeleton skeleton-quick-btn" style="width:85px;"></div>
+        <div class="skeleton skeleton-quick-btn"></div>
+        <div class="skeleton skeleton-quick-btn" style="width:95px;"></div>
       </div>
     </div>
 
-    <div class="recent-section">
+    <!-- Recent Orders with Skeleton -->
+    <div class="recent-section" id="recentSection">
       <div class="recent-header">
         <h3><i class="fas fa-clock-rotate-left" style="color:#059669;"></i> Recent Orders</h3>
         <a href="/workspaces/fusion-foods/orders.html" style="color:#059669;font-weight:600;font-size:0.75rem;">View all</a>
       </div>
       <div class="recent-list" id="recentList">
-        <div class="empty-state">Loading orders...</div>
+        <div class="skeleton-recent-item">
+          <div class="skeleton skeleton-avatar"></div>
+          <div style="flex:1;">
+            <div class="skeleton skeleton-text" style="width:50%;"></div>
+            <div class="skeleton skeleton-text-sm" style="width:80%;"></div>
+          </div>
+          <div class="skeleton skeleton-badge"></div>
+        </div>
+        <div class="skeleton-recent-item">
+          <div class="skeleton skeleton-avatar"></div>
+          <div style="flex:1;">
+            <div class="skeleton skeleton-text" style="width:60%;"></div>
+            <div class="skeleton skeleton-text-sm" style="width:70%;"></div>
+          </div>
+          <div class="skeleton skeleton-badge"></div>
+        </div>
+        <div class="skeleton-recent-item">
+          <div class="skeleton skeleton-avatar"></div>
+          <div style="flex:1;">
+            <div class="skeleton skeleton-text" style="width:45%;"></div>
+            <div class="skeleton skeleton-text-sm" style="width:75%;"></div>
+          </div>
+          <div class="skeleton skeleton-badge"></div>
+        </div>
+        <div class="skeleton-recent-item">
+          <div class="skeleton skeleton-avatar"></div>
+          <div style="flex:1;">
+            <div class="skeleton skeleton-text" style="width:55%;"></div>
+            <div class="skeleton skeleton-text-sm" style="width:65%;"></div>
+          </div>
+          <div class="skeleton skeleton-badge"></div>
+        </div>
+        <div class="skeleton-recent-item">
+          <div class="skeleton skeleton-avatar"></div>
+          <div style="flex:1;">
+            <div class="skeleton skeleton-text" style="width:50%;"></div>
+            <div class="skeleton skeleton-text-sm" style="width:85%;"></div>
+          </div>
+          <div class="skeleton skeleton-badge"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -367,8 +500,6 @@
     let allInventory = {};
     let allStores = {};
     let allSuppliers = {};
-
-    const loadingOverlay = document.getElementById('loadingOverlay');
 
     function escapeHtml(str) {
       if (!str) return '';
@@ -472,13 +603,90 @@
 
       const suppliers = Object.values(allSuppliers).filter(s => s && s.name).length;
 
-      document.getElementById('newOrders').textContent = newOrders;
-      document.getElementById('processingOrders').textContent = processing;
-      document.getElementById('inStock').textContent = inStock;
-      document.getElementById('supplierCount').textContent = suppliers;
-      document.getElementById('newBadge').textContent = newOrders;
-      document.getElementById('dispatchBadge').textContent = processing;
-      document.getElementById('supplierBadge').textContent = suppliers;
+      // Replace skeleton stats with real content
+      document.getElementById('statsGrid').innerHTML = `
+        <div class="stat-card">
+          <div class="stat-left"><h4>New Orders</h4><div class="stat-number">${newOrders}</div><div class="stat-trend"><i class="fas fa-inbox"></i> Awaiting action</div></div>
+          <div class="stat-icon"><i class="fas fa-inbox"></i></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-left"><h4>Processing</h4><div class="stat-number">${processing}</div><div class="stat-trend"><i class="fas fa-spinner"></i> Being prepared</div></div>
+          <div class="stat-icon"><i class="fas fa-spinner"></i></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-left"><h4>In Stock</h4><div class="stat-number">${inStock}</div><div class="stat-trend"><i class="fas fa-boxes"></i> Products available</div></div>
+          <div class="stat-icon"><i class="fas fa-boxes"></i></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-left"><h4>Suppliers</h4><div class="stat-number">${suppliers}</div><div class="stat-trend"><i class="fas fa-truck"></i> Active partners</div></div>
+          <div class="stat-icon"><i class="fas fa-truck"></i></div>
+        </div>
+      `;
+
+      // Replace skeleton action cards with real content
+      document.getElementById('actionGrid').innerHTML = `
+        <a href="/workspaces/fusion-foods/new-order.html" class="action-card">
+          <div class="action-icon"><i class="fas fa-cart-plus"></i></div>
+          <h2>Place Order</h2>
+          <p>Create a new food supply order for a restaurant.</p>
+          <span class="action-link">New Order <i class="fas fa-arrow-right"></i></span>
+        </a>
+        <a href="/workspaces/fusion-foods/orders.html" class="action-card">
+          <div class="action-icon"><i class="fas fa-inbox"></i></div>
+          <h2>Receive Orders</h2>
+          <p>View & process incoming food supply orders.</p>
+          <span class="action-link">View Orders <i class="fas fa-arrow-right"></i></span>
+        </a>
+        <a href="/workspaces/fusion-foods/inventory.html" class="action-card inventory-card">
+          <div class="action-icon"><i class="fas fa-boxes-stacked"></i></div>
+          <h2>Inventory</h2>
+          <p>Manage stock, update quantities & track supplies.</p>
+          <span class="action-link">Browse Stock <i class="fas fa-arrow-right"></i></span>
+        </a>
+        <a href="/workspaces/fusion-foods/dispatch.html" class="action-card dispatch-card">
+          <div class="action-icon"><i class="fas fa-truck-fast"></i></div>
+          <h2>Dispatch</h2>
+          <p>Ship orders, assign drivers & track deliveries.</p>
+          <span class="action-link">Dispatch <i class="fas fa-arrow-right"></i></span>
+        </a>
+        <a href="/workspaces/fusion-foods/stores.html" class="action-card store-card">
+          <div class="action-icon"><i class="fas fa-store-alt"></i></div>
+          <h2>Manage Stores</h2>
+          <p>View & manage restaurant clients & locations.</p>
+          <span class="action-link">Stores <i class="fas fa-arrow-right"></i></span>
+        </a>
+        <a href="/workspaces/fusion-foods/products.html" class="action-card products-card">
+          <div class="action-icon"><i class="fas fa-tags"></i></div>
+          <h2>Products</h2>
+          <p>Add, edit or remove your food product catalog.</p>
+          <span class="action-link">Manage Products <i class="fas fa-arrow-right"></i></span>
+        </a>
+        <a href="/workspaces/fusion-foods/weekly-prices.html" class="action-card prices-card">
+          <div class="action-icon"><i class="fas fa-calendar-check"></i></div>
+          <h2>Weekly Prices</h2>
+          <p>Update special weekly prices for products.</p>
+          <span class="action-link">Update Prices <i class="fas fa-arrow-right"></i></span>
+        </a>
+        <a href="/workspaces/fusion-foods/suppliers.html" class="action-card supplier-card">
+          <div class="action-icon"><i class="fas fa-people-carry"></i></div>
+          <h2>Suppliers</h2>
+          <p>Manage your food suppliers, contacts & orders.</p>
+          <span class="action-link">View Suppliers <i class="fas fa-arrow-right"></i></span>
+        </a>
+      `;
+
+      // Replace skeleton quick links with real content
+      document.getElementById('quickLinks').innerHTML = `
+        <a href="/workspaces/fusion-foods/new-order.html" class="quick-btn"><i class="fas fa-plus-circle"></i> Place Order</a>
+        <a href="/workspaces/fusion-foods/orders.html" class="quick-btn"><i class="fas fa-inbox"></i> Orders (${newOrders})</a>
+        <a href="/workspaces/fusion-foods/inventory.html" class="quick-btn"><i class="fas fa-box"></i> Inventory</a>
+        <a href="/workspaces/fusion-foods/dispatch.html" class="quick-btn"><i class="fas fa-truck"></i> Dispatch (${processing})</a>
+        <a href="/workspaces/fusion-foods/stores.html" class="quick-btn"><i class="fas fa-store"></i> My Stores</a>
+        <a href="/workspaces/fusion-foods/products.html" class="quick-btn"><i class="fas fa-tag"></i> Products</a>
+        <a href="/workspaces/fusion-foods/weekly-prices.html" class="quick-btn"><i class="fas fa-calendar-alt"></i> Weekly Prices</a>
+        <a href="/workspaces/fusion-foods/suppliers.html" class="quick-btn"><i class="fas fa-people-carry"></i> Suppliers (${suppliers})</a>
+        <a href="/workspaces/fusion-foods/map.html" class="quick-btn"><i class="fas fa-map-pin"></i> Add to Map</a>
+      `;
       
       document.getElementById('footerStats').textContent = `${orders.length} orders · ${inStock} products · ${stores.size} stores · ${suppliers} suppliers`;
       document.getElementById('lastUpdated').innerHTML = `<i class="fas fa-circle" style="color:#10b981;"></i> Live`;
@@ -489,7 +697,6 @@
       onValue(ref(db, 'fusion_foods_orders'), (snapshot) => {
         allOrders = snapshot.val() || {};
         updateStats();
-        loadingOverlay.classList.add('hide');
       }, () => {
         onValue(ref(db, 'pickup_deliveries'), (snapshot) => {
           const deliveries = snapshot.val() || {};
@@ -501,7 +708,6 @@
             }
           });
           updateStats();
-          loadingOverlay.classList.add('hide');
         });
       });
 
@@ -515,7 +721,6 @@
         updateStats();
       });
 
-      // New: Listen for suppliers
       onValue(ref(db, 'fusion_foods_suppliers'), (snapshot) => {
         allSuppliers = snapshot.val() || {};
         updateStats();
@@ -533,14 +738,13 @@
         }
         document.getElementById('userName').textContent = userName;
         document.getElementById('userAvatar').textContent = getInitials(userName);
+        document.getElementById('userAvatar').classList.remove('skeleton');
         document.getElementById('businessName').innerHTML = `${escapeHtml(businessName)} <span>Foods</span>`;
         setupRealtimeListeners();
       } else {
         window.location.href = '/';
       }
     });
-
-    setTimeout(() => loadingOverlay.classList.add('hide'), 8000);
   </script>
 </body>
 </html>
