@@ -1,873 +1,677 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#ca8a04">
-    <meta name="color-scheme" content="light">
-    <title>KazInni · Professional Dashboard</title>
-    <link rel="icon" type="image/x-icon" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview-1.png">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@400;500;600;700;800&family=Satoshi:wght@400;500;600;700;800;900&family=Clash+Display:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&family=General+Sans:wght@400;500;600;700&family=Chillax:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@400,500,600,700,800&f[]=satoshi@400,500,600,700,800,900&f[]=clash-display@400,500,600,700&f[]=general-sans@400,500,600,700&f[]=chillax@400,500,600,700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        :root {
-            --gold: #ca8a04;
-            --gold-dark: #a16207;
-            --gold-light: #fbbf24;
-            --gold-soft: #fef3c7;
-            --gold-glow: rgba(202, 138, 4, 0.12);
-            --gold-gradient: linear-gradient(135deg, #ca8a04 0%, #eab308 50%, #fbbf24 100%);
-            
-            --success: #10b981;
-            --warning: #f59e0b;
-            --danger: #ef4444;
-            --info: #3b82f6;
-            --purple: #8b5cf6;
-            --emerald: #059669;
-            --rose: #e11d48;
-            --indigo: #4f46e5;
-            
-            --bg-primary: #ffffff;
-            --bg-secondary: #faf9f7;
-            --bg-card: #ffffff;
-            --text-primary: #1a1a2e;
-            --text-secondary: #4a5568;
-            --text-muted: #718096;
-            --border-light: #e9ecef;
-            
-            --shadow-sm: 0 2px 4px rgba(0,0,0,0.02), 0 1px 2px rgba(0,0,0,0.03);
-            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
-            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -2px rgba(0,0,0,0.04);
-            
-            --nav-bg: rgba(255,255,255,0.98);
-            --header-height: 80px;
-            
-            --font-display: 'Clash Display', 'Cabinet Grotesk', sans-serif;
-            --font-heading: 'Satoshi', 'General Sans', sans-serif;
-            --font-body: 'General Sans', 'Outfit', sans-serif;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <meta name="theme-color" content="#ca8a04">
+  <meta name="color-scheme" content="light">
+  <title>E-KAZI · Private Staff Portal</title>
+  <link rel="icon" type="image/x-icon" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview-1.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@400;500;600;700;800&family=Satoshi:wght@400;500;600;700;800;900&family=Clash+Display:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&family=General+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@400,500,600,700,800&f[]=satoshi@400,500,600,700,800,900&f[]=clash-display@400,500,600,700&f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        body {
-            font-family: var(--font-body);
-            background: linear-gradient(180deg, #fffbeb 0%, #ffffff 15%, #faf9f7 100%);
-            color: var(--text-primary);
-            line-height: 1.6;
-            min-height: 100vh;
-            -webkit-font-smoothing: antialiased;
-        }
+    :root {
+      --gold: #ca8a04;
+      --gold-dark: #a16207;
+      --gold-light: #fbbf24;
+      --gold-soft: #fef3c7;
+      --gold-glow: rgba(202, 138, 4, 0.18);
+      --gold-gradient: linear-gradient(135deg, #ca8a04 0%, #eab308 50%, #fbbf24 100%);
 
-        @keyframes shimmer {
-            0% { background-position: -200% 0; }
-            100% { background-position: 200% 0; }
-        }
-        .skeleton {
-            background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
-            background-size: 200% 100%;
-            animation: shimmer 1.5s ease-in-out infinite;
-            border-radius: 8px;
-        }
-        .skeleton-text { height: 1rem; margin-bottom: 0.5rem; }
-        .skeleton-text-sm { height: 0.7rem; width: 60%; }
-        .skeleton-number { height: 2rem; width: 40%; margin-bottom: 0.3rem; }
-        .skeleton-icon { width: 50px; height: 50px; border-radius: 16px; }
-        .skeleton-card {
-            background: var(--bg-card); border: 1px solid var(--border-light);
-            border-radius: 24px; padding: 1.6rem;
-        }
-        .skeleton-map { height: 250px; border-radius: 16px; }
+      --primary: #1a1a2e;
+      --primary-light: #2d2d44;
+      --primary-dark: #0f0f23;
 
-        @keyframes pulse-glow {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(202,138,4,0.3); }
-            50% { box-shadow: 0 0 0 12px rgba(202,138,4,0); }
-        }
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
 
-        .site-header {
-            position: fixed; top: 0; width: 100%; height: var(--header-height);
-            background: var(--nav-bg); backdrop-filter: blur(25px);
-            border-bottom: 1px solid rgba(202,138,4,0.08); z-index: 1000; padding: 0 2.5rem;
-        }
-        .header-container {
-            max-width: 1400px; height: 100%; margin: 0 auto;
-            display: flex; align-items: center; justify-content: space-between;
-        }
-        .logo { display: flex; align-items: center; gap: 0.85rem; }
-        .logo img { height: 46px; width: auto; filter: drop-shadow(0 4px 8px rgba(202,138,4,0.15)); }
-        .logo span {
-            font-size: 1.6rem; font-weight: 800;
-            background: var(--gold-gradient);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            font-family: var(--font-display); letter-spacing: -0.5px;
-        }
-        .nav-links { display: flex; gap: 2.5rem; }
-        .nav-link {
-            color: var(--text-secondary); text-decoration: none;
-            font-size: 0.95rem; font-weight: 500; font-family: var(--font-heading);
-            transition: all 0.3s ease; position: relative;
-        }
-        .nav-link::after {
-            content: ''; position: absolute; bottom: -4px; left: 0; width: 0; height: 2.5px;
-            background: var(--gold-gradient); border-radius: 2px;
-            transition: width 0.3s cubic-bezier(0.4,0,0.2,1);
-        }
-        .nav-link:hover::after, .nav-link.active::after { width: 100%; }
-        .nav-link:hover, .nav-link.active { color: var(--gold); }
-        .live-indicator {
-            display: flex; align-items: center; gap: 0.4rem;
-            font-size: 0.7rem; color: var(--success); font-weight: 600;
-            font-family: var(--font-heading);
-        }
-        .live-dot {
-            width: 8px; height: 8px; background: var(--success);
-            border-radius: 50%; animation: pulse-glow 2s infinite;
-        }
+      --bg-primary: #ffffff;
+      --bg-secondary: #faf9f7;
+      --bg-card: #ffffff;
+      --text-primary: #1a1a2e;
+      --text-secondary: #4a4a5e;
+      --text-muted: #6b7280;
+      --border-light: #e9ecef;
+      --border-medium: #d1d5db;
 
-        .user-menu {
-            display: flex; align-items: center; gap: 0.5rem;
-            background: var(--bg-card); border: 1px solid var(--border-light);
-            border-radius: 60px; padding: 0.3rem 0.5rem 0.3rem 1rem;
-            cursor: pointer; position: relative; transition: all 0.25s;
-        }
-        .user-menu:hover { border-color: var(--gold); box-shadow: var(--shadow-md); }
-        .user-name { color: var(--text-primary); font-weight: 600; font-size: 0.9rem; font-family: var(--font-heading); }
-        .user-avatar {
-            width: 38px; height: 38px;
-            background: var(--gold-gradient); color: white;
-            border-radius: 50%; display: flex; align-items: center;
-            justify-content: center; font-weight: 700; font-family: var(--font-heading);
-        }
-        .user-dropdown {
-            position: absolute; top: calc(100% + 10px); right: 0;
-            background: var(--bg-card); border: 1px solid var(--border-light);
-            border-radius: 16px; padding: 0.5rem; min-width: 180px;
-            opacity: 0; visibility: hidden; transform: translateY(-10px);
-            transition: all 0.2s ease; z-index: 1001; box-shadow: var(--shadow-lg);
-        }
-        .user-menu:hover .user-dropdown { opacity: 1; visibility: visible; transform: translateY(0); }
-        .dropdown-item {
-            padding: 0.7rem 1rem; color: var(--text-secondary);
-            border-radius: 12px; display: flex; align-items: center; gap: 0.5rem;
-            cursor: pointer; font-size: 0.9rem; font-family: var(--font-body);
-            transition: all 0.2s; border: none; background: none; width: 100%;
-        }
-        .dropdown-item:hover { background: var(--bg-secondary); }
-        .dropdown-item.danger:hover { color: var(--danger); }
+      --shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.03);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.05);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.06);
+      --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1);
+      --shadow-gold: 0 10px 40px rgba(202, 138, 4, 0.2);
+      --shadow-calendar: 0 20px 60px rgba(0,0,0,0.12);
 
-        .main-content {
-            max-width: 1400px; margin: calc(var(--header-height) + 1.5rem) auto 2rem;
-            padding: 0 2.5rem;
-        }
+      --nav-bg: rgba(255, 255, 255, 0.98);
+      --header-height: 80px;
 
-        .welcome-section {
-            background: var(--bg-card); border: 1px solid var(--border-light);
-            border-radius: 32px; padding: 1.8rem 2.5rem; margin-bottom: 1.5rem;
-            box-shadow: var(--shadow-sm); display: flex;
-            justify-content: space-between; align-items: center;
-            flex-wrap: wrap; gap: 1rem;
-        }
-        .welcome-text h1 {
-            font-size: 1.8rem; font-weight: 800; color: var(--text-primary);
-            margin-bottom: 0.2rem; font-family: var(--font-display);
-            letter-spacing: -0.02em;
-        }
-        .welcome-text p { color: var(--text-muted); font-size: 0.9rem; display: flex; align-items: center; gap: 0.5rem; }
-        .date-display {
-            background: var(--bg-secondary); padding: 0.6rem 1.2rem;
-            border-radius: 40px; font-size: 0.85rem; color: var(--text-secondary);
-            display: flex; align-items: center; gap: 0.5rem; font-weight: 500;
-        }
+      --font-display: 'Clash Display', 'Cabinet Grotesk', sans-serif;
+      --font-heading: 'Satoshi', 'General Sans', sans-serif;
+      --font-body: 'General Sans', 'Outfit', sans-serif;
+    }
 
-        .stats-grid {
-            display: grid; grid-template-columns: repeat(4,1fr); gap: 1rem; margin-bottom: 1.5rem;
-        }
-        .stat-card {
-            background: var(--bg-card); border: 1px solid var(--border-light);
-            border-radius: 20px; padding: 1.2rem 1.4rem; display: flex;
-            align-items: center; gap: 1rem; box-shadow: var(--shadow-sm);
-            transition: all 0.3s; cursor: pointer; position: relative; overflow: hidden;
-        }
-        .stat-card::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%;
-            background: var(--gold-gradient); transform: scaleY(0);
-            transition: transform 0.3s; border-radius: 0 4px 4px 0;
-        }
-        .stat-card:hover::before { transform: scaleY(1); }
-        .stat-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
-        .stat-icon {
-            width: 50px; height: 50px; border-radius: 16px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.3rem; flex-shrink: 0;
-        }
-        .stat-value {
-            font-size: 1.8rem; font-weight: 800; color: var(--text-primary);
-            line-height: 1.2; font-family: var(--font-display);
-        }
-        .stat-label { color: var(--text-muted); font-size: 0.78rem; font-weight: 500; font-family: var(--font-heading); }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font-body);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
 
-        .charts-grid {
-            display: grid; grid-template-columns: 2fr 1fr; gap: 1rem; margin-bottom: 1.5rem;
-        }
-        .chart-card {
-            background: var(--bg-card); border: 1px solid var(--border-light);
-            border-radius: 24px; padding: 1.3rem; box-shadow: var(--shadow-sm);
-        }
-        .chart-header {
-            display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;
-        }
-        .chart-title {
-            font-family: var(--font-heading); font-size: 0.95rem; font-weight: 700;
-            display: flex; align-items: center; gap: 0.5rem;
-        }
-        .chart-title i { color: var(--gold); }
-        .chart-container { position: relative; height: 260px; }
+    /* Calendar Widget */
+    .calendar-widget {
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: 32px;
+      padding: 2.5rem 2rem;
+      box-shadow: var(--shadow-calendar);
+      max-width: 460px;
+      width: 100%;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
 
-        .bottom-grid {
-            display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;
-        }
-        .activity-card {
-            background: var(--bg-card); border: 1px solid var(--border-light);
-            border-radius: 24px; padding: 1.3rem; box-shadow: var(--shadow-sm);
-        }
-        .activity-card h3 {
-            font-family: var(--font-heading); font-size: 0.95rem; font-weight: 700;
-            margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;
-        }
-        .activity-card h3 i { color: var(--gold); }
+    .calendar-widget::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 6px;
+      background: var(--gold-gradient);
+    }
 
-        .activity-item {
-            display: flex; gap: 0.7rem; padding: 0.7rem 0;
-            border-bottom: 1px solid var(--border-light); align-items: flex-start;
-        }
-        .activity-item:last-child { border-bottom: none; }
-        .activity-icon {
-            width: 34px; height: 34px; border-radius: 10px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 0.8rem; flex-shrink: 0;
-        }
-        .activity-content { flex: 1; min-width: 0; }
-        .activity-title {
-            font-weight: 600; font-size: 0.8rem; color: var(--text-primary);
-            font-family: var(--font-heading); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-        }
-        .activity-meta { font-size: 0.68rem; color: var(--text-muted); margin-top: 0.1rem; }
-        .activity-time { font-size: 0.65rem; color: var(--text-muted); white-space: nowrap; }
+    .calendar-widget:hover {
+      box-shadow: var(--shadow-gold), var(--shadow-xl);
+      transform: translateY(-4px);
+    }
 
-        .workspace-card {
-            background: var(--bg-card); border: 1px solid var(--border-light);
-            border-radius: 16px; padding: 1rem; cursor: pointer;
-            transition: all 0.3s; display: flex; align-items: center; gap: 0.8rem;
-            margin-bottom: 0.6rem; text-decoration: none; color: inherit;
-        }
-        .workspace-card:hover { border-color: var(--gold); transform: translateX(4px); box-shadow: var(--shadow-md); }
-        .workspace-icon {
-            width: 44px; height: 44px; border-radius: 12px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.1rem; flex-shrink: 0;
-        }
-        .workspace-info { flex: 1; min-width: 0; }
-        .workspace-name { font-weight: 700; font-size: 0.85rem; font-family: var(--font-heading); }
-        .workspace-desc { font-size: 0.7rem; color: var(--text-muted); }
-        .workspace-stat { text-align: right; font-family: var(--font-heading); }
-        .workspace-stat .number { font-size: 1.2rem; font-weight: 800; color: var(--gold); }
-        .workspace-stat .label { font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; }
+    .calendar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+      padding-top: 0.5rem;
+    }
 
-        .map-card {
-            background: var(--bg-card); border: 1px solid var(--border-light);
-            border-radius: 24px; padding: 1.3rem; box-shadow: var(--shadow-sm);
-        }
-        .map-container-leaflet {
-            border-radius: 16px; height: 200px; overflow: hidden; margin-bottom: 0.8rem;
-        }
-        .map-container-leaflet .leaflet-control-zoom { display: none; }
+    .month-year {
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+    }
 
-        .brandinn-stats {
-            display: grid; grid-template-columns: repeat(3,1fr); gap: 0.5rem;
-            margin-top: 0.5rem;
-        }
-        .brandinn-stat-item {
-            text-align: center; background: rgba(139,92,246,0.04);
-            border-radius: 12px; padding: 0.6rem;
-        }
-        .brandinn-stat-value { font-size: 1.3rem; font-weight: 800; font-family: var(--font-display); }
-        .brandinn-stat-label {
-            font-size: 0.6rem; color: var(--text-muted);
-            text-transform: uppercase; letter-spacing: 0.3px; font-weight: 600;
-        }
+    .calendar-nav {
+      display: flex;
+      gap: 0.5rem;
+    }
 
-        .badge {
-            padding: 0.25rem 0.7rem; border-radius: 40px; font-size: 0.65rem;
-            font-weight: 700; text-transform: uppercase; white-space: nowrap;
-            display: inline-block; font-family: var(--font-heading); letter-spacing: 0.3px;
-        }
-        .badge-success { background: rgba(16,185,129,0.1); color: #059669; }
-        .badge-warning { background: rgba(245,158,11,0.1); color: #d97706; }
-        .badge-info { background: rgba(59,130,246,0.1); color: #2563eb; }
-        .badge-purple { background: rgba(139,92,246,0.1); color: #7c3aed; }
-        .badge-gold { background: var(--gold-soft); color: var(--gold-dark); }
+    .calendar-nav button {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 1px solid var(--border-light);
+      background: var(--bg-card);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-secondary);
+      transition: all 0.2s;
+      font-size: 0.9rem;
+    }
 
-        .toast-container { position: fixed; top:20px; right:20px; z-index:4000; }
-        .toast {
-            background: var(--bg-card); border: 1px solid var(--border-light);
-            border-radius: 14px; padding: 0.8rem 1.2rem; margin-bottom: 0.5rem;
-            box-shadow: var(--shadow-lg); display: flex; align-items: center;
-            gap: 0.75rem; min-width: 280px; animation: slideIn 0.2s ease;
-            font-family: var(--font-body);
-        }
-        .toast.success { border-left: 3px solid var(--success); }
-        .toast.error { border-left: 3px solid var(--danger); }
-        .toast.info { border-left: 3px solid var(--gold); }
-        @keyframes slideIn { from{opacity:0;transform:translateX(20px)} to{opacity:1;transform:translateX(0)} }
+    .calendar-nav button:hover {
+      background: var(--gold-soft);
+      border-color: var(--gold);
+      color: var(--gold);
+    }
 
-        @media (max-width:1200px) {
-            .charts-grid { grid-template-columns: 1fr; }
-            .bottom-grid { grid-template-columns: 1fr 1fr; }
-        }
-        @media (max-width:768px) {
-            .stats-grid{grid-template-columns:repeat(2,1fr)}
-            .bottom-grid{grid-template-columns:1fr}
-            .nav-links{display:none}
-            .welcome-section{flex-direction:column;text-align:center}
-            .main-content{padding:0 1rem}
-            .brandinn-stats{grid-template-columns: repeat(2,1fr);}
-        }
-        @media (max-width:500px) { .stats-grid{grid-template-columns:1fr} }
-    </style>
+    .weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      text-align: center;
+      margin-bottom: 1rem;
+      font-weight: 600;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      font-family: var(--font-heading);
+    }
+
+    .days-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 0.5rem;
+      text-align: center;
+    }
+
+    .day {
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: var(--text-primary);
+      font-family: var(--font-body);
+    }
+
+    .day:hover {
+      background: var(--gold-soft);
+      color: var(--gold-dark);
+    }
+
+    .day.today {
+      background: var(--gold-gradient);
+      color: white;
+      font-weight: 700;
+      box-shadow: 0 4px 12px rgba(202, 138, 4, 0.3);
+    }
+
+    .day.other-month {
+      color: var(--border-medium);
+      cursor: default;
+    }
+
+    .day.other-month:hover {
+      background: transparent;
+      color: var(--border-medium);
+    }
+
+    .time-display {
+      margin-top: 2rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border-light);
+      text-align: center;
+    }
+
+    .current-time {
+      font-family: var(--font-display);
+      font-size: 2.8rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      background: var(--gold-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1;
+      margin-bottom: 0.3rem;
+    }
+
+    .current-date-full {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      font-family: var(--font-heading);
+    }
+
+    /* Header */
+    .site-header {
+      position: fixed; top: 0; width: 100%; height: var(--header-height);
+      background: var(--nav-bg); backdrop-filter: blur(30px);
+      border-bottom: 1px solid rgba(202,138,4,0.08); z-index: 1000; padding: 0 2.5rem;
+    }
+    .header-container {
+      max-width: 1280px; height: 100%; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .logo { display: flex; align-items: center; gap: 0.85rem; }
+    .logo img {
+      height: 44px; width: auto; filter: drop-shadow(0 4px 8px rgba(202,138,4,0.2));
+      transition: transform 0.3s ease;
+    }
+    .logo:hover img { transform: scale(1.05); }
+    .logo span {
+      font-size: 1.6rem; font-weight: 800;
+      background: var(--gold-gradient);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text; font-family: var(--font-display); letter-spacing: -0.5px;
+    }
+    .btn {
+      padding: 0.65rem 1.6rem; border: none; border-radius: 50px;
+      font-weight: 600; font-size: 0.9rem; cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4,0,0.2,1); text-decoration: none;
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      font-family: var(--font-heading);
+    }
+    .btn-primary {
+      background: var(--gold-gradient); color: white; box-shadow: var(--shadow-gold);
+      position: relative; overflow: hidden;
+    }
+    .btn-primary::before {
+      content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      transition: left 0.5s;
+    }
+    .btn-primary:hover::before { left: 100%; }
+    .btn-primary:hover {
+      transform: translateY(-3px); box-shadow: 0 15px 45px rgba(202,138,4,0.35);
+    }
+    .btn-large { padding: 0.9rem 2.4rem; font-size: 1rem; }
+
+    /* Main Content */
+    .main-content {
+      max-width: 1280px; margin: calc(var(--header-height) + 2.5rem) auto 2rem;
+      padding: 0 2.5rem;
+    }
+
+    .hero-section {
+      display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 4rem;
+      align-items: center; margin-bottom: 6rem; min-height: 580px;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.4rem 1.2rem; background: var(--gold-soft);
+      border: 1px solid rgba(202,138,4,0.2); border-radius: 50px;
+      font-size: 0.85rem; font-weight: 600; color: var(--gold-dark);
+      margin-bottom: 1.5rem; font-family: var(--font-heading);
+    }
+    .hero-content h1 {
+      font-size: 4rem; font-weight: 800; line-height: 1.15;
+      margin-bottom: 1.5rem; letter-spacing: -0.03em;
+      font-family: var(--font-display); color: var(--text-primary);
+    }
+    .gold-text {
+      background: var(--gold-gradient);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-content p {
+      font-size: 1.2rem; color: var(--text-secondary);
+      margin-bottom: 2.2rem; max-width: 520px; line-height: 1.7;
+    }
+    .hero-buttons { display: flex; gap: 1rem; flex-wrap: wrap; }
+
+    .section-header { text-align: center; margin-bottom: 3rem; }
+    .section-label {
+      display: inline-block; padding: 0.3rem 1rem; background: var(--gold-soft);
+      color: var(--gold-dark); border-radius: 50px; font-size: 0.8rem;
+      font-weight: 600; text-transform: uppercase; letter-spacing: 1px;
+      margin-bottom: 0.8rem; font-family: var(--font-heading);
+    }
+    .section-header h2 {
+      font-size: 2.6rem; font-weight: 800; font-family: var(--font-display);
+      letter-spacing: -0.02em;
+    }
+    .section-header p {
+      color: var(--text-muted); font-size: 1.05rem; max-width: 550px; margin: 0.5rem auto 0;
+    }
+
+    .portal-grid {
+      display: grid; grid-template-columns: repeat(4,1fr); gap: 1.5rem; margin-bottom: 6rem;
+    }
+    .portal-card {
+      background: var(--bg-card); border: 1px solid var(--border-light);
+      border-radius: 28px; padding: 2rem 1.8rem; text-align: center;
+      transition: all 0.3s; box-shadow: var(--shadow-sm);
+    }
+    .portal-card:hover {
+      border-color: var(--gold); box-shadow: var(--shadow-lg); transform: translateY(-6px);
+    }
+    .portal-icon {
+      width: 60px; height: 60px; background: var(--gold-soft);
+      border-radius: 20px; display: flex; align-items: center; justify-content: center;
+      font-size: 1.8rem; color: var(--gold); margin: 0 auto 1.2rem;
+    }
+    .portal-card h3 {
+      font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem;
+      font-family: var(--font-heading);
+    }
+    .portal-card p { color: var(--text-muted); font-size: 0.9rem; }
+
+    .features-row {
+      display: grid; grid-template-columns: repeat(3,1fr); gap: 2rem; margin-bottom: 6rem;
+    }
+    .feature-block {
+      background: var(--bg-card); border: 1px solid var(--border-light);
+      border-radius: 24px; padding: 2rem; transition: all 0.25s;
+    }
+    .feature-block:hover { border-color: var(--gold); box-shadow: var(--shadow-md); }
+    .feature-icon-sm {
+      width: 48px; height: 48px; background: #fef9e7; border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem; color: var(--gold); margin-bottom: 1.2rem;
+    }
+    .feature-block h4 { font-size: 1.2rem; font-weight: 700; margin-bottom: 0.4rem; }
+    .feature-block p { color: var(--text-muted); font-size: 0.9rem; }
+
+    .cta-banner {
+      background: linear-gradient(105deg, #1a1a2e 0%, #2d2d44 100%);
+      border-radius: 38px; padding: 4rem 3rem; text-align: center;
+      margin-bottom: 5rem; color: white; position: relative; overflow: hidden;
+    }
+    .cta-banner::before {
+      content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+      background: radial-gradient(circle, rgba(202,138,4,0.15) 0%, transparent 70%);
+    }
+    .cta-banner h2 {
+      font-size: 2.5rem; font-weight: 800; font-family: var(--font-display);
+      position: relative; z-index: 1;
+    }
+    .cta-banner p {
+      font-size: 1.1rem; color: rgba(255,255,255,0.8); margin: 1rem 0 2rem;
+      position: relative; z-index: 1;
+    }
+    .cta-banner .btn-primary {
+      background: var(--gold-gradient); position: relative; z-index: 1;
+    }
+
+    .footer {
+      background: var(--bg-secondary); padding: 2.5rem 0;
+      border-top: 1px solid var(--border-light);
+    }
+    .footer-content {
+      max-width: 1280px; margin: 0 auto; padding: 0 2.5rem;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .footer-logo {
+      display: flex; align-items: center; gap: 0.5rem;
+      font-weight: 700; font-size: 1.1rem; color: var(--text-primary);
+    }
+    .footer-logo i { color: var(--gold); }
+    .footer-text { color: var(--text-muted); font-size: 0.85rem; }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed; top:0;left:0;width:100%;height:100%;
+      background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
+      z-index: 2000; display: none;
+    }
+    .modal-overlay.active { display: block; }
+    .modal {
+      position: fixed; top:50%;left:50%; transform: translate(-50%,-50%);
+      background: white; border-radius: 32px; padding: 2.5rem;
+      max-width: 480px; width: 90%; z-index: 2001;
+      box-shadow: 0 30px 60px rgba(0,0,0,0.25); display: none;
+    }
+    .modal.active { display: block; }
+    .modal-close {
+      position: absolute; top:1.2rem; right:1.5rem;
+      background: none; border: none; font-size: 1.5rem; cursor: pointer;
+      color: var(--text-muted);
+    }
+    .form-group { margin-bottom: 1.2rem; }
+    .form-control {
+      width: 100%; padding: 0.8rem 1rem; border: 1px solid var(--border-medium);
+      border-radius: 14px; font-size: 0.95rem; font-family: var(--font-body);
+    }
+    .modal-btn {
+      width: 100%; padding: 0.8rem; background: var(--gold-gradient);
+      color: white; border: none; border-radius: 40px; font-weight: 600;
+      cursor: pointer; font-family: var(--font-heading);
+    }
+    .toast-container { position: fixed; top:20px; right:20px; z-index:4000; }
+    .toast {
+      background: white; border-radius: 12px; padding: 0.8rem 1.2rem;
+      margin-bottom: 0.5rem; box-shadow: var(--shadow-lg);
+      display: flex; align-items: center; gap:0.6rem;
+    }
+
+    /* Animation */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .hero-content { animation: fadeInUp 0.8s ease-out; }
+    .calendar-widget { animation: fadeInUp 0.8s ease-out 0.2s both; }
+
+    @media (max-width:1024px) {
+      .hero-section{grid-template-columns:1fr;text-align:center}
+      .hero-content p { margin: 0 auto 2.2rem; }
+      .hero-buttons { justify-content: center; }
+      .calendar-widget { margin: 0 auto; max-width: 400px; }
+      .portal-grid{grid-template-columns:repeat(2,1fr)}
+      .features-row{grid-template-columns:repeat(2,1fr)}
+    }
+    @media (max-width:768px) {
+      .portal-grid,.features-row{grid-template-columns:1fr}
+      .footer-content{flex-direction:column;gap:1rem}
+      .hero-content h1 { font-size: 2.8rem; }
+    }
+  </style>
 </head>
 <body>
-    <div class="toast-container" id="toastContainer"></div>
+  <div class="toast-container" id="toastContainer"></div>
+  <div class="modal-overlay" id="authModalOverlay"></div>
+  <div class="modal" id="authModal">
+    <button class="modal-close" onclick="closeAuthModal()"><i class="fas fa-times"></i></button>
+    <div style="text-align:center;margin-bottom:1.5rem">
+      <i class="fas fa-building" style="font-size:2.5rem;color:var(--gold)"></i>
+      <h3 style="font-weight:700;margin-top:0.5rem;font-family:var(--font-display)">Staff Login</h3>
+      <p style="color:var(--text-muted);font-size:0.9rem;margin-top:0.3rem">Sign in to access your workspace</p>
+    </div>
+    <form id="loginForm" onsubmit="handleLogin(event)">
+      <div class="form-group"><input type="email" class="form-control" id="loginEmail" placeholder="Staff email" required></div>
+      <div class="form-group"><input type="password" class="form-control" id="loginPassword" placeholder="Password" required></div>
+      <button type="submit" class="modal-btn">Sign in to portal</button>
+    </form>
+  </div>
 
-    <header class="site-header">
-        <div class="header-container">
-            <div class="logo"><img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview-1.png" alt="KazInni"><span>KazInni</span></div>
-            <nav class="nav-links">
-                <a href="#" class="nav-link active">Dashboard</a>
-                <a href="profile.html" class="nav-link">Profile</a>
-                <a href="workspaces.html" class="nav-link">Workspaces</a>
-                <a href="resources.html" class="nav-link">Resources</a>
-            </nav>
-            <div style="display:flex;align-items:center;gap:1.5rem;">
-                <div class="live-indicator"><div class="live-dot"></div> Live</div>
-                <div class="user-menu" id="userMenu">
-                    <span class="user-name" id="userDisplayName">Loading...</span>
-                    <div class="user-avatar" id="userAvatar">K</div>
-                    <div class="user-dropdown">
-                        <a href="profile.html" class="dropdown-item"><i class="fas fa-user"></i> View Profile</a>
-                        <button class="dropdown-item" onclick="refreshData()"><i class="fas fa-sync-alt"></i> Refresh</button>
-                        <button class="dropdown-item danger" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
-                    </div>
-                </div>
-            </div>
+  <header class="site-header">
+    <div class="header-container">
+      <div class="logo">
+        <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview-1.png" alt="E-KAZI">
+        <span>E-KAZI</span>
+      </div>
+      <button class="btn btn-primary" onclick="openAuthModal()">
+        <i class="fas fa-lock"></i> Staff Login
+      </button>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <section class="hero-section">
+      <div class="hero-content">
+        <div class="hero-badge"><i class="fas fa-shield-alt"></i> Private Staff Portal</div>
+        <h1>Your <span class="gold-text">work hub</span>, built for internal teams.</h1>
+        <p>E‑KAZI is the private workspace where staff manage tasks, collaborate on projects, and access company resources — all in one secure place.</p>
+        <div class="hero-buttons">
+          <button class="btn btn-primary btn-large" onclick="openAuthModal()"><i class="fas fa-sign-in-alt"></i> Sign in to workspace</button>
         </div>
-    </header>
-
-    <main class="main-content">
-        <div id="dashboardContent">
-            <div class="welcome-section">
-                <div class="welcome-text">
-                    <h1>Good <span id="greeting">Morning</span>, <span id="userName">User</span> 👋</h1>
-                    <p><i class="fas fa-chart-line"></i> Real-time operations overview across all workspaces</p>
-                </div>
-                <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
-                    <span class="badge badge-gold" id="roleBadge">PRO</span>
-                    <div class="date-display" id="currentDate"></div>
-                </div>
-            </div>
-
-            <div class="stats-grid" id="statsGrid">
-                <div class="stat-card skeleton-card"><div class="skeleton skeleton-icon"></div><div><div class="skeleton skeleton-number"></div><div class="skeleton skeleton-text-sm"></div></div></div>
-                <div class="stat-card skeleton-card"><div class="skeleton skeleton-icon"></div><div><div class="skeleton skeleton-number"></div><div class="skeleton skeleton-text-sm"></div></div></div>
-                <div class="stat-card skeleton-card"><div class="skeleton skeleton-icon"></div><div><div class="skeleton skeleton-number"></div><div class="skeleton skeleton-text-sm"></div></div></div>
-                <div class="stat-card skeleton-card"><div class="skeleton skeleton-icon"></div><div><div class="skeleton skeleton-number"></div><div class="skeleton skeleton-text-sm"></div></div></div>
-            </div>
-
-            <div class="charts-grid">
-                <div class="chart-card">
-                    <div class="chart-header">
-                        <div class="chart-title"><i class="fas fa-chart-bar"></i> Operations Overview</div>
-                        <span class="badge badge-gold">Real-time</span>
-                    </div>
-                    <div class="chart-container"><canvas id="ordersChart"></canvas></div>
-                </div>
-                <div class="chart-card">
-                    <div class="chart-header"><div class="chart-title"><i class="fas fa-chart-pie"></i> Workspace Distribution</div></div>
-                    <div class="chart-container"><canvas id="distributionChart"></canvas></div>
-                </div>
-            </div>
-
-            <div class="bottom-grid">
-                <div class="activity-card" id="activityCard">
-                    <h3><i class="fas fa-clock-rotate-left"></i> Recent Activity</h3>
-                    <div id="activityList">
-                        <div style="padding:0.7rem 0;"><div class="skeleton skeleton-text" style="width:80%;"></div><div class="skeleton skeleton-text-sm" style="width:50%;"></div></div>
-                        <div style="padding:0.7rem 0;border-top:1px solid var(--border-light);"><div class="skeleton skeleton-text" style="width:70%;"></div><div class="skeleton skeleton-text-sm" style="width:60%;"></div></div>
-                        <div style="padding:0.7rem 0;border-top:1px solid var(--border-light);"><div class="skeleton skeleton-text" style="width:75%;"></div><div class="skeleton skeleton-text-sm" style="width:45%;"></div></div>
-                    </div>
-                </div>
-
-                <div class="activity-card" id="workspaceCard">
-                    <h3><i class="fas fa-cubes"></i> Your Workspaces</h3>
-                    <div id="workspaceList">
-                        <div style="padding:0.7rem 0;"><div class="skeleton skeleton-text" style="width:80%;"></div><div class="skeleton skeleton-text-sm" style="width:90%;"></div></div>
-                        <div style="padding:0.7rem 0;border-top:1px solid var(--border-light);"><div class="skeleton skeleton-text" style="width:70%;"></div><div class="skeleton skeleton-text-sm" style="width:85%;"></div></div>
-                    </div>
-                </div>
-
-                <div class="map-card" id="mapCard">
-                    <h3 style="font-family:var(--font-heading);font-size:0.95rem;font-weight:700;margin-bottom:0.5rem;">
-                        <i class="fas fa-building" style="color:var(--purple);"></i> BrandInn Businesses
-                    </h3>
-                    <div class="map-container-leaflet" id="overviewMap"></div>
-                    <div class="brandinn-stats" id="brandinnStats">
-                        <div class="brandinn-stat-item"><div class="skeleton" style="height:1.5rem;width:50%;margin:0 auto 0.3rem;"></div><div class="skeleton" style="height:0.6rem;width:70%;margin:0 auto;"></div></div>
-                        <div class="brandinn-stat-item"><div class="skeleton" style="height:1.5rem;width:50%;margin:0 auto 0.3rem;"></div><div class="skeleton" style="height:0.6rem;width:70%;margin:0 auto;"></div></div>
-                        <div class="brandinn-stat-item"><div class="skeleton" style="height:1.5rem;width:50%;margin:0 auto 0.3rem;"></div><div class="skeleton" style="height:0.6rem;width:70%;margin:0 auto;"></div></div>
-                    </div>
-                </div>
-            </div>
+      </div>
+      <div class="calendar-widget" id="calendarWidget">
+        <div class="calendar-header">
+          <span class="month-year" id="monthYear"></span>
+          <div class="calendar-nav">
+            <button onclick="changeMonth(-1)"><i class="fas fa-chevron-left"></i></button>
+            <button onclick="changeMonth(1)"><i class="fas fa-chevron-right"></i></button>
+          </div>
         </div>
-    </main>
+        <div class="weekdays">
+          <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+        </div>
+        <div class="days-grid" id="daysGrid"></div>
+        <div class="time-display">
+          <div class="current-time" id="currentTime"></div>
+          <div class="current-date-full" id="currentDateFull"></div>
+        </div>
+      </div>
+    </section>
 
-    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
-            authDomain: "mugera-e51cc.firebaseapp.com",
-            databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "mugera-e51cc"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
-        const auth = firebase.auth();
-        auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+    <section>
+      <div class="section-header">
+        <span class="section-label">Core modules</span>
+        <h2>Everything your team needs</h2>
+        <p>Purpose‑built tools for internal productivity</p>
+      </div>
+      <div class="portal-grid">
+        <div class="portal-card"><div class="portal-icon"><i class="fas fa-tasks"></i></div><h3>Task Manager</h3><p>Assign, track, and complete daily work.</p></div>
+        <div class="portal-card"><div class="portal-icon"><i class="fas fa-folder-open"></i></div><h3>Projects</h3><p>Centralize timelines and deliverables.</p></div>
+        <div class="portal-card"><div class="portal-icon"><i class="fas fa-comments"></i></div><h3>Team Chat</h3><p>Real‑time messaging and updates.</p></div>
+        <div class="portal-card"><div class="portal-icon"><i class="fas fa-book-open"></i></div><h3>Resources</h3><p>Guides, templates, and training.</p></div>
+      </div>
+    </section>
 
-        let currentUser = null;
-        let ordersChart = null, distributionChart = null;
-        let overviewMap = null;
-        let mapMarkers = [];
+    <section>
+      <div class="section-header">
+        <span class="section-label">Why staff choose E‑KAZI</span>
+        <h2>Built for internal workflows</h2>
+      </div>
+      <div class="features-row">
+        <div class="feature-block"><div class="feature-icon-sm"><i class="fas fa-shield-haltered"></i></div><h4>Private & secure</h4><p>Only verified staff can access the portal.</p></div>
+        <div class="feature-block"><div class="feature-icon-sm"><i class="fas fa-chart-line"></i></div><h4>Performance tracking</h4><p>Real‑time dashboards for managers.</p></div>
+        <div class="feature-block"><div class="feature-icon-sm"><i class="fas fa-sync-alt"></i></div><h4>Streamlined ops</h4><p>Reduce emails and manual follow‑ups.</p></div>
+      </div>
+    </section>
 
-        auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                currentUser = user;
-                await initializeDashboard(user);
-            } else {
-                window.location.href = 'index.html';
-            }
-        });
+    <div class="cta-banner">
+      <h2>Ready to get to work?</h2>
+      <p>Sign in to join your colleagues on the private staff portal.</p>
+      <button class="btn btn-primary btn-large" onclick="openAuthModal()">Sign in to portal</button>
+    </div>
+  </main>
 
-        async function initializeDashboard(user) {
-            try {
-                const userSnap = await database.ref(`brandinn_users/${user.uid}`).once('value');
-                const userData = userSnap.exists() ? userSnap.val() : {};
-                const userName = userData.name || user.displayName || user.email?.split('@')[0] || 'User';
-                const businessName = userData.businessName || '';
-                
-                updateUserInterface(userName, businessName);
-                initOverviewMap();
-                await loadAllData();
-                setupLiveListeners();
-            } catch(e) {
-                showToast('Error loading dashboard', 'error');
-            }
-        }
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-logo"><i class="fas fa-briefcase"></i> E‑KAZI</div>
+      <div class="footer-text">© 2026 I AM MUGERA · Private staff portal</div>
+    </div>
+  </footer>
 
-        function updateUserInterface(userName, businessName) {
-            const hour = new Date().getHours();
-            const greeting = hour < 12 ? 'Morning' : hour < 17 ? 'Afternoon' : 'Evening';
-            document.getElementById('greeting').textContent = greeting;
-            document.getElementById('userName').textContent = userName;
-            document.getElementById('userDisplayName').textContent = userName;
-            document.getElementById('userAvatar').textContent = userName.charAt(0).toUpperCase();
-            document.getElementById('currentDate').innerHTML = `<i class="fas fa-calendar-alt"></i> ${new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}`;
-            if (businessName) document.getElementById('roleBadge').textContent = businessName.substring(0,15).toUpperCase();
-        }
+  <script>
+    // Firebase Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+      authDomain: "mugera-e51cc.firebaseapp.com",
+      databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "mugera-e51cc",
+      storageBucket: "mugera-e51cc.firebasestorage.app",
+      messagingSenderId: "1024868637509",
+      appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
+    };
 
-        function initOverviewMap() {
-            if (overviewMap) {
-                overviewMap.remove();
-                mapMarkers = [];
-            }
-            overviewMap = L.map('overviewMap', {
-                center: [-1.2864, 36.8172],
-                zoom: 12,
-                zoomControl: false,
-                attributionControl: false,
-                dragging: false,
-                scrollWheelZoom: false,
-                doubleClickZoom: false,
-                touchZoom: false
-            });
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19
-            }).addTo(overviewMap);
-        }
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const database = firebase.database();
+    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 
-        function updateMapMarkers(businesses) {
-            // Clear existing markers
-            mapMarkers.forEach(m => overviewMap.removeLayer(m));
-            mapMarkers = [];
-            
-            if (!businesses || businesses.length === 0) return;
-            
-            // Get bounds for all points
-            const bounds = [];
-            
-            businesses.forEach(biz => {
-                if (biz.lat && biz.lng) {
-                    const color = getOperationColor(biz.operation);
-                    const marker = L.circleMarker([biz.lat, biz.lng], {
-                        radius: 5,
-                        fillColor: color,
-                        color: '#ffffff',
-                        weight: 1.5,
-                        opacity: 1,
-                        fillOpacity: 0.8
-                    }).addTo(overviewMap);
-                    
-                    marker.bindTooltip(biz.businessName || 'Business', {
-                        direction: 'top',
-                        offset: [0, -8]
-                    });
-                    
-                    mapMarkers.push(marker);
-                    bounds.push([biz.lat, biz.lng]);
-                }
-            });
-            
-            // Fit map to show all markers
-            if (bounds.length > 0) {
-                overviewMap.fitBounds(bounds, { padding: [20, 20], maxZoom: 15 });
-            }
-        }
+    auth.onAuthStateChanged(user => {
+      if (user) window.location.href = 'tasker-dashboard.html';
+    });
 
-        function getOperationColor(operation) {
-            const colors = {
-                brandinn: '#7c3aed',
-                deliveries: '#f59e0b',
-                rides: '#22c55e',
-                dsog: '#ec4899',
-                mugsndines: '#8b5cf6',
-                heritage: '#d946ef',
-                workfit: '#f97316',
-                fusion: '#10b981',
-                hekima: '#10b981'
-            };
-            return colors[operation] || '#7c3aed';
-        }
+    // Calendar functionality
+    let currentDate = new Date();
+    let currentMonth = currentDate.getMonth();
+    let currentYear = currentDate.getFullYear();
 
-        async function loadAllData() {
-            const workspaces = [];
-            let totalOrders = 0, totalProducts = 0;
-            let totalClients = 0;
-            const activities = [];
-            const workspaceStats = {};
+    function renderCalendar() {
+      const monthYearEl = document.getElementById('monthYear');
+      const daysGridEl = document.getElementById('daysGrid');
+      
+      const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+      monthYearEl.textContent = `${months[currentMonth]} ${currentYear}`;
+      
+      const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+      const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+      const daysInPrevMonth = new Date(currentYear, currentMonth, 0).getDate();
+      
+      let html = '';
+      
+      // Previous month days
+      for (let i = firstDay - 1; i >= 0; i--) {
+        html += `<div class="day other-month">${daysInPrevMonth - i}</div>`;
+      }
+      
+      // Current month days
+      const today = new Date();
+      for (let i = 1; i <= daysInMonth; i++) {
+        const isToday = today.getDate() === i && today.getMonth() === currentMonth && today.getFullYear() === currentYear;
+        html += `<div class="day${isToday ? ' today' : ''}">${i}</div>`;
+      }
+      
+      // Next month days
+      const totalCells = firstDay + daysInMonth;
+      const remainingCells = totalCells % 7 === 0 ? 0 : 7 - (totalCells % 7);
+      for (let i = 1; i <= remainingCells; i++) {
+        html += `<div class="day other-month">${i}</div>`;
+      }
+      
+      daysGridEl.innerHTML = html;
+    }
 
-            // ===== FUSION FOODS =====
-            const fusionOrdersSnap = await database.ref('fusion_foods_orders').once('value');
-            const fusionOrders = fusionOrdersSnap.val() || {};
-            const fusionOrderCount = Object.keys(fusionOrders).length;
-            totalOrders += fusionOrderCount;
-            
-            const fusionProductsSnap = await database.ref('fusion_foods_products').once('value');
-            const fusionProducts = fusionProductsSnap.val() || {};
-            const fusionProductCount = Object.keys(fusionProducts).length;
-            totalProducts += fusionProductCount;
-            
-            const fusionStoresSnap = await database.ref('fusion_foods_stores').once('value');
-            const fusionStores = fusionStoresSnap.val() || {};
-            totalClients += Object.keys(fusionStores).length;
-            
-            if (fusionOrderCount > 0 || fusionProductCount > 0) {
-                workspaces.push({
-                    name: 'Fusion Foods', desc: 'Food & Grocery Supply',
-                    icon: 'fa-utensils', color: '#10b981', bgColor: '#ecfdf5',
-                    stats: { orders: fusionOrderCount, products: fusionProductCount },
-                    link: '/workspaces/fusion-foods/index.html'
-                });
-                workspaceStats['Fusion Foods'] = fusionOrderCount;
-            }
+    function changeMonth(delta) {
+      currentMonth += delta;
+      if (currentMonth > 11) {
+        currentMonth = 0;
+        currentYear++;
+      } else if (currentMonth < 0) {
+        currentMonth = 11;
+        currentYear--;
+      }
+      renderCalendar();
+    }
 
-            const recentFusionOrders = Object.entries(fusionOrders)
-                .sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0))
-                .slice(0, 4);
-            recentFusionOrders.forEach(([id, order]) => {
-                activities.push({
-                    icon: 'fa-utensils', iconBg: '#ecfdf5', iconColor: '#059669',
-                    title: `${order.restaurantName || 'Restaurant'} · Order #${id.slice(-6)}`,
-                    meta: `${(order.products || []).length} items · KES ${(order.total || 0).toLocaleString()}`,
-                    time: getTimeAgo(order.createdAt), status: order.status || 'new'
-                });
-            });
+    function updateTime() {
+      const now = new Date();
+      const timeEl = document.getElementById('currentTime');
+      const dateEl = document.getElementById('currentDateFull');
+      
+      const hours = now.getHours().toString().padStart(2, '0');
+      const minutes = now.getMinutes().toString().padStart(2, '0');
+      const seconds = now.getSeconds().toString().padStart(2, '0');
+      
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      const dateStr = now.toLocaleDateString('en-US', options);
+      
+      timeEl.textContent = `${hours}:${minutes}:${seconds}`;
+      dateEl.textContent = dateStr;
+      
+      // Update calendar at midnight
+      if (hours === '00' && minutes === '00' && seconds === '00') {
+        currentDate = new Date();
+        currentMonth = currentDate.getMonth();
+        currentYear = currentDate.getFullYear();
+        renderCalendar();
+      }
+    }
 
-            // ===== DSOG FASHION =====
-            const dsogOrdersSnap = await database.ref('dsog_fashion_orders').once('value');
-            const dsogOrderCount = Object.keys(dsogOrdersSnap.val() || {}).length;
-            totalOrders += dsogOrderCount;
-            
-            const dsogFranchiseesSnap = await database.ref('dsog_fashion_franchisees').once('value');
-            totalClients += Object.keys(dsogFranchiseesSnap.val() || {}).length;
-            
-            if (dsogOrderCount > 0) {
-                workspaces.push({
-                    name: 'DSOG Fashion', desc: 'Fashion & Apparel',
-                    icon: 'fa-tshirt', color: '#ec4899', bgColor: '#fdf2f8',
-                    stats: { orders: dsogOrderCount },
-                    link: '/workspaces/dsog-fashion/index.html'
-                });
-                workspaceStats['DSOG Fashion'] = dsogOrderCount;
-            }
+    renderCalendar();
+    updateTime();
+    setInterval(updateTime, 1000);
 
-            // ===== HERITAGE =====
-            const heritageSnap = await database.ref('heritage_listings').once('value');
-            const heritageCount = Object.keys(heritageSnap.val() || {}).length;
-            
-            const heritagePartnersSnap = await database.ref('heritage_partners').once('value');
-            totalClients += Object.keys(heritagePartnersSnap.val() || {}).length;
-            
-            if (heritageCount > 0) {
-                workspaces.push({
-                    name: 'Heritage', desc: 'Outdoor Advertising',
-                    icon: 'fa-landmark', color: '#d946ef', bgColor: '#faf5ff',
-                    stats: { listings: heritageCount },
-                    link: '/workspaces/heritage/index.html'
-                });
-                workspaceStats['Heritage'] = heritageCount;
-            }
-
-            // ===== BRANDINN BUSINESSES (from map registrations) =====
-            const brandinnRegistrationsSnap = await database.ref('iam_mugera_registrations').once('value');
-            const brandinnRegistrations = brandinnRegistrationsSnap.val() || {};
-            const brandinnBusinesses = Object.values(brandinnRegistrations).filter(b => b.operation === 'brandinn');
-            const brandinnBusinessCount = brandinnBusinesses.length;
-            totalClients += brandinnBusinessCount;
-            
-            // Also count other operation types for the map
-            const allMapBusinesses = Object.values(brandinnRegistrations).filter(b => b.lat && b.lng);
-            
-            // ===== BRANDINN PRINT ORDERS =====
-            const brandinnOrdersSnap = await database.ref('brandinn_print_orders').once('value');
-            const brandinnOrderCount = Object.keys(brandinnOrdersSnap.val() || {}).length;
-            totalOrders += brandinnOrderCount;
-            
-            const brandinnFranchisesSnap = await database.ref('brandinn_franchises').once('value');
-            const brandinnFranchiseCount = Object.keys(brandinnFranchisesSnap.val() || {}).length;
-            totalClients += brandinnFranchiseCount;
-            
-            if (brandinnBusinessCount > 0 || brandinnOrderCount > 0) {
-                workspaces.push({
-                    name: 'BrandInn Print', desc: 'Print & Merchandise',
-                    icon: 'fa-print', color: '#8b5cf6', bgColor: '#f5f3ff',
-                    stats: { orders: brandinnOrderCount, businesses: brandinnBusinessCount },
-                    link: '/workspaces/brandinn/index.html'
-                });
-                workspaceStats['BrandInn Print'] = brandinnOrderCount;
-            }
-
-            // Render everything
-            renderStats(totalOrders, totalProducts, totalClients, workspaces.length);
-            renderCharts(workspaceStats);
-            renderActivities(activities);
-            renderWorkspaces(workspaces);
-            renderBrandInnStats(brandinnBusinessCount, brandinnOrderCount, brandinnFranchiseCount);
-            updateMapMarkers(allMapBusinesses);
-        }
-
-        function renderStats(orders, products, clients, workspacesCount) {
-            document.getElementById('statsGrid').innerHTML = `
-                <div class="stat-card">
-                    <div class="stat-icon" style="background:#fef3c7;color:#ca8a04;"><i class="fas fa-shopping-cart"></i></div>
-                    <div><div class="stat-value">${orders}</div><div class="stat-label">Total Orders</div></div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon" style="background:#ecfdf5;color:#059669;"><i class="fas fa-boxes"></i></div>
-                    <div><div class="stat-value">${products}</div><div class="stat-label">Products Listed</div></div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon" style="background:#eff6ff;color:#2563eb;"><i class="fas fa-users"></i></div>
-                    <div><div class="stat-value">${clients}</div><div class="stat-label">Total Clients</div></div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon" style="background:#eef2ff;color:#4f46e5;"><i class="fas fa-cubes"></i></div>
-                    <div><div class="stat-value">${workspacesCount}</div><div class="stat-label">Active Workspaces</div></div>
-                </div>
-            `;
-        }
-
-        function renderCharts(workspaceStats) {
-            if (ordersChart) ordersChart.destroy();
-            if (distributionChart) distributionChart.destroy();
-
-            const ctx1 = document.getElementById('ordersChart').getContext('2d');
-            ordersChart = new Chart(ctx1, {
-                type: 'bar',
-                data: {
-                    labels: ['Fusion', 'DSOG', 'Heritage', 'BrandInn'],
-                    datasets: [{
-                        label: 'Orders / Listings',
-                        data: [
-                            workspaceStats['Fusion Foods'] || 0,
-                            workspaceStats['DSOG Fashion'] || 0,
-                            workspaceStats['Heritage'] || 0,
-                            workspaceStats['BrandInn Print'] || 0
-                        ],
-                        backgroundColor: ['rgba(16,185,129,0.6)', 'rgba(236,72,153,0.6)', 'rgba(217,70,239,0.6)', 'rgba(139,92,246,0.6)'],
-                        borderColor: ['#10b981', '#ec4899', '#d946ef', '#8b5cf6'],
-                        borderWidth: 2, borderRadius: 8, borderSkipped: false,
-                    }]
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 10 } }, grid: { color: '#f3f4f6' } },
-                        x: { grid: { display: false }, ticks: { font: { size: 10 } } }
-                    }
-                }
-            });
-
-            const labels = Object.keys(workspaceStats);
-            const data = Object.values(workspaceStats);
-            const colors = ['#10b981', '#ec4899', '#d946ef', '#8b5cf6'];
-            
-            const ctx2 = document.getElementById('distributionChart').getContext('2d');
-            distributionChart = new Chart(ctx2, {
-                type: 'doughnut',
-                data: {
-                    labels: labels.length ? labels : ['No data'],
-                    datasets: [{
-                        data: data.length ? data : [1],
-                        backgroundColor: colors.slice(0, Math.max(labels.length, 1)),
-                        borderWidth: 2, borderColor: '#ffffff',
-                    }]
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: { padding: 15, usePointStyle: true, pointStyleWidth: 8, font: { size: 10, family: 'General Sans' } }
-                        }
-                    }
-                }
-            });
-        }
-
-        function renderActivities(activities) {
-            const container = document.getElementById('activityList');
-            if (!activities.length) {
-                container.innerHTML = '<div style="text-align:center;padding:1.5rem;color:var(--text-muted);"><i class="fas fa-clock"></i><p>No recent activity</p></div>';
-                return;
-            }
-            container.innerHTML = activities.map(a => {
-                const statusBadge = a.status === 'delivered' ? 'badge-success' : 
-                                   a.status === 'shipped' ? 'badge-purple' :
-                                   a.status === 'processing' ? 'badge-info' : 'badge-warning';
-                return `
-                <div class="activity-item">
-                    <div class="activity-icon" style="background:${a.iconBg};color:${a.iconColor};"><i class="fas ${a.icon}"></i></div>
-                    <div class="activity-content">
-                        <div class="activity-title">${escapeHtml(a.title)}</div>
-                        <div class="activity-meta">${escapeHtml(a.meta)}</div>
-                    </div>
-                    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:0.2rem;">
-                        <span class="badge ${statusBadge}">${(a.status||'new').replace(/-/g,' ')}</span>
-                        <span class="activity-time">${a.time}</span>
-                    </div>
-                </div>`;
-            }).join('');
-        }
-
-        function renderWorkspaces(workspaces) {
-            const container = document.getElementById('workspaceList');
-            if (!workspaces.length) {
-                container.innerHTML = '<div style="text-align:center;padding:1.5rem;color:var(--text-muted);"><i class="fas fa-cubes"></i><p>No workspaces yet</p></div>';
-                return;
-            }
-            container.innerHTML = workspaces.map(w => `
-                <a href="${w.link}" class="workspace-card">
-                    <div class="workspace-icon" style="background:${w.bgColor};color:${w.color};"><i class="fas ${w.icon}"></i></div>
-                    <div class="workspace-info"><div class="workspace-name">${w.name}</div><div class="workspace-desc">${w.desc}</div></div>
-                    <div class="workspace-stat">
-                        ${w.stats.orders !== undefined ? `<div class="number">${w.stats.orders}</div><div class="label">Orders</div>` : ''}
-                        ${w.stats.listings !== undefined ? `<div class="number">${w.stats.listings}</div><div class="label">Listings</div>` : ''}
-                        ${w.stats.businesses !== undefined ? `<div class="number">${w.stats.businesses}</div><div class="label">Businesses</div>` : ''}
-                    </div>
-                </a>
-            `).join('');
-        }
-
-        function renderBrandInnStats(businesses, orders, franchises) {
-            document.getElementById('brandinnStats').innerHTML = `
-                <div class="brandinn-stat-item">
-                    <div class="brandinn-stat-value" style="color:#8b5cf6;">${businesses}</div>
-                    <div class="brandinn-stat-label">Registered Businesses</div>
-                </div>
-                <div class="brandinn-stat-item">
-                    <div class="brandinn-stat-value" style="color:#7c3aed;">${orders}</div>
-                    <div class="brandinn-stat-label">Print Orders</div>
-                </div>
-                <div class="brandinn-stat-item">
-                    <div class="brandinn-stat-value" style="color:#6366f1;">${franchises}</div>
-                    <div class="brandinn-stat-label">Franchises</div>
-                </div>
-            `;
-        }
-
-        function setupLiveListeners() {
-            database.ref('fusion_foods_orders').on('child_added', () => {
-                document.querySelector('.live-dot').style.animation = 'none';
-                setTimeout(() => document.querySelector('.live-dot').style.animation = 'pulse-glow 2s infinite', 10);
-                loadAllData();
-            });
-            database.ref('fusion_foods_orders').on('child_changed', () => loadAllData());
-            database.ref('iam_mugera_registrations').on('child_added', () => loadAllData());
-        }
-
-        function getTimeAgo(timestamp) {
-            if (!timestamp) return '';
-            const date = new Date(timestamp);
-            const diff = Date.now() - date.getTime();
-            const mins = Math.floor(diff / 60000);
-            const hours = Math.floor(mins / 60);
-            const days = Math.floor(hours / 24);
-            if (days > 0) return `${days}d ago`;
-            if (hours > 0) return `${hours}h ago`;
-            if (mins > 0) return `${mins}m ago`;
-            return 'Just now';
-        }
-
-        function escapeHtml(t) { const d=document.createElement('div'); d.textContent=t||''; return d.innerHTML; }
-        
-        function showToast(m, type='info') { 
-            const t=document.createElement('div'); 
-            t.className=`toast ${type}`; 
-            t.innerHTML=`<i class="fas fa-${type==='error'?'exclamation-circle':'check-circle'}"></i><span>${escapeHtml(m)}</span>`; 
-            document.getElementById('toastContainer').appendChild(t); 
-            setTimeout(()=>{t.style.opacity='0';t.style.transition='0.3s';setTimeout(()=>t.remove(),300);},3000); 
-        }
-
-        window.refreshData = async () => {
-            initOverviewMap();
-            await loadAllData();
-            showToast('Dashboard refreshed!', 'success');
-        };
-
-        window.handleLogout = async () => { 
-            if(confirm('Sign out?')) {
-                database.ref('fusion_foods_orders').off();
-                database.ref('iam_mugera_registrations').off();
-                await auth.signOut(); 
-                window.location.href = 'index.html'; 
-            }
-        };
-    </script>
+    // Modal functions
+    window.openAuthModal = () => {
+      document.getElementById('authModal').classList.add('active');
+      document.getElementById('authModalOverlay').classList.add('active');
+    };
+    window.closeAuthModal = () => {
+      document.getElementById('authModal').classList.remove('active');
+      document.getElementById('authModalOverlay').classList.remove('active');
+    };
+    window.handleLogin = async (e) => {
+      e.preventDefault();
+      try {
+        await auth.signInWithEmailAndPassword(
+          document.getElementById('loginEmail').value,
+          document.getElementById('loginPassword').value
+        );
+        showToast('Welcome back');
+      } catch(e) { showToast(e.message, 'error'); }
+    };
+    function showToast(msg, type='success') {
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.innerHTML = `<i class="fas fa-${type==='error'?'exclamation-circle':'check-circle'}"></i> ${msg}`;
+      document.getElementById('toastContainer').appendChild(toast);
+      setTimeout(()=>toast.remove(), 3000);
+    }
+    document.getElementById('authModalOverlay').addEventListener('click', closeAuthModal);
+  </script>
 </body>
 </html>
