@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#ca8a04">
+    <title>KazInni · Operations Blog</title>
+    <link rel="icon" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview-1.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@400;500;600;700;800&family=Satoshi:wght@400;500;600;700;800;900&family=Clash+Display:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&family=General+Sans:wght@400;500;600;700&family=Merriweather:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --gold: #ca8a04; --gold-dark: #a16207; --gold-light: #fbbf24;
+            --gold-soft: #fef3c7; --gold-gradient: linear-gradient(135deg, #ca8a04 0%, #eab308 50%, #fbbf24 100%);
+            --success: #10b981; --warning: #f59e0b; --danger: #ef4444; --info: #3b82f6;
+            --purple: #8b5cf6; --emerald: #059669; --rose: #e11d48; --pink: #ec4899;
+            --bg-primary: #ffffff; --bg-secondary: #faf9f7; --bg-card: #ffffff;
+            --text-primary: #1a1a2e; --text-secondary: #4a5568; --text-muted: #718096;
+            --border-light: #e9ecef;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.03); --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.05);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08);
+            --nav-bg: rgba(255,255,255,0.98); --header-height: 70px;
+            --font-display: 'Clash Display', 'Cabinet Grotesk', sans-serif;
+            --font-heading: 'Satoshi', 'General Sans', sans-serif;
+            --font-body: 'General Sans', 'Outfit', sans-serif;
+            --font-blog: 'Merriweather', 'General Sans', serif;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: linear-gradient(180deg, #fffbeb 0%, #ffffff 10%, #faf9f7 100%);
+            color: var(--text-primary); line-height: 1.6; min-height: 100vh;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; } 100% { background-position: 200% 0; }
+        }
+        .skeleton {
+            background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
+            background-size: 200% 100%; animation: shimmer 1.5s ease-in-out infinite; border-radius: 6px;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-in { animation: fadeInUp 0.5s ease-out; }
+
+        .site-header {
+            position:fixed; top:0; width:100%; height:var(--header-height);
+            background:var(--nav-bg); backdrop-filter:blur(25px);
+            border-bottom:1px solid rgba(202,138,4,0.08); z-index:1000; padding:0 2rem;
+        }
+        .header-container { max-width:1400px; height:100%; margin:0 auto; display:flex; align-items:center; justify-content:space-between; }
+        .logo{display:flex;align-items:center;gap:0.7rem;text-decoration:none;}
+        .logo img{height:36px;width:auto;}
+        .logo span{font-size:1.4rem;font-weight:800;background:var(--gold-gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-family:var(--font-display);}
+        .nav-links{display:flex;gap:2rem;}
+        .nav-link{color:var(--text-secondary);text-decoration:none;font-size:0.85rem;font-weight:500;font-family:var(--font-heading);transition:all 0.2s;}
+        .nav-link:hover,.nav-link.active{color:var(--gold);}
+        .user-menu{display:flex;align-items:center;gap:0.5rem;background:var(--bg-card);border:1px solid var(--border-light);border-radius:50px;padding:0.25rem 0.5rem 0.25rem 0.8rem;cursor:pointer;position:relative;}
+        .user-menu:hover{border-color:var(--gold);}
+        .user-avatar{width:32px;height:32px;background:var(--gold-gradient);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.7rem;}
+        .user-name{font-size:0.8rem;font-weight:600;}
+        .user-dropdown{position:absolute;top:calc(100% + 8px);right:0;background:var(--bg-card);border:1px solid var(--border-light);border-radius:12px;padding:0.4rem;min-width:160px;opacity:0;visibility:hidden;transform:translateY(-8px);transition:all 0.2s;z-index:1001;box-shadow:var(--shadow-lg);}
+        .user-menu:hover .user-dropdown{opacity:1;visibility:visible;transform:translateY(0);}
+        .dropdown-item{padding:0.6rem 0.8rem;color:var(--text-secondary);border-radius:8px;display:flex;align-items:center;gap:0.4rem;cursor:pointer;font-size:0.8rem;border:none;background:none;width:100%;font-family:var(--font-body);}
+        .dropdown-item:hover{background:var(--bg-secondary);}
+        .dropdown-item.danger:hover{color:var(--danger);}
+
+        .main-content{max-width:1100px;margin:calc(var(--header-height) + 1.5rem) auto 2rem;padding:0 2rem;}
+
+        .auto-gen-status {
+            text-align:center; margin-bottom:1.2rem;
+        }
+        .auto-gen-status span{
+            display:inline-flex; align-items:center; gap:0.5rem;
+            padding:0.6rem 1.2rem; background:var(--bg-card);
+            border:1px solid var(--border-light); border-radius:50px;
+            font-size:0.75rem; color:var(--text-muted);
+        }
+        .auto-gen-status i{color:var(--success);}
+        .auto-gen-status.generating i{color:var(--warning);animation:spin 1s linear infinite;}
+        @keyframes spin{to{transform:rotate(360deg)}}
+
+        .blog-header{text-align:center;margin-bottom:1.2rem;}
+        .blog-header h1{font-size:2rem;font-weight:800;font-family:var(--font-display);display:flex;align-items:center;justify-content:center;gap:0.5rem;margin-bottom:0.2rem;}
+        .blog-header h1 i{color:var(--gold);}
+        .blog-header p{color:var(--text-muted);font-size:0.9rem;}
+
+        .btn{
+            padding:0.5rem 1.2rem; border:none; border-radius:40px; font-weight:600;
+            font-size:0.78rem; cursor:pointer; display:inline-flex; align-items:center;
+            gap:0.4rem; transition:all 0.3s; font-family:var(--font-heading);
+        }
+        .btn-primary{background:var(--gold-gradient);color:white;}
+        .btn-primary:hover{transform:translateY(-2px);}
+        .btn-outline{background:transparent;border:1px solid var(--border-light);color:var(--text-secondary);}
+        .btn-outline:hover{border-color:var(--gold);color:var(--gold);}
+        .btn-sm{padding:0.3rem 0.7rem;font-size:0.7rem;}
+
+        .kpi-banner {
+            display:grid; grid-template-columns:repeat(4,1fr); gap:0.7rem; margin-bottom:1.2rem;
+        }
+        .kpi-banner-card {
+            background:var(--bg-card); border:1px solid var(--border-light);
+            border-radius:16px; padding:0.9rem; text-align:center; transition:all 0.3s;
+        }
+        .kpi-banner-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);}
+        .kpi-banner-value{font-size:1.6rem;font-weight:800;font-family:var(--font-display);}
+        .kpi-banner-label{font-size:0.62rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;font-weight:600;}
+
+        .blog-post {
+            background:var(--bg-card); border:1px solid var(--border-light);
+            border-radius:24px; padding:2rem; margin-bottom:1.2rem;
+            box-shadow:var(--shadow-sm); position:relative; overflow:hidden;
+        }
+        .blog-post::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--gold-gradient);}
+        .blog-post-header{border-bottom:1px solid var(--border-light);padding-bottom:1rem;margin-bottom:1.2rem;}
+        .blog-post-date{font-size:0.68rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:0.2rem;}
+        .blog-post-title{font-size:1.6rem;font-weight:800;font-family:var(--font-display);line-height:1.3;margin-bottom:0.3rem;}
+        .blog-post-subtitle{font-size:0.9rem;color:var(--text-secondary);font-style:italic;}
+        .blog-post-meta{display:flex;align-items:center;gap:1.2rem;margin-top:0.6rem;font-size:0.68rem;color:var(--text-muted);flex-wrap:wrap;}
+        .blog-post-meta span{display:flex;align-items:center;gap:0.3rem;}
+        .blog-post-meta i{color:var(--gold);}
+
+        .blog-content{font-family:var(--font-blog);font-size:0.88rem;line-height:1.75;color:var(--text-secondary);}
+        .blog-content h2{font-family:var(--font-heading);font-size:1.15rem;font-weight:700;color:var(--text-primary);margin:1.3rem 0 0.5rem;display:flex;align-items:center;gap:0.4rem;}
+        .blog-content p{margin-bottom:0.7rem;}
+        .blog-content .highlight-box{background:var(--gold-soft);border-left:4px solid var(--gold);padding:0.7rem 1rem;border-radius:0 10px 10px 0;margin:0.8rem 0;font-family:var(--font-heading);font-size:0.82rem;}
+        .blog-content .stat-inline{display:inline-block;padding:0.1rem 0.45rem;border-radius:5px;font-weight:700;font-family:var(--font-heading);font-size:0.82rem;}
+        .blog-content .stat-inline.gold{background:rgba(202,138,4,0.1);color:var(--gold-dark);}
+        .blog-content .stat-inline.green{background:rgba(16,185,129,0.1);color:var(--emerald);}
+        .blog-content .stat-inline.purple{background:rgba(139,92,246,0.1);color:var(--purple);}
+        .blog-content .stat-inline.blue{background:rgba(59,130,246,0.1);color:var(--info);}
+        .blog-content .team-mention{display:inline-flex;align-items:center;gap:0.25rem;background:rgba(59,130,246,0.08);padding:0.08rem 0.45rem;border-radius:5px;font-weight:600;color:var(--info);margin:0 0.12rem;font-family:var(--font-heading);font-size:0.8rem;}
+
+        .blog-chart-embed {
+            background:var(--bg-secondary); border-radius:14px;
+            padding:0.8rem; margin:0.8rem 0; border:1px solid var(--border-light);
+        }
+        .blog-chart-embed canvas{max-height:160px;}
+        .chart-label{font-size:0.62rem;color:var(--text-muted);text-align:center;margin-top:0.4rem;}
+
+        .blog-map-embed {
+            border-radius:14px; overflow:hidden; height:180px; margin:0.8rem 0;
+            border:1px solid var(--border-light);
+        }
+        .blog-map-embed .leaflet-control-zoom{display:none;}
+        .blog-map-embed .leaflet-control-attribution{font-size:7px;}
+
+        .blog-layout{display:grid;grid-template-columns:1fr 280px;gap:1.2rem;align-items:start;}
+        .blog-sidebar{position:sticky;top:calc(var(--header-height) + 1rem);}
+        .sidebar-card{background:var(--bg-card);border:1px solid var(--border-light);border-radius:18px;padding:1rem;margin-bottom:0.8rem;box-shadow:var(--shadow-sm);}
+        .sidebar-card h4{font-family:var(--font-heading);font-size:0.8rem;font-weight:700;margin-bottom:0.6rem;display:flex;align-items:center;gap:0.4rem;}
+        .sidebar-card h4 i{color:var(--gold);}
+        .archive-list{display:flex;flex-direction:column;gap:0.25rem;max-height:320px;overflow-y:auto;}
+        .archive-item{display:flex;align-items:center;gap:0.4rem;padding:0.4rem 0.5rem;border-radius:8px;cursor:pointer;transition:all 0.2s;font-size:0.75rem;border:1px solid transparent;}
+        .archive-item:hover{background:var(--gold-soft);border-color:var(--gold);}
+        .archive-item.active{background:var(--gold-soft);border-color:var(--gold);font-weight:600;}
+        .archive-dot{width:5px;height:5px;border-radius:50%;background:var(--gold);flex-shrink:0;}
+
+        .tag-cloud{display:flex;flex-wrap:wrap;gap:0.35rem;}
+        .tag{padding:0.2rem 0.6rem;border-radius:16px;font-size:0.62rem;font-weight:600;border:1px solid var(--border-light);color:var(--text-secondary);font-family:var(--font-heading);}
+
+        .footer{text-align:center;padding:1.5rem;color:var(--text-muted);font-size:0.68rem;border-top:1px solid var(--border-light);margin-top:2rem;}
+
+        @media(max-width:1024px){.blog-layout{grid-template-columns:1fr}.blog-sidebar{position:static}.nav-links{display:none}.kpi-banner{grid-template-columns:repeat(2,1fr)}}
+        @media(max-width:768px){.main-content{padding:0 1rem}.blog-post{padding:1.2rem}.blog-post-title{font-size:1.3rem}.kpi-banner{grid-template-columns:1fr}}
+    </style>
+</head>
+<body>
+
+    <header class="site-header">
+        <div class="header-container">
+            <a href="dashboard.html" class="logo"><img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview-1.png" alt="KazInni"><span>KazInni</span></a>
+            <nav class="nav-links">
+                <a href="dashboard.html" class="nav-link">Dashboard</a>
+                <a href="analytics.html" class="nav-link">Analytics</a>
+                <a href="reports.html" class="nav-link">Reports</a>
+                <a href="blog.html" class="nav-link active">Blog</a>
+            </nav>
+            <div class="user-menu">
+                <span class="user-name" id="userDisplayName">Staff</span>
+                <div class="user-avatar" id="userAvatar">K</div>
+                <div class="user-dropdown">
+                    <button class="dropdown-item" onclick="regenerateToday()"><i class="fas fa-sync-alt"></i> Regenerate</button>
+                    <button class="dropdown-item danger" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="blog-header">
+            <h1><i class="fas fa-newspaper"></i> Operations Blog</h1>
+            <p>Auto-generated daily summaries with live charts, maps & analytics</p>
+        </div>
+
+        <div class="auto-gen-status generating" id="statusArea">
+            <span><i class="fas fa-sync-alt"></i> Loading today's report...</span>
+        </div>
+
+        <div class="kpi-banner" id="kpiBanner">
+            <div class="kpi-banner-card"><div class="skeleton" style="height:1.6rem;width:50%;margin:0 auto 0.3rem;"></div><div class="skeleton" style="height:0.62rem;width:60%;margin:0 auto;"></div></div>
+            <div class="kpi-banner-card"><div class="skeleton" style="height:1.6rem;width:50%;margin:0 auto 0.3rem;"></div><div class="skeleton" style="height:0.62rem;width:60%;margin:0 auto;"></div></div>
+            <div class="kpi-banner-card"><div class="skeleton" style="height:1.6rem;width:50%;margin:0 auto 0.3rem;"></div><div class="skeleton" style="height:0.62rem;width:60%;margin:0 auto;"></div></div>
+            <div class="kpi-banner-card"><div class="skeleton" style="height:1.6rem;width:50%;margin:0 auto 0.3rem;"></div><div class="skeleton" style="height:0.62rem;width:60%;margin:0 auto;"></div></div>
+        </div>
+
+        <div class="blog-layout">
+            <div id="blogContent">
+                <div class="blog-post">
+                    <div class="skeleton" style="height:1.8rem;width:55%;margin-bottom:0.8rem;"></div>
+                    <div class="skeleton" style="height:0.9rem;width:75%;margin-bottom:0.4rem;"></div>
+                    <div class="skeleton" style="height:0.9rem;width:35%;margin-bottom:1.2rem;"></div>
+                    <div class="skeleton" style="height:12rem;"></div>
+                </div>
+            </div>
+
+            <aside class="blog-sidebar">
+                <div class="sidebar-card">
+                    <h4><i class="fas fa-fire"></i> Today's Highlights</h4>
+                    <div id="sidebarHighlights">
+                        <div class="skeleton" style="height:0.9rem;margin-bottom:0.4rem;"></div>
+                        <div class="skeleton" style="height:0.9rem;margin-bottom:0.4rem;"></div>
+                    </div>
+                </div>
+                <div class="sidebar-card">
+                    <h4><i class="fas fa-archive"></i> Previous Posts</h4>
+                    <div class="archive-list" id="archiveList">
+                        <div class="skeleton" style="height:1.8rem;margin-bottom:0.25rem;"></div>
+                        <div class="skeleton" style="height:1.8rem;margin-bottom:0.25rem;"></div>
+                    </div>
+                </div>
+                <div class="sidebar-card">
+                    <h4><i class="fas fa-tags"></i> Topics</h4>
+                    <div class="tag-cloud">
+                        <span class="tag">Fusion Foods</span><span class="tag">DSOG</span>
+                        <span class="tag">BrandInn</span><span class="tag">Heritage</span>
+                        <span class="tag">Field Ops</span><span class="tag">Daily Report</span>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </main>
+
+    <footer class="footer">&copy; 2026 Teleio Savour · Operations Blog · Auto-generated daily</footer>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+            authDomain: "mugera-e51cc.firebaseapp.com",
+            databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "mugera-e51cc"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const auth = firebase.auth();
+
+        let blogPosts = {};
+        let isGenerating = false;
+        let embeddedCharts = [];
+        let embeddedMap = null;
+
+        auth.onAuthStateChanged(async (user) => {
+            if (!user) { window.location.href = 'index.html'; return; }
+            const snap = await db.ref(`brandinn_users/${user.uid}`).once('value');
+            const name = snap.exists() ? (snap.val().name || user.email?.split('@')[0]) : user.email?.split('@')[0];
+            document.getElementById('userDisplayName').textContent = name || 'Staff';
+            document.getElementById('userAvatar').textContent = (name || 'K').charAt(0).toUpperCase();
+            
+            // Load posts and auto-generate
+            await loadBlogPosts();
+            renderArchive();
+            await checkAndGenerateToday();
+        });
+
+        async function loadBlogPosts() {
+            try {
+                const snap = await db.ref('operation_blogs').once('value');
+                blogPosts = snap.val() || {};
+            } catch(e) { console.error('Load error:', e); blogPosts = {}; }
+        }
+
+        // FIXED: Single entry point for auto-generation
+        async function checkAndGenerateToday() {
+            const today = new Date().toISOString().split('T')[0];
+            
+            if (blogPosts[today]) {
+                // Post exists - just display it
+                updateStatus('ready', 'Today\'s post is ready');
+                renderBlogDisplay(today, blogPosts[today]);
+            } else {
+                // Generate new post
+                updateStatus('generating', 'Generating today\'s report...');
+                await generateTodayPost(today);
+                updateStatus('ready', 'Today\'s report is ready');
+            }
+        }
+
+        function updateStatus(state, message) {
+            const area = document.getElementById('statusArea');
+            area.className = 'auto-gen-status' + (state === 'generating' ? ' generating' : '');
+            area.innerHTML = `<span><i class="fas fa-${state === 'ready' ? 'check-circle' : 'sync-alt'}"></i> ${message}</span>`;
+        }
+
+        // FIXED: Single generation function
+        async function generateTodayPost(dateStr) {
+            if (isGenerating) return;
+            isGenerating = true;
+            cleanupCharts();
+
+            const todayStart = new Date(dateStr + 'T00:00:00+03:00').getTime();
+            const todayEnd = new Date(dateStr + 'T23:59:59.999+03:00').getTime();
+
+            try {
+                const paths = [
+                    { key: 'fusionOrders', path: 'fusion_foods_orders' },
+                    { key: 'dsogOrders', path: 'dsog_fashion_orders' },
+                    { key: 'brandinnOrders', path: 'brandinn_print_orders' },
+                    { key: 'heritageListings', path: 'heritage_listings' },
+                    { key: 'fieldRegs', path: 'iam_mugera_registrations' }
+                ];
+
+                const rawData = {};
+                for (const p of paths) {
+                    const snap = await db.ref(p.path).once('value');
+                    rawData[p.key] = snap.val() || {};
+                }
+
+                const filterByDate = (obj) => Object.entries(obj).filter(([_, item]) => {
+                    const ts = item.createdAt || item.timestamp || 0;
+                    return ts >= todayStart && ts <= todayEnd;
+                });
+
+                const fusionOrders = filterByDate(rawData.fusionOrders);
+                const dsogOrders = filterByDate(rawData.dsogOrders);
+                const brandinnOrders = filterByDate(rawData.brandinnOrders);
+                const heritageListings = filterByDate(rawData.heritageListings);
+                const fieldRegs = filterByDate(rawData.fieldRegs);
+
+                const contributors = new Set();
+                [...fusionOrders, ...dsogOrders, ...brandinnOrders].forEach(([_, o]) => {
+                    const by = o.recordedBy || o.clerkId || '';
+                    if (by) contributors.add(by.includes('@') ? by.split('@')[0] : by);
+                });
+                fieldRegs.forEach(([_, r]) => {
+                    const by = r.recordedBy || '';
+                    if (by) contributors.add(by.includes('@') ? by.split('@')[0] : by);
+                });
+
+                const totalOps = fusionOrders.length + dsogOrders.length + brandinnOrders.length + heritageListings.length;
+                const contributorList = [...contributors];
+                const fieldRegsArray = fieldRegs.map(([_, r]) => r);
+
+                const chartData = {
+                    fusion: fusionOrders.length, dsog: dsogOrders.length,
+                    brandinn: brandinnOrders.length, heritage: heritageListings.length,
+                    field: fieldRegs.length
+                };
+
+                const blogData = {
+                    date: dateStr,
+                    title: generateTitle(totalOps, fieldRegs.length, fusionOrders.length, dsogOrders.length, brandinnOrders.length),
+                    subtitle: generateSubtitle(totalOps, contributorList.length),
+                    stats: {
+                        totalOperations: totalOps,
+                        fieldRegistrations: fieldRegs.length,
+                        fusionOrders: fusionOrders.length,
+                        dsogOrders: dsogOrders.length,
+                        brandinnOrders: brandinnOrders.length,
+                        heritageListings: heritageListings.length,
+                        contributors: contributorList.length,
+                        contributorNames: contributorList,
+                        chartData: chartData,
+                        fieldRegsData: fieldRegsArray
+                    },
+                    content: generateBlogContent(fusionOrders, dsogOrders, brandinnOrders, heritageListings, fieldRegs, contributorList),
+                    generatedAt: new Date().toISOString(),
+                    generatedBy: auth.currentUser?.email || 'System'
+                };
+
+                // Save to Firebase
+                await db.ref(`operation_blogs/${dateStr}`).set(blogData);
+                blogPosts[dateStr] = blogData;
+
+                // Render everything
+                renderBlogDisplay(dateStr, blogData);
+                renderArchive();
+
+            } catch(e) {
+                console.error('Generation error:', e);
+                updateStatus('ready', 'Error generating. Click Regenerate.');
+            } finally {
+                isGenerating = false;
+            }
+        }
+
+        // FIXED: Single rendering function
+        function renderBlogDisplay(date, data) {
+            // Render KPI banner
+            const cd = data.stats?.chartData || { fusion: 0, dsog: 0, brandinn: 0, heritage: 0, field: 0 };
+            const total = data.stats?.totalOperations || 0;
+            const contributors = data.stats?.contributors || 0;
+            
+            document.getElementById('kpiBanner').innerHTML = `
+                <div class="kpi-banner-card animate-in"><div class="kpi-banner-value" style="color:#ca8a04;">${total}</div><div class="kpi-banner-label">Total Operations</div></div>
+                <div class="kpi-banner-card animate-in" style="animation-delay:0.1s;"><div class="kpi-banner-value" style="color:#10b981;">${cd.fusion}</div><div class="kpi-banner-label">🍽️ Fusion Foods</div></div>
+                <div class="kpi-banner-card animate-in" style="animation-delay:0.2s;"><div class="kpi-banner-value" style="color:#7c3aed;">${cd.field}</div><div class="kpi-banner-label">📍 Field Regs</div></div>
+                <div class="kpi-banner-card animate-in" style="animation-delay:0.3s;"><div class="kpi-banner-value" style="color:#3b82f6;">${contributors}</div><div class="kpi-banner-label">👥 Contributors</div></div>
+            `;
+
+            // Render blog post
+            document.getElementById('blogContent').innerHTML = `
+                <div class="blog-post animate-in">
+                    <div class="blog-post-header">
+                        <div class="blog-post-date">${new Date(data.date).toLocaleDateString('en-US', {weekday:'long', month:'long', day:'numeric', year:'numeric'})}</div>
+                        <h1 class="blog-post-title">${data.title}</h1>
+                        <p class="blog-post-subtitle">${data.subtitle}</p>
+                        <div class="blog-post-meta">
+                            <span><i class="fas fa-calendar-check"></i> ${new Date(data.generatedAt).toLocaleTimeString()}</span>
+                            <span><i class="fas fa-robot"></i> Auto-generated</span>
+                        </div>
+                    </div>
+                    <div class="blog-content">${data.content}</div>
+                </div>`;
+
+            // Update archive highlight
+            document.querySelectorAll('.archive-item').forEach(el => {
+                el.classList.toggle('active', el.dataset.date === date);
+            });
+
+            // Update sidebar highlights
+            const highlights = [];
+            if (cd.fusion > 0) highlights.push(`🍽️ <strong>${cd.fusion}</strong> Fusion Foods orders`);
+            if (cd.dsog > 0) highlights.push(`👗 <strong>${cd.dsog}</strong> DSOG Fashion orders`);
+            if (cd.brandinn > 0) highlights.push(`🖨️ <strong>${cd.brandinn}</strong> BrandInn print jobs`);
+            if (cd.heritage > 0) highlights.push(`🏛️ <strong>${cd.heritage}</strong> Heritage listings`);
+            if (cd.field > 0) highlights.push(`📍 <strong>${cd.field}</strong> field registrations`);
+            if (highlights.length === 0) highlights.push('No operations recorded today');
+            document.getElementById('sidebarHighlights').innerHTML = highlights.map(h => 
+                `<div style="font-size:0.72rem;padding:0.25rem 0;border-bottom:1px solid var(--border-light);">${h}</div>`
+            ).join('');
+
+            // Embed chart and map after DOM is ready
+            setTimeout(() => {
+                embedChart(cd);
+                embedMap(data.stats?.fieldRegsData || []);
+            }, 400);
+        }
+
+        function embedChart(chartData) {
+            const container = document.getElementById('blogChartEmbed');
+            if (!container) return;
+            const canvas = container.querySelector('canvas');
+            if (!canvas) return;
+
+            const ctx = canvas.getContext('2d');
+            const chart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Fusion Foods', 'DSOG', 'BrandInn', 'Heritage', 'Field'],
+                    datasets: [{
+                        data: [chartData.fusion, chartData.dsog, chartData.brandinn, chartData.heritage, chartData.field],
+                        backgroundColor: ['#10b981','#ec4899','#7c3aed','#d946ef','#3b82f6'],
+                        borderWidth: 2, borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom', labels: { padding: 8, usePointStyle: true, font: { size: 8 } } } }
+                }
+            });
+            embeddedCharts.push(chart);
+        }
+
+        function embedMap(fieldRegsArray) {
+            const container = document.getElementById('blogMapEmbed');
+            if (!container || !fieldRegsArray || fieldRegsArray.length === 0) return;
+
+            embeddedMap = L.map('blogMapEmbed', {
+                zoomControl: false, attributionControl: false,
+                dragging: false, scrollWheelZoom: false
+            });
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(embeddedMap);
+
+            const bounds = [];
+            const colors = { brandinn: '#7c3aed', deliveries: '#f59e0b', rides: '#22c55e', dsog: '#ec4899', fusion: '#10b981', heritage: '#d946ef' };
+
+            fieldRegsArray.forEach(r => {
+                if (r.lat && r.lng) {
+                    L.circleMarker([r.lat, r.lng], {
+                        radius: 3, fillColor: colors[r.operation] || '#ca8a04',
+                        color: '#fff', weight: 0.5, fillOpacity: 0.8
+                    }).addTo(embeddedMap);
+                    bounds.push([r.lat, r.lng]);
+                }
+            });
+
+            if (bounds.length > 0) embeddedMap.fitBounds(bounds, { padding: [15, 15], maxZoom: 15 });
+            else embeddedMap.setView([-1.2864, 36.8172], 7);
+        }
+
+        function cleanupCharts() {
+            embeddedCharts.forEach(c => { try { c.destroy(); } catch(e) {} });
+            embeddedCharts = [];
+            if (embeddedMap) { try { embeddedMap.remove(); } catch(e) {} embeddedMap = null; }
+        }
+
+        function generateTitle(total, field, fusion, dsog, brandinn) {
+            const parts = [];
+            if (fusion > 0) parts.push(`${fusion} Food Orders`);
+            if (dsog > 0) parts.push(`${dsog} Fashion Orders`);
+            if (brandinn > 0) parts.push(`${brandinn} Print Jobs`);
+            if (field > 0) parts.push(`${field} Field Registrations`);
+            if (parts.length === 0) return 'Quiet Day at Operations Hub';
+            if (parts.length === 1) return parts[0] + ' Processed Today';
+            return parts.slice(0, 2).join(' & ') + ` — ${total} Total Operations`;
+        }
+
+        function generateSubtitle(total, contributors) {
+            const today = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+            return `Daily operations summary for ${today} · ${contributors} team member${contributors !== 1 ? 's' : ''} contributed`;
+        }
+
+        function generateBlogContent(fusion, dsog, brandinn, heritage, field, contributors) {
+            let html = '';
+            const totalOps = fusion.length + dsog.length + brandinn.length + heritage.length;
+
+            if (totalOps === 0 && field.length === 0) {
+                html += `<p>Today was a quiet day across all workspaces with no new operations recorded.</p>`;
+                html += `<div class="highlight-box">📊 All systems remain fully operational and ready for the next business day.</div>`;
+                return html;
+            }
+
+            html += `<p>Today marked <span class="stat-inline gold">${totalOps} operations</span> across our workspaces, with <span class="stat-inline green">${field.length} field registrations</span> recorded by our team across Kenya.</p>`;
+            html += `<div class="blog-chart-embed" id="blogChartEmbed"><canvas></canvas><div class="chart-label">Workspace Distribution — Today's Operations</div></div>`;
+
+            if (fusion.length > 0) {
+                const totalValue = fusion.reduce((sum, [_, o]) => sum + (o.total || 0), 0);
+                const restaurants = new Set(fusion.map(([_, o]) => o.restaurantName).filter(Boolean));
+                html += `<h2>🍽️ Fusion Foods</h2>`;
+                html += `<p>Processed <span class="stat-inline green">${fusion.length} orders</span> for <span class="stat-inline gold">${restaurants.size} restaurants</span>`;
+                if (totalValue > 0) html += ` (KES ${totalValue.toLocaleString()})`;
+                html += `.</p>`;
+                if (restaurants.size > 0 && restaurants.size <= 8) {
+                    html += `<div class="highlight-box"><strong>🏪 Served:</strong> ${[...restaurants].map(r => escapeHtml(r)).join(', ')}</div>`;
+                }
+            }
+
+            if (dsog.length > 0) {
+                html += `<h2>👗 DSOG Fashion</h2>`;
+                html += `<p>Handled <span class="stat-inline purple">${dsog.length} orders</span> in the apparel sector.</p>`;
+            }
+
+            if (brandinn.length > 0) {
+                html += `<h2>🖨️ BrandInn Print</h2>`;
+                html += `<p>Completed <span class="stat-inline purple">${brandinn.length} print orders</span>.</p>`;
+            }
+
+            if (heritage.length > 0) {
+                html += `<h2>🏛️ Heritage Marketplace</h2>`;
+                html += `<p>Recorded <span class="stat-inline green">${heritage.length} new listings</span>.</p>`;
+            }
+
+            if (field.length > 0) {
+                html += `<h2>📍 Field Operations</h2>`;
+                html += `<p>Field agents mapped <span class="stat-inline gold">${field.length} new locations</span>:</p>`;
+                html += `<div class="blog-map-embed" id="blogMapEmbed"></div><div class="chart-label">📍 Live Field Registrations Map</div>`;
+            }
+
+            if (contributors.length > 0) {
+                html += `<h2>👥 Team</h2>`;
+                html += `<p><span class="stat-inline blue">${contributors.length} contributor${contributors.length !== 1 ? 's' : ''}</span>: `;
+                html += contributors.map(c => `<span class="team-mention"><i class="fas fa-user-circle"></i> ${escapeHtml(c)}</span>`).join(' ');
+                html += `</p>`;
+            }
+
+            html += `<div class="highlight-box">📊 <strong>Summary:</strong> ${totalOps} operations · ${field.length} field registrations · ${contributors.length} contributors</div>`;
+            html += `<p style="font-size:0.78rem;color:var(--text-muted);"><em>Auto-generated from real-time data. View <a href="analytics.html" style="color:var(--gold);">Analytics</a> or <a href="reports.html" style="color:var(--gold);">Reports</a>.</em></p>`;
+
+            return html;
+        }
+
+        function renderArchive() {
+            const dates = Object.keys(blogPosts).sort().reverse();
+            const list = document.getElementById('archiveList');
+            if (dates.length === 0) {
+                list.innerHTML = '<p style="color:var(--text-muted);font-size:0.75rem;text-align:center;padding:1rem;">No posts yet</p>';
+                return;
+            }
+            list.innerHTML = dates.map(d => {
+                const post = blogPosts[d];
+                const date = new Date(d + 'T12:00:00');
+                const isToday = d === new Date().toISOString().split('T')[0];
+                return `
+                    <div class="archive-item" data-date="${d}" onclick="loadArchivePost('${d}')">
+                        <div class="archive-dot"></div>
+                        <div style="flex:1;">
+                            <div style="font-weight:600;font-size:0.75rem;">${isToday ? '📌 Today' : date.toLocaleDateString('en-US', {month:'short', day:'numeric'})}</div>
+                            <div style="font-size:0.6rem;color:var(--text-muted);">${post.stats?.totalOperations || 0} ops</div>
+                        </div>
+                    </div>`;
+            }).join('');
+        }
+
+        window.loadArchivePost = function(date) {
+            cleanupCharts();
+            if (blogPosts[date]) {
+                renderBlogDisplay(date, blogPosts[date]);
+            }
+        };
+
+        window.regenerateToday = async function() {
+            cleanupCharts();
+            const today = new Date().toISOString().split('T')[0];
+            updateStatus('generating', 'Regenerating with latest data...');
+            await generateTodayPost(today);
+            updateStatus('ready', 'Post regenerated');
+        };
+
+        function escapeHtml(t) { const d = document.createElement('div'); d.textContent = t || ''; return d.innerHTML; }
+        window.handleLogout = async () => { if (confirm('Sign out?')) { await auth.signOut(); window.location.href = 'index.html'; } };
+    </script>
+</body>
+</html>
