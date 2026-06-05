@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#ca8a04">
+    <title>KazInni · Operations Report</title>
+    <link rel="icon" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview-1.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@400;500;600;700;800&family=Satoshi:wght@400;500;600;700;800;900&family=Clash+Display:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&family=General+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --gold: #ca8a04; --gold-dark: #a16207; --gold-light: #fbbf24;
+            --gold-soft: #fef3c7; --gold-gradient: linear-gradient(135deg, #ca8a04 0%, #eab308 50%, #fbbf24 100%);
+            --success: #10b981; --warning: #f59e0b; --danger: #ef4444; --info: #3b82f6;
+            --purple: #8b5cf6; --emerald: #059669; --rose: #e11d48; --pink: #ec4899; --indigo: #4f46e5;
+            --bg-primary: #ffffff; --bg-secondary: #faf9f7; --bg-card: #ffffff;
+            --text-primary: #1a1a2e; --text-secondary: #4a5568; --text-muted: #718096;
+            --border-light: #e9ecef;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.03); --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.05);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08);
+            --nav-bg: rgba(255,255,255,0.98); --header-height: 70px;
+            --font-display: 'Clash Display', 'Cabinet Grotesk', sans-serif;
+            --font-heading: 'Satoshi', 'General Sans', sans-serif;
+            --font-body: 'General Sans', 'Outfit', sans-serif;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: linear-gradient(180deg, #fffbeb 0%, #ffffff 10%, #faf9f7 100%);
+            color: var(--text-primary); line-height: 1.5; min-height: 100vh;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; } 100% { background-position: 200% 0; }
+        }
+        .skeleton {
+            background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
+            background-size: 200% 100%; animation: shimmer 1.5s ease-in-out infinite; border-radius: 6px;
+        }
+
+        .site-header {
+            position:fixed; top:0; width:100%; height:var(--header-height);
+            background:var(--nav-bg); backdrop-filter:blur(25px);
+            border-bottom:1px solid rgba(202,138,4,0.08); z-index:1000; padding:0 2rem;
+        }
+        .header-container { max-width:1500px; height:100%; margin:0 auto; display:flex; align-items:center; justify-content:space-between; }
+        .logo{display:flex;align-items:center;gap:0.7rem;text-decoration:none;}
+        .logo img{height:36px;width:auto;}
+        .logo span{font-size:1.4rem;font-weight:800;background:var(--gold-gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-family:var(--font-display);}
+        .nav-links{display:flex;gap:2rem;}
+        .nav-link{color:var(--text-secondary);text-decoration:none;font-size:0.85rem;font-weight:500;font-family:var(--font-heading);transition:all 0.2s;}
+        .nav-link:hover,.nav-link.active{color:var(--gold);}
+        .user-menu{display:flex;align-items:center;gap:0.5rem;background:var(--bg-card);border:1px solid var(--border-light);border-radius:50px;padding:0.25rem 0.5rem 0.25rem 0.8rem;cursor:pointer;position:relative;}
+        .user-menu:hover{border-color:var(--gold);}
+        .user-avatar{width:32px;height:32px;background:var(--gold-gradient);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.7rem;}
+        .user-name{font-size:0.8rem;font-weight:600;}
+        .user-dropdown{position:absolute;top:calc(100% + 8px);right:0;background:var(--bg-card);border:1px solid var(--border-light);border-radius:12px;padding:0.4rem;min-width:160px;opacity:0;visibility:hidden;transform:translateY(-8px);transition:all 0.2s;z-index:1001;box-shadow:var(--shadow-lg);}
+        .user-menu:hover .user-dropdown{opacity:1;visibility:visible;transform:translateY(0);}
+        .dropdown-item{padding:0.6rem 0.8rem;color:var(--text-secondary);border-radius:8px;display:flex;align-items:center;gap:0.4rem;cursor:pointer;font-size:0.8rem;transition:all 0.15s;border:none;background:none;width:100%;font-family:var(--font-body);}
+        .dropdown-item:hover{background:var(--bg-secondary);}
+        .dropdown-item.danger:hover{color:var(--danger);}
+
+        .main-content{max-width:1500px;margin:calc(var(--header-height) + 1.5rem) auto 2rem;padding:0 2rem;}
+
+        /* Report Header */
+        .report-header {
+            background:var(--bg-card); border:1px solid var(--border-light);
+            border-radius:24px; padding:1.5rem 2rem; margin-bottom:1.5rem;
+            box-shadow:var(--shadow-sm); display:flex; justify-content:space-between;
+            align-items:center; flex-wrap:wrap; gap:1rem;
+        }
+        .report-title h1{font-size:1.6rem;font-weight:800;font-family:var(--font-display);display:flex;align-items:center;gap:0.5rem;}
+        .report-title h1 i{color:var(--gold);}
+        .report-meta{font-size:0.75rem;color:var(--text-muted);margin-top:0.3rem;}
+
+        /* Date Selector */
+        .date-selector{display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap;}
+        .date-btn{
+            padding:0.45rem 0.9rem; border:1px solid var(--border-light); border-radius:30px;
+            background:var(--bg-card); color:var(--text-secondary); font-size:0.7rem;
+            font-weight:600; cursor:pointer; transition:all 0.2s; font-family:var(--font-heading);
+            white-space:nowrap;
+        }
+        .date-btn:hover{border-color:var(--gold);color:var(--gold);}
+        .date-btn.active{background:var(--gold-gradient);color:white;border-color:var(--gold);}
+        .date-input{
+            padding:0.45rem 0.9rem; border:1px solid var(--border-light); border-radius:30px;
+            font-size:0.7rem; font-family:var(--font-body); color:var(--text-primary);
+        }
+        .btn{
+            padding:0.55rem 1.1rem; border:none; border-radius:30px; font-weight:600;
+            font-size:0.75rem; cursor:pointer; display:inline-flex; align-items:center;
+            gap:0.4rem; transition:all 0.2s; font-family:var(--font-heading);
+        }
+        .btn-primary{background:var(--gold-gradient);color:white;box-shadow:0 4px 15px rgba(202,138,4,0.2);}
+        .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(202,138,4,0.3);}
+        .btn-outline{background:transparent;border:1px solid var(--border-light);color:var(--text-secondary);}
+        .btn-outline:hover{border-color:var(--gold);color:var(--gold);}
+        .btn-sm{padding:0.3rem 0.7rem;font-size:0.65rem;}
+
+        /* KPI Row */
+        .kpi-row{display:grid;grid-template-columns:repeat(6,1fr);gap:0.7rem;margin-bottom:1.2rem;}
+        .kpi-card{
+            background:var(--bg-card); border:1px solid var(--border-light);
+            border-radius:16px; padding:1rem; text-align:center; transition:all 0.3s;
+        }
+        .kpi-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);border-color:var(--gold);}
+        .kpi-value{font-size:1.5rem;font-weight:800;font-family:var(--font-display);margin-bottom:0.15rem;}
+        .kpi-label{font-size:0.6rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.3px;font-weight:600;}
+
+        /* Charts */
+        .charts-grid{display:grid;grid-template-columns:2fr 1fr;gap:1rem;margin-bottom:1.2rem;}
+        .chart-card{
+            background:var(--bg-card); border:1px solid var(--border-light);
+            border-radius:20px; padding:1.2rem; box-shadow:var(--shadow-sm);
+        }
+        .chart-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:0.6rem;}
+        .chart-title{font-family:var(--font-heading);font-size:0.85rem;font-weight:700;display:flex;align-items:center;gap:0.4rem;}
+        .chart-title i{color:var(--gold);}
+        .chart-container{position:relative;height:240px;}
+
+        /* Tables */
+        .table-card{
+            background:var(--bg-card); border:1px solid var(--border-light);
+            border-radius:20px; padding:1.2rem; box-shadow:var(--shadow-sm); margin-bottom:1.2rem;
+        }
+        .table-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:0.8rem;}
+        .table-scroll{overflow-x:auto;max-height:350px;overflow-y:auto;border-radius:12px;border:1px solid var(--border-light);}
+        table{width:100%;border-collapse:collapse;font-size:0.72rem;}
+        thead{position:sticky;top:0;z-index:2;background:#f8fafc;}
+        th{padding:0.6rem 0.8rem;text-align:left;font-weight:700;color:var(--text-secondary);font-size:0.62rem;text-transform:uppercase;letter-spacing:0.3px;border-bottom:2px solid var(--border-light);white-space:nowrap;}
+        td{padding:0.5rem 0.8rem;border-bottom:1px solid var(--border-light);}
+        tr:hover td{background:#fefce8;}
+
+        .badge{
+            padding:0.15rem 0.5rem; border-radius:10px; font-size:0.6rem;
+            font-weight:700; text-transform:uppercase; white-space:nowrap; display:inline-block;
+        }
+        .badge-success{background:rgba(16,185,129,0.1);color:#059669;}
+        .badge-warning{background:rgba(245,158,11,0.1);color:#d97706;}
+        .badge-info{background:rgba(59,130,246,0.1);color:#2563eb;}
+        .badge-purple{background:rgba(139,92,246,0.1);color:#7c3aed;}
+        .badge-gold{background:var(--gold-soft);color:var(--gold-dark);}
+
+        /* Attribution */
+        .attribution-cell{display:flex;align-items:center;gap:0.4rem;}
+        .attribution-avatar{
+            width:22px;height:22px;border-radius:50%;display:flex;align-items:center;
+            justify-content:center;font-size:0.5rem;font-weight:700;color:white;flex-shrink:0;
+        }
+
+        /* Previous Reports */
+        .report-list{display:flex;flex-direction:column;gap:0.5rem;}
+        .report-item{
+            display:flex;align-items:center;gap:1rem;padding:0.8rem 1rem;
+            background:var(--bg-card); border:1px solid var(--border-light);
+            border-radius:14px; cursor:pointer; transition:all 0.2s;
+        }
+        .report-item:hover{border-color:var(--gold);background:var(--gold-soft);}
+        .report-item-icon{
+            width:40px;height:40px;border-radius:12px;display:flex;align-items:center;
+            justify-content:center;font-size:1rem;flex-shrink:0;
+        }
+        .report-item-info{flex:1;}
+        .report-item-title{font-weight:700;font-size:0.85rem;}
+        .report-item-meta{font-size:0.65rem;color:var(--text-muted);}
+
+        .toast-container{position:fixed;top:20px;right:20px;z-index:4000;}
+        .toast{
+            background:white;border-radius:10px;padding:0.7rem 1rem;margin-bottom:0.4rem;
+            box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:0.5rem;font-size:0.8rem;
+            animation:slideIn 0.2s ease;
+        }
+        .toast.success{border-left:3px solid var(--success);}
+        @keyframes slideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+
+        .footer{text-align:center;padding:1.5rem;color:var(--text-muted);font-size:0.7rem;border-top:1px solid var(--border-light);margin-top:2rem;}
+
+        @media(max-width:1400px){.kpi-row{grid-template-columns:repeat(3,1fr)}}
+        @media(max-width:1024px){.charts-grid{grid-template-columns:1fr}.kpi-row{grid-template-columns:repeat(2,1fr)}.nav-links{display:none}}
+        @media(max-width:768px){.kpi-row{grid-template-columns:1fr}.main-content{padding:0 1rem}.report-header{flex-direction:column;text-align:center}}
+    </style>
+</head>
+<body>
+    <div class="toast-container" id="toastContainer"></div>
+
+    <header class="site-header">
+        <div class="header-container">
+            <a href="dashboard.html" class="logo"><img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview-1.png" alt="KazInni"><span>KazInni</span></a>
+            <nav class="nav-links">
+                <a href="dashboard.html" class="nav-link">Dashboard</a>
+                <a href="analytics.html" class="nav-link">Analytics</a>
+                <a href="reports.html" class="nav-link active">Reports</a>
+                <a href="workspaces.html" class="nav-link">Workspaces</a>
+            </nav>
+            <div class="user-menu">
+                <span class="user-name" id="userDisplayName">Staff</span>
+                <div class="user-avatar" id="userAvatar">K</div>
+                <div class="user-dropdown">
+                    <a href="profile.html" class="dropdown-item"><i class="fas fa-user"></i> Profile</a>
+                    <button class="dropdown-item" onclick="loadReport()"><i class="fas fa-sync-alt"></i> Refresh</button>
+                    <button class="dropdown-item danger" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <!-- Report Header -->
+        <div class="report-header">
+            <div>
+                <div class="report-title"><h1><i class="fas fa-file-alt"></i> Operations Report</h1></div>
+                <div class="report-meta" id="reportMeta">Loading report...</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:0.8rem;flex-wrap:wrap;">
+                <div class="date-selector" id="dateSelector">
+                    <button class="date-btn active" data-range="today">Today</button>
+                    <button class="date-btn" data-range="yesterday">Yesterday</button>
+                    <button class="date-btn" data-range="7days">7 Days</button>
+                    <button class="date-btn" data-range="30days">30 Days</button>
+                    <input type="date" class="date-input" id="customDate" onchange="loadReport('custom')">
+                </div>
+                <button class="btn btn-outline btn-sm" onclick="window.print()"><i class="fas fa-print"></i> Print</button>
+            </div>
+        </div>
+
+        <!-- KPI Row -->
+        <div class="kpi-row" id="kpiRow">
+            <div class="kpi-card"><div class="skeleton" style="height:1.5rem;width:50%;margin:0 auto 0.3rem;"></div><div class="skeleton" style="height:0.6rem;width:60%;margin:0 auto;"></div></div>
+            <div class="kpi-card"><div class="skeleton" style="height:1.5rem;width:50%;margin:0 auto 0.3rem;"></div><div class="skeleton" style="height:0.6rem;width:60%;margin:0 auto;"></div></div>
+            <div class="kpi-card"><div class="skeleton" style="height:1.5rem;width:50%;margin:0 auto 0.3rem;"></div><div class="skeleton" style="height:0.6rem;width:60%;margin:0 auto;"></div></div>
+            <div class="kpi-card"><div class="skeleton" style="height:1.5rem;width:50%;margin:0 auto 0.3rem;"></div><div class="skeleton" style="height:0.6rem;width:60%;margin:0 auto;"></div></div>
+            <div class="kpi-card"><div class="skeleton" style="height:1.5rem;width:50%;margin:0 auto 0.3rem;"></div><div class="skeleton" style="height:0.6rem;width:60%;margin:0 auto;"></div></div>
+            <div class="kpi-card"><div class="skeleton" style="height:1.5rem;width:50%;margin:0 auto 0.3rem;"></div><div class="skeleton" style="height:0.6rem;width:60%;margin:0 auto;"></div></div>
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-grid">
+            <div class="chart-card">
+                <div class="chart-header"><div class="chart-title"><i class="fas fa-chart-bar"></i> Operations by Workspace</div></div>
+                <div class="chart-container"><canvas id="workspaceBarChart"></canvas></div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-header"><div class="chart-title"><i class="fas fa-chart-pie"></i> Activity Distribution</div></div>
+                <div class="chart-container"><canvas id="activityPieChart"></canvas></div>
+            </div>
+        </div>
+
+        <!-- Detailed Operations Table -->
+        <div class="table-card">
+            <div class="table-header">
+                <div class="chart-title"><i class="fas fa-list-ul"></i> Detailed Operations Log</div>
+                <span style="font-size:0.65rem;color:var(--text-muted);" id="tableCount">0 entries</span>
+            </div>
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Workspace</th>
+                            <th>Action</th>
+                            <th>Details</th>
+                            <th>Performed By</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="operationsTableBody">
+                        <tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--text-muted);">Loading operations...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Field Registrations Table -->
+        <div class="table-card">
+            <div class="table-header">
+                <div class="chart-title"><i class="fas fa-map-marker-alt"></i> Field Registrations</div>
+                <span style="font-size:0.65rem;color:var(--text-muted);" id="fieldCount">0 entries</span>
+            </div>
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Business Name</th>
+                            <th>Operation</th>
+                            <th>Location</th>
+                            <th>Recorded By</th>
+                            <th>Owner</th>
+                        </tr>
+                    </thead>
+                    <tbody id="fieldTableBody">
+                        <tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--text-muted);">Loading registrations...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Previous Reports -->
+        <div class="table-card">
+            <div class="table-header">
+                <div class="chart-title"><i class="fas fa-history"></i> Previous Reports</div>
+                <span style="font-size:0.65rem;color:var(--text-muted);">Auto-generated daily</span>
+            </div>
+            <div class="report-list" id="previousReports">
+                <div class="skeleton" style="height:3rem;"></div>
+                <div class="skeleton" style="height:3rem;"></div>
+                <div class="skeleton" style="height:3rem;"></div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">&copy; 2026 Teleio Savour · Operations Report · Auto-generated from live data</footer>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+            authDomain: "mugera-e51cc.firebaseapp.com",
+            databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "mugera-e51cc"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const auth = firebase.auth();
+
+        let workspaceBarChart, activityPieChart;
+        let currentRange = 'today';
+        let allReportData = {};
+
+        auth.onAuthStateChanged(async (user) => {
+            if (!user) { window.location.href = 'index.html'; return; }
+            const snap = await db.ref(`brandinn_users/${user.uid}`).once('value');
+            const name = snap.exists() ? (snap.val().name || user.email?.split('@')[0]) : user.email?.split('@')[0];
+            document.getElementById('userDisplayName').textContent = name || 'Staff';
+            document.getElementById('userAvatar').textContent = (name || 'K').charAt(0).toUpperCase();
+            loadReport('today');
+        });
+
+        // Date selector
+        document.querySelectorAll('.date-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.date-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentRange = btn.dataset.range;
+                document.getElementById('customDate').value = '';
+                loadReport(currentRange);
+            });
+        });
+
+        function getDateRange(range) {
+            const now = new Date();
+            const end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+            let start;
+
+            switch(range) {
+                case 'today':
+                    start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+                    break;
+                case 'yesterday':
+                    start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1, 0, 0, 0);
+                    end.setDate(end.getDate() - 1);
+                    break;
+                case '7days':
+                    start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7, 0, 0, 0);
+                    break;
+                case '30days':
+                    start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 30, 0, 0, 0);
+                    break;
+                case 'custom':
+                    const customVal = document.getElementById('customDate').value;
+                    if (customVal) {
+                        start = new Date(customVal);
+                        start.setHours(0, 0, 0, 0);
+                        end.setTime(start.getTime() + 24 * 60 * 60 * 1000 - 1);
+                    } else {
+                        start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+                    }
+                    break;
+                default:
+                    start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+            }
+            return { start: start.getTime(), end: end.getTime() };
+        }
+
+        function getInitials(name) {
+            if (!name) return '??';
+            return String(name).split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+        }
+
+        function getAvatarColor(str) {
+            const colors = ['#7c3aed','#10b981','#ec4899','#f59e0b','#3b82f6','#ef4444','#8b5cf6','#f97316'];
+            let hash = 0;
+            for (let i = 0; i < (str || '').length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
+            return colors[Math.abs(hash) % colors.length];
+        }
+
+        function getTimeAgo(timestamp) {
+            if (!timestamp) return '';
+            const diff = Date.now() - new Date(timestamp).getTime();
+            const mins = Math.floor(diff / 60000), hrs = Math.floor(mins / 60), days = Math.floor(hrs / 24);
+            if (days > 0) return `${days}d ago`; if (hrs > 0) return `${hrs}h ago`; if (mins > 0) return `${mins}m ago`; return 'Just now';
+        }
+
+        function escapeHtml(t) { const d = document.createElement('div'); d.textContent = t || ''; return d.innerHTML; }
+
+        async function loadReport(range = 'today') {
+            const { start, end } = getDateRange(range);
+            
+            document.getElementById('reportMeta').innerHTML = `
+                <i class="fas fa-calendar-alt"></i> 
+                ${new Date(start).toLocaleDateString('en-US', {weekday:'long', year:'numeric', month:'long', day:'numeric'})}
+                ${range === 'today' ? '(Today)' : range === 'yesterday' ? '(Yesterday)' : ''}
+                · Generated ${new Date().toLocaleTimeString()}
+            `;
+
+            try {
+                // Load all data sources
+                const paths = {
+                    fusionOrders: 'fusion_foods_orders',
+                    fusionProducts: 'fusion_foods_products',
+                    dsogOrders: 'dsog_fashion_orders',
+                    heritageListings: 'heritage_listings',
+                    brandinnOrders: 'brandinn_print_orders',
+                    fieldRegistrations: 'iam_mugera_registrations',
+                    brandinnBusinesses: 'brandinn_businesses',
+                    brandinnFranchises: 'brandinn_franchises'
+                };
+
+                const rawData = {};
+                for (const [key, path] of Object.entries(paths)) {
+                    const snap = await db.ref(path).once('value');
+                    rawData[key] = snap.val() || {};
+                }
+
+                // Filter data by date range
+                const filterByDate = (obj) => {
+                    return Object.entries(obj).filter(([_, item]) => {
+                        const ts = item.createdAt || item.timestamp || item.assignedAt || item.postedAt || 0;
+                        return ts >= start && ts <= end;
+                    });
+                };
+
+                const fusionOrdersFiltered = filterByDate(rawData.fusionOrders);
+                const dsogOrdersFiltered = filterByDate(rawData.dsogOrders);
+                const brandinnOrdersFiltered = filterByDate(rawData.brandinnOrders);
+                const heritageListingsFiltered = filterByDate(rawData.heritageListings);
+                const fieldRegsFiltered = filterByDate(rawData.fieldRegistrations);
+
+                // Build detailed operations log
+                const allOperations = [];
+
+                fusionOrdersFiltered.forEach(([id, o]) => {
+                    allOperations.push({
+                        time: o.createdAt,
+                        workspace: 'Fusion Foods',
+                        icon: 'fa-utensils',
+                        color: '#10b981',
+                        action: 'Order Placed',
+                        details: `${o.restaurantName || 'Restaurant'} · ${(o.products || []).length} items · KES ${(o.total || 0).toLocaleString()}`,
+                        performedBy: o.recordedBy || o.clerkId || 'System',
+                        performedByName: o.clerkName || o.recordedByName || '',
+                        status: o.status || 'new'
+                    });
+                });
+
+                dsogOrdersFiltered.forEach(([id, o]) => {
+                    allOperations.push({
+                        time: o.createdAt,
+                        workspace: 'DSOG Fashion',
+                        icon: 'fa-tshirt',
+                        color: '#ec4899',
+                        action: 'Order Processed',
+                        details: `${o.customerName || 'Customer'} · ${(o.products || []).length} items`,
+                        performedBy: o.recordedBy || o.clerkId || 'System',
+                        performedByName: o.clerkName || '',
+                        status: o.status || 'new'
+                    });
+                });
+
+                brandinnOrdersFiltered.forEach(([id, o]) => {
+                    allOperations.push({
+                        time: o.createdAt,
+                        workspace: 'BrandInn',
+                        icon: 'fa-print',
+                        color: '#7c3aed',
+                        action: 'Print Order',
+                        details: `${o.customerName || 'Customer'} · ${o.product || 'Product'}`,
+                        performedBy: o.recordedBy || o.clerkId || 'System',
+                        performedByName: o.clerkName || '',
+                        status: o.status || 'new'
+                    });
+                });
+
+                heritageListingsFiltered.forEach(([id, l]) => {
+                    allOperations.push({
+                        time: l.createdAt || l.postedAt,
+                        workspace: 'Heritage',
+                        icon: 'fa-landmark',
+                        color: '#d946ef',
+                        action: 'Listing Created',
+                        details: `${l.type || 'Listing'} · ${l.location || 'Unknown'}`,
+                        performedBy: l.recordedBy || l.partnerId || 'System',
+                        performedByName: l.partnerName || '',
+                        status: l.status || 'active'
+                    });
+                });
+
+                allOperations.sort((a, b) => (b.time || 0) - (a.time || 0));
+
+                // Render KPIs
+                const totalOps = allOperations.length;
+                const fusionCount = allOperations.filter(o => o.workspace === 'Fusion Foods').length;
+                const dsogCount = allOperations.filter(o => o.workspace === 'DSOG Fashion').length;
+                const brandinnCount = allOperations.filter(o => o.workspace === 'BrandInn').length;
+                const heritageCount = allOperations.filter(o => o.workspace === 'Heritage').length;
+                const fieldRegCount = fieldRegsFiltered.length;
+                const uniqueUsers = new Set(allOperations.map(o => o.performedBy).filter(Boolean)).size;
+
+                document.getElementById('kpiRow').innerHTML = `
+                    <div class="kpi-card"><div class="kpi-value" style="color:#ca8a04;">${totalOps}</div><div class="kpi-label">Total Operations</div></div>
+                    <div class="kpi-card"><div class="kpi-value" style="color:#10b981;">${fusionCount}</div><div class="kpi-label">Fusion Foods</div></div>
+                    <div class="kpi-card"><div class="kpi-value" style="color:#ec4899;">${dsogCount}</div><div class="kpi-label">DSOG Fashion</div></div>
+                    <div class="kpi-card"><div class="kpi-value" style="color:#7c3aed;">${brandinnCount}</div><div class="kpi-label">BrandInn</div></div>
+                    <div class="kpi-card"><div class="kpi-value" style="color:#d946ef;">${heritageCount}</div><div class="kpi-label">Heritage</div></div>
+                    <div class="kpi-card"><div class="kpi-value" style="color:#2563eb;">${fieldRegCount}</div><div class="kpi-label">Field Registrations</div></div>
+                `;
+
+                // Render Charts
+                renderCharts(fusionCount, dsogCount, brandinnCount, heritageCount, fieldRegCount);
+
+                // Render Operations Table
+                document.getElementById('tableCount').textContent = `${allOperations.length} entries`;
+                document.getElementById('operationsTableBody').innerHTML = allOperations.slice(0, 100).map(o => {
+                    const performedByDisplay = o.performedByName || (o.performedBy ? o.performedBy.split('@')[0] : 'System');
+                    const initials = getInitials(performedByDisplay);
+                    const avatarColor = getAvatarColor(performedByDisplay);
+                    const timeStr = o.time ? new Date(o.time).toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'}) : '—';
+                    return `
+                        <tr>
+                            <td>${timeStr}</td>
+                            <td><span class="badge" style="background:${o.color}15;color:${o.color};"><i class="fas ${o.icon}"></i> ${o.workspace}</span></td>
+                            <td><strong>${o.action}</strong></td>
+                            <td>${escapeHtml(o.details)}</td>
+                            <td>
+                                <div class="attribution-cell">
+                                    <div class="attribution-avatar" style="background:${avatarColor};">${initials}</div>
+                                    <span>${escapeHtml(performedByDisplay)}</span>
+                                </div>
+                            </td>
+                            <td><span class="badge badge-${o.status==='delivered'?'success':o.status==='shipped'?'purple':'info'}">${(o.status||'new').replace(/-/g,' ')}</span></td>
+                        </tr>
+                    `;
+                }).join('') || '<tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--text-muted);">No operations in this period</td></tr>';
+
+                // Render Field Registrations Table
+                document.getElementById('fieldCount').textContent = `${fieldRegsFiltered.length} entries`;
+                document.getElementById('fieldTableBody').innerHTML = fieldRegsFiltered.map(([id, r]) => {
+                    const recordedBy = r.recordedBy || 'Field Agent';
+                    const initials = getInitials(recordedBy.split('@')[0]);
+                    const avatarColor = getAvatarColor(recordedBy);
+                    const timeStr = r.timestamp ? new Date(r.timestamp).toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'}) : '—';
+                    const opColors = {brandinn:'#7c3aed',deliveries:'#f59e0b',rides:'#22c55e',dsog:'#ec4899',fusion:'#10b981',heritage:'#d946ef'};
+                    const opColor = opColors[r.operation] || '#ca8a04';
+                    return `
+                        <tr>
+                            <td>${timeStr}</td>
+                            <td><strong>${escapeHtml(r.businessName || 'Unknown')}</strong></td>
+                            <td><span class="badge" style="background:${opColor}15;color:${opColor};">${r.operation || 'N/A'}</span></td>
+                            <td>📍 ${r.lat?.toFixed(4)}, ${r.lng?.toFixed(4)}</td>
+                            <td>
+                                <div class="attribution-cell">
+                                    <div class="attribution-avatar" style="background:${avatarColor};">${initials}</div>
+                                    <span>${escapeHtml(recordedBy.split('@')[0])}</span>
+                                </div>
+                            </td>
+                            <td>${escapeHtml(r.ownerName || 'N/A')}</td>
+                        </tr>
+                    `;
+                }).join('') || '<tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--text-muted);">No registrations in this period</td></tr>';
+
+                // Render Previous Reports
+                renderPreviousReports();
+
+            } catch(e) {
+                console.error('Report error:', e);
+                document.getElementById('reportMeta').innerHTML = '<i class="fas fa-exclamation-circle" style="color:var(--danger);"></i> Error loading report';
+            }
+        }
+
+        function renderCharts(fusion, dsog, brandinn, heritage, field) {
+            const ctx1 = document.getElementById('workspaceBarChart').getContext('2d');
+            if (workspaceBarChart) workspaceBarChart.destroy();
+            workspaceBarChart = new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: ['Fusion Foods', 'DSOG', 'BrandInn', 'Heritage', 'Field Reg.'],
+                    datasets: [{
+                        label: 'Operations',
+                        data: [fusion, dsog, brandinn, heritage, field],
+                        backgroundColor: ['rgba(16,185,129,0.6)','rgba(236,72,153,0.6)','rgba(124,58,237,0.6)','rgba(217,70,239,0.6)','rgba(59,130,246,0.6)'],
+                        borderColor: ['#10b981','#ec4899','#7c3aed','#d946ef','#3b82f6'],
+                        borderWidth: 2, borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: '#f3f4f6' } }, x: { grid: { display: false } } }
+                }
+            });
+
+            const ctx2 = document.getElementById('activityPieChart').getContext('2d');
+            if (activityPieChart) activityPieChart.destroy();
+            activityPieChart = new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Fusion', 'DSOG', 'BrandInn', 'Heritage', 'Field'],
+                    datasets: [{
+                        data: [fusion, dsog, brandinn, heritage, field],
+                        backgroundColor: ['#10b981','#ec4899','#7c3aed','#d946ef','#3b82f6'],
+                        borderWidth: 2, borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom', labels: { padding: 12, usePointStyle: true, font: { size: 10 } } } }
+                }
+            });
+        }
+
+        function renderPreviousReports() {
+            const now = new Date();
+            const reports = [];
+            for (let i = 1; i <= 7; i++) {
+                const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+                reports.push({
+                    date: d,
+                    label: i === 1 ? 'Yesterday' : i === 2 ? '2 Days Ago' : `${i} Days Ago`,
+                    icon: 'fa-file-alt',
+                    color: '#ca8a04'
+                });
+            }
+
+            document.getElementById('previousReports').innerHTML = reports.map(r => `
+                <div class="report-item" onclick="loadReportForDate('${r.date.toISOString().split('T')[0]}')">
+                    <div class="report-item-icon" style="background:var(--gold-soft);color:var(--gold);">
+                        <i class="fas ${r.icon}"></i>
+                    </div>
+                    <div class="report-item-info">
+                        <div class="report-item-title">${r.date.toLocaleDateString('en-US', {weekday:'long', year:'numeric', month:'long', day:'numeric'})}</div>
+                        <div class="report-item-meta">Auto-generated daily report · ${r.label}</div>
+                    </div>
+                    <i class="fas fa-chevron-right" style="color:var(--text-muted);"></i>
+                </div>
+            `).join('');
+        }
+
+        window.loadReportForDate = function(dateStr) {
+            document.querySelectorAll('.date-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('customDate').value = dateStr;
+            currentRange = 'custom';
+            loadReport('custom');
+        };
+
+        window.loadReport = function(range) {
+            loadReport(range || currentRange);
+        };
+
+        window.handleLogout = async () => {
+            if (confirm('Sign out?')) { await auth.signOut(); window.location.href = 'index.html'; }
+        };
+    </script>
+</body>
+</html>
