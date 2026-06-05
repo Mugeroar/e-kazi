@@ -26,6 +26,8 @@
       --red: #ef4444;
       --orange: #f59e0b;
       --green: #10b981;
+      --purple: #8b5cf6;
+      --blue: #3b82f6;
     }
 
     body {
@@ -148,7 +150,127 @@
 
     .empty-state { text-align: center; padding: 3rem; color: #94a3b8; grid-column: 1 / -1; }
 
-    /* Modal */
+    /* Preview Modal Styles */
+    .preview-overlay {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6); z-index: 4000; justify-content: center;
+      align-items: center; backdrop-filter: blur(8px); animation: fadeIn 0.3s ease;
+    }
+    .preview-overlay.show { display: flex; }
+    
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    .preview-modal {
+      background: white; border-radius: 24px; max-width: 600px; width: 95%;
+      max-height: 90vh; overflow-y: auto; box-shadow: 0 30px 60px rgba(0,0,0,0.3);
+      animation: slideUp 0.3s ease; position: relative;
+    }
+
+    .preview-close {
+      position: absolute; top: 16px; right: 16px; width: 36px; height: 36px;
+      background: rgba(0,0,0,0.05); border: none; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 1.1rem; color: #64748b;
+      transition: all 0.2s; z-index: 10;
+    }
+    .preview-close:hover { background: rgba(0,0,0,0.1); color: #0f172a; }
+
+    .preview-hero {
+      background: linear-gradient(135deg, #0d9488 0%, #14b8a6 100%);
+      padding: 2rem; border-radius: 24px 24px 0 0; text-align: center;
+      position: relative; overflow: hidden;
+    }
+    .preview-hero::before {
+      content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+    }
+    .preview-hero-icon {
+      width: 80px; height: 80px; background: white; border-radius: 20px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.5rem; margin: 0 auto 1rem;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15); position: relative; z-index: 1;
+    }
+    .preview-hero h2 {
+      font-size: 1.4rem; font-weight: 800; color: white;
+      margin-bottom: 0.3rem; position: relative; z-index: 1;
+    }
+    .preview-hero .sku {
+      font-size: 0.7rem; color: rgba(255,255,255,0.8); font-family: monospace;
+      background: rgba(255,255,255,0.15); padding: 3px 10px; border-radius: 12px;
+      display: inline-block; position: relative; z-index: 1;
+    }
+    .preview-status {
+      position: absolute; top: 16px; left: 16px; padding: 4px 12px;
+      border-radius: 12px; font-size: 0.65rem; font-weight: 700; z-index: 1;
+    }
+    .status-active { background: rgba(255,255,255,0.2); color: white; backdrop-filter: blur(4px); }
+    .status-inactive { background: rgba(239,68,68,0.2); color: #fecaca; backdrop-filter: blur(4px); }
+
+    .preview-body { padding: 1.5rem; }
+
+    .preview-section {
+      margin-bottom: 1.2rem; padding-bottom: 1.2rem;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .preview-section:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+    .preview-section h4 {
+      font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.5px; color: #94a3b8; margin-bottom: 0.8rem;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .preview-section h4 i { color: #0d9488; }
+
+    .preview-description {
+      font-size: 0.8rem; color: #475569; line-height: 1.6;
+      background: #f8fafc; padding: 1rem; border-radius: 12px;
+      border-left: 3px solid #0d9488;
+    }
+
+    .preview-info-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem;
+    }
+    .preview-info-item {
+      background: #f8fafc; padding: 0.8rem; border-radius: 12px;
+    }
+    .preview-info-item label {
+      font-size: 0.55rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.3px; color: #94a3b8; display: block; margin-bottom: 0.3rem;
+    }
+    .preview-info-item .value {
+      font-size: 0.85rem; font-weight: 700; color: #0f172a;
+    }
+    .preview-info-item .value.price {
+      color: #0d9488; font-size: 1.1rem;
+    }
+    .preview-info-item .value.unit {
+      color: #64748b; font-size: 0.75rem;
+    }
+
+    .preview-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .preview-tag {
+      padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.65rem;
+      font-weight: 600; display: flex; align-items: center; gap: 4px;
+    }
+    .tag-category { background: #f0fdfa; color: #0f766e; }
+    .tag-status { background: #f0fdf4; color: #065f46; }
+    .tag-supplier { background: #f1f5f9; color: #475569; }
+
+    .preview-footer {
+      background: #f8fafc; padding: 1rem 1.5rem; border-radius: 0 0 24px 24px;
+      display: flex; gap: 8px; justify-content: flex-end; border-top: 1px solid #e2e8f0;
+    }
+    .btn {
+      padding: 0.6rem 1.2rem; border-radius: 10px; border: none; font-weight: 700;
+      font-size: 0.75rem; cursor: pointer; display: inline-flex; align-items: center;
+      gap: 5px; font-family: inherit; transition: all 0.15s;
+    }
+    .btn-primary { background: var(--teal); color: white; }
+    .btn-primary:hover { background: var(--teal-dark); }
+    .btn-secondary { background: white; color: #475569; border: 1px solid #e2e8f0; }
+    .btn-secondary:hover { background: #f1f5f9; }
+
+    /* Regular Modal */
     .modal-overlay {
       display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(0,0,0,0.5); z-index: 3000; justify-content: center;
@@ -173,19 +295,10 @@
     .form-group textarea { resize: vertical; min-height: 60px; }
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
     .btn-row { display: flex; gap: 8px; margin-top: 1rem; }
-    .btn {
-      padding: 0.6rem 1.2rem; border-radius: 10px; border: none; font-weight: 700;
-      font-size: 0.8rem; cursor: pointer; display: inline-flex; align-items: center;
-      gap: 5px; font-family: inherit; transition: all 0.15s;
-    }
-    .btn-primary { background: var(--teal); color: white; }
-    .btn-primary:hover { background: var(--teal-dark); }
-    .btn-secondary { background: #f1f5f9; color: #475569; }
-    .btn-secondary:hover { background: #e2e8f0; }
 
     .toast {
       position: fixed; bottom: 25px; right: 25px; background: var(--teal); color: white;
-      padding: 0.7rem 1.2rem; border-radius: 20px; font-weight: 600; z-index: 4000;
+      padding: 0.7rem 1.2rem; border-radius: 20px; font-weight: 600; z-index: 5000;
       animation: slideIn 0.3s ease; box-shadow: 0 8px 20px rgba(13,148,136,0.25);
       display: flex; align-items: center; gap: 6px; font-size: 0.75rem;
     }
@@ -195,6 +308,7 @@
     @media (max-width: 768px) {
       .stats-row { grid-template-columns: repeat(2, 1fr); }
       .cards-grid { grid-template-columns: 1fr; }
+      .preview-info-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -249,6 +363,10 @@
     </div>
   </div>
 
+  <!-- Preview Modal -->
+  <div class="preview-overlay" id="previewOverlay"></div>
+
+  <!-- Edit/Add Modal -->
   <div class="modal-overlay" id="modal"><div class="modal" id="modalContent"></div></div>
   <div id="toastContainer"></div>
 
@@ -294,10 +412,135 @@
       return icons[category?.toLowerCase()] || '📦';
     }
 
+    function getCategoryName(category) {
+      const names = {
+        vegetables: 'Vegetables', meat: 'Meat & Protein', dairy: 'Dairy',
+        grains: 'Grains', spices: 'Spices', beverages: 'Beverages',
+        oils: 'Oils', bakery: 'Bakery', other: 'Other'
+      };
+      return names[category?.toLowerCase()] || category || 'Uncategorized';
+    }
+
     function generateSKU(productName, id) {
-      const prefix = (productName || 'PROD').substring(0, 3).toUpperCase();
-      const shortId = (id || '0000').substring(0, 4);
+      const prefix = (productName || 'PROD').substring(0, 3).toUpperCase().replace(/[^A-Z]/g, 'X');
+      const shortId = (id || '0000').substring(0, 4).toUpperCase();
       return `FF-${prefix}-${shortId}`;
+    }
+
+    function formatDate(timestamp) {
+      if (!timestamp) return 'N/A';
+      const date = new Date(timestamp);
+      return date.toLocaleDateString('en-KE', { 
+        year: 'numeric', month: 'long', day: 'numeric',
+        hour: '2-digit', minute: '2-digit'
+      });
+    }
+
+    function showPreview(product) {
+      const overlay = document.getElementById('previewOverlay');
+      const icon = getCategoryIcon(product.category);
+      const categoryName = getCategoryName(product.category);
+      const sku = product.sku || generateSKU(product.name, product.id);
+      
+      overlay.innerHTML = `
+        <div class="preview-modal" onclick="event.stopPropagation()">
+          <button class="preview-close" onclick="closePreview()">
+            <i class="fas fa-times"></i>
+          </button>
+          
+          <div class="preview-hero">
+            <span class="preview-status ${product.isActive !== false ? 'status-active' : 'status-inactive'}">
+              ${product.isActive !== false ? '● Active' : '○ Inactive'}
+            </span>
+            <div class="preview-hero-icon">${icon}</div>
+            <h2>${product.name || 'Unnamed Product'}</h2>
+            <span class="sku">${sku}</span>
+          </div>
+
+          <div class="preview-body">
+            ${product.description ? `
+              <div class="preview-section">
+                <h4><i class="fas fa-align-left"></i> Description</h4>
+                <div class="preview-description">${product.description}</div>
+              </div>
+            ` : ''}
+
+            <div class="preview-section">
+              <h4><i class="fas fa-info-circle"></i> Product Details</h4>
+              <div class="preview-info-grid">
+                <div class="preview-info-item">
+                  <label>Category</label>
+                  <div class="value">${icon} ${categoryName}</div>
+                </div>
+                <div class="preview-info-item">
+                  <label>Unit of Measure</label>
+                  <div class="value unit">${product.unit || 'N/A'}</div>
+                </div>
+                <div class="preview-info-item">
+                  <label>Unit Price</label>
+                  <div class="value price">KES ${(product.unitPrice || 0).toLocaleString()}</div>
+                </div>
+                <div class="preview-info-item">
+                  <label>Minimum Order</label>
+                  <div class="value">${product.minOrder || 1} ${product.unit || 'unit(s)'}</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="preview-section">
+              <h4><i class="fas fa-truck"></i> Supply Information</h4>
+              <div class="preview-info-grid">
+                <div class="preview-info-item">
+                  <label>Supplier</label>
+                  <div class="value">${product.supplier || 'Not specified'}</div>
+                </div>
+                <div class="preview-info-item">
+                  <label>Last Updated</label>
+                  <div class="value" style="font-size:0.7rem;">${formatDate(product.updatedAt)}</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="preview-section">
+              <h4><i class="fas fa-tags"></i> Tags</h4>
+              <div class="preview-tags">
+                <span class="preview-tag tag-category">
+                  <i class="fas fa-folder"></i> ${categoryName}
+                </span>
+                <span class="preview-tag tag-status">
+                  <i class="fas fa-${product.isActive !== false ? 'check-circle' : 'times-circle'}"></i>
+                  ${product.isActive !== false ? 'Active' : 'Inactive'}
+                </span>
+                ${product.supplier ? `
+                  <span class="preview-tag tag-supplier">
+                    <i class="fas fa-building"></i> ${product.supplier}
+                  </span>
+                ` : ''}
+                ${product.unitPrice > 0 ? `
+                  <span class="preview-tag tag-category">
+                    <i class="fas fa-tag"></i> KES ${product.unitPrice}/${product.unit}
+                  </span>
+                ` : ''}
+              </div>
+            </div>
+          </div>
+
+          <div class="preview-footer">
+            <button class="btn btn-secondary" onclick="closePreview()">
+              <i class="fas fa-times"></i> Close
+            </button>
+            <button class="btn btn-primary" onclick="closePreview(); editProduct('${product.id}')">
+              <i class="fas fa-edit"></i> Edit Product
+            </button>
+          </div>
+        </div>
+      `;
+      
+      overlay.classList.add('show');
+    }
+
+    function closePreview() {
+      document.getElementById('previewOverlay').classList.remove('show');
     }
 
     function renderProducts() {
@@ -336,14 +579,14 @@
               <div class="product-main-info">
                 <h3>${p.name || 'Unnamed Product'}</h3>
                 <span class="product-sku">${sku}</span>
-                ${p.description ? `<p class="product-description">${p.description}</p>` : ''}
+                ${p.description ? `<p class="product-description">${p.description.substring(0, 80)}${p.description.length > 80 ? '...' : ''}</p>` : ''}
               </div>
             </div>
             
             <div class="product-meta">
-              <span class="meta-tag category">${getCategoryIcon(p.category)} ${p.category || 'Uncategorized'}</span>
+              <span class="meta-tag category">${getCategoryIcon(p.category)} ${getCategoryName(p.category)}</span>
               ${p.unitPrice ? `<span class="meta-tag price">KES ${p.unitPrice.toLocaleString()}/${p.unit || 'unit'}</span>` : ''}
-              ${p.isActive ? '<span class="meta-tag" style="background:#d1fae5;color:#065f46;">Active</span>' : '<span class="meta-tag" style="background:#fee2e2;color:#991b1b;">Inactive</span>'}
+              ${p.isActive !== false ? '<span class="meta-tag" style="background:#d1fae5;color:#065f46;">Active</span>' : '<span class="meta-tag" style="background:#fee2e2;color:#991b1b;">Inactive</span>'}
             </div>
 
             <div class="product-details-grid">
@@ -355,7 +598,7 @@
 
             <div class="product-actions">
               <button class="btn-sm btn-edit" onclick="editProduct('${p.id}')"><i class="fas fa-edit"></i> Edit</button>
-              <button class="btn-sm btn-preview" onclick="previewProduct('${p.id}')"><i class="fas fa-eye"></i> Preview</button>
+              <button class="btn-sm btn-preview" onclick="showPreview(${JSON.stringify(p).replace(/"/g, '&quot;')})"><i class="fas fa-eye"></i> Preview</button>
               <button class="btn-sm btn-delete" onclick="deleteProduct('${p.id}')"><i class="fas fa-trash"></i> Delete</button>
             </div>
           </div>`;
@@ -394,8 +637,7 @@
           <div class="form-group"><label>Unit *</label><select id="pUnit">
             <option value="kg">Kilogram (kg)</option><option value="g">Gram (g)</option>
             <option value="L">Litre (L)</option><option value="ml">Millilitre (ml)</option>
-            <option value="piece">Piece</option><option value="crate">Crate</option><option value="sack">Sack</option>
-            <option value="bunch">Bunch</option>
+            <option value="piece">Piece</option><option value="crate">Crate</option><option value="sack">Sack</option><option value="bunch">Bunch</option>
             <option value="packet">Packet</option>
           </select></div>
         </div>
@@ -438,7 +680,6 @@
 
       try {
         const newRef = await database.ref('fusion_foods_products').push(productData);
-        // Auto-generate SKU
         await database.ref(`fusion_foods_products/${newRef.key}`).update({
           sku: generateSKU(name, newRef.key)
         });
@@ -461,7 +702,7 @@
         <div class="form-row">
           <div class="form-group"><label>Category</label><select id="epCategory">
             ${['vegetables','meat','dairy','grains','spices','beverages','oils','bakery','other'].map(c => 
-              `<option value="${c}" ${p.category === c ? 'selected' : ''}>${getCategoryIcon(c)} ${c}</option>`
+              `<option value="${c}" ${p.category === c ? 'selected' : ''}>${getCategoryIcon(c)} ${getCategoryName(c)}</option>`
             ).join('')}
           </select></div>
           <div class="form-group"><label>Unit</label><select id="epUnit">
@@ -513,25 +754,6 @@
       }
     }
 
-    function previewProduct(productId) {
-      const p = allProducts[productId];
-      if (!p) return;
-      
-      const icon = getCategoryIcon(p.category);
-      alert(`
-Product Preview:
-───────────────
-Name: ${p.name}
-SKU: ${p.sku || generateSKU(p.name, productId)}
-Category: ${icon} ${p.category}
-Price: KES ${(p.unitPrice || 0).toLocaleString()}/${p.unit || 'unit'}
-Min Order: ${p.minOrder || 1} ${p.unit || 'units'}
-Status: ${p.isActive !== false ? 'Active' : 'Inactive'}
-${p.description ? `\nDescription: ${p.description}` : ''}
-${p.supplier ? `\nSupplier: ${p.supplier}` : ''}
-      `.trim());
-    }
-
     async function deleteProduct(productId) {
       if (!confirm('Are you sure you want to delete this product? This action cannot be undone.')) return;
       try {
@@ -562,7 +784,15 @@ ${p.supplier ? `\nSupplier: ${p.supplier}` : ''}
     document.getElementById('modal').addEventListener('click', (e) => {
       if (e.target === document.getElementById('modal')) closeModal();
     });
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+    
+    document.getElementById('previewOverlay').addEventListener('click', closePreview);
+    
+    document.addEventListener('keydown', (e) => { 
+      if (e.key === 'Escape') {
+        closeModal();
+        closePreview();
+      }
+    });
 
     // Firebase listener
     database.ref('fusion_foods_products').on('value', (snapshot) => {
@@ -576,7 +806,8 @@ ${p.supplier ? `\nSupplier: ${p.supplier}` : ''}
     window.showAddModal = showAddModal;
     window.editProduct = editProduct;
     window.deleteProduct = deleteProduct;
-    window.previewProduct = previewProduct;
+    window.showPreview = showPreview;
+    window.closePreview = closePreview;
     window.saveProduct = saveProduct;
     window.updateProduct = updateProduct;
     window.closeModal = closeModal;
