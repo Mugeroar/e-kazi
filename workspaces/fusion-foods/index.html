@@ -29,8 +29,7 @@
       --purple: #7c3aed;
       --orange: #f59e0b;
       --blue: #3b82f6;
-      --rose: #f43f5e;
-      --amber: #d97706;
+      --indigo: #6366f1;
     }
 
     body {
@@ -109,7 +108,7 @@
     .stat-trend { font-size: 0.6rem; margin-top: 2px; display: flex; align-items: center; gap: 3px; color: #64748b; }
     .stat-icon { width: 42px; height: 42px; background: #ecfdf5; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #059669; font-size: 1.2rem; }
 
-    .action-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-bottom: 1.2rem; }
+    .action-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 1.2rem; }
     .action-card {
       background: white; border-radius: 20px; padding: 1.2rem;
       border: 1px solid #a7f3d0; box-shadow: 0 8px 20px -6px rgba(5,150,105,0.04);
@@ -126,6 +125,7 @@
     .action-card p { color: #64748b; font-size: 0.7rem; margin-bottom: 0.8rem; line-height: 1.4; }
     .action-link { display: inline-flex; align-items: center; gap: 5px; font-weight: 700; color: #059669; font-size: 0.7rem; }
 
+    /* Card color variations */
     .map-card .action-icon { color: #3b82f6; border-color: rgba(59,130,246,0.2); background: linear-gradient(145deg, #eff6ff, #ffffff); }
     .map-card .action-link { color: #2563eb; }
     .store-card .action-icon { color: #7c3aed; border-color: rgba(124,58,237,0.2); background: linear-gradient(145deg, #f5f0ff, #ffffff); }
@@ -138,6 +138,8 @@
     .products-card .action-link { color: #0f766e; }
     .prices-card .action-icon { color: #db2777; border-color: rgba(219,39,119,0.2); background: linear-gradient(145deg, #fdf2f8, #ffffff); }
     .prices-card .action-link { color: #be185d; }
+    .supplier-card .action-icon { color: #6366f1; border-color: rgba(99,102,241,0.2); background: linear-gradient(145deg, #eef2ff, #ffffff); }
+    .supplier-card .action-link { color: #4f46e5; }
 
     .quick-section {
       background: white; border-radius: 18px; padding: 1rem 1.2rem;
@@ -227,7 +229,7 @@
         Fusion Foods Dashboard
         <span class="last-updated" id="lastUpdated"><i class="fas fa-circle"></i> Live</span>
       </h1>
-      <p>Receive orders, manage products, inventory, weekly prices & dispatch shipments.</p>
+      <p>Receive orders, manage products, suppliers, inventory & dispatch shipments.</p>
     </div>
 
     <div class="stats-grid">
@@ -244,12 +246,12 @@
         <div class="stat-icon"><i class="fas fa-boxes"></i></div>
       </div>
       <div class="stat-card">
-        <div class="stat-left"><h4>Stores Served</h4><div class="stat-number" id="storesServed">0</div><div class="stat-trend"><i class="fas fa-store"></i> Active clients</div></div>
-        <div class="stat-icon"><i class="fas fa-store"></i></div>
+        <div class="stat-left"><h4>Suppliers</h4><div class="stat-number" id="supplierCount">0</div><div class="stat-trend"><i class="fas fa-truck"></i> Active partners</div></div>
+        <div class="stat-icon"><i class="fas fa-truck"></i></div>
       </div>
     </div>
 
-    <!-- Updated action grid with 7 cards now including Products & Weekly Prices -->
+    <!-- Updated action grid with 8 cards now including Suppliers -->
     <div class="action-grid">
       <a href="/workspaces/fusion-foods/new-order.html" class="action-card">
         <div class="action-icon"><i class="fas fa-cart-plus"></i></div>
@@ -281,19 +283,24 @@
         <p>View & manage restaurant clients & locations.</p>
         <span class="action-link">Stores <i class="fas fa-arrow-right"></i></span>
       </a>
-      <!-- New Products Card -->
       <a href="/workspaces/fusion-foods/products.html" class="action-card products-card">
         <div class="action-icon"><i class="fas fa-tags"></i></div>
         <h2>Products</h2>
         <p>Add, edit or remove your food product catalog.</p>
         <span class="action-link">Manage Products <i class="fas fa-arrow-right"></i></span>
       </a>
-      <!-- New Weekly Prices Card -->
       <a href="/workspaces/fusion-foods/weekly-prices.html" class="action-card prices-card">
         <div class="action-icon"><i class="fas fa-calendar-check"></i></div>
         <h2>Weekly Prices</h2>
         <p>Update special weekly prices for products.</p>
         <span class="action-link">Update Prices <i class="fas fa-arrow-right"></i></span>
+      </a>
+      <!-- New Suppliers Card -->
+      <a href="/workspaces/fusion-foods/suppliers.html" class="action-card supplier-card">
+        <div class="action-icon"><i class="fas fa-people-carry"></i></div>
+        <h2>Suppliers</h2>
+        <p>Manage your food suppliers, contacts & orders.</p>
+        <span class="action-link">View Suppliers <i class="fas fa-arrow-right"></i></span>
       </a>
     </div>
 
@@ -307,6 +314,7 @@
         <a href="/workspaces/fusion-foods/stores.html" class="quick-btn"><i class="fas fa-store"></i> My Stores</a>
         <a href="/workspaces/fusion-foods/products.html" class="quick-btn"><i class="fas fa-tag"></i> Products</a>
         <a href="/workspaces/fusion-foods/weekly-prices.html" class="quick-btn"><i class="fas fa-calendar-alt"></i> Weekly Prices</a>
+        <a href="/workspaces/fusion-foods/suppliers.html" class="quick-btn"><i class="fas fa-people-carry"></i> Suppliers (<span id="supplierBadge">0</span>)</a>
         <a href="/workspaces/fusion-foods/map.html" class="quick-btn"><i class="fas fa-map-pin"></i> Add to Map</a>
       </div>
     </div>
@@ -358,6 +366,7 @@
     let allOrders = {};
     let allInventory = {};
     let allStores = {};
+    let allSuppliers = {};
 
     const loadingOverlay = document.getElementById('loadingOverlay');
 
@@ -461,26 +470,27 @@
       orders.forEach(o => { if (o.restaurantName) stores.add(o.restaurantName); });
       Object.values(allStores).forEach(s => { if (s && (s.name || s.businessName)) stores.add(s.name || s.businessName); });
 
+      const suppliers = Object.values(allSuppliers).filter(s => s && s.name).length;
+
       document.getElementById('newOrders').textContent = newOrders;
       document.getElementById('processingOrders').textContent = processing;
       document.getElementById('inStock').textContent = inStock;
-      document.getElementById('storesServed').textContent = stores.size;
+      document.getElementById('supplierCount').textContent = suppliers;
       document.getElementById('newBadge').textContent = newOrders;
       document.getElementById('dispatchBadge').textContent = processing;
+      document.getElementById('supplierBadge').textContent = suppliers;
       
-      document.getElementById('footerStats').textContent = `${orders.length} orders · ${inStock} products · ${stores.size} stores`;
+      document.getElementById('footerStats').textContent = `${orders.length} orders · ${inStock} products · ${stores.size} stores · ${suppliers} suppliers`;
       document.getElementById('lastUpdated').innerHTML = `<i class="fas fa-circle" style="color:#10b981;"></i> Live`;
       renderRecentList();
     }
 
     function setupRealtimeListeners() {
-      // Listen to fusion_foods_orders
       onValue(ref(db, 'fusion_foods_orders'), (snapshot) => {
         allOrders = snapshot.val() || {};
         updateStats();
         loadingOverlay.classList.add('hide');
       }, () => {
-        // Fallback to pickup_deliveries if the main path fails
         onValue(ref(db, 'pickup_deliveries'), (snapshot) => {
           const deliveries = snapshot.val() || {};
           allOrders = {};
@@ -502,6 +512,12 @@
 
       onValue(ref(db, 'fusion_foods_stores'), (snapshot) => {
         allStores = snapshot.val() || {};
+        updateStats();
+      });
+
+      // New: Listen for suppliers
+      onValue(ref(db, 'fusion_foods_suppliers'), (snapshot) => {
+        allSuppliers = snapshot.val() || {};
         updateStats();
       });
     }
