@@ -234,11 +234,6 @@
             color: var(--text-muted); font-size: 0.78rem; font-weight: 500;
             font-family: var(--font-heading);
         }
-        .stat-change {
-            font-size: 0.7rem; font-weight: 600; display: flex; align-items: center; gap: 0.2rem;
-        }
-        .stat-change.up { color: var(--success); }
-        .stat-change.down { color: var(--danger); }
 
         .charts-grid {
             display: grid; grid-template-columns: 2fr 1fr; gap: 1rem; margin-bottom: 1.5rem;
@@ -255,8 +250,8 @@
             display: flex; align-items: center; gap: 0.5rem;
         }
         .chart-title i { color: var(--gold); }
-        .chart-container { position: relative; height: 250px; }
-        .chart-container-small { position: relative; height: 250px; }
+        .chart-container { position: relative; height: 260px; }
+        .chart-container-small { position: relative; height: 260px; }
 
         .bottom-grid {
             display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;
@@ -332,7 +327,7 @@
         }
         .map-placeholder {
             background: linear-gradient(135deg, #fef3c7 0%, #f0fdf4 50%, #eef2ff 100%);
-            border-radius: 16px; height: 200px; position: relative;
+            border-radius: 16px; height: 180px; position: relative;
             display: flex; align-items: center; justify-content: center;
             overflow: hidden;
         }
@@ -346,10 +341,6 @@
         .map-dot:nth-child(3) { top: 40%; left: 65%; animation-delay: 1s; background: var(--info); }
         .map-dot:nth-child(4) { top: 25%; left: 75%; animation-delay: 1.5s; background: var(--purple); }
         .map-dot:nth-child(5) { top: 65%; left: 30%; animation-delay: 2s; background: var(--rose); }
-        .map-line {
-            position: absolute; height: 1.5px; background: rgba(202,138,4,0.2);
-            transform-origin: left center; border-radius: 2px;
-        }
         .map-legend {
             display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.8rem;
         }
@@ -359,6 +350,24 @@
         }
         .map-legend-dot {
             width: 8px; height: 8px; border-radius: 50%;
+        }
+
+        .brandinn-stats {
+            display: grid; grid-template-columns: repeat(3,1fr); gap: 0.5rem;
+            margin-top: 0.8rem; padding-top: 0.8rem; border-top: 1px solid var(--border-light);
+        }
+        .brandinn-stat-item {
+            text-align: center;
+            background: rgba(139,92,246,0.04);
+            border-radius: 12px; padding: 0.6rem;
+        }
+        .brandinn-stat-value {
+            font-size: 1.3rem; font-weight: 800;
+            font-family: var(--font-display);
+        }
+        .brandinn-stat-label {
+            font-size: 0.6rem; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 0.3px; font-weight: 600;
         }
 
         .badge {
@@ -371,12 +380,6 @@
         .badge-info { background: rgba(59,130,246,0.1); color: #2563eb; }
         .badge-purple { background: rgba(139,92,246,0.1); color: #7c3aed; }
         .badge-gold { background: var(--gold-soft); color: var(--gold-dark); }
-        .badge-rose { background: rgba(225,29,72,0.1); color: #be123c; }
-
-        .empty-state {
-            text-align: center; padding: 1.5rem; color: var(--text-muted);
-        }
-        .empty-state i { font-size: 1.8rem; color: var(--gold); margin-bottom: 0.4rem; opacity: 0.4; }
 
         .toast-container { position: fixed; top:20px; right:20px; z-index:4000; }
         .toast {
@@ -391,14 +394,6 @@
         .toast.info { border-left: 3px solid var(--gold); }
         @keyframes slideIn { from{opacity:0;transform:translateX(20px)} to{opacity:1;transform:translateX(0)} }
 
-        .loading-overlay {
-            position: fixed; top:0;left:0;width:100%;height:100%;
-            background: rgba(255,255,255,0.9); backdrop-filter: blur(4px);
-            display: flex; align-items: center; justify-content: center;
-            z-index: 3000; opacity: 0; visibility: hidden; transition: 0.2s;
-        }
-        .loading-overlay.active { opacity: 1; visibility: visible; }
-
         @media (max-width:1200px) {
             .charts-grid { grid-template-columns: 1fr; }
             .bottom-grid { grid-template-columns: 1fr 1fr; }
@@ -409,6 +404,7 @@
             .nav-links{display:none}
             .welcome-section{flex-direction:column;text-align:center}
             .main-content{padding:0 1rem}
+            .brandinn-stats{grid-template-columns: repeat(2,1fr);}
         }
         @media (max-width:500px) {
             .stats-grid{grid-template-columns:1fr}
@@ -416,12 +412,6 @@
     </style>
 </head>
 <body>
-    <div class="loading-overlay" id="loadingOverlay">
-        <div style="text-align:center;">
-            <div style="width:40px;height:40px;border:3px solid var(--border-light);border-top-color:var(--gold);border-radius:50%;animation:spin 0.6s linear infinite;margin:0 auto 1rem;"></div>
-            <div style="font-family:var(--font-heading);color:var(--gold);font-weight:600;">Loading dashboard...</div>
-        </div>
-    </div>
     <div class="toast-container" id="toastContainer"></div>
 
     <header class="site-header">
@@ -429,6 +419,7 @@
             <div class="logo"><img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview-1.png" alt="KazInni"><span>KazInni</span></div>
             <nav class="nav-links">
                 <a href="#" class="nav-link active">Dashboard</a>
+                <a href="profile.html" class="nav-link">Profile</a>
                 <a href="workspaces.html" class="nav-link">Workspaces</a>
                 <a href="resources.html" class="nav-link">Resources</a>
             </nav>
@@ -438,6 +429,7 @@
                     <span class="user-name" id="userDisplayName">Loading...</span>
                     <div class="user-avatar" id="userAvatar">K</div>
                     <div class="user-dropdown">
+                        <a href="profile.html" class="dropdown-item"><i class="fas fa-user"></i> View Profile</a>
                         <button class="dropdown-item" onclick="refreshData()"><i class="fas fa-sync-alt"></i> Refresh</button>
                         <button class="dropdown-item danger" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
                     </div>
@@ -472,24 +464,20 @@
             <div class="charts-grid">
                 <div class="chart-card">
                     <div class="chart-header">
-                        <div class="chart-title"><i class="fas fa-chart-bar"></i> Orders Overview (7 Days)</div>
+                        <div class="chart-title"><i class="fas fa-chart-bar"></i> Operations Overview (7 Days)</div>
                         <span class="badge badge-gold">Real-time</span>
                     </div>
-                    <div class="chart-container">
-                        <canvas id="ordersChart"></canvas>
-                    </div>
+                    <div class="chart-container"><canvas id="ordersChart"></canvas></div>
                 </div>
                 <div class="chart-card">
                     <div class="chart-header">
                         <div class="chart-title"><i class="fas fa-chart-pie"></i> Workspace Distribution</div>
                     </div>
-                    <div class="chart-container-small">
-                        <canvas id="distributionChart"></canvas>
-                    </div>
+                    <div class="chart-container-small"><canvas id="distributionChart"></canvas></div>
                 </div>
             </div>
 
-            <!-- Bottom Grid: Activity + Workspaces + Map -->
+            <!-- Bottom Grid: Activity + Workspaces + Map with BrandInn -->
             <div class="bottom-grid">
                 <div class="activity-card" id="activityCard">
                     <h3><i class="fas fa-clock-rotate-left"></i> Recent Activity</h3>
@@ -509,18 +497,19 @@
                 </div>
 
                 <div class="map-card" id="mapCard">
-                    <h3 style="font-family:var(--font-heading);font-size:0.95rem;font-weight:700;margin-bottom:0.8rem;">
-                        <i class="fas fa-map-marker-alt" style="color:var(--gold);"></i> Operations Map
+                    <h3 style="font-family:var(--font-heading);font-size:0.95rem;font-weight:700;margin-bottom:0.5rem;">
+                        <i class="fas fa-building" style="color:var(--purple);"></i> BrandInn Operations
                     </h3>
-                    <div class="map-placeholder" id="mapPlaceholder">
-                        <div class="map-dot"></div>
-                        <div class="map-dot"></div>
-                        <div class="map-dot"></div>
-                        <div class="map-dot"></div>
-                        <div class="map-dot"></div>
+                    <div class="brandinn-stats" id="brandinnStats">
+                        <div class="brandinn-stat-item"><div class="skeleton" style="height:1.5rem;width:50%;margin:0 auto 0.3rem;"></div><div class="skeleton" style="height:0.6rem;width:70%;margin:0 auto;"></div></div>
+                        <div class="brandinn-stat-item"><div class="skeleton" style="height:1.5rem;width:50%;margin:0 auto 0.3rem;"></div><div class="skeleton" style="height:0.6rem;width:70%;margin:0 auto;"></div></div>
+                        <div class="brandinn-stat-item"><div class="skeleton" style="height:1.5rem;width:50%;margin:0 auto 0.3rem;"></div><div class="skeleton" style="height:0.6rem;width:70%;margin:0 auto;"></div></div>
+                    </div>
+                    <div class="map-placeholder" style="height:100px;margin-top:0.6rem;">
+                        <div class="map-dot"></div><div class="map-dot"></div><div class="map-dot"></div>
                         <div style="position:relative;z-index:1;text-align:center;">
-                            <i class="fas fa-globe-africa" style="font-size:3rem;color:rgba(202,138,4,0.15);"></i>
-                            <p style="font-size:0.7rem;color:var(--text-muted);margin-top:0.3rem;">Active locations</p>
+                            <i class="fas fa-globe-africa" style="font-size:2rem;color:rgba(202,138,4,0.15);"></i>
+                            <p style="font-size:0.65rem;color:var(--text-muted);">Active business locations</p>
                         </div>
                     </div>
                     <div class="map-legend" id="mapLegend"></div>
@@ -554,7 +543,6 @@
         });
 
         async function initializeDashboard(user) {
-            showLoading(true);
             try {
                 const userSnap = await database.ref(`brandinn_users/${user.uid}`).once('value');
                 const userData = userSnap.exists() ? userSnap.val() : {};
@@ -563,14 +551,10 @@
                 
                 updateUserInterface(userName, businessName);
                 await loadAllData();
-                
-                // Set up real-time listeners for live updates
                 setupLiveListeners();
                 
             } catch(e) {
                 showToast('Error loading dashboard', 'error');
-            } finally {
-                showLoading(false);
             }
         }
 
@@ -589,11 +573,12 @@
         async function loadAllData() {
             const workspaces = [];
             let totalOrders = 0, totalProducts = 0, totalStores = 0, totalSuppliers = 0;
+            let totalClients = 0;
             const activities = [];
             const workspaceStats = {};
             const locations = [];
 
-            // Fusion Foods
+            // ===== FUSION FOODS =====
             const fusionOrdersSnap = await database.ref('fusion_foods_orders').once('value');
             const fusionOrders = fusionOrdersSnap.val() || {};
             const fusionOrderCount = Object.keys(fusionOrders).length;
@@ -608,6 +593,7 @@
             const fusionStores = fusionStoresSnap.val() || {};
             const fusionStoreCount = Object.keys(fusionStores).length;
             totalStores += fusionStoreCount;
+            totalClients += fusionStoreCount;
             
             const fusionSuppliersSnap = await database.ref('fusion_foods_suppliers').once('value');
             const fusionSuppliers = fusionSuppliersSnap.val() || {};
@@ -623,12 +609,10 @@
                 });
                 workspaceStats['Fusion Foods'] = fusionOrderCount;
                 
-                // Collect locations
                 Object.values(fusionStores).forEach(s => { if(s.location) locations.push({name: s.name || 'Store', location: s.location, type: 'store'}); });
                 Object.values(fusionSuppliers).forEach(s => { if(s.location) locations.push({name: s.name || 'Supplier', location: s.location, type: 'supplier'}); });
             }
 
-            // Get recent orders for activity
             const allFusionOrders = Object.entries(fusionOrders)
                 .sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0))
                 .slice(0, 4);
@@ -642,133 +626,123 @@
                 });
             });
 
-            // DSOG Fashion
+            // ===== DSOG FASHION =====
             const dsogOrdersSnap = await database.ref('dsog_fashion_orders').once('value');
             const dsogOrders = dsogOrdersSnap.val() || {};
             const dsogOrderCount = Object.keys(dsogOrders).length;
+            totalOrders += dsogOrderCount;
             
-            if (dsogOrderCount > 0) {
+            const dsogFranchiseesSnap = await database.ref('dsog_fashion_franchisees').once('value');
+            const dsogFranchisees = dsogFranchiseesSnap.val() || {};
+            const dsogFranchiseeCount = Object.keys(dsogFranchisees).length;
+            totalClients += dsogFranchiseeCount;
+            
+            if (dsogOrderCount > 0 || dsogFranchiseeCount > 0) {
                 workspaces.push({
                     name: 'DSOG Fashion', desc: 'Fashion & Apparel',
                     icon: 'fa-tshirt', color: '#ec4899', bgColor: '#fdf2f8',
-                    stats: { orders: dsogOrderCount },
+                    stats: { orders: dsogOrderCount, franchisees: dsogFranchiseeCount },
                     link: '/workspaces/dsog-fashion/index.html'
                 });
                 workspaceStats['DSOG Fashion'] = dsogOrderCount;
             }
 
-            // Heritage
+            // ===== HERITAGE =====
             const heritageSnap = await database.ref('heritage_listings').once('value');
             const heritageData = heritageSnap.val() || {};
             const heritageCount = Object.keys(heritageData).length;
             
-            if (heritageCount > 0) {
+            const heritagePartnersSnap = await database.ref('heritage_partners').once('value');
+            const heritagePartners = heritagePartnersSnap.val() || {};
+            const heritagePartnerCount = Object.keys(heritagePartners).length;
+            totalClients += heritagePartnerCount;
+            
+            if (heritageCount > 0 || heritagePartnerCount > 0) {
                 workspaces.push({
                     name: 'Heritage', desc: 'Outdoor Advertising',
                     icon: 'fa-landmark', color: '#d946ef', bgColor: '#faf5ff',
-                    stats: { listings: heritageCount },
+                    stats: { listings: heritageCount, partners: heritagePartnerCount },
                     link: '/workspaces/heritage/index.html'
                 });
                 workspaceStats['Heritage'] = heritageCount;
             }
 
-            // BrandInn Print
-            const printSnap = await database.ref('brandinn_print_orders').once('value');
-            const printData = printSnap.val() || {};
-            const printCount = Object.keys(printData).length;
+            // ===== BRANDINN =====
+            const brandinnBusinessesSnap = await database.ref('brandinn_businesses').once('value');
+            const brandinnBusinesses = brandinnBusinessesSnap.val() || {};
+            const brandinnBusinessCount = Object.keys(brandinnBusinesses).length;
+            totalClients += brandinnBusinessCount;
             
-            if (printCount > 0) {
+            const brandinnOrdersSnap = await database.ref('brandinn_print_orders').once('value');
+            const brandinnOrders = brandinnOrdersSnap.val() || {};
+            const brandinnOrderCount = Object.keys(brandinnOrders).length;
+            totalOrders += brandinnOrderCount;
+            
+            const brandinnFranchisesSnap = await database.ref('brandinn_franchises').once('value');
+            const brandinnFranchises = brandinnFranchisesSnap.val() || {};
+            const brandinnFranchiseCount = Object.keys(brandinnFranchises).length;
+            totalClients += brandinnFranchiseCount;
+            
+            if (brandinnBusinessCount > 0 || brandinnOrderCount > 0) {
                 workspaces.push({
                     name: 'BrandInn Print', desc: 'Print & Merchandise',
                     icon: 'fa-print', color: '#8b5cf6', bgColor: '#f5f3ff',
-                    stats: { orders: printCount },
+                    stats: { orders: brandinnOrderCount, businesses: brandinnBusinessCount },
                     link: '/workspaces/brandinn/index.html'
                 });
-                workspaceStats['BrandInn Print'] = printCount;
+                workspaceStats['BrandInn Print'] = brandinnOrderCount;
             }
 
             // Render everything
-            renderStats(totalOrders, totalProducts, totalStores, totalSuppliers);
-            renderCharts(workspaceStats, allFusionOrders);
+            renderStats(totalOrders, totalProducts, totalClients, workspaces.length);
+            renderCharts(workspaceStats);
             renderActivities(activities);
             renderWorkspaces(workspaces);
             renderMapLocations(locations);
+            renderBrandInnStats(brandinnBusinessCount, brandinnOrderCount, brandinnFranchiseCount);
 
         }
 
-        function renderStats(orders, products, stores, suppliers) {
+        function renderStats(orders, products, clients, workspacesCount) {
             document.getElementById('statsGrid').innerHTML = `
                 <div class="stat-card">
                     <div class="stat-icon" style="background:#fef3c7;color:#ca8a04;"><i class="fas fa-shopping-cart"></i></div>
-                    <div>
-                        <div class="stat-value">${orders}</div>
-                        <div class="stat-label">Total Orders</div>
-                        <div class="stat-change up"><i class="fas fa-arrow-up"></i> Live data</div>
-                    </div>
+                    <div><div class="stat-value">${orders}</div><div class="stat-label">Total Orders</div></div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon" style="background:#ecfdf5;color:#059669;"><i class="fas fa-boxes"></i></div>
-                    <div>
-                        <div class="stat-value">${products}</div>
-                        <div class="stat-label">Products Listed</div>
-                        <div class="stat-change up">Across all workspaces</div>
-                    </div>
+                    <div><div class="stat-value">${products}</div><div class="stat-label">Products Listed</div></div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-icon" style="background:#eff6ff;color:#2563eb;"><i class="fas fa-store"></i></div>
-                    <div>
-                        <div class="stat-value">${stores}</div>
-                        <div class="stat-label">Stores & Clients</div>
-                        <div class="stat-change up">Active accounts</div>
-                    </div>
+                    <div class="stat-icon" style="background:#eff6ff;color:#2563eb;"><i class="fas fa-users"></i></div>
+                    <div><div class="stat-value">${clients}</div><div class="stat-label">Total Clients</div></div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-icon" style="background:#eef2ff;color:#4f46e5;"><i class="fas fa-truck"></i></div>
-                    <div>
-                        <div class="stat-value">${suppliers}</div>
-                        <div class="stat-label">Suppliers</div>
-                        <div class="stat-change up">Supply chain</div>
-                    </div>
+                    <div class="stat-icon" style="background:#eef2ff;color:#4f46e5;"><i class="fas fa-cubes"></i></div>
+                    <div><div class="stat-value">${workspacesCount}</div><div class="stat-label">Active Workspaces</div></div>
                 </div>
             `;
         }
 
-        function renderCharts(workspaceStats, recentOrders) {
-            // Destroy existing charts
+        function renderCharts(workspaceStats) {
             if (ordersChart) ordersChart.destroy();
             if (distributionChart) distributionChart.destroy();
-
-            // Orders Chart - Last 7 days mock data with real order timestamps
-            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-            const today = new Date();
-            const orderCounts = new Array(7).fill(0);
-            
-            recentOrders.forEach(([_, order]) => {
-                if (order.createdAt) {
-                    const orderDate = new Date(order.createdAt);
-                    const diffDays = Math.floor((today - orderDate) / (1000 * 60 * 60 * 24));
-                    if (diffDays >= 0 && diffDays < 7) {
-                        orderCounts[6 - diffDays]++;
-                    }
-                }
-            });
-
-            // Add some data if empty for visual appeal
-            if (orderCounts.every(c => c === 0)) {
-                orderCounts[0] = 2; orderCounts[1] = 5; orderCounts[2] = 3; 
-                orderCounts[3] = 8; orderCounts[4] = 4; orderCounts[5] = 6; orderCounts[6] = 1;
-            }
 
             const ctx1 = document.getElementById('ordersChart').getContext('2d');
             ordersChart = new Chart(ctx1, {
                 type: 'bar',
                 data: {
-                    labels: days.slice(today.getDay() + 1).concat(days.slice(0, today.getDay() + 1)),
+                    labels: ['Fusion', 'DSOG', 'Heritage', 'BrandInn'],
                     datasets: [{
                         label: 'Orders',
-                        data: orderCounts,
-                        backgroundColor: 'rgba(202, 138, 4, 0.6)',
-                        borderColor: '#ca8a04',
+                        data: [
+                            workspaceStats['Fusion Foods'] || 0,
+                            workspaceStats['DSOG Fashion'] || 0,
+                            workspaceStats['Heritage'] || 0,
+                            workspaceStats['BrandInn Print'] || 0
+                        ],
+                        backgroundColor: ['rgba(16,185,129,0.6)', 'rgba(236,72,153,0.6)', 'rgba(217,70,239,0.6)', 'rgba(139,92,246,0.6)'],
+                        borderColor: ['#10b981', '#ec4899', '#d946ef', '#8b5cf6'],
                         borderWidth: 2,
                         borderRadius: 8,
                         borderSkipped: false,
@@ -785,10 +759,9 @@
                 }
             });
 
-            // Distribution Chart
             const labels = Object.keys(workspaceStats);
             const data = Object.values(workspaceStats);
-            const colors = ['#ca8a04', '#10b981', '#8b5cf6', '#ec4899', '#3b82f6', '#d946ef'];
+            const colors = ['#10b981', '#ec4899', '#d946ef', '#8b5cf6'];
             
             const ctx2 = document.getElementById('distributionChart').getContext('2d');
             distributionChart = new Chart(ctx2, {
@@ -818,7 +791,7 @@
         function renderActivities(activities) {
             const container = document.getElementById('activityList');
             if (!activities.length) {
-                container.innerHTML = '<div class="empty-state"><i class="fas fa-clock"></i><p>No recent activity</p></div>';
+                container.innerHTML = '<div style="text-align:center;padding:1.5rem;color:var(--text-muted);"><i class="fas fa-clock"></i><p>No recent activity</p></div>';
                 return;
             }
 
@@ -828,9 +801,7 @@
                                    a.status === 'processing' ? 'badge-info' : 'badge-warning';
                 return `
                 <div class="activity-item">
-                    <div class="activity-icon" style="background:${a.iconBg};color:${a.iconColor};">
-                        <i class="fas ${a.icon}"></i>
-                    </div>
+                    <div class="activity-icon" style="background:${a.iconBg};color:${a.iconColor};"><i class="fas ${a.icon}"></i></div>
                     <div class="activity-content">
                         <div class="activity-title">${escapeHtml(a.title)}</div>
                         <div class="activity-meta">${escapeHtml(a.meta)}</div>
@@ -846,22 +817,18 @@
         function renderWorkspaces(workspaces) {
             const container = document.getElementById('workspaceList');
             if (!workspaces.length) {
-                container.innerHTML = '<div class="empty-state"><i class="fas fa-cubes"></i><p>No workspaces yet</p></div>';
+                container.innerHTML = '<div style="text-align:center;padding:1.5rem;color:var(--text-muted);"><i class="fas fa-cubes"></i><p>No workspaces yet</p></div>';
                 return;
             }
 
             container.innerHTML = workspaces.map(w => `
                 <a href="${w.link}" class="workspace-card">
-                    <div class="workspace-icon" style="background:${w.bgColor};color:${w.color};">
-                        <i class="fas ${w.icon}"></i>
-                    </div>
-                    <div class="workspace-info">
-                        <div class="workspace-name">${w.name}</div>
-                        <div class="workspace-desc">${w.desc}</div>
-                    </div>
+                    <div class="workspace-icon" style="background:${w.bgColor};color:${w.color};"><i class="fas ${w.icon}"></i></div>
+                    <div class="workspace-info"><div class="workspace-name">${w.name}</div><div class="workspace-desc">${w.desc}</div></div>
                     <div class="workspace-stat">
                         ${w.stats.orders !== undefined ? `<div class="number">${w.stats.orders}</div><div class="label">Orders</div>` : ''}
                         ${w.stats.listings !== undefined ? `<div class="number">${w.stats.listings}</div><div class="label">Listings</div>` : ''}
+                        ${w.stats.businesses !== undefined ? `<div class="number">${w.stats.businesses}</div><div class="label">Businesses</div>` : ''}
                     </div>
                 </a>
             `).join('');
@@ -882,20 +849,35 @@
             legend.innerHTML = uniqueLocations.map((loc, i) => `
                 <span class="map-legend-item">
                     <span class="map-legend-dot" style="background:${typeColors[loc.type] || '#ca8a04'};"></span>
-                    ${typeIcons[loc.type] || '📍'} ${escapeHtml(loc.name.substring(0, 12))}
+                    ${typeIcons[loc.type] || '📍'} ${escapeHtml(loc.name.substring(0, 15))}
                 </span>
             `).join('');
         }
 
+        function renderBrandInnStats(businesses, orders, franchises) {
+            document.getElementById('brandinnStats').innerHTML = `
+                <div class="brandinn-stat-item">
+                    <div class="brandinn-stat-value" style="color:#8b5cf6;">${businesses}</div>
+                    <div class="brandinn-stat-label">Registered Businesses</div>
+                </div>
+                <div class="brandinn-stat-item">
+                    <div class="brandinn-stat-value" style="color:#7c3aed;">${orders}</div>
+                    <div class="brandinn-stat-label">Print Orders</div>
+                </div>
+                <div class="brandinn-stat-item">
+                    <div class="brandinn-stat-value" style="color:#6366f1;">${franchises}</div>
+                    <div class="brandinn-stat-label">Franchises</div>
+                </div>
+            `;
+        }
+
         function setupLiveListeners() {
-            // Real-time listeners for live updates
             database.ref('fusion_foods_orders').on('child_added', () => {
                 document.querySelector('.live-dot').style.animation = 'none';
                 setTimeout(() => document.querySelector('.live-dot').style.animation = 'pulse-glow 2s infinite', 10);
-                refreshData();
+                loadAllData();
             });
-            
-            database.ref('fusion_foods_orders').on('child_changed', () => refreshData());
+            database.ref('fusion_foods_orders').on('child_changed', () => loadAllData());
         }
 
         function getTimeAgo(timestamp) {
@@ -912,7 +894,6 @@
         }
 
         function escapeHtml(t) { const d=document.createElement('div'); d.textContent=t||''; return d.innerHTML; }
-        function showLoading(s) { document.getElementById('loadingOverlay').classList.toggle('active',s); }
         
         function showToast(m, type='info') { 
             const t=document.createElement('div'); 
@@ -924,14 +905,14 @@
 
         window.refreshData = async () => {
             await loadAllData();
+            showToast('Dashboard refreshed!', 'success');
         };
 
         window.handleLogout = async () => { 
             if(confirm('Sign out?')) {
-                showLoading(true); 
                 database.ref('fusion_foods_orders').off();
                 await auth.signOut(); 
-                window.location.href='index.html'; 
+                window.location.href = 'index.html'; 
             }
         };
     </script>
