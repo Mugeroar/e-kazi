@@ -114,6 +114,7 @@
     .btn-success { background: var(--green); color: white; }
     .btn-success:hover { background: #059669; }
 
+    /* Screen view - cards */
     .price-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; }
 
     .price-card {
@@ -134,7 +135,6 @@
     .badge-discount { background: #fce7f3; color: #9d174d; }
 
     .price-details { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.7rem; margin-bottom: 0.8rem; }
-    .price-detail-item { }
     .price-detail-item label { display: block; font-size: 0.55rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 2px; }
     .price-detail-item .value { font-weight: 600; color: var(--text-primary); }
     .price-detail-item .value.current { font-size: 1.1rem; color: var(--pink-dark); }
@@ -152,6 +152,9 @@
     .btn-sync:hover { background: #10b981; color: white; }
 
     .empty-state { text-align: center; padding: 3rem; color: #94a3b8; grid-column: 1 / -1; }
+
+    /* Print-only table */
+    .print-table-container { display: none; }
 
     /* Modal */
     .modal-overlay {
@@ -187,18 +190,220 @@
     .toast.error { background: var(--red); }
     @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
-    /* Print Styles */
+    /* ==================== PRINT STYLES ==================== */
     @media print {
-      body { background: white; }
-      .navbar, .action-bar, .stats-row, .price-actions, .modal-overlay, .toast, .nav-btn, .btn { display: none !important; }
-      .container { padding: 0; max-width: 100%; }
-      .price-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
-      .price-card { break-inside: avoid; border: 1px solid #ddd; box-shadow: none; }
-      .page-header { margin-bottom: 10px; }
-      .page-header h1 { font-size: 18pt; }
-      .print-header { display: block !important; text-align: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #000; }
+      @page {
+        size: A4;
+        margin: 8mm;
+      }
+
+      body {
+        background: white !important;
+        font-size: 8pt;
+        color: #000;
+      }
+
+      /* Hide everything not needed for print */
+      .navbar,
+      .action-bar,
+      .stats-row,
+      .price-actions,
+      .modal-overlay,
+      .toast,
+      .nav-btn,
+      .btn,
+      .page-header .btn,
+      .page-header .week-info,
+      .filter-bar,
+      .search-box {
+        display: none !important;
+      }
+
+      /* Hide card grid */
+      .price-grid {
+        display: none !important;
+      }
+
+      /* Show print table */
+      .print-table-container {
+        display: block !important;
+        width: 100%;
+      }
+
+      .container {
+        padding: 0;
+        max-width: 100%;
+        margin: 0;
+      }
+
+      .page-header {
+        margin-bottom: 8px;
+        padding-bottom: 6px;
+        border-bottom: 2px solid #000;
+      }
+
+      .page-header h1 {
+        font-size: 14pt;
+        color: #000;
+      }
+
+      /* Print Header */
+      .print-header {
+        display: block !important;
+        text-align: center;
+        margin-bottom: 10px;
+      }
+
+      .print-header .company-name {
+        font-size: 16pt;
+        font-weight: 800;
+        color: #000;
+        margin-bottom: 2px;
+      }
+
+      .print-header .catalog-title {
+        font-size: 12pt;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 2px;
+      }
+
+      .print-header .valid-dates {
+        font-size: 9pt;
+        color: #666;
+        margin-bottom: 4px;
+      }
+
+      .print-header .contact-info {
+        font-size: 8pt;
+        color: #666;
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        flex-wrap: wrap;
+      }
+
+      /* Print Table */
+      .print-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 8pt;
+        page-break-inside: auto;
+      }
+
+      .print-table thead {
+        display: table-header-group;
+      }
+
+      .print-table th {
+        background: #fce7f3;
+        color: #000;
+        padding: 6px 8px;
+        text-align: left;
+        font-weight: 700;
+        font-size: 7.5pt;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom: 2px solid #db2777;
+      }
+
+      .print-table td {
+        padding: 5px 8px;
+        border-bottom: 1px solid #e5e7eb;
+        vertical-align: middle;
+      }
+
+      .print-table tr:nth-child(even) td {
+        background: #fdf2f8;
+      }
+
+      .print-table tr.special-row td {
+        background: #fffbeb;
+        font-weight: 600;
+      }
+
+      .print-table .product-name {
+        font-weight: 600;
+      }
+
+      .print-table .category-icon {
+        font-size: 10pt;
+      }
+
+      .print-table .price-current {
+        font-weight: 700;
+        color: #be185d;
+        font-size: 9pt;
+      }
+
+      .print-table .price-old {
+        text-decoration: line-through;
+        color: #999;
+        font-size: 7pt;
+      }
+
+      .print-table .discount-badge {
+        background: #fce7f3;
+        color: #9d174d;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 7pt;
+        font-weight: 700;
+        white-space: nowrap;
+      }
+
+      .print-table .special-badge {
+        background: #fef3c7;
+        color: #92400e;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 7pt;
+        font-weight: 700;
+        white-space: nowrap;
+      }
+
+      .print-table .stock-low {
+        color: #dc2626;
+        font-weight: 700;
+      }
+
+      .print-table .stock-out {
+        color: #999;
+      }
+
+      /* Print Footer */
+      .print-footer {
+        display: block !important;
+        margin-top: 15px;
+        padding-top: 8px;
+        border-top: 1px solid #e5e7eb;
+        font-size: 7pt;
+        color: #666;
+        text-align: center;
+      }
+
+      /* Category section headers */
+      .category-section-header {
+        background: #fce7f3;
+        font-weight: 700;
+        font-size: 9pt;
+        padding: 6px 8px;
+        border-bottom: 1px solid #db2777;
+      }
+
+      .category-section-header td {
+        padding: 6px 8px;
+      }
+
+      /* Prevent page breaks inside rows */
+      .print-table tr {
+        page-break-inside: avoid;
+      }
     }
+
+    /* Hide print elements on screen */
     .print-header { display: none; }
+    .print-footer { display: none; }
 
     @media (max-width: 768px) {
       .stats-row { grid-template-columns: repeat(2, 1fr); }
@@ -223,10 +428,14 @@
   <div class="container">
     <!-- Print Header (only visible when printing) -->
     <div class="print-header">
-      <h1 style="font-size:20pt;margin-bottom:5px;">🍽️ Fusion Foods</h1>
-      <p style="font-size:12pt;color:#666;">Weekly Price Catalog</p>
-      <p id="printDate" style="font-size:10pt;"></p>
-      <p style="font-size:9pt;margin-top:5px;">📞 Contact: +254 700 000000 | ✉️ orders@fusionfoods.co.ke</p>
+      <div class="company-name">🍽️ Fusion Foods</div>
+      <div class="catalog-title">Weekly Price Catalog</div>
+      <div class="valid-dates" id="printDate">Valid: Loading...</div>
+      <div class="contact-info">
+        <span>📞 +254 700 000000</span>
+        <span>✉️ orders@fusionfoods.co.ke</span>
+        <span>🌐 www.fusionfoods.co.ke</span>
+      </div>
     </div>
 
     <div class="page-header">
@@ -266,8 +475,18 @@
       </div>
     </div>
 
+    <!-- Screen View: Cards -->
     <div class="price-grid" id="priceGrid">
       <div class="empty-state"><i class="fas fa-spinner fa-spin"></i> Loading prices...</div>
+    </div>
+
+    <!-- Print View: Compact Table -->
+    <div class="print-table-container" id="printTableContainer"></div>
+
+    <!-- Print Footer -->
+    <div class="print-footer">
+      <p>Prices valid for the week indicated. Subject to availability. &copy; 2026 Fusion Foods. All rights reserved.</p>
+      <p>For orders: +254 700 000000 | orders@fusionfoods.co.ke</p>
     </div>
   </div>
 
@@ -304,6 +523,7 @@
       const dayOfWeek = now.getDay();
       const monday = new Date(now);
       monday.setDate(now.getDate() - dayOfWeek + 1);
+      if (dayOfWeek === 0) monday.setDate(monday.getDate() - 6);
       const sunday = new Date(monday);
       sunday.setDate(monday.getDate() + 6);
       
@@ -313,8 +533,10 @@
 
     function getWeekKey() {
       const now = new Date();
+      const dayOfWeek = now.getDay();
       const monday = new Date(now);
-      monday.setDate(now.getDate() - now.getDay() + 1);
+      monday.setDate(now.getDate() - dayOfWeek + 1);
+      if (dayOfWeek === 0) monday.setDate(monday.getDate() - 6);
       return monday.toISOString().split('T')[0];
     }
 
@@ -337,10 +559,18 @@
       return icons[category?.toLowerCase()] || '📦';
     }
 
+    function getCategoryName(category) {
+      const names = {
+        vegetables: 'Vegetables', meat: 'Meat & Protein', dairy: 'Dairy',
+        grains: 'Grains', spices: 'Spices', beverages: 'Beverages',
+        oils: 'Oils', bakery: 'Bakery', other: 'Other'
+      };
+      return names[category?.toLowerCase()] || category || 'Other';
+    }
+
     function mergeProductData() {
       const merged = {};
       
-      // Start with products catalog as base
       Object.entries(productsData).forEach(([id, product]) => {
         if (!product || !product.name) return;
         merged[id] = {
@@ -350,7 +580,6 @@
           unit: product.unit || 'unit',
           description: product.description || '',
           supplier: product.supplier || '',
-          imageUrl: product.imageUrl || '',
           isActive: product.isActive !== false,
           productPrice: product.unitPrice || 0,
           inventoryQty: 0,
@@ -362,10 +591,8 @@
         };
       });
 
-      // Overlay inventory data
       Object.entries(inventoryData).forEach(([id, inv]) => {
         if (!inv) return;
-        // Try to match by name if no direct ID match
         let matchedId = id;
         if (!merged[id]) {
           const match = Object.entries(merged).find(([_, p]) => 
@@ -380,7 +607,6 @@
         }
       });
 
-      // Overlay weekly prices
       const weekKey = getWeekKey();
       Object.entries(weeklyPrices).forEach(([id, wp]) => {
         if (!wp) return;
@@ -417,11 +643,19 @@
         products = products.filter(p => p.name.toLowerCase().includes(q));
       }
 
+      // Sort by category then name
+      products.sort((a, b) => {
+        if (a.category !== b.category) return a.category.localeCompare(b.category);
+        return a.name.localeCompare(b.name);
+      });
+
       if (!products.length) {
         grid.innerHTML = '<div class="empty-state"><i class="fas fa-tag" style="font-size:2rem;display:block;margin-bottom:8px;"></i>No products found</div>';
+        document.getElementById('printTableContainer').innerHTML = '';
         return;
       }
 
+      // Render cards for screen
       grid.innerHTML = products.map(p => {
         const currentPrice = getEffectivePrice(p);
         const hasDiscount = p.oldPrice && p.oldPrice > currentPrice;
@@ -446,23 +680,94 @@
                 <div class="value ${hasDiscount ? 'old' : ''}">KES ${(p.oldPrice || p.inventoryPrice || p.productPrice).toLocaleString()}/${p.unit}</div>
               </div>
               <div class="price-detail-item">
-                <label>Stock Available</label>
+                <label>Stock</label>
                 <div class="value" style="color:${p.inventoryQty > 10 ? '#059669' : p.inventoryQty > 0 ? '#d97706' : '#dc2626'}">${p.inventoryQty} ${p.unit}${p.inventoryQty !== 1 ? 's' : ''}</div>
               </div>
               <div class="price-detail-item">
                 <label>Category</label>
-                <div class="value">${p.category}</div>
+                <div class="value">${getCategoryName(p.category)}</div>
               </div>
             </div>
 
             <div class="price-actions">
               <button class="btn-sm btn-edit" onclick="updatePrice('${p.id}')"><i class="fas fa-edit"></i> Set Weekly Price</button>
-              <button class="btn-sm btn-sync" onclick="syncFromInventory('${p.id}')"><i class="fas fa-sync-alt"></i> Sync from Inventory</button>
+              <button class="btn-sm btn-sync" onclick="syncFromInventory('${p.id}')"><i class="fas fa-sync-alt"></i> Sync</button>
             </div>
           </div>`;
       }).join('');
 
+      // Render print table
+      renderPrintTable(products);
       updateStats();
+    }
+
+    function renderPrintTable(products) {
+      const container = document.getElementById('printTableContainer');
+      
+      if (!products.length) {
+        container.innerHTML = '';
+        return;
+      }
+
+      // Group by category for print
+      const grouped = {};
+      products.forEach(p => {
+        const cat = getCategoryName(p.category);
+        if (!grouped[cat]) grouped[cat] = [];
+        grouped[cat].push(p);
+      });
+
+      let html = '';
+      
+      Object.entries(grouped).forEach(([category, items]) => {
+        html += `
+          <table class="print-table">
+            <thead>
+              <tr>
+                <th colspan="6" class="category-section-header">${getCategoryIcon(items[0].category)} ${category} (${items.length} products)</th>
+              </tr>
+              <tr>
+                <th width="5%">#</th>
+                <th width="30%">Product</th>
+                <th width="12%">Unit</th>
+                <th width="18%">Price (KES)</th>
+                <th width="18%">Original</th>
+                <th width="17%">Stock</th>
+              </tr>
+            </thead>
+            <tbody>`;
+
+        items.forEach((p, index) => {
+          const currentPrice = getEffectivePrice(p);
+          const hasDiscount = p.oldPrice && p.oldPrice > currentPrice;
+          const discountPercent = hasDiscount ? Math.round(((p.oldPrice - currentPrice) / p.oldPrice) * 100) : 0;
+          const rowClass = p.isSpecial ? 'special-row' : '';
+          const stockClass = p.inventoryQty <= 0 ? 'stock-out' : p.inventoryQty <= 10 ? 'stock-low' : '';
+          const originalPrice = p.oldPrice || p.inventoryPrice || p.productPrice || 0;
+
+          html += `
+            <tr class="${rowClass}">
+              <td>${index + 1}</td>
+              <td>
+                <span class="product-name">${p.name}</span>
+                ${p.isSpecial ? '<br><span class="special-badge">⭐ Special Offer</span>' : ''}
+                ${hasDiscount ? `<br><span class="discount-badge">-${discountPercent}% OFF</span>` : ''}
+              </td>
+              <td>${p.unit || 'unit'}</td>
+              <td><span class="price-current">KES ${currentPrice.toLocaleString()}</span></td>
+              <td>
+                ${hasDiscount ? `<span class="price-old">KES ${originalPrice.toLocaleString()}</span>` : '—'}
+              </td>
+              <td class="${stockClass}">
+                ${p.inventoryQty <= 0 ? 'Out of Stock' : `${p.inventoryQty} ${p.unit || 'units'}`}
+              </td>
+            </tr>`;
+        });
+
+        html += '</tbody></table><br>';
+      });
+
+      container.innerHTML = html;
     }
 
     function updateStats() {
@@ -472,12 +777,13 @@
       const avgPrice = prices.length ? Math.round(prices.reduce((a, b) => a + b, 0) / prices.length) : 0;
       
       const weekKey = getWeekKey();
-      const lastUpdate = weeklyPrices['_metadata']?.[weekKey]?.updatedAt;
+      const weekPrices = weeklyPrices[weekKey] || {};
+      const lastUpdate = Object.values(weekPrices).find(wp => wp && wp.updatedAt);
       
       document.getElementById('statTotal').textContent = products.length;
       document.getElementById('statSpecials').textContent = specials;
       document.getElementById('statAvgPrice').textContent = avgPrice.toLocaleString();
-      document.getElementById('statUpdated').textContent = lastUpdate ? new Date(lastUpdate).toLocaleDateString() : 'Never';
+      document.getElementById('statUpdated').textContent = lastUpdate ? new Date(lastUpdate.updatedAt).toLocaleDateString() : 'Never';
       document.getElementById('weekRange').textContent = getWeekRange();
       document.getElementById('printDate').textContent = `Valid: ${getWeekRange()}`;
     }
@@ -543,7 +849,6 @@
           updatedAt: firebase.database.ServerValue.TIMESTAMP
         });
         
-        // Update metadata
         await database.ref(`fusion_foods_weekly_prices/_metadata/${weekKey}`).update({
           updatedAt: firebase.database.ServerValue.TIMESTAMP,
           totalProducts: Object.keys(weeklyPrices[weekKey] || {}).length
@@ -738,13 +1043,11 @@
 
     const weekKey = getWeekKey();
     database.ref(`fusion_foods_weekly_prices/${weekKey}`).on('value', (snapshot) => {
-      const weekData = {};
-      weekData[weekKey] = snapshot.val() || {};
-      weeklyPrices = weekData;
+      weeklyPrices = {};
+      weeklyPrices[weekKey] = snapshot.val() || {};
       renderPriceGrid();
     });
 
-    // Also listen for metadata changes
     database.ref('fusion_foods_weekly_prices/_metadata').on('value', (snapshot) => {
       const meta = snapshot.val() || {};
       if (meta[weekKey]) {
@@ -754,7 +1057,7 @@
 
     auth.onAuthStateChanged((user) => { if (!user) window.location.href = '/'; });
     
-    // Initialize week display
+    // Initialize
     document.getElementById('weekRange').textContent = getWeekRange();
     document.getElementById('printDate').textContent = `Valid: ${getWeekRange()}`;
     
