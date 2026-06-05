@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <meta name="theme-color" content="#ca8a04">
     <meta name="color-scheme" content="light">
-    <title>E-KAZI · Resources</title>
+    <title>KazInni · Resources</title>
     <link rel="icon" type="image/x-icon" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview-1.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -31,6 +31,8 @@
             --danger: #ef4444;
             --info: #3b82f6;
             --purple: #8b5cf6;
+            --emerald: #059669;
+            --pink: #ec4899;
             
             --bg-primary: #ffffff;
             --bg-secondary: #faf9f7;
@@ -50,7 +52,6 @@
             --nav-bg: rgba(255,255,255,0.98);
             --card-bg: #ffffff;
             --input-bg: #ffffff;
-            --toast-bg: #ffffff;
             
             --header-height: 80px;
             
@@ -67,12 +68,34 @@
 
         body {
             font-family: var(--font-body);
-            background: var(--bg-secondary);
+            background: linear-gradient(180deg, #fffbeb 0%, #ffffff 15%, #faf9f7 100%);
             color: var(--text-primary);
             line-height: 1.6;
             min-height: 100vh;
             -webkit-font-smoothing: antialiased;
         }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        
+        .skeleton {
+            background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s ease-in-out infinite;
+            border-radius: 8px;
+        }
+        
+        .skeleton-card {
+            background: var(--card-bg); border: 1px solid var(--border-light);
+            border-radius: 18px; overflow: hidden; box-shadow: var(--shadow-sm);
+        }
+        .skeleton-image { height: 140px; border-radius: 0; }
+        .skeleton-title { height: 1rem; width: 75%; margin-bottom: 0.5rem; }
+        .skeleton-desc { height: 0.8rem; width: 100%; margin-bottom: 0.3rem; }
+        .skeleton-desc-sm { height: 0.8rem; width: 60%; margin-bottom: 0.8rem; }
+        .skeleton-link { height: 0.9rem; width: 50%; }
 
         .site-header {
             position: fixed; top: 0; width: 100%; height: var(--header-height);
@@ -80,7 +103,7 @@
             border-bottom: 1px solid rgba(202,138,4,0.08); z-index: 1000; padding: 0 2.5rem;
         }
         .header-container {
-            max-width: 1280px; height: 100%; margin: 0 auto;
+            max-width: 1400px; height: 100%; margin: 0 auto;
             display: flex; align-items: center; justify-content: space-between;
         }
         .logo { display: flex; align-items: center; gap: 0.85rem; }
@@ -109,7 +132,7 @@
             display: flex; align-items: center; gap: 0.5rem;
             background: var(--bg-card); border: 1px solid var(--border-light);
             border-radius: 60px; padding: 0.3rem 0.5rem 0.3rem 1rem;
-            transition: all 0.25s;
+            cursor: pointer; position: relative; transition: all 0.25s;
         }
         .user-menu:hover { border-color: var(--gold); box-shadow: var(--shadow-md); }
         .user-name {
@@ -122,61 +145,43 @@
             border-radius: 50%; display: flex; align-items: center;
             justify-content: center; font-weight: 700; font-family: var(--font-heading);
         }
-        .logout-btn-header {
-            width: 36px; height: 36px; border-radius: 50%;
-            border: 1px solid var(--border-light); background: var(--bg-card);
-            color: var(--text-muted); cursor: pointer; display: flex;
-            align-items: center; justify-content: center;
-            transition: all 0.2s; font-size: 0.85rem;
+        .user-dropdown {
+            position: absolute; top: calc(100% + 10px); right: 0;
+            background: var(--card-bg); border: 1px solid var(--border-light);
+            border-radius: 16px; padding: 0.5rem; min-width: 180px;
+            opacity: 0; visibility: hidden;
+            transform: translateY(-10px); transition: all 0.2s ease;
+            z-index: 1001; box-shadow: var(--shadow-lg);
         }
-        .logout-btn-header:hover {
-            background: var(--danger); color: white; border-color: var(--danger);
+        .user-menu:hover .user-dropdown { opacity: 1; visibility: visible; transform: translateY(0); }
+        .dropdown-item {
+            padding: 0.7rem 1rem; color: var(--text-secondary);
+            border-radius: 12px; display: flex; align-items: center; gap: 0.5rem;
+            cursor: pointer; font-size: 0.9rem; font-family: var(--font-body);
+            transition: all 0.2s; border: none; background: none; width: 100%;
         }
+        .dropdown-item:hover { background: var(--bg-secondary); }
+        .dropdown-item.danger:hover { color: var(--danger); }
 
         .main-content {
-            max-width: 1280px; margin: calc(var(--header-height) + 2rem) auto 2rem;
+            max-width: 1400px; margin: calc(var(--header-height) + 2rem) auto 2rem;
             padding: 0 2.5rem;
         }
-
-        .login-required {
-            text-align: center; padding: 4rem;
-            background: var(--card-bg); border: 1px solid var(--border-light);
-            border-radius: 32px; box-shadow: var(--shadow-sm);
-        }
-        .login-required i { font-size: 4rem; color: var(--gold); margin-bottom: 1.5rem; }
-        .login-required h2 {
-            font-size: 2rem; margin-bottom: 0.5rem; color: var(--text-primary);
-            font-family: var(--font-display);
-        }
-
-        .btn {
-            padding: 0.75rem 1.8rem; border: none; border-radius: 50px;
-            font-weight: 600; font-size: 0.9rem; cursor: pointer;
-            display: inline-flex; align-items: center; gap: 0.5rem;
-            transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
-            font-family: var(--font-heading); letter-spacing: -0.2px;
-        }
-        .btn-primary {
-            background: var(--gold-gradient); color: white;
-            box-shadow: var(--shadow-gold);
-        }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 36px rgba(202,138,4,0.3); }
 
         .page-header {
             text-align: center; margin-bottom: 2rem;
         }
         .page-header h1 {
-            font-size: 2.5rem; font-weight: 800; color: var(--text-primary);
-            margin-bottom: 0.5rem; font-family: var(--font-display);
+            font-size: 2.2rem; font-weight: 800; color: var(--text-primary);
+            margin-bottom: 0.3rem; font-family: var(--font-display);
             letter-spacing: -0.02em;
         }
         .page-header h1 i { color: var(--gold); margin-right: 0.5rem; }
         .page-header p {
-            color: var(--text-muted); font-size: 1.1rem; max-width: 600px;
+            color: var(--text-muted); font-size: 1rem; max-width: 600px;
             margin: 0 auto;
         }
 
-        /* Search Container */
         .search-container {
             max-width: 600px; margin: 2rem auto; position: relative; z-index: 100;
         }
@@ -205,7 +210,6 @@
         }
         .search-clear:hover { background: var(--bg-secondary); color: var(--danger); }
 
-        /* Search Results Dropdown */
         .search-results-dropdown {
             position: absolute; top: calc(100% + 8px); left: 0; right: 0;
             background: var(--bg-card); border: 1px solid var(--border-light);
@@ -284,12 +288,14 @@
             border-radius: 18px; overflow: hidden; box-shadow: var(--shadow-sm);
             transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
             display: flex; flex-direction: column; cursor: pointer;
-            max-width: 300px; margin: 0 auto; width: 100%;
         }
         .resource-card:hover {
-            transform: translateY(-4px); border-color: var(--gold);
-            box-shadow: var(--shadow-lg);
+            transform: translateY(-4px); box-shadow: var(--shadow-lg);
         }
+        .guides-section .resource-card:hover { border-color: var(--guide-color); }
+        .training-section .resource-card:hover { border-color: var(--training-color); }
+        .tools-section .resource-card:hover { border-color: var(--tool-color); }
+        .references-section .resource-card:hover { border-color: var(--reference-color); }
         .card-image {
             width: 100%; height: 140px; background: var(--bg-secondary);
             position: relative; overflow: hidden;
@@ -328,31 +334,12 @@
         }
         .card-link:hover { gap: 0.6rem; color: var(--gold-dark); }
 
-        .guides-section .resource-card:hover { border-color: var(--guide-color); }
-        .training-section .resource-card:hover { border-color: var(--training-color); }
-        .tools-section .resource-card:hover { border-color: var(--tool-color); }
-        .references-section .resource-card:hover { border-color: var(--reference-color); }
-
         .empty-section {
             text-align: center; padding: 3rem;
             background: var(--bg-secondary); border-radius: 20px;
             border: 1px dashed var(--border-medium); grid-column: 1 / -1;
         }
         .empty-section i { font-size: 3rem; color: var(--gold); margin-bottom: 1rem; opacity: 0.4; }
-
-        .loading-overlay {
-            position: fixed; top:0;left:0;width:100%;height:100%;
-            background: rgba(255,255,255,0.9); backdrop-filter: blur(4px);
-            display: flex; align-items: center; justify-content: center;
-            z-index: 3000; opacity: 0; visibility: hidden; transition: 0.2s;
-        }
-        .loading-overlay.active { opacity: 1; visibility: visible; }
-        .loading-spinner {
-            width: 40px; height: 40px; border: 3px solid var(--border-light);
-            border-top-color: var(--gold); border-radius: 50%;
-            animation: spin 0.6s linear infinite;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
 
         .toast-container { position: fixed; top:20px; right:20px; z-index:4000; }
         .toast {
@@ -372,60 +359,50 @@
 
         @media (max-width: 1024px) {
             .cards-grid { grid-template-columns: repeat(3, 1fr); }
-            .resource-card { max-width: 100%; }
         }
         @media (max-width: 768px) {
             .cards-grid { grid-template-columns: repeat(2, 1fr); }
-            .page-header h1 { font-size: 2rem; }
+            .page-header h1 { font-size: 1.8rem; }
             .nav-links { display: none; }
-            .resource-card { max-width: 100%; }
+            .main-content { padding: 0 1rem; }
         }
         @media (max-width: 480px) {
             .cards-grid { grid-template-columns: 1fr; }
-            .resource-card { max-width: 320px; }
         }
     </style>
 </head>
 <body>
-<div class="loading-overlay" id="loadingOverlay"><div class="loading-spinner"></div></div>
 <div class="toast-container" id="toastContainer"></div>
 
 <header class="site-header">
     <div class="header-container">
         <div class="logo">
-            <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview-1.png" alt="E-KAZI">
-            <span>E-KAZI</span>
+            <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview-1.png" alt="KazInni">
+            <span>KazInni</span>
         </div>
         <nav class="nav-links">
-            <a href="tasker-dashboard.html" class="nav-link">Dashboard</a>
-            <a href="tasker-profile.html" class="nav-link">Profile</a>
-            <a href="workspaces.html" class="nav-link">Workspace</a>
-            <a href="tasker-resource.html" class="nav-link active">Resources</a>
+            <a href="dashboard.html" class="nav-link">Dashboard</a>
+            <a href="profile.html" class="nav-link">Profile</a>
+            <a href="workspaces.html" class="nav-link">Workspaces</a>
+            <a href="resources.html" class="nav-link active">Resources</a>
         </nav>
-        <div class="user-menu">
+        <div class="user-menu" id="userMenu">
             <span class="user-name" id="userDisplayName">Loading...</span>
-            <div class="user-avatar" id="userAvatar">T</div>
-            <button class="logout-btn-header" onclick="handleLogout()" title="Sign Out">
-                <i class="fas fa-sign-out-alt"></i>
-            </button>
+            <div class="user-avatar" id="userAvatar">K</div>
+            <div class="user-dropdown">
+                <a href="profile.html" class="dropdown-item"><i class="fas fa-user"></i> View Profile</a>
+                <button class="dropdown-item" onclick="refreshData()"><i class="fas fa-sync-alt"></i> Refresh</button>
+                <button class="dropdown-item danger" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
+            </div>
         </div>
     </div>
 </header>
 
 <main class="main-content">
-    <div id="loginRequired" style="display:none;">
-        <div class="login-required">
-            <i class="fas fa-user-lock"></i>
-            <h2>Login Required</h2>
-            <p>Please sign in to access resources</p>
-            <button class="btn btn-primary" onclick="window.location.href='index.html'">Go to Login</button>
-        </div>
-    </div>
-
-    <div id="resourcesContent" style="display:none;">
+    <div id="resourcesContent">
         <div class="page-header">
             <h1><i class="fas fa-book-open"></i> Resources & Learning</h1>
-            <p>Everything you need to succeed on E-KAZI</p>
+            <p>Business guides, tools, and reference materials for your workspaces</p>
         </div>
 
         <!-- Search Bar with Dropdown -->
@@ -444,40 +421,64 @@
             <div class="search-results-dropdown" id="searchDropdown"></div>
         </div>
 
+        <!-- Guides Section -->
         <section class="resources-section guides-section">
             <div class="section-header">
                 <div class="section-icon guides"><i class="fas fa-graduation-cap"></i></div>
                 <h2>Guides & Tutorials</h2>
             </div>
-            <p class="section-description">Step-by-step guides to help you master tasks</p>
-            <div class="cards-grid" id="guidesContainer"></div>
+            <p class="section-description">Step-by-step guides for workspace operations</p>
+            <div class="cards-grid" id="guidesContainer">
+                <div class="skeleton-card"><div class="skeleton skeleton-image"></div><div style="padding:1.2rem 1.3rem;"><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-desc"></div><div class="skeleton skeleton-desc-sm"></div><div class="skeleton skeleton-link"></div></div></div>
+                <div class="skeleton-card"><div class="skeleton skeleton-image"></div><div style="padding:1.2rem 1.3rem;"><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-desc"></div><div class="skeleton skeleton-desc-sm"></div><div class="skeleton skeleton-link"></div></div></div>
+                <div class="skeleton-card"><div class="skeleton skeleton-image"></div><div style="padding:1.2rem 1.3rem;"><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-desc"></div><div class="skeleton skeleton-desc-sm"></div><div class="skeleton skeleton-link"></div></div></div>
+                <div class="skeleton-card"><div class="skeleton skeleton-image"></div><div style="padding:1.2rem 1.3rem;"><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-desc"></div><div class="skeleton skeleton-desc-sm"></div><div class="skeleton skeleton-link"></div></div></div>
+            </div>
         </section>
 
+        <!-- Training Section -->
         <section class="resources-section training-section">
             <div class="section-header">
                 <div class="section-icon training"><i class="fas fa-video"></i></div>
                 <h2>Training Materials</h2>
             </div>
-            <p class="section-description">Video courses and interactive materials</p>
-            <div class="cards-grid" id="trainingContainer"></div>
+            <p class="section-description">Video courses and interactive training</p>
+            <div class="cards-grid" id="trainingContainer">
+                <div class="skeleton-card"><div class="skeleton skeleton-image"></div><div style="padding:1.2rem 1.3rem;"><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-desc"></div><div class="skeleton skeleton-desc-sm"></div><div class="skeleton skeleton-link"></div></div></div>
+                <div class="skeleton-card"><div class="skeleton skeleton-image"></div><div style="padding:1.2rem 1.3rem;"><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-desc"></div><div class="skeleton skeleton-desc-sm"></div><div class="skeleton skeleton-link"></div></div></div>
+                <div class="skeleton-card"><div class="skeleton skeleton-image"></div><div style="padding:1.2rem 1.3rem;"><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-desc"></div><div class="skeleton skeleton-desc-sm"></div><div class="skeleton skeleton-link"></div></div></div>
+                <div class="skeleton-card"><div class="skeleton skeleton-image"></div><div style="padding:1.2rem 1.3rem;"><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-desc"></div><div class="skeleton skeleton-desc-sm"></div><div class="skeleton skeleton-link"></div></div></div>
+            </div>
         </section>
 
+        <!-- Tools Section -->
         <section class="resources-section tools-section">
             <div class="section-header">
                 <div class="section-icon tools"><i class="fas fa-tools"></i></div>
                 <h2>Working Tools</h2>
             </div>
-            <p class="section-description">Essential tools for efficient work</p>
-            <div class="cards-grid" id="toolsContainer"></div>
+            <p class="section-description">Essential tools for business operations</p>
+            <div class="cards-grid" id="toolsContainer">
+                <div class="skeleton-card"><div class="skeleton skeleton-image"></div><div style="padding:1.2rem 1.3rem;"><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-desc"></div><div class="skeleton skeleton-desc-sm"></div><div class="skeleton skeleton-link"></div></div></div>
+                <div class="skeleton-card"><div class="skeleton skeleton-image"></div><div style="padding:1.2rem 1.3rem;"><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-desc"></div><div class="skeleton skeleton-desc-sm"></div><div class="skeleton skeleton-link"></div></div></div>
+                <div class="skeleton-card"><div class="skeleton skeleton-image"></div><div style="padding:1.2rem 1.3rem;"><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-desc"></div><div class="skeleton skeleton-desc-sm"></div><div class="skeleton skeleton-link"></div></div></div>
+                <div class="skeleton-card"><div class="skeleton skeleton-image"></div><div style="padding:1.2rem 1.3rem;"><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-desc"></div><div class="skeleton skeleton-desc-sm"></div><div class="skeleton skeleton-link"></div></div></div>
+            </div>
         </section>
 
+        <!-- References Section -->
         <section class="resources-section references-section">
             <div class="section-header">
                 <div class="section-icon references"><i class="fas fa-link"></i></div>
                 <h2>Reference Points</h2>
             </div>
-            <p class="section-description">Useful links and templates</p>
-            <div class="cards-grid" id="referencesContainer"></div>
+            <p class="section-description">Useful links, templates, and documentation</p>
+            <div class="cards-grid" id="referencesContainer">
+                <div class="skeleton-card"><div class="skeleton skeleton-image"></div><div style="padding:1.2rem 1.3rem;"><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-desc"></div><div class="skeleton skeleton-desc-sm"></div><div class="skeleton skeleton-link"></div></div></div>
+                <div class="skeleton-card"><div class="skeleton skeleton-image"></div><div style="padding:1.2rem 1.3rem;"><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-desc"></div><div class="skeleton skeleton-desc-sm"></div><div class="skeleton skeleton-link"></div></div></div>
+                <div class="skeleton-card"><div class="skeleton skeleton-image"></div><div style="padding:1.2rem 1.3rem;"><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-desc"></div><div class="skeleton skeleton-desc-sm"></div><div class="skeleton skeleton-link"></div></div></div>
+                <div class="skeleton-card"><div class="skeleton skeleton-image"></div><div style="padding:1.2rem 1.3rem;"><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-desc"></div><div class="skeleton skeleton-desc-sm"></div><div class="skeleton skeleton-link"></div></div></div>
+            </div>
         </section>
     </div>
 </main>
@@ -487,10 +488,7 @@
         apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
         authDomain: "mugera-e51cc.firebaseapp.com",
         databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
-        projectId: "mugera-e51cc",
-        storageBucket: "mugera-e51cc.firebasestorage.app",
-        messagingSenderId: "1024868637509",
-        appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
+        projectId: "mugera-e51cc"
     };
 
     firebase.initializeApp(firebaseConfig);
@@ -499,7 +497,6 @@
     auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 
     let currentUser = null;
-    let currentTasker = null;
     const resources = { guides: [], training: [], tools: [], references: [] };
     const allResources = [];
 
@@ -510,10 +507,6 @@
         return div.innerHTML;
     }
 
-    function showLoading(show) {
-        document.getElementById('loadingOverlay').classList.toggle('active', show);
-    }
-
     function showToast(message, type = 'info') {
         const container = document.getElementById('toastContainer');
         const toast = document.createElement('div');
@@ -522,12 +515,6 @@
         toast.innerHTML = `<i class="fas fa-${icons[type] || 'info-circle'}"></i><span>${escapeHtml(message)}</span>`;
         container.appendChild(toast);
         setTimeout(() => toast.remove(), 3000);
-    }
-
-    function updateUserUI() {
-        const name = currentTasker?.name || (currentUser?.email ? currentUser.email.split('@')[0] : 'Tasker');
-        document.getElementById('userDisplayName').textContent = name;
-        document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
     }
 
     function openResourceLink(link) {
@@ -582,7 +569,6 @@
         document.getElementById('searchInput').focus();
     }
 
-    // Close dropdown when clicking outside
     document.addEventListener('click', function(e) {
         const searchContainer = document.querySelector('.search-container');
         if (!searchContainer.contains(e.target)) {
@@ -595,16 +581,15 @@
             ? `<img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.title)}" loading="lazy">`
             : `<div class="image-placeholder"><i class="fas fa-${placeholderIcon}"></i></div>`;
         
+        const linkLabels = { book: 'Access Guide', video: 'Start Learning', tools: 'Access Tool', link: 'View Reference' };
+        
         return `
             <div class="resource-card" onclick="openResourceLink('${escapeHtml(item.link)}')">
                 <div class="card-image">${imageHtml}</div>
                 <div class="card-content">
                     <h3 class="card-title">${escapeHtml(item.title)}</h3>
                     <p class="card-description">${escapeHtml(item.description)}</p>
-                    <span class="card-link">
-                        ${placeholderIcon === 'book' ? 'Access Guide' : placeholderIcon === 'video' ? 'Start Learning' : placeholderIcon === 'tools' ? 'Access Tool' : 'View Reference'}
-                        <i class="fas fa-arrow-right"></i>
-                    </span>
+                    <span class="card-link">${linkLabels[placeholderIcon] || 'View Resource'} <i class="fas fa-arrow-right"></i></span>
                 </div>
             </div>
         `;
@@ -616,7 +601,7 @@
         
         if (!items || items.length === 0) {
             const iconMap = { guidesContainer: 'book', trainingContainer: 'video', toolsContainer: 'tools', referencesContainer: 'link' };
-            container.innerHTML = `<div class="empty-section"><i class="fas fa-${iconMap[containerId]}"></i><h3>No items yet</h3></div>`;
+            container.innerHTML = `<div class="empty-section"><i class="fas fa-${iconMap[containerId]}"></i><h3>No items yet</h3><p>Resources will appear here once added</p></div>`;
             return;
         }
 
@@ -624,7 +609,6 @@
     }
 
     async function loadResources() {
-        showLoading(true);
         try {
             const paths = [
                 { ref: 'resources/guides', key: 'guides', type: 'guides' },
@@ -647,42 +631,37 @@
             renderSection('referencesContainer', resources.references, 'link');
         } catch (error) {
             showToast('Failed to load resources', 'error');
-        } finally {
-            showLoading(false);
         }
     }
 
-    async function loadUserData(user) {
-        try {
-            const snapshot = await database.ref(`taskers/${user.uid}`).once('value');
-            currentTasker = snapshot.exists() ? snapshot.val() : {
-                name: user.displayName || (user.email ? user.email.split('@')[0] : 'Tasker'),
-                email: user.email
-            };
-            updateUserUI();
-        } catch (e) {
-            currentTasker = { name: user.email?.split('@')[0] || 'Tasker' };
-            updateUserUI();
-        }
-    }
-
-    function showLoginRequired() {
-        document.getElementById('loginRequired').style.display = 'block';
-        document.getElementById('resourcesContent').style.display = 'none';
-    }
-    function showResourcesContent() {
-        document.getElementById('loginRequired').style.display = 'none';
-        document.getElementById('resourcesContent').style.display = 'block';
-    }
+    window.refreshData = async function() {
+        allResources.length = 0;
+        await loadResources();
+        document.getElementById('searchInput').value = '';
+        document.getElementById('searchClear').style.display = 'none';
+        document.getElementById('searchDropdown').classList.remove('active');
+        showToast('Resources refreshed!', 'success');
+    };
 
     window.handleLogout = async function() {
-        try { showLoading(true); await auth.signOut(); window.location.href = 'index.html'; }
-        catch (error) { showToast('Logout failed', 'error'); showLoading(false); }
+        if(confirm('Sign out?')) {
+            await auth.signOut();
+            window.location.href = 'index.html';
+        }
     };
 
     auth.onAuthStateChanged(async (user) => {
-        if (user) { currentUser = user; await loadUserData(user); await loadResources(); showResourcesContent(); }
-        else { showLoginRequired(); }
+        if (user) {
+            currentUser = user;
+            const userSnap = await database.ref(`brandinn_users/${user.uid}`).once('value');
+            const userData = userSnap.exists() ? userSnap.val() : {};
+            const name = userData.name || user.displayName || user.email?.split('@')[0] || 'User';
+            document.getElementById('userDisplayName').textContent = name;
+            document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
+            await loadResources();
+        } else {
+            window.location.href = 'index.html';
+        }
     });
 </script>
 </body>
