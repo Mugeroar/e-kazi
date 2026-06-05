@@ -27,6 +27,7 @@
       --orange: #f59e0b;
       --blue: #3b82f6;
       --purple: #7c3aed;
+      --indigo: #6366f1;
     }
 
     body {
@@ -127,6 +128,12 @@
     .status-shipped { background: #ede9fe; color: #5b21b6; }
     .status-delivered { background: #d1fae5; color: #065f46; }
 
+    .pickup-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: #eef2ff; color: #4f46e5; padding: 2px 8px;
+      border-radius: 10px; font-size: 0.6rem; font-weight: 600;
+    }
+
     .action-btns { display: flex; gap: 4px; flex-wrap: wrap; }
     .action-btn {
       padding: 0.25rem 0.5rem; border-radius: 6px; border: none; font-size: 0.6rem;
@@ -154,7 +161,7 @@
     }
     .modal-overlay.show { display: flex; }
     .modal {
-      background: white; border-radius: 20px; padding: 1.5rem; max-width: 500px;
+      background: white; border-radius: 20px; padding: 1.5rem; max-width: 550px;
       width: 95%; max-height: 85vh; overflow-y: auto; box-shadow: 0 25px 50px rgba(0,0,0,0.2);
     }
     .modal h3 { font-size: 0.95rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px; color: var(--green-dark); }
@@ -168,6 +175,7 @@
       border: 1.5px solid #e2e8f0; font-size: 0.8rem; font-family: 'Inter', sans-serif;
       background: #f8fafc;
     }
+    .form-group select { cursor: pointer; }
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
     .btn-row { display: flex; gap: 8px; margin-top: 1rem; }
     .btn {
@@ -204,6 +212,7 @@
     <div class="nav-right">
       <a href="/workspaces/fusion-foods/index.html" class="nav-btn"><i class="fas fa-arrow-left"></i> Dashboard</a>
       <a href="/workspaces/fusion-foods/orders.html" class="nav-btn"><i class="fas fa-inbox"></i> Orders</a>
+      <a href="/workspaces/fusion-foods/suppliers.html" class="nav-btn"><i class="fas fa-people-carry"></i> Suppliers</a>
       <a href="/workspaces/fusion-foods/new-order.html" class="nav-btn"><i class="fas fa-plus"></i> New Order</a>
     </div>
   </nav>
@@ -230,7 +239,7 @@
       <button class="filter-btn" data-filter="delivered">Delivered<span class="count" id="countDelivered">0</span></button>
       <div class="search-box">
         <i class="fas fa-search"></i>
-        <input type="text" id="searchInput" placeholder="Search restaurant, driver...">
+        <input type="text" id="searchInput" placeholder="Search restaurant, driver, pickup...">
       </div>
     </div>
 
@@ -241,6 +250,7 @@
             <tr>
               <th>Order ID</th>
               <th>Restaurant</th>
+              <th>Pickup From</th>
               <th>Items</th>
               <th>Total</th>
               <th>Driver</th>
@@ -249,7 +259,7 @@
             </tr>
           </thead>
           <tbody id="tableBody">
-            <tr class="empty-row"><td colspan="7">Loading orders...</td></tr>
+            <tr class="empty-row"><td colspan="8">Loading orders...</td></tr>
           </tbody>
         </table>
       </div>
@@ -280,6 +290,7 @@
 
     let allOrders = {};
     let allDrivers = {};
+    let allSuppliers = {};
     let currentFilter = 'all';
     let searchQuery = '';
 
@@ -306,6 +317,34 @@
     function getStatusClass(status) {
       const map = { confirmed:'status-confirmed', processing:'status-processing', ready:'status-ready', shipped:'status-shipped', delivered:'status-delivered' };
       return map[status] || 'status-confirmed';
+    }
+
+    function getSupplierName(supplierId) {
+      if (!supplierId) return '—';
+      const supplier = allSuppliers[supplierId];
+      return supplier ? supplier.name : 'Unknown';
+    }
+
+    function getSupplierOptions(selectedId = '') {
+      const suppliers = Object.entries(allSuppliers)
+        .filter(([_, s]) => s && s.name && s.status !== 'inactive')
+        .sort((a, b) => a[1].name.localeCompare(b[1].name));
+      
+      let options = '<option value="">— Select pickup location —</option>';
+      suppliers.forEach(([id, s]) => {
+        const selected = id === selectedId ? 'selected' : '';
+        const icon = getCategoryIcon(s.category);
+        options += `<option value="${id}" ${selected}>${icon} ${s.name} - ${s.location || 'No address'}</option>`;
+      });
+      return options;
+    }
+
+    function getCategoryIcon(category) {
+      const icons = {
+        vegetables: '🥬', meat: '🥩', dairy: '🥛', grains: '🌾',
+        spices: '🌶️', beverages: '🥤', oils: '🫒', bakery: '🍞', other: '📦'
+      };
+      return icons[category?.toLowerCase()] || '📦';
     }
 
     function updateStats() {
@@ -339,14 +378,15 @@
         const q = searchQuery.toLowerCase();
         orders = orders.filter(o => 
           (o.restaurantName || '').toLowerCase().includes(q) ||
-          (o.driverName || o.assignedDriver || '').toLowerCase().includes(q)
+          (o.driverName || o.assignedDriver || '').toLowerCase().includes(q) ||
+          (getSupplierName(o.pickupSupplierId) || '').toLowerCase().includes(q)
         );
       }
       
       orders.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
       
       if (!orders.length) {
-        tableBody.innerHTML = '<tr class="empty-row"><td colspan="7"><i class="fas fa-box-open" style="font-size:2rem;display:block;margin-bottom:8px;"></i>No orders to dispatch</td></tr>';
+        tableBody.innerHTML = '<tr class="empty-row"><td colspan="8"><i class="fas fa-box-open" style="font-size:2rem;display:block;margin-bottom:8px;"></i>No orders to dispatch</td></tr>';
         return;
       }
 
@@ -356,6 +396,8 @@
         const itemCount = products.length;
         const driver = order.driverName || order.assignedDriver || '—';
         const shortId = String(order.id).slice(-6);
+        const pickupName = getSupplierName(order.pickupSupplierId);
+        const hasPickup = !!order.pickupSupplierId;
 
         let actions = `<button class="action-btn btn-view" onclick="viewOrder('${order.id}')"><i class="fas fa-eye"></i></button>`;
         
@@ -371,6 +413,9 @@
         if (status === 'shipped') {
           actions += `<button class="action-btn btn-deliver" onclick="updateStatus('${order.id}','delivered')"><i class="fas fa-check-double"></i> Delivered</button>`;
         }
+        if (!hasPickup && (status === 'confirmed' || status === 'processing')) {
+          actions += `<button class="action-btn btn-assign" onclick="showPickupModal('${order.id}')"><i class="fas fa-map-pin"></i> Pickup</button>`;
+        }
 
         return `
           <tr>
@@ -383,6 +428,9 @@
                   <div style="font-size:0.6rem;color:#94a3b8;">${order.location || ''}</div>
                 </div>
               </div>
+            </td>
+            <td>
+              ${hasPickup ? `<span class="pickup-badge"><i class="fas fa-map-pin"></i> ${pickupName}</span>` : '<span style="color:#94a3b8;font-size:0.65rem;">Not set</span>'}
             </td>
             <td>${itemCount} item${itemCount !== 1 ? 's' : ''}</td>
             <td><strong>KES ${(order.total || 0).toLocaleString()}</strong></td>
@@ -408,6 +456,9 @@
       const order = allOrders[orderId];
       if (!order) return;
       const products = order.products || [];
+      const pickupName = getSupplierName(order.pickupSupplierId);
+      const pickupSupplier = allSuppliers[order.pickupSupplierId];
+      
       modalContent.innerHTML = `
         <h3><i class="fas fa-info-circle"></i> Order #${String(orderId).slice(-6)}</h3>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:0.75rem;margin-bottom:1rem;">
@@ -420,6 +471,10 @@
           <div><strong>Driver:</strong> ${order.driverName || 'Unassigned'}</div>
           <div><strong>Type:</strong> ${order.orderType || 'N/A'}</div>
         </div>
+        <div style="background:#f0fdf4;padding:0.6rem 0.8rem;border-radius:10px;margin-bottom:0.8rem;font-size:0.7rem;">
+          <strong><i class="fas fa-map-pin"></i> Pickup Location:</strong> 
+          ${order.pickupSupplierId ? `${pickupName}${pickupSupplier?.location ? ` - ${pickupSupplier.location}` : ''}${pickupSupplier?.phone ? ` · 📞 ${pickupSupplier.phone}` : ''}` : '<span style="color:#94a3b8;">Not set</span>'}
+        </div>
         ${products.length ? `
           <p style="font-weight:700;font-size:0.7rem;margin-bottom:0.5rem;">Products:</p>
           ${products.map(p => `
@@ -429,20 +484,40 @@
             </div>
           `).join('')}
         ` : ''}
-        <div class="btn-row"><button class="btn btn-secondary" onclick="closeModal()">Close</button></div>
+        <div class="btn-row">
+          ${!order.pickupSupplierId ? `<button class="btn btn-primary" onclick="closeModal(); showPickupModal('${orderId}')"><i class="fas fa-map-pin"></i> Set Pickup</button>` : ''}
+          <button class="btn btn-secondary" onclick="closeModal()">Close</button>
+        </div>
       `;
       modal.classList.add('show');
     }
 
     function showAssignModal(orderId) {
       const drivers = Object.entries(allDrivers).filter(([_, d]) => d && d.verified);
+      const order = allOrders[orderId];
+      const pickupName = getSupplierName(order?.pickupSupplierId);
+      
       modalContent.innerHTML = `
-        <h3><i class="fas fa-user-plus"></i> Assign Driver</h3>
+        <h3><i class="fas fa-user-plus"></i> Assign Driver & Pickup</h3>
+        
+        ${order?.pickupSupplierId ? `
+          <div style="background:#eef2ff;padding:0.6rem 0.8rem;border-radius:10px;margin-bottom:0.8rem;font-size:0.7rem;color:#4f46e5;">
+            <i class="fas fa-map-pin"></i> <strong>Pickup:</strong> ${pickupName}
+          </div>
+        ` : ''}
+        
+        <div class="form-group">
+          <label>Pickup Location (Supplier)</label>
+          <select id="pickupSupplierSelect">
+            ${getSupplierOptions(order?.pickupSupplierId || '')}
+          </select>
+        </div>
+        
         <div class="form-group">
           <label>Select Driver</label>
           <select id="driverSelect">
             <option value="">— Choose driver —</option>
-            ${drivers.map(([id, d]) => `<option value="${id}">${d.name || id} · ${d.vehicle || 'N/A'} · ${d.phone || ''}</option>`).join('')}
+            ${drivers.map(([id, d]) => `<option value="${id}" ${order?.driverId === id ? 'selected' : ''}>${d.name || id} · ${d.vehicle || 'N/A'} · ${d.phone || ''}</option>`).join('')}
           </select>
         </div>
         ${!drivers.length ? '<p style="color:#94a3b8;text-align:center;padding:1rem;">No verified drivers available</p>' : ''}
@@ -454,20 +529,77 @@
       modal.classList.add('show');
     }
 
+    function showPickupModal(orderId) {
+      modalContent.innerHTML = `
+        <h3><i class="fas fa-map-pin"></i> Set Pickup Location</h3>
+        <p style="font-size:0.7rem;color:var(--text-muted);margin-bottom:0.8rem;">Select the supplier where the driver should pick up this order.</p>
+        <div class="form-group">
+          <label>Pickup Location (Supplier)</label>
+          <select id="pickupSupplierSelect">
+            ${getSupplierOptions(allOrders[orderId]?.pickupSupplierId || '')}
+          </select>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="savePickup('${orderId}')"><i class="fas fa-save"></i> Save Pickup Location</button>
+          <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+        </div>
+      `;
+      modal.classList.add('show');
+    }
+
+    async function savePickup(orderId) {
+      const supplierId = document.getElementById('pickupSupplierSelect').value;
+      if (!supplierId) { showToast('Please select a pickup location', true); return; }
+      
+      const supplier = allSuppliers[supplierId];
+      try {
+        await database.ref(`fusion_foods_orders/${orderId}`).update({
+          pickupSupplierId: supplierId,
+          pickupLocation: supplier?.location || '',
+          pickupName: supplier?.name || '',
+          pickupPhone: supplier?.phone || '',
+          updatedAt: firebase.database.ServerValue.TIMESTAMP
+        });
+        showToast('✅ Pickup location set!');
+        closeModal();
+      } catch (e) { 
+        console.error(e);
+        showToast('Failed to set pickup location', true); 
+      }
+    }
+
     async function assignDriver(orderId) {
       const driverId = document.getElementById('driverSelect').value;
       if (!driverId) { showToast('Select a driver', true); return; }
+      
       const driver = allDrivers[driverId];
+      const supplierId = document.getElementById('pickupSupplierSelect')?.value;
+      const supplier = supplierId ? allSuppliers[supplierId] : null;
+      
       try {
-        await database.ref(`fusion_foods_orders/${orderId}`).update({
-          driverId, driverName: driver.name || driver.email,
+        const updates = {
+          driverId, 
+          driverName: driver.name || driver.email,
           driverPhone: driver.phone || '',
           driverVehicle: driver.vehicle || '',
           assignedAt: firebase.database.ServerValue.TIMESTAMP
-        });
+        };
+        
+        // If a new pickup supplier was selected in the assign modal
+        if (supplierId) {
+          updates.pickupSupplierId = supplierId;
+          updates.pickupLocation = supplier?.location || '';
+          updates.pickupName = supplier?.name || '';
+          updates.pickupPhone = supplier?.phone || '';
+        }
+        
+        await database.ref(`fusion_foods_orders/${orderId}`).update(updates);
         showToast('✅ Driver assigned!');
         closeModal();
-      } catch (e) { showToast('Failed to assign', true); }
+      } catch (e) { 
+        console.error(e);
+        showToast('Failed to assign', true); 
+      }
     }
 
     function closeModal() { modal.classList.remove('show'); }
@@ -502,10 +634,19 @@
       updateStats();
     });
 
+    database.ref('fusion_foods_suppliers').on('value', (snapshot) => {
+      allSuppliers = snapshot.val() || {};
+      renderTable();
+    });
+
     auth.onAuthStateChanged((user) => { if (!user) window.location.href = '/'; });
+    
+    // Expose functions globally
     window.viewOrder = viewOrder;
     window.showAssignModal = showAssignModal;
+    window.showPickupModal = showPickupModal;
     window.assignDriver = assignDriver;
+    window.savePickup = savePickup;
     window.updateStatus = updateStatus;
     window.closeModal = closeModal;
   </script>
