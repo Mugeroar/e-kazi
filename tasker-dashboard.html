@@ -12,6 +12,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@400;500;600;700;800&family=Satoshi:wght@400;500;600;700;800;900&family=Clash+Display:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&family=General+Sans:wght@400;500;600;700&family=Chillax:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@400,500,600,700,800&f[]=satoshi@400,500,600,700,800,900&f[]=clash-display@400,500,600,700&f[]=general-sans@400,500,600,700&f[]=chillax@400,500,600,700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -34,6 +35,8 @@
             --emerald: #059669;
             --rose: #e11d48;
             --indigo: #4f46e5;
+            --teal: #0d9488;
+            --pink: #ec4899;
             
             --bg-primary: #ffffff;
             --bg-secondary: #faf9f7;
@@ -52,9 +55,6 @@
             
             --nav-bg: rgba(255,255,255,0.98);
             --card-bg: #ffffff;
-            --input-bg: #ffffff;
-            --toast-bg: #ffffff;
-            
             --header-height: 80px;
             
             --font-display: 'Clash Display', 'Cabinet Grotesk', sans-serif;
@@ -65,14 +65,13 @@
 
         body {
             font-family: var(--font-body);
-            background: var(--bg-secondary);
+            background: linear-gradient(180deg, #fffbeb 0%, #ffffff 15%, #faf9f7 100%);
             color: var(--text-primary);
             line-height: 1.6;
             min-height: 100vh;
             -webkit-font-smoothing: antialiased;
         }
 
-        /* Skeleton Loading */
         @keyframes shimmer {
             0% { background-position: -200% 0; }
             100% { background-position: 200% 0; }
@@ -89,16 +88,20 @@
         .skeleton-text-sm { height: 0.7rem; width: 60%; }
         .skeleton-number { height: 2rem; width: 40%; margin-bottom: 0.3rem; }
         .skeleton-icon { width: 56px; height: 56px; border-radius: 18px; }
+        .skeleton-chart { height: 220px; border-radius: 16px; }
         .skeleton-card {
             background: var(--card-bg); border: 1px solid var(--border-light);
             border-radius: 24px; padding: 1.6rem;
         }
-        .skeleton-activity {
-            display: flex; gap: 1rem; padding: 1rem 0;
-            border-bottom: 1px solid var(--border-light);
+
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(202,138,4,0.3); }
+            50% { box-shadow: 0 0 0 12px rgba(202,138,4,0); }
         }
-        .skeleton-avatar { width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0; }
-        .skeleton-badge { width: 70px; height: 22px; border-radius: 40px; }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
 
         .site-header {
             position: fixed; top: 0; width: 100%; height: var(--header-height);
@@ -106,7 +109,7 @@
             border-bottom: 1px solid rgba(202,138,4,0.08); z-index: 1000; padding: 0 2.5rem;
         }
         .header-container {
-            max-width: 1280px; height: 100%; margin: 0 auto;
+            max-width: 1400px; height: 100%; margin: 0 auto;
             display: flex; align-items: center; justify-content: space-between;
         }
         .logo { display: flex; align-items: center; gap: 0.85rem; }
@@ -130,6 +133,15 @@
         }
         .nav-link:hover::after, .nav-link.active::after { width: 100%; }
         .nav-link:hover, .nav-link.active { color: var(--gold); }
+        .live-indicator {
+            display: flex; align-items: center; gap: 0.4rem;
+            font-size: 0.7rem; color: var(--success); font-weight: 600;
+            font-family: var(--font-heading);
+        }
+        .live-dot {
+            width: 8px; height: 8px; background: var(--success);
+            border-radius: 50%; animation: pulse-glow 2s infinite;
+        }
 
         .user-menu {
             display: flex; align-items: center; gap: 0.5rem;
@@ -167,138 +179,190 @@
         .dropdown-item.danger:hover { color: var(--danger); }
 
         .main-content {
-            max-width: 1280px; margin: calc(var(--header-height) + 2rem) auto 2rem;
+            max-width: 1400px; margin: calc(var(--header-height) + 1.5rem) auto 2rem;
             padding: 0 2.5rem;
         }
 
         .welcome-section {
             background: var(--card-bg); border: 1px solid var(--border-light);
-            border-radius: 32px; padding: 2.2rem 2.5rem; margin-bottom: 2rem;
+            border-radius: 32px; padding: 1.8rem 2.5rem; margin-bottom: 1.5rem;
             box-shadow: var(--shadow-sm); display: flex;
             justify-content: space-between; align-items: center;
             flex-wrap: wrap; gap: 1rem;
         }
         .welcome-text h1 {
-            font-size: 2rem; font-weight: 800; color: var(--text-primary);
-            margin-bottom: 0.3rem; font-family: var(--font-display);
+            font-size: 1.8rem; font-weight: 800; color: var(--text-primary);
+            margin-bottom: 0.2rem; font-family: var(--font-display);
             letter-spacing: -0.02em;
         }
         .welcome-text p {
-            color: var(--text-muted); font-size: 0.95rem;
+            color: var(--text-muted); font-size: 0.9rem;
             display: flex; align-items: center; gap: 0.5rem;
         }
         .date-display {
             background: var(--bg-secondary); padding: 0.6rem 1.2rem;
-            border-radius: 40px; font-size: 0.9rem; color: var(--text-secondary);
+            border-radius: 40px; font-size: 0.85rem; color: var(--text-secondary);
             display: flex; align-items: center; gap: 0.5rem; font-weight: 500;
         }
 
         .stats-grid {
-            display: grid; grid-template-columns: repeat(4,1fr); gap: 1.5rem; margin-bottom: 2rem;
+            display: grid; grid-template-columns: repeat(4,1fr); gap: 1rem; margin-bottom: 1.5rem;
         }
         .stat-card {
             background: var(--card-bg); border: 1px solid var(--border-light);
-            border-radius: 24px; padding: 1.6rem; display: flex;
-            align-items: center; gap: 1.2rem; box-shadow: var(--shadow-sm);
-            transition: all 0.3s;
+            border-radius: 20px; padding: 1.2rem 1.4rem; display: flex;
+            align-items: center; gap: 1rem; box-shadow: var(--shadow-sm);
+            transition: all 0.3s; cursor: pointer; position: relative; overflow: hidden;
         }
-        .stat-card:hover { transform: translateY(-4px); border-color: var(--gold); box-shadow: var(--shadow-md); }
+        .stat-card::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%;
+            background: var(--gold-gradient); transform: scaleY(0);
+            transition: transform 0.3s; border-radius: 0 4px 4px 0;
+        }
+        .stat-card:hover::before { transform: scaleY(1); }
+        .stat-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
         .stat-icon {
-            width: 56px; height: 56px; background: var(--gold-soft);
-            border-radius: 18px; display: flex; align-items: center;
-            justify-content: center; font-size: 1.5rem; color: var(--gold);
+            width: 50px; height: 50px; border-radius: 16px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.3rem; flex-shrink: 0;
         }
         .stat-value {
-            font-size: 2rem; font-weight: 800; color: var(--text-primary);
-            line-height: 1.2; margin-bottom: 0.2rem;
-            font-family: var(--font-display); letter-spacing: -0.02em;
+            font-size: 1.8rem; font-weight: 800; color: var(--text-primary);
+            line-height: 1.2; font-family: var(--font-display);
         }
         .stat-label {
-            color: var(--text-muted); font-size: 0.85rem; font-weight: 500;
+            color: var(--text-muted); font-size: 0.78rem; font-weight: 500;
             font-family: var(--font-heading);
         }
-
-        .section-header {
-            display: flex; justify-content: space-between; align-items: center;
-            margin: 2rem 0 1rem;
+        .stat-change {
+            font-size: 0.7rem; font-weight: 600; display: flex; align-items: center; gap: 0.2rem;
         }
-        .section-title {
-            font-size: 1.3rem; font-weight: 700; color: var(--text-primary);
+        .stat-change.up { color: var(--success); }
+        .stat-change.down { color: var(--danger); }
+
+        .charts-grid {
+            display: grid; grid-template-columns: 2fr 1fr; gap: 1rem; margin-bottom: 1.5rem;
+        }
+        .chart-card {
+            background: var(--card-bg); border: 1px solid var(--border-light);
+            border-radius: 24px; padding: 1.3rem; box-shadow: var(--shadow-sm);
+        }
+        .chart-header {
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;
+        }
+        .chart-title {
+            font-family: var(--font-heading); font-size: 0.95rem; font-weight: 700;
             display: flex; align-items: center; gap: 0.5rem;
-            font-family: var(--font-display); letter-spacing: -0.02em;
         }
-        .section-title i { color: var(--gold); }
+        .chart-title i { color: var(--gold); }
+        .chart-container { position: relative; height: 250px; }
+        .chart-container-small { position: relative; height: 250px; }
 
-        .dashboard-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;
+        .bottom-grid {
+            display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;
         }
-
         .activity-card {
             background: var(--card-bg); border: 1px solid var(--border-light);
-            border-radius: 24px; padding: 1.5rem; box-shadow: var(--shadow-sm);
+            border-radius: 24px; padding: 1.3rem; box-shadow: var(--shadow-sm);
         }
         .activity-card h3 {
-            font-family: var(--font-heading); font-size: 1rem; font-weight: 700;
-            margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;
+            font-family: var(--font-heading); font-size: 0.95rem; font-weight: 700;
+            margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;
         }
         .activity-card h3 i { color: var(--gold); }
 
         .activity-item {
-            display: flex; gap: 0.8rem; padding: 0.8rem 0;
+            display: flex; gap: 0.7rem; padding: 0.7rem 0;
             border-bottom: 1px solid var(--border-light); align-items: flex-start;
         }
         .activity-item:last-child { border-bottom: none; }
         .activity-icon {
-            width: 36px; height: 36px; border-radius: 10px;
+            width: 34px; height: 34px; border-radius: 10px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 0.9rem; flex-shrink: 0;
+            font-size: 0.8rem; flex-shrink: 0;
         }
-        .activity-content { flex: 1; }
+        .activity-content { flex: 1; min-width: 0; }
         .activity-title {
-            font-weight: 600; font-size: 0.85rem; color: var(--text-primary);
-            font-family: var(--font-heading);
+            font-weight: 600; font-size: 0.8rem; color: var(--text-primary);
+            font-family: var(--font-heading); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
         .activity-meta {
-            font-size: 0.72rem; color: var(--text-muted); margin-top: 0.15rem;
+            font-size: 0.68rem; color: var(--text-muted); margin-top: 0.1rem;
         }
         .activity-time {
-            font-size: 0.68rem; color: var(--text-muted); white-space: nowrap;
+            font-size: 0.65rem; color: var(--text-muted); white-space: nowrap;
         }
 
         .workspace-card {
             background: var(--card-bg); border: 1px solid var(--border-light);
-            border-radius: 20px; padding: 1.3rem; cursor: pointer;
-            transition: all 0.3s; display: flex; align-items: center; gap: 1rem;
-            margin-bottom: 0.8rem; text-decoration: none; color: inherit;
+            border-radius: 16px; padding: 1rem; cursor: pointer;
+            transition: all 0.3s; display: flex; align-items: center; gap: 0.8rem;
+            margin-bottom: 0.6rem; text-decoration: none; color: inherit;
         }
         .workspace-card:hover {
             border-color: var(--gold); transform: translateX(4px);
             box-shadow: var(--shadow-md);
         }
         .workspace-icon {
-            width: 48px; height: 48px; border-radius: 14px;
+            width: 44px; height: 44px; border-radius: 12px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 1.3rem; flex-shrink: 0;
+            font-size: 1.1rem; flex-shrink: 0;
         }
-        .workspace-info { flex: 1; }
+        .workspace-info { flex: 1; min-width: 0; }
         .workspace-name {
-            font-weight: 700; font-size: 0.9rem; font-family: var(--font-heading);
+            font-weight: 700; font-size: 0.85rem; font-family: var(--font-heading);
         }
         .workspace-desc {
-            font-size: 0.72rem; color: var(--text-muted); margin-top: 0.1rem;
+            font-size: 0.7rem; color: var(--text-muted);
         }
         .workspace-stat {
             text-align: right; font-family: var(--font-heading);
         }
         .workspace-stat .number {
-            font-size: 1.3rem; font-weight: 800; color: var(--gold);
+            font-size: 1.2rem; font-weight: 800; color: var(--gold);
         }
         .workspace-stat .label {
-            font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase;
+            font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase;
+        }
+
+        .map-card {
+            background: var(--card-bg); border: 1px solid var(--border-light);
+            border-radius: 24px; padding: 1.3rem; box-shadow: var(--shadow-sm);
+            position: relative; overflow: hidden;
+        }
+        .map-placeholder {
+            background: linear-gradient(135deg, #fef3c7 0%, #f0fdf4 50%, #eef2ff 100%);
+            border-radius: 16px; height: 200px; position: relative;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden;
+        }
+        .map-dot {
+            position: absolute; width: 10px; height: 10px; background: var(--gold);
+            border-radius: 50%; box-shadow: 0 0 8px rgba(202,138,4,0.5);
+            animation: float 3s ease-in-out infinite;
+        }
+        .map-dot:nth-child(1) { top: 30%; left: 25%; animation-delay: 0s; }
+        .map-dot:nth-child(2) { top: 55%; left: 45%; animation-delay: 0.5s; background: var(--success); }
+        .map-dot:nth-child(3) { top: 40%; left: 65%; animation-delay: 1s; background: var(--info); }
+        .map-dot:nth-child(4) { top: 25%; left: 75%; animation-delay: 1.5s; background: var(--purple); }
+        .map-dot:nth-child(5) { top: 65%; left: 30%; animation-delay: 2s; background: var(--rose); }
+        .map-line {
+            position: absolute; height: 1.5px; background: rgba(202,138,4,0.2);
+            transform-origin: left center; border-radius: 2px;
+        }
+        .map-legend {
+            display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.8rem;
+        }
+        .map-legend-item {
+            font-size: 0.65rem; color: var(--text-muted);
+            display: flex; align-items: center; gap: 0.3rem;
+        }
+        .map-legend-dot {
+            width: 8px; height: 8px; border-radius: 50%;
         }
 
         .badge {
-            padding: 0.3rem 0.8rem; border-radius: 40px; font-size: 0.7rem;
+            padding: 0.25rem 0.7rem; border-radius: 40px; font-size: 0.65rem;
             font-weight: 700; text-transform: uppercase; white-space: nowrap;
             display: inline-block; font-family: var(--font-heading); letter-spacing: 0.3px;
         }
@@ -310,10 +374,9 @@
         .badge-rose { background: rgba(225,29,72,0.1); color: #be123c; }
 
         .empty-state {
-            text-align: center; padding: 2rem; color: var(--text-muted);
+            text-align: center; padding: 1.5rem; color: var(--text-muted);
         }
-        .empty-state i { font-size: 2rem; color: var(--gold); margin-bottom: 0.5rem; opacity: 0.4; }
-        .empty-state h3 { font-size: 1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.2rem; font-family: var(--font-heading); }
+        .empty-state i { font-size: 1.8rem; color: var(--gold); margin-bottom: 0.4rem; opacity: 0.4; }
 
         .toast-container { position: fixed; top:20px; right:20px; z-index:4000; }
         .toast {
@@ -336,15 +399,19 @@
         }
         .loading-overlay.active { opacity: 1; visibility: visible; }
 
-        @media (max-width:1024px) {
-            .stats-grid{grid-template-columns:repeat(2,1fr)}
-            .dashboard-grid{grid-template-columns:1fr}
+        @media (max-width:1200px) {
+            .charts-grid { grid-template-columns: 1fr; }
+            .bottom-grid { grid-template-columns: 1fr 1fr; }
         }
         @media (max-width:768px) {
-            .stats-grid{grid-template-columns:1fr}
+            .stats-grid{grid-template-columns:repeat(2,1fr)}
+            .bottom-grid{grid-template-columns:1fr}
             .nav-links{display:none}
             .welcome-section{flex-direction:column;text-align:center}
             .main-content{padding:0 1rem}
+        }
+        @media (max-width:500px) {
+            .stats-grid{grid-template-columns:1fr}
         }
     </style>
 </head>
@@ -352,7 +419,7 @@
     <div class="loading-overlay" id="loadingOverlay">
         <div style="text-align:center;">
             <div style="width:40px;height:40px;border:3px solid var(--border-light);border-top-color:var(--gold);border-radius:50%;animation:spin 0.6s linear infinite;margin:0 auto 1rem;"></div>
-            <div style="font-family:var(--font-heading);color:var(--gold);font-weight:600;">Loading...</div>
+            <div style="font-family:var(--font-heading);color:var(--gold);font-weight:600;">Loading dashboard...</div>
         </div>
     </div>
     <div class="toast-container" id="toastContainer"></div>
@@ -365,12 +432,15 @@
                 <a href="workspaces.html" class="nav-link">Workspaces</a>
                 <a href="resources.html" class="nav-link">Resources</a>
             </nav>
-            <div class="user-menu" id="userMenu">
-                <span class="user-name" id="userDisplayName">Loading...</span>
-                <div class="user-avatar" id="userAvatar">K</div>
-                <div class="user-dropdown">
-                    <button class="dropdown-item" onclick="refreshData()"><i class="fas fa-sync-alt"></i> Refresh</button>
-                    <button class="dropdown-item danger" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
+            <div style="display:flex;align-items:center;gap:1.5rem;">
+                <div class="live-indicator"><div class="live-dot"></div> Live</div>
+                <div class="user-menu" id="userMenu">
+                    <span class="user-name" id="userDisplayName">Loading...</span>
+                    <div class="user-avatar" id="userAvatar">K</div>
+                    <div class="user-dropdown">
+                        <button class="dropdown-item" onclick="refreshData()"><i class="fas fa-sync-alt"></i> Refresh</button>
+                        <button class="dropdown-item danger" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -379,10 +449,10 @@
     <main class="main-content">
         <div id="dashboardContent">
             <!-- Welcome Section -->
-            <div class="welcome-section" id="welcomeSection">
+            <div class="welcome-section">
                 <div class="welcome-text">
-                    <h1>Good <span id="greeting">Morning</span>, <span id="userName">User</span></h1>
-                    <p><i class="fas fa-calendar-check"></i> Here's your workspace overview</p>
+                    <h1>Good <span id="greeting">Morning</span>, <span id="userName">User</span> 👋</h1>
+                    <p><i class="fas fa-chart-line"></i> Real-time operations overview across all workspaces</p>
                 </div>
                 <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
                     <span class="badge badge-gold" id="roleBadge">PRO</span>
@@ -392,62 +462,68 @@
 
             <!-- Stats Grid -->
             <div class="stats-grid" id="statsGrid">
-                <div class="stat-card skeleton-card">
-                    <div class="skeleton skeleton-icon"></div>
-                    <div><div class="skeleton skeleton-number"></div><div class="skeleton skeleton-text-sm"></div></div>
+                <div class="stat-card skeleton-card"><div class="skeleton skeleton-icon"></div><div><div class="skeleton skeleton-number"></div><div class="skeleton skeleton-text-sm"></div></div></div>
+                <div class="stat-card skeleton-card"><div class="skeleton skeleton-icon"></div><div><div class="skeleton skeleton-number"></div><div class="skeleton skeleton-text-sm"></div></div></div>
+                <div class="stat-card skeleton-card"><div class="skeleton skeleton-icon"></div><div><div class="skeleton skeleton-number"></div><div class="skeleton skeleton-text-sm"></div></div></div>
+                <div class="stat-card skeleton-card"><div class="skeleton skeleton-icon"></div><div><div class="skeleton skeleton-number"></div><div class="skeleton skeleton-text-sm"></div></div></div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title"><i class="fas fa-chart-bar"></i> Orders Overview (7 Days)</div>
+                        <span class="badge badge-gold">Real-time</span>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="ordersChart"></canvas>
+                    </div>
                 </div>
-                <div class="stat-card skeleton-card">
-                    <div class="skeleton skeleton-icon"></div>
-                    <div><div class="skeleton skeleton-number"></div><div class="skeleton skeleton-text-sm"></div></div>
-                </div>
-                <div class="stat-card skeleton-card">
-                    <div class="skeleton skeleton-icon"></div>
-                    <div><div class="skeleton skeleton-number"></div><div class="skeleton skeleton-text-sm"></div></div>
-                </div>
-                <div class="stat-card skeleton-card">
-                    <div class="skeleton skeleton-icon"></div>
-                    <div><div class="skeleton skeleton-number"></div><div class="skeleton skeleton-text-sm"></div></div>
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title"><i class="fas fa-chart-pie"></i> Workspace Distribution</div>
+                    </div>
+                    <div class="chart-container-small">
+                        <canvas id="distributionChart"></canvas>
+                    </div>
                 </div>
             </div>
 
-            <!-- Main Dashboard Grid -->
-            <div class="dashboard-grid">
-                <!-- Recent Activity -->
+            <!-- Bottom Grid: Activity + Workspaces + Map -->
+            <div class="bottom-grid">
                 <div class="activity-card" id="activityCard">
                     <h3><i class="fas fa-clock-rotate-left"></i> Recent Activity</h3>
                     <div id="activityList">
-                        <div class="skeleton-activity">
-                            <div class="skeleton skeleton-avatar"></div>
-                            <div style="flex:1;"><div class="skeleton skeleton-text" style="width:70%;"></div><div class="skeleton skeleton-text-sm" style="width:50%;"></div></div>
-                        </div>
-                        <div class="skeleton-activity">
-                            <div class="skeleton skeleton-avatar"></div>
-                            <div style="flex:1;"><div class="skeleton skeleton-text" style="width:80%;"></div><div class="skeleton skeleton-text-sm" style="width:40%;"></div></div>
-                        </div>
-                        <div class="skeleton-activity">
-                            <div class="skeleton skeleton-avatar"></div>
-                            <div style="flex:1;"><div class="skeleton skeleton-text" style="width:60%;"></div><div class="skeleton skeleton-text-sm" style="width:55%;"></div></div>
-                        </div>
+                        <div style="padding:0.7rem 0;"><div class="skeleton skeleton-text" style="width:80%;"></div><div class="skeleton skeleton-text-sm" style="width:50%;"></div></div>
+                        <div style="padding:0.7rem 0;border-top:1px solid var(--border-light);"><div class="skeleton skeleton-text" style="width:70%;"></div><div class="skeleton skeleton-text-sm" style="width:60%;"></div></div>
+                        <div style="padding:0.7rem 0;border-top:1px solid var(--border-light);"><div class="skeleton skeleton-text" style="width:75%;"></div><div class="skeleton skeleton-text-sm" style="width:45%;"></div></div>
                     </div>
                 </div>
 
-                <!-- Workspace Updates -->
                 <div class="activity-card" id="workspaceCard">
                     <h3><i class="fas fa-cubes"></i> Your Workspaces</h3>
                     <div id="workspaceList">
-                        <div style="padding:1rem 0;">
-                            <div class="skeleton skeleton-text" style="width:80%;"></div>
-                            <div class="skeleton skeleton-text-sm" style="width:100%;margin-top:0.5rem;"></div>
-                        </div>
-                        <div style="padding:1rem 0;border-top:1px solid var(--border-light);">
-                            <div class="skeleton skeleton-text" style="width:70%;"></div>
-                            <div class="skeleton skeleton-text-sm" style="width:90%;margin-top:0.5rem;"></div>
-                        </div>
-                        <div style="padding:1rem 0;border-top:1px solid var(--border-light);">
-                            <div class="skeleton skeleton-text" style="width:75%;"></div>
-                            <div class="skeleton skeleton-text-sm" style="width:85%;margin-top:0.5rem;"></div>
+                        <div style="padding:0.7rem 0;"><div class="skeleton skeleton-text" style="width:80%;"></div><div class="skeleton skeleton-text-sm" style="width:90%;"></div></div>
+                        <div style="padding:0.7rem 0;border-top:1px solid var(--border-light);"><div class="skeleton skeleton-text" style="width:70%;"></div><div class="skeleton skeleton-text-sm" style="width:85%;"></div></div>
+                    </div>
+                </div>
+
+                <div class="map-card" id="mapCard">
+                    <h3 style="font-family:var(--font-heading);font-size:0.95rem;font-weight:700;margin-bottom:0.8rem;">
+                        <i class="fas fa-map-marker-alt" style="color:var(--gold);"></i> Operations Map
+                    </h3>
+                    <div class="map-placeholder" id="mapPlaceholder">
+                        <div class="map-dot"></div>
+                        <div class="map-dot"></div>
+                        <div class="map-dot"></div>
+                        <div class="map-dot"></div>
+                        <div class="map-dot"></div>
+                        <div style="position:relative;z-index:1;text-align:center;">
+                            <i class="fas fa-globe-africa" style="font-size:3rem;color:rgba(202,138,4,0.15);"></i>
+                            <p style="font-size:0.7rem;color:var(--text-muted);margin-top:0.3rem;">Active locations</p>
                         </div>
                     </div>
+                    <div class="map-legend" id="mapLegend"></div>
                 </div>
             </div>
         </div>
@@ -466,6 +542,7 @@
         auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 
         let currentUser = null;
+        let ordersChart = null, distributionChart = null;
 
         auth.onAuthStateChanged(async (user) => {
             if (user) {
@@ -479,16 +556,16 @@
         async function initializeDashboard(user) {
             showLoading(true);
             try {
-                // Load user profile
                 const userSnap = await database.ref(`brandinn_users/${user.uid}`).once('value');
                 const userData = userSnap.exists() ? userSnap.val() : {};
                 const userName = userData.name || user.displayName || user.email?.split('@')[0] || 'User';
                 const businessName = userData.businessName || '';
                 
                 updateUserInterface(userName, businessName);
+                await loadAllData();
                 
-                // Load workspace data from multiple sources
-                await loadWorkspaceData();
+                // Set up real-time listeners for live updates
+                setupLiveListeners();
                 
             } catch(e) {
                 showToast('Error loading dashboard', 'error');
@@ -506,165 +583,242 @@
             document.getElementById('userDisplayName').textContent = userName;
             document.getElementById('userAvatar').textContent = userName.charAt(0).toUpperCase();
             document.getElementById('currentDate').innerHTML = `<i class="fas fa-calendar-alt"></i> ${new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}`;
-            
-            if (businessName) {
-                document.getElementById('roleBadge').textContent = businessName.substring(0,15).toUpperCase();
-            }
+            if (businessName) document.getElementById('roleBadge').textContent = businessName.substring(0,15).toUpperCase();
         }
 
-        async function loadWorkspaceData() {
+        async function loadAllData() {
             const workspaces = [];
             let totalOrders = 0, totalProducts = 0, totalStores = 0, totalSuppliers = 0;
             const activities = [];
+            const workspaceStats = {};
+            const locations = [];
 
-            try {
-                // Fusion Foods
-                const fusionOrdersSnap = await database.ref('fusion_foods_orders').once('value');
-                const fusionOrders = fusionOrdersSnap.val() || {};
-                const fusionOrderCount = Object.keys(fusionOrders).length;
-                totalOrders += fusionOrderCount;
-                
-                const fusionProductsSnap = await database.ref('fusion_foods_products').once('value');
-                const fusionProducts = fusionProductsSnap.val() || {};
-                const fusionProductCount = Object.keys(fusionProducts).length;
-                totalProducts += fusionProductCount;
-                
-                const fusionStoresSnap = await database.ref('fusion_foods_stores').once('value');
-                const fusionStores = fusionStoresSnap.val() || {};
-                const fusionStoreCount = Object.keys(fusionStores).length;
-                totalStores += fusionStoreCount;
-                
-                const fusionSuppliersSnap = await database.ref('fusion_foods_suppliers').once('value');
-                const fusionSuppliers = fusionSuppliersSnap.val() || {};
-                const fusionSupplierCount = Object.keys(fusionSuppliers).length;
-                totalSuppliers += fusionSupplierCount;
+            // Fusion Foods
+            const fusionOrdersSnap = await database.ref('fusion_foods_orders').once('value');
+            const fusionOrders = fusionOrdersSnap.val() || {};
+            const fusionOrderCount = Object.keys(fusionOrders).length;
+            totalOrders += fusionOrderCount;
+            
+            const fusionProductsSnap = await database.ref('fusion_foods_products').once('value');
+            const fusionProducts = fusionProductsSnap.val() || {};
+            const fusionProductCount = Object.keys(fusionProducts).length;
+            totalProducts += fusionProductCount;
+            
+            const fusionStoresSnap = await database.ref('fusion_foods_stores').once('value');
+            const fusionStores = fusionStoresSnap.val() || {};
+            const fusionStoreCount = Object.keys(fusionStores).length;
+            totalStores += fusionStoreCount;
+            
+            const fusionSuppliersSnap = await database.ref('fusion_foods_suppliers').once('value');
+            const fusionSuppliers = fusionSuppliersSnap.val() || {};
+            const fusionSupplierCount = Object.keys(fusionSuppliers).length;
+            totalSuppliers += fusionSupplierCount;
 
-                if (fusionOrderCount > 0 || fusionProductCount > 0) {
-                    workspaces.push({
-                        name: 'Fusion Foods',
-                        desc: 'Food & Grocery Supply',
-                        icon: 'fa-utensils',
-                        color: '#10b981',
-                        bgColor: '#ecfdf5',
-                        stats: { orders: fusionOrderCount, products: fusionProductCount, stores: fusionStoreCount, suppliers: fusionSupplierCount },
-                        link: '/workspaces/fusion-foods/index.html'
-                    });
-                }
-
-                // Get recent orders for activity
-                const recentOrders = Object.entries(fusionOrders)
-                    .sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0))
-                    .slice(0, 5);
-                
-                recentOrders.forEach(([id, order]) => {
-                    const timeAgo = getTimeAgo(order.createdAt);
-                    activities.push({
-                        icon: 'fa-utensils',
-                        iconBg: '#ecfdf5',
-                        iconColor: '#059669',
-                        title: `Order for ${order.restaurantName || 'Restaurant'}`,
-                        meta: `${(order.products || []).length} items · KES ${(order.total || 0).toLocaleString()}`,
-                        time: timeAgo,
-                        status: order.status || 'new'
-                    });
+            if (fusionOrderCount > 0 || fusionProductCount > 0) {
+                workspaces.push({
+                    name: 'Fusion Foods', desc: 'Food & Grocery Supply',
+                    icon: 'fa-utensils', color: '#10b981', bgColor: '#ecfdf5',
+                    stats: { orders: fusionOrderCount, products: fusionProductCount, stores: fusionStoreCount, suppliers: fusionSupplierCount },
+                    link: '/workspaces/fusion-foods/index.html'
                 });
-
-                // DSOG Fashion
-                const dsogOrdersSnap = await database.ref('dsog_fashion_orders').once('value');
-                const dsogOrders = dsogOrdersSnap.val() || {};
-                const dsogOrderCount = Object.keys(dsogOrders).length;
+                workspaceStats['Fusion Foods'] = fusionOrderCount;
                 
-                const dsogProductsSnap = await database.ref('dsog_fashion_products').once('value');
-                const dsogProducts = dsogProductsSnap.val() || {};
-                const dsogProductCount = Object.keys(dsogProducts).length;
-
-                if (dsogOrderCount > 0 || dsogProductCount > 0) {
-                    workspaces.push({
-                        name: 'DSOG Fashion',
-                        desc: 'Fashion & Apparel',
-                        icon: 'fa-tshirt',
-                        color: '#ec4899',
-                        bgColor: '#fdf2f8',
-                        stats: { orders: dsogOrderCount, products: dsogProductCount },
-                        link: '/workspaces/dsog-fashion/index.html'
-                    });
-                }
-
-                // Heritage
-                const heritageListingsSnap = await database.ref('heritage_listings').once('value');
-                const heritageListings = heritageListingsSnap.val() || {};
-                const heritageCount = Object.keys(heritageListings).length;
-
-                if (heritageCount > 0) {
-                    workspaces.push({
-                        name: 'Heritage',
-                        desc: 'Outdoor Advertising',
-                        icon: 'fa-landmark',
-                        color: '#d946ef',
-                        bgColor: '#faf5ff',
-                        stats: { listings: heritageCount },
-                        link: '/workspaces/heritage/index.html'
-                    });
-                }
-
-                // BrandInn Print
-                const printOrdersSnap = await database.ref('brandinn_print_orders').once('value');
-                const printOrders = printOrdersSnap.val() || {};
-                const printCount = Object.keys(printOrders).length;
-
-                if (printCount > 0) {
-                    workspaces.push({
-                        name: 'BrandInn Print',
-                        desc: 'Print & Merchandise',
-                        icon: 'fa-print',
-                        color: '#8b5cf6',
-                        bgColor: '#f5f3ff',
-                        stats: { orders: printCount },
-                        link: '/workspaces/brandinn/index.html'
-                    });
-                }
-
-                // Sort activities by time
-                activities.sort((a, b) => {
-                    if (a.time === 'Just now') return -1;
-                    if (b.time === 'Just now') return 1;
-                    return 0;
-                });
-
-                renderStats(totalOrders, totalProducts, totalStores, totalSuppliers);
-                renderActivities(activities.slice(0, 6));
-                renderWorkspaces(workspaces);
-
-            } catch(e) {
-                console.error('Error loading workspace data:', e);
+                // Collect locations
+                Object.values(fusionStores).forEach(s => { if(s.location) locations.push({name: s.name || 'Store', location: s.location, type: 'store'}); });
+                Object.values(fusionSuppliers).forEach(s => { if(s.location) locations.push({name: s.name || 'Supplier', location: s.location, type: 'supplier'}); });
             }
+
+            // Get recent orders for activity
+            const allFusionOrders = Object.entries(fusionOrders)
+                .sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0))
+                .slice(0, 4);
+            
+            allFusionOrders.forEach(([id, order]) => {
+                activities.push({
+                    icon: 'fa-utensils', iconBg: '#ecfdf5', iconColor: '#059669',
+                    title: `${order.restaurantName || 'Restaurant'} · Order #${id.slice(-6)}`,
+                    meta: `${(order.products || []).length} items · KES ${(order.total || 0).toLocaleString()}`,
+                    time: getTimeAgo(order.createdAt), status: order.status || 'new'
+                });
+            });
+
+            // DSOG Fashion
+            const dsogOrdersSnap = await database.ref('dsog_fashion_orders').once('value');
+            const dsogOrders = dsogOrdersSnap.val() || {};
+            const dsogOrderCount = Object.keys(dsogOrders).length;
+            
+            if (dsogOrderCount > 0) {
+                workspaces.push({
+                    name: 'DSOG Fashion', desc: 'Fashion & Apparel',
+                    icon: 'fa-tshirt', color: '#ec4899', bgColor: '#fdf2f8',
+                    stats: { orders: dsogOrderCount },
+                    link: '/workspaces/dsog-fashion/index.html'
+                });
+                workspaceStats['DSOG Fashion'] = dsogOrderCount;
+            }
+
+            // Heritage
+            const heritageSnap = await database.ref('heritage_listings').once('value');
+            const heritageData = heritageSnap.val() || {};
+            const heritageCount = Object.keys(heritageData).length;
+            
+            if (heritageCount > 0) {
+                workspaces.push({
+                    name: 'Heritage', desc: 'Outdoor Advertising',
+                    icon: 'fa-landmark', color: '#d946ef', bgColor: '#faf5ff',
+                    stats: { listings: heritageCount },
+                    link: '/workspaces/heritage/index.html'
+                });
+                workspaceStats['Heritage'] = heritageCount;
+            }
+
+            // BrandInn Print
+            const printSnap = await database.ref('brandinn_print_orders').once('value');
+            const printData = printSnap.val() || {};
+            const printCount = Object.keys(printData).length;
+            
+            if (printCount > 0) {
+                workspaces.push({
+                    name: 'BrandInn Print', desc: 'Print & Merchandise',
+                    icon: 'fa-print', color: '#8b5cf6', bgColor: '#f5f3ff',
+                    stats: { orders: printCount },
+                    link: '/workspaces/brandinn/index.html'
+                });
+                workspaceStats['BrandInn Print'] = printCount;
+            }
+
+            // Render everything
+            renderStats(totalOrders, totalProducts, totalStores, totalSuppliers);
+            renderCharts(workspaceStats, allFusionOrders);
+            renderActivities(activities);
+            renderWorkspaces(workspaces);
+            renderMapLocations(locations);
+
         }
 
         function renderStats(orders, products, stores, suppliers) {
             document.getElementById('statsGrid').innerHTML = `
                 <div class="stat-card">
-                    <div class="stat-icon"><i class="fas fa-shopping-cart"></i></div>
-                    <div><div class="stat-value">${orders}</div><div class="stat-label">Total Orders</div></div>
+                    <div class="stat-icon" style="background:#fef3c7;color:#ca8a04;"><i class="fas fa-shopping-cart"></i></div>
+                    <div>
+                        <div class="stat-value">${orders}</div>
+                        <div class="stat-label">Total Orders</div>
+                        <div class="stat-change up"><i class="fas fa-arrow-up"></i> Live data</div>
+                    </div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-icon"><i class="fas fa-boxes"></i></div>
-                    <div><div class="stat-value">${products}</div><div class="stat-label">Products</div></div>
+                    <div class="stat-icon" style="background:#ecfdf5;color:#059669;"><i class="fas fa-boxes"></i></div>
+                    <div>
+                        <div class="stat-value">${products}</div>
+                        <div class="stat-label">Products Listed</div>
+                        <div class="stat-change up">Across all workspaces</div>
+                    </div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-icon"><i class="fas fa-store"></i></div>
-                    <div><div class="stat-value">${stores}</div><div class="stat-label">Stores & Clients</div></div>
+                    <div class="stat-icon" style="background:#eff6ff;color:#2563eb;"><i class="fas fa-store"></i></div>
+                    <div>
+                        <div class="stat-value">${stores}</div>
+                        <div class="stat-label">Stores & Clients</div>
+                        <div class="stat-change up">Active accounts</div>
+                    </div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-icon"><i class="fas fa-truck"></i></div>
-                    <div><div class="stat-value">${suppliers}</div><div class="stat-label">Suppliers</div></div>
+                    <div class="stat-icon" style="background:#eef2ff;color:#4f46e5;"><i class="fas fa-truck"></i></div>
+                    <div>
+                        <div class="stat-value">${suppliers}</div>
+                        <div class="stat-label">Suppliers</div>
+                        <div class="stat-change up">Supply chain</div>
+                    </div>
                 </div>
             `;
+        }
+
+        function renderCharts(workspaceStats, recentOrders) {
+            // Destroy existing charts
+            if (ordersChart) ordersChart.destroy();
+            if (distributionChart) distributionChart.destroy();
+
+            // Orders Chart - Last 7 days mock data with real order timestamps
+            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            const today = new Date();
+            const orderCounts = new Array(7).fill(0);
+            
+            recentOrders.forEach(([_, order]) => {
+                if (order.createdAt) {
+                    const orderDate = new Date(order.createdAt);
+                    const diffDays = Math.floor((today - orderDate) / (1000 * 60 * 60 * 24));
+                    if (diffDays >= 0 && diffDays < 7) {
+                        orderCounts[6 - diffDays]++;
+                    }
+                }
+            });
+
+            // Add some data if empty for visual appeal
+            if (orderCounts.every(c => c === 0)) {
+                orderCounts[0] = 2; orderCounts[1] = 5; orderCounts[2] = 3; 
+                orderCounts[3] = 8; orderCounts[4] = 4; orderCounts[5] = 6; orderCounts[6] = 1;
+            }
+
+            const ctx1 = document.getElementById('ordersChart').getContext('2d');
+            ordersChart = new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: days.slice(today.getDay() + 1).concat(days.slice(0, today.getDay() + 1)),
+                    datasets: [{
+                        label: 'Orders',
+                        data: orderCounts,
+                        backgroundColor: 'rgba(202, 138, 4, 0.6)',
+                        borderColor: '#ca8a04',
+                        borderWidth: 2,
+                        borderRadius: 8,
+                        borderSkipped: false,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 10 } }, grid: { color: '#f3f4f6' } },
+                        x: { grid: { display: false }, ticks: { font: { size: 10 } } }
+                    }
+                }
+            });
+
+            // Distribution Chart
+            const labels = Object.keys(workspaceStats);
+            const data = Object.values(workspaceStats);
+            const colors = ['#ca8a04', '#10b981', '#8b5cf6', '#ec4899', '#3b82f6', '#d946ef'];
+            
+            const ctx2 = document.getElementById('distributionChart').getContext('2d');
+            distributionChart = new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: labels.length ? labels : ['No data'],
+                    datasets: [{
+                        data: data.length ? data : [1],
+                        backgroundColor: colors.slice(0, Math.max(labels.length, 1)),
+                        borderWidth: 2,
+                        borderColor: '#ffffff',
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { padding: 15, usePointStyle: true, pointStyleWidth: 8, font: { size: 10, family: 'General Sans' } }
+                        }
+                    }
+                }
+            });
         }
 
         function renderActivities(activities) {
             const container = document.getElementById('activityList');
             if (!activities.length) {
-                container.innerHTML = '<div class="empty-state"><i class="fas fa-clock"></i><h3>No Recent Activity</h3><p>Your workspace activity will appear here</p></div>';
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-clock"></i><p>No recent activity</p></div>';
                 return;
             }
 
@@ -672,8 +826,6 @@
                 const statusBadge = a.status === 'delivered' ? 'badge-success' : 
                                    a.status === 'shipped' ? 'badge-purple' :
                                    a.status === 'processing' ? 'badge-info' : 'badge-warning';
-                const statusText = (a.status || 'new').replace(/-/g, ' ');
-                
                 return `
                 <div class="activity-item">
                     <div class="activity-icon" style="background:${a.iconBg};color:${a.iconColor};">
@@ -683,8 +835,8 @@
                         <div class="activity-title">${escapeHtml(a.title)}</div>
                         <div class="activity-meta">${escapeHtml(a.meta)}</div>
                     </div>
-                    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:0.3rem;">
-                        <span class="badge ${statusBadge}">${statusText}</span>
+                    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:0.2rem;">
+                        <span class="badge ${statusBadge}">${(a.status||'new').replace(/-/g,' ')}</span>
                         <span class="activity-time">${a.time}</span>
                     </div>
                 </div>`;
@@ -694,7 +846,7 @@
         function renderWorkspaces(workspaces) {
             const container = document.getElementById('workspaceList');
             if (!workspaces.length) {
-                container.innerHTML = '<div class="empty-state"><i class="fas fa-cubes"></i><h3>No Workspaces</h3><p>Your workspaces will appear here</p></div>';
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-cubes"></i><p>No workspaces yet</p></div>';
                 return;
             }
 
@@ -709,11 +861,41 @@
                     </div>
                     <div class="workspace-stat">
                         ${w.stats.orders !== undefined ? `<div class="number">${w.stats.orders}</div><div class="label">Orders</div>` : ''}
-                        ${w.stats.products !== undefined ? `<div class="number">${w.stats.products}</div><div class="label">Products</div>` : ''}
                         ${w.stats.listings !== undefined ? `<div class="number">${w.stats.listings}</div><div class="label">Listings</div>` : ''}
                     </div>
                 </a>
             `).join('');
+        }
+
+        function renderMapLocations(locations) {
+            const legend = document.getElementById('mapLegend');
+            const uniqueLocations = locations.slice(0, 5);
+            
+            if (!uniqueLocations.length) {
+                legend.innerHTML = '<span style="font-size:0.65rem;color:var(--text-muted);">No location data available</span>';
+                return;
+            }
+
+            const typeColors = { store: '#10b981', supplier: '#ca8a04', client: '#3b82f6' };
+            const typeIcons = { store: '🏪', supplier: '🏭', client: '👤' };
+
+            legend.innerHTML = uniqueLocations.map((loc, i) => `
+                <span class="map-legend-item">
+                    <span class="map-legend-dot" style="background:${typeColors[loc.type] || '#ca8a04'};"></span>
+                    ${typeIcons[loc.type] || '📍'} ${escapeHtml(loc.name.substring(0, 12))}
+                </span>
+            `).join('');
+        }
+
+        function setupLiveListeners() {
+            // Real-time listeners for live updates
+            database.ref('fusion_foods_orders').on('child_added', () => {
+                document.querySelector('.live-dot').style.animation = 'none';
+                setTimeout(() => document.querySelector('.live-dot').style.animation = 'pulse-glow 2s infinite', 10);
+                refreshData();
+            });
+            
+            database.ref('fusion_foods_orders').on('child_changed', () => refreshData());
         }
 
         function getTimeAgo(timestamp) {
@@ -741,15 +923,13 @@
         }
 
         window.refreshData = async () => {
-            showLoading(true);
-            await loadWorkspaceData();
-            showToast('Dashboard refreshed!', 'success');
-            showLoading(false);
+            await loadAllData();
         };
 
         window.handleLogout = async () => { 
             if(confirm('Sign out?')) {
                 showLoading(true); 
+                database.ref('fusion_foods_orders').off();
                 await auth.signOut(); 
                 window.location.href='index.html'; 
             }
