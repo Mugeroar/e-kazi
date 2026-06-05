@@ -28,6 +28,7 @@
       --green: #10b981;
       --purple: #8b5cf6;
       --blue: #3b82f6;
+      --indigo: #6366f1;
     }
 
     body {
@@ -130,6 +131,7 @@
     }
     .meta-tag.category { background: #f0fdfa; color: #0f766e; }
     .meta-tag.price { background: #fef3c7; color: #92400e; }
+    .meta-tag.supplier { background: #eef2ff; color: #4f46e5; }
 
     .product-details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 0.65rem; }
     .product-details-grid div { color: var(--text-muted); }
@@ -258,7 +260,7 @@
     }
     .tag-category { background: #f0fdfa; color: #0f766e; }
     .tag-status { background: #f0fdf4; color: #065f46; }
-    .tag-supplier { background: #f1f5f9; color: #475569; }
+    .tag-supplier { background: #eef2ff; color: #4f46e5; }
 
     .preview-footer {
       background: #f8fafc; padding: 1rem 1.5rem; border-radius: 0 0 24px 24px;
@@ -313,7 +315,6 @@
       .stats-row { grid-template-columns: repeat(2, 1fr); }
       .cards-grid { grid-template-columns: 1fr; }
       .preview-info-grid { grid-template-columns: 1fr; }
-      .preview-hero-icon { width: 80px; height: 80px; font-size: 2.5rem; }
     }
   </style>
 </head>
@@ -327,6 +328,7 @@
     <div class="nav-right">
       <a href="/workspaces/fusion-foods/index.html" class="nav-btn"><i class="fas fa-arrow-left"></i> Dashboard</a>
       <a href="/workspaces/fusion-foods/inventory.html" class="nav-btn"><i class="fas fa-boxes"></i> Inventory</a>
+      <a href="/workspaces/fusion-foods/suppliers.html" class="nav-btn"><i class="fas fa-people-carry"></i> Suppliers</a>
       <a href="/workspaces/fusion-foods/weekly-prices.html" class="nav-btn"><i class="fas fa-tag"></i> Weekly Prices</a>
     </div>
   </nav>
@@ -395,6 +397,7 @@
     const auth = firebase.auth();
 
     let allProducts = {};
+    let allSuppliers = {};
     let currentFilter = 'all';
     let searchQuery = '';
 
@@ -426,6 +429,26 @@
       return names[category?.toLowerCase()] || category || 'Uncategorized';
     }
 
+    function getSupplierName(supplierId) {
+      if (!supplierId) return 'N/A';
+      const supplier = allSuppliers[supplierId];
+      return supplier ? supplier.name : supplierId;
+    }
+
+    function getSupplierOptions(selectedId = '') {
+      const suppliers = Object.entries(allSuppliers)
+        .filter(([_, s]) => s && s.name && s.status !== 'inactive')
+        .sort((a, b) => a[1].name.localeCompare(b[1].name));
+      
+      let options = '<option value="">-- Select Supplier (Optional) --</option>';
+      suppliers.forEach(([id, s]) => {
+        const selected = id === selectedId ? 'selected' : '';
+        const icon = getCategoryIcon(s.category);
+        options += `<option value="${id}" ${selected}>${icon} ${s.name}${s.preferred ? ' ⭐' : ''}</option>`;
+      });
+      return options;
+    }
+
     function generateSKU(productName, id) {
       const prefix = (productName || 'PROD').substring(0, 3).toUpperCase().replace(/[^A-Z]/g, 'X');
       const shortId = (id || '0000').substring(0, 4).toUpperCase();
@@ -447,6 +470,7 @@
       const categoryName = getCategoryName(product.category);
       const sku = product.sku || generateSKU(product.name, product.id);
       const imageUrl = product.imageUrl || '';
+      const supplierName = getSupplierName(product.supplierId);
       
       let heroIconContent;
       if (imageUrl) {
@@ -507,7 +531,7 @@
               <div class="preview-info-grid">
                 <div class="preview-info-item">
                   <label>Supplier</label>
-                  <div class="value">${product.supplier || 'Not specified'}</div>
+                  <div class="value">${supplierName}</div>
                 </div>
                 <div class="preview-info-item">
                   <label>Last Updated</label>
@@ -526,9 +550,9 @@
                   <i class="fas fa-${product.isActive !== false ? 'check-circle' : 'times-circle'}"></i>
                   ${product.isActive !== false ? 'Active' : 'Inactive'}
                 </span>
-                ${product.supplier ? `
+                ${product.supplierId ? `
                   <span class="preview-tag tag-supplier">
-                    <i class="fas fa-building"></i> ${product.supplier}
+                    <i class="fas fa-building"></i> ${supplierName}
                   </span>
                 ` : ''}
                 ${product.unitPrice > 0 ? `
@@ -584,7 +608,7 @@
         const sku = p.sku || generateSKU(p.name, p.id);
         const icon = getCategoryIcon(p.category);
         const imageUrl = p.imageUrl || '';
-        const productJSON = JSON.stringify(p).replace(/'/g, "&#39;").replace(/"/g, '&quot;');
+        const supplierName = getSupplierName(p.supplierId);
         
         return `
           <div class="product-card">
@@ -602,13 +626,14 @@
             <div class="product-meta">
               <span class="meta-tag category">${icon} ${getCategoryName(p.category)}</span>
               ${p.unitPrice ? `<span class="meta-tag price">KES ${p.unitPrice.toLocaleString()}/${p.unit || 'unit'}</span>` : ''}
+              ${p.supplierId ? `<span class="meta-tag supplier"><i class="fas fa-truck"></i> ${supplierName}</span>` : ''}
               ${p.isActive !== false ? '<span class="meta-tag" style="background:#d1fae5;color:#065f46;">Active</span>' : '<span class="meta-tag" style="background:#fee2e2;color:#991b1b;">Inactive</span>'}
             </div>
 
             <div class="product-details-grid">
               <div><strong>Unit</strong>${p.unit || 'N/A'}</div>
               <div><strong>Min Order</strong>${p.minOrder || 1} ${p.unit || 'unit'}</div>
-              <div><strong>Supplier</strong>${p.supplier || 'N/A'}</div>
+              <div><strong>Supplier</strong>${supplierName}</div>
               <div><strong>Updated</strong>${p.updatedAt ? new Date(p.updatedAt).toLocaleDateString() : 'N/A'}</div>
             </div>
 
@@ -669,7 +694,9 @@
           <div class="form-group"><label>Minimum Order</label><input type="number" id="pMinOrder" value="1" min="1"></div>
         </div>
         <div class="form-row">
-          <div class="form-group"><label>Supplier</label><input type="text" id="pSupplier" placeholder="Supplier name"></div>
+          <div class="form-group"><label>Supplier</label><select id="pSupplierId">
+            ${getSupplierOptions()}
+          </select></div>
           <div class="form-group"><label>Image URL</label><input type="text" id="pImageUrl" placeholder="https://... (optional)"></div>
         </div>
         <div class="form-group">
@@ -694,7 +721,7 @@
         unit: document.getElementById('pUnit').value,
         unitPrice: parseInt(document.getElementById('pPrice').value) || 0,
         minOrder: parseInt(document.getElementById('pMinOrder').value) || 1,
-        supplier: document.getElementById('pSupplier').value.trim(),
+        supplierId: document.getElementById('pSupplierId').value || null,
         imageUrl: document.getElementById('pImageUrl').value.trim(),
         isActive: document.getElementById('pActive').checked,
         createdAt: firebase.database.ServerValue.TIMESTAMP,
@@ -739,7 +766,9 @@
           <div class="form-group"><label>Minimum Order</label><input type="number" id="epMinOrder" value="${p.minOrder || 1}"></div>
         </div>
         <div class="form-row">
-          <div class="form-group"><label>Supplier</label><input type="text" id="epSupplier" value="${p.supplier || ''}"></div>
+          <div class="form-group"><label>Supplier</label><select id="epSupplierId">
+            ${getSupplierOptions(p.supplierId || '')}
+          </select></div>
           <div class="form-group"><label>Image URL</label><input type="text" id="epImageUrl" value="${p.imageUrl || ''}"></div>
         </div>
         <div class="form-group">
@@ -763,7 +792,7 @@
           unit: document.getElementById('epUnit').value,
           unitPrice: parseInt(document.getElementById('epPrice').value) || 0,
           minOrder: parseInt(document.getElementById('epMinOrder').value) || 1,
-          supplier: document.getElementById('epSupplier').value.trim(),
+          supplierId: document.getElementById('epSupplierId').value || null,
           imageUrl: document.getElementById('epImageUrl').value.trim(),
           isActive: document.getElementById('epActive').checked,
           sku: generateSKU(name, productId),
@@ -817,9 +846,15 @@
       }
     });
 
-    // Firebase listener
+    // Firebase listeners
     database.ref('fusion_foods_products').on('value', (snapshot) => {
       allProducts = snapshot.val() || {};
+      renderProducts();
+    });
+
+    // Listen for suppliers
+    database.ref('fusion_foods_suppliers').on('value', (snapshot) => {
+      allSuppliers = snapshot.val() || {};
       renderProducts();
     });
 
