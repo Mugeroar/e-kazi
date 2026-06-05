@@ -8,8 +8,7 @@
   <title>KazInni · Operations Portal</title>
   <link rel="icon" type="image/x-icon" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview-1.png">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
-  </script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -32,6 +31,8 @@
       --danger: #ef4444;
       --info: #3b82f6;
       --purple: #8b5cf6;
+      --emerald: #059669;
+      --pink: #ec4899;
       --bg-primary: #ffffff;
       --bg-secondary: #faf9f7;
       --bg-card: #ffffff;
@@ -118,7 +119,7 @@
 
     .hero-section {
       display: grid; grid-template-columns: 1fr 1fr; gap: 3rem;
-      align-items: start; margin-bottom: 3rem;
+      align-items: start; margin-bottom: 2.5rem;
     }
     .hero-content h1 {
       font-size: 2.8rem; font-weight: 800; line-height: 1.15;
@@ -135,44 +136,128 @@
     }
     .hero-buttons { display: flex; gap: 1rem; flex-wrap: wrap; }
 
+    /* Live Map Widget */
+    .map-widget {
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+      width: 100%;
+      transition: all 0.3s ease;
+    }
+    .map-widget:hover { box-shadow: var(--shadow-gold), 0 20px 60px rgba(0,0,0,0.12); }
+    .map-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 1.5rem 0.6rem; background: var(--bg-card);
+      border-bottom: 1px solid var(--border-light);
+    }
+    .map-title {
+      font-family: var(--font-heading); font-size: 0.95rem; font-weight: 700;
+      color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem;
+    }
+    .map-title i { color: var(--gold); }
+    .live-badge {
+      display: flex; align-items: center; gap: 0.3rem;
+      padding: 0.2rem 0.7rem; background: rgba(16,185,129,0.1);
+      border-radius: 20px; font-size: 0.65rem; font-weight: 700;
+      color: #059669; font-family: var(--font-heading);
+      text-transform: uppercase; letter-spacing: 0.3px;
+    }
+    .live-dot {
+      width: 6px; height: 6px; background: var(--success);
+      border-radius: 50%; animation: pulse-glow 2s infinite;
+    }
+    .map-container-leaflet {
+      width: 100%; height: 280px; position: relative; z-index: 1;
+      background: #f8fafc;
+    }
+    .map-container-leaflet .leaflet-control-zoom { display: none; }
+    .map-container-leaflet .leaflet-control-attribution { font-size: 8px; }
+    .map-stats-row {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 0;
+    }
+    .map-stat-item {
+      text-align: center; padding: 0.8rem 0.5rem;
+      border-top: 1px solid var(--border-light);
+      border-right: 1px solid var(--border-light);
+    }
+    .map-stat-item:last-child { border-right: none; }
+    .map-stat-value {
+      font-size: 1.2rem; font-weight: 800; font-family: var(--font-display);
+      letter-spacing: -0.02em;
+    }
+    .map-stat-label {
+      font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase;
+      letter-spacing: 0.3px; font-weight: 600; font-family: var(--font-heading);
+      margin-top: 0.1rem;
+    }
+
     .stats-row {
-      display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 3rem;
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2.5rem;
     }
     .stat-card {
       background: var(--bg-card); border: 1px solid var(--border-light);
-      border-radius: 20px; padding: 1.4rem; text-align: center;
+      border-radius: 20px; padding: 1.3rem; text-align: center;
       transition: all 0.3s; box-shadow: var(--shadow-sm);
     }
     .stat-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); border-color: var(--gold); }
     .stat-icon {
-      width: 48px; height: 48px; border-radius: 14px;
+      width: 44px; height: 44px; border-radius: 14px;
       display: flex; align-items: center; justify-content: center;
-      margin: 0 auto 0.8rem; font-size: 1.3rem;
+      margin: 0 auto 0.7rem; font-size: 1.2rem;
     }
-    .stat-value { font-size: 1.8rem; font-weight: 800; font-family: var(--font-display); margin-bottom: 0.2rem; }
-    .stat-label { font-size: 0.8rem; color: var(--text-muted); font-weight: 500; font-family: var(--font-heading); }
+    .stat-value { font-size: 1.7rem; font-weight: 800; font-family: var(--font-display); margin-bottom: 0.15rem; }
+    .stat-label { font-size: 0.75rem; color: var(--text-muted); font-weight: 500; font-family: var(--font-heading); }
+
+    .section-header {
+      display: flex; align-items: center; gap: 0.8rem;
+      margin-bottom: 1.2rem;
+    }
+    .section-header h2 {
+      font-size: 1.2rem; font-weight: 700; font-family: var(--font-heading);
+    }
+    .section-header i { color: var(--gold); font-size: 1.1rem; }
 
     .portal-grid {
-      display: grid; grid-template-columns: repeat(4,1fr); gap: 1.2rem; margin-bottom: 3rem;
+      display: grid; grid-template-columns: repeat(4,1fr); gap: 1rem; margin-bottom: 2.5rem;
     }
     .portal-card {
       background: var(--bg-card); border: 1px solid var(--border-light);
-      border-radius: 24px; padding: 1.8rem 1.5rem; text-align: center;
+      border-radius: 20px; padding: 1.5rem 1.3rem; text-align: center;
       transition: all 0.3s; box-shadow: var(--shadow-sm); text-decoration: none; color: inherit;
       display: block;
     }
-    .portal-card:hover { border-color: var(--gold); box-shadow: var(--shadow-lg); transform: translateY(-4px); }
+    .portal-card:hover { border-color: var(--gold); box-shadow: var(--shadow-md); transform: translateY(-3px); }
     .portal-icon {
-      width: 52px; height: 52px; background: var(--gold-soft);
-      border-radius: 16px; display: flex; align-items: center; justify-content: center;
-      font-size: 1.5rem; color: var(--gold); margin: 0 auto 1rem;
+      width: 48px; height: 48px; border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem; color: var(--gold); margin: 0 auto 0.8rem;
     }
-    .portal-card h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.3rem; font-family: var(--font-heading); }
-    .portal-card p { color: var(--text-muted); font-size: 0.85rem; }
+    .portal-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.2rem; font-family: var(--font-heading); }
+    .portal-card p { color: var(--text-muted); font-size: 0.8rem; }
+
+    /* System Status */
+    .status-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2.5rem;
+    }
+    .status-item {
+      background: var(--bg-card); border: 1px solid var(--border-light);
+      border-radius: 16px; padding: 1rem; display: flex;
+      align-items: center; gap: 0.8rem; transition: all 0.3s;
+    }
+    .status-item:hover { border-color: var(--gold); box-shadow: var(--shadow-sm); }
+    .status-dot {
+      width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+    }
+    .status-dot.online { background: var(--success); box-shadow: 0 0 8px rgba(16,185,129,0.4); }
+    .status-info { flex: 1; }
+    .status-name { font-weight: 600; font-size: 0.85rem; font-family: var(--font-heading); }
+    .status-desc { font-size: 0.7rem; color: var(--text-muted); }
 
     .footer {
       background: var(--bg-secondary); padding: 2rem 0;
-      border-top: 1px solid var(--border-light); margin-top: 3rem;
+      border-top: 1px solid var(--border-light); margin-top: 2rem;
     }
     .footer-content {
       max-width: 1400px; margin: 0 auto; padding: 0 2.5rem;
@@ -253,17 +338,21 @@
       to { opacity: 1; transform: translateY(0); }
     }
     .hero-content { animation: fadeInUp 0.8s ease-out; }
+    .map-widget { animation: fadeInUp 0.8s ease-out 0.2s both; }
 
     @media (max-width:1024px) {
       .hero-section{grid-template-columns:1fr;text-align:center}
       .hero-content p { margin: 0 auto 2rem; }
       .hero-buttons { justify-content: center; }
+      .map-widget { max-width: 500px; margin: 0 auto; }
       .portal-grid{grid-template-columns:repeat(2,1fr)}
       .stats-row{grid-template-columns:repeat(2,1fr)}
+      .status-grid{grid-template-columns:repeat(2,1fr)}
     }
     @media (max-width:768px) {
       .portal-grid{grid-template-columns:1fr}
       .stats-row{grid-template-columns:1fr}
+      .status-grid{grid-template-columns:1fr}
       .footer-content{flex-direction:column;gap:0.8rem;text-align:center}
       .hero-content h1 { font-size: 2.2rem; }
       .main-content{padding:0 1rem}
@@ -353,34 +442,97 @@
           <a href="workspaces.html" class="btn btn-outline btn-large"><i class="fas fa-cubes"></i> Workspaces</a>
         </div>
       </div>
-      <!-- Stats Overview -->
-      <div class="stats-row" id="statsRow">
-        <div class="stat-card"><div class="skeleton" style="height:48px;width:48px;border-radius:14px;margin:0 auto 0.8rem;"></div><div class="skeleton" style="height:1.8rem;width:50%;margin:0 auto 0.2rem;"></div><div class="skeleton" style="height:0.8rem;width:60%;margin:0 auto;"></div></div>
-        <div class="stat-card"><div class="skeleton" style="height:48px;width:48px;border-radius:14px;margin:0 auto 0.8rem;"></div><div class="skeleton" style="height:1.8rem;width:50%;margin:0 auto 0.2rem;"></div><div class="skeleton" style="height:0.8rem;width:60%;margin:0 auto;"></div></div>
-        <div class="stat-card"><div class="skeleton" style="height:48px;width:48px;border-radius:14px;margin:0 auto 0.8rem;"></div><div class="skeleton" style="height:1.8rem;width:50%;margin:0 auto 0.2rem;"></div><div class="skeleton" style="height:0.8rem;width:60%;margin:0 auto;"></div></div>
-        <div class="stat-card"><div class="skeleton" style="height:48px;width:48px;border-radius:14px;margin:0 auto 0.8rem;"></div><div class="skeleton" style="height:1.8rem;width:50%;margin:0 auto 0.2rem;"></div><div class="skeleton" style="height:0.8rem;width:60%;margin:0 auto;"></div></div>
+      <!-- Live Map Widget -->
+      <div class="map-widget">
+        <div class="map-header">
+          <div class="map-title"><i class="fas fa-map-marked-alt"></i> Field Operations Map</div>
+          <div class="live-badge"><div class="live-dot"></div> Live</div>
+        </div>
+        <div class="map-container-leaflet" id="overviewMap"></div>
+        <div class="map-stats-row">
+          <div class="map-stat-item">
+            <div class="map-stat-value" style="color:#ca8a04;" id="statLocations">—</div>
+            <div class="map-stat-label">Locations</div>
+          </div>
+          <div class="map-stat-item">
+            <div class="map-stat-value" style="color:#7c3aed;" id="statOperations">—</div>
+            <div class="map-stat-label">Operations</div>
+          </div>
+          <div class="map-stat-item">
+            <div class="map-stat-value" style="color:#059669;">🇰🇪</div>
+            <div class="map-stat-label">Kenya</div>
+          </div>
+        </div>
       </div>
     </section>
 
+    <!-- Platform Stats -->
+    <div class="stats-row" id="statsRow">
+      <div class="stat-card"><div class="skeleton" style="height:44px;width:44px;border-radius:14px;margin:0 auto 0.7rem;"></div><div class="skeleton" style="height:1.7rem;width:50%;margin:0 auto 0.15rem;"></div><div class="skeleton" style="height:0.75rem;width:60%;margin:0 auto;"></div></div>
+      <div class="stat-card"><div class="skeleton" style="height:44px;width:44px;border-radius:14px;margin:0 auto 0.7rem;"></div><div class="skeleton" style="height:1.7rem;width:50%;margin:0 auto 0.15rem;"></div><div class="skeleton" style="height:0.75rem;width:60%;margin:0 auto;"></div></div>
+      <div class="stat-card"><div class="skeleton" style="height:44px;width:44px;border-radius:14px;margin:0 auto 0.7rem;"></div><div class="skeleton" style="height:1.7rem;width:50%;margin:0 auto 0.15rem;"></div><div class="skeleton" style="height:0.75rem;width:60%;margin:0 auto;"></div></div>
+      <div class="stat-card"><div class="skeleton" style="height:44px;width:44px;border-radius:14px;margin:0 auto 0.7rem;"></div><div class="skeleton" style="height:1.7rem;width:50%;margin:0 auto 0.15rem;"></div><div class="skeleton" style="height:0.75rem;width:60%;margin:0 auto;"></div></div>
+    </div>
+
+    <!-- System Status -->
+    <div class="section-header">
+      <i class="fas fa-server"></i>
+      <h2>System Status</h2>
+    </div>
+    <div class="status-grid">
+      <div class="status-item">
+        <div class="status-dot online"></div>
+        <div class="status-info">
+          <div class="status-name">Authentication</div>
+          <div class="status-desc">Firebase Auth</div>
+        </div>
+      </div>
+      <div class="status-item">
+        <div class="status-dot online"></div>
+        <div class="status-info">
+          <div class="status-name">Database</div>
+          <div class="status-desc">Real-time DB</div>
+        </div>
+      </div>
+      <div class="status-item">
+        <div class="status-dot online"></div>
+        <div class="status-info">
+          <div class="status-name">Map Services</div>
+          <div class="status-desc">Leaflet / OSM</div>
+        </div>
+      </div>
+      <div class="status-item">
+        <div class="status-dot online"></div>
+        <div class="status-info">
+          <div class="status-name">Last Deploy</div>
+          <div class="status-desc" id="lastDeploy">Today</div>
+        </div>
+      </div>
+    </div>
+
     <!-- Quick Access -->
+    <div class="section-header">
+      <i class="fas fa-th-large"></i>
+      <h2>Quick Access</h2>
+    </div>
     <div class="portal-grid">
       <a href="dashboard.html" class="portal-card">
-        <div class="portal-icon"><i class="fas fa-tachometer-alt"></i></div>
+        <div class="portal-icon" style="background:#fef3c7;"><i class="fas fa-tachometer-alt"></i></div>
         <h3>Dashboard</h3>
         <p>Operations overview & analytics</p>
       </a>
       <a href="profile.html" class="portal-card">
-        <div class="portal-icon"><i class="fas fa-user-circle"></i></div>
+        <div class="portal-icon" style="background:#ecfdf5;"><i class="fas fa-user-circle"></i></div>
         <h3>Profile</h3>
-        <p>Manage your account & settings</p>
+        <p>Manage your account</p>
       </a>
       <a href="workspaces.html" class="portal-card">
-        <div class="portal-icon"><i class="fas fa-cubes"></i></div>
+        <div class="portal-icon" style="background:#eff6ff;"><i class="fas fa-cubes"></i></div>
         <h3>Workspaces</h3>
         <p>Fusion, DSOG, Heritage, BrandInn</p>
       </a>
       <a href="resources.html" class="portal-card">
-        <div class="portal-icon"><i class="fas fa-book-open"></i></div>
+        <div class="portal-icon" style="background:#fdf2f8;"><i class="fas fa-book-open"></i></div>
         <h3>Resources</h3>
         <p>Guides, tools & training</p>
       </a>
@@ -407,10 +559,98 @@
     const database = firebase.database();
     auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 
+    let overviewMap = null;
+    let mapMarkers = [];
+
     auth.onAuthStateChanged(user => {
       if (user) window.location.href = 'dashboard.html';
     });
 
+    // ===== MAP FUNCTIONS =====
+    function initOverviewMap() {
+      const mapContainer = document.getElementById('overviewMap');
+      if (!mapContainer || mapContainer.offsetWidth === 0) {
+        setTimeout(initOverviewMap, 200);
+        return;
+      }
+
+      if (overviewMap) { overviewMap.remove(); overviewMap = null; }
+      mapMarkers = [];
+
+      overviewMap = L.map('overviewMap', {
+        center: [-1.2864, 36.8172],
+        zoom: 13,
+        zoomControl: false,
+        attributionControl: true,
+        dragging: true,
+        scrollWheelZoom: false,
+        doubleClickZoom: true,
+        touchZoom: true
+      });
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OSM'
+      }).addTo(overviewMap);
+
+      setTimeout(() => { if (overviewMap) overviewMap.invalidateSize(); }, 300);
+      updateMapData();
+    }
+
+    function getOperationColor(operation) {
+      const colors = {
+        brandinn: '#7c3aed', deliveries: '#f59e0b', rides: '#22c55e',
+        dsog: '#ec4899', mugsndines: '#8b5cf6', heritage: '#d946ef',
+        workfit: '#f97316', fusion: '#10b981', hekima: '#10b981'
+      };
+      return colors[operation] || '#ca8a04';
+    }
+
+    function updateMapData() {
+      if (!overviewMap) { initOverviewMap(); return; }
+
+      database.ref('iam_mugera_registrations').once('value').then(snap => {
+        const data = snap.val() || {};
+        const businesses = Object.values(data).filter(b => b && b.lat && b.lng);
+
+        mapMarkers.forEach(m => overviewMap.removeLayer(m));
+        mapMarkers = [];
+
+        const bounds = [];
+        const operationSet = new Set();
+
+        if (businesses.length > 0) {
+          businesses.forEach(biz => {
+            const color = getOperationColor(biz.operation);
+            const marker = L.circleMarker([biz.lat, biz.lng], {
+              radius: 4,
+              fillColor: color,
+              color: '#ffffff',
+              weight: 1.5,
+              opacity: 1,
+              fillOpacity: 0.8
+            }).addTo(overviewMap);
+
+            mapMarkers.push(marker);
+            bounds.push([biz.lat, biz.lng]);
+            if (biz.operation) operationSet.add(biz.operation);
+          });
+
+          overviewMap.fitBounds(bounds, { padding: [30, 30], maxZoom: 15 });
+          document.getElementById('statLocations').textContent = businesses.length;
+          document.getElementById('statOperations').textContent = operationSet.size;
+        } else {
+          overviewMap.setView([-1.2864, 36.8172], 7);
+          document.getElementById('statLocations').textContent = '0';
+          document.getElementById('statOperations').textContent = '0';
+        }
+      }).catch(err => {
+        document.getElementById('statLocations').textContent = '—';
+        document.getElementById('statOperations').textContent = '—';
+      });
+    }
+
+    // ===== STATS =====
     async function loadStats() {
       try {
         let workspaceCount = 0, resourceCount = 0, registeredUsers = 0, mapLocations = 0;
@@ -454,7 +694,7 @@
           <div class="stat-card">
             <div class="stat-icon" style="background:#eff6ff;color:#2563eb;"><i class="fas fa-users"></i></div>
             <div class="stat-value" style="color:#2563eb;">${registeredUsers || '—'}</div>
-            <div class="stat-label">Staff</div>
+            <div class="stat-label">Staff Accounts</div>
           </div>
           <div class="stat-card">
             <div class="stat-icon" style="background:#fdf2f8;color:#ec4899;"><i class="fas fa-map-marker-alt"></i></div>
@@ -466,13 +706,13 @@
         document.getElementById('statsRow').innerHTML = `
           <div class="stat-card"><div class="stat-icon" style="background:#fef3c7;color:#ca8a04;"><i class="fas fa-cubes"></i></div><div class="stat-value" style="color:#ca8a04;">4</div><div class="stat-label">Workspaces</div></div>
           <div class="stat-card"><div class="stat-icon" style="background:#ecfdf5;color:#059669;"><i class="fas fa-book-open"></i></div><div class="stat-value" style="color:#059669;">12+</div><div class="stat-label">Resources</div></div>
-          <div class="stat-card"><div class="stat-icon" style="background:#eff6ff;color:#2563eb;"><i class="fas fa-users"></i></div><div class="stat-value" style="color:#2563eb;">—</div><div class="stat-label">Staff</div></div>
+          <div class="stat-card"><div class="stat-icon" style="background:#eff6ff;color:#2563eb;"><i class="fas fa-users"></i></div><div class="stat-value" style="color:#2563eb;">—</div><div class="stat-label">Staff Accounts</div></div>
           <div class="stat-card"><div class="stat-icon" style="background:#fdf2f8;color:#ec4899;"><i class="fas fa-map-marker-alt"></i></div><div class="stat-value" style="color:#ec4899;">—</div><div class="stat-label">Field Locations</div></div>
         `;
       }
     }
 
-    // Modal functions
+    // ===== MODAL FUNCTIONS =====
     window.openAuthModal = () => {
       document.getElementById('authModal').classList.add('active');
       document.getElementById('authModalOverlay').classList.add('active');
@@ -548,8 +788,16 @@
       setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = '0.3s'; setTimeout(() => toast.remove(), 300); }, 3000);
     }
 
+    // ===== INIT =====
     document.getElementById('authModalOverlay').addEventListener('click', closeAuthModal);
+
+    window.addEventListener('load', () => {
+      setTimeout(initOverviewMap, 500);
+      setInterval(updateMapData, 30000);
+    });
+
     loadStats();
+    document.getElementById('lastDeploy').textContent = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   </script>
 </body>
 </html>
