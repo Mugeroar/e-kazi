@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Suppliers | Fusion Foods</title>
+  
+  <meta name="theme-color" content="#6366f1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  
+  <link rel="icon" type="image/png" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --indigo: #6366f1;
+      --indigo-dark: #4f46e5;
+      --indigo-light: #818cf8;
+      --text-primary: #1e293b;
+      --text-muted: #64748b;
+      --border-light: #c7d2fe;
+      --red: #ef4444;
+      --green: #10b981;
+      --amber: #f59e0b;
+      --blue: #3b82f6;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(145deg, #eef2ff 0%, #ffffff 100%);
+      color: var(--text-primary);
+      line-height: 1.4;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .navbar {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(16px);
+      padding: 0.5rem 2%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(99, 102, 241, 0.2);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .logo-img { height: 34px; width: 34px; border-radius: 10px; object-fit: contain; background: white; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2); }
+    .logo-text {
+      font-weight: 800; font-size: 1.1rem;
+      background: linear-gradient(145deg, #818cf8, #4f46e5);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .logo-text span { font-weight: 600; font-size: 0.7rem; background: #6366f1; -webkit-text-fill-color: #6366f1; margin-left: 3px; }
+
+    .nav-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .nav-btn {
+      background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.2);
+      padding: 0.4rem 0.8rem; border-radius: 25px; color: var(--indigo-dark);
+      font-weight: 600; font-size: 0.7rem; cursor: pointer; display: inline-flex;
+      align-items: center; gap: 5px; text-decoration: none; transition: all 0.2s;
+    }
+    .nav-btn:hover { background: var(--indigo); color: white; }
+
+    .container { padding: 1rem 2%; flex: 1; }
+
+    .page-header { margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.8rem; }
+    .page-header h1 { font-size: 1.3rem; font-weight: 800; color: #0f172a; }
+    .page-header h1 i { color: var(--indigo-dark); margin-right: 6px; }
+
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 1rem; }
+    .stat-mini {
+      background: white; border-radius: 14px; padding: 0.8rem 1rem; text-align: center;
+      border: 1px solid var(--border-light); box-shadow: 0 2px 8px rgba(99,102,241,0.03);
+    }
+    .stat-mini .stat-num { font-size: 1.4rem; font-weight: 800; color: var(--indigo-dark); line-height: 1.1; }
+    .stat-mini .stat-label { font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.3px; }
+
+    .action-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1rem; align-items: center; }
+    .filter-btn {
+      padding: 0.35rem 0.8rem; border-radius: 20px; border: 1.5px solid #e2e8f0;
+      background: white; color: #64748b; font-weight: 600; font-size: 0.65rem;
+      cursor: pointer; transition: all 0.15s; font-family: inherit;
+    }
+    .filter-btn:hover { border-color: var(--indigo); color: var(--indigo-dark); }
+    .filter-btn.active { background: var(--indigo); color: white; border-color: var(--indigo); }
+    .search-box { flex: 1; min-width: 150px; max-width: 300px; position: relative; }
+    .search-box input {
+      width: 100%; padding: 0.35rem 0.8rem 0.35rem 2rem; border-radius: 20px;
+      border: 1.5px solid #e2e8f0; font-size: 0.7rem; font-family: 'Inter', sans-serif;
+    }
+    .search-box i { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 0.7rem; }
+    .btn {
+      padding: 0.5rem 1rem; border-radius: 10px; border: none; font-weight: 700;
+      font-size: 0.7rem; cursor: pointer; display: inline-flex; align-items: center;
+      gap: 5px; font-family: inherit; transition: all 0.15s; white-space: nowrap;
+    }
+    .btn-primary { background: var(--indigo); color: white; }
+    .btn-primary:hover { background: var(--indigo-dark); }
+    .btn-secondary { background: #f1f5f9; color: #475569; }
+    .btn-secondary:hover { background: #e2e8f0; }
+
+    .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; }
+
+    .supplier-card {
+      background: white; border-radius: 16px; padding: 1.2rem;
+      border: 1px solid var(--border-light); box-shadow: 0 3px 12px rgba(99,102,241,0.04);
+      transition: all 0.2s; position: relative;
+    }
+    .supplier-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(99,102,241,0.1); }
+    .supplier-card.preferred { border-left: 4px solid #6366f1; }
+    .supplier-card.inactive { opacity: 0.7; }
+    
+    .supplier-header { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 0.8rem; }
+    .supplier-avatar {
+      width: 56px; height: 56px; border-radius: 14px; background: linear-gradient(135deg, #6366f1, #818cf8);
+      display: flex; align-items: center; justify-content: center;
+      color: white; font-weight: 800; font-size: 1.2rem; flex-shrink: 0;
+    }
+    .supplier-main-info { flex: 1; }
+    .supplier-main-info h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.2rem; }
+    .supplier-category {
+      font-size: 0.6rem; padding: 0.15rem 0.5rem; border-radius: 10px;
+      font-weight: 600; display: inline-block; margin-bottom: 0.3rem;
+      background: #eef2ff; color: #4f46e5;
+    }
+    .supplier-badges { display: flex; gap: 4px; flex-wrap: wrap; }
+    .badge {
+      padding: 0.15rem 0.5rem; border-radius: 10px; font-size: 0.55rem; font-weight: 700;
+    }
+    .badge-preferred { background: #e0e7ff; color: #3730a3; }
+    .badge-active { background: #d1fae5; color: #065f46; }
+    .badge-inactive { background: #fee2e2; color: #991b1b; }
+    .badge-rating { background: #fef3c7; color: #92400e; }
+
+    .supplier-info { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 0.65rem; margin-bottom: 0.8rem; }
+    .supplier-info div { color: var(--text-muted); }
+    .supplier-info strong { color: var(--text-primary); display: block; font-size: 0.55rem; text-transform: uppercase; margin-bottom: 1px; }
+
+    .supplier-contact { 
+      background: #f8fafc; padding: 0.6rem 0.8rem; border-radius: 10px;
+      font-size: 0.65rem; margin-bottom: 0.8rem; display: flex; flex-wrap: wrap; gap: 10px;
+    }
+    .supplier-contact span { display: flex; align-items: center; gap: 4px; color: var(--text-muted); }
+    .supplier-contact i { color: var(--indigo); font-size: 0.6rem; }
+
+    .supplier-actions { display: flex; gap: 4px; flex-wrap: wrap; }
+    .btn-sm {
+      padding: 0.3rem 0.6rem; border-radius: 8px; border: none; font-weight: 600;
+      font-size: 0.6rem; cursor: pointer; display: inline-flex; align-items: center;
+      gap: 3px; transition: all 0.15s; font-family: inherit;
+    }
+    .btn-edit { background: #eef2ff; color: #4f46e5; }
+    .btn-edit:hover { background: #6366f1; color: white; }
+    .btn-order { background: #f0fdf4; color: #065f46; }
+    .btn-order:hover { background: #10b981; color: white; }
+    .btn-delete { background: #fee2e2; color: #991b1b; }
+    .btn-delete:hover { background: #ef4444; color: white; }
+    .btn-call { background: #eff6ff; color: #1d4ed8; }
+    .btn-call:hover { background: #3b82f6; color: white; }
+
+    .empty-state { text-align: center; padding: 3rem; color: #94a3b8; grid-column: 1 / -1; }
+
+    /* Modal */
+    .modal-overlay {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5); z-index: 3000; justify-content: center;
+      align-items: center; backdrop-filter: blur(2px);
+    }
+    .modal-overlay.show { display: flex; }
+    .modal {
+      background: white; border-radius: 20px; padding: 1.5rem; max-width: 550px;
+      width: 95%; max-height: 85vh; overflow-y: auto; box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+    }
+    .modal h3 { font-size: 0.95rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px; color: var(--indigo-dark); }
+    .form-group { margin-bottom: 0.7rem; }
+    .form-group label {
+      display: block; font-size: 0.65rem; font-weight: 700; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 0.15rem;
+    }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%; padding: 0.5rem 0.7rem; border-radius: 10px;
+      border: 1.5px solid #e2e8f0; font-size: 0.8rem; font-family: 'Inter', sans-serif;
+      background: #f8fafc;
+    }
+    .form-group textarea { resize: vertical; min-height: 60px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+    .btn-row { display: flex; gap: 8px; margin-top: 1rem; }
+
+    .toast {
+      position: fixed; bottom: 25px; right: 25px; background: var(--indigo); color: white;
+      padding: 0.7rem 1.2rem; border-radius: 20px; font-weight: 600; z-index: 4000;
+      animation: slideIn 0.3s ease; box-shadow: 0 8px 20px rgba(99,102,241,0.25);
+      display: flex; align-items: center; gap: 6px; font-size: 0.75rem;
+    }
+    .toast.error { background: var(--red); }
+    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+    @media (max-width: 768px) {
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+      .cards-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <a href="fusion-foods-dashboard.html" class="logo">
+      <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png" alt="Fusion Foods" class="logo-img">
+      <span class="logo-text">Fusion <span>Foods</span></span>
+    </a>
+    <div class="nav-right">
+      <a href="/workspaces/fusion-foods/index.html" class="nav-btn"><i class="fas fa-arrow-left"></i> Dashboard</a>
+      <a href="/workspaces/fusion-foods/inventory.html" class="nav-btn"><i class="fas fa-boxes"></i> Inventory</a>
+      <a href="/workspaces/fusion-foods/products.html" class="nav-btn"><i class="fas fa-tags"></i> Products</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="page-header">
+      <h1><i class="fas fa-people-carry"></i> Supplier Management</h1>
+      <button class="btn btn-primary" onclick="showAddModal()"><i class="fas fa-plus"></i> Add Supplier</button>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-mini"><div class="stat-num" id="statTotal">0</div><div class="stat-label">Total Suppliers</div></div>
+      <div class="stat-mini"><div class="stat-num" id="statActive">0</div><div class="stat-label">Active</div></div>
+      <div class="stat-mini"><div class="stat-num" id="statPreferred">0</div><div class="stat-label">Preferred</div></div>
+      <div class="stat-mini"><div class="stat-num" id="statAvgRating">0</div><div class="stat-label">Avg Rating</div></div>
+    </div>
+
+    <div class="action-bar">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="active">✅ Active</button>
+      <button class="filter-btn" data-filter="preferred">⭐ Preferred</button>
+      <button class="filter-btn" data-filter="vegetables">🥬 Vegetables</button>
+      <button class="filter-btn" data-filter="meat">🥩 Meat</button>
+      <button class="filter-btn" data-filter="dairy">🥛 Dairy</button>
+      <button class="filter-btn" data-filter="grains">🌾 Grains</button>
+      <button class="filter-btn" data-filter="spices">🌶️ Spices</button>
+      <button class="filter-btn" data-filter="beverages">🥤 Beverages</button>
+      <button class="filter-btn" data-filter="oils">🫒 Oils</button>
+      <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input type="text" id="searchInput" placeholder="Search suppliers...">
+      </div>
+    </div>
+
+    <div class="cards-grid" id="suppliersGrid">
+      <div class="empty-state">Loading suppliers...</div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modal"><div class="modal" id="modalContent"></div></div>
+  <div id="toastContainer"></div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+      authDomain: "mugera-e51cc.firebaseapp.com",
+      databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "mugera-e51cc",
+      storageBucket: "mugera-e51cc.firebasestorage.app",
+      messagingSenderId: "1024868637509",
+      appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    const auth = firebase.auth();
+
+    let allSuppliers = {};
+    let currentFilter = 'all';
+    let searchQuery = '';
+
+    function showToast(msg, isError = false) {
+      const container = document.getElementById('toastContainer');
+      const existing = container.querySelector('.toast');
+      if (existing) existing.remove();
+      const toast = document.createElement('div');
+      toast.className = `toast ${isError ? 'error' : ''}`;
+      toast.innerHTML = `<i class="fas fa-${isError ? 'exclamation-circle' : 'check-circle'}"></i> ${msg}`;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 3500);
+    }
+
+    function getInitials(name) {
+      if (!name) return 'SU';
+      return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+    }
+
+    function getCategoryIcon(category) {
+      const icons = {
+        vegetables: '🥬', meat: '🥩', dairy: '🥛', grains: '🌾',
+        spices: '🌶️', beverages: '🥤', oils: '🫒', bakery: '🍞', other: '📦'
+      };
+      return icons[category?.toLowerCase()] || '📦';
+    }
+
+    function getCategoryName(category) {
+      const names = {
+        vegetables: 'Vegetables', meat: 'Meat & Protein', dairy: 'Dairy',
+        grains: 'Grains', spices: 'Spices', beverages: 'Beverages',
+        oils: 'Oils', bakery: 'Bakery', other: 'Other'
+      };
+      return names[category?.toLowerCase()] || category || 'Other';
+    }
+
+    function renderSuppliers() {
+      const grid = document.getElementById('suppliersGrid');
+      let suppliers = Object.entries(allSuppliers).map(([id, data]) => ({ id, ...data }));
+
+      // Apply filters
+      if (currentFilter === 'active') {
+        suppliers = suppliers.filter(s => s.status === 'active' || !s.status);
+      } else if (currentFilter === 'preferred') {
+        suppliers = suppliers.filter(s => s.preferred === true);
+      } else if (currentFilter !== 'all') {
+        suppliers = suppliers.filter(s => (s.category || '').toLowerCase() === currentFilter);
+      }
+
+      // Apply search
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        suppliers = suppliers.filter(s => 
+          (s.name || '').toLowerCase().includes(q) ||
+          (s.contactPerson || '').toLowerCase().includes(q) ||
+          (s.email || '').toLowerCase().includes(q) ||
+          (s.category || '').toLowerCase().includes(q)
+        );
+      }
+
+      if (!suppliers.length) {
+        grid.innerHTML = '<div class="empty-state"><i class="fas fa-truck" style="font-size:2rem;display:block;margin-bottom:8px;"></i>No suppliers found</div>';
+        return;
+      }
+
+      grid.innerHTML = suppliers.map(s => {
+        const initials = getInitials(s.name);
+        const icon = getCategoryIcon(s.category);
+        const isActive = s.status !== 'inactive';
+        const rating = s.rating || 0;
+        const stars = '⭐'.repeat(Math.min(5, Math.round(rating)));
+        
+        return `
+          <div class="supplier-card ${s.preferred ? 'preferred' : ''} ${!isActive ? 'inactive' : ''}">
+            <div class="supplier-header">
+              <div class="supplier-avatar">${initials}</div>
+              <div class="supplier-main-info">
+                <h3>${s.name || 'Unnamed Supplier'}</h3>
+                <span class="supplier-category">${icon} ${getCategoryName(s.category)}</span>
+                <div class="supplier-badges">
+                  ${s.preferred ? '<span class="badge badge-preferred">⭐ Preferred</span>' : ''}
+                  ${isActive ? '<span class="badge badge-active">Active</span>' : '<span class="badge badge-inactive">Inactive</span>'}
+                  ${rating > 0 ? `<span class="badge badge-rating">${stars} ${rating.toFixed(1)}</span>` : ''}
+                </div>
+              </div>
+            </div>
+
+            <div class="supplier-info">
+              <div><strong>Contact Person</strong>${s.contactPerson || 'N/A'}</div>
+              <div><strong>Payment Terms</strong>${s.paymentTerms || 'N/A'}</div>
+              <div><strong>Delivery Time</strong>${s.deliveryTime || 'N/A'}</div>
+              <div><strong>Min Order</strong>${s.minOrder ? `KES ${s.minOrder.toLocaleString()}` : 'N/A'}</div>
+            </div>
+
+            <div class="supplier-contact">
+              ${s.phone ? `<span><i class="fas fa-phone"></i> ${s.phone}</span>` : ''}
+              ${s.email ? `<span><i class="fas fa-envelope"></i> ${s.email}</span>` : ''}
+              ${s.location ? `<span><i class="fas fa-map-marker-alt"></i> ${s.location}</span>` : ''}
+            </div>
+
+            ${s.notes ? `<div style="font-size:0.6rem;color:#64748b;margin-bottom:0.8rem;font-style:italic;">"${s.notes.substring(0, 80)}${s.notes.length > 80 ? '...' : ''}"</div>` : ''}
+
+            <div class="supplier-actions">
+              <button class="btn-sm btn-edit" onclick="editSupplier('${s.id}')"><i class="fas fa-edit"></i> Edit</button>
+              ${s.phone ? `<a href="tel:${s.phone}" class="btn-sm btn-call"><i class="fas fa-phone-alt"></i> Call</a>` : ''}
+              ${s.email ? `<a href="mailto:${s.email}" class="btn-sm btn-order"><i class="fas fa-envelope"></i> Email</a>` : ''}
+              <button class="btn-sm btn-delete" onclick="deleteSupplier('${s.id}')"><i class="fas fa-trash"></i> Delete</button>
+            </div>
+          </div>`;
+      }).join('');
+
+      updateStats();
+    }
+
+    function updateStats() {
+      const suppliers = Object.values(allSuppliers);
+      const total = suppliers.length;
+      const active = suppliers.filter(s => s.status !== 'inactive').length;
+      const preferred = suppliers.filter(s => s.preferred === true).length;
+      const ratings = suppliers.filter(s => s.rating > 0).map(s => s.rating);
+      const avgRating = ratings.length ? (ratings.reduce((a, b) => a + b, 0) / ratings.length).toFixed(1) : 0;
+
+      document.getElementById('statTotal').textContent = total;
+      document.getElementById('statActive').textContent = active;
+      document.getElementById('statPreferred').textContent = preferred;
+      document.getElementById('statAvgRating').textContent = avgRating;
+    }
+
+    function showAddModal() {
+      document.getElementById('modalContent').innerHTML = `
+        <h3><i class="fas fa-plus-circle"></i> Add Supplier</h3>
+        <div class="form-row">
+          <div class="form-group"><label>Company Name *</label><input type="text" id="sName" placeholder="Supplier company name"></div>
+          <div class="form-group"><label>Contact Person</label><input type="text" id="sContactPerson" placeholder="Primary contact name"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Category *</label><select id="sCategory">
+            <option value="vegetables">🥬 Vegetables</option><option value="meat">🥩 Meat & Protein</option>
+            <option value="dairy">🥛 Dairy</option><option value="grains">🌾 Grains</option>
+            <option value="spices">🌶️ Spices</option><option value="beverages">🥤 Beverages</option>
+            <option value="oils">🫒 Oils</option><option value="bakery">🍞 Bakery</option>
+            <option value="other">📦 Other</option>
+          </select></div>
+          <div class="form-group"><label>Status</label><select id="sStatus">
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+          </select></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Phone</label><input type="text" id="sPhone" placeholder="+254..."></div>
+          <div class="form-group"><label>Email</label><input type="email" id="sEmail" placeholder="supplier@email.com"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Location</label><input type="text" id="sLocation" placeholder="City/Area"></div>
+          <div class="form-group"><label>Payment Terms</label><select id="sPaymentTerms">
+            <option value="COD">Cash on Delivery</option>
+            <option value="Net 7">Net 7 Days</option>
+            <option value="Net 14">Net 14 Days</option>
+            <option value="Net 30">Net 30 Days</option>
+            <option value="Prepaid">Prepaid</option>
+            <option value="Weekly">Weekly</option>
+            <option value="Monthly">Monthly</option>
+          </select></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Delivery Time</label><input type="text" id="sDeliveryTime" placeholder="e.g., 2-3 days"></div>
+          <div class="form-group"><label>Min Order (KES)</label><input type="number" id="sMinOrder" value="0" min="0"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Rating (1-5)</label><input type="number" id="sRating" value="0" min="0" max="5" step="0.1"></div>
+          <div class="form-group">
+            <label><input type="checkbox" id="sPreferred" style="width:auto;margin-right:6px;"> Preferred Supplier</label>
+          </div>
+        </div>
+        <div class="form-group"><label>Notes</label><textarea id="sNotes" placeholder="Additional notes about this supplier..."></textarea></div>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="saveSupplier()"><i class="fas fa-save"></i> Save Supplier</button>
+          <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+        </div>
+      `;
+      document.getElementById('modal').classList.add('show');
+    }
+
+    async function saveSupplier() {
+      const name = document.getElementById('sName').value.trim();
+      if (!name) { showToast('Supplier name is required', true); return; }
+
+      const supplierData = {
+        name,
+        contactPerson: document.getElementById('sContactPerson').value.trim(),
+        category: document.getElementById('sCategory').value,
+        status: document.getElementById('sStatus').value,
+        phone: document.getElementById('sPhone').value.trim(),
+        email: document.getElementById('sEmail').value.trim(),
+        location: document.getElementById('sLocation').value.trim(),
+        paymentTerms: document.getElementById('sPaymentTerms').value,
+        deliveryTime: document.getElementById('sDeliveryTime').value.trim(),
+        minOrder: parseInt(document.getElementById('sMinOrder').value) || 0,
+        rating: parseFloat(document.getElementById('sRating').value) || 0,
+        preferred: document.getElementById('sPreferred').checked,
+        notes: document.getElementById('sNotes').value.trim(),
+        createdAt: firebase.database.ServerValue.TIMESTAMP,
+        updatedAt: firebase.database.ServerValue.TIMESTAMP
+      };
+
+      try {
+        await database.ref('fusion_foods_suppliers').push(supplierData);
+        showToast('✅ Supplier added successfully!');
+        closeModal();
+      } catch (e) {
+        console.error(e);
+        showToast('Failed to save supplier', true);
+      }
+    }
+
+    function editSupplier(supplierId) {
+      const s = allSuppliers[supplierId];
+      if (!s) return;
+
+      document.getElementById('modalContent').innerHTML = `
+        <h3><i class="fas fa-edit"></i> Edit Supplier</h3>
+        <div class="form-row">
+          <div class="form-group"><label>Company Name *</label><input type="text" id="esName" value="${s.name || ''}"></div>
+          <div class="form-group"><label>Contact Person</label><input type="text" id="esContactPerson" value="${s.contactPerson || ''}"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Category</label><select id="esCategory">
+            ${['vegetables','meat','dairy','grains','spices','beverages','oils','bakery','other'].map(c => 
+              `<option value="${c}" ${s.category === c ? 'selected' : ''}>${getCategoryIcon(c)} ${getCategoryName(c)}</option>`
+            ).join('')}
+          </select></div>
+          <div class="form-group"><label>Status</label><select id="esStatus">
+            <option value="active" ${s.status === 'active' || !s.status ? 'selected' : ''}>Active</option>
+            <option value="inactive" ${s.status === 'inactive' ? 'selected' : ''}>Inactive</option>
+          </select></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Phone</label><input type="text" id="esPhone" value="${s.phone || ''}"></div>
+          <div class="form-group"><label>Email</label><input type="email" id="esEmail" value="${s.email || ''}"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Location</label><input type="text" id="esLocation" value="${s.location || ''}"></div>
+          <div class="form-group"><label>Payment Terms</label><select id="esPaymentTerms">
+            ${['COD','Net 7','Net 14','Net 30','Prepaid','Weekly','Monthly'].map(t => 
+              `<option value="${t}" ${s.paymentTerms === t ? 'selected' : ''}>${t}</option>`
+            ).join('')}
+          </select></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Delivery Time</label><input type="text" id="esDeliveryTime" value="${s.deliveryTime || ''}"></div>
+          <div class="form-group"><label>Min Order (KES)</label><input type="number" id="esMinOrder" value="${s.minOrder || 0}"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Rating (1-5)</label><input type="number" id="esRating" value="${s.rating || 0}" min="0" max="5" step="0.1"></div>
+          <div class="form-group">
+            <label><input type="checkbox" id="esPreferred" ${s.preferred ? 'checked' : ''} style="width:auto;margin-right:6px;"> Preferred Supplier</label>
+          </div>
+        </div>
+        <div class="form-group"><label>Notes</label><textarea id="esNotes">${s.notes || ''}</textarea></div>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="updateSupplier('${supplierId}')"><i class="fas fa-save"></i> Update</button>
+          <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+        </div>
+      `;
+      document.getElementById('modal').classList.add('show');
+    }
+
+    async function updateSupplier(supplierId) {
+      try {
+        await database.ref(`fusion_foods_suppliers/${supplierId}`).update({
+          name: document.getElementById('esName').value.trim(),
+          contactPerson: document.getElementById('esContactPerson').value.trim(),
+          category: document.getElementById('esCategory').value,
+          status: document.getElementById('esStatus').value,
+          phone: document.getElementById('esPhone').value.trim(),
+          email: document.getElementById('esEmail').value.trim(),
+          location: document.getElementById('esLocation').value.trim(),
+          paymentTerms: document.getElementById('esPaymentTerms').value,
+          deliveryTime: document.getElementById('esDeliveryTime').value.trim(),
+          minOrder: parseInt(document.getElementById('esMinOrder').value) || 0,
+          rating: parseFloat(document.getElementById('esRating').value) || 0,
+          preferred: document.getElementById('esPreferred').checked,
+          notes: document.getElementById('esNotes').value.trim(),
+          updatedAt: firebase.database.ServerValue.TIMESTAMP
+        });
+        showToast('✅ Supplier updated!');
+        closeModal();
+      } catch (e) {
+        console.error(e);
+        showToast('Failed to update supplier', true);
+      }
+    }
+
+    async function deleteSupplier(supplierId) {
+      if (!confirm('Are you sure you want to delete this supplier?')) return;
+      try {
+        await database.ref(`fusion_foods_suppliers/${supplierId}`).remove();
+        showToast('✅ Supplier deleted');
+      } catch (e) {
+        showToast('Failed to delete supplier', true);
+      }
+    }
+
+    function closeModal() { document.getElementById('modal').classList.remove('show'); }
+
+    // Filters
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentFilter = btn.dataset.filter;
+        renderSuppliers();
+      });
+    });
+
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+      searchQuery = e.target.value;
+      renderSuppliers();
+    });
+
+    document.getElementById('modal').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('modal')) closeModal();
+    });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+    // Firebase listener
+    database.ref('fusion_foods_suppliers').on('value', (snapshot) => {
+      allSuppliers = snapshot.val() || {};
+      renderSuppliers();
+    });
+
+    auth.onAuthStateChanged((user) => { if (!user) window.location.href = '/'; });
+
+    // Expose functions globally
+    window.showAddModal = showAddModal;
+    window.editSupplier = editSupplier;
+    window.deleteSupplier = deleteSupplier;
+    window.saveSupplier = saveSupplier;
+    window.updateSupplier = updateSupplier;
+    window.closeModal = closeModal;
+  </script>
+</body>
+</html>
