@@ -79,19 +79,6 @@
 
         .main-content{max-width:1100px;margin:calc(var(--header-height) + 1.5rem) auto 2rem;padding:0 2rem;}
 
-        .auto-gen-status {
-            text-align:center; margin-bottom:1.2rem;
-        }
-        .auto-gen-status span{
-            display:inline-flex; align-items:center; gap:0.5rem;
-            padding:0.6rem 1.2rem; background:var(--bg-card);
-            border:1px solid var(--border-light); border-radius:50px;
-            font-size:0.75rem; color:var(--text-muted);
-        }
-        .auto-gen-status i{color:var(--success);}
-        .auto-gen-status.generating i{color:var(--warning);animation:spin 1s linear infinite;}
-        @keyframes spin{to{transform:rotate(360deg)}}
-
         .blog-header{text-align:center;margin-bottom:1.2rem;}
         .blog-header h1{font-size:2rem;font-weight:800;font-family:var(--font-display);display:flex;align-items:center;justify-content:center;gap:0.5rem;margin-bottom:0.2rem;}
         .blog-header h1 i{color:var(--gold);}
@@ -107,6 +94,17 @@
         .btn-outline{background:transparent;border:1px solid var(--border-light);color:var(--text-secondary);}
         .btn-outline:hover{border-color:var(--gold);color:var(--gold);}
         .btn-sm{padding:0.3rem 0.7rem;font-size:0.7rem;}
+
+        /* Skeleton loading for blog */
+        .blog-skeleton { margin-bottom: 1.2rem; }
+        .blog-skeleton-card {
+            background: var(--bg-card); border: 1px solid var(--border-light);
+            border-radius: 24px; padding: 2rem; box-shadow: var(--shadow-sm);
+        }
+        .blog-skeleton-card::before {
+            content: ''; display: block; height: 4px; background: #e5e7eb;
+            margin: -2rem -2rem 1.5rem -2rem; border-radius: 24px 24px 0 0;
+        }
 
         .kpi-banner {
             display:grid; grid-template-columns:repeat(4,1fr); gap:0.7rem; margin-bottom:1.2rem;
@@ -135,20 +133,25 @@
 
         .blog-content{font-family:var(--font-blog);font-size:0.88rem;line-height:1.75;color:var(--text-secondary);}
         .blog-content h2{font-family:var(--font-heading);font-size:1.15rem;font-weight:700;color:var(--text-primary);margin:1.3rem 0 0.5rem;display:flex;align-items:center;gap:0.4rem;}
+        .blog-content h3{font-family:var(--font-heading);font-size:1rem;font-weight:700;color:var(--text-primary);margin:1rem 0 0.4rem;}
         .blog-content p{margin-bottom:0.7rem;}
         .blog-content .highlight-box{background:var(--gold-soft);border-left:4px solid var(--gold);padding:0.7rem 1rem;border-radius:0 10px 10px 0;margin:0.8rem 0;font-family:var(--font-heading);font-size:0.82rem;}
+        .blog-content .highlight-box.warning{background:rgba(245,158,11,0.08);border-left-color:var(--warning);}
+        .blog-content .highlight-box.info{background:rgba(59,130,246,0.06);border-left-color:var(--info);}
+        .blog-content .highlight-box.success{background:rgba(16,185,129,0.06);border-left-color:var(--success);}
         .blog-content .stat-inline{display:inline-block;padding:0.1rem 0.45rem;border-radius:5px;font-weight:700;font-family:var(--font-heading);font-size:0.82rem;}
         .blog-content .stat-inline.gold{background:rgba(202,138,4,0.1);color:var(--gold-dark);}
         .blog-content .stat-inline.green{background:rgba(16,185,129,0.1);color:var(--emerald);}
         .blog-content .stat-inline.purple{background:rgba(139,92,246,0.1);color:var(--purple);}
         .blog-content .stat-inline.blue{background:rgba(59,130,246,0.1);color:var(--info);}
+        .blog-content .stat-inline.rose{background:rgba(225,29,72,0.1);color:var(--rose);}
         .blog-content .team-mention{display:inline-flex;align-items:center;gap:0.25rem;background:rgba(59,130,246,0.08);padding:0.08rem 0.45rem;border-radius:5px;font-weight:600;color:var(--info);margin:0 0.12rem;font-family:var(--font-heading);font-size:0.8rem;}
 
         .blog-chart-embed {
             background:var(--bg-secondary); border-radius:14px;
             padding:0.8rem; margin:0.8rem 0; border:1px solid var(--border-light);
         }
-        .blog-chart-embed canvas{max-height:160px;}
+        .blog-chart-embed canvas{max-height:180px;}
         .chart-label{font-size:0.62rem;color:var(--text-muted);text-align:center;margin-top:0.4rem;}
 
         .blog-map-embed {
@@ -203,54 +206,67 @@
     <main class="main-content">
         <div class="blog-header">
             <h1><i class="fas fa-newspaper"></i> Operations Blog</h1>
-            <p>Auto-generated daily summaries with live charts, maps & analytics</p>
+            <p>Daily analytics · System performance · Predictions · Auto-generated</p>
         </div>
 
-        <div class="auto-gen-status generating" id="statusArea">
-            <span><i class="fas fa-sync-alt"></i> Loading today's report...</span>
-        </div>
-
-        <div class="kpi-banner" id="kpiBanner">
-            <div class="kpi-banner-card"><div class="skeleton" style="height:1.6rem;width:50%;margin:0 auto 0.3rem;"></div><div class="skeleton" style="height:0.62rem;width:60%;margin:0 auto;"></div></div>
-            <div class="kpi-banner-card"><div class="skeleton" style="height:1.6rem;width:50%;margin:0 auto 0.3rem;"></div><div class="skeleton" style="height:0.62rem;width:60%;margin:0 auto;"></div></div>
-            <div class="kpi-banner-card"><div class="skeleton" style="height:1.6rem;width:50%;margin:0 auto 0.3rem;"></div><div class="skeleton" style="height:0.62rem;width:60%;margin:0 auto;"></div></div>
-            <div class="kpi-banner-card"><div class="skeleton" style="height:1.6rem;width:50%;margin:0 auto 0.3rem;"></div><div class="skeleton" style="height:0.62rem;width:60%;margin:0 auto;"></div></div>
-        </div>
-
-        <div class="blog-layout">
-            <div id="blogContent">
-                <div class="blog-post">
-                    <div class="skeleton" style="height:1.8rem;width:55%;margin-bottom:0.8rem;"></div>
-                    <div class="skeleton" style="height:0.9rem;width:75%;margin-bottom:0.4rem;"></div>
-                    <div class="skeleton" style="height:0.9rem;width:35%;margin-bottom:1.2rem;"></div>
-                    <div class="skeleton" style="height:12rem;"></div>
-                </div>
+        <!-- SKELETON LOADING STATE -->
+        <div id="skeletonState">
+            <div class="kpi-banner">
+                <div class="kpi-banner-card"><div class="skeleton" style="height:1.6rem;width:50%;margin:0 auto 0.3rem;"></div><div class="skeleton" style="height:0.62rem;width:60%;margin:0 auto;"></div></div>
+                <div class="kpi-banner-card"><div class="skeleton" style="height:1.6rem;width:50%;margin:0 auto 0.3rem;"></div><div class="skeleton" style="height:0.62rem;width:60%;margin:0 auto;"></div></div>
+                <div class="kpi-banner-card"><div class="skeleton" style="height:1.6rem;width:50%;margin:0 auto 0.3rem;"></div><div class="skeleton" style="height:0.62rem;width:60%;margin:0 auto;"></div></div>
+                <div class="kpi-banner-card"><div class="skeleton" style="height:1.6rem;width:50%;margin:0 auto 0.3rem;"></div><div class="skeleton" style="height:0.62rem;width:60%;margin:0 auto;"></div></div>
             </div>
+            <div class="blog-layout">
+                <div>
+                    <div class="blog-skeleton-card blog-skeleton">
+                        <div class="skeleton" style="height:1.8rem;width:55%;margin-bottom:0.8rem;"></div>
+                        <div class="skeleton" style="height:0.9rem;width:75%;margin-bottom:0.4rem;"></div>
+                        <div class="skeleton" style="height:0.9rem;width:35%;margin-bottom:1.5rem;"></div>
+                        <div class="skeleton" style="height:1.2rem;width:90%;margin-bottom:0.5rem;"></div>
+                        <div class="skeleton" style="height:1.2rem;width:85%;margin-bottom:0.5rem;"></div>
+                        <div class="skeleton" style="height:1.2rem;width:70%;margin-bottom:1rem;"></div>
+                        <div class="skeleton" style="height:10rem;margin-bottom:1rem;"></div>
+                        <div class="skeleton" style="height:1.2rem;width:80%;margin-bottom:0.5rem;"></div>
+                        <div class="skeleton" style="height:8rem;"></div>
+                    </div>
+                </div>
+                <aside>
+                    <div class="sidebar-card"><div class="skeleton" style="height:0.9rem;width:60%;margin-bottom:0.6rem;"></div><div class="skeleton" style="height:0.8rem;margin-bottom:0.4rem;"></div><div class="skeleton" style="height:0.8rem;margin-bottom:0.4rem;"></div></div>
+                    <div class="sidebar-card"><div class="skeleton" style="height:0.9rem;width:50%;margin-bottom:0.6rem;"></div><div class="skeleton" style="height:1.8rem;margin-bottom:0.3rem;"></div><div class="skeleton" style="height:1.8rem;"></div></div>
+                </aside>
+            </div>
+        </div>
 
-            <aside class="blog-sidebar">
-                <div class="sidebar-card">
-                    <h4><i class="fas fa-fire"></i> Today's Highlights</h4>
-                    <div id="sidebarHighlights">
-                        <div class="skeleton" style="height:0.9rem;margin-bottom:0.4rem;"></div>
-                        <div class="skeleton" style="height:0.9rem;margin-bottom:0.4rem;"></div>
+        <!-- LIVE CONTENT (hidden initially) -->
+        <div id="liveState" style="display:none;">
+            <div class="kpi-banner" id="kpiBanner"></div>
+            <div class="blog-layout">
+                <div id="blogContent"></div>
+                <aside class="blog-sidebar">
+                    <div class="sidebar-card">
+                        <h4><i class="fas fa-fire"></i> Today's Highlights</h4>
+                        <div id="sidebarHighlights"></div>
                     </div>
-                </div>
-                <div class="sidebar-card">
-                    <h4><i class="fas fa-archive"></i> Previous Posts</h4>
-                    <div class="archive-list" id="archiveList">
-                        <div class="skeleton" style="height:1.8rem;margin-bottom:0.25rem;"></div>
-                        <div class="skeleton" style="height:1.8rem;margin-bottom:0.25rem;"></div>
+                    <div class="sidebar-card">
+                        <h4><i class="fas fa-archive"></i> Previous Posts</h4>
+                        <div class="archive-list" id="archiveList"></div>
                     </div>
-                </div>
-                <div class="sidebar-card">
-                    <h4><i class="fas fa-tags"></i> Topics</h4>
-                    <div class="tag-cloud">
-                        <span class="tag">Fusion Foods</span><span class="tag">DSOG</span>
-                        <span class="tag">BrandInn</span><span class="tag">Heritage</span>
-                        <span class="tag">Field Ops</span><span class="tag">Daily Report</span>
+                    <div class="sidebar-card">
+                        <h4><i class="fas fa-tags"></i> Topics</h4>
+                        <div class="tag-cloud">
+                            <span class="tag">Fusion Foods</span><span class="tag">DSOG</span>
+                            <span class="tag">BrandInn</span><span class="tag">Heritage</span>
+                            <span class="tag">Field Ops</span><span class="tag">Performance</span>
+                            <span class="tag">Predictions</span>
+                        </div>
                     </div>
-                </div>
-            </aside>
+                    <div class="sidebar-card" style="text-align:center;">
+                        <p style="font-size:0.7rem;color:var(--text-muted);margin-bottom:0.5rem;">Refresh today's report</p>
+                        <button class="btn btn-outline btn-sm" onclick="regenerateToday()"><i class="fas fa-sync-alt"></i> Regenerate</button>
+                    </div>
+                </aside>
+            </div>
         </div>
     </main>
 
@@ -279,9 +295,8 @@
             document.getElementById('userDisplayName').textContent = name || 'Staff';
             document.getElementById('userAvatar').textContent = (name || 'K').charAt(0).toUpperCase();
             
-            // Load posts and auto-generate
+            // Show skeleton, load data, then reveal
             await loadBlogPosts();
-            renderArchive();
             await checkAndGenerateToday();
         });
 
@@ -292,29 +307,23 @@
             } catch(e) { console.error('Load error:', e); blogPosts = {}; }
         }
 
-        // FIXED: Single entry point for auto-generation
         async function checkAndGenerateToday() {
             const today = new Date().toISOString().split('T')[0];
             
             if (blogPosts[today]) {
-                // Post exists - just display it
-                updateStatus('ready', 'Today\'s post is ready');
                 renderBlogDisplay(today, blogPosts[today]);
+                revealContent();
             } else {
-                // Generate new post
-                updateStatus('generating', 'Generating today\'s report...');
                 await generateTodayPost(today);
-                updateStatus('ready', 'Today\'s report is ready');
+                revealContent();
             }
         }
 
-        function updateStatus(state, message) {
-            const area = document.getElementById('statusArea');
-            area.className = 'auto-gen-status' + (state === 'generating' ? ' generating' : '');
-            area.innerHTML = `<span><i class="fas fa-${state === 'ready' ? 'check-circle' : 'sync-alt'}"></i> ${message}</span>`;
+        function revealContent() {
+            document.getElementById('skeletonState').style.display = 'none';
+            document.getElementById('liveState').style.display = 'block';
         }
 
-        // FIXED: Single generation function
         async function generateTodayPost(dateStr) {
             if (isGenerating) return;
             isGenerating = true;
@@ -349,6 +358,24 @@
                 const heritageListings = filterByDate(rawData.heritageListings);
                 const fieldRegs = filterByDate(rawData.fieldRegs);
 
+                // Hourly analysis for system performance
+                const allTimestamps = [...fusionOrders, ...dsogOrders, ...brandinnOrders, ...heritageListings, ...fieldRegs]
+                    .map(([_, item]) => item.createdAt || item.timestamp || 0)
+                    .filter(t => t > 0);
+                
+                const hourlyBins = new Array(24).fill(0);
+                allTimestamps.forEach(ts => {
+                    const hour = new Date(ts).getHours();
+                    hourlyBins[hour]++;
+                });
+
+                const peakHour = hourlyBins.indexOf(Math.max(...hourlyBins));
+                const peakCount = hourlyBins[peakHour];
+                const totalOps = fusionOrders.length + dsogOrders.length + brandinnOrders.length + heritageListings.length;
+                const avgPerHour = totalOps > 0 ? (totalOps / 24).toFixed(1) : 0;
+                const systemLoad = totalOps > 50 ? 'high' : totalOps > 15 ? 'moderate' : 'low';
+
+                // Contributors
                 const contributors = new Set();
                 [...fusionOrders, ...dsogOrders, ...brandinnOrders].forEach(([_, o]) => {
                     const by = o.recordedBy || o.clerkId || '';
@@ -359,7 +386,6 @@
                     if (by) contributors.add(by.includes('@') ? by.split('@')[0] : by);
                 });
 
-                const totalOps = fusionOrders.length + dsogOrders.length + brandinnOrders.length + heritageListings.length;
                 const contributorList = [...contributors];
                 const fieldRegsArray = fieldRegs.map(([_, r]) => r);
 
@@ -368,6 +394,13 @@
                     brandinn: brandinnOrders.length, heritage: heritageListings.length,
                     field: fieldRegs.length
                 };
+
+                // Predictions for tomorrow
+                const yesterdayDate = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+                const yesterdayPost = blogPosts[yesterdayDate];
+                const yesterdayTotal = yesterdayPost?.stats?.totalOperations || 0;
+                const trend = totalOps > yesterdayTotal ? 'increasing' : totalOps < yesterdayTotal ? 'decreasing' : 'stable';
+                const predictedTomorrow = Math.round(totalOps * (trend === 'increasing' ? 1.15 : trend === 'decreasing' ? 0.85 : 1.0));
 
                 const blogData = {
                     date: dateStr,
@@ -383,44 +416,48 @@
                         contributors: contributorList.length,
                         contributorNames: contributorList,
                         chartData: chartData,
-                        fieldRegsData: fieldRegsArray
+                        fieldRegsData: fieldRegsArray,
+                        hourlyBins: hourlyBins,
+                        peakHour: peakHour,
+                        peakCount: peakCount,
+                        avgPerHour: avgPerHour,
+                        systemLoad: systemLoad,
+                        trend: trend,
+                        predictedTomorrow: predictedTomorrow,
+                        yesterdayTotal: yesterdayTotal
                     },
-                    content: generateBlogContent(fusionOrders, dsogOrders, brandinnOrders, heritageListings, fieldRegs, contributorList),
+                    content: generateBlogContent(fusionOrders, dsogOrders, brandinnOrders, heritageListings, fieldRegs, contributorList, hourlyBins, peakHour, peakCount, systemLoad, trend, predictedTomorrow, totalOps),
                     generatedAt: new Date().toISOString(),
                     generatedBy: auth.currentUser?.email || 'System'
                 };
 
-                // Save to Firebase
                 await db.ref(`operation_blogs/${dateStr}`).set(blogData);
                 blogPosts[dateStr] = blogData;
-
-                // Render everything
                 renderBlogDisplay(dateStr, blogData);
                 renderArchive();
 
             } catch(e) {
                 console.error('Generation error:', e);
-                updateStatus('ready', 'Error generating. Click Regenerate.');
             } finally {
                 isGenerating = false;
             }
         }
 
-        // FIXED: Single rendering function
         function renderBlogDisplay(date, data) {
-            // Render KPI banner
             const cd = data.stats?.chartData || { fusion: 0, dsog: 0, brandinn: 0, heritage: 0, field: 0 };
             const total = data.stats?.totalOperations || 0;
             const contributors = data.stats?.contributors || 0;
-            
+            const load = data.stats?.systemLoad || 'low';
+            const peakHr = data.stats?.peakHour || 0;
+            const peakCt = data.stats?.peakCount || 0;
+
             document.getElementById('kpiBanner').innerHTML = `
                 <div class="kpi-banner-card animate-in"><div class="kpi-banner-value" style="color:#ca8a04;">${total}</div><div class="kpi-banner-label">Total Operations</div></div>
-                <div class="kpi-banner-card animate-in" style="animation-delay:0.1s;"><div class="kpi-banner-value" style="color:#10b981;">${cd.fusion}</div><div class="kpi-banner-label">🍽️ Fusion Foods</div></div>
-                <div class="kpi-banner-card animate-in" style="animation-delay:0.2s;"><div class="kpi-banner-value" style="color:#7c3aed;">${cd.field}</div><div class="kpi-banner-label">📍 Field Regs</div></div>
+                <div class="kpi-banner-card animate-in" style="animation-delay:0.1s;"><div class="kpi-banner-value" style="color:${load==='high'?'#ef4444':load==='moderate'?'#f59e0b':'#10b981'};">${load.toUpperCase()}</div><div class="kpi-banner-label">System Load</div></div>
+                <div class="kpi-banner-card animate-in" style="animation-delay:0.2s;"><div class="kpi-banner-value" style="color:#7c3aed;">${peakHr}:00</div><div class="kpi-banner-label">Peak Hour (${peakCt} ops)</div></div>
                 <div class="kpi-banner-card animate-in" style="animation-delay:0.3s;"><div class="kpi-banner-value" style="color:#3b82f6;">${contributors}</div><div class="kpi-banner-label">👥 Contributors</div></div>
             `;
 
-            // Render blog post
             document.getElementById('blogContent').innerHTML = `
                 <div class="blog-post animate-in">
                     <div class="blog-post-header">
@@ -430,31 +467,32 @@
                         <div class="blog-post-meta">
                             <span><i class="fas fa-calendar-check"></i> ${new Date(data.generatedAt).toLocaleTimeString()}</span>
                             <span><i class="fas fa-robot"></i> Auto-generated</span>
+                            <span><i class="fas fa-chart-line"></i> With analytics</span>
                         </div>
                     </div>
                     <div class="blog-content">${data.content}</div>
                 </div>`;
 
-            // Update archive highlight
             document.querySelectorAll('.archive-item').forEach(el => {
                 el.classList.toggle('active', el.dataset.date === date);
             });
 
-            // Update sidebar highlights
+            // Sidebar highlights
             const highlights = [];
             if (cd.fusion > 0) highlights.push(`🍽️ <strong>${cd.fusion}</strong> Fusion Foods orders`);
             if (cd.dsog > 0) highlights.push(`👗 <strong>${cd.dsog}</strong> DSOG Fashion orders`);
             if (cd.brandinn > 0) highlights.push(`🖨️ <strong>${cd.brandinn}</strong> BrandInn print jobs`);
             if (cd.heritage > 0) highlights.push(`🏛️ <strong>${cd.heritage}</strong> Heritage listings`);
             if (cd.field > 0) highlights.push(`📍 <strong>${cd.field}</strong> field registrations`);
+            if (load === 'high') highlights.push(`⚠️ <strong>High system load</strong> detected`);
             if (highlights.length === 0) highlights.push('No operations recorded today');
             document.getElementById('sidebarHighlights').innerHTML = highlights.map(h => 
                 `<div style="font-size:0.72rem;padding:0.25rem 0;border-bottom:1px solid var(--border-light);">${h}</div>`
             ).join('');
 
-            // Embed chart and map after DOM is ready
             setTimeout(() => {
                 embedChart(cd);
+                embedHourlyChart(data.stats?.hourlyBins || new Array(24).fill(0), data.stats?.peakHour || 0);
                 embedMap(data.stats?.fieldRegsData || []);
             }, 400);
         }
@@ -464,7 +502,6 @@
             if (!container) return;
             const canvas = container.querySelector('canvas');
             if (!canvas) return;
-
             const ctx = canvas.getContext('2d');
             const chart = new Chart(ctx, {
                 type: 'doughnut',
@@ -479,6 +516,42 @@
                 options: {
                     responsive: true, maintainAspectRatio: false,
                     plugins: { legend: { position: 'bottom', labels: { padding: 8, usePointStyle: true, font: { size: 8 } } } }
+                }
+            });
+            embeddedCharts.push(chart);
+        }
+
+        function embedHourlyChart(hourlyBins, peakHour) {
+            const container = document.getElementById('blogHourlyChartEmbed');
+            if (!container) return;
+            const canvas = container.querySelector('canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            
+            const labels = hourlyBins.map((_, i) => `${i}:00`);
+            const bgColors = hourlyBins.map((_, i) => i === peakHour ? 'rgba(239,68,68,0.7)' : 'rgba(202,138,4,0.4)');
+            const borderColors = hourlyBins.map((_, i) => i === peakHour ? '#ef4444' : '#ca8a04');
+
+            const chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Operations',
+                        data: hourlyBins,
+                        backgroundColor: bgColors,
+                        borderColor: borderColors,
+                        borderWidth: 1,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 8 } }, grid: { color: '#f3f4f6' } },
+                        x: { ticks: { font: { size: 7 }, maxTicksLimit: 12 }, grid: { display: false } }
+                    }
                 }
             });
             embeddedCharts.push(chart);
@@ -533,19 +606,45 @@
             return `Daily operations summary for ${today} · ${contributors} team member${contributors !== 1 ? 's' : ''} contributed`;
         }
 
-        function generateBlogContent(fusion, dsog, brandinn, heritage, field, contributors) {
+        function generateBlogContent(fusion, dsog, brandinn, heritage, field, contributors, hourlyBins, peakHour, peakCount, systemLoad, trend, predictedTomorrow, totalOps) {
             let html = '';
-            const totalOps = fusion.length + dsog.length + brandinn.length + heritage.length;
 
             if (totalOps === 0 && field.length === 0) {
-                html += `<p>Today was a quiet day across all workspaces with no new operations recorded.</p>`;
-                html += `<div class="highlight-box">📊 All systems remain fully operational and ready for the next business day.</div>`;
+                html += `<p>Today was a <span class="stat-inline gold">quiet day</span> across all workspaces with no new operations recorded.</p>`;
+                html += `<div class="highlight-box">📊 All systems remain fully operational. No performance concerns to report.</div>`;
                 return html;
             }
 
-            html += `<p>Today marked <span class="stat-inline gold">${totalOps} operations</span> across our workspaces, with <span class="stat-inline green">${field.length} field registrations</span> recorded by our team across Kenya.</p>`;
+            // Opening
+            html += `<p>Today marked <span class="stat-inline gold">${totalOps} operations</span> across our workspaces, with <span class="stat-inline green">${field.length} field registrations</span> recorded across Kenya.</p>`;
+
+            // System Performance Section
+            html += `<h2>⚡ System Performance</h2>`;
+            const loadLabel = systemLoad === 'high' ? 'High Engagement' : systemLoad === 'moderate' ? 'Moderate Activity' : 'Light Activity';
+            const loadColor = systemLoad === 'high' ? 'rose' : systemLoad === 'moderate' ? 'gold' : 'green';
+            html += `<p>The system experienced <span class="stat-inline ${loadColor}">${loadLabel}</span> today, processing an average of <span class="stat-inline blue">${(totalOps / 24).toFixed(1)} operations per hour</span>.</p>`;
+
+            // Peak Hour Analysis
+            html += `<p>Peak activity occurred at <span class="stat-inline rose">${peakHour}:00</span> with <span class="stat-inline rose">${peakCount} operations</span> recorded during that hour.`;
+            if (systemLoad === 'high') {
+                html += ` The system handled the surge efficiently with no reported downtime.`;
+            }
+            html += `</p>`;
+
+            // Hourly chart
+            html += `<div class="blog-chart-embed" id="blogHourlyChartEmbed"><canvas></canvas><div class="chart-label">⚡ Hourly System Load — Red bar indicates peak hour</div></div>`;
+
+            // Overflow detection
+            if (peakCount > 10) {
+                html += `<div class="highlight-box warning"><strong>⚠️ Activity Overflow Detected:</strong> ${peakCount} operations at ${peakHour}:00 — this represents a significant spike. Consider monitoring this time window for potential bottlenecks.</div>`;
+            } else if (peakCount > 5) {
+                html += `<div class="highlight-box info"><strong>📈 Elevated Activity:</strong> ${peakCount} operations at ${peakHour}:00 — system performed within normal parameters.</div>`;
+            }
+
+            // Workspace Distribution Chart
             html += `<div class="blog-chart-embed" id="blogChartEmbed"><canvas></canvas><div class="chart-label">Workspace Distribution — Today's Operations</div></div>`;
 
+            // Workspace Details
             if (fusion.length > 0) {
                 const totalValue = fusion.reduce((sum, [_, o]) => sum + (o.total || 0), 0);
                 const restaurants = new Set(fusion.map(([_, o]) => o.restaurantName).filter(Boolean));
@@ -553,32 +652,40 @@
                 html += `<p>Processed <span class="stat-inline green">${fusion.length} orders</span> for <span class="stat-inline gold">${restaurants.size} restaurants</span>`;
                 if (totalValue > 0) html += ` (KES ${totalValue.toLocaleString()})`;
                 html += `.</p>`;
-                if (restaurants.size > 0 && restaurants.size <= 8) {
-                    html += `<div class="highlight-box"><strong>🏪 Served:</strong> ${[...restaurants].map(r => escapeHtml(r)).join(', ')}</div>`;
-                }
             }
 
             if (dsog.length > 0) {
-                html += `<h2>👗 DSOG Fashion</h2>`;
-                html += `<p>Handled <span class="stat-inline purple">${dsog.length} orders</span> in the apparel sector.</p>`;
+                html += `<h2>👗 DSOG Fashion</h2><p>Handled <span class="stat-inline purple">${dsog.length} orders</span> in apparel.</p>`;
             }
 
             if (brandinn.length > 0) {
-                html += `<h2>🖨️ BrandInn Print</h2>`;
-                html += `<p>Completed <span class="stat-inline purple">${brandinn.length} print orders</span>.</p>`;
+                html += `<h2>🖨️ BrandInn Print</h2><p>Completed <span class="stat-inline purple">${brandinn.length} print orders</span>.</p>`;
             }
 
             if (heritage.length > 0) {
-                html += `<h2>🏛️ Heritage Marketplace</h2>`;
-                html += `<p>Recorded <span class="stat-inline green">${heritage.length} new listings</span>.</p>`;
+                html += `<h2>🏛️ Heritage</h2><p>Recorded <span class="stat-inline green">${heritage.length} new listings</span>.</p>`;
             }
 
             if (field.length > 0) {
-                html += `<h2>📍 Field Operations</h2>`;
-                html += `<p>Field agents mapped <span class="stat-inline gold">${field.length} new locations</span>:</p>`;
+                html += `<h2>📍 Field Operations</h2><p>Field agents mapped <span class="stat-inline gold">${field.length} new locations</span>:</p>`;
                 html += `<div class="blog-map-embed" id="blogMapEmbed"></div><div class="chart-label">📍 Live Field Registrations Map</div>`;
             }
 
+            // Predictions Section
+            html += `<h2>🔮 Tomorrow's Predictions</h2>`;
+            html += `<p>Based on today's <span class="stat-inline ${trend === 'increasing' ? 'green' : trend === 'decreasing' ? 'rose' : 'gold'}">${trend}</span> trend`;
+            if (trend !== 'stable') {
+                html += ` (${trend === 'increasing' ? 'up' : 'down'} from yesterday)`;
+            }
+            html += `, we predict approximately <span class="stat-inline blue">${predictedTomorrow} operations</span> tomorrow.</p>`;
+            
+            if (predictedTomorrow > 30) {
+                html += `<div class="highlight-box info"><strong>📊 Prediction Insight:</strong> High volume expected tomorrow. Ensure adequate staffing and system resources.</div>`;
+            } else if (predictedTomorrow < 5) {
+                html += `<div class="highlight-box success"><strong>✅ Low Volume Expected:</strong> A lighter day anticipated — ideal for maintenance and administrative tasks.</div>`;
+            }
+
+            // Team
             if (contributors.length > 0) {
                 html += `<h2>👥 Team</h2>`;
                 html += `<p><span class="stat-inline blue">${contributors.length} contributor${contributors.length !== 1 ? 's' : ''}</span>: `;
@@ -586,8 +693,8 @@
                 html += `</p>`;
             }
 
-            html += `<div class="highlight-box">📊 <strong>Summary:</strong> ${totalOps} operations · ${field.length} field registrations · ${contributors.length} contributors</div>`;
-            html += `<p style="font-size:0.78rem;color:var(--text-muted);"><em>Auto-generated from real-time data. View <a href="analytics.html" style="color:var(--gold);">Analytics</a> or <a href="reports.html" style="color:var(--gold);">Reports</a>.</em></p>`;
+            html += `<div class="highlight-box">📊 <strong>Daily Summary:</strong> ${totalOps} operations · ${systemLoad.toUpperCase()} load · Peak at ${peakHour}:00 (${peakCount} ops) · ${contributors.length} contributors · ${predictedTomorrow} predicted tomorrow</div>`;
+            html += `<p style="font-size:0.78rem;color:var(--text-muted);"><em>Auto-generated from real-time operations data. View <a href="analytics.html" style="color:var(--gold);">Analytics</a> or <a href="reports.html" style="color:var(--gold);">Reports</a> for detailed insights.</em></p>`;
 
             return html;
         }
@@ -608,7 +715,7 @@
                         <div class="archive-dot"></div>
                         <div style="flex:1;">
                             <div style="font-weight:600;font-size:0.75rem;">${isToday ? '📌 Today' : date.toLocaleDateString('en-US', {month:'short', day:'numeric'})}</div>
-                            <div style="font-size:0.6rem;color:var(--text-muted);">${post.stats?.totalOperations || 0} ops</div>
+                            <div style="font-size:0.6rem;color:var(--text-muted);">${post.stats?.totalOperations || 0} ops · ${post.stats?.systemLoad || 'low'} load</div>
                         </div>
                     </div>`;
             }).join('');
@@ -623,10 +730,12 @@
 
         window.regenerateToday = async function() {
             cleanupCharts();
+            document.getElementById('skeletonState').style.display = 'block';
+            document.getElementById('liveState').style.display = 'none';
             const today = new Date().toISOString().split('T')[0];
-            updateStatus('generating', 'Regenerating with latest data...');
             await generateTodayPost(today);
-            updateStatus('ready', 'Post regenerated');
+            document.getElementById('skeletonState').style.display = 'none';
+            document.getElementById('liveState').style.display = 'block';
         };
 
         function escapeHtml(t) { const d = document.createElement('div'); d.textContent = t || ''; return d.innerHTML; }
