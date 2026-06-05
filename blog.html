@@ -94,7 +94,6 @@
         .btn-outline:hover{border-color:var(--gold);color:var(--gold);}
         .btn-sm{padding:0.3rem 0.7rem;font-size:0.7rem;}
 
-        /* Skeleton */
         .blog-skeleton-card {
             background: var(--bg-card); border: 1px solid var(--border-light);
             border-radius: 20px; padding: 2.5rem; box-shadow: var(--shadow-sm);
@@ -104,7 +103,6 @@
             margin: -2.5rem -2.5rem 2rem -2.5rem; border-radius: 20px 20px 0 0;
         }
 
-        /* Blog Post */
         .blog-post {
             background:var(--bg-card); border:1px solid var(--border-light);
             border-radius:20px; padding:2.5rem 3rem; margin-bottom:1.5rem;
@@ -155,16 +153,6 @@
         .blog-map-embed .leaflet-control-zoom{display:none;}
         .blog-map-embed .leaflet-control-attribution{font-size:7px;}
 
-        .blog-sidebar{position:sticky;top:calc(var(--header-height) + 1.5rem);}
-        .sidebar-card{background:var(--bg-card);border:1px solid var(--border-light);border-radius:18px;padding:1.2rem;margin-bottom:0.8rem;box-shadow:var(--shadow-sm);}
-        .sidebar-card h4{font-family:var(--font-heading);font-size:0.85rem;font-weight:700;margin-bottom:0.8rem;display:flex;align-items:center;gap:0.4rem;}
-        .sidebar-card h4 i{color:var(--gold);}
-        .archive-list{display:flex;flex-direction:column;gap:0.3rem;max-height:350px;overflow-y:auto;}
-        .archive-item{display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0.6rem;border-radius:10px;cursor:pointer;transition:all 0.2s;font-size:0.78rem;border:1px solid transparent;}
-        .archive-item:hover{background:var(--gold-soft);border-color:var(--gold);}
-        .archive-item.active{background:var(--gold-soft);border-color:var(--gold);font-weight:600;}
-        .archive-dot{width:5px;height:5px;border-radius:50%;background:var(--gold);flex-shrink:0;}
-
         .footer{text-align:center;padding:2rem;color:var(--text-muted);font-size:0.7rem;border-top:1px solid var(--border-light);margin-top:3rem;}
 
         @media(max-width:900px){.main-content{padding:0 1rem}.blog-post{padding:1.5rem}.blog-post-title{font-size:1.5rem}.nav-links{display:none}}
@@ -185,7 +173,7 @@
                 <span class="user-name" id="userDisplayName">Staff</span>
                 <div class="user-avatar" id="userAvatar">K</div>
                 <div class="user-dropdown">
-                    <button class="dropdown-item" onclick="regenerateToday()"><i class="fas fa-sync-alt"></i> Regenerate</button>
+                    <button class="dropdown-item" onclick="regenerateToday()"><i class="fas fa-sync-alt"></i> Regenerate Today</button>
                     <button class="dropdown-item danger" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
                 </div>
             </div>
@@ -254,12 +242,24 @@
             catch(e) { blogPosts = {}; }
         }
 
+        // FIXED: Checks for old format and regenerates if needed
         async function checkAndGenerateToday() {
             const today = new Date().toISOString().split('T')[0];
-            if (blogPosts[today]) {
-                renderBlogDisplay(today, blogPosts[today]);
+            const existingPost = blogPosts[today];
+            
+            // Check if existing post has the new long-form content
+            const hasNewFormat = existingPost?.content?.includes('Executive Summary') && 
+                               existingPost?.content?.includes('System Performance');
+            
+            if (existingPost && hasNewFormat) {
+                // Already has new format - just display
+                renderBlogDisplay(today, existingPost);
                 revealContent();
             } else {
+                // Old format or no post - regenerate
+                if (existingPost) {
+                    console.log('📝 Old format detected, regenerating with full content...');
+                }
                 await generateTodayPost(today);
                 revealContent();
             }
@@ -329,20 +329,17 @@
                 const contributorList = [...contributors];
                 const fieldRegsArray = fieldRegs.map(([_, r]) => r);
 
-                // Fusion details
+                // Workspace-specific details
                 const fusionRestaurants = new Set(fusionOrders.map(([_, o]) => o.restaurantName).filter(Boolean));
                 const fusionValue = fusionOrders.reduce((sum, [_, o]) => sum + (o.total || 0), 0);
                 const fusionDelivered = fusionOrders.filter(([_, o]) => o.status === 'delivered').length;
                 const fusionShipped = fusionOrders.filter(([_, o]) => o.status === 'shipped').length;
 
-                // DSOG details
                 const dsogCustomers = new Set(dsogOrders.map(([_, o]) => o.customerName).filter(Boolean));
                 const dsogDelivered = dsogOrders.filter(([_, o]) => o.status === 'delivered').length;
 
-                // BrandInn details
                 const brandinnCompleted = brandinnOrders.filter(([_, o]) => o.status === 'delivered' || o.status === 'completed').length;
 
-                // Field details
                 const fieldOps = {};
                 fieldRegs.forEach(([_, r]) => { const op = r.operation || 'other'; fieldOps[op] = (fieldOps[op] || 0) + 1; });
 
@@ -369,9 +366,10 @@
                         fusionRestaurants: [...fusionRestaurants], fusionValue, fusionDelivered, fusionShipped,
                         dsogCustomers: [...dsogCustomers], dsogDelivered, brandinnCompleted, fieldOps
                     },
-                    content: generateBlogContent(fusionOrders, dsogOrders, brandinnOrders, heritageListings, fieldRegs, contributorList, hourlyBins, peakHour, peakCount, systemLoad, trend, predictedTomorrow, totalOps, fusionRestaurants, fusionValue, fusionDelivered, fusionShipped, dsogCustomers, dsogDelivered, brandinnCompleted, fieldOps),
+                    content: generateBlogContent(fusionOrders, dsogOrders, brandinnOrders, heritageListings, fieldRegs, contributorList, hourlyBins, peakHour, peakCount, systemLoad, trend, predictedTomorrow, totalOps, fusionRestaurants, fusionValue, fusionDelivered, fusionShipped, dsogCustomers, dsogDelivered, brandinnCompleted, fieldOps, yesterdayTotal),
                     generatedAt: new Date().toISOString(),
-                    generatedBy: auth.currentUser?.email || 'System'
+                    generatedBy: auth.currentUser?.email || 'System',
+                    formatVersion: '2.0'
                 };
 
                 await db.ref(`operation_blogs/${dateStr}`).set(blogData);
@@ -412,7 +410,7 @@
                 type: 'doughnut',
                 data: {
                     labels: ['Fusion Foods', 'DSOG', 'BrandInn', 'Heritage', 'Field'],
-                    datasets: [{ data: [chartData.fusion, chartData.dsog, chartData.brandinn, chartData.heritage, chartData.field], backgroundColor: ['#10b981','#ec4899','#7c3aed','#d946ef','#3b82f6'], borderWidth: 2, borderColor: '#fff' }]
+                    datasets: [{ data: [chartData.fusion||0, chartData.dsog||0, chartData.brandinn||0, chartData.heritage||0, chartData.field||0], backgroundColor: ['#10b981','#ec4899','#7c3aed','#d946ef','#3b82f6'], borderWidth: 2, borderColor: '#fff' }]
                 },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { padding: 10, usePointStyle: true, font: { size: 9 } } } } }
             });
@@ -473,7 +471,7 @@
             return `Daily operations summary for ${today} · ${contributors} team member${contributors !== 1 ? 's' : ''} contributed`;
         }
 
-        function generateBlogContent(fusion, dsog, brandinn, heritage, field, contributors, hourlyBins, peakHour, peakCount, systemLoad, trend, predictedTomorrow, totalOps, fusionRestaurants, fusionValue, fusionDelivered, fusionShipped, dsogCustomers, dsogDelivered, brandinnCompleted, fieldOps) {
+        function generateBlogContent(fusion, dsog, brandinn, heritage, field, contributors, hourlyBins, peakHour, peakCount, systemLoad, trend, predictedTomorrow, totalOps, fusionRestaurants, fusionValue, fusionDelivered, fusionShipped, dsogCustomers, dsogDelivered, brandinnCompleted, fieldOps, yesterdayTotal) {
             let html = '';
             const fieldCount = field.length;
 
@@ -482,7 +480,7 @@
 
             if (totalOps === 0 && fieldCount === 0) {
                 html += `<p>Today was an unusually <span class="stat-inline gold">quiet day</span> across all workspaces. No orders were placed, no listings were created, and no field registrations were recorded. This is typically indicative of a weekend, public holiday, or scheduled maintenance window. All systems remain fully operational, and we expect activity to resume during the next business cycle.</p>`;
-                html += `<div class="highlight-box">📊 <strong>System Note:</strong> Zero operations does not indicate a system failure. All monitoring endpoints are responding normally. The database, authentication services, and real-time listeners are functioning as expected.</div>`;
+                html += `<div class="highlight-box">📊 <strong>System Note:</strong> Zero operations does not indicate a system failure. All monitoring endpoints are responding normally.</div>`;
                 return html;
             }
 
@@ -496,117 +494,115 @@
             html += `<h2>⚡ System Performance & Load Analysis</h2>`;
             html += `<p>Understanding how our systems handle operational load is crucial for maintaining service quality. Today's data reveals interesting patterns in how activity was distributed throughout the day.</p>`;
 
-            html += `<p>The system processed an average of <span class="stat-inline blue">${(totalOps / 24).toFixed(1)} operations per hour</span> over the 24-hour cycle. However, this average masks significant variation — the busiest hour (${peakHour}:00) saw <span class="stat-inline rose">${peakCount} operations</span>, while several overnight hours recorded zero activity. This distribution is typical for a business platform serving the East African market, where activity naturally clusters during business hours.</p>`;
+            html += `<p>The system processed an average of <span class="stat-inline blue">${(totalOps / 24).toFixed(1)} operations per hour</span> over the 24-hour cycle. However, this average masks significant variation — the busiest hour (${peakHour}:00) saw <span class="stat-inline rose">${peakCount} operations</span>, while several overnight hours recorded zero activity.</p>`;
 
-            html += `<div class="blog-chart-embed" id="blogHourlyChartEmbed"><canvas></canvas><div class="chart-label">Figure 1: Hourly System Load Distribution — Red bar indicates peak activity hour (${peakHour}:00 with ${peakCount} operations)</div></div>`;
+            html += `<div class="blog-chart-embed" id="blogHourlyChartEmbed"><canvas></canvas><div class="chart-label">Figure 1: Hourly System Load Distribution — Red bar indicates peak at ${peakHour}:00 (${peakCount} ops)</div></div>`;
 
             if (peakCount > 10) {
-                html += `<div class="highlight-box warning"><strong>⚠️ Activity Overflow Analysis:</strong> The ${peakHour}:00 hour registered ${peakCount} operations — a significant concentration that warrants attention. During this window, the system was processing approximately one operation every ${Math.round(60 / peakCount)} minutes. While all operations completed successfully, this level of concurrent activity is approaching the threshold where queuing delays could begin to manifest. We recommend monitoring this time window closely and considering load distribution strategies if this pattern persists.</div>`;
+                html += `<div class="highlight-box warning"><strong>⚠️ Activity Overflow Analysis:</strong> The ${peakHour}:00 hour registered ${peakCount} operations — approximately one every ${Math.round(60 / peakCount)} minutes. While all operations completed successfully, this concentration warrants monitoring for potential queuing delays if the pattern intensifies.</div>`;
             } else if (peakCount > 5) {
-                html += `<div class="highlight-box info"><strong>📈 Elevated Activity Note:</strong> The peak of ${peakCount} operations at ${peakHour}:00 represents healthy system utilization without approaching concerning thresholds. Response times remained within acceptable parameters, and no bottlenecks were observed in the processing pipeline.</div>`;
+                html += `<div class="highlight-box info"><strong>📈 Elevated Activity:</strong> ${peakCount} operations at ${peakHour}:00 represents healthy utilization within acceptable parameters. No bottlenecks were observed.</div>`;
             } else {
-                html += `<div class="highlight-box success"><strong>✅ Light Load Assessment:</strong> With peak activity of only ${peakCount} operations, the system operated well within its capacity limits. This provides an excellent opportunity for maintenance, optimization, and preparation for busier periods.</div>`;
+                html += `<div class="highlight-box success"><strong>✅ Light Load:</strong> With peak activity of only ${peakCount} operations, the system operated well within capacity limits.</div>`;
             }
 
             // ===== FUSION FOODS =====
             html += `<h2>🍽️ Fusion Foods — Food & Grocery Supply</h2>`;
             if (fusion.length === 0) {
-                html += `<p>The Fusion Foods workspace recorded <span class="stat-inline gold">no orders</span> today. This could indicate a scheduled closure of partner restaurants, a supply chain pause, or simply a naturally slow day in the food distribution sector. The workspace remains fully configured and ready to process orders when activity resumes.</p>`;
+                html += `<p>The Fusion Foods workspace recorded <span class="stat-inline gold">no orders</span> today. The workspace remains fully configured and ready to process orders when activity resumes.</p>`;
             } else {
-                html += `<p>Fusion Foods emerged as ${fusion.length >= (totalOps * 0.4) ? 'the <strong>dominant workspace</strong> today,' : 'a <strong>steady contributor</strong> to operations,'} processing <span class="stat-inline green">${fusion.length} food supply orders</span> that served <span class="stat-inline gold">${fusionRestaurants.size} distinct restaurants</span> across the distribution network. The total value of orders processed through Fusion Foods today amounted to <span class="stat-inline gold">KES ${fusionValue.toLocaleString()}</span>, reflecting the essential role this workspace plays in the food supply chain.</p>`;
+                html += `<p>Fusion Foods emerged as a <strong>steady contributor</strong> to operations, processing <span class="stat-inline green">${fusion.length} food supply orders</span> that served <span class="stat-inline gold">${fusionRestaurants.size} distinct restaurants</span> across the distribution network. The total value of orders processed through Fusion Foods today amounted to <span class="stat-inline gold">KES ${fusionValue.toLocaleString()}</span>, reflecting the essential role this workspace plays in the food supply chain.</p>`;
 
-                html += `<p>Of the ${fusion.length} orders processed, <span class="stat-inline green">${fusionDelivered} were successfully delivered</span> to their destinations, while <span class="stat-inline blue">${fusionShipped} are currently in transit</span>. The remaining ${fusion.length - fusionDelivered - fusionShipped} orders are in various stages of preparation and confirmation. This fulfillment pipeline demonstrates the end-to-end capability of the Fusion Foods platform — from order placement through dispatch and final delivery.</p>`;
+                html += `<p>Of the ${fusion.length} orders processed, <span class="stat-inline green">${fusionDelivered} were successfully delivered</span> to their destinations, while <span class="stat-inline blue">${fusionShipped} are currently in transit</span>. The remaining ${fusion.length - fusionDelivered - fusionShipped} orders are in various stages of preparation and confirmation.</p>`;
 
                 if (fusionRestaurants.size <= 6 && fusionRestaurants.size > 0) {
-                    html += `<p>Today's restaurant partners included: <strong>${[...fusionRestaurants].map(r => escapeHtml(r)).join(', ')}</strong>. Each of these establishments relies on Fusion Foods for timely, reliable food supply deliveries that keep their kitchens operational.</p>`;
+                    html += `<p>Today's restaurant partners included: <strong>${[...fusionRestaurants].map(r => escapeHtml(r)).join(', ')}</strong>. Each of these establishments relies on Fusion Foods for timely, reliable food supply deliveries.</p>`;
                 } else if (fusionRestaurants.size > 6) {
-                    html += `<p>Among the ${fusionRestaurants.size} restaurants served today were <strong>${[...fusionRestaurants].slice(0, 5).map(r => escapeHtml(r)).join(', ')}</strong> and ${fusionRestaurants.size - 5} other establishments. This diverse client base reflects the broad reach of the Fusion Foods distribution network.</p>`;
+                    html += `<p>Among the ${fusionRestaurants.size} restaurants served today were <strong>${[...fusionRestaurants].slice(0, 5).map(r => escapeHtml(r)).join(', ')}</strong> and ${fusionRestaurants.size - 5} other establishments.</p>`;
                 }
             }
 
             // ===== DSOG FASHION =====
             html += `<h2>👗 DSOG Fashion — Apparel & Merchandise</h2>`;
             if (dsog.length === 0) {
-                html += `<p>The DSOG Fashion workspace experienced <span class="stat-inline gold">no order activity</span> today. The fashion and apparel sector often exhibits cyclical patterns tied to seasons, promotions, and market trends. The workspace infrastructure remains fully operational for when customer demand picks up.</p>`;
+                html += `<p>The DSOG Fashion workspace experienced <span class="stat-inline gold">no order activity</span> today. The workspace infrastructure remains fully operational.</p>`;
             } else {
-                html += `<p>The DSOG Fashion division handled <span class="stat-inline purple">${dsog.length} orders</span> today, serving <span class="stat-inline green">${dsogCustomers.size} unique customers</span>. Of these, <span class="stat-inline green">${dsogDelivered} orders reached successful delivery</span>, maintaining the workspace's commitment to timely fulfillment in the competitive fashion retail space.</p>`;
-
-                html += `<p>DSOG Fashion continues to serve as a vital link between fashion suppliers and end consumers. The ${dsog.length} orders processed today represent individual touchpoints in the customer journey — from browsing and selection through payment processing and final delivery. Each completed order strengthens the marketplace's reputation and contributes to customer retention metrics.</p>`;
+                html += `<p>The DSOG Fashion division handled <span class="stat-inline purple">${dsog.length} orders</span> today, serving <span class="stat-inline green">${dsogCustomers.size} unique customers</span>. Of these, <span class="stat-inline green">${dsogDelivered} orders reached successful delivery</span>, maintaining the workspace's commitment to timely fulfillment.</p>`;
+                html += `<p>DSOG Fashion continues to serve as a vital link between fashion suppliers and end consumers. Each completed order strengthens the marketplace's reputation and contributes to customer retention metrics.</p>`;
             }
 
             // ===== BRANDINN =====
             html += `<h2>🖨️ BrandInn Print — Printing & Merchandise</h2>`;
             if (brandinn.length === 0) {
-                html += `<p>BrandInn Print recorded <span class="stat-inline gold">no print orders</span> today. The printing business often follows project-based cycles, with orders clustering around corporate events, marketing campaigns, and seasonal demands. The workspace is prepared for the next influx of print requests.</p>`;
+                html += `<p>BrandInn Print recorded <span class="stat-inline gold">no print orders</span> today. The workspace is prepared for the next influx of print requests.</p>`;
             } else {
-                html += `<p>BrandInn Print completed <span class="stat-inline purple">${brandinn.length} print orders</span> today, with <span class="stat-inline green">${brandinnCompleted} orders reaching full completion</span>. The printing and merchandise unit continues to serve businesses and individuals requiring high-quality printed materials, branded merchandise, and custom fabrication work.</p>`;
-                html += `<p>Each print order represents a unique project with specific requirements — design specifications, material selections, color profiles, and finishing options. The successful completion of ${brandinnCompleted} orders demonstrates the workspace's capability to manage diverse printing projects simultaneously while maintaining quality standards.</p>`;
+                html += `<p>BrandInn Print completed <span class="stat-inline purple">${brandinn.length} print orders</span> today, with <span class="stat-inline green">${brandinnCompleted} orders reaching full completion</span>. The printing and merchandise unit continues to serve businesses and individuals requiring high-quality printed materials.</p>`;
+                html += `<p>Each print order represents a unique project with specific requirements — design specifications, material selections, color profiles, and finishing options. The successful completion of ${brandinnCompleted} orders demonstrates the workspace's capability to manage diverse printing projects simultaneously.</p>`;
             }
 
             // ===== HERITAGE =====
             html += `<h2>🏛️ Heritage Marketplace — Outdoor Advertising</h2>`;
             if (heritage.length === 0) {
-                html += `<p>The Heritage Marketplace workspace saw <span class="stat-inline gold">no new listings</span> today. Outdoor advertising inventory tends to move in cycles aligned with campaign planning, budget allocations, and seasonal advertising demand. Existing listings continue to generate value for advertising partners.</p>`;
+                html += `<p>The Heritage Marketplace workspace saw <span class="stat-inline gold">no new listings</span> today. Existing listings continue to generate value for advertising partners.</p>`;
             } else {
-                html += `<p>The Heritage advertising platform added <span class="stat-inline green">${heritage.length} new listings</span> to its outdoor advertising inventory today. Each listing represents a billboard, signage location, or advertising space now available for campaign booking. This expansion of inventory strengthens the platform's position in the competitive outdoor advertising market.</p>`;
+                html += `<p>The Heritage advertising platform added <span class="stat-inline green">${heritage.length} new listings</span> to its outdoor advertising inventory today. This expansion of inventory strengthens the platform's position in the competitive outdoor advertising market.</p>`;
             }
 
             // ===== FIELD OPERATIONS =====
             html += `<h2>📍 Field Operations & Location Mapping</h2>`;
             if (fieldCount === 0) {
-                html += `<p>No field registrations were recorded today. Field agents may have been reassigned to other duties, or conditions may not have been conducive for location mapping activities. The mobile registration system remains ready for deployment when field operations resume.</p>`;
+                html += `<p>No field registrations were recorded today. The mobile registration system remains ready for deployment when field operations resume.</p>`;
             } else {
-                html += `<p>Our field agents were active across the country today, successfully mapping <span class="stat-inline gold">${fieldCount} new business locations</span> through the KazInni mobile registration system. These registrations span multiple operation types, reflecting the diverse nature of businesses being onboarded to our platform.</p>`;
+                html += `<p>Our field agents were active across the country today, successfully mapping <span class="stat-inline gold">${fieldCount} new business locations</span> through the KazInni mobile registration system.</p>`;
 
-                html += `<p>The breakdown of today's field registrations by operation type reveals the following distribution:</p>`;
-                html += `<ul style="margin:1rem 0 1rem 2rem;line-height:2;">`;
-                const icons = { brandinn: '🏪', deliveries: '📦', rides: '🚗', dsog: '👗', fusion: '🔥', heritage: '🏛️' };
-                Object.entries(fieldOps).forEach(([op, count]) => {
-                    html += `<li><strong>${icons[op] || '📍'} ${op.charAt(0).toUpperCase() + op.slice(1)}:</strong> <span class="stat-inline gold">${count} registration${count !== 1 ? 's' : ''}</span></li>`;
-                });
-                html += `</ul>`;
+                if (Object.keys(fieldOps).length > 0) {
+                    html += `<p>The breakdown of today's field registrations:</p>`;
+                    html += `<ul style="margin:1rem 0 1rem 2rem;line-height:2;">`;
+                    const icons = { brandinn: '🏪', deliveries: '📦', rides: '🚗', dsog: '👗', fusion: '🔥', heritage: '🏛️' };
+                    Object.entries(fieldOps).forEach(([op, count]) => {
+                        html += `<li><strong>${icons[op] || '📍'} ${op.charAt(0).toUpperCase() + op.slice(1)}:</strong> <span class="stat-inline gold">${count} registration${count !== 1 ? 's' : ''}</span></li>`;
+                    });
+                    html += `</ul>`;
+                }
 
                 html += `<div class="blog-map-embed" id="blogMapEmbed"></div><div class="chart-label">Figure 2: Geographic Distribution of Today's Field Registrations Across Kenya</div>`;
-
-                html += `<p>The geographic spread of today's registrations demonstrates the expanding reach of our field operations. Each dot on the map above represents a physical business location that has been verified and registered by our field team, contributing to the growing KazInni business directory.</p>`;
+                html += `<p>The geographic spread of today's registrations demonstrates the expanding reach of our field operations. Each dot on the map above represents a physical business location verified and registered by our field team.</p>`;
             }
 
             // ===== WORKSPACE DISTRIBUTION =====
             html += `<h2>📊 Workspace Performance Comparison</h2>`;
-            html += `<p>Understanding how activity distributes across workspaces helps us allocate resources effectively and identify growth opportunities. The chart below visualizes today's operational split.</p>`;
+            html += `<p>Understanding how activity distributes across workspaces helps us allocate resources effectively and identify growth opportunities.</p>`;
             html += `<div class="blog-chart-embed" id="blogChartEmbed"><canvas></canvas><div class="chart-label">Figure 3: Distribution of Today's Operations Across Workspaces</div></div>`;
 
             if (fusion.length > 0 || dsog.length > 0 || brandinn.length > 0) {
                 const dominant = fusion.length >= dsog.length && fusion.length >= brandinn.length ? 'Fusion Foods' : dsog.length >= brandinn.length ? 'DSOG Fashion' : 'BrandInn Print';
-                html += `<p>Today, <strong>${dominant}</strong> led operational activity, accounting for the largest share of processed orders. This dominance reflects both market demand patterns and the relative maturity of each workspace within the KazInni ecosystem.</p>`;
+                html += `<p>Today, <strong>${dominant}</strong> led operational activity, accounting for the largest share of processed orders.</p>`;
             }
 
             // ===== TEAM =====
             if (contributors.length > 0) {
                 html += `<h2>👥 Team Contributions</h2>`;
-                html += `<p>Behind every operation is a team member who made it happen. Today, <span class="stat-inline blue">${contributors.length} contributor${contributors.length !== 1 ? 's' : ''}</span> powered the KazInni platform, each playing a vital role in the operational ecosystem. Whether processing orders, managing inventory, dispatching deliveries, or registering new businesses in the field, every contribution matters.</p>`;
+                html += `<p>Behind every operation is a team member who made it happen. Today, <span class="stat-inline blue">${contributors.length} contributor${contributors.length !== 1 ? 's' : ''}</span> powered the KazInni platform.</p>`;
                 html += `<p>Today's contributors: ${contributors.map(c => `<span class="team-mention"><i class="fas fa-user-circle"></i> ${escapeHtml(c)}</span>`).join(' ')}</p>`;
-                html += `<p>We extend our appreciation to each team member for their dedication and professionalism. It is through collective effort that the platform continues to serve businesses and communities effectively.</p>`;
             }
 
             // ===== PREDICTIONS =====
             html += `<h2>🔮 Looking Ahead — Tomorrow's Forecast</h2>`;
-            html += `<p>Based on today's operational data and historical trends, our predictive engine has generated the following outlook for tomorrow:</p>`;
-            html += `<p>We forecast approximately <span class="stat-inline blue">${predictedTomorrow} operations</span> across all workspaces tomorrow. This prediction is derived from today's <span class="stat-inline ${trend === 'increasing' ? 'green' : trend === 'decreasing' ? 'rose' : 'gold'}">${trend}</span> trend ${trend !== 'stable' ? `(compared to yesterday's ${yesterdayTotal || 'N/A'} operations)` : '(consistent with recent patterns)'}.</p>`;
+            html += `<p>Based on today's operational data and historical trends, we forecast approximately <span class="stat-inline blue">${predictedTomorrow} operations</span> across all workspaces tomorrow. This prediction is derived from today's <span class="stat-inline ${trend === 'increasing' ? 'green' : trend === 'decreasing' ? 'rose' : 'gold'}">${trend}</span> trend.</p>`;
 
             if (predictedTomorrow > 30) {
-                html += `<div class="highlight-box danger"><strong>🔴 High Volume Alert:</strong> Tomorrow's forecast of ${predictedTomorrow} operations suggests a busy day ahead. We recommend ensuring adequate staffing across all workspaces, particularly during the anticipated peak hours. System resources should be monitored proactively to handle the expected load.</div>`;
+                html += `<div class="highlight-box danger"><strong>🔴 High Volume Alert:</strong> Tomorrow's forecast suggests a busy day. Ensure adequate staffing and monitor system resources proactively.</div>`;
             } else if (predictedTomorrow > 10) {
-                html += `<div class="highlight-box info"><strong>🔵 Moderate Activity Expected:</strong> With approximately ${predictedTomorrow} operations forecast, tomorrow should be a manageable day across workspaces. Standard staffing levels should suffice, with normal monitoring protocols in place.</div>`;
+                html += `<div class="highlight-box info"><strong>🔵 Moderate Activity Expected:</strong> Standard staffing and monitoring should suffice for tomorrow's anticipated load.</div>`;
             } else {
-                html += `<div class="highlight-box success"><strong>🟢 Light Day Ahead:</strong> The forecast of approximately ${predictedTomorrow} operations suggests a lighter day tomorrow. This presents an ideal opportunity for system maintenance, data cleanup, team training, and process improvement initiatives.</div>`;
+                html += `<div class="highlight-box success"><strong>🟢 Light Day Ahead:</strong> A lighter day presents an ideal opportunity for maintenance and process improvement.</div>`;
             }
 
             // ===== CLOSING =====
             html += `<h2>📝 Closing Notes</h2>`;
-            html += `<p>Today's operations reflect the ongoing vitality of the KazInni platform. From food supply chains to fashion retail, from printing services to outdoor advertising, and from field registrations to delivery logistics — every operation tells a story of business being conducted, value being created, and communities being served.</p>`;
-            html += `<p>This blog post was automatically generated from real-time operational data at ${new Date().toLocaleTimeString()}. No human intervention was required in its creation — a testament to the power of data-driven automation. For more detailed analytics, visit the <a href="analytics.html" style="color:var(--gold);font-weight:600;">Analytics Dashboard</a> or review the comprehensive <a href="reports.html" style="color:var(--gold);font-weight:600;">Operations Report</a>.</p>`;
-            html += `<div class="highlight-box">📊 <strong>Today's Numbers at a Glance:</strong> ${totalOps} total operations · ${fieldCount} field registrations · ${systemLoad.toUpperCase()} system load · Peak at ${peakHour}:00 (${peakCount} ops) · ${contributors.length} contributors · ~${predictedTomorrow} predicted tomorrow</div>`;
+            html += `<p>Today's operations reflect the ongoing vitality of the KazInni platform. From food supply chains to fashion retail, from printing services to outdoor advertising, and from field registrations to delivery logistics — every operation tells a story of business being conducted and value being created.</p>`;
+            html += `<p>This blog post was automatically generated from real-time operational data at ${new Date().toLocaleTimeString()}. For more detailed analytics, visit the <a href="analytics.html" style="color:var(--gold);font-weight:600;">Analytics Dashboard</a> or review the comprehensive <a href="reports.html" style="color:var(--gold);font-weight:600;">Operations Report</a>.</p>`;
+            html += `<div class="highlight-box">📊 <strong>Today's Numbers:</strong> ${totalOps} operations · ${fieldCount} field registrations · ${systemLoad.toUpperCase()} load · Peak ${peakHour}:00 (${peakCount} ops) · ${contributors.length} contributors · ~${predictedTomorrow} predicted tomorrow</div>`;
 
             return html;
         }
