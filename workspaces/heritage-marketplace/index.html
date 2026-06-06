@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -42,6 +41,44 @@
       flex-direction: column;
     }
 
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+    
+    .skeleton {
+      background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s ease-in-out infinite;
+      border-radius: 6px;
+    }
+    
+    .skeleton-text { height: 1rem; margin-bottom: 0.5rem; }
+    .skeleton-text-sm { height: 0.7rem; width: 60%; }
+    .skeleton-number { height: 1.8rem; width: 50%; }
+    .skeleton-icon { width: 42px; height: 42px; border-radius: 12px; flex-shrink: 0; }
+    .skeleton-stat-card {
+      background: white; border-radius: 16px; padding: 1rem 1.2rem;
+      border: 1px solid #f3f4f6; display: flex; align-items: center; justify-content: space-between;
+    }
+    .skeleton-action-card {
+      background: white; border-radius: 20px; padding: 1.2rem;
+      border: 1px solid #f3f4f6;
+    }
+    .skeleton-action-icon {
+      width: 46px; height: 46px; border-radius: 14px; margin-bottom: 0.8rem;
+    }
+    .skeleton-quick-btn {
+      height: 32px; width: 90px; border-radius: 30px; display: inline-block;
+    }
+    .skeleton-recent-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 0.7rem 1rem; border-bottom: 1px solid #f3f4f6;
+    }
+    .skeleton-avatar {
+      width: 32px; height: 32px; border-radius: 10px; flex-shrink: 0;
+    }
+
     .navbar {
       background: rgba(255, 255, 255, 0.95);
       backdrop-filter: blur(16px);
@@ -74,6 +111,7 @@
       align-items: center; gap: 5px; text-decoration: none; transition: all 0.2s;
     }
     .nav-btn:hover { background: var(--amber); color: white; }
+    .nav-btn.active { background: var(--amber); color: white; border-color: var(--amber-dark); }
 
     .user-badge {
       display: flex; align-items: center; gap: 6px; background: #fffbeb;
@@ -100,14 +138,16 @@
       background: white; border-radius: 16px; padding: 1rem 1.2rem;
       border: 1px solid #fde68a; box-shadow: 0 4px 12px rgba(0,0,0,0.02);
       display: flex; align-items: center; justify-content: space-between;
+      transition: all 0.3s;
     }
+    .stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(217,119,6,0.1); }
     .stat-left h4 { font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; color: #64748b; margin-bottom: 0.2rem; }
     .stat-number { font-size: 1.8rem; font-weight: 800; color: #0f172a; line-height: 1.1; }
     .stat-trend { font-size: 0.6rem; margin-top: 2px; display: flex; align-items: center; gap: 3px; color: #64748b; }
     .stat-icon { width: 42px; height: 42px; background: #fffbeb; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #92400e; font-size: 1.2rem; }
 
     .action-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 1.2rem; }
-    @media (min-width: 1100px) { .action-grid { grid-template-columns: repeat(5, 1fr); } }
+    @media (min-width: 1100px) { .action-grid { grid-template-columns: repeat(6, 1fr); } }
     .action-card {
       background: white; border-radius: 20px; padding: 1.2rem;
       border: 1px solid #fde68a; box-shadow: 0 8px 20px -6px rgba(217,119,6,0.04);
@@ -164,18 +204,6 @@
 
     .footer { text-align: center; padding: 1rem; color: #94a3b8; font-size: 0.7rem; border-top: 1px solid #fde68a; }
 
-    .loading-overlay {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(255,255,255,0.8); backdrop-filter: blur(4px);
-      display: flex; justify-content: center; align-items: center; z-index: 999;
-    }
-    .loading-overlay.hide { display: none; }
-    .spinner {
-      width: 35px; height: 35px; border: 3px solid #fde68a;
-      border-top-color: #d97706; border-radius: 50%; animation: spin 0.8s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
     @media (max-width: 1100px) { .action-grid { grid-template-columns: repeat(3, 1fr); } }
     @media (max-width: 768px) {
       .stats-grid { grid-template-columns: 1fr 1fr; }
@@ -187,15 +215,19 @@
   </style>
 </head>
 <body>
-  <div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div></div>
 
   <nav class="navbar">
-    <div class="logo" id="logoClick">
-      <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png" alt="Heritage Logo" class="logo-img" id="logoIcon">
+    <div class="logo" onclick="window.location.href='heritage-dashboard.html'">
+      <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png" alt="Heritage Logo" class="logo-img">
       <span class="logo-text" id="businessName">Heritage</span>
     </div>
     <div class="nav-right">
-      <a href="index.html" class="nav-btn"><i class="fas fa-arrow-left"></i> Workspaces</a>
+      <a href="/workspaces/heritage/heritage-dashboard.html" class="nav-btn active"><i class="fas fa-chart-pie"></i> Dashboard</a>
+      <a href="/workspaces/heritage/heritage-partners.html" class="nav-btn"><i class="fas fa-handshake"></i> Partners</a>
+      <a href="/workspaces/heritage/heritage-products.html" class="nav-btn"><i class="fas fa-box"></i> Products</a>
+      <a href="/workspaces/heritage/heritage-orders.html" class="nav-btn"><i class="fas fa-shopping-cart"></i> Orders</a>
+      <a href="/workspaces/heritage/heritage-catalogues.html" class="nav-btn"><i class="fas fa-images"></i> Catalogues</a>
+      <a href="/workspaces/heritage/map.html" class="nav-btn"><i class="fas fa-map-marked-alt"></i> Map</a>
       <div class="user-badge">
         <div class="user-avatar" id="userAvatar">HM</div>
         <span id="userName">Marketplace Manager</span>
@@ -210,96 +242,74 @@
         Heritage Marketplace
         <span class="last-updated" id="lastUpdated"><i class="fas fa-circle"></i> Live</span>
       </h1>
-      <p>Manage product listings, business partners & orders from WhatsApp catalogues.</p>
+      <p>Manage product listings, business partners, catalogues & orders from WhatsApp.</p>
     </div>
 
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-left"><h4>Business Partners</h4><div class="stat-number" id="totalPartners">0</div><div class="stat-trend"><i class="fas fa-handshake"></i> Active sellers</div></div>
-        <div class="stat-icon"><i class="fas fa-handshake"></i></div>
+    <!-- Stats Grid with Skeleton -->
+    <div class="stats-grid" id="statsGrid">
+      <div class="skeleton-stat-card">
+        <div class="stat-left"><div class="skeleton skeleton-text-sm" style="width:90px;margin-bottom:0.5rem;"></div><div class="skeleton skeleton-number" style="width:40px;"></div><div class="skeleton skeleton-text-sm" style="width:100px;margin-top:0.3rem;"></div></div>
+        <div class="skeleton skeleton-icon"></div>
       </div>
-      <div class="stat-card">
-        <div class="stat-left"><h4>Products Listed</h4><div class="stat-number" id="totalProducts">0</div><div class="stat-trend"><i class="fas fa-box"></i> In catalogues</div></div>
-        <div class="stat-icon"><i class="fas fa-box"></i></div>
+      <div class="skeleton-stat-card">
+        <div class="stat-left"><div class="skeleton skeleton-text-sm" style="width:80px;margin-bottom:0.5rem;"></div><div class="skeleton skeleton-number" style="width:40px;"></div><div class="skeleton skeleton-text-sm" style="width:100px;margin-top:0.3rem;"></div></div>
+        <div class="skeleton skeleton-icon"></div>
       </div>
-      <div class="stat-card">
-        <div class="stat-left"><h4>New Orders</h4><div class="stat-number" id="newOrders">0</div><div class="stat-trend"><i class="fas fa-shopping-cart"></i> Awaiting linking</div></div>
-        <div class="stat-icon"><i class="fas fa-shopping-cart"></i></div>
+      <div class="skeleton-stat-card">
+        <div class="stat-left"><div class="skeleton skeleton-text-sm" style="width:70px;margin-bottom:0.5rem;"></div><div class="skeleton skeleton-number" style="width:40px;"></div><div class="skeleton skeleton-text-sm" style="width:100px;margin-top:0.3rem;"></div></div>
+        <div class="skeleton skeleton-icon"></div>
       </div>
-      <div class="stat-card">
-        <div class="stat-left"><h4>Linked Today</h4><div class="stat-number" id="linkedToday">0</div><div class="stat-trend"><i class="fas fa-link"></i> Connected to owners</div></div>
-        <div class="stat-icon"><i class="fas fa-link"></i></div>
+      <div class="skeleton-stat-card">
+        <div class="stat-left"><div class="skeleton skeleton-text-sm" style="width:80px;margin-bottom:0.5rem;"></div><div class="skeleton skeleton-number" style="width:40px;"></div><div class="skeleton skeleton-text-sm" style="width:100px;margin-top:0.3rem;"></div></div>
+        <div class="skeleton skeleton-icon"></div>
       </div>
     </div>
 
-    <div class="action-grid">
-      <a href="heritage-partners.html" class="action-card">
-        <div class="action-icon"><i class="fas fa-handshake"></i></div>
-        <h2>Business Partners</h2>
-        <p>Manage sellers who list products on the marketplace.</p>
-        <span class="action-link">Manage Partners <i class="fas fa-arrow-right"></i></span>
-      </a>
-      <a href="heritage-products.html" class="action-card">
-        <div class="action-icon"><i class="fas fa-boxes-stacked"></i></div>
-        <h2>Product Catalogue</h2>
-        <p>Manage all listed products across WhatsApp catalogues.</p>
-        <span class="action-link">View Products <i class="fas fa-arrow-right"></i></span>
-      </a>
-      <a href="heritage-products-manage.html" class="action-card">
-        <div class="action-icon"><i class="fas fa-tags"></i></div>
-        <h2>Product Management</h2>
-        <p>Add, edit & update products — pricing, descriptions, images.</p>
-        <span class="action-link">Manage Products <i class="fas fa-arrow-right"></i></span>
-      </a>
-      <a href="heritage-orders.html" class="action-card">
-        <div class="action-icon"><i class="fas fa-shopping-cart"></i></div>
-        <h2>Orders</h2>
-        <p>Receive orders & link customers to product owners.</p>
-        <span class="action-link">Manage Orders <i class="fas fa-arrow-right"></i></span>
-      </a>
-      <a href="heritage-catalogues.html" class="action-card">
-        <div class="action-icon"><i class="fas fa-images"></i></div>
-        <h2>WhatsApp Catalogues</h2>
-        <p>Manage product showcase catalogues sent via WhatsApp.</p>
-        <span class="action-link">Catalogues <i class="fas fa-arrow-right"></i></span>
-      </a>
-      <a href="heritage-new-order.html" class="action-card">
-        <div class="action-icon"><i class="fas fa-cart-plus"></i></div>
-        <h2>New Order</h2>
-        <p>Log a customer order & link to the product owner.</p>
-        <span class="action-link">Log Order <i class="fas fa-arrow-right"></i></span>
-      </a>
+    <!-- Action Grid with Skeleton -->
+    <div class="action-grid" id="actionGrid">
+      <div class="skeleton-action-card"><div class="skeleton skeleton-action-icon"></div><div class="skeleton skeleton-text" style="width:70%;"></div><div class="skeleton skeleton-text-sm" style="width:90%;margin-bottom:0.5rem;"></div><div class="skeleton skeleton-text-sm" style="width:50%;"></div></div>
+      <div class="skeleton-action-card"><div class="skeleton skeleton-action-icon"></div><div class="skeleton skeleton-text" style="width:70%;"></div><div class="skeleton skeleton-text-sm" style="width:90%;margin-bottom:0.5rem;"></div><div class="skeleton skeleton-text-sm" style="width:50%;"></div></div>
+      <div class="skeleton-action-card"><div class="skeleton skeleton-action-icon"></div><div class="skeleton skeleton-text" style="width:70%;"></div><div class="skeleton skeleton-text-sm" style="width:90%;margin-bottom:0.5rem;"></div><div class="skeleton skeleton-text-sm" style="width:50%;"></div></div>
+      <div class="skeleton-action-card"><div class="skeleton skeleton-action-icon"></div><div class="skeleton skeleton-text" style="width:70%;"></div><div class="skeleton skeleton-text-sm" style="width:90%;margin-bottom:0.5rem;"></div><div class="skeleton skeleton-text-sm" style="width:50%;"></div></div>
+      <div class="skeleton-action-card"><div class="skeleton skeleton-action-icon"></div><div class="skeleton skeleton-text" style="width:70%;"></div><div class="skeleton skeleton-text-sm" style="width:90%;margin-bottom:0.5rem;"></div><div class="skeleton skeleton-text-sm" style="width:50%;"></div></div>
+      <div class="skeleton-action-card"><div class="skeleton skeleton-action-icon"></div><div class="skeleton skeleton-text" style="width:70%;"></div><div class="skeleton skeleton-text-sm" style="width:90%;margin-bottom:0.5rem;"></div><div class="skeleton skeleton-text-sm" style="width:50%;"></div></div>
     </div>
 
-    <div class="quick-section">
+    <!-- Quick Actions with Skeleton -->
+    <div class="quick-section" id="quickSection">
       <div class="quick-header"><i class="fas fa-bolt"></i> Quick Actions</div>
-      <div class="quick-links">
-        <a href="heritage-new-order.html" class="quick-btn"><i class="fas fa-cart-plus"></i> Log New Order</a>
-        <a href="heritage-orders.html?filter=new" class="quick-btn"><i class="fas fa-clock"></i> Pending Orders (<span id="pendingBadge">0</span>)</a>
-        <a href="heritage-products-manage.html" class="quick-btn"><i class="fas fa-tags"></i> Manage Products</a>
-        <a href="heritage-partners.html" class="quick-btn"><i class="fas fa-handshake"></i> Business Partners</a>
-        <a href="heritage-products.html" class="quick-btn"><i class="fas fa-box"></i> Product Catalogue</a>
-        <a href="heritage-catalogues.html" class="quick-btn"><i class="fas fa-images"></i> WhatsApp Catalogues</a>
+      <div class="quick-links" id="quickLinks">
+        <div class="skeleton skeleton-quick-btn"></div>
+        <div class="skeleton skeleton-quick-btn"></div>
+        <div class="skeleton skeleton-quick-btn" style="width:70px;"></div>
+        <div class="skeleton skeleton-quick-btn"></div>
+        <div class="skeleton skeleton-quick-btn" style="width:80px;"></div>
+        <div class="skeleton skeleton-quick-btn"></div>
       </div>
     </div>
 
+    <!-- Recent Partners with Skeleton -->
     <div class="recent-section">
       <div class="recent-header">
         <h3><i class="fas fa-handshake" style="color:#92400e;"></i> Recent Business Partners</h3>
         <a href="heritage-partners.html" style="color:#92400e;font-weight:600;font-size:0.75rem;">View all</a>
       </div>
       <div class="recent-list" id="recentPartners">
-        <div class="empty-state">Loading partners...</div>
+        <div class="skeleton-recent-item"><div class="skeleton skeleton-avatar"></div><div style="flex:1;"><div class="skeleton skeleton-text" style="width:50%;"></div><div class="skeleton skeleton-text-sm" style="width:80%;"></div></div><div class="skeleton" style="width:50px;height:20px;border-radius:12px;"></div></div>
+        <div class="skeleton-recent-item"><div class="skeleton skeleton-avatar"></div><div style="flex:1;"><div class="skeleton skeleton-text" style="width:60%;"></div><div class="skeleton skeleton-text-sm" style="width:70%;"></div></div><div class="skeleton" style="width:50px;height:20px;border-radius:12px;"></div></div>
+        <div class="skeleton-recent-item"><div class="skeleton skeleton-avatar"></div><div style="flex:1;"><div class="skeleton skeleton-text" style="width:45%;"></div><div class="skeleton skeleton-text-sm" style="width:75%;"></div></div><div class="skeleton" style="width:50px;height:20px;border-radius:12px;"></div></div>
       </div>
     </div>
 
+    <!-- Recent Orders with Skeleton -->
     <div class="recent-section">
       <div class="recent-header">
         <h3><i class="fas fa-clock-rotate-left" style="color:#92400e;"></i> Recent Orders</h3>
         <a href="heritage-orders.html" style="color:#92400e;font-weight:600;font-size:0.75rem;">View all</a>
       </div>
       <div class="recent-list" id="recentList">
-        <div class="empty-state">Loading orders...</div>
+        <div class="skeleton-recent-item"><div class="skeleton skeleton-avatar"></div><div style="flex:1;"><div class="skeleton skeleton-text" style="width:55%;"></div><div class="skeleton skeleton-text-sm" style="width:75%;"></div></div><div class="skeleton" style="width:50px;height:20px;border-radius:12px;"></div></div>
+        <div class="skeleton-recent-item"><div class="skeleton skeleton-avatar"></div><div style="flex:1;"><div class="skeleton skeleton-text" style="width:50%;"></div><div class="skeleton skeleton-text-sm" style="width:80%;"></div></div><div class="skeleton" style="width:50px;height:20px;border-radius:12px;"></div></div>
       </div>
     </div>
   </div>
@@ -341,8 +351,6 @@
     let allProducts = {};
     let allOrders = {};
 
-    const loadingOverlay = document.getElementById('loadingOverlay');
-
     function escapeHtml(str) {
       if (!str) return '';
       return String(str).replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : m === '>' ? '&gt;' : m);
@@ -382,7 +390,7 @@
         .slice(0, 5);
 
       if (!partners.length) {
-        list.innerHTML = '<div class="empty-state">No business partners yet</div>';
+        list.innerHTML = '<div class="empty-state"><i class="fas fa-handshake" style="font-size:1.5rem;display:block;margin-bottom:8px;opacity:0.4;"></i>No business partners yet</div>';
         return;
       }
 
@@ -390,7 +398,7 @@
         const status = p.status || 'active';
         const productCount = Object.values(allProducts).filter(pr => pr && pr.partnerId === p.id).length;
         return `
-          <div class="recent-item">
+          <div class="recent-item" onclick="window.location.href='heritage-partners.html'">
             <div style="display:flex;align-items:center;gap:10px;">
               <div style="width:32px;height:32px;background:#fffbeb;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.65rem;color:#92400e;">${getInitials(p.businessName || p.name)}</div>
               <div>
@@ -412,7 +420,7 @@
         .slice(0, 5);
 
       if (!orders.length) {
-        list.innerHTML = '<div class="empty-state">No orders yet</div>';
+        list.innerHTML = '<div class="empty-state"><i class="fas fa-shopping-cart" style="font-size:1.5rem;display:block;margin-bottom:8px;opacity:0.4;"></i>No orders yet</div>';
         return;
       }
 
@@ -421,7 +429,7 @@
         const product = allProducts[order.productId];
         const productName = product ? product.name : (order.productName || 'Product');
         return `
-          <div class="recent-item">
+          <div class="recent-item" onclick="window.location.href='heritage-orders.html'">
             <div style="display:flex;align-items:center;gap:10px;">
               <div style="width:32px;height:32px;background:#fffbeb;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.65rem;color:#92400e;">${getInitials(order.customerName)}</div>
               <div>
@@ -444,13 +452,33 @@
                o.linkedAt && new Date(o.linkedAt).toDateString() === new Date().toDateString();
       }).length;
 
-      document.getElementById('totalPartners').textContent = partners.length;
-      document.getElementById('totalProducts').textContent = products.length;
-      document.getElementById('newOrders').textContent = newOrders;
-      document.getElementById('linkedToday').textContent = linkedToday;
-      document.getElementById('pendingBadge').textContent = newOrders;
+      // Update stats grid
+      document.getElementById('statsGrid').innerHTML = 
+        '<div class="stat-card"><div class="stat-left"><h4>Business Partners</h4><div class="stat-number">' + partners.length + '</div><div class="stat-trend"><i class="fas fa-handshake"></i> Active sellers</div></div><div class="stat-icon"><i class="fas fa-handshake"></i></div></div>' +
+        '<div class="stat-card"><div class="stat-left"><h4>Products Listed</h4><div class="stat-number">' + products.length + '</div><div class="stat-trend"><i class="fas fa-box"></i> In catalogues</div></div><div class="stat-icon"><i class="fas fa-box"></i></div></div>' +
+        '<div class="stat-card"><div class="stat-left"><h4>New Orders</h4><div class="stat-number">' + newOrders + '</div><div class="stat-trend"><i class="fas fa-shopping-cart"></i> Awaiting linking</div></div><div class="stat-icon"><i class="fas fa-shopping-cart"></i></div></div>' +
+        '<div class="stat-card"><div class="stat-left"><h4>Linked Today</h4><div class="stat-number">' + linkedToday + '</div><div class="stat-trend"><i class="fas fa-link"></i> Connected to owners</div></div><div class="stat-icon"><i class="fas fa-link"></i></div></div>';
+
+      // Update action grid
+      document.getElementById('actionGrid').innerHTML = 
+        '<a href="heritage-partners.html" class="action-card"><div class="action-icon"><i class="fas fa-handshake"></i></div><h2>Business Partners</h2><p>Manage sellers who list products.</p><span class="action-link">Partners <i class="fas fa-arrow-right"></i></span></a>' +
+        '<a href="heritage-products.html" class="action-card"><div class="action-icon"><i class="fas fa-boxes-stacked"></i></div><h2>Product Catalogue</h2><p>View all listed products.</p><span class="action-link">Products <i class="fas fa-arrow-right"></i></span></a>' +
+        '<a href="heritage-products-manage.html" class="action-card"><div class="action-icon"><i class="fas fa-tags"></i></div><h2>Product Management</h2><p>Add, edit & update products.</p><span class="action-link">Manage <i class="fas fa-arrow-right"></i></span></a>' +
+        '<a href="heritage-orders.html" class="action-card"><div class="action-icon"><i class="fas fa-shopping-cart"></i></div><h2>Orders</h2><p>Receive & link orders.</p><span class="action-link">Orders <i class="fas fa-arrow-right"></i></span></a>' +
+        '<a href="heritage-catalogues.html" class="action-card"><div class="action-icon"><i class="fas fa-images"></i></div><h2>WhatsApp Catalogues</h2><p>Manage product catalogues.</p><span class="action-link">Catalogues <i class="fas fa-arrow-right"></i></span></a>' +
+        '<a href="heritage-new-order.html" class="action-card"><div class="action-icon"><i class="fas fa-cart-plus"></i></div><h2>New Order</h2><p>Log a customer order.</p><span class="action-link">Log Order <i class="fas fa-arrow-right"></i></span></a>';
+
+      // Update quick links
+      document.getElementById('quickLinks').innerHTML = 
+        '<a href="heritage-new-order.html" class="quick-btn"><i class="fas fa-cart-plus"></i> Log New Order</a>' +
+        '<a href="heritage-orders.html?filter=new" class="quick-btn"><i class="fas fa-clock"></i> Pending Orders (' + newOrders + ')</a>' +
+        '<a href="heritage-products-manage.html" class="quick-btn"><i class="fas fa-tags"></i> Manage Products</a>' +
+        '<a href="heritage-partners.html" class="quick-btn"><i class="fas fa-handshake"></i> Business Partners</a>' +
+        '<a href="heritage-products.html" class="quick-btn"><i class="fas fa-box"></i> Product Catalogue</a>' +
+        '<a href="heritage-catalogues.html" class="quick-btn"><i class="fas fa-images"></i> WhatsApp Catalogues</a>';
+
       document.getElementById('footerStats').textContent = `${partners.length} partners · ${products.length} products · ${orders.length} orders`;
-      document.getElementById('lastUpdated').innerHTML = `<i class="fas fa-circle" style="color:#d97706;"></i> Live`;
+      document.getElementById('lastUpdated').innerHTML = '<i class="fas fa-circle" style="color:#d97706;"></i> Live';
 
       renderRecentPartners();
       renderRecentOrders();
@@ -460,7 +488,6 @@
       onValue(ref(db, 'heritage_partners'), (snapshot) => {
         allPartners = snapshot.val() || {};
         updateStats();
-        loadingOverlay.classList.add('hide');
       });
 
       onValue(ref(db, 'heritage_products'), (snapshot) => {
@@ -488,11 +515,10 @@
         document.getElementById('businessName').innerHTML = `${escapeHtml(businessName)} <span>Marketplace</span>`;
         setupRealtimeListeners();
       } else {
-        window.location.href = '/';
+        // FIXED: Proper redirect to login page
+        window.location.href = '/workspaces/index.html';
       }
     });
-
-    setTimeout(() => loadingOverlay.classList.add('hide'), 8000);
   </script>
 </body>
 </html>
