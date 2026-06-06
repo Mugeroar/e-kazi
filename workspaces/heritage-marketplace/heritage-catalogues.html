@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>WhatsApp Catalogues | Heritage Marketplace</title>
+  <title>Partner Catalogues | Heritage Marketplace</title>
   
   <meta name="theme-color" content="#d97706">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -20,15 +20,12 @@
       --amber: #d97706;
       --amber-dark: #92400e;
       --amber-light: #fbbf24;
-      --card-bg: #ffffff;
       --text-primary: #1e293b;
       --text-muted: #64748b;
       --border-light: #fde68a;
-      --success: #10b981;
-      --warning: #f59e0b;
-      --danger: #ef4444;
-      --info: #3b82f6;
-      --purple: #8b5cf6;
+      --red: #ef4444;
+      --green: #10b981;
+      --blue: #3b82f6;
     }
 
     body {
@@ -55,8 +52,7 @@
     .skeleton-text-sm { height: 0.7rem; width: 60%; }
     .skeleton-image { height: 140px; border-radius: 0; }
     .skeleton-title { height: 1.1rem; width: 70%; margin-bottom: 0.4rem; }
-    .skeleton-desc { height: 0.85rem; width: 90%; margin-bottom: 0.3rem; }
-    .skeleton-badge { height: 22px; width: 60px; border-radius: 10px; }
+    .skeleton-badge { height: 22px; width: 70px; border-radius: 8px; }
     .skeleton-card {
       background: white; border-radius: 16px; overflow: hidden;
       border: 1px solid #f3f4f6; box-shadow: 0 2px 8px rgba(0,0,0,0.02);
@@ -137,17 +133,17 @@
     .btn-secondary { background: #f1f5f9; color: #475569; }
     .btn-secondary:hover { background: #e2e8f0; }
 
-    .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; }
+    .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; }
 
     .catalogue-card {
       background: white; border-radius: 18px; overflow: hidden;
       border: 1px solid var(--border-light); box-shadow: 0 3px 12px rgba(217,119,6,0.03);
       transition: all 0.25s; cursor: pointer;
     }
-    .catalogue-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(217,119,6,0.1); }
+    .catalogue-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(217,119,6,0.1); }
     
     .catalogue-cover {
-      height: 150px; background: linear-gradient(135deg, #fffbeb, #fef3c7);
+      height: 140px; background: linear-gradient(135deg, #fffbeb, #fef3c7);
       display: flex; align-items: center; justify-content: center;
       font-size: 3rem; position: relative; overflow: hidden;
     }
@@ -157,19 +153,15 @@
       padding: 0.2rem 0.6rem; border-radius: 10px;
       font-size: 0.6rem; font-weight: 700; color: white;
     }
-    .status-sent { background: var(--info); }
-    .status-draft { background: var(--warning); }
-    .status-delivered { background: var(--success); }
+    .status-active { background: var(--green); }
+    .status-draft { background: var(--amber); }
 
     .catalogue-body { padding: 1rem 1.2rem; }
     .catalogue-body h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.3rem; }
-    .catalogue-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 0.6rem; }
-    .meta-tag {
-      font-size: 0.6rem; padding: 0.15rem 0.5rem; border-radius: 8px;
-      font-weight: 600; background: #f1f5f9; color: #475569;
+    .catalogue-partner {
+      font-size: 0.65rem; color: var(--amber-dark); background: #fffbeb;
+      padding: 0.15rem 0.5rem; border-radius: 6px; display: inline-block; margin-bottom: 0.5rem;
     }
-    .meta-tag.partner { background: #fffbeb; color: #92400e; }
-    .meta-tag.products { background: #f0fdf4; color: #065f46; }
     
     .catalogue-info { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; font-size: 0.65rem; margin-bottom: 0.6rem; }
     .catalogue-info div { color: var(--text-muted); }
@@ -217,13 +209,21 @@
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
     .btn-row { display: flex; gap: 8px; margin-top: 1rem; }
 
+    .product-list { max-height: 200px; overflow-y: auto; margin-bottom: 0.5rem; }
+    .product-list-item {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0.5rem 0; border-bottom: 1px solid #f3f4f6; font-size: 0.75rem;
+    }
+    .product-list-item:last-child { border-bottom: none; }
+    .product-list-item span:last-child { font-weight: 600; color: var(--amber-dark); }
+
     .toast {
       position: fixed; bottom: 25px; right: 25px; background: var(--amber); color: white;
       padding: 0.7rem 1.2rem; border-radius: 20px; font-weight: 600; z-index: 4000;
       animation: slideIn 0.3s ease; box-shadow: 0 8px 20px rgba(217,119,6,0.25);
       display: flex; align-items: center; gap: 6px; font-size: 0.75rem;
     }
-    .toast.error { background: var(--danger); }
+    .toast.error { background: var(--red); }
     @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
     @media (max-width: 768px) {
@@ -235,26 +235,27 @@
 <body>
 
   <nav class="navbar">
-    <a href="heritage-dashboard.html" class="logo">
+    <a href="/workspaces/heritage-marketplace/index.html" class="logo">
       <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png" alt="Heritage" class="logo-img">
       <span class="logo-text">Heritage <span>Marketplace</span></span>
     </a>
     <div class="nav-right">
-      <a href="heritage-dashboard.html" class="nav-btn"><i class="fas fa-arrow-left"></i> Dashboard</a>
-      <a href="heritage-partners.html" class="nav-btn"><i class="fas fa-handshake"></i> Partners</a>
-      <a href="heritage-products.html" class="nav-btn"><i class="fas fa-box"></i> Products</a>
-      <a href="heritage-orders.html" class="nav-btn"><i class="fas fa-shopping-cart"></i> Orders</a>
-      <a href="heritage-catalogues.html" class="nav-btn active"><i class="fas fa-images"></i> Catalogues</a>
+      <a href="/workspaces/heritage-marketplace/index.html" class="nav-btn"><i class="fas fa-arrow-left"></i> Dashboard</a>
+      <a href="/workspaces/heritage-marketplace/heritage-partners.html" class="nav-btn"><i class="fas fa-handshake"></i> Partners</a>
+      <a href="/workspaces/heritage-marketplace/heritage-products.html" class="nav-btn"><i class="fas fa-box"></i> Catalogue</a>
+      <a href="/workspaces/heritage-marketplace/heritage-products-manage.html" class="nav-btn"><i class="fas fa-tags"></i> Manage Products</a>
+      <a href="/workspaces/heritage-marketplace/heritage-orders.html" class="nav-btn"><i class="fas fa-shopping-cart"></i> Orders</a>
+      <a href="/workspaces/heritage-marketplace/heritage-catalogues.html" class="nav-btn active"><i class="fas fa-images"></i> Catalogues</a>
     </div>
   </nav>
 
   <div class="container">
     <div class="page-header">
-      <h1><i class="fas fa-images"></i> WhatsApp Catalogues</h1>
+      <h1><i class="fas fa-images"></i> Partner Catalogues</h1>
       <button class="btn btn-primary" onclick="showAddModal()"><i class="fas fa-plus"></i> New Catalogue</button>
     </div>
 
-    <!-- Stats Row -->
+    <!-- Stats Row with Skeleton -->
     <div class="stats-row" id="statsRow">
       <div class="stat-mini"><div class="skeleton" style="height:1.4rem;width:50%;margin:0 auto 0.3rem;"></div><div class="skeleton" style="height:0.6rem;width:60%;margin:0 auto;"></div></div>
       <div class="stat-mini"><div class="skeleton" style="height:1.4rem;width:50%;margin:0 auto 0.3rem;"></div><div class="skeleton" style="height:0.6rem;width:60%;margin:0 auto;"></div></div>
@@ -264,21 +265,20 @@
 
     <!-- Filter Bar -->
     <div class="filter-bar">
-      <button class="filter-btn active" data-filter="all">All</button>
-      <button class="filter-btn" data-filter="sent">📤 Sent</button>
+      <button class="filter-btn active" data-filter="all">All Catalogues</button>
+      <button class="filter-btn" data-filter="active">✅ Active</button>
       <button class="filter-btn" data-filter="draft">📝 Draft</button>
-      <button class="filter-btn" data-filter="delivered">✅ Delivered</button>
       <div class="search-box">
         <i class="fas fa-search"></i>
-        <input type="text" id="searchInput" placeholder="Search catalogues...">
+        <input type="text" id="searchInput" placeholder="Search by name or partner...">
       </div>
     </div>
 
-    <!-- Catalogues Grid -->
+    <!-- Catalogues Grid with Skeleton -->
     <div class="cards-grid" id="cataloguesGrid">
-      <div class="skeleton-card"><div class="skeleton skeleton-image"></div><div style="padding:1rem 1.2rem;"><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-desc"></div><div class="skeleton skeleton-desc" style="width:60%;"></div><div style="display:flex;gap:6px;margin-top:0.5rem;"><div class="skeleton skeleton-badge"></div><div class="skeleton skeleton-badge" style="width:50px;"></div></div><div style="display:flex;gap:6px;margin-top:0.6rem;"><div class="skeleton" style="height:28px;width:60px;border-radius:8px;"></div><div class="skeleton" style="height:28px;width:60px;border-radius:8px;"></div></div></div></div>
-      <div class="skeleton-card"><div class="skeleton skeleton-image"></div><div style="padding:1rem 1.2rem;"><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-desc"></div><div class="skeleton skeleton-desc" style="width:60%;"></div><div style="display:flex;gap:6px;margin-top:0.5rem;"><div class="skeleton skeleton-badge"></div><div class="skeleton skeleton-badge" style="width:50px;"></div></div><div style="display:flex;gap:6px;margin-top:0.6rem;"><div class="skeleton" style="height:28px;width:60px;border-radius:8px;"></div><div class="skeleton" style="height:28px;width:60px;border-radius:8px;"></div></div></div></div>
-      <div class="skeleton-card"><div class="skeleton skeleton-image"></div><div style="padding:1rem 1.2rem;"><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-desc"></div><div class="skeleton skeleton-desc" style="width:60%;"></div><div style="display:flex;gap:6px;margin-top:0.5rem;"><div class="skeleton skeleton-badge"></div><div class="skeleton skeleton-badge" style="width:50px;"></div></div><div style="display:flex;gap:6px;margin-top:0.6rem;"><div class="skeleton" style="height:28px;width:60px;border-radius:8px;"></div><div class="skeleton" style="height:28px;width:60px;border-radius:8px;"></div></div></div></div>
+      <div class="skeleton-card"><div class="skeleton skeleton-image"></div><div style="padding:1rem 1.2rem;"><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-badge"></div><div class="skeleton skeleton-text-sm" style="width:80%;margin-top:0.5rem;"></div><div class="skeleton skeleton-text-sm" style="width:50%;"></div></div></div>
+      <div class="skeleton-card"><div class="skeleton skeleton-image"></div><div style="padding:1rem 1.2rem;"><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-badge"></div><div class="skeleton skeleton-text-sm" style="width:75%;margin-top:0.5rem;"></div><div class="skeleton skeleton-text-sm" style="width:55%;"></div></div></div>
+      <div class="skeleton-card"><div class="skeleton skeleton-image"></div><div style="padding:1rem 1.2rem;"><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-badge"></div><div class="skeleton skeleton-text-sm" style="width:85%;margin-top:0.5rem;"></div><div class="skeleton skeleton-text-sm" style="width:45%;"></div></div></div>
     </div>
   </div>
 
@@ -327,28 +327,23 @@
     }
 
     function getPartnerName(partnerId) {
-      if (!partnerId) return 'N/A';
+      if (!partnerId) return 'No Partner';
       const partner = allPartners[partnerId];
       return partner ? (partner.businessName || partner.name || 'Partner') : partnerId;
-    }
-
-    function getStatusClass(status) {
-      const map = { sent: 'status-sent', draft: 'status-draft', delivered: 'status-delivered' };
-      return map[status] || 'status-draft';
     }
 
     function updateStats() {
       const catalogues = Object.values(allCatalogues);
       const total = catalogues.length;
-      const sent = catalogues.filter(c => c.status === 'sent').length;
+      const active = catalogues.filter(c => c.status === 'active').length;
       const draft = catalogues.filter(c => c.status === 'draft' || !c.status).length;
-      const delivered = catalogues.filter(c => c.status === 'delivered').length;
+      const totalProducts = catalogues.reduce((sum, c) => sum + (c.productIds || []).length, 0);
 
       document.getElementById('statsRow').innerHTML = 
         `<div class="stat-mini"><div class="stat-num">${total}</div><div class="stat-label">Total Catalogues</div></div>` +
-        `<div class="stat-mini"><div class="stat-num">${sent}</div><div class="stat-label">Sent</div></div>` +
+        `<div class="stat-mini"><div class="stat-num">${active}</div><div class="stat-label">Active</div></div>` +
         `<div class="stat-mini"><div class="stat-num">${draft}</div><div class="stat-label">Drafts</div></div>` +
-        `<div class="stat-mini"><div class="stat-num">${delivered}</div><div class="stat-label">Delivered</div></div>`;
+        `<div class="stat-mini"><div class="stat-num">${totalProducts}</div><div class="stat-label">Products Listed</div></div>`;
     }
 
     function renderCatalogues() {
@@ -368,7 +363,7 @@
       }
 
       if (!catalogues.length) {
-        grid.innerHTML = '<div class="empty-state"><i class="fas fa-images" style="font-size:2rem;display:block;margin-bottom:8px;opacity:0.4;"></i><p>No catalogues found</p></div>';
+        grid.innerHTML = '<div class="empty-state"><i class="fas fa-images" style="font-size:2.5rem;display:block;margin-bottom:8px;opacity:0.3;"></i><p>No catalogues found</p></div>';
         return;
       }
 
@@ -377,24 +372,21 @@
         const status = c.status || 'draft';
         const productCount = (c.productIds || []).length;
         const coverImage = c.coverImage || '';
-        const icon = coverImage ? '' : '📱';
+        const icon = coverImage ? '' : '📁';
 
         return `
           <div class="catalogue-card" onclick="viewCatalogue('${c.id}')">
             <div class="catalogue-cover">
-              ${coverImage ? `<img src="${escapeHtml(coverImage)}" alt="${escapeHtml(c.name)}" onerror="this.style.display='none';this.parentElement.innerHTML='<span style=font-size:3rem;>📱</span>';">` : icon}
-              <span class="catalogue-status ${getStatusClass(status)}">${status}</span>
+              ${coverImage ? `<img src="${escapeHtml(coverImage)}" alt="${escapeHtml(c.name)}" onerror="this.style.display='none';this.parentElement.innerHTML='<span style=font-size:3rem;>📁</span>';">` : icon}
+              <span class="catalogue-status ${status === 'active' ? 'status-active' : 'status-draft'}">${status === 'active' ? 'Active' : 'Draft'}</span>
             </div>
             <div class="catalogue-body">
               <h3>${escapeHtml(c.name || 'Catalogue')}</h3>
-              <div class="catalogue-meta">
-                <span class="meta-tag partner"><i class="fas fa-handshake"></i> ${escapeHtml(partnerName)}</span>
-                <span class="meta-tag products"><i class="fas fa-box"></i> ${productCount} products</span>
-              </div>
+              <span class="catalogue-partner"><i class="fas fa-handshake"></i> ${escapeHtml(partnerName)}</span>
               <div class="catalogue-info">
+                <div><strong>Products</strong>${productCount} items</div>
+                <div><strong>Status</strong>${status === 'active' ? '✅ Active' : '📝 Draft'}</div>
                 <div><strong>Created</strong>${c.createdAt ? new Date(c.createdAt).toLocaleDateString() : 'N/A'}</div>
-                <div><strong>Sent To</strong>${c.sentTo || 'N/A'}</div>
-                <div><strong>Platform</strong>${c.platform || 'WhatsApp'}</div>
                 <div><strong>Updated</strong>${c.updatedAt ? new Date(c.updatedAt).toLocaleDateString() : 'N/A'}</div>
               </div>
               ${c.notes ? `<p style="font-size:0.65rem;color:var(--text-muted);margin-bottom:0.5rem;">📝 ${escapeHtml(c.notes.substring(0, 60))}${c.notes.length > 60 ? '...' : ''}</p>` : ''}
@@ -412,49 +404,63 @@
 
     function showAddModal() {
       const partners = Object.entries(allPartners).filter(([_, p]) => p && (p.businessName || p.name));
-      const products = Object.entries(allProducts).filter(([_, p]) => p && p.name);
+      const products = Object.entries(allProducts).filter(([_, p]) => p && p.name && p.isActive !== false);
 
       document.getElementById('modalContent').innerHTML = `
-        <h3><i class="fas fa-plus-circle"></i> New WhatsApp Catalogue</h3>
-        <div class="form-group"><label>Catalogue Name *</label><input type="text" id="cName" placeholder="e.g., Weekly Deals Catalogue"></div>
-        <div class="form-row">
-          <div class="form-group"><label>Business Partner *</label><select id="cPartner">
+        <h3><i class="fas fa-plus-circle"></i> Create Partner Catalogue</h3>
+        <div class="form-group"><label>Catalogue Name *</label><input type="text" id="cName" placeholder="e.g., Mali Safi — Kitchen Essentials"></div>
+        <div class="form-group">
+          <label>Business Partner *</label>
+          <select id="cPartner" onchange="filterProductsByPartner()">
             <option value="">— Select Partner —</option>
             ${partners.map(([id, p]) => `<option value="${id}">${escapeHtml(p.businessName || p.name)}</option>`).join('')}
-          </select></div>
-          <div class="form-group"><label>Status</label><select id="cStatus">
-            <option value="draft">📝 Draft</option>
-            <option value="sent">📤 Sent</option>
-            <option value="delivered">✅ Delivered</option>
-          </select></div>
+          </select>
         </div>
-        <div class="form-group"><label>Select Products</label>
-          <div style="max-height:150px;overflow-y:auto;border:1px solid #e2e8f0;border-radius:10px;padding:0.5rem;">
-            ${products.map(([id, p]) => `
-              <label style="display:flex;align-items:center;gap:6px;padding:0.3rem 0;font-size:0.75rem;cursor:pointer;">
-                <input type="checkbox" value="${id}" class="product-checkbox"> ${escapeHtml(p.name)} — KES ${(p.price || 0).toLocaleString()}
-              </label>
-            `).join('')}
-            ${products.length === 0 ? '<p style="color:var(--text-muted);text-align:center;padding:1rem;">No products available</p>' : ''}
+        <div class="form-group">
+          <label>Select Products</label>
+          <div style="max-height:180px;overflow-y:auto;border:1px solid #e2e8f0;border-radius:10px;padding:0.5rem;" id="productCheckboxes">
+            <p style="color:var(--text-muted);text-align:center;padding:1rem;font-size:0.75rem;">Select a partner first to see their products</p>
           </div>
         </div>
         <div class="form-row">
-          <div class="form-group"><label>Sent To</label><input type="text" id="cSentTo" placeholder="Phone or name"></div>
-          <div class="form-group"><label>Platform</label><select id="cPlatform">
-            <option value="WhatsApp">WhatsApp</option>
-            <option value="Instagram">Instagram</option>
-            <option value="Facebook">Facebook</option>
-            <option value="Email">Email</option>
+          <div class="form-group"><label>Status</label><select id="cStatus">
+            <option value="draft">📝 Draft</option>
+            <option value="active">✅ Active</option>
           </select></div>
+          <div class="form-group"><label>Cover Image URL</label><input type="text" id="cCoverImage" placeholder="https://... (optional)"></div>
         </div>
-        <div class="form-group"><label>Cover Image URL</label><input type="text" id="cCoverImage" placeholder="https://... (optional)"></div>
-        <div class="form-group"><label>Notes</label><textarea id="cNotes" rows="2" placeholder="Any notes about this catalogue..."></textarea></div>
+        <div class="form-group"><label>Notes</label><textarea id="cNotes" rows="2" placeholder="Internal notes about this collection..."></textarea></div>
         <div class="btn-row">
           <button class="btn btn-primary" onclick="saveCatalogue()"><i class="fas fa-save"></i> Save Catalogue</button>
           <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
         </div>
       `;
       document.getElementById('modal').classList.add('show');
+    }
+
+    function filterProductsByPartner() {
+      const partnerId = document.getElementById('cPartner').value;
+      const container = document.getElementById('productCheckboxes');
+      
+      if (!partnerId) {
+        container.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:1rem;font-size:0.75rem;">Select a partner first to see their products</p>';
+        return;
+      }
+
+      const partnerProducts = Object.entries(allProducts).filter(([_, p]) => p && p.partnerId === partnerId && p.isActive !== false);
+      
+      if (!partnerProducts.length) {
+        container.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:1rem;font-size:0.75rem;">No products found for this partner. <a href="/workspaces/heritage-marketplace/heritage-products-manage.html" style="color:var(--amber);">Add products first</a>.</p>';
+        return;
+      }
+
+      container.innerHTML = partnerProducts.map(([id, p]) => `
+        <label style="display:flex;align-items:center;gap:8px;padding:0.35rem 0;font-size:0.75rem;cursor:pointer;border-bottom:1px solid #f3f4f6;">
+          <input type="checkbox" value="${id}" class="product-checkbox">
+          <span style="flex:1;">${escapeHtml(p.name)}</span>
+          <span style="font-weight:600;color:var(--amber-dark);">KES ${(p.price || 0).toLocaleString()}</span>
+        </label>
+      `).join('');
     }
 
     async function saveCatalogue() {
@@ -471,8 +477,6 @@
           partnerId,
           productIds,
           status: document.getElementById('cStatus').value,
-          sentTo: document.getElementById('cSentTo').value.trim(),
-          platform: document.getElementById('cPlatform').value,
           coverImage: document.getElementById('cCoverImage').value.trim(),
           notes: document.getElementById('cNotes').value.trim(),
           createdAt: firebase.database.ServerValue.TIMESTAMP,
@@ -487,43 +491,62 @@
       const c = allCatalogues[catalogueId];
       if (!c) return;
       const partners = Object.entries(allPartners).filter(([_, p]) => p && (p.businessName || p.name));
-      const products = Object.entries(allProducts).filter(([_, p]) => p && p.name);
       const selectedProducts = c.productIds || [];
 
       document.getElementById('modalContent').innerHTML = `
         <h3><i class="fas fa-edit"></i> Edit Catalogue</h3>
         <div class="form-group"><label>Catalogue Name</label><input type="text" id="ecName" value="${escapeHtml(c.name || '')}"></div>
-        <div class="form-row">
-          <div class="form-group"><label>Business Partner</label><select id="ecPartner">
+        <div class="form-group">
+          <label>Business Partner</label>
+          <select id="ecPartner" onchange="filterEditProducts()">
             ${partners.map(([id, p]) => `<option value="${id}" ${c.partnerId === id ? 'selected' : ''}>${escapeHtml(p.businessName || p.name)}</option>`).join('')}
-          </select></div>
-          <div class="form-group"><label>Status</label><select id="ecStatus">
-            ${['draft','sent','delivered'].map(s => `<option value="${s}" ${c.status === s ? 'selected' : ''}>${s === 'draft' ? '📝 Draft' : s === 'sent' ? '📤 Sent' : '✅ Delivered'}</option>`).join('')}
-          </select></div>
+          </select>
         </div>
-        <div class="form-group"><label>Select Products</label>
-          <div style="max-height:150px;overflow-y:auto;border:1px solid #e2e8f0;border-radius:10px;padding:0.5rem;">
-            ${products.map(([id, p]) => `
-              <label style="display:flex;align-items:center;gap:6px;padding:0.3rem 0;font-size:0.75rem;cursor:pointer;">
-                <input type="checkbox" value="${id}" class="product-checkbox" ${selectedProducts.includes(id) ? 'checked' : ''}> ${escapeHtml(p.name)} — KES ${(p.price || 0).toLocaleString()}
-              </label>
-            `).join('')}
+        <div class="form-group">
+          <label>Select Products</label>
+          <div style="max-height:180px;overflow-y:auto;border:1px solid #e2e8f0;border-radius:10px;padding:0.5rem;" id="editProductCheckboxes">
+            <p style="color:var(--text-muted);text-align:center;padding:1rem;font-size:0.75rem;">Loading products...</p>
           </div>
         </div>
         <div class="form-row">
-          <div class="form-group"><label>Sent To</label><input type="text" id="ecSentTo" value="${escapeHtml(c.sentTo || '')}"></div>
-          <div class="form-group"><label>Platform</label><select id="ecPlatform">
-            ${['WhatsApp','Instagram','Facebook','Email'].map(p => `<option value="${p}" ${c.platform === p ? 'selected' : ''}>${p}</option>`).join('')}
+          <div class="form-group"><label>Status</label><select id="ecStatus">
+            <option value="draft" ${c.status === 'draft' || !c.status ? 'selected' : ''}>📝 Draft</option>
+            <option value="active" ${c.status === 'active' ? 'selected' : ''}>✅ Active</option>
           </select></div>
+          <div class="form-group"><label>Cover Image URL</label><input type="text" id="ecCoverImage" value="${escapeHtml(c.coverImage || '')}"></div>
         </div>
-        <div class="form-group"><label>Cover Image URL</label><input type="text" id="ecCoverImage" value="${escapeHtml(c.coverImage || '')}"></div>
         <div class="form-group"><label>Notes</label><textarea id="ecNotes" rows="2">${escapeHtml(c.notes || '')}</textarea></div>
         <div class="btn-row">
           <button class="btn btn-primary" onclick="updateCatalogue('${catalogueId}')"><i class="fas fa-save"></i> Update</button>
           <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
         </div>
       `;
+      
+      // Populate products after modal is shown
+      setTimeout(() => filterEditProducts(selectedProducts), 100);
       document.getElementById('modal').classList.add('show');
+    }
+
+    function filterEditProducts(preselected) {
+      const partnerId = document.getElementById('ecPartner')?.value;
+      const container = document.getElementById('editProductCheckboxes');
+      if (!container || !partnerId) return;
+
+      const selected = preselected || allCatalogues[Object.keys(allCatalogues).find(k => allCatalogues[k])]?.productIds || [];
+      const partnerProducts = Object.entries(allProducts).filter(([_, p]) => p && p.partnerId === partnerId && p.isActive !== false);
+
+      if (!partnerProducts.length) {
+        container.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:1rem;font-size:0.75rem;">No products found for this partner.</p>';
+        return;
+      }
+
+      container.innerHTML = partnerProducts.map(([id, p]) => `
+        <label style="display:flex;align-items:center;gap:8px;padding:0.35rem 0;font-size:0.75rem;cursor:pointer;border-bottom:1px solid #f3f4f6;">
+          <input type="checkbox" value="${id}" class="product-checkbox" ${selected.includes(id) ? 'checked' : ''}>
+          <span style="flex:1;">${escapeHtml(p.name)}</span>
+          <span style="font-weight:600;color:var(--amber-dark);">KES ${(p.price || 0).toLocaleString()}</span>
+        </label>
+      `).join('');
     }
 
     async function updateCatalogue(catalogueId) {
@@ -534,8 +557,6 @@
           partnerId: document.getElementById('ecPartner').value,
           productIds,
           status: document.getElementById('ecStatus').value,
-          sentTo: document.getElementById('ecSentTo').value.trim(),
-          platform: document.getElementById('ecPlatform').value,
           coverImage: document.getElementById('ecCoverImage').value.trim(),
           notes: document.getElementById('ecNotes').value.trim(),
           updatedAt: firebase.database.ServerValue.TIMESTAMP
@@ -553,21 +574,23 @@
       const productIds = c.productIds || [];
       const productsList = productIds.map(pid => {
         const p = allProducts[pid];
-        return p ? `<div style="display:flex;justify-content:space-between;padding:0.4rem 0;border-bottom:1px solid #f3f4f6;font-size:0.75rem;"><span>${escapeHtml(p.name)}</span><span style="font-weight:600;">KES ${(p.price || 0).toLocaleString()}</span></div>` : '';
+        return p ? `
+          <div class="product-list-item">
+            <span>${escapeHtml(p.name)}</span>
+            <span>KES ${(p.price || 0).toLocaleString()}</span>
+          </div>` : '';
       }).join('');
 
       document.getElementById('modalContent').innerHTML = `
         <h3><i class="fas fa-eye"></i> ${escapeHtml(c.name || 'Catalogue')}</h3>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:0.75rem;margin-bottom:1rem;">
           <div><strong>Partner:</strong> ${escapeHtml(partnerName)}</div>
-          <div><strong>Status:</strong> <span class="catalogue-status ${getStatusClass(status)}">${status}</span></div>
-          <div><strong>Platform:</strong> ${escapeHtml(c.platform || 'WhatsApp')}</div>
-          <div><strong>Sent To:</strong> ${escapeHtml(c.sentTo || 'N/A')}</div>
+          <div><strong>Status:</strong> <span style="color:${status === 'active' ? '#10b981' : '#f59e0b'};font-weight:600;">${status === 'active' ? 'Active' : 'Draft'}</span></div>
           <div><strong>Products:</strong> ${productIds.length} items</div>
           <div><strong>Updated:</strong> ${c.updatedAt ? new Date(c.updatedAt).toLocaleDateString() : 'N/A'}</div>
         </div>
-        <div style="margin-bottom:1rem;"><strong>Products in Catalogue:</strong></div>
-        <div style="max-height:200px;overflow-y:auto;margin-bottom:1rem;">${productsList || '<p style="color:var(--text-muted);">No products</p>'}</div>
+        <div style="margin-bottom:1rem;"><strong>Products in this catalogue:</strong></div>
+        <div class="product-list">${productsList || '<p style="color:var(--text-muted);text-align:center;padding:1rem;">No products in this catalogue</p>'}</div>
         ${c.notes ? `<div style="background:#fffbeb;padding:0.6rem;border-radius:8px;font-size:0.7rem;margin-bottom:1rem;"><strong>📝 Notes:</strong> ${escapeHtml(c.notes)}</div>` : ''}
         <div class="btn-row">
           <button class="btn btn-primary" onclick="closeModal();editCatalogue('${catalogueId}')"><i class="fas fa-edit"></i> Edit</button>
@@ -578,7 +601,7 @@
     }
 
     async function deleteCatalogue(catalogueId) {
-      if (!confirm('Delete this catalogue?')) return;
+      if (!confirm('Delete this catalogue? This will not delete the products.')) return;
       try {
         await database.ref(`heritage_catalogues/${catalogueId}`).remove();
         showToast('✅ Deleted');
@@ -623,7 +646,7 @@
       renderCatalogues();
     });
 
-    auth.onAuthStateChanged((user) => { if (!user) window.location.href = '/'; });
+    auth.onAuthStateChanged((user) => { if (!user) window.location.href = '/workspaces/index.html'; });
 
     window.showAddModal = showAddModal;
     window.editCatalogue = editCatalogue;
@@ -631,6 +654,8 @@
     window.deleteCatalogue = deleteCatalogue;
     window.saveCatalogue = saveCatalogue;
     window.updateCatalogue = updateCatalogue;
+    window.filterProductsByPartner = filterProductsByPartner;
+    window.filterEditProducts = filterEditProducts;
     window.closeModal = closeModal;
   </script>
 </body>
