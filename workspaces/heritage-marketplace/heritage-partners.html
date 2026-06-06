@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Business Partners | Heritage Marketplace</title>
+  
+  <meta name="theme-color" content="#d97706">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  
+  <link rel="icon" type="image/png" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --amber: #d97706;
+      --amber-dark: #92400e;
+      --amber-light: #fbbf24;
+      --text-primary: #1e293b;
+      --text-muted: #64748b;
+      --border-light: #fde68a;
+      --red: #ef4444;
+      --green: #10b981;
+      --blue: #3b82f6;
+      --purple: #8b5cf6;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(145deg, #fffbeb 0%, #ffffff 100%);
+      color: var(--text-primary);
+      line-height: 1.4;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+    .skeleton {
+      background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s ease-in-out infinite;
+      border-radius: 6px;
+    }
+    .skeleton-text { height: 1rem; margin-bottom: 0.5rem; }
+    .skeleton-text-sm { height: 0.7rem; width: 60%; }
+    .skeleton-avatar { width: 50px; height: 50px; border-radius: 14px; }
+    .skeleton-badge { height: 22px; width: 60px; border-radius: 8px; }
+    .skeleton-card {
+      background: white; border-radius: 16px; padding: 1.2rem;
+      border: 1px solid #f3f4f6;
+    }
+
+    .navbar {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(16px);
+      padding: 0.5rem 2%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(217, 119, 6, 0.2);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .logo-img { height: 34px; width: 34px; border-radius: 10px; object-fit: contain; background: white; box-shadow: 0 4px 12px rgba(217, 119, 6, 0.2); }
+    .logo-text {
+      font-weight: 800; font-size: 1.1rem;
+      background: linear-gradient(145deg, #fbbf24, #d97706);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .logo-text span { font-weight: 600; font-size: 0.7rem; background: #92400e; -webkit-text-fill-color: #92400e; margin-left: 3px; }
+
+    .nav-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .nav-btn {
+      background: rgba(217, 119, 6, 0.08); border: 1px solid rgba(217, 119, 6, 0.2);
+      padding: 0.4rem 0.8rem; border-radius: 25px; color: var(--amber-dark);
+      font-weight: 600; font-size: 0.7rem; cursor: pointer; display: inline-flex;
+      align-items: center; gap: 5px; text-decoration: none; transition: all 0.2s;
+    }
+    .nav-btn:hover { background: var(--amber); color: white; }
+    .nav-btn.active { background: var(--amber); color: white; border-color: var(--amber-dark); }
+
+    .container { padding: 1rem 2%; flex: 1; }
+
+    .page-header { margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.8rem; }
+    .page-header h1 { font-size: 1.3rem; font-weight: 800; color: #0f172a; }
+    .page-header h1 i { color: var(--amber-dark); margin-right: 6px; }
+
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 1rem; }
+    .stat-mini {
+      background: white; border-radius: 14px; padding: 0.8rem 1rem; text-align: center;
+      border: 1px solid var(--border-light); box-shadow: 0 2px 8px rgba(217,119,6,0.03);
+      transition: all 0.3s;
+    }
+    .stat-mini:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(217,119,6,0.08); }
+    .stat-mini .stat-num { font-size: 1.4rem; font-weight: 800; color: var(--amber-dark); line-height: 1.1; }
+    .stat-mini .stat-label { font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.3px; }
+
+    .filter-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1rem; align-items: center; }
+    .filter-btn {
+      padding: 0.35rem 0.8rem; border-radius: 20px; border: 1.5px solid #e2e8f0;
+      background: white; color: #64748b; font-weight: 600; font-size: 0.65rem;
+      cursor: pointer; transition: all 0.15s; font-family: inherit;
+    }
+    .filter-btn:hover { border-color: var(--amber); color: var(--amber-dark); }
+    .filter-btn.active { background: var(--amber); color: white; border-color: var(--amber); }
+    .search-box { flex: 1; min-width: 150px; max-width: 300px; position: relative; }
+    .search-box input {
+      width: 100%; padding: 0.35rem 0.8rem 0.35rem 2rem; border-radius: 20px;
+      border: 1.5px solid #e2e8f0; font-size: 0.7rem; font-family: 'Inter', sans-serif;
+    }
+    .search-box i { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 0.7rem; }
+
+    .btn {
+      padding: 0.5rem 1rem; border-radius: 10px; border: none; font-weight: 700;
+      font-size: 0.7rem; cursor: pointer; display: inline-flex; align-items: center;
+      gap: 5px; font-family: inherit; transition: all 0.15s; white-space: nowrap;
+    }
+    .btn-primary { background: var(--amber); color: white; }
+    .btn-primary:hover { background: var(--amber-dark); }
+    .btn-secondary { background: #f1f5f9; color: #475569; }
+    .btn-secondary:hover { background: #e2e8f0; }
+
+    .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 12px; }
+
+    .partner-card {
+      background: white; border-radius: 18px; padding: 1.3rem;
+      border: 1px solid var(--border-light); box-shadow: 0 3px 12px rgba(217,119,6,0.03);
+      transition: all 0.25s; display: flex; gap: 1rem;
+    }
+    .partner-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(217,119,6,0.1); }
+    
+    .partner-avatar {
+      width: 50px; height: 50px; border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 1.1rem; color: white;
+      flex-shrink: 0;
+    }
+    
+    .partner-info { flex: 1; min-width: 0; }
+    .partner-info h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.3rem; }
+    .partner-meta { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 0.5rem; }
+    .meta-tag {
+      font-size: 0.6rem; padding: 0.12rem 0.5rem; border-radius: 8px;
+      font-weight: 600; background: #f1f5f9; color: #475569;
+    }
+    .meta-tag.industry { background: #fffbeb; color: #92400e; }
+    .meta-tag.products { background: #f0fdf4; color: #065f46; }
+    .meta-tag.tier { background: #eff6ff; color: #1d4ed8; }
+    
+    .partner-contact { font-size: 0.65rem; color: var(--text-muted); margin-bottom: 0.6rem; display: flex; flex-wrap: wrap; gap: 8px; }
+    .partner-contact span { display: flex; align-items: center; gap: 3px; }
+    .partner-contact i { color: var(--amber); font-size: 0.55rem; }
+
+    .partner-actions { display: flex; gap: 4px; flex-wrap: wrap; }
+    .btn-sm {
+      padding: 0.3rem 0.6rem; border-radius: 8px; border: none; font-weight: 600;
+      font-size: 0.6rem; cursor: pointer; display: inline-flex; align-items: center;
+      gap: 3px; transition: all 0.15s; font-family: inherit;
+    }
+    .btn-edit { background: #fffbeb; color: #92400e; }
+    .btn-edit:hover { background: #d97706; color: white; }
+    .btn-view { background: #eff6ff; color: #1d4ed8; }
+    .btn-view:hover { background: #3b82f6; color: white; }
+    .btn-delete { background: #fee2e2; color: #991b1b; }
+    .btn-delete:hover { background: #ef4444; color: white; }
+
+    .empty-state { text-align: center; padding: 3rem; color: #94a3b8; grid-column: 1 / -1; }
+
+    .modal-overlay {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5); z-index: 3000; justify-content: center;
+      align-items: center; backdrop-filter: blur(2px);
+    }
+    .modal-overlay.show { display: flex; }
+    .modal {
+      background: white; border-radius: 20px; padding: 1.5rem; max-width: 550px;
+      width: 95%; max-height: 85vh; overflow-y: auto; box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+    }
+    .modal h3 { font-size: 0.95rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px; color: var(--amber-dark); }
+    .form-group { margin-bottom: 0.7rem; }
+    .form-group label {
+      display: block; font-size: 0.65rem; font-weight: 700; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 0.15rem;
+    }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%; padding: 0.5rem 0.7rem; border-radius: 10px;
+      border: 1.5px solid #e2e8f0; font-size: 0.8rem; font-family: 'Inter', sans-serif;
+      background: #f8fafc; transition: all 0.2s;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      outline: none; border-color: var(--amber); box-shadow: 0 0 0 3px rgba(217,119,6,0.1);
+    }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+    .btn-row { display: flex; gap: 8px; margin-top: 1rem; }
+
+    .toast {
+      position: fixed; bottom: 25px; right: 25px; background: var(--amber); color: white;
+      padding: 0.7rem 1.2rem; border-radius: 20px; font-weight: 600; z-index: 4000;
+      animation: slideIn 0.3s ease; box-shadow: 0 8px 20px rgba(217,119,6,0.25);
+      display: flex; align-items: center; gap: 6px; font-size: 0.75rem;
+    }
+    .toast.error { background: var(--red); }
+    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+    @media (max-width: 768px) {
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+      .cards-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <a href="/workspaces/heritage-marketplace/index.html" class="logo">
+      <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png" alt="Heritage" class="logo-img">
+      <span class="logo-text">Heritage <span>Marketplace</span></span>
+    </a>
+    <div class="nav-right">
+      <a href="/workspaces/heritage-marketplace/index.html" class="nav-btn"><i class="fas fa-arrow-left"></i> Dashboard</a>
+      <a href="/workspaces/heritage-marketplace/heritage-partners.html" class="nav-btn active"><i class="fas fa-handshake"></i> Partners</a>
+      <a href="/workspaces/heritage-marketplace/heritage-products.html" class="nav-btn"><i class="fas fa-box"></i> Catalogue</a>
+      <a href="/workspaces/heritage-marketplace/heritage-products-manage.html" class="nav-btn"><i class="fas fa-tags"></i> Manage Products</a>
+      <a href="/workspaces/heritage-marketplace/heritage-orders.html" class="nav-btn"><i class="fas fa-shopping-cart"></i> Orders</a>
+      <a href="/workspaces/heritage-marketplace/heritage-catalogues.html" class="nav-btn"><i class="fas fa-images"></i> Catalogues</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="page-header">
+      <h1><i class="fas fa-handshake"></i> Business Partners</h1>
+      <button class="btn btn-primary" onclick="showAddModal()"><i class="fas fa-plus"></i> Add Partner</button>
+    </div>
+
+    <!-- Stats Row with Skeleton -->
+    <div class="stats-row" id="statsRow">
+      <div class="stat-mini"><div class="skeleton" style="height:1.4rem;width:50%;margin:0 auto 0.3rem;"></div><div class="skeleton" style="height:0.6rem;width:60%;margin:0 auto;"></div></div>
+      <div class="stat-mini"><div class="skeleton" style="height:1.4rem;width:50%;margin:0 auto 0.3rem;"></div><div class="skeleton" style="height:0.6rem;width:60%;margin:0 auto;"></div></div>
+      <div class="stat-mini"><div class="skeleton" style="height:1.4rem;width:50%;margin:0 auto 0.3rem;"></div><div class="skeleton" style="height:0.6rem;width:60%;margin:0 auto;"></div></div>
+      <div class="stat-mini"><div class="skeleton" style="height:1.4rem;width:50%;margin:0 auto 0.3rem;"></div><div class="skeleton" style="height:0.6rem;width:60%;margin:0 auto;"></div></div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+      <button class="filter-btn active" data-filter="all">All Partners</button>
+      <button class="filter-btn" data-filter="active">✅ Active</button>
+      <button class="filter-btn" data-filter="inactive">❌ Inactive</button>
+      <button class="filter-btn" data-filter="premium">⭐ Premium</button>
+      <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input type="text" id="searchInput" placeholder="Search by name, phone, or industry...">
+      </div>
+    </div>
+
+    <!-- Partners Grid with Skeleton -->
+    <div class="cards-grid" id="partnersGrid">
+      <div class="skeleton-card" style="display:flex;gap:1rem;">
+        <div class="skeleton skeleton-avatar"></div>
+        <div style="flex:1;"><div class="skeleton skeleton-text" style="width:60%;"></div><div style="display:flex;gap:5px;margin-bottom:0.5rem;"><div class="skeleton skeleton-badge"></div><div class="skeleton skeleton-badge" style="width:50px;"></div></div><div class="skeleton skeleton-text-sm" style="width:80%;"></div><div class="skeleton skeleton-text-sm" style="width:50%;"></div></div>
+      </div>
+      <div class="skeleton-card" style="display:flex;gap:1rem;">
+        <div class="skeleton skeleton-avatar"></div>
+        <div style="flex:1;"><div class="skeleton skeleton-text" style="width:55%;"></div><div style="display:flex;gap:5px;margin-bottom:0.5rem;"><div class="skeleton skeleton-badge"></div><div class="skeleton skeleton-badge" style="width:50px;"></div></div><div class="skeleton skeleton-text-sm" style="width:75%;"></div><div class="skeleton skeleton-text-sm" style="width:45%;"></div></div>
+      </div>
+      <div class="skeleton-card" style="display:flex;gap:1rem;">
+        <div class="skeleton skeleton-avatar"></div>
+        <div style="flex:1;"><div class="skeleton skeleton-text" style="width:65%;"></div><div style="display:flex;gap:5px;margin-bottom:0.5rem;"><div class="skeleton skeleton-badge"></div><div class="skeleton skeleton-badge" style="width:50px;"></div></div><div class="skeleton skeleton-text-sm" style="width:70%;"></div><div class="skeleton skeleton-text-sm" style="width:55%;"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modal"><div class="modal" id="modalContent"></div></div>
+  <div id="toastContainer"></div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+      authDomain: "mugera-e51cc.firebaseapp.com",
+      databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "mugera-e51cc",
+      storageBucket: "mugera-e51cc.firebasestorage.app",
+      messagingSenderId: "1024868637509",
+      appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    const auth = firebase.auth();
+
+    let allPartners = {};
+    let allProducts = {};
+    let currentFilter = 'all';
+    let searchQuery = '';
+
+    function showToast(msg, isError = false) {
+      const container = document.getElementById('toastContainer');
+      const existing = container.querySelector('.toast');
+      if (existing) existing.remove();
+      const toast = document.createElement('div');
+      toast.className = `toast ${isError ? 'error' : ''}`;
+      toast.innerHTML = `<i class="fas fa-${isError ? 'exclamation-circle' : 'check-circle'}"></i> ${msg}`;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 3500);
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : m === '>' ? '&gt;' : m);
+    }
+
+    function getInitials(name) {
+      if (!name) return 'BP';
+      return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+    }
+
+    function getAvatarColor(str) {
+      const colors = ['#d97706','#92400e','#b45309','#a16207','#ca8a04','#eab308','#f59e0b','#dc2626','#7c3aed','#2563eb','#059669','#db2777'];
+      let hash = 0;
+      for (let i = 0; i < (str || '').length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
+      return colors[Math.abs(hash) % colors.length];
+    }
+
+    function getProductCount(partnerId) {
+      return Object.values(allProducts).filter(p => p && p.partnerId === partnerId).length;
+    }
+
+    function updateStats() {
+      const partners = Object.values(allPartners);
+      const total = partners.length;
+      const active = partners.filter(p => p.status === 'active' || !p.status).length;
+      const inactive = partners.filter(p => p.status === 'inactive').length;
+      const premium = partners.filter(p => p.tier === 'premium').length;
+
+      document.getElementById('statsRow').innerHTML = 
+        `<div class="stat-mini"><div class="stat-num">${total}</div><div class="stat-label">Total Partners</div></div>` +
+        `<div class="stat-mini"><div class="stat-num">${active}</div><div class="stat-label">Active</div></div>` +
+        `<div class="stat-mini"><div class="stat-num">${inactive}</div><div class="stat-label">Inactive</div></div>` +
+        `<div class="stat-mini"><div class="stat-num">${premium}</div><div class="stat-label">Premium</div></div>`;
+    }
+
+    function renderPartners() {
+      const grid = document.getElementById('partnersGrid');
+      let partners = Object.entries(allPartners).map(([id, data]) => ({ id, ...data }));
+
+      if (currentFilter === 'active') {
+        partners = partners.filter(p => p.status === 'active' || !p.status);
+      } else if (currentFilter === 'inactive') {
+        partners = partners.filter(p => p.status === 'inactive');
+      } else if (currentFilter === 'premium') {
+        partners = partners.filter(p => p.tier === 'premium');
+      }
+
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        partners = partners.filter(p => 
+          (p.businessName || p.name || '').toLowerCase().includes(q) ||
+          (p.phone || '').toLowerCase().includes(q) ||
+          (p.industry || '').toLowerCase().includes(q) ||
+          (p.email || '').toLowerCase().includes(q)
+        );
+      }
+
+      if (!partners.length) {
+        grid.innerHTML = '<div class="empty-state"><i class="fas fa-handshake" style="font-size:2rem;display:block;margin-bottom:8px;opacity:0.4;"></i><p>No partners found</p></div>';
+        return;
+      }
+
+      grid.innerHTML = partners.map(p => {
+        const name = p.businessName || p.name || 'Partner';
+        const initials = getInitials(name);
+        const avatarColor = getAvatarColor(name);
+        const productCount = getProductCount(p.id);
+        const status = p.status || 'active';
+        const tier = p.tier || 'standard';
+
+        return `
+          <div class="partner-card">
+            <div class="partner-avatar" style="background:${avatarColor};">${initials}</div>
+            <div class="partner-info">
+              <h3>${escapeHtml(name)}</h3>
+              <div class="partner-meta">
+                <span class="meta-tag industry"><i class="fas fa-tag"></i> ${escapeHtml(p.industry || 'General')}</span>
+                <span class="meta-tag products"><i class="fas fa-box"></i> ${productCount} products</span>
+                ${tier === 'premium' ? '<span class="meta-tag tier"><i class="fas fa-star"></i> Premium</span>' : ''}
+                <span style="font-size:0.6rem;padding:0.12rem 0.5rem;border-radius:8px;font-weight:600;background:${status === 'active' || !status ? '#d1fae5' : '#fee2e2'};color:${status === 'active' || !status ? '#065f46' : '#991b1b'};">${status === 'active' || !status ? 'Active' : 'Inactive'}</span>
+              </div>
+              <div class="partner-contact">
+                ${p.phone ? `<span><i class="fas fa-phone"></i> ${escapeHtml(p.phone)}</span>` : ''}
+                ${p.email ? `<span><i class="fas fa-envelope"></i> ${escapeHtml(p.email)}</span>` : ''}
+                ${p.location ? `<span><i class="fas fa-map-marker-alt"></i> ${escapeHtml(p.location)}</span>` : ''}
+              </div>
+              ${p.notes ? `<p style="font-size:0.65rem;color:var(--text-muted);margin-bottom:0.5rem;">📝 ${escapeHtml(p.notes.substring(0, 60))}${p.notes.length > 60 ? '...' : ''}</p>` : ''}
+              <div class="partner-actions">
+                <button class="btn-sm btn-edit" onclick="editPartner('${p.id}')"><i class="fas fa-edit"></i> Edit</button>
+                <button class="btn-sm btn-view" onclick="viewPartner('${p.id}')"><i class="fas fa-eye"></i> View</button>
+                <button class="btn-sm btn-delete" onclick="deletePartner('${p.id}')"><i class="fas fa-trash"></i> Delete</button>
+              </div>
+            </div>
+          </div>`;
+      }).join('');
+
+      updateStats();
+    }
+
+    function showAddModal() {
+      document.getElementById('modalContent').innerHTML = `
+        <h3><i class="fas fa-plus-circle"></i> Add Business Partner</h3>
+        <div class="form-row">
+          <div class="form-group"><label>Business Name *</label><input type="text" id="pName" placeholder="Company name"></div>
+          <div class="form-group"><label>Contact Person</label><input type="text" id="pContactPerson" placeholder="Full name"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Phone</label><input type="text" id="pPhone" placeholder="+254..."></div>
+          <div class="form-group"><label>Email</label><input type="email" id="pEmail" placeholder="partner@email.com"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Industry</label><select id="pIndustry">
+            <option value="Fashion">👗 Fashion</option><option value="Food">🍽️ Food</option>
+            <option value="Electronics">📱 Electronics</option><option value="Home Goods">🏠 Home Goods</option>
+            <option value="Beauty">💄 Beauty</option><option value="Agriculture">🌾 Agriculture</option>
+            <option value="Other">📦 Other</option>
+          </select></div>
+          <div class="form-group"><label>Tier</label><select id="pTier">
+            <option value="standard">Standard</option><option value="premium">⭐ Premium</option>
+          </select></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Location</label><input type="text" id="pLocation" placeholder="City/Area"></div>
+          <div class="form-group"><label>Status</label><select id="pStatus">
+            <option value="active">Active</option><option value="inactive">Inactive</option>
+          </select></div>
+        </div>
+        <div class="form-group"><label>Notes</label><textarea id="pNotes" rows="2" placeholder="Additional notes..."></textarea></div>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="savePartner()"><i class="fas fa-save"></i> Save Partner</button>
+          <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+        </div>
+      `;
+      document.getElementById('modal').classList.add('show');
+    }
+
+    async function savePartner() {
+      const name = document.getElementById('pName').value.trim();
+      if (!name) { showToast('Business name is required', true); return; }
+
+      try {
+        await database.ref('heritage_partners').push().set({
+          businessName: name,
+          name: name,
+          contactPerson: document.getElementById('pContactPerson').value.trim(),
+          phone: document.getElementById('pPhone').value.trim(),
+          email: document.getElementById('pEmail').value.trim(),
+          industry: document.getElementById('pIndustry').value,
+          tier: document.getElementById('pTier').value,
+          location: document.getElementById('pLocation').value.trim(),
+          status: document.getElementById('pStatus').value,
+          notes: document.getElementById('pNotes').value.trim(),
+          createdAt: firebase.database.ServerValue.TIMESTAMP,
+          updatedAt: firebase.database.ServerValue.TIMESTAMP
+        });
+        showToast('✅ Partner added!');
+        closeModal();
+      } catch (e) { showToast('Failed to save', true); }
+    }
+
+    function editPartner(partnerId) {
+      const p = allPartners[partnerId];
+      if (!p) return;
+
+      document.getElementById('modalContent').innerHTML = `
+        <h3><i class="fas fa-edit"></i> Edit Partner</h3>
+        <div class="form-row">
+          <div class="form-group"><label>Business Name</label><input type="text" id="epName" value="${escapeHtml(p.businessName || p.name || '')}"></div>
+          <div class="form-group"><label>Contact Person</label><input type="text" id="epContactPerson" value="${escapeHtml(p.contactPerson || '')}"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Phone</label><input type="text" id="epPhone" value="${escapeHtml(p.phone || '')}"></div>
+          <div class="form-group"><label>Email</label><input type="email" id="epEmail" value="${escapeHtml(p.email || '')}"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Industry</label><select id="epIndustry">
+            ${['Fashion','Food','Electronics','Home Goods','Beauty','Agriculture','Other'].map(i => `<option value="${i}" ${p.industry === i ? 'selected' : ''}>${i}</option>`).join('')}
+          </select></div>
+          <div class="form-group"><label>Tier</label><select id="epTier">
+            <option value="standard" ${p.tier === 'standard' ? 'selected' : ''}>Standard</option>
+            <option value="premium" ${p.tier === 'premium' ? 'selected' : ''}>⭐ Premium</option>
+          </select></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Location</label><input type="text" id="epLocation" value="${escapeHtml(p.location || '')}"></div>
+          <div class="form-group"><label>Status</label><select id="epStatus">
+            <option value="active" ${p.status === 'active' || !p.status ? 'selected' : ''}>Active</option>
+            <option value="inactive" ${p.status === 'inactive' ? 'selected' : ''}>Inactive</option>
+          </select></div>
+        </div>
+        <div class="form-group"><label>Notes</label><textarea id="epNotes" rows="2">${escapeHtml(p.notes || '')}</textarea></div>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="updatePartner('${partnerId}')"><i class="fas fa-save"></i> Update</button>
+          <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+        </div>
+      `;
+      document.getElementById('modal').classList.add('show');
+    }
+
+    async function updatePartner(partnerId) {
+      try {
+        const name = document.getElementById('epName').value.trim();
+        await database.ref(`heritage_partners/${partnerId}`).update({
+          businessName: name,
+          name: name,
+          contactPerson: document.getElementById('epContactPerson').value.trim(),
+          phone: document.getElementById('epPhone').value.trim(),
+          email: document.getElementById('epEmail').value.trim(),
+          industry: document.getElementById('epIndustry').value,
+          tier: document.getElementById('epTier').value,
+          location: document.getElementById('epLocation').value.trim(),
+          status: document.getElementById('epStatus').value,
+          notes: document.getElementById('epNotes').value.trim(),
+          updatedAt: firebase.database.ServerValue.TIMESTAMP
+        });
+        showToast('✅ Updated!');
+        closeModal();
+      } catch (e) { showToast('Failed to update', true); }
+    }
+
+    function viewPartner(partnerId) {
+      const p = allPartners[partnerId];
+      if (!p) return;
+      const name = p.businessName || p.name || 'Partner';
+      const productCount = getProductCount(partnerId);
+      const products = Object.entries(allProducts).filter(([_, pr]) => pr && pr.partnerId === partnerId);
+
+      document.getElementById('modalContent').innerHTML = `
+        <h3><i class="fas fa-eye"></i> ${escapeHtml(name)}</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:0.75rem;margin-bottom:1rem;">
+          <div><strong>Contact:</strong> ${escapeHtml(p.contactPerson || 'N/A')}</div>
+          <div><strong>Status:</strong> <span style="color:${p.status === 'inactive' ? '#ef4444' : '#10b981'};font-weight:600;">${p.status === 'inactive' ? 'Inactive' : 'Active'}</span></div>
+          <div><strong>Phone:</strong> ${escapeHtml(p.phone || 'N/A')}</div>
+          <div><strong>Email:</strong> ${escapeHtml(p.email || 'N/A')}</div>
+          <div><strong>Industry:</strong> ${escapeHtml(p.industry || 'N/A')}</div>
+          <div><strong>Tier:</strong> ${p.tier === 'premium' ? '⭐ Premium' : 'Standard'}</div>
+          <div><strong>Location:</strong> ${escapeHtml(p.location || 'N/A')}</div>
+          <div><strong>Products:</strong> ${productCount}</div>
+        </div>
+        ${products.length > 0 ? `
+          <div style="margin-bottom:1rem;"><strong>Products (${products.length}):</strong></div>
+          <div style="max-height:150px;overflow-y:auto;margin-bottom:1rem;">
+            ${products.map(([id, pr]) => `
+              <div style="display:flex;justify-content:space-between;padding:0.3rem 0;border-bottom:1px solid #f3f4f6;font-size:0.7rem;">
+                <span>${escapeHtml(pr.name)}</span>
+                <span style="font-weight:600;">KES ${(pr.price || 0).toLocaleString()}</span>
+              </div>
+            `).join('')}
+          </div>
+        ` : '<p style="color:var(--text-muted);margin-bottom:1rem;">No products listed</p>'}
+        ${p.notes ? `<div style="background:#fffbeb;padding:0.6rem;border-radius:8px;font-size:0.7rem;margin-bottom:1rem;"><strong>📝 Notes:</strong> ${escapeHtml(p.notes)}</div>` : ''}
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="closeModal();editPartner('${partnerId}')"><i class="fas fa-edit"></i> Edit</button>
+          <button class="btn btn-secondary" onclick="closeModal()">Close</button>
+        </div>
+      `;
+      document.getElementById('modal').classList.add('show');
+    }
+
+    async function deletePartner(partnerId) {
+      if (!confirm('Delete this partner? This will not delete their products.')) return;
+      try {
+        await database.ref(`heritage_partners/${partnerId}`).remove();
+        showToast('✅ Deleted');
+      } catch (e) { showToast('Failed to delete', true); }
+    }
+
+    function closeModal() { document.getElementById('modal').classList.remove('show'); }
+
+    // Filters
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentFilter = btn.dataset.filter;
+        renderPartners();
+      });
+    });
+
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+      searchQuery = e.target.value;
+      renderPartners();
+    });
+
+    document.getElementById('modal').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('modal')) closeModal();
+    });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+    // Firebase listeners
+    database.ref('heritage_partners').on('value', (snapshot) => {
+      allPartners = snapshot.val() || {};
+      renderPartners();
+    });
+
+    database.ref('heritage_products').on('value', (snapshot) => {
+      allProducts = snapshot.val() || {};
+      renderPartners();
+    });
+
+    auth.onAuthStateChanged((user) => { if (!user) window.location.href = '/workspaces/index.html'; });
+
+    window.showAddModal = showAddModal;
+    window.editPartner = editPartner;
+    window.viewPartner = viewPartner;
+    window.deletePartner = deletePartner;
+    window.savePartner = savePartner;
+    window.updatePartner = updatePartner;
+    window.closeModal = closeModal;
+  </script>
+</body>
+</html>
