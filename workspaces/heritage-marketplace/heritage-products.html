@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Product Catalogue | Heritage Marketplace</title>
+  
+  <meta name="theme-color" content="#d97706">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  
+  <link rel="icon" type="image/png" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --amber: #d97706;
+      --amber-dark: #92400e;
+      --amber-light: #fbbf24;
+      --text-primary: #1e293b;
+      --text-muted: #64748b;
+      --border-light: #fde68a;
+      --red: #ef4444;
+      --green: #10b981;
+      --blue: #3b82f6;
+      --purple: #8b5cf6;
+      --pink: #ec4899;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(145deg, #fffbeb 0%, #ffffff 100%);
+      color: var(--text-primary);
+      line-height: 1.4;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+    .skeleton {
+      background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s ease-in-out infinite;
+      border-radius: 6px;
+    }
+    .skeleton-text { height: 1rem; margin-bottom: 0.5rem; }
+    .skeleton-text-sm { height: 0.7rem; width: 60%; }
+    .skeleton-image { height: 180px; border-radius: 0; }
+    .skeleton-badge { height: 22px; width: 60px; border-radius: 8px; }
+    .skeleton-card {
+      background: white; border-radius: 18px; overflow: hidden;
+      border: 1px solid #f3f4f6; box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+    }
+
+    .navbar {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(16px);
+      padding: 0.5rem 2%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(217, 119, 6, 0.2);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .logo-img { height: 34px; width: 34px; border-radius: 10px; object-fit: contain; background: white; box-shadow: 0 4px 12px rgba(217, 119, 6, 0.2); }
+    .logo-text {
+      font-weight: 800; font-size: 1.1rem;
+      background: linear-gradient(145deg, #fbbf24, #d97706);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .logo-text span { font-weight: 600; font-size: 0.7rem; background: #92400e; -webkit-text-fill-color: #92400e; margin-left: 3px; }
+
+    .nav-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .nav-btn {
+      background: rgba(217, 119, 6, 0.08); border: 1px solid rgba(217, 119, 6, 0.2);
+      padding: 0.4rem 0.8rem; border-radius: 25px; color: var(--amber-dark);
+      font-weight: 600; font-size: 0.7rem; cursor: pointer; display: inline-flex;
+      align-items: center; gap: 5px; text-decoration: none; transition: all 0.2s;
+    }
+    .nav-btn:hover { background: var(--amber); color: white; }
+    .nav-btn.active { background: var(--amber); color: white; border-color: var(--amber-dark); }
+
+    .container { padding: 1rem 2%; flex: 1; }
+
+    .page-header { margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.8rem; }
+    .page-header h1 { font-size: 1.3rem; font-weight: 800; color: #0f172a; }
+    .page-header h1 i { color: var(--amber-dark); margin-right: 6px; }
+
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 1rem; }
+    .stat-mini {
+      background: white; border-radius: 14px; padding: 0.8rem 1rem; text-align: center;
+      border: 1px solid var(--border-light); box-shadow: 0 2px 8px rgba(217,119,6,0.03);
+      transition: all 0.3s;
+    }
+    .stat-mini:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(217,119,6,0.08); }
+    .stat-mini .stat-num { font-size: 1.4rem; font-weight: 800; color: var(--amber-dark); line-height: 1.1; }
+    .stat-mini .stat-label { font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.3px; }
+
+    .filter-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1rem; align-items: center; }
+    .filter-btn {
+      padding: 0.35rem 0.8rem; border-radius: 20px; border: 1.5px solid #e2e8f0;
+      background: white; color: #64748b; font-weight: 600; font-size: 0.65rem;
+      cursor: pointer; transition: all 0.15s; font-family: inherit;
+    }
+    .filter-btn:hover { border-color: var(--amber); color: var(--amber-dark); }
+    .filter-btn.active { background: var(--amber); color: white; border-color: var(--amber); }
+    .search-box { flex: 1; min-width: 150px; max-width: 300px; position: relative; }
+    .search-box input {
+      width: 100%; padding: 0.35rem 0.8rem 0.35rem 2rem; border-radius: 20px;
+      border: 1.5px solid #e2e8f0; font-size: 0.7rem; font-family: 'Inter', sans-serif;
+    }
+    .search-box i { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 0.7rem; }
+
+    .btn {
+      padding: 0.5rem 1rem; border-radius: 10px; border: none; font-weight: 700;
+      font-size: 0.7rem; cursor: pointer; display: inline-flex; align-items: center;
+      gap: 5px; font-family: inherit; transition: all 0.15s; white-space: nowrap;
+    }
+    .btn-primary { background: var(--amber); color: white; }
+    .btn-primary:hover { background: var(--amber-dark); }
+    .btn-secondary { background: #f1f5f9; color: #475569; }
+    .btn-secondary:hover { background: #e2e8f0; }
+
+    .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+
+    .product-card {
+      background: white; border-radius: 18px; overflow: hidden;
+      border: 1px solid var(--border-light); box-shadow: 0 3px 12px rgba(217,119,6,0.03);
+      transition: all 0.25s; cursor: pointer; display: flex; flex-direction: column;
+    }
+    .product-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(217,119,6,0.1); border-color: var(--amber-light); }
+    
+    .product-image {
+      height: 180px; background: linear-gradient(135deg, #fffbeb, #fef3c7);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 4rem; position: relative; overflow: hidden;
+    }
+    .product-image img { width: 100%; height: 100%; object-fit: cover; }
+    .product-status {
+      position: absolute; top: 10px; right: 10px;
+      padding: 0.2rem 0.6rem; border-radius: 10px;
+      font-size: 0.6rem; font-weight: 700; color: white;
+    }
+    .status-active { background: var(--green); }
+    .status-inactive { background: var(--red); }
+    .stock-badge {
+      position: absolute; top: 10px; left: 10px;
+      padding: 0.2rem 0.6rem; border-radius: 10px;
+      font-size: 0.6rem; font-weight: 700;
+    }
+    .stock-in { background: rgba(16,185,129,0.9); color: white; }
+    .stock-low { background: rgba(245,158,11,0.9); color: white; }
+    .stock-out { background: rgba(239,68,68,0.9); color: white; }
+
+    .product-body { padding: 1rem 1.2rem; flex: 1; display: flex; flex-direction: column; }
+    .product-body h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.3rem; }
+    .product-partner {
+      font-size: 0.65rem; color: var(--amber-dark); background: #fffbeb;
+      padding: 0.15rem 0.5rem; border-radius: 6px; display: inline-block; margin-bottom: 0.5rem;
+      width: fit-content;
+    }
+    .product-description {
+      font-size: 0.7rem; color: var(--text-muted); margin-bottom: 0.6rem;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+      overflow: hidden; flex: 1;
+    }
+    .product-footer {
+      display: flex; justify-content: space-between; align-items: center;
+      padding-top: 0.6rem; border-top: 1px solid var(--border-light);
+    }
+    .product-price { font-size: 1.1rem; font-weight: 800; color: var(--amber-dark); }
+    .product-price small { font-size: 0.6rem; color: var(--text-muted); font-weight: 400; }
+    .product-sku { font-size: 0.55rem; color: var(--text-muted); font-family: monospace; }
+
+    .empty-state { text-align: center; padding: 3rem; color: #94a3b8; grid-column: 1 / -1; }
+
+    .modal-overlay {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5); z-index: 3000; justify-content: center;
+      align-items: center; backdrop-filter: blur(2px);
+    }
+    .modal-overlay.show { display: flex; }
+    .modal {
+      background: white; border-radius: 20px; padding: 1.5rem; max-width: 550px;
+      width: 95%; max-height: 85vh; overflow-y: auto; box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+    }
+    .modal h3 { font-size: 0.95rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px; color: var(--amber-dark); }
+    .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 1rem; }
+    .detail-item { background: #f8fafc; padding: 0.5rem; border-radius: 8px; }
+    .detail-item strong { display: block; font-size: 0.55rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.1rem; }
+    .detail-item span { font-size: 0.75rem; color: var(--text-primary); }
+    .btn-row { display: flex; gap: 8px; margin-top: 1rem; }
+
+    .toast {
+      position: fixed; bottom: 25px; right: 25px; background: var(--amber); color: white;
+      padding: 0.7rem 1.2rem; border-radius: 20px; font-weight: 600; z-index: 4000;
+      animation: slideIn 0.3s ease; box-shadow: 0 8px 20px rgba(217,119,6,0.25);
+      display: flex; align-items: center; gap: 6px; font-size: 0.75rem;
+    }
+    .toast.error { background: var(--red); }
+    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+    @media (max-width: 768px) {
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+      .cards-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <a href="/workspaces/heritage-marketplace/index.html" class="logo">
+      <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png" alt="Heritage" class="logo-img">
+      <span class="logo-text">Heritage <span>Marketplace</span></span>
+    </a>
+    <div class="nav-right">
+      <a href="/workspaces/heritage-marketplace/index.html" class="nav-btn"><i class="fas fa-arrow-left"></i> Dashboard</a>
+      <a href="/workspaces/heritage-marketplace/heritage-partners.html" class="nav-btn"><i class="fas fa-handshake"></i> Partners</a>
+      <a href="/workspaces/heritage-marketplace/heritage-products.html" class="nav-btn active"><i class="fas fa-box"></i> Catalogue</a>
+      <a href="/workspaces/heritage-marketplace/heritage-products-manage.html" class="nav-btn"><i class="fas fa-tags"></i> Manage Products</a>
+      <a href="/workspaces/heritage-marketplace/heritage-orders.html" class="nav-btn"><i class="fas fa-shopping-cart"></i> Orders</a>
+      <a href="/workspaces/heritage-marketplace/heritage-catalogues.html" class="nav-btn"><i class="fas fa-images"></i> Catalogues</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="page-header">
+      <h1><i class="fas fa-boxes-stacked"></i> Product Catalogue</h1>
+      <a href="/workspaces/heritage-marketplace/heritage-products-manage.html" class="btn btn-primary"><i class="fas fa-tags"></i> Manage Products</a>
+    </div>
+
+    <!-- Stats Row with Skeleton -->
+    <div class="stats-row" id="statsRow">
+      <div class="stat-mini"><div class="skeleton" style="height:1.4rem;width:50%;margin:0 auto 0.3rem;"></div><div class="skeleton" style="height:0.6rem;width:60%;margin:0 auto;"></div></div>
+      <div class="stat-mini"><div class="skeleton" style="height:1.4rem;width:50%;margin:0 auto 0.3rem;"></div><div class="skeleton" style="height:0.6rem;width:60%;margin:0 auto;"></div></div>
+      <div class="stat-mini"><div class="skeleton" style="height:1.4rem;width:50%;margin:0 auto 0.3rem;"></div><div class="skeleton" style="height:0.6rem;width:60%;margin:0 auto;"></div></div>
+      <div class="stat-mini"><div class="skeleton" style="height:1.4rem;width:50%;margin:0 auto 0.3rem;"></div><div class="skeleton" style="height:0.6rem;width:60%;margin:0 auto;"></div></div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+      <button class="filter-btn active" data-filter="all">All Products</button>
+      <button class="filter-btn" data-filter="Fashion">👗 Fashion</button>
+      <button class="filter-btn" data-filter="Food">🍽️ Food</button>
+      <button class="filter-btn" data-filter="Electronics">📱 Electronics</button>
+      <button class="filter-btn" data-filter="Home Goods">🏠 Home Goods</button>
+      <button class="filter-btn" data-filter="Beauty">💄 Beauty</button>
+      <button class="filter-btn" data-filter="Agriculture">🌾 Agriculture</button>
+      <button class="filter-btn" data-filter="Other">📦 Other</button>
+      <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input type="text" id="searchInput" placeholder="Search by name, SKU, or partner...">
+      </div>
+    </div>
+
+    <!-- Products Grid with Skeleton -->
+    <div class="cards-grid" id="productsGrid">
+      <div class="skeleton-card"><div class="skeleton skeleton-image"></div><div style="padding:1rem 1.2rem;"><div class="skeleton skeleton-text" style="width:60%;"></div><div class="skeleton skeleton-badge"></div><div class="skeleton skeleton-text-sm" style="width:90%;margin-top:0.5rem;"></div><div style="display:flex;justify-content:space-between;margin-top:0.8rem;padding-top:0.6rem;border-top:1px solid #f3f4f6;"><div class="skeleton" style="height:1.2rem;width:40%;"></div><div class="skeleton" style="height:0.6rem;width:25%;"></div></div></div></div>
+      <div class="skeleton-card"><div class="skeleton skeleton-image"></div><div style="padding:1rem 1.2rem;"><div class="skeleton skeleton-text" style="width:55%;"></div><div class="skeleton skeleton-badge"></div><div class="skeleton skeleton-text-sm" style="width:85%;margin-top:0.5rem;"></div><div style="display:flex;justify-content:space-between;margin-top:0.8rem;padding-top:0.6rem;border-top:1px solid #f3f4f6;"><div class="skeleton" style="height:1.2rem;width:35%;"></div><div class="skeleton" style="height:0.6rem;width:20%;"></div></div></div></div>
+      <div class="skeleton-card"><div class="skeleton skeleton-image"></div><div style="padding:1rem 1.2rem;"><div class="skeleton skeleton-text" style="width:65%;"></div><div class="skeleton skeleton-badge"></div><div class="skeleton skeleton-text-sm" style="width:80%;margin-top:0.5rem;"></div><div style="display:flex;justify-content:space-between;margin-top:0.8rem;padding-top:0.6rem;border-top:1px solid #f3f4f6;"><div class="skeleton" style="height:1.2rem;width:45%;"></div><div class="skeleton" style="height:0.6rem;width:30%;"></div></div></div></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modal"><div class="modal" id="modalContent"></div></div>
+  <div id="toastContainer"></div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+      authDomain: "mugera-e51cc.firebaseapp.com",
+      databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "mugera-e51cc",
+      storageBucket: "mugera-e51cc.firebasestorage.app",
+      messagingSenderId: "1024868637509",
+      appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    const auth = firebase.auth();
+
+    let allProducts = {};
+    let allPartners = {};
+    let currentFilter = 'all';
+    let searchQuery = '';
+
+    function showToast(msg, isError = false) {
+      const container = document.getElementById('toastContainer');
+      const existing = container.querySelector('.toast');
+      if (existing) existing.remove();
+      const toast = document.createElement('div');
+      toast.className = `toast ${isError ? 'error' : ''}`;
+      toast.innerHTML = `<i class="fas fa-${isError ? 'exclamation-circle' : 'check-circle'}"></i> ${msg}`;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 3500);
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : m === '>' ? '&gt;' : m);
+    }
+
+    function getPartnerName(partnerId) {
+      if (!partnerId) return 'No Partner';
+      const partner = allPartners[partnerId];
+      return partner ? (partner.businessName || partner.name || 'Partner') : partnerId;
+    }
+
+    function getPartnerIndustry(partnerId) {
+      if (!partnerId) return 'Other';
+      const partner = allPartners[partnerId];
+      return partner?.industry || 'Other';
+    }
+
+    function updateStats() {
+      const products = Object.values(allProducts);
+      const total = products.length;
+      const active = products.filter(p => p.isActive !== false).length;
+      const inStock = products.filter(p => (p.stock || p.quantity || 0) > 5).length;
+      const lowStock = products.filter(p => (p.stock || p.quantity || 0) > 0 && (p.stock || p.quantity || 0) <= 5).length;
+
+      document.getElementById('statsRow').innerHTML = 
+        `<div class="stat-mini"><div class="stat-num">${total}</div><div class="stat-label">Total Products</div></div>` +
+        `<div class="stat-mini"><div class="stat-num">${active}</div><div class="stat-label">Active</div></div>` +
+        `<div class="stat-mini"><div class="stat-num">${inStock}</div><div class="stat-label">In Stock</div></div>` +
+        `<div class="stat-mini"><div class="stat-num">${lowStock}</div><div class="stat-label">Low Stock</div></div>`;
+    }
+
+    function renderProducts() {
+      const grid = document.getElementById('productsGrid');
+      let products = Object.entries(allProducts).map(([id, data]) => ({ id, ...data }));
+
+      if (currentFilter !== 'all') {
+        products = products.filter(p => getPartnerIndustry(p.partnerId) === currentFilter);
+      }
+
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        products = products.filter(p => 
+          (p.name || '').toLowerCase().includes(q) ||
+          (p.sku || '').toLowerCase().includes(q) ||
+          getPartnerName(p.partnerId).toLowerCase().includes(q)
+        );
+      }
+
+      // Sort: active first, then by name
+      products.sort((a, b) => {
+        if (a.isActive !== false && b.isActive === false) return -1;
+        if (a.isActive === false && b.isActive !== false) return 1;
+        return (a.name || '').localeCompare(b.name || '');
+      });
+
+      if (!products.length) {
+        grid.innerHTML = '<div class="empty-state"><i class="fas fa-box-open" style="font-size:2.5rem;display:block;margin-bottom:8px;opacity:0.3;"></i><p>No products found</p></div>';
+        return;
+      }
+
+      grid.innerHTML = products.map(p => {
+        const partnerName = getPartnerName(p.partnerId);
+        const imageUrl = p.imageUrl || '';
+        const icon = imageUrl ? '' : '📦';
+        const qty = p.stock || p.quantity || 0;
+        const isActive = p.isActive !== false;
+        const stockLabel = qty <= 0 ? 'Out of Stock' : qty <= 5 ? 'Low Stock' : 'In Stock';
+        const stockClass = qty <= 0 ? 'stock-out' : qty <= 5 ? 'stock-low' : 'stock-in';
+
+        return `
+          <div class="product-card" onclick="viewProduct('${p.id}')">
+            <div class="product-image">
+              ${imageUrl ? `<img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(p.name)}" onerror="this.style.display='none';this.parentElement.innerHTML='📦';">` : icon}
+              <span class="product-status ${isActive ? 'status-active' : 'status-inactive'}">${isActive ? 'Active' : 'Inactive'}</span>
+              <span class="stock-badge ${stockClass}">${stockLabel}</span>
+            </div>
+            <div class="product-body">
+              <h3>${escapeHtml(p.name || 'Product')}</h3>
+              <span class="product-partner"><i class="fas fa-handshake"></i> ${escapeHtml(partnerName)}</span>
+              ${p.description ? `<p class="product-description">${escapeHtml(p.description)}</p>` : '<p class="product-description" style="color:#94a3b8;">No description</p>'}
+              <div class="product-footer">
+                <div class="product-price">KES ${(p.price || 0).toLocaleString()} <small>/${p.unit || 'unit'}</small></div>
+                <div class="product-sku">${p.sku || 'N/A'}</div>
+              </div>
+            </div>
+          </div>`;
+      }).join('');
+
+      updateStats();
+    }
+
+    function viewProduct(productId) {
+      const p = allProducts[productId];
+      if (!p) return;
+      const partnerName = getPartnerName(p.partnerId);
+      const qty = p.stock || p.quantity || 0;
+      const imageUrl = p.imageUrl || '';
+
+      document.getElementById('modalContent').innerHTML = `
+        <h3><i class="fas fa-box"></i> ${escapeHtml(p.name || 'Product')}</h3>
+        ${imageUrl ? `<div style="text-align:center;margin-bottom:1rem;"><img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(p.name)}" style="max-width:100%;max-height:200px;border-radius:12px;object-fit:cover;" onerror="this.style.display='none';"></div>` : ''}
+        <div class="detail-grid">
+          <div class="detail-item"><strong>Partner</strong><span>${escapeHtml(partnerName)}</span></div>
+          <div class="detail-item"><strong>Status</strong><span style="color:${p.isActive !== false ? '#10b981' : '#ef4444'};font-weight:600;">${p.isActive !== false ? 'Active' : 'Inactive'}</span></div>
+          <div class="detail-item"><strong>Price</strong><span>KES ${(p.price || 0).toLocaleString()} /${p.unit || 'unit'}</span></div>
+          <div class="detail-item"><strong>Stock</strong><span style="color:${qty <= 0 ? '#ef4444' : qty <= 5 ? '#f59e0b' : '#10b981'};font-weight:600;">${qty} ${p.unit || 'units'}</span></div>
+          <div class="detail-item"><strong>SKU</strong><span>${p.sku || 'N/A'}</span></div>
+          <div class="detail-item"><strong>Updated</strong><span>${p.updatedAt ? new Date(p.updatedAt).toLocaleDateString() : 'N/A'}</span></div>
+          ${p.description ? `<div class="detail-item" style="grid-column:1/-1;"><strong>Description</strong><span>${escapeHtml(p.description)}</span></div>` : ''}
+        </div>
+        <div class="btn-row">
+          <a href="/workspaces/heritage-marketplace/heritage-products-manage.html" class="btn btn-primary"><i class="fas fa-edit"></i> Manage Products</a>
+          <button class="btn btn-secondary" onclick="closeModal()">Close</button>
+        </div>
+      `;
+      document.getElementById('modal').classList.add('show');
+    }
+
+    function closeModal() { document.getElementById('modal').classList.remove('show'); }
+
+    // Filters
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentFilter = btn.dataset.filter;
+        renderProducts();
+      });
+    });
+
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+      searchQuery = e.target.value;
+      renderProducts();
+    });
+
+    document.getElementById('modal').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('modal')) closeModal();
+    });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+    // Firebase listeners
+    database.ref('heritage_products').on('value', (snapshot) => {
+      allProducts = snapshot.val() || {};
+      renderProducts();
+    });
+
+    database.ref('heritage_partners').on('value', (snapshot) => {
+      allPartners = snapshot.val() || {};
+      renderProducts();
+    });
+
+    auth.onAuthStateChanged((user) => { if (!user) window.location.href = '/workspaces/index.html'; });
+
+    window.viewProduct = viewProduct;
+    window.closeModal = closeModal;
+  </script>
+</body>
+</html>
