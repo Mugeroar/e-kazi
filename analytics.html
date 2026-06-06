@@ -26,7 +26,7 @@
             --gold-soft: #fef3c7;
             --gold-gradient: linear-gradient(135deg, #ca8a04 0%, #eab308 50%, #fbbf24 100%);
             --success: #10b981; --warning: #f59e0b; --danger: #ef4444; --info: #3b82f6;
-            --purple: #8b5cf6; --emerald: #059669; --rose: #e11d48; --pink: #ec4899;
+            --purple: #8b5cf6; --emerald: #059669; --rose: #e11d48; --pink: #ec4899; --amber: #d97706;
             --bg-primary: #ffffff; --bg-secondary: #faf9f7; --bg-card: #ffffff;
             --text-primary: #1a1a2e; --text-secondary: #4a5568; --text-muted: #718096;
             --border-light: #e9ecef;
@@ -150,7 +150,6 @@
             display: flex; align-items: center; gap: 0.3rem;
         }
 
-        /* KPI Cards */
         .kpi-grid {
             display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.8rem; margin-bottom: 1.5rem;
         }
@@ -174,7 +173,6 @@
         .kpi-change.down { color: var(--danger); }
         .kpi-change.neutral { color: var(--text-muted); }
 
-        /* Charts Grid */
         .charts-grid {
             display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;
         }
@@ -198,12 +196,10 @@
         .chart-container { position: relative; height: 220px; }
         .chart-container-sm { position: relative; height: 220px; }
 
-        /* Bottom Grid */
         .bottom-grid {
             display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;
         }
 
-        /* Prediction Cards */
         .prediction-card {
             background: var(--bg-card); border: 1px solid var(--border-light);
             border-radius: 16px; padding: 1rem;
@@ -225,7 +221,6 @@
             font-weight: 700; font-size: 0.85rem; text-align: right;
         }
 
-        /* Activity Feed */
         .activity-feed {
             max-height: 300px; overflow-y: auto;
         }
@@ -243,7 +238,6 @@
         .feed-meta { font-size: 0.65rem; color: var(--text-muted); }
         .feed-time { font-size: 0.6rem; color: var(--text-muted); white-space: nowrap; }
 
-        /* Map */
         .mini-map {
             width: 100%; height: 200px; border-radius: 12px; overflow: hidden;
             background: #f8fafc;
@@ -391,11 +385,12 @@
                     <div class="chart-title"><i class="fas fa-map-marked-alt"></i> Operations Heatmap</div>
                 </div>
                 <div class="mini-map" id="miniMap"></div>
-                <div style="display:flex;gap:1rem;margin-top:0.6rem;font-size:0.65rem;color:var(--text-muted);">
+                <div style="display:flex;gap:1rem;margin-top:0.6rem;font-size:0.65rem;color:var(--text-muted);flex-wrap:wrap;">
                     <span><span style="color:#7c3aed;">●</span> BrandInn</span>
                     <span><span style="color:#f59e0b;">●</span> Deliveries</span>
                     <span><span style="color:#10b981;">●</span> Fusion</span>
                     <span><span style="color:#ec4899;">●</span> DSOG</span>
+                    <span><span style="color:#d97706;">●</span> Heritage Mkt</span>
                 </div>
             </div>
         </div>
@@ -417,7 +412,7 @@
         const auth = firebase.auth();
 
         let trendChart, workspaceSplitChart, operationTypesChart, miniMap;
-        let allData = { orders: {}, products: {}, listings: {}, registrations: {}, businesses: {}, franchises: {} };
+        let allData = { orders: {}, products: {}, listings: {}, registrations: {}, businesses: {}, franchises: {}, partners: {}, catalogues: {} };
         let previousData = {};
 
         auth.onAuthStateChanged(async (user) => {
@@ -445,15 +440,25 @@
             const startTime = Date.now();
             try {
                 const paths = {
-                    orders: ['fusion_foods_orders', 'dsog_fashion_orders', 'brandinn_print_orders'],
-                    products: ['fusion_foods_products', 'dsog_fashion_products'],
+                    orders: [
+                        'fusion_foods_orders',
+                        'dsog_fashion_orders',
+                        'brandinn_print_orders',
+                        'heritage_orders'
+                    ],
+                    products: [
+                        'fusion_foods_products',
+                        'dsog_fashion_products',
+                        'heritage_products'
+                    ],
                     listings: ['heritage_listings'],
                     registrations: ['iam_mugera_registrations'],
                     businesses: ['brandinn_businesses'],
-                    franchises: ['brandinn_franchises', 'dsog_fashion_franchisees']
+                    franchises: ['brandinn_franchises', 'dsog_fashion_franchisees'],
+                    partners: ['heritage_partners'],
+                    catalogues: ['heritage_catalogues']
                 };
 
-                // Store previous data for change calculation
                 previousData = JSON.parse(JSON.stringify(allData));
 
                 for (const [key, pathList] of Object.entries(paths)) {
@@ -481,8 +486,9 @@
             return {
                 'Fusion Foods': Object.keys(allData.orders['fusion_foods_orders'] || {}).length,
                 'DSOG Fashion': Object.keys(allData.orders['dsog_fashion_orders'] || {}).length,
-                'Heritage': Object.keys(allData.listings['heritage_listings'] || {}).length,
-                'BrandInn': Object.keys(allData.orders['brandinn_print_orders'] || {}).length
+                'Heritage Ads': Object.keys(allData.listings['heritage_listings'] || {}).length,
+                'BrandInn': Object.keys(allData.orders['brandinn_print_orders'] || {}).length,
+                'Heritage Mkt': Object.keys(allData.orders['heritage_orders'] || {}).length
             };
         }
 
@@ -500,7 +506,6 @@
             const total = Object.values(breakdown).reduce((a, b) => a + b, 0);
             const predictions = [];
 
-            // Fusion Foods prediction
             const fusionOrders = Object.values(allData.orders['fusion_foods_orders'] || {});
             const recentFusion = fusionOrders.filter(o => {
                 const d = new Date(o.createdAt || 0);
@@ -515,7 +520,6 @@
                 detail: `${Math.round(weeklyAvg)} daily avg`
             });
 
-            // DSOG prediction
             const dsogOrders = Object.values(allData.orders['dsog_fashion_orders'] || {});
             const recentDsog = dsogOrders.filter(o => {
                 const d = new Date(o.createdAt || 0);
@@ -530,7 +534,6 @@
                 detail: `${Math.round(dsogAvg)} daily avg`
             });
 
-            // BrandInn prediction
             const brandinnRegs = Object.values(allData.registrations['iam_mugera_registrations'] || {})
                 .filter(r => r.operation === 'brandinn');
             const recentBrandinn = brandinnRegs.filter(r => {
@@ -545,7 +548,20 @@
                 detail: `${brandinnRegs.length} total registered`
             });
 
-            // Overall prediction
+            const heritageOrders = Object.values(allData.orders['heritage_orders'] || {});
+            const recentHeritage = heritageOrders.filter(o => {
+                const d = new Date(o.createdAt || 0);
+                return (Date.now() - d.getTime()) < 7 * 24 * 60 * 60 * 1000;
+            }).length;
+            const heritageAvg = recentHeritage / 7;
+            predictions.push({
+                name: 'Heritage Marketplace',
+                icon: 'fa-store', color: '#d97706', bgColor: '#fffbeb',
+                prediction: `~${Math.round(heritageAvg * 7)} orders/wk`,
+                trend: heritageAvg > 0 ? 'up' : 'neutral',
+                detail: `${Math.round(heritageAvg)} daily avg`
+            });
+
             predictions.push({
                 name: 'Total Operations',
                 icon: 'fa-chart-line', color: '#ca8a04', bgColor: '#fef3c7',
@@ -562,7 +578,8 @@
             const allOrders = [
                 ...Object.entries(allData.orders['fusion_foods_orders'] || {}).map(([id, o]) => ({ ...o, id, source: 'Fusion Foods', icon: 'fa-utensils', color: '#10b981' })),
                 ...Object.entries(allData.orders['dsog_fashion_orders'] || {}).map(([id, o]) => ({ ...o, id, source: 'DSOG', icon: 'fa-tshirt', color: '#ec4899' })),
-                ...Object.entries(allData.orders['brandinn_print_orders'] || {}).map(([id, o]) => ({ ...o, id, source: 'BrandInn', icon: 'fa-print', color: '#7c3aed' }))
+                ...Object.entries(allData.orders['brandinn_print_orders'] || {}).map(([id, o]) => ({ ...o, id, source: 'BrandInn', icon: 'fa-print', color: '#7c3aed' })),
+                ...Object.entries(allData.orders['heritage_orders'] || {}).map(([id, o]) => ({ ...o, id, source: 'Heritage Mkt', icon: 'fa-store', color: '#d97706' }))
             ];
 
             allOrders.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
@@ -591,8 +608,8 @@
             const totalProducts = getTotalCount(allData.products);
             const totalListings = getTotalCount(allData.listings);
             const totalRegistrations = getTotalCount(allData.registrations);
-            const totalBusinesses = getTotalCount(allData.businesses);
-            const totalFranchises = getTotalCount(allData.franchises);
+            const totalPartners = getTotalCount(allData.partners);
+            const totalCatalogues = getTotalCount(allData.catalogues);
 
             const prevTotalOrders = getTotalCount(previousData.orders || {});
             const orderChange = totalOrders - prevTotalOrders;
@@ -622,14 +639,14 @@
                     <div class="kpi-change up"><i class="fas fa-map-marker-alt"></i> Map entries</div>
                 </div>
                 <div class="kpi-card animate-in" style="animation-delay:0.2s">
-                    <div class="kpi-label">Businesses</div>
-                    <div class="kpi-value" style="color:#7c3aed;">${totalBusinesses}</div>
-                    <div class="kpi-change neutral"><i class="fas fa-building"></i> Registered</div>
+                    <div class="kpi-label">Partners</div>
+                    <div class="kpi-value" style="color:#d97706;">${totalPartners}</div>
+                    <div class="kpi-change neutral"><i class="fas fa-handshake"></i> Business partners</div>
                 </div>
                 <div class="kpi-card animate-in" style="animation-delay:0.25s">
-                    <div class="kpi-label">Franchises</div>
-                    <div class="kpi-value" style="color:#ec4899;">${totalFranchises}</div>
-                    <div class="kpi-change neutral"><i class="fas fa-store-alt"></i> Partners</div>
+                    <div class="kpi-label">Catalogues</div>
+                    <div class="kpi-value" style="color:#7c3aed;">${totalCatalogues}</div>
+                    <div class="kpi-change neutral"><i class="fas fa-images"></i> Product collections</div>
                 </div>
             `;
         }
@@ -639,7 +656,7 @@
             if (trendChart) trendChart.destroy();
 
             const days = [];
-            const fusionData = [], dsogData = [], brandinnData = [];
+            const fusionData = [], dsogData = [], brandinnData = [], heritageMktData = [];
             for (let i = 29; i >= 0; i--) {
                 const d = new Date(Date.now() - i * 24 * 60 * 60 * 1000);
                 days.push(d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
@@ -655,6 +672,9 @@
                 brandinnData.push(Object.values(allData.orders['brandinn_print_orders'] || {}).filter(o => {
                     const t = o.createdAt || 0; return t >= dayStart && t < dayEnd;
                 }).length);
+                heritageMktData.push(Object.values(allData.orders['heritage_orders'] || {}).filter(o => {
+                    const t = o.createdAt || 0; return t >= dayStart && t < dayEnd;
+                }).length);
             }
 
             trendChart = new Chart(ctx, {
@@ -664,7 +684,8 @@
                     datasets: [
                         { label: 'Fusion Foods', data: fusionData, borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.1)', fill: true, tension: 0.4, pointRadius: 0, borderWidth: 2 },
                         { label: 'DSOG', data: dsogData, borderColor: '#ec4899', backgroundColor: 'rgba(236,72,153,0.1)', fill: true, tension: 0.4, pointRadius: 0, borderWidth: 2 },
-                        { label: 'BrandInn', data: brandinnData, borderColor: '#7c3aed', backgroundColor: 'rgba(124,58,237,0.1)', fill: true, tension: 0.4, pointRadius: 0, borderWidth: 2 }
+                        { label: 'BrandInn', data: brandinnData, borderColor: '#7c3aed', backgroundColor: 'rgba(124,58,237,0.1)', fill: true, tension: 0.4, pointRadius: 0, borderWidth: 2 },
+                        { label: 'Heritage Mkt', data: heritageMktData, borderColor: '#d97706', backgroundColor: 'rgba(217,119,6,0.1)', fill: true, tension: 0.4, pointRadius: 0, borderWidth: 2 }
                     ]
                 },
                 options: {
@@ -690,7 +711,7 @@
                     labels: Object.keys(breakdown),
                     datasets: [{
                         data: Object.values(breakdown),
-                        backgroundColor: ['#10b981', '#ec4899', '#d946ef', '#7c3aed'],
+                        backgroundColor: ['#10b981', '#ec4899', '#d946ef', '#7c3aed', '#d97706'],
                         borderWidth: 2, borderColor: '#fff'
                     }]
                 },
@@ -713,7 +734,7 @@
                     datasets: [{
                         label: 'Registrations',
                         data: Object.values(types),
-                        backgroundColor: ['#7c3aed', '#f59e0b', '#22c55e', '#ec4899', '#8b5cf6', '#d946ef', '#f97316', '#10b981', '#10b981'],
+                        backgroundColor: ['#7c3aed', '#f59e0b', '#22c55e', '#ec4899', '#8b5cf6', '#d946ef', '#f97316', '#10b981', '#d97706'],
                         borderRadius: 6, borderSkipped: false
                     }]
                 },
@@ -758,7 +779,6 @@
 
         function updateMiniMapMarkers() {
             if (!miniMap) return;
-            // Clear existing markers
             miniMap.eachLayer(layer => { if (layer instanceof L.CircleMarker) miniMap.removeLayer(layer); });
 
             const registrations = allData.registrations['iam_mugera_registrations'] || {};
@@ -786,7 +806,8 @@
         function setupLiveListeners() {
             const paths = [
                 'fusion_foods_orders', 'dsog_fashion_orders', 'brandinn_print_orders',
-                'fusion_foods_products', 'heritage_listings', 'iam_mugera_registrations'
+                'fusion_foods_products', 'heritage_listings', 'iam_mugera_registrations',
+                'heritage_orders', 'heritage_products', 'heritage_partners', 'heritage_catalogues'
             ];
             paths.forEach(path => {
                 db.ref(path).on('child_added', () => {
@@ -826,7 +847,7 @@
 
         window.handleLogout = async () => {
             if (confirm('Sign out?')) {
-                const paths = ['fusion_foods_orders', 'dsog_fashion_orders', 'brandinn_print_orders', 'iam_mugera_registrations'];
+                const paths = ['fusion_foods_orders', 'dsog_fashion_orders', 'brandinn_print_orders', 'iam_mugera_registrations', 'heritage_orders', 'heritage_products', 'heritage_partners', 'heritage_catalogues'];
                 paths.forEach(p => db.ref(p).off());
                 await auth.signOut();
                 window.location.href = 'index.html';
