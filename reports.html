@@ -21,7 +21,7 @@
             --gold: #ca8a04; --gold-dark: #a16207; --gold-light: #fbbf24;
             --gold-soft: #fef3c7; --gold-gradient: linear-gradient(135deg, #ca8a04 0%, #eab308 50%, #fbbf24 100%);
             --success: #10b981; --warning: #f59e0b; --danger: #ef4444; --info: #3b82f6;
-            --purple: #8b5cf6; --emerald: #059669; --rose: #e11d48; --pink: #ec4899;
+            --purple: #8b5cf6; --emerald: #059669; --rose: #e11d48; --pink: #ec4899; --amber: #d97706;
             --bg-primary: #ffffff; --bg-secondary: #faf9f7; --bg-card: #ffffff;
             --text-primary: #1a1a2e; --text-secondary: #4a5568; --text-muted: #718096;
             --border-light: #e9ecef;
@@ -309,7 +309,7 @@
 
         let workspaceBarChart, activityPieChart;
         let currentRange = 'today';
-        let isLoading = false; // Prevent concurrent loads
+        let isLoading = false;
 
         auth.onAuthStateChanged(async (user) => {
             if (!user) { window.location.href = 'index.html'; return; }
@@ -317,172 +317,92 @@
             const name = snap.exists() ? (snap.val().name || user.email?.split('@')[0]) : user.email?.split('@')[0];
             document.getElementById('userDisplayName').textContent = name || 'Staff';
             document.getElementById('userAvatar').textContent = (name || 'K').charAt(0).toUpperCase();
-            // Initial load
             await generateReport('today');
             renderPreviousReports();
         });
 
-        // Date range switching - FIXED: No recursive calls
         window.switchDateRange = function(range, btnElement) {
-            if (isLoading) return; // Prevent concurrent loads
-            
-            // Update active button
+            if (isLoading) return;
             document.querySelectorAll('.date-btn').forEach(b => b.classList.remove('active'));
-            if (btnElement && range !== 'custom') {
-                btnElement.classList.add('active');
-            }
-            if (range !== 'custom') {
-                document.getElementById('customDateInput').value = '';
-            }
-            
+            if (btnElement && range !== 'custom') btnElement.classList.add('active');
+            if (range !== 'custom') document.getElementById('customDateInput').value = '';
             currentRange = range;
             generateReport(range);
         };
 
-        window.refreshCurrentReport = function() {
-            generateReport(currentRange);
-        };
+        window.refreshCurrentReport = function() { generateReport(currentRange); };
 
         function getDateRange(range) {
             const now = new Date();
             const end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
             let start;
-
             switch(range) {
-                case 'today':
-                    start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
-                    break;
-                case 'yesterday':
-                    start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1, 0, 0, 0, 0);
-                    end.setDate(end.getDate() - 1);
-                    break;
-                case '7days':
-                    start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7, 0, 0, 0, 0);
-                    break;
-                case '30days':
-                    start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 30, 0, 0, 0, 0);
-                    break;
-                case 'custom':
-                    const customVal = document.getElementById('customDateInput').value;
-                    if (customVal) {
-                        start = new Date(customVal + 'T00:00:00');
-                        end.setTime(start.getTime() + 24 * 60 * 60 * 1000 - 1);
-                    } else {
-                        start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
-                    }
-                    break;
-                default:
-                    start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+                case 'today': start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0); break;
+                case 'yesterday': start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1, 0, 0, 0, 0); end.setDate(end.getDate() - 1); break;
+                case '7days': start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7, 0, 0, 0, 0); break;
+                case '30days': start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 30, 0, 0, 0, 0); break;
+                case 'custom': const cv = document.getElementById('customDateInput').value; start = cv ? new Date(cv + 'T00:00:00') : new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0); if (cv) end.setTime(start.getTime() + 24*60*60*1000 - 1); break;
+                default: start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
             }
             return { start: start.getTime(), end: end.getTime() };
         }
 
-        function getInitials(name) {
-            if (!name) return '??';
-            return String(name).split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
-        }
-
-        function getAvatarColor(str) {
-            const colors = ['#7c3aed','#10b981','#ec4899','#f59e0b','#3b82f6','#ef4444','#8b5cf6','#f97316'];
-            let hash = 0;
-            for (let i = 0; i < (str || '').length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
-            return colors[Math.abs(hash) % colors.length];
-        }
-
-        function escapeHtml(t) { const d = document.createElement('div'); d.textContent = t || ''; return d.innerHTML; }
+        function getInitials(name) { if(!name) return '??'; return String(name).split(' ').map(n=>n[0]).join('').toUpperCase().substring(0,2); }
+        function getAvatarColor(str) { const c=['#7c3aed','#10b981','#ec4899','#f59e0b','#3b82f6','#ef4444','#8b5cf6','#f97316']; let h=0; for(let i=0;i<(str||'').length;i++) h=str.charCodeAt(i)+((h<<5)-h); return c[Math.abs(h)%c.length]; }
+        function escapeHtml(t) { const d=document.createElement('div'); d.textContent=t||''; return d.innerHTML; }
 
         async function generateReport(range) {
             if (isLoading) return;
             isLoading = true;
-
             const { start, end } = getDateRange(range);
             
-            document.getElementById('reportMeta').innerHTML = `
-                <i class="fas fa-calendar-alt"></i> 
-                ${new Date(start).toLocaleDateString('en-US', {weekday:'long', year:'numeric', month:'long', day:'numeric'})}
-                ${range === 'today' ? '(Today)' : range === 'yesterday' ? '(Yesterday)' : ''}
-                · Generated ${new Date().toLocaleTimeString()}
-            `;
+            document.getElementById('reportMeta').innerHTML = `<i class="fas fa-calendar-alt"></i> ${new Date(start).toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}${range==='today'?' (Today)':range==='yesterday'?' (Yesterday)':''} · Generated ${new Date().toLocaleTimeString()}`;
 
             try {
-                // Load all data sources in parallel for speed
                 const paths = [
                     { key: 'fusionOrders', path: 'fusion_foods_orders' },
                     { key: 'dsogOrders', path: 'dsog_fashion_orders' },
                     { key: 'brandinnOrders', path: 'brandinn_print_orders' },
                     { key: 'heritageListings', path: 'heritage_listings' },
+                    { key: 'heritageOrders', path: 'heritage_orders' },
                     { key: 'fieldRegistrations', path: 'iam_mugera_registrations' }
                 ];
 
                 const rawData = {};
-                const promises = paths.map(async (p) => {
+                await Promise.all(paths.map(async (p) => {
                     const snap = await db.ref(p.path).once('value');
                     rawData[p.key] = snap.val() || {};
-                });
-                await Promise.all(promises);
+                }));
 
-                // Filter by date range
-                const filterByDate = (obj) => {
-                    return Object.entries(obj).filter(([_, item]) => {
-                        const ts = item.createdAt || item.timestamp || item.assignedAt || item.postedAt || 0;
-                        return ts >= start && ts <= end;
-                    });
-                };
+                const filterByDate = (obj) => Object.entries(obj).filter(([_, item]) => {
+                    const ts = item.createdAt || item.timestamp || item.assignedAt || item.postedAt || 0;
+                    return ts >= start && ts <= end;
+                });
 
                 const fusionOrdersFiltered = filterByDate(rawData.fusionOrders);
                 const dsogOrdersFiltered = filterByDate(rawData.dsogOrders);
                 const brandinnOrdersFiltered = filterByDate(rawData.brandinnOrders);
                 const heritageFiltered = filterByDate(rawData.heritageListings);
+                const heritageOrdersFiltered = filterByDate(rawData.heritageOrders);
                 const fieldRegsFiltered = filterByDate(rawData.fieldRegistrations);
 
-                // Build operations log
                 const allOperations = [];
 
-                fusionOrdersFiltered.forEach(([id, o]) => {
-                    allOperations.push({
-                        time: o.createdAt, workspace: 'Fusion Foods', icon: 'fa-utensils', color: '#10b981',
-                        action: 'Order', details: `${o.restaurantName || 'Restaurant'} · ${(o.products || []).length} items`,
-                        performedBy: o.recordedBy || o.clerkId || '—',
-                        status: o.status || 'new'
-                    });
-                });
-
-                dsogOrdersFiltered.forEach(([id, o]) => {
-                    allOperations.push({
-                        time: o.createdAt, workspace: 'DSOG Fashion', icon: 'fa-tshirt', color: '#ec4899',
-                        action: 'Order', details: `${o.customerName || 'Customer'} · ${(o.products || []).length} items`,
-                        performedBy: o.recordedBy || o.clerkId || '—',
-                        status: o.status || 'new'
-                    });
-                });
-
-                brandinnOrdersFiltered.forEach(([id, o]) => {
-                    allOperations.push({
-                        time: o.createdAt, workspace: 'BrandInn', icon: 'fa-print', color: '#7c3aed',
-                        action: 'Print Order', details: `${o.customerName || 'Customer'} · ${o.product || 'Product'}`,
-                        performedBy: o.recordedBy || o.clerkId || '—',
-                        status: o.status || 'new'
-                    });
-                });
-
-                heritageFiltered.forEach(([id, l]) => {
-                    allOperations.push({
-                        time: l.createdAt || l.postedAt, workspace: 'Heritage', icon: 'fa-landmark', color: '#d946ef',
-                        action: 'Listing', details: `${l.type || 'Ad'} · ${l.location || 'Unknown'}`,
-                        performedBy: l.recordedBy || l.partnerId || '—',
-                        status: l.status || 'active'
-                    });
-                });
+                fusionOrdersFiltered.forEach(([id, o]) => allOperations.push({ time: o.createdAt, workspace: 'Fusion Foods', icon: 'fa-utensils', color: '#10b981', action: 'Order', details: `${o.restaurantName||'Restaurant'} · ${(o.products||[]).length} items`, performedBy: o.recordedBy||o.clerkId||'—', status: o.status||'new' }));
+                dsogOrdersFiltered.forEach(([id, o]) => allOperations.push({ time: o.createdAt, workspace: 'DSOG Fashion', icon: 'fa-tshirt', color: '#ec4899', action: 'Order', details: `${o.customerName||'Customer'} · ${(o.products||[]).length} items`, performedBy: o.recordedBy||o.clerkId||'—', status: o.status||'new' }));
+                brandinnOrdersFiltered.forEach(([id, o]) => allOperations.push({ time: o.createdAt, workspace: 'BrandInn', icon: 'fa-print', color: '#7c3aed', action: 'Print Order', details: `${o.customerName||'Customer'} · ${o.product||'Product'}`, performedBy: o.recordedBy||o.clerkId||'—', status: o.status||'new' }));
+                heritageFiltered.forEach(([id, l]) => allOperations.push({ time: l.createdAt||l.postedAt, workspace: 'Heritage Ads', icon: 'fa-landmark', color: '#d946ef', action: 'Listing', details: `${l.type||'Ad'} · ${l.location||'Unknown'}`, performedBy: l.recordedBy||l.partnerId||'—', status: l.status||'active' }));
+                heritageOrdersFiltered.forEach(([id, o]) => allOperations.push({ time: o.createdAt, workspace: 'Heritage Mkt', icon: 'fa-store', color: '#d97706', action: 'Order', details: `${o.customerName||'Customer'} · ${(o.products||[]).length||1} items`, performedBy: o.recordedBy||o.clerkId||'—', status: o.status||'new' }));
 
                 allOperations.sort((a, b) => (b.time || 0) - (a.time || 0));
 
-                // Render KPIs
                 const totalOps = allOperations.length;
                 const counts = {
                     fusion: allOperations.filter(o => o.workspace === 'Fusion Foods').length,
                     dsog: allOperations.filter(o => o.workspace === 'DSOG Fashion').length,
                     brandinn: allOperations.filter(o => o.workspace === 'BrandInn').length,
-                    heritage: allOperations.filter(o => o.workspace === 'Heritage').length,
+                    heritageAds: allOperations.filter(o => o.workspace === 'Heritage Ads').length,
+                    heritageMkt: allOperations.filter(o => o.workspace === 'Heritage Mkt').length,
                     field: fieldRegsFiltered.length
                 };
 
@@ -491,70 +411,30 @@
                     <div class="kpi-card"><div class="kpi-value" style="color:#10b981;">${counts.fusion}</div><div class="kpi-label">Fusion Foods</div></div>
                     <div class="kpi-card"><div class="kpi-value" style="color:#ec4899;">${counts.dsog}</div><div class="kpi-label">DSOG Fashion</div></div>
                     <div class="kpi-card"><div class="kpi-value" style="color:#7c3aed;">${counts.brandinn}</div><div class="kpi-label">BrandInn</div></div>
-                    <div class="kpi-card"><div class="kpi-value" style="color:#d946ef;">${counts.heritage}</div><div class="kpi-label">Heritage</div></div>
+                    <div class="kpi-card"><div class="kpi-value" style="color:#d97706;">${counts.heritageMkt}</div><div class="kpi-label">Heritage Mkt</div></div>
                     <div class="kpi-card"><div class="kpi-value" style="color:#2563eb;">${counts.field}</div><div class="kpi-label">Field Registrations</div></div>
                 `;
 
-                // Render Charts
                 renderCharts(counts);
 
-                // Render Operations Table
                 document.getElementById('tableCount').textContent = `${allOperations.length} entries`;
                 document.getElementById('operationsTableBody').innerHTML = allOperations.slice(0, 100).map(o => {
-                    const performedByDisplay = o.performedBy.includes('@') ? o.performedBy.split('@')[0] : o.performedBy;
-                    const initials = getInitials(performedByDisplay);
-                    const avatarColor = getAvatarColor(performedByDisplay);
+                    const displayName = o.performedBy.includes('@') ? o.performedBy.split('@')[0] : o.performedBy;
                     const timeStr = o.time ? new Date(o.time).toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'}) : '—';
-                    return `
-                        <tr>
-                            <td>${timeStr}</td>
-                            <td><span class="badge" style="background:${o.color}15;color:${o.color};"><i class="fas ${o.icon}"></i> ${o.workspace}</span></td>
-                            <td><strong>${o.action}</strong></td>
-                            <td>${escapeHtml(o.details)}</td>
-                            <td>
-                                <div class="attribution-cell">
-                                    <div class="attribution-avatar" style="background:${avatarColor};">${initials}</div>
-                                    <span>${escapeHtml(performedByDisplay)}</span>
-                                </div>
-                            </td>
-                            <td><span class="badge badge-${o.status==='delivered'?'success':o.status==='shipped'?'purple':'info'}">${(o.status||'new').replace(/-/g,' ')}</span></td>
-                        </tr>
-                    `;
+                    return `<tr><td>${timeStr}</td><td><span class="badge" style="background:${o.color}15;color:${o.color};"><i class="fas ${o.icon}"></i> ${o.workspace}</span></td><td><strong>${o.action}</strong></td><td>${escapeHtml(o.details)}</td><td><div class="attribution-cell"><div class="attribution-avatar" style="background:${getAvatarColor(displayName)};">${getInitials(displayName)}</div><span>${escapeHtml(displayName)}</span></div></td><td><span class="badge badge-${o.status==='delivered'?'success':o.status==='shipped'?'purple':'info'}">${(o.status||'new').replace(/-/g,' ')}</span></td></tr>`;
                 }).join('') || '<tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--text-muted);">No operations in this period</td></tr>';
 
-                // Render Field Registrations Table
                 document.getElementById('fieldCount').textContent = `${fieldRegsFiltered.length} entries`;
                 document.getElementById('fieldTableBody').innerHTML = fieldRegsFiltered.map(([id, r]) => {
                     const recordedBy = r.recordedBy || 'Field Agent';
                     const displayName = recordedBy.includes('@') ? recordedBy.split('@')[0] : recordedBy;
-                    const initials = getInitials(displayName);
-                    const avatarColor = getAvatarColor(recordedBy);
                     const timeStr = r.timestamp ? new Date(r.timestamp).toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'}) : '—';
                     const opColors = {brandinn:'#7c3aed',deliveries:'#f59e0b',rides:'#22c55e',dsog:'#ec4899',fusion:'#10b981',heritage:'#d946ef'};
-                    const opColor = opColors[r.operation] || '#ca8a04';
-                    return `
-                        <tr>
-                            <td>${timeStr}</td>
-                            <td><strong>${escapeHtml(r.businessName || 'Unknown')}</strong></td>
-                            <td><span class="badge" style="background:${opColor}15;color:${opColor};">${r.operation || 'N/A'}</span></td>
-                            <td>📍 ${r.lat?.toFixed(4)}, ${r.lng?.toFixed(4)}</td>
-                            <td>
-                                <div class="attribution-cell">
-                                    <div class="attribution-avatar" style="background:${avatarColor};">${initials}</div>
-                                    <span>${escapeHtml(displayName)}</span>
-                                </div>
-                            </td>
-                            <td>${escapeHtml(r.ownerName || 'N/A')}</td>
-                        </tr>
-                    `;
+                    return `<tr><td>${timeStr}</td><td><strong>${escapeHtml(r.businessName||'Unknown')}</strong></td><td><span class="badge" style="background:${(opColors[r.operation]||'#ca8a04')}15;color:${opColors[r.operation]||'#ca8a04'};">${r.operation||'N/A'}</span></td><td>📍 ${r.lat?.toFixed(4)}, ${r.lng?.toFixed(4)}</td><td><div class="attribution-cell"><div class="attribution-avatar" style="background:${getAvatarColor(recordedBy)};">${getInitials(displayName)}</div><span>${escapeHtml(displayName)}</span></div></td><td>${escapeHtml(r.ownerName||'N/A')}</td></tr>`;
                 }).join('') || '<tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--text-muted);">No registrations in this period</td></tr>';
 
-            } catch(e) {
-                console.error('Report error:', e);
-                document.getElementById('reportMeta').innerHTML = '<i class="fas fa-exclamation-circle" style="color:var(--danger);"></i> Error loading report: ' + e.message;
-            } finally {
-                isLoading = false;
-            }
+            } catch(e) { console.error('Report error:', e); document.getElementById('reportMeta').innerHTML = '<i class="fas fa-exclamation-circle" style="color:var(--danger);"></i> Error loading report'; }
+            finally { isLoading = false; }
         }
 
         function renderCharts(counts) {
@@ -563,20 +443,15 @@
             workspaceBarChart = new Chart(ctx1, {
                 type: 'bar',
                 data: {
-                    labels: ['Fusion Foods', 'DSOG', 'BrandInn', 'Heritage', 'Field Reg.'],
+                    labels: ['Fusion Foods', 'DSOG', 'BrandInn', 'Heritage Ads', 'Heritage Mkt', 'Field'],
                     datasets: [{
-                        label: 'Operations',
-                        data: [counts.fusion, counts.dsog, counts.brandinn, counts.heritage, counts.field],
-                        backgroundColor: ['rgba(16,185,129,0.6)','rgba(236,72,153,0.6)','rgba(124,58,237,0.6)','rgba(217,70,239,0.6)','rgba(59,130,246,0.6)'],
-                        borderColor: ['#10b981','#ec4899','#7c3aed','#d946ef','#3b82f6'],
+                        data: [counts.fusion, counts.dsog, counts.brandinn, counts.heritageAds, counts.heritageMkt, counts.field],
+                        backgroundColor: ['rgba(16,185,129,0.6)','rgba(236,72,153,0.6)','rgba(124,58,237,0.6)','rgba(217,70,239,0.6)','rgba(217,119,6,0.6)','rgba(59,130,246,0.6)'],
+                        borderColor: ['#10b981','#ec4899','#7c3aed','#d946ef','#d97706','#3b82f6'],
                         borderWidth: 2, borderRadius: 8
                     }]
                 },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: '#f3f4f6' } }, x: { grid: { display: false } } }
-                }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: '#f3f4f6' } }, x: { grid: { display: false } } } }
             });
 
             const ctx2 = document.getElementById('activityPieChart').getContext('2d');
@@ -584,17 +459,14 @@
             activityPieChart = new Chart(ctx2, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Fusion', 'DSOG', 'BrandInn', 'Heritage', 'Field'],
+                    labels: ['Fusion', 'DSOG', 'BrandInn', 'Heritage Ads', 'Heritage Mkt', 'Field'],
                     datasets: [{
-                        data: [counts.fusion, counts.dsog, counts.brandinn, counts.heritage, counts.field],
-                        backgroundColor: ['#10b981','#ec4899','#7c3aed','#d946ef','#3b82f6'],
+                        data: [counts.fusion, counts.dsog, counts.brandinn, counts.heritageAds, counts.heritageMkt, counts.field],
+                        backgroundColor: ['#10b981','#ec4899','#7c3aed','#d946ef','#d97706','#3b82f6'],
                         borderWidth: 2, borderColor: '#fff'
                     }]
                 },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { position: 'bottom', labels: { padding: 12, usePointStyle: true, font: { size: 10 } } } }
-                }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { padding: 10, usePointStyle: true, font: { size: 9 } } } } }
             });
         }
 
@@ -603,28 +475,11 @@
             const reports = [];
             for (let i = 1; i <= 7; i++) {
                 const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
-                reports.push({
-                    dateStr: d.toISOString().split('T')[0],
-                    label: i === 1 ? 'Yesterday' : i === 2 ? '2 Days Ago' : `${i} Days Ago`,
-                    displayDate: d.toLocaleDateString('en-US', {weekday:'long', year:'numeric', month:'long', day:'numeric'})
-                });
+                reports.push({ dateStr: d.toISOString().split('T')[0], label: i===1?'Yesterday':i===2?'2 Days Ago':`${i} Days Ago`, displayDate: d.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'}) });
             }
-
-            document.getElementById('previousReports').innerHTML = reports.map(r => `
-                <div class="report-item" onclick="loadPreviousReport('${r.dateStr}')">
-                    <div class="report-item-icon" style="background:var(--gold-soft);color:var(--gold);">
-                        <i class="fas fa-file-alt"></i>
-                    </div>
-                    <div class="report-item-info">
-                        <div class="report-item-title">${r.displayDate}</div>
-                        <div class="report-item-meta">Auto-generated daily report · ${r.label}</div>
-                    </div>
-                    <i class="fas fa-chevron-right" style="color:var(--text-muted);"></i>
-                </div>
-            `).join('');
+            document.getElementById('previousReports').innerHTML = reports.map(r => `<div class="report-item" onclick="loadPreviousReport('${r.dateStr}')"><div class="report-item-icon" style="background:var(--gold-soft);color:var(--gold);"><i class="fas fa-file-alt"></i></div><div class="report-item-info"><div class="report-item-title">${r.displayDate}</div><div class="report-item-meta">Auto-generated daily report · ${r.label}</div></div><i class="fas fa-chevron-right" style="color:var(--text-muted);"></i></div>`).join('');
         }
 
-        // FIXED: Separate function for previous reports with no recursion
         window.loadPreviousReport = function(dateStr) {
             if (isLoading) return;
             document.querySelectorAll('.date-btn').forEach(b => b.classList.remove('active'));
@@ -633,9 +488,7 @@
             generateReport('custom');
         };
 
-        window.handleLogout = async () => {
-            if (confirm('Sign out?')) { await auth.signOut(); window.location.href = 'index.html'; }
-        };
+        window.handleLogout = async () => { if (confirm('Sign out?')) { await auth.signOut(); window.location.href = 'index.html'; } };
     </script>
 </body>
 </html>
