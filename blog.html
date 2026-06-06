@@ -18,12 +18,11 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
         :root {
             --gold: #ca8a04; --gold-dark: #a16207; --gold-light: #fbbf24;
             --gold-soft: #fef3c7; --gold-gradient: linear-gradient(135deg, #ca8a04 0%, #eab308 50%, #fbbf24 100%);
             --success: #10b981; --warning: #f59e0b; --danger: #ef4444; --info: #3b82f6;
-            --purple: #8b5cf6; --emerald: #059669; --rose: #e11d48; --pink: #ec4899; --indigo: #4f46e5;
+            --purple: #8b5cf6; --emerald: #059669; --rose: #e11d48; --pink: #ec4899; --amber: #d97706; --indigo: #4f46e5;
             --bg-primary: #ffffff; --bg-secondary: #faf9f7; --bg-card: #ffffff;
             --text-primary: #1a1a2e; --text-secondary: #4a5568; --text-muted: #718096;
             --border-light: #e9ecef;
@@ -35,131 +34,54 @@
             --font-body: 'General Sans', 'Outfit', sans-serif;
             --font-blog: 'Source Serif 4', 'Merriweather', 'General Sans', serif;
         }
-
-        body {
-            font-family: var(--font-body);
-            background: linear-gradient(180deg, #fffbeb 0%, #ffffff 10%, #faf9f7 100%);
-            color: var(--text-primary); line-height: 1.6; min-height: 100vh;
-        }
-
-        @keyframes shimmer {
-            0% { background-position: -200% 0; } 100% { background-position: 200% 0; }
-        }
-        .skeleton {
-            background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
-            background-size: 200% 100%; animation: shimmer 1.5s ease-in-out infinite; border-radius: 6px;
-        }
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        body { font-family: var(--font-body); background: linear-gradient(180deg, #fffbeb 0%, #ffffff 10%, #faf9f7 100%); color: var(--text-primary); line-height: 1.6; min-height: 100vh; }
+        @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+        .skeleton { background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%); background-size: 200% 100%; animation: shimmer 1.5s ease-in-out infinite; border-radius: 6px; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         .animate-in { animation: fadeInUp 0.6s ease-out; }
-
-        .site-header {
-            position:fixed; top:0; width:100%; height:var(--header-height);
-            background:var(--nav-bg); backdrop-filter:blur(25px);
-            border-bottom:1px solid rgba(202,138,4,0.08); z-index:1000; padding:0 2rem;
-        }
+        .site-header { position:fixed; top:0; width:100%; height:var(--header-height); background:var(--nav-bg); backdrop-filter:blur(25px); border-bottom:1px solid rgba(202,138,4,0.08); z-index:1000; padding:0 2rem; }
         .header-container { max-width:1400px; height:100%; margin:0 auto; display:flex; align-items:center; justify-content:space-between; }
-        .logo{display:flex;align-items:center;gap:0.7rem;text-decoration:none;}
-        .logo img{height:36px;width:auto;}
+        .logo{display:flex;align-items:center;gap:0.7rem;text-decoration:none;} .logo img{height:36px;width:auto;}
         .logo span{font-size:1.4rem;font-weight:800;background:var(--gold-gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-family:var(--font-display);}
-        .nav-links{display:flex;gap:2rem;}
-        .nav-link{color:var(--text-secondary);text-decoration:none;font-size:0.85rem;font-weight:500;font-family:var(--font-heading);transition:all 0.2s;}
-        .nav-link:hover,.nav-link.active{color:var(--gold);}
-        .user-menu{display:flex;align-items:center;gap:0.5rem;background:var(--bg-card);border:1px solid var(--border-light);border-radius:50px;padding:0.25rem 0.5rem 0.25rem 0.8rem;cursor:pointer;position:relative;}
-        .user-menu:hover{border-color:var(--gold);}
+        .nav-links{display:flex;gap:2rem;} .nav-link{color:var(--text-secondary);text-decoration:none;font-size:0.85rem;font-weight:500;font-family:var(--font-heading);transition:all 0.2s;} .nav-link:hover,.nav-link.active{color:var(--gold);}
+        .user-menu{display:flex;align-items:center;gap:0.5rem;background:var(--bg-card);border:1px solid var(--border-light);border-radius:50px;padding:0.25rem 0.5rem 0.25rem 0.8rem;cursor:pointer;position:relative;} .user-menu:hover{border-color:var(--gold);}
         .user-avatar{width:32px;height:32px;background:var(--gold-gradient);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.7rem;}
         .user-name{font-size:0.8rem;font-weight:600;}
         .user-dropdown{position:absolute;top:calc(100% + 8px);right:0;background:var(--bg-card);border:1px solid var(--border-light);border-radius:12px;padding:0.4rem;min-width:160px;opacity:0;visibility:hidden;transform:translateY(-8px);transition:all 0.2s;z-index:1001;box-shadow:var(--shadow-lg);}
         .user-menu:hover .user-dropdown{opacity:1;visibility:visible;transform:translateY(0);}
-        .dropdown-item{padding:0.6rem 0.8rem;color:var(--text-secondary);border-radius:8px;display:flex;align-items:center;gap:0.4rem;cursor:pointer;font-size:0.8rem;border:none;background:none;width:100%;font-family:var(--font-body);}
-        .dropdown-item:hover{background:var(--bg-secondary);}
-        .dropdown-item.danger:hover{color:var(--danger);}
-
+        .dropdown-item{padding:0.6rem 0.8rem;color:var(--text-secondary);border-radius:8px;display:flex;align-items:center;gap:0.4rem;cursor:pointer;font-size:0.8rem;border:none;background:none;width:100%;font-family:var(--font-body);} .dropdown-item:hover{background:var(--bg-secondary);} .dropdown-item.danger:hover{color:var(--danger);}
         .main-content{max-width:850px;margin:calc(var(--header-height) + 2rem) auto 3rem;padding:0 2rem;}
-
-        .blog-header{text-align:center;margin-bottom:2rem;}
-        .blog-header h1{font-size:2.2rem;font-weight:800;font-family:var(--font-display);display:flex;align-items:center;justify-content:center;gap:0.5rem;margin-bottom:0.3rem;}
-        .blog-header h1 i{color:var(--gold);}
-        .blog-header p{color:var(--text-muted);font-size:0.9rem;}
-
-        .btn{
-            padding:0.5rem 1.2rem; border:none; border-radius:40px; font-weight:600;
-            font-size:0.78rem; cursor:pointer; display:inline-flex; align-items:center;
-            gap:0.4rem; transition:all 0.3s; font-family:var(--font-heading);
-        }
-        .btn-primary{background:var(--gold-gradient);color:white;}
-        .btn-outline{background:transparent;border:1px solid var(--border-light);color:var(--text-secondary);}
-        .btn-outline:hover{border-color:var(--gold);color:var(--gold);}
-        .btn-sm{padding:0.3rem 0.7rem;font-size:0.7rem;}
-
-        .blog-skeleton-card {
-            background: var(--bg-card); border: 1px solid var(--border-light);
-            border-radius: 20px; padding: 2.5rem; box-shadow: var(--shadow-sm);
-        }
-        .blog-skeleton-card::before {
-            content: ''; display: block; height: 4px; background: #e5e7eb;
-            margin: -2.5rem -2.5rem 2rem -2.5rem; border-radius: 20px 20px 0 0;
-        }
-
-        .blog-post {
-            background:var(--bg-card); border:1px solid var(--border-light);
-            border-radius:20px; padding:2.5rem 3rem; margin-bottom:1.5rem;
-            box-shadow:var(--shadow-sm); position:relative; overflow:hidden;
-        }
+        .blog-header{text-align:center;margin-bottom:2rem;} .blog-header h1{font-size:2.2rem;font-weight:800;font-family:var(--font-display);display:flex;align-items:center;justify-content:center;gap:0.5rem;margin-bottom:0.3rem;} .blog-header h1 i{color:var(--gold);} .blog-header p{color:var(--text-muted);font-size:0.9rem;}
+        .btn{padding:0.5rem 1.2rem; border:none; border-radius:40px; font-weight:600; font-size:0.78rem; cursor:pointer; display:inline-flex; align-items:center; gap:0.4rem; transition:all 0.3s; font-family:var(--font-heading);}
+        .btn-primary{background:var(--gold-gradient);color:white;} .btn-outline{background:transparent;border:1px solid var(--border-light);color:var(--text-secondary);} .btn-outline:hover{border-color:var(--gold);color:var(--gold);} .btn-sm{padding:0.3rem 0.7rem;font-size:0.7rem;}
+        .blog-skeleton-card { background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 20px; padding: 2.5rem; box-shadow: var(--shadow-sm); }
+        .blog-skeleton-card::before { content: ''; display: block; height: 4px; background: #e5e7eb; margin: -2.5rem -2.5rem 2rem -2.5rem; border-radius: 20px 20px 0 0; }
+        .blog-post { background:var(--bg-card); border:1px solid var(--border-light); border-radius:20px; padding:2.5rem 3rem; margin-bottom:1.5rem; box-shadow:var(--shadow-sm); position:relative; overflow:hidden; }
         .blog-post::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--gold-gradient);}
         .blog-post-header{border-bottom:1px solid var(--border-light);padding-bottom:1.2rem;margin-bottom:1.8rem;}
         .blog-post-date{font-size:0.7rem;color:var(--gold-dark);text-transform:uppercase;letter-spacing:1.5px;font-weight:700;margin-bottom:0.5rem;}
         .blog-post-title{font-size:2rem;font-weight:800;font-family:var(--font-display);line-height:1.25;margin-bottom:0.5rem;color:var(--text-primary);}
         .blog-post-subtitle{font-size:0.95rem;color:var(--text-secondary);font-style:italic;line-height:1.5;}
-        .blog-post-meta{display:flex;align-items:center;gap:1.5rem;margin-top:0.8rem;font-size:0.7rem;color:var(--text-muted);flex-wrap:wrap;}
-        .blog-post-meta span{display:flex;align-items:center;gap:0.3rem;}
-        .blog-post-meta i{color:var(--gold);}
-
+        .blog-post-meta{display:flex;align-items:center;gap:1.5rem;margin-top:0.8rem;font-size:0.7rem;color:var(--text-muted);flex-wrap:wrap;} .blog-post-meta span{display:flex;align-items:center;gap:0.3rem;} .blog-post-meta i{color:var(--gold);}
         .blog-content{font-family:var(--font-blog);font-size:1rem;line-height:1.85;color:var(--text-secondary);}
-        .blog-content h2{font-family:var(--font-heading);font-size:1.4rem;font-weight:700;color:var(--text-primary);margin:2rem 0 0.8rem;padding-top:1rem;border-top:1px solid var(--border-light);}
-        .blog-content h2:first-of-type{border-top:none;padding-top:0;}
-        .blog-content h3{font-family:var(--font-heading);font-size:1.1rem;font-weight:700;color:var(--text-primary);margin:1.5rem 0 0.5rem;}
+        .blog-content h2{font-family:var(--font-heading);font-size:1.4rem;font-weight:700;color:var(--text-primary);margin:2rem 0 0.8rem;padding-top:1rem;border-top:1px solid var(--border-light);} .blog-content h2:first-of-type{border-top:none;padding-top:0;}
         .blog-content p{margin-bottom:1rem;text-align:justify;}
-        .blog-content .highlight-box{
-            background:var(--gold-soft);border-left:4px solid var(--gold);
-            padding:1rem 1.3rem;border-radius:0 12px 12px 0;margin:1.2rem 0;
-            font-family:var(--font-heading);font-size:0.9rem;line-height:1.6;
-        }
+        .blog-content .highlight-box{background:var(--gold-soft);border-left:4px solid var(--gold);padding:1rem 1.3rem;border-radius:0 12px 12px 0;margin:1.2rem 0;font-family:var(--font-heading);font-size:0.9rem;line-height:1.6;}
         .blog-content .highlight-box.warning{background:rgba(245,158,11,0.06);border-left-color:var(--warning);}
         .blog-content .highlight-box.info{background:rgba(59,130,246,0.04);border-left-color:var(--info);}
         .blog-content .highlight-box.success{background:rgba(16,185,129,0.04);border-left-color:var(--success);}
-        .blog-content .highlight-box.danger{background:rgba(239,68,68,0.04);border-left-color:var(--danger);}
         .blog-content .stat-inline{display:inline-block;padding:0.12rem 0.5rem;border-radius:5px;font-weight:700;font-family:var(--font-heading);font-size:0.9rem;}
-        .blog-content .stat-inline.gold{background:rgba(202,138,4,0.1);color:var(--gold-dark);}
-        .blog-content .stat-inline.green{background:rgba(16,185,129,0.1);color:var(--emerald);}
-        .blog-content .stat-inline.purple{background:rgba(139,92,246,0.1);color:var(--purple);}
-        .blog-content .stat-inline.blue{background:rgba(59,130,246,0.1);color:var(--info);}
-        .blog-content .stat-inline.rose{background:rgba(225,29,72,0.1);color:var(--rose);}
+        .blog-content .stat-inline.gold{background:rgba(202,138,4,0.1);color:var(--gold-dark);} .blog-content .stat-inline.green{background:rgba(16,185,129,0.1);color:var(--emerald);}
+        .blog-content .stat-inline.purple{background:rgba(139,92,246,0.1);color:var(--purple);} .blog-content .stat-inline.blue{background:rgba(59,130,246,0.1);color:var(--info);}
+        .blog-content .stat-inline.rose{background:rgba(225,29,72,0.1);color:var(--rose);} .blog-content .stat-inline.amber{background:rgba(217,119,6,0.1);color:var(--amber);}
         .blog-content .team-mention{display:inline-flex;align-items:center;gap:0.2rem;background:rgba(59,130,246,0.06);padding:0.08rem 0.45rem;border-radius:5px;font-weight:600;color:var(--info);margin:0 0.1rem;font-family:var(--font-heading);font-size:0.85rem;}
-
-        .blog-chart-embed {
-            background:var(--bg-secondary); border-radius:16px;
-            padding:1.2rem; margin:1.5rem 0; border:1px solid var(--border-light);
-        }
-        .blog-chart-embed canvas{max-height:200px;}
-        .chart-label{font-size:0.65rem;color:var(--text-muted);text-align:center;margin-top:0.5rem;font-style:italic;}
-
-        .blog-map-embed {
-            border-radius:16px; overflow:hidden; height:220px; margin:1.5rem 0;
-            border:1px solid var(--border-light);
-        }
-        .blog-map-embed .leaflet-control-zoom{display:none;}
-        .blog-map-embed .leaflet-control-attribution{font-size:7px;}
-
+        .blog-chart-embed { background:var(--bg-secondary); border-radius:16px; padding:1.2rem; margin:1.5rem 0; border:1px solid var(--border-light); } .blog-chart-embed canvas{max-height:200px;} .chart-label{font-size:0.65rem;color:var(--text-muted);text-align:center;margin-top:0.5rem;font-style:italic;}
+        .blog-map-embed { border-radius:16px; overflow:hidden; height:220px; margin:1.5rem 0; border:1px solid var(--border-light); } .blog-map-embed .leaflet-control-zoom{display:none;} .blog-map-embed .leaflet-control-attribution{font-size:7px;}
         .footer{text-align:center;padding:2rem;color:var(--text-muted);font-size:0.7rem;border-top:1px solid var(--border-light);margin-top:3rem;}
-
         @media(max-width:900px){.main-content{padding:0 1rem}.blog-post{padding:1.5rem}.blog-post-title{font-size:1.5rem}.nav-links{display:none}}
     </style>
 </head>
 <body>
-
     <header class="site-header">
         <div class="header-container">
             <a href="dashboard.html" class="logo"><img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview-1.png" alt="KazInni"><span>KazInni</span></a>
@@ -181,12 +103,7 @@
     </header>
 
     <main class="main-content">
-        <div class="blog-header">
-            <h1><i class="fas fa-newspaper"></i> Operations Blog</h1>
-            <p>Daily analytics · System performance · Workspace insights · Predictions</p>
-        </div>
-
-        <!-- SKELETON LOADING -->
+        <div class="blog-header"><h1><i class="fas fa-newspaper"></i> Operations Blog</h1><p>Daily analytics · System performance · Workspace insights · Predictions</p></div>
         <div id="skeletonState">
             <div class="blog-skeleton-card">
                 <div class="skeleton" style="height:2rem;width:50%;margin-bottom:0.6rem;"></div>
@@ -194,38 +111,19 @@
                 <div class="skeleton" style="height:1rem;width:40%;margin-bottom:2rem;"></div>
                 <div class="skeleton" style="height:1.2rem;width:95%;margin-bottom:0.6rem;"></div>
                 <div class="skeleton" style="height:1.2rem;width:90%;margin-bottom:0.6rem;"></div>
-                <div class="skeleton" style="height:1.2rem;width:85%;margin-bottom:0.6rem;"></div>
-                <div class="skeleton" style="height:1.2rem;width:88%;margin-bottom:1.5rem;"></div>
                 <div class="skeleton" style="height:12rem;margin-bottom:1.5rem;"></div>
-                <div class="skeleton" style="height:1.2rem;width:90%;margin-bottom:0.6rem;"></div>
-                <div class="skeleton" style="height:1.2rem;width:80%;margin-bottom:1.5rem;"></div>
                 <div class="skeleton" style="height:10rem;"></div>
             </div>
         </div>
-
-        <!-- LIVE CONTENT -->
-        <div id="liveState" style="display:none;">
-            <div id="blogContent"></div>
-        </div>
+        <div id="liveState" style="display:none;"><div id="blogContent"></div></div>
     </main>
-
     <footer class="footer">&copy; 2026 Teleio Savour · Operations Blog · Auto-generated daily</footer>
 
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
-            authDomain: "mugera-e51cc.firebaseapp.com",
-            databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "mugera-e51cc"
-        };
+        const firebaseConfig = { apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA", authDomain: "mugera-e51cc.firebaseapp.com", databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app", projectId: "mugera-e51cc" };
         firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-        const auth = firebase.auth();
-
-        let blogPosts = {};
-        let isGenerating = false;
-        let embeddedCharts = [];
-        let embeddedMap = null;
+        const db = firebase.database(); const auth = firebase.auth();
+        let blogPosts = {}; let isGenerating = false; let embeddedCharts = []; let embeddedMap = null;
 
         auth.onAuthStateChanged(async (user) => {
             if (!user) { window.location.href = 'index.html'; return; }
@@ -233,233 +131,112 @@
             const name = snap.exists() ? (snap.val().name || user.email?.split('@')[0]) : user.email?.split('@')[0];
             document.getElementById('userDisplayName').textContent = name || 'Staff';
             document.getElementById('userAvatar').textContent = (name || 'K').charAt(0).toUpperCase();
-            await loadBlogPosts();
-            await checkAndGenerateToday();
+            await loadBlogPosts(); await checkAndGenerateToday();
         });
 
-        async function loadBlogPosts() {
-            try { const snap = await db.ref('operation_blogs').once('value'); blogPosts = snap.val() || {}; }
-            catch(e) { blogPosts = {}; }
-        }
+        async function loadBlogPosts() { try { const snap = await db.ref('operation_blogs').once('value'); blogPosts = snap.val() || {}; } catch(e) { blogPosts = {}; } }
 
-        // FIXED: Checks for old format and regenerates if needed
         async function checkAndGenerateToday() {
             const today = new Date().toISOString().split('T')[0];
             const existingPost = blogPosts[today];
-            
-            // Check if existing post has the new long-form content
-            const hasNewFormat = existingPost?.content?.includes('Executive Summary') && 
-                               existingPost?.content?.includes('System Performance');
-            
-            if (existingPost && hasNewFormat) {
-                // Already has new format - just display
-                renderBlogDisplay(today, existingPost);
-                revealContent();
-            } else {
-                // Old format or no post - regenerate
-                if (existingPost) {
-                    console.log('📝 Old format detected, regenerating with full content...');
-                }
-                await generateTodayPost(today);
-                revealContent();
-            }
+            const hasNewFormat = existingPost?.content?.includes('Executive Summary') && existingPost?.content?.includes('System Performance');
+            if (existingPost && hasNewFormat) { renderBlogDisplay(today, existingPost); revealContent(); }
+            else { await generateTodayPost(today); revealContent(); }
         }
-
-        function revealContent() {
-            document.getElementById('skeletonState').style.display = 'none';
-            document.getElementById('liveState').style.display = 'block';
-        }
+        function revealContent() { document.getElementById('skeletonState').style.display = 'none'; document.getElementById('liveState').style.display = 'block'; }
 
         async function generateTodayPost(dateStr) {
-            if (isGenerating) return;
-            isGenerating = true;
-            cleanupCharts();
-
+            if (isGenerating) return; isGenerating = true; cleanupCharts();
             const todayStart = new Date(dateStr + 'T00:00:00+03:00').getTime();
             const todayEnd = new Date(dateStr + 'T23:59:59.999+03:00').getTime();
-
             try {
                 const paths = [
-                    { key: 'fusionOrders', path: 'fusion_foods_orders' },
-                    { key: 'dsogOrders', path: 'dsog_fashion_orders' },
-                    { key: 'brandinnOrders', path: 'brandinn_print_orders' },
-                    { key: 'heritageListings', path: 'heritage_listings' },
-                    { key: 'fieldRegs', path: 'iam_mugera_registrations' }
+                    { key: 'fusionOrders', path: 'fusion_foods_orders' }, { key: 'dsogOrders', path: 'dsog_fashion_orders' },
+                    { key: 'brandinnOrders', path: 'brandinn_print_orders' }, { key: 'heritageListings', path: 'heritage_listings' },
+                    { key: 'heritageOrders', path: 'heritage_orders' }, { key: 'fieldRegs', path: 'iam_mugera_registrations' }
                 ];
-
                 const rawData = {};
-                for (const p of paths) {
-                    const snap = await db.ref(p.path).once('value');
-                    rawData[p.key] = snap.val() || {};
-                }
+                for (const p of paths) { const snap = await db.ref(p.path).once('value'); rawData[p.key] = snap.val() || {}; }
+                const filterByDate = (obj) => Object.entries(obj).filter(([_, item]) => { const ts = item.createdAt || item.timestamp || 0; return ts >= todayStart && ts <= todayEnd; });
+                const fusionOrders = filterByDate(rawData.fusionOrders); const dsogOrders = filterByDate(rawData.dsogOrders);
+                const brandinnOrders = filterByDate(rawData.brandinnOrders); const heritageListings = filterByDate(rawData.heritageListings);
+                const heritageOrders = filterByDate(rawData.heritageOrders); const fieldRegs = filterByDate(rawData.fieldRegs);
 
-                const filterByDate = (obj) => Object.entries(obj).filter(([_, item]) => {
-                    const ts = item.createdAt || item.timestamp || 0;
-                    return ts >= todayStart && ts <= todayEnd;
-                });
-
-                const fusionOrders = filterByDate(rawData.fusionOrders);
-                const dsogOrders = filterByDate(rawData.dsogOrders);
-                const brandinnOrders = filterByDate(rawData.brandinnOrders);
-                const heritageListings = filterByDate(rawData.heritageListings);
-                const fieldRegs = filterByDate(rawData.fieldRegs);
-
-                // Hourly analysis
-                const allTimestamps = [...fusionOrders, ...dsogOrders, ...brandinnOrders, ...heritageListings, ...fieldRegs]
-                    .map(([_, item]) => item.createdAt || item.timestamp || 0).filter(t => t > 0);
-                const hourlyBins = new Array(24).fill(0);
-                allTimestamps.forEach(ts => { hourlyBins[new Date(ts).getHours()]++; });
-
-                const peakHour = hourlyBins.indexOf(Math.max(...hourlyBins));
-                const peakCount = hourlyBins[peakHour];
-                const totalOps = fusionOrders.length + dsogOrders.length + brandinnOrders.length + heritageListings.length;
+                const allTimestamps = [...fusionOrders, ...dsogOrders, ...brandinnOrders, ...heritageListings, ...heritageOrders, ...fieldRegs].map(([_, item]) => item.createdAt || item.timestamp || 0).filter(t => t > 0);
+                const hourlyBins = new Array(24).fill(0); allTimestamps.forEach(ts => { hourlyBins[new Date(ts).getHours()]++; });
+                const peakHour = hourlyBins.indexOf(Math.max(...hourlyBins)); const peakCount = hourlyBins[peakHour];
+                const totalOps = fusionOrders.length + dsogOrders.length + brandinnOrders.length + heritageListings.length + heritageOrders.length;
                 const systemLoad = totalOps > 50 ? 'high' : totalOps > 15 ? 'moderate' : 'low';
 
-                // Contributors
                 const contributors = new Set();
-                [...fusionOrders, ...dsogOrders, ...brandinnOrders].forEach(([_, o]) => {
-                    const by = o.recordedBy || o.clerkId || '';
-                    if (by) contributors.add(by.includes('@') ? by.split('@')[0] : by);
-                });
-                fieldRegs.forEach(([_, r]) => {
-                    const by = r.recordedBy || '';
-                    if (by) contributors.add(by.includes('@') ? by.split('@')[0] : by);
-                });
+                [...fusionOrders, ...dsogOrders, ...brandinnOrders, ...heritageOrders].forEach(([_, o]) => { const by = o.recordedBy || o.clerkId || ''; if (by) contributors.add(by.includes('@') ? by.split('@')[0] : by); });
+                fieldRegs.forEach(([_, r]) => { const by = r.recordedBy || ''; if (by) contributors.add(by.includes('@') ? by.split('@')[0] : by); });
+                const contributorList = [...contributors]; const fieldRegsArray = fieldRegs.map(([_, r]) => r);
 
-                const contributorList = [...contributors];
-                const fieldRegsArray = fieldRegs.map(([_, r]) => r);
-
-                // Workspace-specific details
                 const fusionRestaurants = new Set(fusionOrders.map(([_, o]) => o.restaurantName).filter(Boolean));
                 const fusionValue = fusionOrders.reduce((sum, [_, o]) => sum + (o.total || 0), 0);
                 const fusionDelivered = fusionOrders.filter(([_, o]) => o.status === 'delivered').length;
-                const fusionShipped = fusionOrders.filter(([_, o]) => o.status === 'shipped').length;
+                const heritageMktCustomers = new Set(heritageOrders.map(([_, o]) => o.customerName).filter(Boolean));
+                const heritageMktValue = heritageOrders.reduce((sum, [_, o]) => sum + (o.total || 0), 0);
+                const fieldOps = {}; fieldRegs.forEach(([_, r]) => { const op = r.operation || 'other'; fieldOps[op] = (fieldOps[op] || 0) + 1; });
 
-                const dsogCustomers = new Set(dsogOrders.map(([_, o]) => o.customerName).filter(Boolean));
-                const dsogDelivered = dsogOrders.filter(([_, o]) => o.status === 'delivered').length;
-
-                const brandinnCompleted = brandinnOrders.filter(([_, o]) => o.status === 'delivered' || o.status === 'completed').length;
-
-                const fieldOps = {};
-                fieldRegs.forEach(([_, r]) => { const op = r.operation || 'other'; fieldOps[op] = (fieldOps[op] || 0) + 1; });
-
-                // Predictions
                 const yesterdayDate = new Date(Date.now() - 86400000).toISOString().split('T')[0];
-                const yesterdayPost = blogPosts[yesterdayDate];
-                const yesterdayTotal = yesterdayPost?.stats?.totalOperations || 0;
+                const yesterdayPost = blogPosts[yesterdayDate]; const yesterdayTotal = yesterdayPost?.stats?.totalOperations || 0;
                 const trend = totalOps > yesterdayTotal ? 'increasing' : totalOps < yesterdayTotal ? 'decreasing' : 'stable';
                 const predictedTomorrow = Math.round(totalOps * (trend === 'increasing' ? 1.15 : trend === 'decreasing' ? 0.85 : 1.0));
 
-                const chartData = { fusion: fusionOrders.length, dsog: dsogOrders.length, brandinn: brandinnOrders.length, heritage: heritageListings.length, field: fieldRegs.length };
+                const chartData = { fusion: fusionOrders.length, dsog: dsogOrders.length, brandinn: brandinnOrders.length, heritageAds: heritageListings.length, heritageMkt: heritageOrders.length, field: fieldRegs.length };
 
                 const blogData = {
-                    date: dateStr,
-                    title: generateTitle(totalOps, fieldRegs.length, fusionOrders.length, dsogOrders.length, brandinnOrders.length),
+                    date: dateStr, title: generateTitle(totalOps, fieldRegs.length, fusionOrders.length, dsogOrders.length, brandinnOrders.length, heritageOrders.length),
                     subtitle: generateSubtitle(totalOps, contributorList.length),
-                    stats: {
-                        totalOperations: totalOps, fieldRegistrations: fieldRegs.length,
-                        fusionOrders: fusionOrders.length, dsogOrders: dsogOrders.length,
-                        brandinnOrders: brandinnOrders.length, heritageListings: heritageListings.length,
-                        contributors: contributorList.length, contributorNames: contributorList,
-                        chartData, fieldRegsData: fieldRegsArray, hourlyBins,
-                        peakHour, peakCount, systemLoad, trend, predictedTomorrow, yesterdayTotal,
-                        fusionRestaurants: [...fusionRestaurants], fusionValue, fusionDelivered, fusionShipped,
-                        dsogCustomers: [...dsogCustomers], dsogDelivered, brandinnCompleted, fieldOps
-                    },
-                    content: generateBlogContent(fusionOrders, dsogOrders, brandinnOrders, heritageListings, fieldRegs, contributorList, hourlyBins, peakHour, peakCount, systemLoad, trend, predictedTomorrow, totalOps, fusionRestaurants, fusionValue, fusionDelivered, fusionShipped, dsogCustomers, dsogDelivered, brandinnCompleted, fieldOps, yesterdayTotal),
-                    generatedAt: new Date().toISOString(),
-                    generatedBy: auth.currentUser?.email || 'System',
-                    formatVersion: '2.0'
+                    stats: { totalOperations: totalOps, fieldRegistrations: fieldRegs.length, fusionOrders: fusionOrders.length, dsogOrders: dsogOrders.length, brandinnOrders: brandinnOrders.length, heritageListings: heritageListings.length, heritageOrders: heritageOrders.length, contributors: contributorList.length, contributorNames: contributorList, chartData, fieldRegsData: fieldRegsArray, hourlyBins, peakHour, peakCount, systemLoad, trend, predictedTomorrow, yesterdayTotal, fusionRestaurants: [...fusionRestaurants], fusionValue, fusionDelivered, heritageMktCustomers: [...heritageMktCustomers], heritageMktValue, fieldOps },
+                    content: generateBlogContent(fusionOrders, dsogOrders, brandinnOrders, heritageListings, heritageOrders, fieldRegs, contributorList, hourlyBins, peakHour, peakCount, systemLoad, trend, predictedTomorrow, totalOps, fusionRestaurants, fusionValue, fusionDelivered, heritageMktCustomers, heritageMktValue, fieldOps, yesterdayTotal),
+                    generatedAt: new Date().toISOString(), generatedBy: auth.currentUser?.email || 'System', formatVersion: '3.0'
                 };
-
-                await db.ref(`operation_blogs/${dateStr}`).set(blogData);
-                blogPosts[dateStr] = blogData;
-                renderBlogDisplay(dateStr, blogData);
-
-            } catch(e) { console.error('Generation error:', e); }
-            finally { isGenerating = false; }
+                await db.ref(`operation_blogs/${dateStr}`).set(blogData); blogPosts[dateStr] = blogData; renderBlogDisplay(dateStr, blogData);
+            } catch(e) { console.error('Generation error:', e); } finally { isGenerating = false; }
         }
 
         function renderBlogDisplay(date, data) {
-            document.getElementById('blogContent').innerHTML = `
-                <div class="blog-post animate-in">
-                    <div class="blog-post-header">
-                        <div class="blog-post-date">${new Date(data.date).toLocaleDateString('en-US', {weekday:'long', month:'long', day:'numeric', year:'numeric'})}</div>
-                        <h1 class="blog-post-title">${data.title}</h1>
-                        <p class="blog-post-subtitle">${data.subtitle}</p>
-                        <div class="blog-post-meta">
-                            <span><i class="fas fa-calendar-check"></i> ${new Date(data.generatedAt).toLocaleTimeString()}</span>
-                            <span><i class="fas fa-robot"></i> Auto-generated</span>
-                        </div>
-                    </div>
-                    <div class="blog-content">${data.content}</div>
-                </div>`;
-            setTimeout(() => {
-                embedChart(data.stats?.chartData || {});
-                embedHourlyChart(data.stats?.hourlyBins || new Array(24).fill(0), data.stats?.peakHour || 0);
-                embedMap(data.stats?.fieldRegsData || []);
-            }, 500);
+            document.getElementById('blogContent').innerHTML = `<div class="blog-post animate-in"><div class="blog-post-header"><div class="blog-post-date">${new Date(data.date).toLocaleDateString('en-US', {weekday:'long', month:'long', day:'numeric', year:'numeric'})}</div><h1 class="blog-post-title">${data.title}</h1><p class="blog-post-subtitle">${data.subtitle}</p><div class="blog-post-meta"><span><i class="fas fa-calendar-check"></i> ${new Date(data.generatedAt).toLocaleTimeString()}</span><span><i class="fas fa-robot"></i> Auto-generated</span></div></div><div class="blog-content">${data.content}</div></div>`;
+            setTimeout(() => { embedChart(data.stats?.chartData || {}); embedHourlyChart(data.stats?.hourlyBins || new Array(24).fill(0), data.stats?.peakHour || 0); embedMap(data.stats?.fieldRegsData || []); }, 500);
         }
 
         function embedChart(chartData) {
-            const container = document.getElementById('blogChartEmbed');
-            if (!container) return;
-            const canvas = container.querySelector('canvas');
-            if (!canvas) return;
+            const container = document.getElementById('blogChartEmbed'); if (!container) return;
+            const canvas = container.querySelector('canvas'); if (!canvas) return;
             const chart = new Chart(canvas.getContext('2d'), {
                 type: 'doughnut',
-                data: {
-                    labels: ['Fusion Foods', 'DSOG', 'BrandInn', 'Heritage', 'Field'],
-                    datasets: [{ data: [chartData.fusion||0, chartData.dsog||0, chartData.brandinn||0, chartData.heritage||0, chartData.field||0], backgroundColor: ['#10b981','#ec4899','#7c3aed','#d946ef','#3b82f6'], borderWidth: 2, borderColor: '#fff' }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { padding: 10, usePointStyle: true, font: { size: 9 } } } } }
-            });
-            embeddedCharts.push(chart);
+                data: { labels: ['Fusion Foods', 'DSOG', 'BrandInn', 'Heritage Ads', 'Heritage Mkt', 'Field'], datasets: [{ data: [chartData.fusion||0, chartData.dsog||0, chartData.brandinn||0, chartData.heritageAds||0, chartData.heritageMkt||0, chartData.field||0], backgroundColor: ['#10b981','#ec4899','#7c3aed','#d946ef','#d97706','#3b82f6'], borderWidth: 2, borderColor: '#fff' }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { padding: 8, usePointStyle: true, font: { size: 8 } } } } }
+            }); embeddedCharts.push(chart);
         }
 
         function embedHourlyChart(hourlyBins, peakHour) {
-            const container = document.getElementById('blogHourlyChartEmbed');
-            if (!container) return;
-            const canvas = container.querySelector('canvas');
-            if (!canvas) return;
+            const container = document.getElementById('blogHourlyChartEmbed'); if (!container) return;
+            const canvas = container.querySelector('canvas'); if (!canvas) return;
             const labels = hourlyBins.map((_, i) => `${i}:00`);
             const bgColors = hourlyBins.map((_, i) => i === peakHour ? 'rgba(239,68,68,0.7)' : 'rgba(202,138,4,0.35)');
-            const chart = new Chart(canvas.getContext('2d'), {
-                type: 'bar',
-                data: { labels, datasets: [{ label: 'Operations', data: hourlyBins, backgroundColor: bgColors, borderColor: bgColors, borderWidth: 1, borderRadius: 4 }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 8 } }, grid: { color: '#f3f4f6' } }, x: { ticks: { font: { size: 7 }, maxTicksLimit: 12 }, grid: { display: false } } } }
-            });
+            const chart = new Chart(canvas.getContext('2d'), { type: 'bar', data: { labels, datasets: [{ label: 'Operations', data: hourlyBins, backgroundColor: bgColors, borderColor: bgColors, borderWidth: 1, borderRadius: 4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 8 } }, grid: { color: '#f3f4f6' } }, x: { ticks: { font: { size: 7 }, maxTicksLimit: 12 }, grid: { display: false } } } } });
             embeddedCharts.push(chart);
         }
 
         function embedMap(fieldRegsArray) {
-            const container = document.getElementById('blogMapEmbed');
-            if (!container || !fieldRegsArray || fieldRegsArray.length === 0) return;
+            const container = document.getElementById('blogMapEmbed'); if (!container || !fieldRegsArray || fieldRegsArray.length === 0) return;
             embeddedMap = L.map('blogMapEmbed', { zoomControl: false, attributionControl: false, dragging: false, scrollWheelZoom: false });
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(embeddedMap);
-            const bounds = [];
-            const colors = { brandinn: '#7c3aed', deliveries: '#f59e0b', rides: '#22c55e', dsog: '#ec4899', fusion: '#10b981', heritage: '#d946ef' };
-            fieldRegsArray.forEach(r => {
-                if (r.lat && r.lng) {
-                    L.circleMarker([r.lat, r.lng], { radius: 3, fillColor: colors[r.operation] || '#ca8a04', color: '#fff', weight: 0.5, fillOpacity: 0.8 }).addTo(embeddedMap);
-                    bounds.push([r.lat, r.lng]);
-                }
-            });
-            if (bounds.length > 0) embeddedMap.fitBounds(bounds, { padding: [15, 15], maxZoom: 15 });
-            else embeddedMap.setView([-1.2864, 36.8172], 7);
+            const bounds = []; const colors = { brandinn: '#7c3aed', deliveries: '#f59e0b', rides: '#22c55e', dsog: '#ec4899', fusion: '#10b981', heritage: '#d946ef' };
+            fieldRegsArray.forEach(r => { if (r.lat && r.lng) { L.circleMarker([r.lat, r.lng], { radius: 3, fillColor: colors[r.operation] || '#ca8a04', color: '#fff', weight: 0.5, fillOpacity: 0.8 }).addTo(embeddedMap); bounds.push([r.lat, r.lng]); } });
+            if (bounds.length > 0) embeddedMap.fitBounds(bounds, { padding: [15, 15], maxZoom: 15 }); else embeddedMap.setView([-1.2864, 36.8172], 7);
         }
 
-        function cleanupCharts() {
-            embeddedCharts.forEach(c => { try { c.destroy(); } catch(e) {} });
-            embeddedCharts = [];
-            if (embeddedMap) { try { embeddedMap.remove(); } catch(e) {} embeddedMap = null; }
-        }
+        function cleanupCharts() { embeddedCharts.forEach(c => { try { c.destroy(); } catch(e) {} }); embeddedCharts = []; if (embeddedMap) { try { embeddedMap.remove(); } catch(e) {} embeddedMap = null; } }
 
-        function generateTitle(total, field, fusion, dsog, brandinn) {
+        function generateTitle(total, field, fusion, dsog, brandinn, heritageMkt) {
             const parts = [];
-            if (fusion > 0) parts.push(`${fusion} Food Orders`);
-            if (dsog > 0) parts.push(`${dsog} Fashion Orders`);
-            if (brandinn > 0) parts.push(`${brandinn} Print Jobs`);
+            if (fusion > 0) parts.push(`${fusion} Food Orders`); if (dsog > 0) parts.push(`${dsog} Fashion Orders`);
+            if (brandinn > 0) parts.push(`${brandinn} Print Jobs`); if (heritageMkt > 0) parts.push(`${heritageMkt} Mkt Orders`);
             if (field > 0) parts.push(`${field} Field Registrations`);
             if (parts.length === 0) return 'A Quiet Day at the Operations Hub';
             if (parts.length === 1) return parts[0] + ' Processed Today';
@@ -471,152 +248,67 @@
             return `Daily operations summary for ${today} · ${contributors} team member${contributors !== 1 ? 's' : ''} contributed`;
         }
 
-        function generateBlogContent(fusion, dsog, brandinn, heritage, field, contributors, hourlyBins, peakHour, peakCount, systemLoad, trend, predictedTomorrow, totalOps, fusionRestaurants, fusionValue, fusionDelivered, fusionShipped, dsogCustomers, dsogDelivered, brandinnCompleted, fieldOps, yesterdayTotal) {
-            let html = '';
-            const fieldCount = field.length;
-
-            // ===== INTRODUCTION =====
-            html += `<p>Welcome to today's edition of the <strong>KazInni Operations Blog</strong>, your daily digest of everything that happened across our business ecosystem. This report covers operations from <strong>midnight to 11:59 PM East Africa Time</strong>, providing a comprehensive look at how each workspace performed, where the system experienced pressure, and what we can expect tomorrow.</p>`;
-
+        function generateBlogContent(fusion, dsog, brandinn, heritageAds, heritageMkt, field, contributors, hourlyBins, peakHour, peakCount, systemLoad, trend, predictedTomorrow, totalOps, fusionRestaurants, fusionValue, fusionDelivered, heritageMktCustomers, heritageMktValue, fieldOps, yesterdayTotal) {
+            let html = ''; const fieldCount = field.length;
+            html += `<p>Welcome to today's edition of the <strong>KazInni Operations Blog</strong>, your daily digest across all business workspaces from <strong>midnight to 11:59 PM EAT</strong>.</p>`;
             if (totalOps === 0 && fieldCount === 0) {
-                html += `<p>Today was an unusually <span class="stat-inline gold">quiet day</span> across all workspaces. No orders were placed, no listings were created, and no field registrations were recorded. This is typically indicative of a weekend, public holiday, or scheduled maintenance window. All systems remain fully operational, and we expect activity to resume during the next business cycle.</p>`;
-                html += `<div class="highlight-box">📊 <strong>System Note:</strong> Zero operations does not indicate a system failure. All monitoring endpoints are responding normally.</div>`;
-                return html;
+                html += `<p>Today was a <span class="stat-inline gold">quiet day</span> across all workspaces.</p><div class="highlight-box">📊 All systems remain fully operational.</div>`; return html;
             }
-
-            // ===== EXECUTIVE SUMMARY =====
             html += `<h2>📋 Executive Summary</h2>`;
-            html += `<p>Today, the KazInni platform processed a total of <span class="stat-inline gold">${totalOps} operations</span> across four active workspaces. The system operated under <span class="stat-inline ${systemLoad === 'high' ? 'rose' : systemLoad === 'moderate' ? 'gold' : 'green'}">${systemLoad.toUpperCase()} LOAD</span> conditions, with peak activity concentrated around <span class="stat-inline rose">${peakHour}:00 hours</span> where <span class="stat-inline rose">${peakCount} operations</span> were recorded in a single hour. Field agents contributed an additional <span class="stat-inline green">${fieldCount} location registrations</span> across various operation types throughout Kenya.</p>`;
+            html += `<p>Today, KazInni processed <span class="stat-inline gold">${totalOps} operations</span> under <span class="stat-inline ${systemLoad==='high'?'rose':systemLoad==='moderate'?'gold':'green'}">${systemLoad.toUpperCase()} LOAD</span>. Peak: <span class="stat-inline rose">${peakHour}:00 (${peakCount} ops)</span>. Field: <span class="stat-inline green">${fieldCount} registrations</span>.</p>`;
+            html += `<p>vs yesterday (${yesterdayTotal||'N/A'}): <span class="stat-inline ${trend==='increasing'?'green':trend==='decreasing'?'rose':'gold'}">${trend}</span>. Predicted tomorrow: <span class="stat-inline blue">~${predictedTomorrow} ops</span>.</p>`;
+            html += `<h2>⚡ System Performance</h2><p>Avg <span class="stat-inline blue">${(totalOps/24).toFixed(1)} ops/hr</span>. Peak at ${peakHour}:00.</p>`;
+            html += `<div class="blog-chart-embed" id="blogHourlyChartEmbed"><canvas></canvas><div class="chart-label">Figure 1: Hourly Load — Peak at ${peakHour}:00 (${peakCount} ops)</div></div>`;
+            if (peakCount > 10) html += `<div class="highlight-box warning">⚠️ ${peakCount} ops at ${peakHour}:00 — monitor for queuing.</div>`;
+            else if (peakCount > 5) html += `<div class="highlight-box info">📈 ${peakCount} ops at ${peakHour}:00 — healthy utilization.</div>`;
+            else html += `<div class="highlight-box success">✅ Light load — system well within capacity.</div>`;
 
-            html += `<p>Compared to yesterday's figure of <span class="stat-inline blue">${yesterdayTotal || 'N/A'} operations</span>, today's performance represents a <span class="stat-inline ${trend === 'increasing' ? 'green' : trend === 'decreasing' ? 'rose' : 'gold'}">${trend === 'increasing' ? 'notable increase' : trend === 'decreasing' ? 'slight decrease' : 'stable continuation'}</span> in activity levels. Based on current trajectory analysis, our predictive model estimates approximately <span class="stat-inline blue">${predictedTomorrow} operations</span> for tomorrow.</p>`;
+            // Fusion Foods
+            html += `<h2>🍽️ Fusion Foods</h2>`;
+            if (fusion.length === 0) html += `<p>No orders today.</p>`;
+            else { html += `<p><span class="stat-inline green">${fusion.length} orders</span> for <span class="stat-inline gold">${fusionRestaurants.size} restaurants</span> (KES ${fusionValue.toLocaleString()}). <span class="stat-inline green">${fusionDelivered} delivered</span>.</p>`; if (fusionRestaurants.size <= 6) html += `<p>Partners: <strong>${[...fusionRestaurants].map(r=>escapeHtml(r)).join(', ')}</strong>.</p>`; }
 
-            // ===== SYSTEM PERFORMANCE =====
-            html += `<h2>⚡ System Performance & Load Analysis</h2>`;
-            html += `<p>Understanding how our systems handle operational load is crucial for maintaining service quality. Today's data reveals interesting patterns in how activity was distributed throughout the day.</p>`;
+            // DSOG
+            html += `<h2>👗 DSOG Fashion</h2>`;
+            html += dsog.length === 0 ? `<p>No orders today.</p>` : `<p><span class="stat-inline purple">${dsog.length} orders</span> processed.</p>`;
 
-            html += `<p>The system processed an average of <span class="stat-inline blue">${(totalOps / 24).toFixed(1)} operations per hour</span> over the 24-hour cycle. However, this average masks significant variation — the busiest hour (${peakHour}:00) saw <span class="stat-inline rose">${peakCount} operations</span>, while several overnight hours recorded zero activity.</p>`;
+            // BrandInn
+            html += `<h2>🖨️ BrandInn Print</h2>`;
+            html += brandinn.length === 0 ? `<p>No orders today.</p>` : `<p><span class="stat-inline purple">${brandinn.length} print orders</span> completed.</p>`;
 
-            html += `<div class="blog-chart-embed" id="blogHourlyChartEmbed"><canvas></canvas><div class="chart-label">Figure 1: Hourly System Load Distribution — Red bar indicates peak at ${peakHour}:00 (${peakCount} ops)</div></div>`;
+            // Heritage Ads
+            html += `<h2>🏛️ Heritage Ads</h2>`;
+            html += heritageAds.length === 0 ? `<p>No listings today.</p>` : `<p><span class="stat-inline green">${heritageAds.length} new listings</span>.</p>`;
 
-            if (peakCount > 10) {
-                html += `<div class="highlight-box warning"><strong>⚠️ Activity Overflow Analysis:</strong> The ${peakHour}:00 hour registered ${peakCount} operations — approximately one every ${Math.round(60 / peakCount)} minutes. While all operations completed successfully, this concentration warrants monitoring for potential queuing delays if the pattern intensifies.</div>`;
-            } else if (peakCount > 5) {
-                html += `<div class="highlight-box info"><strong>📈 Elevated Activity:</strong> ${peakCount} operations at ${peakHour}:00 represents healthy utilization within acceptable parameters. No bottlenecks were observed.</div>`;
-            } else {
-                html += `<div class="highlight-box success"><strong>✅ Light Load:</strong> With peak activity of only ${peakCount} operations, the system operated well within capacity limits.</div>`;
-            }
+            // Heritage Marketplace
+            html += `<h2>🛒 Heritage Marketplace</h2>`;
+            if (heritageMkt.length === 0) html += `<p>No orders today.</p>`;
+            else { html += `<p><span class="stat-inline amber">${heritageMkt.length} orders</span> for <span class="stat-inline gold">${heritageMktCustomers.size} customers</span> (KES ${heritageMktValue.toLocaleString()}).</p>`; }
 
-            // ===== FUSION FOODS =====
-            html += `<h2>🍽️ Fusion Foods — Food & Grocery Supply</h2>`;
-            if (fusion.length === 0) {
-                html += `<p>The Fusion Foods workspace recorded <span class="stat-inline gold">no orders</span> today. The workspace remains fully configured and ready to process orders when activity resumes.</p>`;
-            } else {
-                html += `<p>Fusion Foods emerged as a <strong>steady contributor</strong> to operations, processing <span class="stat-inline green">${fusion.length} food supply orders</span> that served <span class="stat-inline gold">${fusionRestaurants.size} distinct restaurants</span> across the distribution network. The total value of orders processed through Fusion Foods today amounted to <span class="stat-inline gold">KES ${fusionValue.toLocaleString()}</span>, reflecting the essential role this workspace plays in the food supply chain.</p>`;
+            // Field Ops
+            html += `<h2>📍 Field Operations</h2>`;
+            if (fieldCount === 0) html += `<p>No registrations today.</p>`;
+            else { html += `<p><span class="stat-inline gold">${fieldCount} locations</span> mapped.</p>`; html += `<div class="blog-map-embed" id="blogMapEmbed"></div><div class="chart-label">Figure 2: Field Registrations Map</div>`; }
 
-                html += `<p>Of the ${fusion.length} orders processed, <span class="stat-inline green">${fusionDelivered} were successfully delivered</span> to their destinations, while <span class="stat-inline blue">${fusionShipped} are currently in transit</span>. The remaining ${fusion.length - fusionDelivered - fusionShipped} orders are in various stages of preparation and confirmation.</p>`;
+            // Workspace Distribution
+            html += `<h2>📊 Workspace Distribution</h2><div class="blog-chart-embed" id="blogChartEmbed"><canvas></canvas><div class="chart-label">Figure 3: Operations by Workspace</div></div>`;
 
-                if (fusionRestaurants.size <= 6 && fusionRestaurants.size > 0) {
-                    html += `<p>Today's restaurant partners included: <strong>${[...fusionRestaurants].map(r => escapeHtml(r)).join(', ')}</strong>. Each of these establishments relies on Fusion Foods for timely, reliable food supply deliveries.</p>`;
-                } else if (fusionRestaurants.size > 6) {
-                    html += `<p>Among the ${fusionRestaurants.size} restaurants served today were <strong>${[...fusionRestaurants].slice(0, 5).map(r => escapeHtml(r)).join(', ')}</strong> and ${fusionRestaurants.size - 5} other establishments.</p>`;
-                }
-            }
+            // Team
+            if (contributors.length > 0) { html += `<h2>👥 Team</h2><p><span class="stat-inline blue">${contributors.length} contributors</span>: ${contributors.map(c=>`<span class="team-mention"><i class="fas fa-user-circle"></i> ${escapeHtml(c)}</span>`).join(' ')}</p>`; }
 
-            // ===== DSOG FASHION =====
-            html += `<h2>👗 DSOG Fashion — Apparel & Merchandise</h2>`;
-            if (dsog.length === 0) {
-                html += `<p>The DSOG Fashion workspace experienced <span class="stat-inline gold">no order activity</span> today. The workspace infrastructure remains fully operational.</p>`;
-            } else {
-                html += `<p>The DSOG Fashion division handled <span class="stat-inline purple">${dsog.length} orders</span> today, serving <span class="stat-inline green">${dsogCustomers.size} unique customers</span>. Of these, <span class="stat-inline green">${dsogDelivered} orders reached successful delivery</span>, maintaining the workspace's commitment to timely fulfillment.</p>`;
-                html += `<p>DSOG Fashion continues to serve as a vital link between fashion suppliers and end consumers. Each completed order strengthens the marketplace's reputation and contributes to customer retention metrics.</p>`;
-            }
+            // Predictions
+            html += `<h2>🔮 Tomorrow</h2><p>Forecast: <span class="stat-inline blue">~${predictedTomorrow} ops</span> (${trend} trend).</p>`;
+            if (predictedTomorrow > 30) html += `<div class="highlight-box danger">🔴 High volume expected.</div>`;
+            else if (predictedTomorrow > 10) html += `<div class="highlight-box info">🔵 Moderate day ahead.</div>`;
+            else html += `<div class="highlight-box success">🟢 Light day — good for maintenance.</div>`;
 
-            // ===== BRANDINN =====
-            html += `<h2>🖨️ BrandInn Print — Printing & Merchandise</h2>`;
-            if (brandinn.length === 0) {
-                html += `<p>BrandInn Print recorded <span class="stat-inline gold">no print orders</span> today. The workspace is prepared for the next influx of print requests.</p>`;
-            } else {
-                html += `<p>BrandInn Print completed <span class="stat-inline purple">${brandinn.length} print orders</span> today, with <span class="stat-inline green">${brandinnCompleted} orders reaching full completion</span>. The printing and merchandise unit continues to serve businesses and individuals requiring high-quality printed materials.</p>`;
-                html += `<p>Each print order represents a unique project with specific requirements — design specifications, material selections, color profiles, and finishing options. The successful completion of ${brandinnCompleted} orders demonstrates the workspace's capability to manage diverse printing projects simultaneously.</p>`;
-            }
-
-            // ===== HERITAGE =====
-            html += `<h2>🏛️ Heritage Marketplace — Outdoor Advertising</h2>`;
-            if (heritage.length === 0) {
-                html += `<p>The Heritage Marketplace workspace saw <span class="stat-inline gold">no new listings</span> today. Existing listings continue to generate value for advertising partners.</p>`;
-            } else {
-                html += `<p>The Heritage advertising platform added <span class="stat-inline green">${heritage.length} new listings</span> to its outdoor advertising inventory today. This expansion of inventory strengthens the platform's position in the competitive outdoor advertising market.</p>`;
-            }
-
-            // ===== FIELD OPERATIONS =====
-            html += `<h2>📍 Field Operations & Location Mapping</h2>`;
-            if (fieldCount === 0) {
-                html += `<p>No field registrations were recorded today. The mobile registration system remains ready for deployment when field operations resume.</p>`;
-            } else {
-                html += `<p>Our field agents were active across the country today, successfully mapping <span class="stat-inline gold">${fieldCount} new business locations</span> through the KazInni mobile registration system.</p>`;
-
-                if (Object.keys(fieldOps).length > 0) {
-                    html += `<p>The breakdown of today's field registrations:</p>`;
-                    html += `<ul style="margin:1rem 0 1rem 2rem;line-height:2;">`;
-                    const icons = { brandinn: '🏪', deliveries: '📦', rides: '🚗', dsog: '👗', fusion: '🔥', heritage: '🏛️' };
-                    Object.entries(fieldOps).forEach(([op, count]) => {
-                        html += `<li><strong>${icons[op] || '📍'} ${op.charAt(0).toUpperCase() + op.slice(1)}:</strong> <span class="stat-inline gold">${count} registration${count !== 1 ? 's' : ''}</span></li>`;
-                    });
-                    html += `</ul>`;
-                }
-
-                html += `<div class="blog-map-embed" id="blogMapEmbed"></div><div class="chart-label">Figure 2: Geographic Distribution of Today's Field Registrations Across Kenya</div>`;
-                html += `<p>The geographic spread of today's registrations demonstrates the expanding reach of our field operations. Each dot on the map above represents a physical business location verified and registered by our field team.</p>`;
-            }
-
-            // ===== WORKSPACE DISTRIBUTION =====
-            html += `<h2>📊 Workspace Performance Comparison</h2>`;
-            html += `<p>Understanding how activity distributes across workspaces helps us allocate resources effectively and identify growth opportunities.</p>`;
-            html += `<div class="blog-chart-embed" id="blogChartEmbed"><canvas></canvas><div class="chart-label">Figure 3: Distribution of Today's Operations Across Workspaces</div></div>`;
-
-            if (fusion.length > 0 || dsog.length > 0 || brandinn.length > 0) {
-                const dominant = fusion.length >= dsog.length && fusion.length >= brandinn.length ? 'Fusion Foods' : dsog.length >= brandinn.length ? 'DSOG Fashion' : 'BrandInn Print';
-                html += `<p>Today, <strong>${dominant}</strong> led operational activity, accounting for the largest share of processed orders.</p>`;
-            }
-
-            // ===== TEAM =====
-            if (contributors.length > 0) {
-                html += `<h2>👥 Team Contributions</h2>`;
-                html += `<p>Behind every operation is a team member who made it happen. Today, <span class="stat-inline blue">${contributors.length} contributor${contributors.length !== 1 ? 's' : ''}</span> powered the KazInni platform.</p>`;
-                html += `<p>Today's contributors: ${contributors.map(c => `<span class="team-mention"><i class="fas fa-user-circle"></i> ${escapeHtml(c)}</span>`).join(' ')}</p>`;
-            }
-
-            // ===== PREDICTIONS =====
-            html += `<h2>🔮 Looking Ahead — Tomorrow's Forecast</h2>`;
-            html += `<p>Based on today's operational data and historical trends, we forecast approximately <span class="stat-inline blue">${predictedTomorrow} operations</span> across all workspaces tomorrow. This prediction is derived from today's <span class="stat-inline ${trend === 'increasing' ? 'green' : trend === 'decreasing' ? 'rose' : 'gold'}">${trend}</span> trend.</p>`;
-
-            if (predictedTomorrow > 30) {
-                html += `<div class="highlight-box danger"><strong>🔴 High Volume Alert:</strong> Tomorrow's forecast suggests a busy day. Ensure adequate staffing and monitor system resources proactively.</div>`;
-            } else if (predictedTomorrow > 10) {
-                html += `<div class="highlight-box info"><strong>🔵 Moderate Activity Expected:</strong> Standard staffing and monitoring should suffice for tomorrow's anticipated load.</div>`;
-            } else {
-                html += `<div class="highlight-box success"><strong>🟢 Light Day Ahead:</strong> A lighter day presents an ideal opportunity for maintenance and process improvement.</div>`;
-            }
-
-            // ===== CLOSING =====
-            html += `<h2>📝 Closing Notes</h2>`;
-            html += `<p>Today's operations reflect the ongoing vitality of the KazInni platform. From food supply chains to fashion retail, from printing services to outdoor advertising, and from field registrations to delivery logistics — every operation tells a story of business being conducted and value being created.</p>`;
-            html += `<p>This blog post was automatically generated from real-time operational data at ${new Date().toLocaleTimeString()}. For more detailed analytics, visit the <a href="analytics.html" style="color:var(--gold);font-weight:600;">Analytics Dashboard</a> or review the comprehensive <a href="reports.html" style="color:var(--gold);font-weight:600;">Operations Report</a>.</p>`;
-            html += `<div class="highlight-box">📊 <strong>Today's Numbers:</strong> ${totalOps} operations · ${fieldCount} field registrations · ${systemLoad.toUpperCase()} load · Peak ${peakHour}:00 (${peakCount} ops) · ${contributors.length} contributors · ~${predictedTomorrow} predicted tomorrow</div>`;
-
+            html += `<h2>📝 Closing</h2><p>Auto-generated at ${new Date().toLocaleTimeString()}. See <a href="analytics.html" style="color:var(--gold);">Analytics</a> or <a href="reports.html" style="color:var(--gold);">Reports</a>.</p>`;
+            html += `<div class="highlight-box">📊 Today: ${totalOps} ops · ${fieldCount} field · ${systemLoad.toUpperCase()} load · Peak ${peakHour}:00 · ${contributors.length} contributors · ~${predictedTomorrow} tomorrow</div>`;
             return html;
         }
 
-        window.regenerateToday = async function() {
-            cleanupCharts();
-            document.getElementById('skeletonState').style.display = 'block';
-            document.getElementById('liveState').style.display = 'none';
-            const today = new Date().toISOString().split('T')[0];
-            await generateTodayPost(today);
-            revealContent();
-        };
-
-        function escapeHtml(t) { const d = document.createElement('div'); d.textContent = t || ''; return d.innerHTML; }
+        window.regenerateToday = async function() { cleanupCharts(); document.getElementById('skeletonState').style.display='block'; document.getElementById('liveState').style.display='none'; const today=new Date().toISOString().split('T')[0]; await generateTodayPost(today); revealContent(); };
+        function escapeHtml(t) { const d=document.createElement('div'); d.textContent=t||''; return d.innerHTML; }
         window.handleLogout = async () => { if (confirm('Sign out?')) { await auth.signOut(); window.location.href = 'index.html'; } };
     </script>
 </body>
