@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Kitchen Management | Mugs N Dines</title>
+    
+    <meta name="theme-color" content="#f97316">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <link rel="icon" type="image/png" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --orange: #f97316; --orange-dark: #c2410c; --orange-light: #fb923c;
+            --card-bg: #ffffff; --text-primary: #1e293b; --text-muted: #64748b;
+            --border-light: #fed7aa; --success: #10b981; --warning: #f59e0b;
+            --danger: #ef4444; --info: #3b82f6; --emerald: #059669;
+            --purple: #8b5cf6; --indigo: #4f46e5;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(145deg, #fff7ed 0%, #ffffff 100%);
+            color: var(--text-primary); line-height: 1.4;
+            min-height: 100vh; display: flex; flex-direction: column;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; } 100% { background-position: 200% 0; }
+        }
+        .skeleton {
+            background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
+            background-size: 200% 100%; animation: shimmer 1.5s ease-in-out infinite; border-radius: 6px;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(16px);
+            padding: 0.5rem 2%; display: flex; justify-content: space-between;
+            align-items: center; border-bottom: 2px solid rgba(249, 115, 22, 0.3);
+            position: sticky; top: 0; z-index: 100; flex-wrap: wrap; gap: 8px;
+        }
+        .logo { display: flex; align-items: center; gap: 10px; cursor: pointer; text-decoration: none; }
+        .logo-img { height: 34px; width: 34px; border-radius: 10px; object-fit: contain; background: white; box-shadow: 0 4px 12px rgba(249, 115, 22, 0.2); }
+        .logo-text {
+            font-weight: 800; font-size: 1.1rem;
+            background: linear-gradient(145deg, #fb923c, #c2410c);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .logo-text span { font-weight: 600; font-size: 0.7rem; background: #f97316; -webkit-text-fill-color: #f97316; margin-left: 3px; }
+
+        .nav-right { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+        .nav-btn {
+            background: rgba(249, 115, 22, 0.08); border: 1px solid rgba(249, 115, 22, 0.2);
+            padding: 0.4rem 0.8rem; border-radius: 25px; color: var(--orange-dark);
+            font-weight: 600; font-size: 0.7rem; cursor: pointer; display: inline-flex;
+            align-items: center; gap: 5px; text-decoration: none; transition: all 0.2s;
+        }
+        .nav-btn:hover { background: var(--orange); color: white; }
+        .nav-btn.active { background: var(--orange); color: white; border-color: var(--orange-dark); }
+
+        .nav-dropdown { position: relative; }
+        .dropdown-menu {
+            position: absolute; top: calc(100% + 8px); right: 0;
+            background: white; border: 1px solid var(--border-light);
+            border-radius: 16px; padding: 0.5rem; min-width: 180px;
+            display: none; z-index: 200; box-shadow: 0 15px 35px rgba(0,0,0,0.12);
+        }
+        .dropdown-menu.show { display: block; }
+        .dropdown-item {
+            padding: 0.55rem 0.8rem; border-radius: 10px;
+            display: flex; align-items: center; gap: 8px;
+            color: var(--text-primary); text-decoration: none;
+            font-size: 0.72rem; font-weight: 500; transition: all 0.15s;
+        }
+        .dropdown-item:hover { background: #fff7ed; color: var(--orange-dark); }
+        .dropdown-item i { width: 18px; color: var(--orange); font-size: 0.75rem; }
+
+        .container { padding: 1rem 2%; flex: 1; max-width: 1400px; margin: 0 auto; width: 100%; }
+
+        .page-header { margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.8rem; }
+        .page-header h1 { font-size: 1.3rem; font-weight: 800; color: #0f172a; }
+        .page-header h1 i { color: var(--orange-dark); margin-right: 6px; }
+
+        .btn {
+            padding: 0.5rem 1rem; border-radius: 10px; border: none; font-weight: 700;
+            font-size: 0.7rem; cursor: pointer; display: inline-flex; align-items: center;
+            gap: 5px; font-family: inherit; transition: all 0.15s; white-space: nowrap;
+        }
+        .btn-primary { background: var(--orange); color: white; }
+        .btn-primary:hover { background: var(--orange-dark); }
+        .btn-outline { background: transparent; border: 1.5px solid #e2e8f0; color: var(--text-muted); }
+        .btn-outline:hover { border-color: var(--orange); color: var(--orange); }
+        .btn-sm { padding: 0.25rem 0.6rem; font-size: 0.65rem; border-radius: 8px; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-danger:hover { background: #dc2626; }
+
+        .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 1.2rem; }
+        .stat-mini {
+            background: white; border-radius: 14px; padding: 0.8rem 1rem; text-align: center;
+            border: 1px solid var(--border-light); box-shadow: 0 2px 8px rgba(249,115,22,0.03);
+        }
+        .stat-mini .stat-num { font-size: 1.4rem; font-weight: 800; color: var(--orange-dark); line-height: 1.1; }
+        .stat-mini .stat-label { font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.3px; }
+
+        .filter-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1rem; align-items: center; }
+        .filter-btn {
+            padding: 0.35rem 0.8rem; border-radius: 20px; border: 1.5px solid #e2e8f0;
+            background: white; color: #64748b; font-weight: 600; font-size: 0.65rem;
+            cursor: pointer; transition: all 0.15s; font-family: inherit;
+        }
+        .filter-btn:hover { border-color: var(--orange); color: var(--orange-dark); }
+        .filter-btn.active { background: var(--orange); color: white; border-color: var(--orange); }
+        .search-box { flex: 1; min-width: 200px; max-width: 300px; position: relative; }
+        .search-box input {
+            width: 100%; padding: 0.4rem 0.8rem 0.4rem 2rem; border-radius: 20px;
+            border: 1.5px solid #e2e8f0; font-size: 0.7rem; font-family: 'Inter', sans-serif;
+        }
+        .search-box i { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 0.7rem; }
+
+        .tab-nav { display: flex; gap: 4px; margin-bottom: 1rem; background: #f8fafc; border-radius: 30px; padding: 4px; width: fit-content; }
+        .tab-btn {
+            padding: 0.5rem 1.2rem; border-radius: 26px; border: none; background: transparent;
+            color: var(--text-muted); font-weight: 600; font-size: 0.7rem; cursor: pointer;
+            white-space: nowrap; transition: all 0.2s; font-family: 'Inter', sans-serif;
+            display: flex; align-items: center; gap: 5px;
+        }
+        .tab-btn.active { background: var(--orange); color: white; box-shadow: 0 4px 12px rgba(249,115,22,0.2); }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* Kitchen Cards Grid */
+        .kitchens-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+        .kitchen-card {
+            background: white; border-radius: 20px; border: 1px solid var(--border-light);
+            overflow: hidden; transition: all 0.25s; box-shadow: 0 3px 12px rgba(249,115,22,0.03);
+        }
+        .kitchen-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(249,115,22,0.1); }
+        .kitchen-header {
+            background: linear-gradient(135deg, #fff7ed, #fed7aa);
+            padding: 1rem; display: flex; justify-content: space-between;
+            align-items: center; border-bottom: 1px solid var(--border-light);
+        }
+        .kitchen-header h3 { font-size: 0.9rem; font-weight: 800; display: flex; align-items: center; gap: 6px; }
+        .kitchen-status {
+            font-size: 0.6rem; padding: 0.2rem 0.6rem; border-radius: 20px; font-weight: 700;
+        }
+        .status-active { background: #d1fae5; color: #065f46; }
+        .status-inactive { background: #fee2e2; color: #991b1b; }
+        .kitchen-body { padding: 1rem; }
+        .kitchen-info { margin-bottom: 0.8rem; }
+        .kitchen-info p { font-size: 0.7rem; margin-bottom: 0.3rem; display: flex; align-items: center; gap: 6px; }
+        .kitchen-stats { display: flex; gap: 12px; margin: 0.8rem 0; padding: 0.5rem 0; border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9; }
+        .kitchen-stat { text-align: center; flex: 1; }
+        .kitchen-stat .number { font-size: 1rem; font-weight: 800; color: var(--orange-dark); }
+        .kitchen-stat .label { font-size: 0.55rem; color: var(--text-muted); }
+        .kitchen-actions { display: flex; gap: 6px; margin-top: 0.8rem; }
+        .kitchen-actions .btn { flex: 1; justify-content: center; }
+
+        /* Table styles */
+        .table-wrap { background: white; border-radius: 16px; border: 1px solid var(--border-light); overflow: hidden; }
+        .table-scroll { overflow-x: auto; max-height: 55vh; overflow-y: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.72rem; min-width: 800px; }
+        thead { position: sticky; top: 0; z-index: 2; background: #fff7ed; }
+        th { padding: 0.6rem 0.7rem; text-align: left; font-weight: 700; color: #c2410c; font-size: 0.6rem; text-transform: uppercase; white-space: nowrap; }
+        td { padding: 0.5rem 0.7rem; border-bottom: 1px solid #fff7ed; vertical-align: middle; }
+        tr:hover td { background: #fff7ed; }
+
+        .empty-state { text-align: center; padding: 3rem; color: #94a3b8; }
+        .empty-state i { font-size: 2rem; margin-bottom: 0.5rem; opacity: 0.4; }
+
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 3000; justify-content: center;
+            align-items: center; backdrop-filter: blur(2px);
+        }
+        .modal-overlay.show { display: flex; }
+        .modal {
+            background: white; border-radius: 20px; padding: 1.5rem; max-width: 500px;
+            width: 95%; max-height: 85vh; overflow-y: auto; box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+        }
+        .modal h3 { font-size: 0.95rem; margin-bottom: 1rem; color: var(--orange-dark); display: flex; align-items: center; gap: 6px; }
+        .form-group { margin-bottom: 0.7rem; }
+        .form-group label {
+            display: block; font-size: 0.65rem; font-weight: 700; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 0.15rem;
+        }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%; padding: 0.5rem 0.7rem; border-radius: 10px;
+            border: 1.5px solid #e2e8f0; font-size: 0.8rem; font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+        }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+        .btn-row { display: flex; gap: 8px; margin-top: 1rem; justify-content: flex-end; }
+
+        .toast {
+            position: fixed; bottom: 25px; right: 25px; background: var(--emerald); color: white;
+            padding: 0.7rem 1.2rem; border-radius: 20px; font-weight: 600; z-index: 4000;
+            animation: slideIn 0.3s ease; display: flex; align-items: center; gap: 6px; font-size: 0.75rem;
+        }
+        .toast.error { background: var(--danger); }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+        .footer { text-align: center; padding: 1rem; color: #94a3b8; font-size: 0.7rem; border-top: 1px solid var(--border-light); margin-top: 2rem; }
+
+        @media (max-width: 768px) {
+            .stats-row { grid-template-columns: repeat(2, 1fr); }
+            .kitchens-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="/workspaces/mugs-n-dines/index.html" class="logo">
+            <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png" alt="Mugs N Dines" class="logo-img">
+            <span class="logo-text">Mugs N Dines <span>🍽️</span></span>
+        </a>
+        <div class="nav-right">
+            <a href="/workspaces/mugs-n-dines/index.html" class="nav-btn"><i class="fas fa-arrow-left"></i> Dashboard</a>
+            <a href="/workspaces/mugs-n-dines/orders.html" class="nav-btn"><i class="fas fa-shopping-cart"></i> Orders</a>
+            <a href="/workspaces/mugs-n-dines/menu.html" class="nav-btn"><i class="fas fa-utensils"></i> Menu</a>
+            <div class="nav-dropdown">
+                <button class="nav-btn" onclick="toggleDropdown()"><i class="fas fa-ellipsis-h"></i> More</button>
+                <div class="dropdown-menu" id="moreDropdown">
+                    <a href="/workspaces/mugs-n-dines/recipes.html" class="dropdown-item"><i class="fas fa-book-open"></i> Recipes</a>
+                    <a href="/workspaces/mugs-n-dines/catering.html" class="dropdown-item"><i class="fas fa-calendar-check"></i> Catering</a>
+                    <a href="/workspaces/mugs-n-dines/kitchens.html" class="dropdown-item active"><i class="fas fa-store-alt"></i> Kitchens</a>
+                    <a href="/workspaces/mugs-n-dines/dispatch.html" class="dropdown-item"><i class="fas fa-truck-fast"></i> Dispatch</a>
+                </div>
+            </div>
+            <a href="/workspaces/mugs-n-dines/map.html" class="nav-btn" style="background:var(--orange);color:white;border-color:var(--orange-dark);"><i class="fas fa-map-marked-alt"></i> Map</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1><i class="fas fa-store-alt"></i> Kitchen Management</h1>
+            <button class="btn btn-primary" onclick="showAddKitchenModal()"><i class="fas fa-plus"></i> Add Kitchen</button>
+        </div>
+
+        <div class="stats-row" id="statsRow">
+            <div class="stat-mini"><div class="skeleton" style="height:1.2rem;width:40%;margin:0 auto;"></div><div class="skeleton" style="height:0.6rem;width:50%;margin:0.3rem auto 0;"></div></div>
+            <div class="stat-mini"><div class="skeleton" style="height:1.2rem;width:40%;margin:0 auto;"></div><div class="skeleton" style="height:0.6rem;width:50%;margin:0.3rem auto 0;"></div></div>
+            <div class="stat-mini"><div class="skeleton" style="height:1.2rem;width:40%;margin:0 auto;"></div><div class="skeleton" style="height:0.6rem;width:50%;margin:0.3rem auto 0;"></div></div>
+            <div class="stat-mini"><div class="skeleton" style="height:1.2rem;width:40%;margin:0 auto;"></div><div class="skeleton" style="height:0.6rem;width:50%;margin:0.3rem auto 0;"></div></div>
+        </div>
+
+        <div class="tab-nav">
+            <button class="tab-btn active" data-tab="view" onclick="switchTab('view')"><i class="fas fa-store"></i> All Kitchens</button>
+            <button class="tab-btn" data-tab="orders" onclick="switchTab('orders')"><i class="fas fa-shopping-cart"></i> Kitchen Orders</button>
+        </div>
+
+        <!-- View Kitchens Tab -->
+        <div class="tab-content active" id="tab-view">
+            <div class="filter-bar">
+                <button class="filter-btn active" data-filter="all">All Kitchens</button>
+                <button class="filter-btn" data-filter="active">Active</button>
+                <button class="filter-btn" data-filter="inactive">Inactive</button>
+                <div class="search-box"><i class="fas fa-search"></i><input type="text" id="kitchenSearch" placeholder="Search by name or location..."></div>
+            </div>
+            <div class="kitchens-grid" id="kitchensGrid">
+                <div class="skeleton" style="height:280px;border-radius:20px;"></div>
+                <div class="skeleton" style="height:280px;border-radius:20px;"></div>
+                <div class="skeleton" style="height:280px;border-radius:20px;"></div>
+            </div>
+        </div>
+
+        <!-- Kitchen Orders Tab -->
+        <div class="tab-content" id="tab-orders">
+            <div class="filter-bar">
+                <select id="kitchenFilterSelect" class="filter-btn" style="padding:0.35rem 1rem;">
+                    <option value="all">All Kitchens</option>
+                </select>
+                <div class="search-box"><i class="fas fa-search"></i><input type="text" id="orderSearch" placeholder="Search orders..."></div>
+            </div>
+            <div class="table-wrap">
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                            <tr><th>Order ID</th><th>Customer</th><th>Kitchen</th><th>Items</th><th>Total</th><th>Status</th><th>Date</th><th>Actions</th></tr>
+                        </thead>
+                        <tbody id="kitchenOrdersBody">
+                            <tr><td colspan="8"><div class="empty-state">Select a kitchen to view orders</div></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modal"><div class="modal" id="modalContent"></div></div>
+    <div id="toastContainer"></div>
+    <div class="footer"><i class="far fa-copyright"></i> 2026 Mugs N Dines · Kitchen Management</div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+            authDomain: "mugera-e51cc.firebaseapp.com",
+            databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "mugera-e51cc"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const auth = firebase.auth();
+
+        let allKitchens = {};
+        let allOrders = {};
+        let currentKitchenFilter = 'all';
+        let kitchenSearchTerm = '';
+        let selectedKitchenId = 'all';
+        let currentTab = 'view';
+
+        function showToast(msg, isError = false) {
+            const c = document.getElementById('toastContainer');
+            const t = document.createElement('div'); t.className = `toast ${isError ? 'error' : ''}`;
+            t.innerHTML = `<i class="fas fa-${isError ? 'exclamation-circle' : 'check-circle'}"></i> ${msg}`;
+            c.appendChild(t); setTimeout(() => t.remove(), 3500);
+        }
+
+        function escapeHtml(s) { if (!s) return ''; return String(s).replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : m === '>' ? '&gt;' : m); }
+
+        function updateStats() {
+            const kitchens = Object.values(allKitchens);
+            const active = kitchens.filter(k => k.status !== 'inactive').length;
+            const inactive = kitchens.filter(k => k.status === 'inactive').length;
+            const totalOrders = Object.values(allOrders).filter(o => o && o.orderType === 'delivery').length;
+            
+            document.getElementById('statsRow').innerHTML = `
+                <div class="stat-mini"><div class="stat-num">${kitchens.length}</div><div class="stat-label">Total Kitchens</div></div>
+                <div class="stat-mini"><div class="stat-num">${active}</div><div class="stat-label">Active Kitchens</div></div>
+                <div class="stat-mini"><div class="stat-num">${inactive}</div><div class="stat-label">Inactive</div></div>
+                <div class="stat-mini"><div class="stat-num">${totalOrders}</div><div class="stat-label">Total Orders</div></div>
+            `;
+        }
+
+        function renderKitchens() {
+            const grid = document.getElementById('kitchensGrid');
+            let kitchens = Object.entries(allKitchens).map(([id, data]) => ({ id, ...data }));
+            
+            if (currentKitchenFilter === 'active') kitchens = kitchens.filter(k => k.status !== 'inactive');
+            else if (currentKitchenFilter === 'inactive') kitchens = kitchens.filter(k => k.status === 'inactive');
+            
+            if (kitchenSearchTerm) {
+                const term = kitchenSearchTerm.toLowerCase();
+                kitchens = kitchens.filter(k => 
+                    (k.name || '').toLowerCase().includes(term) ||
+                    (k.location || '').toLowerCase().includes(term) ||
+                    (k.manager || '').toLowerCase().includes(term)
+                );
+            }
+            
+            if (!kitchens.length) {
+                grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><i class="fas fa-store-alt"></i><p>No kitchens found</p><button class="btn btn-primary" style="margin-top:10px;" onclick="showAddKitchenModal()">Add Your First Kitchen</button></div>';
+                return;
+            }
+            
+            grid.innerHTML = kitchens.map(k => {
+                const kitchenOrders = Object.values(allOrders).filter(o => o && o.pickupFranchiseId === k.id);
+                const orderCount = kitchenOrders.length;
+                const revenue = kitchenOrders.reduce((sum, o) => sum + (o.total || 0), 0);
+                
+                return `
+                    <div class="kitchen-card">
+                        <div class="kitchen-header">
+                            <h3><i class="fas fa-store"></i> ${escapeHtml(k.name)}</h3>
+                            <span class="kitchen-status ${k.status === 'inactive' ? 'status-inactive' : 'status-active'}">${k.status === 'inactive' ? 'Inactive' : 'Active'}</span>
+                        </div>
+                        <div class="kitchen-body">
+                            <div class="kitchen-info">
+                                <p><i class="fas fa-map-marker-alt" style="color:#c2410c;"></i> ${escapeHtml(k.location || 'No location set')}</p>
+                                <p><i class="fas fa-phone" style="color:#c2410c;"></i> ${escapeHtml(k.phone || 'No phone')}</p>
+                                <p><i class="fas fa-user" style="color:#c2410c;"></i> Manager: ${escapeHtml(k.manager || 'Not assigned')}</p>
+                                ${k.email ? `<p><i class="fas fa-envelope" style="color:#c2410c;"></i> ${escapeHtml(k.email)}</p>` : ''}
+                            </div>
+                            <div class="kitchen-stats">
+                                <div class="kitchen-stat"><div class="number">${orderCount}</div><div class="label">Orders</div></div>
+                                <div class="kitchen-stat"><div class="number">KES ${revenue.toLocaleString()}</div><div class="label">Revenue</div></div>
+                            </div>
+                            <div class="kitchen-actions">
+                                <button class="btn btn-outline btn-sm" onclick="editKitchen('${k.id}')"><i class="fas fa-edit"></i> Edit</button>
+                                <button class="btn ${k.status === 'inactive' ? 'btn-primary' : 'btn-danger'} btn-sm" onclick="toggleKitchenStatus('${k.id}', '${k.status === 'inactive' ? 'active' : 'inactive'}')">
+                                    ${k.status === 'inactive' ? '<i class="fas fa-play"></i> Activate' : '<i class="fas fa-pause"></i> Deactivate'}
+                                </button>
+                                <button class="btn btn-outline btn-sm" onclick="deleteKitchen('${k.id}')"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderKitchenOrders() {
+            const tbody = document.getElementById('kitchenOrdersBody');
+            let orders = Object.entries(allOrders).map(([id, data]) => ({ id, ...data })).filter(o => o && o.orderType === 'delivery');
+            
+            if (selectedKitchenId !== 'all') {
+                orders = orders.filter(o => o.pickupFranchiseId === selectedKitchenId);
+            }
+            
+            const searchTerm = document.getElementById('orderSearch')?.value.toLowerCase() || '';
+            if (searchTerm) {
+                orders = orders.filter(o => 
+                    (o.customerName || '').toLowerCase().includes(searchTerm) ||
+                    o.id.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            orders.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+            
+            if (!orders.length) {
+                tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><i class="fas fa-shopping-cart"></i><p>No orders found for this kitchen</p></div></td></tr>`;
+                return;
+            }
+            
+            tbody.innerHTML = orders.map(o => {
+                const itemCount = (o.items || []).reduce((sum, item) => sum + (item.quantity || 0), 0);
+                const statusClass = {
+                    new: 'status-new', confirmed: 'status-confirmed', preparing: 'status-preparing',
+                    ready: 'status-ready', assigned: 'status-picked-up', 'en-route': 'status-en-route',
+                    delivered: 'status-delivered'
+                }[o.status] || 'status-new';
+                const statusLabel = {
+                    new: 'New', confirmed: 'Confirmed', preparing: 'Preparing',
+                    ready: 'Ready', assigned: 'Assigned', 'en-route': 'En Route',
+                    delivered: 'Delivered'
+                }[o.status] || o.status;
+                
+                return `<tr>
+                    <td><code>#${o.id.slice(-6)}</code></td>
+                    <td>${escapeHtml(o.customerName || 'Customer')}</td>
+                    <td>${escapeHtml(allKitchens[o.pickupFranchiseId]?.name || '—')}</td>
+                    <td>${itemCount} item(s)</td>
+                    <td><strong>KES ${(o.total || 0).toLocaleString()}</strong></td>
+                    <td><span class="status-badge ${statusClass}">${statusLabel}</span></td>
+                    <td>${o.createdAt ? new Date(o.createdAt).toLocaleDateString() : 'N/A'}</td>
+                    <td><button class="btn btn-outline btn-sm" onclick="viewOrderDetails('${o.id}')"><i class="fas fa-eye"></i> View</button></td>
+                </tr>`;
+            }).join('');
+        }
+
+        function updateKitchenSelect() {
+            const select = document.getElementById('kitchenFilterSelect');
+            const kitchens = Object.entries(allKitchens).filter(([_, k]) => k.status !== 'inactive');
+            select.innerHTML = '<option value="all">All Kitchens</option>' + 
+                kitchens.map(([id, k]) => `<option value="${id}">${escapeHtml(k.name)}</option>`).join('');
+        }
+
+        window.switchTab = function(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+            document.getElementById('tab-view').classList.toggle('active', tab === 'view');
+            document.getElementById('tab-orders').classList.toggle('active', tab === 'orders');
+            if (tab === 'orders') {
+                updateKitchenSelect();
+                renderKitchenOrders();
+            }
+        };
+
+        window.showAddKitchenModal = () => {
+            document.getElementById('modalContent').innerHTML = `
+                <h3><i class="fas fa-plus-circle"></i> Add New Kitchen</h3>
+                <div class="form-group"><label>Kitchen Name *</label><input type="text" id="kName" placeholder="e.g., Mugs N Dines - Westlands"></div>
+                <div class="form-group"><label>Location / Address</label><input type="text" id="kLocation" placeholder="Full address"></div>
+                <div class="form-row"><div class="form-group"><label>Phone Number</label><input type="tel" id="kPhone" placeholder="+254 XXX XXX"></div><div class="form-group"><label>Email</label><input type="email" id="kEmail" placeholder="kitchen@example.com"></div></div>
+                <div class="form-group"><label>Manager Name</label><input type="text" id="kManager" placeholder="Manager's name"></div>
+                <div class="btn-row"><button class="btn btn-primary" onclick="saveKitchen()"><i class="fas fa-save"></i> Save Kitchen</button><button class="btn btn-outline" onclick="closeModal()">Cancel</button></div>
+            `;
+            document.getElementById('modal').classList.add('show');
+        };
+
+        window.saveKitchen = async () => {
+            const name = document.getElementById('kName').value.trim();
+            if (!name) { showToast('Kitchen name is required', true); return; }
+            try {
+                await db.ref('mugs_n_dines_franchises').push().set({
+                    name: name,
+                    location: document.getElementById('kLocation').value.trim(),
+                    phone: document.getElementById('kPhone').value.trim(),
+                    email: document.getElementById('kEmail').value.trim(),
+                    manager: document.getElementById('kManager').value.trim(),
+                    status: 'active',
+                    createdAt: firebase.database.ServerValue.TIMESTAMP,
+                    updatedAt: firebase.database.ServerValue.TIMESTAMP
+                });
+                showToast('✅ Kitchen added!');
+                closeModal();
+            } catch (e) { showToast('Failed to save', true); }
+        };
+
+        window.editKitchen = (id) => {
+            const k = allKitchens[id];
+            if (!k) return;
+            document.getElementById('modalContent').innerHTML = `
+                <h3><i class="fas fa-edit"></i> Edit Kitchen</h3>
+                <div class="form-group"><label>Kitchen Name</label><input type="text" id="kName" value="${escapeHtml(k.name || '')}"></div>
+                <div class="form-group"><label>Location / Address</label><input type="text" id="kLocation" value="${escapeHtml(k.location || '')}"></div>
+                <div class="form-row"><div class="form-group"><label>Phone Number</label><input type="tel" id="kPhone" value="${escapeHtml(k.phone || '')}"></div><div class="form-group"><label>Email</label><input type="email" id="kEmail" value="${escapeHtml(k.email || '')}"></div></div>
+                <div class="form-group"><label>Manager Name</label><input type="text" id="kManager" value="${escapeHtml(k.manager || '')}"></div>
+                <div class="btn-row"><button class="btn btn-primary" onclick="updateKitchen('${id}')"><i class="fas fa-save"></i> Update</button><button class="btn btn-outline" onclick="closeModal()">Cancel</button></div>
+            `;
+            document.getElementById('modal').classList.add('show');
+        };
+
+        window.updateKitchen = async (id) => {
+            try {
+                await db.ref(`mugs_n_dines_franchises/${id}`).update({
+                    name: document.getElementById('kName').value.trim(),
+                    location: document.getElementById('kLocation').value.trim(),
+                    phone: document.getElementById('kPhone').value.trim(),
+                    email: document.getElementById('kEmail').value.trim(),
+                    manager: document.getElementById('kManager').value.trim(),
+                    updatedAt: firebase.database.ServerValue.TIMESTAMP
+                });
+                showToast('✅ Kitchen updated!');
+                closeModal();
+            } catch (e) { showToast('Failed to update', true); }
+        };
+
+        window.toggleKitchenStatus = async (id, newStatus) => {
+            try {
+                await db.ref(`mugs_n_dines_franchises/${id}`).update({
+                    status: newStatus,
+                    updatedAt: firebase.database.ServerValue.TIMESTAMP
+                });
+                showToast(`Kitchen ${newStatus === 'active' ? 'activated' : 'deactivated'}`);
+            } catch (e) { showToast('Failed to update status', true); }
+        };
+
+        window.deleteKitchen = async (id) => {
+            if (confirm('Are you sure you want to delete this kitchen? This action cannot be undone.')) {
+                try {
+                    await db.ref(`mugs_n_dines_franchises/${id}`).remove();
+                    showToast('✅ Kitchen deleted');
+                } catch (e) { showToast('Failed to delete', true); }
+            }
+        };
+
+        window.viewOrderDetails = (orderId) => {
+            const order = allOrders[orderId];
+            if (!order) return;
+            const items = order.items || [];
+            modalContent.innerHTML = `
+                <h3><i class="fas fa-info-circle"></i> Order #${orderId.slice(-6)}</h3>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:0.75rem;margin-bottom:1rem;">
+                    <div><strong>Customer:</strong> ${escapeHtml(order.customerName)}</div><div><strong>Phone:</strong> ${order.customerPhone || 'N/A'}</div>
+                    <div><strong>Total:</strong> KES ${(order.total || 0).toLocaleString()}</div><div><strong>Status:</strong> ${order.status || 'new'}</div>
+                </div>
+                ${order.deliveryAddress ? `<div style="background:#f0fdf4;padding:0.6rem;border-radius:10px;margin-bottom:0.8rem;font-size:0.7rem;"><strong>Delivery Address:</strong><br>${escapeHtml(order.deliveryAddress)}</div>` : ''}
+                ${items.length ? `<p style="font-weight:700;font-size:0.7rem;">Items:</p>${items.map(item => `<div style="background:#f8fafc;padding:0.4rem;border-radius:8px;margin-bottom:4px;font-size:0.7rem;">${escapeHtml(item.name)} × ${item.quantity} = KES ${((item.price||0)*item.quantity).toLocaleString()}</div>`).join('')}` : ''}
+                <div class="btn-row"><button class="btn btn-outline" onclick="closeModal()">Close</button></div>
+            `;
+            modal.classList.add('show');
+        };
+
+        window.closeModal = () => document.getElementById('modal').classList.remove('show');
+
+        // Filter listeners
+        document.querySelectorAll('#tab-view .filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('#tab-view .filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentKitchenFilter = btn.dataset.filter;
+                renderKitchens();
+            });
+        });
+        document.getElementById('kitchenSearch')?.addEventListener('input', (e) => {
+            kitchenSearchTerm = e.target.value;
+            renderKitchens();
+        });
+        document.getElementById('kitchenFilterSelect')?.addEventListener('change', (e) => {
+            selectedKitchenId = e.target.value;
+            renderKitchenOrders();
+        });
+        document.getElementById('orderSearch')?.addEventListener('input', () => renderKitchenOrders());
+
+        document.getElementById('modal').addEventListener('click', (e) => { if (e.target === document.getElementById('modal')) closeModal(); });
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+        window.toggleDropdown = () => document.getElementById('moreDropdown').classList.toggle('show');
+        document.addEventListener('click', (e) => { if (!e.target.closest('.nav-dropdown')) document.getElementById('moreDropdown').classList.remove('show'); });
+
+        // Firebase listeners
+        db.ref('mugs_n_dines_franchises').on('value', (snapshot) => {
+            allKitchens = snapshot.val() || {};
+            updateStats();
+            renderKitchens();
+            if (currentTab === 'orders') {
+                updateKitchenSelect();
+                renderKitchenOrders();
+            }
+        });
+        db.ref('mugs_n_dines_orders').on('value', (snapshot) => {
+            allOrders = snapshot.val() || {};
+            updateStats();
+            if (currentTab === 'orders') renderKitchenOrders();
+        });
+
+        auth.onAuthStateChanged((user) => { if (!user) window.location.href = '/workspaces/index.html'; });
+    </script>
+</body>
+</html>
