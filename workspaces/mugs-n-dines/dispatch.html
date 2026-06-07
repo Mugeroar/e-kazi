@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Dispatch Management | Mugs N Dines</title>
+    
+    <meta name="theme-color" content="#f97316">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <link rel="icon" type="image/png" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --orange: #f97316; --orange-dark: #c2410c; --orange-light: #fb923c;
+            --card-bg: #ffffff; --text-primary: #1e293b; --text-muted: #64748b;
+            --border-light: #fed7aa; --success: #10b981; --warning: #f59e0b;
+            --danger: #ef4444; --info: #3b82f6; --emerald: #059669;
+            --purple: #8b5cf6; --indigo: #4f46e5;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(145deg, #fff7ed 0%, #ffffff 100%);
+            color: var(--text-primary); line-height: 1.4;
+            min-height: 100vh; display: flex; flex-direction: column;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; } 100% { background-position: 200% 0; }
+        }
+        .skeleton {
+            background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
+            background-size: 200% 100%; animation: shimmer 1.5s ease-in-out infinite; border-radius: 6px;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(16px);
+            padding: 0.5rem 2%; display: flex; justify-content: space-between;
+            align-items: center; border-bottom: 2px solid rgba(249, 115, 22, 0.3);
+            position: sticky; top: 0; z-index: 100; flex-wrap: wrap; gap: 8px;
+        }
+        .logo { display: flex; align-items: center; gap: 10px; cursor: pointer; text-decoration: none; }
+        .logo-img { height: 34px; width: 34px; border-radius: 10px; object-fit: contain; background: white; box-shadow: 0 4px 12px rgba(249, 115, 22, 0.2); }
+        .logo-text {
+            font-weight: 800; font-size: 1.1rem;
+            background: linear-gradient(145deg, #fb923c, #c2410c);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .logo-text span { font-weight: 600; font-size: 0.7rem; background: #f97316; -webkit-text-fill-color: #f97316; margin-left: 3px; }
+
+        .nav-right { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+        .nav-btn {
+            background: rgba(249, 115, 22, 0.08); border: 1px solid rgba(249, 115, 22, 0.2);
+            padding: 0.4rem 0.8rem; border-radius: 25px; color: var(--orange-dark);
+            font-weight: 600; font-size: 0.7rem; cursor: pointer; display: inline-flex;
+            align-items: center; gap: 5px; text-decoration: none; transition: all 0.2s;
+        }
+        .nav-btn:hover { background: var(--orange); color: white; }
+        .nav-btn.active { background: var(--orange); color: white; border-color: var(--orange-dark); }
+
+        .nav-dropdown { position: relative; }
+        .dropdown-menu {
+            position: absolute; top: calc(100% + 8px); right: 0;
+            background: white; border: 1px solid var(--border-light);
+            border-radius: 16px; padding: 0.5rem; min-width: 180px;
+            display: none; z-index: 200; box-shadow: 0 15px 35px rgba(0,0,0,0.12);
+        }
+        .dropdown-menu.show { display: block; }
+        .dropdown-item {
+            padding: 0.55rem 0.8rem; border-radius: 10px;
+            display: flex; align-items: center; gap: 8px;
+            color: var(--text-primary); text-decoration: none;
+            font-size: 0.72rem; font-weight: 500; transition: all 0.15s;
+        }
+        .dropdown-item:hover { background: #fff7ed; color: var(--orange-dark); }
+        .dropdown-item i { width: 18px; color: var(--orange); font-size: 0.75rem; }
+
+        .container { padding: 1rem 2%; flex: 1; max-width: 1600px; margin: 0 auto; width: 100%; }
+
+        .page-header { margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.8rem; }
+        .page-header h1 { font-size: 1.3rem; font-weight: 800; color: #0f172a; }
+        .page-header h1 i { color: var(--orange-dark); margin-right: 6px; }
+
+        .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 1rem; }
+        .stat-mini {
+            background: white; border-radius: 14px; padding: 0.8rem 1rem; text-align: center;
+            border: 1px solid var(--border-light); box-shadow: 0 2px 8px rgba(249,115,22,0.03);
+        }
+        .stat-mini .stat-num { font-size: 1.4rem; font-weight: 800; color: var(--orange-dark); line-height: 1.1; }
+        .stat-mini .stat-label { font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.3px; }
+
+        .filter-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1rem; align-items: center; }
+        .filter-btn {
+            padding: 0.35rem 0.8rem; border-radius: 20px; border: 1.5px solid #e2e8f0;
+            background: white; color: #64748b; font-weight: 600; font-size: 0.65rem;
+            cursor: pointer; transition: all 0.15s; font-family: inherit;
+        }
+        .filter-btn:hover { border-color: var(--orange); color: var(--orange-dark); }
+        .filter-btn.active { background: var(--orange); color: white; border-color: var(--orange); }
+        .filter-btn .count { background: rgba(255,255,255,0.25); padding: 0.1rem 0.4rem; border-radius: 10px; font-size: 0.55rem; margin-left: 4px; }
+
+        .search-box { flex: 1; min-width: 150px; max-width: 300px; position: relative; }
+        .search-box input {
+            width: 100%; padding: 0.35rem 0.8rem 0.35rem 2rem; border-radius: 20px;
+            border: 1.5px solid #e2e8f0; font-size: 0.7rem; font-family: 'Inter', sans-serif;
+        }
+        .search-box i { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 0.7rem; }
+
+        .table-wrap {
+            background: white; border-radius: 16px; border: 1px solid var(--border-light);
+            overflow: hidden; box-shadow: 0 4px 16px rgba(249,115,22,0.03);
+        }
+        .table-scroll { overflow-x: auto; max-height: 60vh; overflow-y: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.72rem; min-width: 1000px; }
+        thead { position: sticky; top: 0; z-index: 2; background: #fff7ed; }
+        th {
+            padding: 0.6rem 0.7rem; text-align: left; font-weight: 700; color: #c2410c;
+            font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.4px; white-space: nowrap;
+        }
+        td { padding: 0.5rem 0.7rem; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+        tr:hover td { background: #fff7ed; }
+
+        .status-badge {
+            display: inline-block; padding: 0.15rem 0.5rem; border-radius: 12px;
+            font-size: 0.6rem; font-weight: 700; white-space: nowrap;
+        }
+        .status-new { background: #fef3c7; color: #92400e; }
+        .status-confirmed { background: #d1fae5; color: #065f46; }
+        .status-preparing { background: #e0f2fe; color: #0369a1; }
+        .status-ready { background: #fef3c7; color: #b45309; }
+        .status-picked-up { background: #ede9fe; color: #5b21b6; }
+        .status-en-route { background: #e0f2fe; color: #0369a1; }
+        .status-delivered { background: #d1fae5; color: #065f46; }
+        .status-cancelled { background: #fee2e2; color: #991b1b; }
+
+        .pickup-badge {
+            display: inline-flex; align-items: center; gap: 4px;
+            background: #fff7ed; color: #c2410c; padding: 2px 8px;
+            border-radius: 10px; font-size: 0.6rem; font-weight: 600;
+        }
+
+        .action-btns { display: flex; gap: 4px; flex-wrap: wrap; }
+        .action-btn {
+            padding: 0.25rem 0.5rem; border-radius: 6px; border: none; font-size: 0.6rem;
+            font-weight: 600; cursor: pointer; display: inline-flex; align-items: center;
+            gap: 3px; transition: all 0.15s; font-family: inherit;
+        }
+        .btn-ready { background: #fef3cd; color: #b45309; }
+        .btn-ready:hover { background: #f59e0b; color: white; }
+        .btn-assign { background: #e0f2fe; color: #0369a1; }
+        .btn-assign:hover { background: #3b82f6; color: white; }
+        .btn-pickup { background: #ede9fe; color: #5b21b6; }
+        .btn-pickup:hover { background: #7c3aed; color: white; }
+        .btn-route { background: #e0f2fe; color: #0369a1; }
+        .btn-route:hover { background: #0284c7; color: white; }
+        .btn-deliver { background: #d1fae5; color: #065f46; }
+        .btn-deliver:hover { background: #10b981; color: white; }
+        .btn-view { background: #f1f5f9; color: #475569; }
+        .btn-view:hover { background: #475569; color: white; }
+
+        .empty-row td { text-align: center; padding: 2rem; color: #94a3b8; }
+
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 3000; justify-content: center;
+            align-items: center; backdrop-filter: blur(2px);
+        }
+        .modal-overlay.show { display: flex; }
+        .modal {
+            background: white; border-radius: 20px; padding: 1.5rem; max-width: 550px;
+            width: 95%; max-height: 85vh; overflow-y: auto; box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+        }
+        .modal h3 { font-size: 0.95rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px; color: var(--orange-dark); }
+        .form-group { margin-bottom: 0.7rem; }
+        .form-group label {
+            display: block; font-size: 0.65rem; font-weight: 700; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 0.15rem;
+        }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%; padding: 0.5rem 0.7rem; border-radius: 10px;
+            border: 1.5px solid #e2e8f0; font-size: 0.8rem; font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+        }
+        .form-group select { cursor: pointer; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+        .btn-row { display: flex; gap: 8px; margin-top: 1rem; }
+        .btn {
+            padding: 0.6rem 1.2rem; border-radius: 10px; border: none; font-weight: 700;
+            font-size: 0.8rem; cursor: pointer; display: inline-flex; align-items: center;
+            gap: 5px; font-family: inherit; transition: all 0.15s;
+        }
+        .btn-primary { background: var(--orange); color: white; }
+        .btn-primary:hover { background: var(--orange-dark); }
+        .btn-secondary { background: #f1f5f9; color: #475569; }
+        .btn-secondary:hover { background: #e2e8f0; }
+
+        .toast {
+            position: fixed; bottom: 25px; right: 25px; background: var(--emerald); color: white;
+            padding: 0.7rem 1.2rem; border-radius: 20px; font-weight: 600; z-index: 4000;
+            animation: slideIn 0.3s ease; display: flex; align-items: center; gap: 6px; font-size: 0.75rem;
+        }
+        .toast.error { background: var(--danger); }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+        @media (max-width: 768px) {
+            .stats-row { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="/workspaces/mugs-n-dines/index.html" class="logo">
+            <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png" alt="Mugs N Dines" class="logo-img">
+            <span class="logo-text">Mugs N Dines <span>🍽️</span></span>
+        </a>
+        <div class="nav-right">
+            <a href="/workspaces/mugs-n-dines/index.html" class="nav-btn"><i class="fas fa-arrow-left"></i> Dashboard</a>
+            <a href="/workspaces/mugs-n-dines/orders.html" class="nav-btn"><i class="fas fa-shopping-cart"></i> Orders</a>
+            <a href="/workspaces/mugs-n-dines/menu.html" class="nav-btn"><i class="fas fa-utensils"></i> Menu</a>
+            <div class="nav-dropdown">
+                <button class="nav-btn" onclick="toggleDropdown()"><i class="fas fa-ellipsis-h"></i> More</button>
+                <div class="dropdown-menu" id="moreDropdown">
+                    <a href="/workspaces/mugs-n-dines/recipes.html" class="dropdown-item"><i class="fas fa-book-open"></i> Recipes</a>
+                    <a href="/workspaces/mugs-n-dines/catering.html" class="dropdown-item"><i class="fas fa-calendar-check"></i> Catering</a>
+                    <a href="/workspaces/mugs-n-dines/franchises.html" class="dropdown-item"><i class="fas fa-store-alt"></i> Franchises</a>
+                    <a href="/workspaces/mugs-n-dines/dispatch.html" class="dropdown-item active"><i class="fas fa-truck-fast"></i> Dispatch</a>
+                </div>
+            </div>
+            <a href="/workspaces/mugs-n-dines/new-order.html" class="nav-btn" style="background:var(--orange);color:white;border-color:var(--orange-dark);"><i class="fas fa-plus"></i> New Order</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1><i class="fas fa-truck-fast"></i> Dispatch Management</h1>
+            <p style="font-size:0.75rem;color:var(--text-muted);" id="orderCount">Loading...</p>
+        </div>
+
+        <div class="stats-row">
+            <div class="stat-mini"><div class="stat-num" id="statReady">0</div><div class="stat-label">Ready to Dispatch</div></div>
+            <div class="stat-mini"><div class="stat-num" id="statAssigned">0</div><div class="stat-label">Assigned</div></div>
+            <div class="stat-mini"><div class="stat-num" id="statEnRoute">0</div><div class="stat-label">En Route</div></div>
+            <div class="stat-mini"><div class="stat-num" id="statDelivered">0</div><div class="stat-label">Delivered Today</div></div>
+        </div>
+
+        <div class="filter-bar">
+            <button class="filter-btn active" data-filter="all">All Orders</button>
+            <button class="filter-btn" data-filter="ready">Ready<span class="count" id="countReady">0</span></button>
+            <button class="filter-btn" data-filter="assigned">Assigned<span class="count" id="countAssigned">0</span></button>
+            <button class="filter-btn" data-filter="en-route">En Route<span class="count" id="countEnRoute">0</span></button>
+            <button class="filter-btn" data-filter="delivered">Delivered<span class="count" id="countDelivered">0</span></button>
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Search customer, franchise, driver...">
+            </div>
+        </div>
+
+        <div class="table-wrap">
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Customer</th>
+                            <th>Pickup From</th>
+                            <th>Items</th>
+                            <th>Total</th>
+                            <th>Driver</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <tr class="empty-row"><td colspan="8">Loading orders...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modal"><div class="modal" id="modalContent"></div></div>
+    <div id="toastContainer"></div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+            authDomain: "mugera-e51cc.firebaseapp.com",
+            databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "mugera-e51cc"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const auth = firebase.auth();
+
+        let allOrders = {};
+        let allDrivers = {};
+        let allFranchises = {};
+        let currentFilter = 'all';
+        let searchQuery = '';
+
+        const tableBody = document.getElementById('tableBody');
+        const modal = document.getElementById('modal');
+        const modalContent = document.getElementById('modalContent');
+
+        function showToast(msg, isError = false) {
+            const container = document.getElementById('toastContainer');
+            const existing = container.querySelector('.toast');
+            if (existing) existing.remove();
+            const toast = document.createElement('div');
+            toast.className = `toast ${isError ? 'error' : ''}`;
+            toast.innerHTML = `<i class="fas fa-${isError ? 'exclamation-circle' : 'check-circle'}"></i> ${msg}`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3500);
+        }
+
+        function getInitials(name) {
+            if (!name) return '??';
+            return String(name).split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+        }
+
+        function getStatusClass(status) {
+            const map = { 
+                new: 'status-new', confirmed: 'status-confirmed', preparing: 'status-preparing',
+                ready: 'status-ready', assigned: 'status-picked-up', 'en-route': 'status-en-route',
+                delivered: 'status-delivered', cancelled: 'status-cancelled'
+            };
+            return map[status] || 'status-new';
+        }
+
+        function getStatusLabel(status) {
+            const map = {
+                new: 'New', confirmed: 'Confirmed', preparing: 'Preparing',
+                ready: 'Ready', assigned: 'Assigned', 'en-route': 'En Route',
+                delivered: 'Delivered', cancelled: 'Cancelled'
+            };
+            return map[status] || status;
+        }
+
+        function getFranchiseName(franchiseId) {
+            if (!franchiseId) return '—';
+            const franchise = allFranchises[franchiseId];
+            return franchise ? franchise.name : 'Unknown';
+        }
+
+        function getFranchiseOptions(selectedId = '') {
+            const franchises = Object.entries(allFranchises)
+                .filter(([_, f]) => f && f.name && f.status !== 'inactive')
+                .sort((a, b) => a[1].name.localeCompare(b[1].name));
+            
+            let options = '<option value="">— Select pickup franchise —</option>';
+            franchises.forEach(([id, f]) => {
+                const selected = id === selectedId ? 'selected' : '';
+                options += `<option value="${id}" ${selected}>🏪 ${f.name} - ${f.location || 'No address'}</option>`;
+            });
+            return options;
+        }
+
+        function getDriverOptions(selectedId = '') {
+            const drivers = Object.entries(allDrivers)
+                .filter(([_, d]) => d && d.isActive !== false)
+                .sort((a, b) => (a[1].name || '').localeCompare(b[1].name || ''));
+            
+            let options = '<option value="">— Select driver —</option>';
+            drivers.forEach(([id, d]) => {
+                const selected = id === selectedId ? 'selected' : '';
+                options += `<option value="${id}" ${selected}>🚗 ${d.name || 'Unnamed'} · ${d.phone || 'No phone'} · ${d.vehicle || 'No vehicle'}</option>`;
+            });
+            return options;
+        }
+
+        function updateStats() {
+            const orders = Object.values(allOrders).filter(o => o && o.orderType === 'delivery');
+            const ready = orders.filter(o => o.status === 'ready').length;
+            const assigned = orders.filter(o => o.status === 'assigned').length;
+            const enRoute = orders.filter(o => o.status === 'en-route').length;
+            const deliveredToday = orders.filter(o => o.status === 'delivered' && o.deliveredAt && new Date(o.deliveredAt).toDateString() === new Date().toDateString()).length;
+
+            document.getElementById('statReady').textContent = ready;
+            document.getElementById('statAssigned').textContent = assigned;
+            document.getElementById('statEnRoute').textContent = enRoute;
+            document.getElementById('statDelivered').textContent = deliveredToday;
+
+            document.getElementById('countReady').textContent = ready;
+            document.getElementById('countAssigned').textContent = assigned;
+            document.getElementById('countEnRoute').textContent = enRoute;
+            document.getElementById('countDelivered').textContent = orders.filter(o => o.status === 'delivered').length;
+            document.getElementById('orderCount').innerHTML = `${orders.length} delivery orders · ${ready} ready · ${enRoute} en route`;
+        }
+
+        function renderTable() {
+            let orders = Object.entries(allOrders)
+                .map(([id, data]) => ({ id, ...data }))
+                .filter(o => o && o.orderType === 'delivery');
+            
+            if (currentFilter !== 'all') {
+                orders = orders.filter(o => o.status === currentFilter);
+            }
+            
+            if (searchQuery) {
+                const q = searchQuery.toLowerCase();
+                orders = orders.filter(o => 
+                    (o.customerName || '').toLowerCase().includes(q) ||
+                    (o.driverName || '').toLowerCase().includes(q) ||
+                    (getFranchiseName(o.pickupFranchiseId) || '').toLowerCase().includes(q)
+                );
+            }
+            
+            orders.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+            
+            if (!orders.length) {
+                tableBody.innerHTML = '<tr class="empty-row"><td colspan="8"><i class="fas fa-truck-fast" style="font-size:2rem;display:block;margin-bottom:8px;"></i>No delivery orders to dispatch</td></tr>';
+                return;
+            }
+
+            tableBody.innerHTML = orders.map(order => {
+                const status = order.status || 'new';
+                const itemCount = (order.items || []).reduce((sum, item) => sum + (item.quantity || 0), 0);
+                const driver = order.driverName || '—';
+                const shortId = String(order.id).slice(-6);
+                const franchiseName = getFranchiseName(order.pickupFranchiseId);
+                const hasPickup = !!order.pickupFranchiseId;
+
+                let actions = `<button class="action-btn btn-view" onclick="viewOrder('${order.id}')"><i class="fas fa-eye"></i> View</button>`;
+                
+                if (status === 'ready') {
+                    actions += `<button class="action-btn btn-assign" onclick="showAssignModal('${order.id}')"><i class="fas fa-user-plus"></i> Assign</button>`;
+                }
+                if (status === 'assigned') {
+                    actions += `<button class="action-btn btn-pickup" onclick="updateStatus('${order.id}','en-route')"><i class="fas fa-truck"></i> Start Route</button>`;
+                }
+                if (status === 'en-route') {
+                    actions += `<button class="action-btn btn-deliver" onclick="updateStatus('${order.id}','delivered')"><i class="fas fa-check-double"></i> Delivered</button>`;
+                }
+                if (!hasPickup && (status === 'ready' || status === 'assigned')) {
+                    actions += `<button class="action-btn btn-assign" onclick="showPickupModal('${order.id}')"><i class="fas fa-store"></i> Set Pickup</button>`;
+                }
+
+                return `
+                    <tr>
+                        <td><code style="font-size:0.65rem;background:#fff7ed;padding:2px 6px;border-radius:4px;">#${shortId}</code></td>
+                        <td>
+                            <div style="display:flex;align-items:center;gap:8px;">
+                                <div style="width:28px;height:28px;background:#fff7ed;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.65rem;color:#c2410c;">${getInitials(order.customerName)}</div>
+                                <div>
+                                    <strong>${order.customerName || 'Customer'}</strong>
+                                    <div style="font-size:0.6rem;color:#94a3b8;">${order.customerPhone || ''}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            ${hasPickup ? `<span class="pickup-badge"><i class="fas fa-store"></i> ${franchiseName}</span>` : '<span style="color:#94a3b8;font-size:0.65rem;">Not set</span>'}
+                        </td>
+                        <td>${itemCount} item${itemCount !== 1 ? 's' : ''}</td>
+                        <td><strong>KES ${(order.total || 0).toLocaleString()}</strong></td>
+                        <td>${driver}</td>
+                        <td><span class="status-badge ${getStatusClass(status)}">${getStatusLabel(status)}</span></td>
+                        <td><div class="action-btns">${actions}</div></td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        async function updateStatus(orderId, newStatus) {
+            if (!confirm(`Update order to "${getStatusLabel(newStatus)}"?`)) return;
+            try {
+                const updates = { status: newStatus, updatedAt: firebase.database.ServerValue.TIMESTAMP };
+                if (newStatus === 'delivered') {
+                    updates.deliveredAt = firebase.database.ServerValue.TIMESTAMP;
+                }
+                if (newStatus === 'en-route') {
+                    updates.enRouteAt = firebase.database.ServerValue.TIMESTAMP;
+                }
+                await database.ref(`mugs_n_dines_orders/${orderId}`).update(updates);
+                showToast(`✅ Order ${getStatusLabel(newStatus)}`);
+            } catch (e) { 
+                console.error(e); 
+                showToast('Failed to update', true); 
+            }
+        }
+
+        function viewOrder(orderId) {
+            const order = allOrders[orderId];
+            if (!order) return;
+            const items = order.items || [];
+            const franchiseName = getFranchiseName(order.pickupFranchiseId);
+            const franchise = allFranchises[order.pickupFranchiseId];
+            
+            modalContent.innerHTML = `
+                <h3><i class="fas fa-info-circle"></i> Order #${String(orderId).slice(-6)}</h3>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:0.75rem;margin-bottom:1rem;">
+                    <div><strong>Customer:</strong> ${order.customerName || 'N/A'}</div>
+                    <div><strong>Phone:</strong> ${order.customerPhone || 'N/A'}</div>
+                    <div><strong>Order Type:</strong> ${order.orderType || 'N/A'}</div>
+                    <div><strong>Status:</strong> <span class="status-badge ${getStatusClass(order.status)}">${getStatusLabel(order.status)}</span></div>
+                    <div><strong>Total:</strong> KES ${(order.total || 0).toLocaleString()}</div>
+                    <div><strong>Driver:</strong> ${order.driverName || 'Unassigned'}</div>
+                </div>
+                ${order.deliveryAddress ? `
+                    <div style="background:#f0fdf4;padding:0.6rem 0.8rem;border-radius:10px;margin-bottom:0.8rem;font-size:0.7rem;">
+                        <strong><i class="fas fa-map-marker-alt"></i> Delivery Address:</strong><br>
+                        ${order.deliveryAddress}
+                    </div>
+                ` : ''}
+                <div style="background:#fff7ed;padding:0.6rem 0.8rem;border-radius:10px;margin-bottom:0.8rem;font-size:0.7rem;">
+                    <strong><i class="fas fa-store"></i> Pickup Franchise:</strong> 
+                    ${order.pickupFranchiseId ? `${franchiseName}${franchise?.location ? `<br>📍 ${franchise.location}` : ''}${franchise?.phone ? `<br>📞 ${franchise.phone}` : ''}` : '<span style="color:#94a3b8;">Not set</span>'}
+                </div>
+                ${items.length ? `
+                    <p style="font-weight:700;font-size:0.7rem;margin-bottom:0.5rem;">Order Items:</p>
+                    ${items.map(item => `
+                        <div style="background:#f8fafc;padding:0.5rem;border-radius:8px;margin-bottom:4px;font-size:0.7rem;display:flex;justify-content:space-between;">
+                            <span>${item.name} × ${item.quantity}</span>
+                            <span>KES ${((item.price || 0) * (item.quantity || 1)).toLocaleString()}</span>
+                        </div>
+                    `).join('')}
+                ` : ''}
+                <div class="btn-row">
+                    ${!order.pickupFranchiseId ? `<button class="btn btn-primary" onclick="closeModal(); showPickupModal('${orderId}')"><i class="fas fa-store"></i> Set Pickup</button>` : ''}
+                    <button class="btn btn-secondary" onclick="closeModal()">Close</button>
+                </div>
+            `;
+            modal.classList.add('show');
+        }
+
+        function showAssignModal(orderId) {
+            const order = allOrders[orderId];
+            const franchiseName = getFranchiseName(order?.pickupFranchiseId);
+            
+            modalContent.innerHTML = `
+                <h3><i class="fas fa-user-plus"></i> Assign Driver & Pickup Location</h3>
+                
+                ${order?.pickupFranchiseId ? `
+                    <div style="background:#fff7ed;padding:0.6rem 0.8rem;border-radius:10px;margin-bottom:0.8rem;font-size:0.7rem;color:#c2410c;">
+                        <i class="fas fa-store"></i> <strong>Pickup:</strong> ${franchiseName}
+                    </div>
+                ` : ''}
+                
+                <div class="form-group">
+                    <label>Pickup Franchise</label>
+                    <select id="pickupFranchiseSelect">
+                        ${getFranchiseOptions(order?.pickupFranchiseId || '')}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Select Driver</label>
+                    <select id="driverSelect">
+                        <option value="">— Choose driver —</option>
+                        ${getDriverOptions(order?.driverId || '')}
+                    </select>
+                </div>
+                <div class="btn-row">
+                    <button class="btn btn-primary" onclick="assignDriver('${orderId}')">Assign Driver</button>
+                    <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                </div>
+            `;
+            modal.classList.add('show');
+        }
+
+        function showPickupModal(orderId) {
+            modalContent.innerHTML = `
+                <h3><i class="fas fa-store"></i> Set Pickup Franchise</h3>
+                <p style="font-size:0.7rem;color:var(--text-muted);margin-bottom:0.8rem;">Select the franchise where the driver should pick up this order.</p>
+                <div class="form-group">
+                    <label>Pickup Franchise</label>
+                    <select id="pickupFranchiseSelect">
+                        ${getFranchiseOptions(allOrders[orderId]?.pickupFranchiseId || '')}
+                    </select>
+                </div>
+                <div class="btn-row">
+                    <button class="btn btn-primary" onclick="savePickupFranchise('${orderId}')"><i class="fas fa-save"></i> Save Pickup Location</button>
+                    <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                </div>
+            `;
+            modal.classList.add('show');
+        }
+
+        async function savePickupFranchise(orderId) {
+            const franchiseId = document.getElementById('pickupFranchiseSelect').value;
+            if (!franchiseId) { showToast('Please select a pickup franchise', true); return; }
+            
+            const franchise = allFranchises[franchiseId];
+            try {
+                await database.ref(`mugs_n_dines_orders/${orderId}`).update({
+                    pickupFranchiseId: franchiseId,
+                    pickupFranchiseName: franchise?.name || '',
+                    pickupLocation: franchise?.location || '',
+                    pickupPhone: franchise?.phone || '',
+                    updatedAt: firebase.database.ServerValue.TIMESTAMP
+                });
+                showToast('✅ Pickup franchise set!');
+                closeModal();
+            } catch (e) { 
+                console.error(e);
+                showToast('Failed to set pickup location', true); 
+            }
+        }
+
+        async function assignDriver(orderId) {
+            const driverId = document.getElementById('driverSelect').value;
+            if (!driverId) { showToast('Select a driver', true); return; }
+            
+            const driver = allDrivers[driverId];
+            const franchiseId = document.getElementById('pickupFranchiseSelect')?.value;
+            const franchise = franchiseId ? allFranchises[franchiseId] : null;
+            
+            try {
+                const updates = {
+                    driverId: driverId,
+                    driverName: driver?.name || driver?.email || 'Driver',
+                    driverPhone: driver?.phone || '',
+                    driverVehicle: driver?.vehicle || '',
+                    status: 'assigned',
+                    assignedAt: firebase.database.ServerValue.TIMESTAMP,
+                    updatedAt: firebase.database.ServerValue.TIMESTAMP
+                };
+                
+                if (franchiseId) {
+                    updates.pickupFranchiseId = franchiseId;
+                    updates.pickupFranchiseName = franchise?.name || '';
+                    updates.pickupLocation = franchise?.location || '';
+                    updates.pickupPhone = franchise?.phone || '';
+                }
+                
+                await database.ref(`mugs_n_dines_orders/${orderId}`).update(updates);
+                showToast('✅ Driver assigned! Order is now in "Assigned" status');
+                closeModal();
+            } catch (e) { 
+                console.error(e);
+                showToast('Failed to assign', true); 
+            }
+        }
+
+        function closeModal() { modal.classList.remove('show'); }
+
+        // Filters
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentFilter = btn.dataset.filter;
+                renderTable();
+            });
+        });
+
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            searchQuery = e.target.value;
+            renderTable();
+        });
+
+        modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+        // Firebase listeners
+        database.ref('mugs_n_dines_orders').on('value', (snapshot) => {
+            allOrders = snapshot.val() || {};
+            updateStats();
+            renderTable();
+        });
+
+        database.ref('mugs_n_dines_franchises').on('value', (snapshot) => {
+            allFranchises = snapshot.val() || {};
+            renderTable();
+        });
+
+        // Drivers reference - using delivery_assistants as in your example
+        database.ref('delivery_assistants').on('value', (snapshot) => {
+            allDrivers = snapshot.val() || {};
+            updateStats();
+        });
+
+        // Dropdown toggle
+        window.toggleDropdown = () => document.getElementById('moreDropdown').classList.toggle('show');
+        document.addEventListener('click', (e) => { if (!e.target.closest('.nav-dropdown')) document.getElementById('moreDropdown').classList.remove('show'); });
+
+        // Auth check
+        auth.onAuthStateChanged((user) => { 
+            if (!user) window.location.href = '/workspaces/index.html';
+        });
+        
+        // Expose functions globally
+        window.viewOrder = viewOrder;
+        window.showAssignModal = showAssignModal;
+        window.showPickupModal = showPickupModal;
+        window.assignDriver = assignDriver;
+        window.savePickupFranchise = savePickupFranchise;
+        window.updateStatus = updateStatus;
+        window.closeModal = closeModal;
+    </script>
+</body>
+</html>
