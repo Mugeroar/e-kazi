@@ -31,14 +31,6 @@
             min-height: 100vh; display: flex; flex-direction: column;
         }
 
-        @keyframes shimmer {
-            0% { background-position: -200% 0; } 100% { background-position: 200% 0; }
-        }
-        .skeleton {
-            background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
-            background-size: 200% 100%; animation: shimmer 1.5s ease-in-out infinite; border-radius: 6px;
-        }
-
         .navbar {
             background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(16px);
             padding: 0.5rem 2%; display: flex; justify-content: space-between;
@@ -135,8 +127,7 @@
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
-        /* Kitchen Cards Grid */
-        .kitchens-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+        .kitchens-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 16px; }
         .kitchen-card {
             background: white; border-radius: 20px; border: 1px solid var(--border-light);
             overflow: hidden; transition: all 0.25s; box-shadow: 0 3px 12px rgba(249,115,22,0.03);
@@ -160,10 +151,15 @@
         .kitchen-stat { text-align: center; flex: 1; }
         .kitchen-stat .number { font-size: 1rem; font-weight: 800; color: var(--orange-dark); }
         .kitchen-stat .label { font-size: 0.55rem; color: var(--text-muted); }
-        .kitchen-actions { display: flex; gap: 6px; margin-top: 0.8rem; }
+        .staff-list { margin-top: 0.5rem; }
+        .staff-item {
+            background: #f8fafc; border-radius: 8px; padding: 0.4rem 0.6rem;
+            margin-bottom: 0.3rem; font-size: 0.65rem; display: flex;
+            justify-content: space-between; align-items: center;
+        }
+        .kitchen-actions { display: flex; gap: 6px; margin-top: 0.8rem; flex-wrap: wrap; }
         .kitchen-actions .btn { flex: 1; justify-content: center; }
 
-        /* Table styles */
         .table-wrap { background: white; border-radius: 16px; border: 1px solid var(--border-light); overflow: hidden; }
         .table-scroll { overflow-x: auto; max-height: 55vh; overflow-y: auto; }
         table { width: 100%; border-collapse: collapse; font-size: 0.72rem; min-width: 800px; }
@@ -182,7 +178,7 @@
         }
         .modal-overlay.show { display: flex; }
         .modal {
-            background: white; border-radius: 20px; padding: 1.5rem; max-width: 500px;
+            background: white; border-radius: 20px; padding: 1.5rem; max-width: 550px;
             width: 95%; max-height: 85vh; overflow-y: auto; box-shadow: 0 25px 50px rgba(0,0,0,0.2);
         }
         .modal h3 { font-size: 0.95rem; margin-bottom: 1rem; color: var(--orange-dark); display: flex; align-items: center; gap: 6px; }
@@ -242,22 +238,21 @@
     <div class="container">
         <div class="page-header">
             <h1><i class="fas fa-store-alt"></i> Kitchen Management</h1>
-            <button class="btn btn-primary" onclick="showAddKitchenModal()"><i class="fas fa-plus"></i> Add Kitchen</button>
+            <button class="btn btn-primary" onclick="showAddKitchenModal()"><i class="fas fa-plus"></i> Add Kitchen + Staff</button>
         </div>
 
         <div class="stats-row" id="statsRow">
-            <div class="stat-mini"><div class="skeleton" style="height:1.2rem;width:40%;margin:0 auto;"></div><div class="skeleton" style="height:0.6rem;width:50%;margin:0.3rem auto 0;"></div></div>
-            <div class="stat-mini"><div class="skeleton" style="height:1.2rem;width:40%;margin:0 auto;"></div><div class="skeleton" style="height:0.6rem;width:50%;margin:0.3rem auto 0;"></div></div>
-            <div class="stat-mini"><div class="skeleton" style="height:1.2rem;width:40%;margin:0 auto;"></div><div class="skeleton" style="height:0.6rem;width:50%;margin:0.3rem auto 0;"></div></div>
-            <div class="stat-mini"><div class="skeleton" style="height:1.2rem;width:40%;margin:0 auto;"></div><div class="skeleton" style="height:0.6rem;width:50%;margin:0.3rem auto 0;"></div></div>
+            <div class="stat-mini"><div class="stat-num" id="totalKitchens">0</div><div class="stat-label">Total Kitchens</div></div>
+            <div class="stat-mini"><div class="stat-num" id="activeKitchens">0</div><div class="stat-label">Active</div></div>
+            <div class="stat-mini"><div class="stat-num" id="totalStaff">0</div><div class="stat-label">Staff Members</div></div>
+            <div class="stat-mini"><div class="stat-num" id="totalOrders">0</div><div class="stat-label">Orders Today</div></div>
         </div>
 
         <div class="tab-nav">
             <button class="tab-btn active" data-tab="view" onclick="switchTab('view')"><i class="fas fa-store"></i> All Kitchens</button>
-            <button class="tab-btn" data-tab="orders" onclick="switchTab('orders')"><i class="fas fa-shopping-cart"></i> Kitchen Orders</button>
+            <button class="tab-btn" data-tab="staff" onclick="switchTab('staff')"><i class="fas fa-users"></i> Staff Management</button>
         </div>
 
-        <!-- View Kitchens Tab -->
         <div class="tab-content active" id="tab-view">
             <div class="filter-bar">
                 <button class="filter-btn active" data-filter="all">All Kitchens</button>
@@ -265,30 +260,24 @@
                 <button class="filter-btn" data-filter="inactive">Inactive</button>
                 <div class="search-box"><i class="fas fa-search"></i><input type="text" id="kitchenSearch" placeholder="Search by name or location..."></div>
             </div>
-            <div class="kitchens-grid" id="kitchensGrid">
-                <div class="skeleton" style="height:280px;border-radius:20px;"></div>
-                <div class="skeleton" style="height:280px;border-radius:20px;"></div>
-                <div class="skeleton" style="height:280px;border-radius:20px;"></div>
-            </div>
+            <div class="kitchens-grid" id="kitchensGrid"></div>
         </div>
 
-        <!-- Kitchen Orders Tab -->
-        <div class="tab-content" id="tab-orders">
+        <div class="tab-content" id="tab-staff">
             <div class="filter-bar">
                 <select id="kitchenFilterSelect" class="filter-btn" style="padding:0.35rem 1rem;">
                     <option value="all">All Kitchens</option>
                 </select>
-                <div class="search-box"><i class="fas fa-search"></i><input type="text" id="orderSearch" placeholder="Search orders..."></div>
+                <div class="search-box"><i class="fas fa-search"></i><input type="text" id="staffSearch" placeholder="Search staff..."></div>
+                <button class="btn btn-primary" onclick="showAddStaffModal()"><i class="fas fa-user-plus"></i> Add Staff</button>
             </div>
             <div class="table-wrap">
                 <div class="table-scroll">
                     <table>
                         <thead>
-                            <tr><th>Order ID</th><th>Customer</th><th>Kitchen</th><th>Items</th><th>Total</th><th>Status</th><th>Date</th><th>Actions</th></tr>
+                            <tr><th>Staff Name</th><th>Email</th><th>Phone</th><th>Kitchen</th><th>Role</th><th>Status</th><th>Joined</th><th>Actions</th></tr>
                         </thead>
-                        <tbody id="kitchenOrdersBody">
-                            <tr><td colspan="8"><div class="empty-state">Select a kitchen to view orders</div></td></tr>
-                        </tbody>
+                        <tbody id="staffTableBody"></tbody>
                     </table>
                 </div>
             </div>
@@ -315,10 +304,10 @@
         const auth = firebase.auth();
 
         let allKitchens = {};
+        let allStaff = {};
         let allOrders = {};
         let currentKitchenFilter = 'all';
         let kitchenSearchTerm = '';
-        let selectedKitchenId = 'all';
         let currentTab = 'view';
 
         function showToast(msg, isError = false) {
@@ -333,15 +322,14 @@
         function updateStats() {
             const kitchens = Object.values(allKitchens);
             const active = kitchens.filter(k => k.status !== 'inactive').length;
-            const inactive = kitchens.filter(k => k.status === 'inactive').length;
-            const totalOrders = Object.values(allOrders).filter(o => o && o.orderType === 'delivery').length;
+            const staff = Object.values(allStaff);
+            const today = new Date().toISOString().slice(0,10);
+            const todaysOrders = Object.values(allOrders).filter(o => o.createdAt && new Date(o.createdAt).toISOString().slice(0,10) === today).length;
             
-            document.getElementById('statsRow').innerHTML = `
-                <div class="stat-mini"><div class="stat-num">${kitchens.length}</div><div class="stat-label">Total Kitchens</div></div>
-                <div class="stat-mini"><div class="stat-num">${active}</div><div class="stat-label">Active Kitchens</div></div>
-                <div class="stat-mini"><div class="stat-num">${inactive}</div><div class="stat-label">Inactive</div></div>
-                <div class="stat-mini"><div class="stat-num">${totalOrders}</div><div class="stat-label">Total Orders</div></div>
-            `;
+            document.getElementById('totalKitchens').textContent = kitchens.length;
+            document.getElementById('activeKitchens').textContent = active;
+            document.getElementById('totalStaff').textContent = staff.length;
+            document.getElementById('totalOrders').textContent = todaysOrders;
         }
 
         function renderKitchens() {
@@ -355,18 +343,18 @@
                 const term = kitchenSearchTerm.toLowerCase();
                 kitchens = kitchens.filter(k => 
                     (k.name || '').toLowerCase().includes(term) ||
-                    (k.location || '').toLowerCase().includes(term) ||
-                    (k.manager || '').toLowerCase().includes(term)
+                    (k.location || '').toLowerCase().includes(term)
                 );
             }
             
             if (!kitchens.length) {
-                grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><i class="fas fa-store-alt"></i><p>No kitchens found</p><button class="btn btn-primary" style="margin-top:10px;" onclick="showAddKitchenModal()">Add Your First Kitchen</button></div>';
+                grid.innerHTML = '<div class="empty-state"><i class="fas fa-store-alt"></i><p>No kitchens found</p><button class="btn btn-primary" style="margin-top:10px;" onclick="showAddKitchenModal()">Add Your First Kitchen</button></div>';
                 return;
             }
             
             grid.innerHTML = kitchens.map(k => {
-                const kitchenOrders = Object.values(allOrders).filter(o => o && o.pickupFranchiseId === k.id);
+                const kitchenStaff = Object.values(allStaff).filter(s => s.kitchenId === k.id);
+                const kitchenOrders = Object.values(allOrders).filter(o => o.kitchenId === k.id);
                 const orderCount = kitchenOrders.length;
                 const revenue = kitchenOrders.reduce((sum, o) => sum + (o.total || 0), 0);
                 
@@ -378,21 +366,27 @@
                         </div>
                         <div class="kitchen-body">
                             <div class="kitchen-info">
-                                <p><i class="fas fa-map-marker-alt" style="color:#c2410c;"></i> ${escapeHtml(k.location || 'No location set')}</p>
-                                <p><i class="fas fa-phone" style="color:#c2410c;"></i> ${escapeHtml(k.phone || 'No phone')}</p>
-                                <p><i class="fas fa-user" style="color:#c2410c;"></i> Manager: ${escapeHtml(k.manager || 'Not assigned')}</p>
-                                ${k.email ? `<p><i class="fas fa-envelope" style="color:#c2410c;"></i> ${escapeHtml(k.email)}</p>` : ''}
+                                <p><i class="fas fa-map-marker-alt"></i> ${escapeHtml(k.location || 'No location set')}</p>
+                                <p><i class="fas fa-phone"></i> ${escapeHtml(k.phone || 'No phone')}</p>
+                                <p><i class="fas fa-user"></i> Manager: ${escapeHtml(k.manager || 'Not assigned')}</p>
                             </div>
                             <div class="kitchen-stats">
+                                <div class="kitchen-stat"><div class="number">${kitchenStaff.length}</div><div class="label">Staff</div></div>
                                 <div class="kitchen-stat"><div class="number">${orderCount}</div><div class="label">Orders</div></div>
                                 <div class="kitchen-stat"><div class="number">KES ${revenue.toLocaleString()}</div><div class="label">Revenue</div></div>
                             </div>
+                            ${kitchenStaff.length > 0 ? `
+                                <div class="staff-list">
+                                    ${kitchenStaff.slice(0,2).map(s => `<div class="staff-item"><span><i class="fas fa-user-circle"></i> ${escapeHtml(s.name)}</span><span class="staff-role">${s.role || 'Staff'}</span></div>`).join('')}
+                                    ${kitchenStaff.length > 2 ? `<div class="staff-item" style="text-align:center;color:var(--orange);">+${kitchenStaff.length - 2} more staff</div>` : ''}
+                                </div>
+                            ` : ''}
                             <div class="kitchen-actions">
                                 <button class="btn btn-outline btn-sm" onclick="editKitchen('${k.id}')"><i class="fas fa-edit"></i> Edit</button>
+                                <button class="btn btn-outline btn-sm" onclick="showAddStaffToKitchen('${k.id}')"><i class="fas fa-user-plus"></i> Add Staff</button>
                                 <button class="btn ${k.status === 'inactive' ? 'btn-primary' : 'btn-danger'} btn-sm" onclick="toggleKitchenStatus('${k.id}', '${k.status === 'inactive' ? 'active' : 'inactive'}')">
                                     ${k.status === 'inactive' ? '<i class="fas fa-play"></i> Activate' : '<i class="fas fa-pause"></i> Deactivate'}
                                 </button>
-                                <button class="btn btn-outline btn-sm" onclick="deleteKitchen('${k.id}')"><i class="fas fa-trash"></i></button>
                             </div>
                         </div>
                     </div>
@@ -400,51 +394,39 @@
             }).join('');
         }
 
-        function renderKitchenOrders() {
-            const tbody = document.getElementById('kitchenOrdersBody');
-            let orders = Object.entries(allOrders).map(([id, data]) => ({ id, ...data })).filter(o => o && o.orderType === 'delivery');
+        function renderStaffTable() {
+            const tbody = document.getElementById('staffTableBody');
+            let staff = Object.entries(allStaff).map(([id, data]) => ({ id, ...data }));
             
-            if (selectedKitchenId !== 'all') {
-                orders = orders.filter(o => o.pickupFranchiseId === selectedKitchenId);
+            const selectedKitchen = document.getElementById('kitchenFilterSelect')?.value;
+            if (selectedKitchen && selectedKitchen !== 'all') {
+                staff = staff.filter(s => s.kitchenId === selectedKitchen);
             }
             
-            const searchTerm = document.getElementById('orderSearch')?.value.toLowerCase() || '';
+            const searchTerm = document.getElementById('staffSearch')?.value.toLowerCase() || '';
             if (searchTerm) {
-                orders = orders.filter(o => 
-                    (o.customerName || '').toLowerCase().includes(searchTerm) ||
-                    o.id.toLowerCase().includes(searchTerm)
+                staff = staff.filter(s => 
+                    (s.name || '').toLowerCase().includes(searchTerm) ||
+                    (s.email || '').toLowerCase().includes(searchTerm)
                 );
             }
             
-            orders.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-            
-            if (!orders.length) {
-                tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><i class="fas fa-shopping-cart"></i><p>No orders found for this kitchen</p></div></td></tr>`;
+            if (!staff.length) {
+                tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state">No staff members found</div></td></tr>';
                 return;
             }
             
-            tbody.innerHTML = orders.map(o => {
-                const itemCount = (o.items || []).reduce((sum, item) => sum + (item.quantity || 0), 0);
-                const statusClass = {
-                    new: 'status-new', confirmed: 'status-confirmed', preparing: 'status-preparing',
-                    ready: 'status-ready', assigned: 'status-picked-up', 'en-route': 'status-en-route',
-                    delivered: 'status-delivered'
-                }[o.status] || 'status-new';
-                const statusLabel = {
-                    new: 'New', confirmed: 'Confirmed', preparing: 'Preparing',
-                    ready: 'Ready', assigned: 'Assigned', 'en-route': 'En Route',
-                    delivered: 'Delivered'
-                }[o.status] || o.status;
-                
+            tbody.innerHTML = staff.map(s => {
+                const kitchen = allKitchens[s.kitchenId];
                 return `<tr>
-                    <td><code>#${o.id.slice(-6)}</code></td>
-                    <td>${escapeHtml(o.customerName || 'Customer')}</td>
-                    <td>${escapeHtml(allKitchens[o.pickupFranchiseId]?.name || '—')}</td>
-                    <td>${itemCount} item(s)</td>
-                    <td><strong>KES ${(o.total || 0).toLocaleString()}</strong></td>
-                    <td><span class="status-badge ${statusClass}">${statusLabel}</span></td>
-                    <td>${o.createdAt ? new Date(o.createdAt).toLocaleDateString() : 'N/A'}</td>
-                    <td><button class="btn btn-outline btn-sm" onclick="viewOrderDetails('${o.id}')"><i class="fas fa-eye"></i> View</button></td>
+                    <td><strong>${escapeHtml(s.name)}</strong></td>
+                    <td>${escapeHtml(s.email || '—')}</td>
+                    <td>${escapeHtml(s.phone || '—')}</td>
+                    <td>${kitchen ? escapeHtml(kitchen.name) : 'Unknown'}</td>
+                    <td><span style="background:#fff7ed;padding:2px 8px;border-radius:12px;">${s.role || 'Staff'}</span></td>
+                    <td><span class="kitchen-status ${s.status === 'active' ? 'status-active' : 'status-inactive'}">${s.status || 'active'}</span></td>
+                    <td>${s.createdAt ? new Date(s.createdAt).toLocaleDateString() : 'N/A'}</td>
+                    <td><div style="display:flex;gap:4px;"><button class="btn btn-outline btn-sm" onclick="editStaff('${s.id}')"><i class="fas fa-edit"></i></button><button class="btn btn-danger btn-sm" onclick="deleteStaff('${s.id}')"><i class="fas fa-trash"></i></button></div></td>
                 </tr>`;
             }).join('');
         }
@@ -460,30 +442,53 @@
             currentTab = tab;
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
             document.getElementById('tab-view').classList.toggle('active', tab === 'view');
-            document.getElementById('tab-orders').classList.toggle('active', tab === 'orders');
-            if (tab === 'orders') {
+            document.getElementById('tab-staff').classList.toggle('active', tab === 'staff');
+            if (tab === 'staff') {
                 updateKitchenSelect();
-                renderKitchenOrders();
+                renderStaffTable();
             }
         };
 
+        // Add Kitchen with Staff Account Creation
         window.showAddKitchenModal = () => {
             document.getElementById('modalContent').innerHTML = `
-                <h3><i class="fas fa-plus-circle"></i> Add New Kitchen</h3>
+                <h3><i class="fas fa-plus-circle"></i> Add New Kitchen & Staff Account</h3>
+                <div style="background:#f0fdf4;padding:0.8rem;border-radius:10px;margin-bottom:1rem;font-size:0.7rem;">
+                    <i class="fas fa-info-circle"></i> This will create both a kitchen record and a staff login account.
+                </div>
                 <div class="form-group"><label>Kitchen Name *</label><input type="text" id="kName" placeholder="e.g., Mugs N Dines - Westlands"></div>
                 <div class="form-group"><label>Location / Address</label><input type="text" id="kLocation" placeholder="Full address"></div>
                 <div class="form-row"><div class="form-group"><label>Phone Number</label><input type="tel" id="kPhone" placeholder="+254 XXX XXX"></div><div class="form-group"><label>Email</label><input type="email" id="kEmail" placeholder="kitchen@example.com"></div></div>
                 <div class="form-group"><label>Manager Name</label><input type="text" id="kManager" placeholder="Manager's name"></div>
-                <div class="btn-row"><button class="btn btn-primary" onclick="saveKitchen()"><i class="fas fa-save"></i> Save Kitchen</button><button class="btn btn-outline" onclick="closeModal()">Cancel</button></div>
+                <hr style="margin: 0.8rem 0; border-color: var(--border-light);">
+                <h4 style="font-size:0.7rem;margin-bottom:0.5rem;"><i class="fas fa-user-circle"></i> Staff Account Details</h4>
+                <div class="form-group"><label>Staff Full Name *</label><input type="text" id="staffName" placeholder="Staff name for login"></div>
+                <div class="form-group"><label>Staff Email *</label><input type="email" id="staffEmail" placeholder="staff@example.com (used for login)"></div>
+                <div class="form-group"><label>Temporary Password *</label><input type="password" id="staffPassword" placeholder="Create a password"></div>
+                <div class="btn-row"><button class="btn btn-primary" onclick="saveKitchenWithStaff()"><i class="fas fa-save"></i> Create Kitchen & Staff</button><button class="btn btn-outline" onclick="closeModal()">Cancel</button></div>
             `;
             document.getElementById('modal').classList.add('show');
         };
 
-        window.saveKitchen = async () => {
+        window.saveKitchenWithStaff = async () => {
             const name = document.getElementById('kName').value.trim();
             if (!name) { showToast('Kitchen name is required', true); return; }
+            
+            const staffName = document.getElementById('staffName').value.trim();
+            const staffEmail = document.getElementById('staffEmail').value.trim();
+            const staffPassword = document.getElementById('staffPassword').value.trim();
+            
+            if (!staffName || !staffEmail || !staffPassword) {
+                showToast('Staff account details are required', true);
+                return;
+            }
+            
             try {
-                await db.ref('mugs_n_dines_franchises').push().set({
+                // Step 1: Create kitchen
+                const kitchenRef = db.ref('mugs_n_dines_franchises').push();
+                const kitchenId = kitchenRef.key;
+                
+                await kitchenRef.set({
                     name: name,
                     location: document.getElementById('kLocation').value.trim(),
                     phone: document.getElementById('kPhone').value.trim(),
@@ -493,9 +498,163 @@
                     createdAt: firebase.database.ServerValue.TIMESTAMP,
                     updatedAt: firebase.database.ServerValue.TIMESTAMP
                 });
-                showToast('✅ Kitchen added!');
+                
+                // Step 2: Create Firebase Auth user
+                const userCredential = await firebase.auth().createUserWithEmailAndPassword(staffEmail, staffPassword);
+                const staffUid = userCredential.user.uid;
+                
+                // Step 3: Update user profile
+                await userCredential.user.updateProfile({ displayName: staffName });
+                
+                // Step 4: Create staff record in database
+                await db.ref(`mugs_n_dines_kitchen_staff/${staffUid}`).set({
+                    uid: staffUid,
+                    name: staffName,
+                    email: staffEmail,
+                    phone: document.getElementById('kPhone').value.trim(),
+                    kitchenId: kitchenId,
+                    kitchenName: name,
+                    role: 'manager',
+                    status: 'active',
+                    createdAt: firebase.database.ServerValue.TIMESTAMP
+                });
+                
+                // Step 5: Add to users node
+                await db.ref(`users/${staffUid}`).set({
+                    uid: staffUid,
+                    name: staffName,
+                    email: staffEmail,
+                    kitchenId: kitchenId,
+                    role: 'kitchen_staff',
+                    createdAt: firebase.database.ServerValue.TIMESTAMP
+                });
+                
+                showToast('✅ Kitchen and staff account created! Login credentials sent.');
                 closeModal();
-            } catch (e) { showToast('Failed to save', true); }
+                loadData();
+            } catch (e) { 
+                console.error(e);
+                showToast('Failed: ' + (e.message || 'Unknown error'), true); 
+            }
+        };
+
+        window.showAddStaffToKitchen = (kitchenId) => {
+            const kitchen = allKitchens[kitchenId];
+            document.getElementById('modalContent').innerHTML = `
+                <h3><i class="fas fa-user-plus"></i> Add Staff to ${escapeHtml(kitchen?.name)}</h3>
+                <div class="form-group"><label>Full Name *</label><input type="text" id="staffName" placeholder="Staff name"></div>
+                <div class="form-group"><label>Email *</label><input type="email" id="staffEmail" placeholder="staff@example.com"></div>
+                <div class="form-group"><label>Password *</label><input type="password" id="staffPassword" placeholder="Create password"></div>
+                <div class="form-group"><label>Phone Number</label><input type="tel" id="staffPhone" placeholder="Optional"></div>
+                <div class="form-group"><label>Role</label><select id="staffRole"><option value="staff">Staff</option><option value="manager">Manager</option><option value="chef">Chef</option></select></div>
+                <div class="btn-row"><button class="btn btn-primary" onclick="addStaffToKitchen('${kitchenId}')"><i class="fas fa-save"></i> Add Staff</button><button class="btn btn-outline" onclick="closeModal()">Cancel</button></div>
+            `;
+            document.getElementById('modal').classList.add('show');
+        };
+
+        window.addStaffToKitchen = async (kitchenId) => {
+            const name = document.getElementById('staffName').value.trim();
+            const email = document.getElementById('staffEmail').value.trim();
+            const password = document.getElementById('staffPassword').value.trim();
+            const kitchen = allKitchens[kitchenId];
+            
+            if (!name || !email || !password) {
+                showToast('Name, email, and password are required', true);
+                return;
+            }
+            
+            try {
+                const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
+                const staffUid = userCredential.user.uid;
+                await userCredential.user.updateProfile({ displayName: name });
+                
+                await db.ref(`mugs_n_dines_kitchen_staff/${staffUid}`).set({
+                    uid: staffUid,
+                    name: name,
+                    email: email,
+                    phone: document.getElementById('staffPhone').value.trim(),
+                    kitchenId: kitchenId,
+                    kitchenName: kitchen?.name,
+                    role: document.getElementById('staffRole').value,
+                    status: 'active',
+                    createdAt: firebase.database.ServerValue.TIMESTAMP
+                });
+                
+                await db.ref(`users/${staffUid}`).set({
+                    uid: staffUid,
+                    name: name,
+                    email: email,
+                    kitchenId: kitchenId,
+                    role: 'kitchen_staff',
+                    createdAt: firebase.database.ServerValue.TIMESTAMP
+                });
+                
+                showToast('✅ Staff account created!');
+                closeModal();
+                loadData();
+            } catch (e) {
+                showToast('Failed: ' + (e.message || 'Unknown error'), true);
+            }
+        };
+
+        window.showAddStaffModal = () => {
+            document.getElementById('modalContent').innerHTML = `
+                <h3><i class="fas fa-user-plus"></i> Add Staff Member</h3>
+                <div class="form-group"><label>Select Kitchen *</label><select id="staffKitchen">${Object.entries(allKitchens).filter(([_,k]) => k.status !== 'inactive').map(([id,k]) => `<option value="${id}">${escapeHtml(k.name)}</option>`).join('')}</select></div>
+                <div class="form-group"><label>Full Name *</label><input type="text" id="staffName" placeholder="Staff name"></div>
+                <div class="form-group"><label>Email *</label><input type="email" id="staffEmail" placeholder="staff@example.com"></div>
+                <div class="form-group"><label>Password *</label><input type="password" id="staffPassword" placeholder="Create password"></div>
+                <div class="form-group"><label>Phone Number</label><input type="tel" id="staffPhone" placeholder="Optional"></div>
+                <div class="form-group"><label>Role</label><select id="staffRole"><option value="staff">Staff</option><option value="manager">Manager</option><option value="chef">Chef</option></select></div>
+                <div class="btn-row"><button class="btn btn-primary" onclick="createStaffAccount()"><i class="fas fa-save"></i> Create Staff</button><button class="btn btn-outline" onclick="closeModal()">Cancel</button></div>
+            `;
+            document.getElementById('modal').classList.add('show');
+        };
+
+        window.createStaffAccount = async () => {
+            const kitchenId = document.getElementById('staffKitchen').value;
+            const name = document.getElementById('staffName').value.trim();
+            const email = document.getElementById('staffEmail').value.trim();
+            const password = document.getElementById('staffPassword').value.trim();
+            const kitchen = allKitchens[kitchenId];
+            
+            if (!kitchenId || !name || !email || !password) {
+                showToast('All fields are required', true);
+                return;
+            }
+            
+            try {
+                const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
+                const staffUid = userCredential.user.uid;
+                await userCredential.user.updateProfile({ displayName: name });
+                
+                await db.ref(`mugs_n_dines_kitchen_staff/${staffUid}`).set({
+                    uid: staffUid,
+                    name: name,
+                    email: email,
+                    phone: document.getElementById('staffPhone').value.trim(),
+                    kitchenId: kitchenId,
+                    kitchenName: kitchen?.name,
+                    role: document.getElementById('staffRole').value,
+                    status: 'active',
+                    createdAt: firebase.database.ServerValue.TIMESTAMP
+                });
+                
+                await db.ref(`users/${staffUid}`).set({
+                    uid: staffUid,
+                    name: name,
+                    email: email,
+                    kitchenId: kitchenId,
+                    role: 'kitchen_staff',
+                    createdAt: firebase.database.ServerValue.TIMESTAMP
+                });
+                
+                showToast('✅ Staff account created! They can now log in.');
+                closeModal();
+                loadData();
+            } catch (e) {
+                showToast('Failed: ' + (e.message || 'Unknown error'), true);
+            }
         };
 
         window.editKitchen = (id) => {
@@ -504,9 +663,9 @@
             document.getElementById('modalContent').innerHTML = `
                 <h3><i class="fas fa-edit"></i> Edit Kitchen</h3>
                 <div class="form-group"><label>Kitchen Name</label><input type="text" id="kName" value="${escapeHtml(k.name || '')}"></div>
-                <div class="form-group"><label>Location / Address</label><input type="text" id="kLocation" value="${escapeHtml(k.location || '')}"></div>
-                <div class="form-row"><div class="form-group"><label>Phone Number</label><input type="tel" id="kPhone" value="${escapeHtml(k.phone || '')}"></div><div class="form-group"><label>Email</label><input type="email" id="kEmail" value="${escapeHtml(k.email || '')}"></div></div>
-                <div class="form-group"><label>Manager Name</label><input type="text" id="kManager" value="${escapeHtml(k.manager || '')}"></div>
+                <div class="form-group"><label>Location</label><input type="text" id="kLocation" value="${escapeHtml(k.location || '')}"></div>
+                <div class="form-row"><div class="form-group"><label>Phone</label><input type="tel" id="kPhone" value="${escapeHtml(k.phone || '')}"></div><div class="form-group"><label>Email</label><input type="email" id="kEmail" value="${escapeHtml(k.email || '')}"></div></div>
+                <div class="form-group"><label>Manager</label><input type="text" id="kManager" value="${escapeHtml(k.manager || '')}"></div>
                 <div class="btn-row"><button class="btn btn-primary" onclick="updateKitchen('${id}')"><i class="fas fa-save"></i> Update</button><button class="btn btn-outline" onclick="closeModal()">Cancel</button></div>
             `;
             document.getElementById('modal').classList.add('show');
@@ -524,7 +683,45 @@
                 });
                 showToast('✅ Kitchen updated!');
                 closeModal();
+                loadData();
             } catch (e) { showToast('Failed to update', true); }
+        };
+
+        window.editStaff = (id) => {
+            const s = allStaff[id];
+            if (!s) return;
+            document.getElementById('modalContent').innerHTML = `
+                <h3><i class="fas fa-edit"></i> Edit Staff</h3>
+                <div class="form-group"><label>Name</label><input type="text" id="staffName" value="${escapeHtml(s.name || '')}"></div>
+                <div class="form-group"><label>Phone</label><input type="tel" id="staffPhone" value="${escapeHtml(s.phone || '')}"></div>
+                <div class="form-group"><label>Role</label><select id="staffRole"><option value="staff" ${s.role === 'staff' ? 'selected' : ''}>Staff</option><option value="manager" ${s.role === 'manager' ? 'selected' : ''}>Manager</option><option value="chef" ${s.role === 'chef' ? 'selected' : ''}>Chef</option></select></div>
+                <div class="btn-row"><button class="btn btn-primary" onclick="updateStaff('${id}')"><i class="fas fa-save"></i> Update</button><button class="btn btn-outline" onclick="closeModal()">Cancel</button></div>
+            `;
+            document.getElementById('modal').classList.add('show');
+        };
+
+        window.updateStaff = async (id) => {
+            try {
+                await db.ref(`mugs_n_dines_kitchen_staff/${id}`).update({
+                    name: document.getElementById('staffName').value.trim(),
+                    phone: document.getElementById('staffPhone').value.trim(),
+                    role: document.getElementById('staffRole').value,
+                    updatedAt: firebase.database.ServerValue.TIMESTAMP
+                });
+                showToast('✅ Staff updated!');
+                closeModal();
+                loadData();
+            } catch (e) { showToast('Failed to update', true); }
+        };
+
+        window.deleteStaff = async (id) => {
+            if (confirm('Remove this staff member? They will lose access.')) {
+                try {
+                    await db.ref(`mugs_n_dines_kitchen_staff/${id}`).remove();
+                    showToast('✅ Staff removed');
+                    loadData();
+                } catch (e) { showToast('Failed to delete', true); }
+            }
         };
 
         window.toggleKitchenStatus = async (id, newStatus) => {
@@ -534,33 +731,8 @@
                     updatedAt: firebase.database.ServerValue.TIMESTAMP
                 });
                 showToast(`Kitchen ${newStatus === 'active' ? 'activated' : 'deactivated'}`);
+                loadData();
             } catch (e) { showToast('Failed to update status', true); }
-        };
-
-        window.deleteKitchen = async (id) => {
-            if (confirm('Are you sure you want to delete this kitchen? This action cannot be undone.')) {
-                try {
-                    await db.ref(`mugs_n_dines_franchises/${id}`).remove();
-                    showToast('✅ Kitchen deleted');
-                } catch (e) { showToast('Failed to delete', true); }
-            }
-        };
-
-        window.viewOrderDetails = (orderId) => {
-            const order = allOrders[orderId];
-            if (!order) return;
-            const items = order.items || [];
-            modalContent.innerHTML = `
-                <h3><i class="fas fa-info-circle"></i> Order #${orderId.slice(-6)}</h3>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:0.75rem;margin-bottom:1rem;">
-                    <div><strong>Customer:</strong> ${escapeHtml(order.customerName)}</div><div><strong>Phone:</strong> ${order.customerPhone || 'N/A'}</div>
-                    <div><strong>Total:</strong> KES ${(order.total || 0).toLocaleString()}</div><div><strong>Status:</strong> ${order.status || 'new'}</div>
-                </div>
-                ${order.deliveryAddress ? `<div style="background:#f0fdf4;padding:0.6rem;border-radius:10px;margin-bottom:0.8rem;font-size:0.7rem;"><strong>Delivery Address:</strong><br>${escapeHtml(order.deliveryAddress)}</div>` : ''}
-                ${items.length ? `<p style="font-weight:700;font-size:0.7rem;">Items:</p>${items.map(item => `<div style="background:#f8fafc;padding:0.4rem;border-radius:8px;margin-bottom:4px;font-size:0.7rem;">${escapeHtml(item.name)} × ${item.quantity} = KES ${((item.price||0)*item.quantity).toLocaleString()}</div>`).join('')}` : ''}
-                <div class="btn-row"><button class="btn btn-outline" onclick="closeModal()">Close</button></div>
-            `;
-            modal.classList.add('show');
         };
 
         window.closeModal = () => document.getElementById('modal').classList.remove('show');
@@ -578,11 +750,8 @@
             kitchenSearchTerm = e.target.value;
             renderKitchens();
         });
-        document.getElementById('kitchenFilterSelect')?.addEventListener('change', (e) => {
-            selectedKitchenId = e.target.value;
-            renderKitchenOrders();
-        });
-        document.getElementById('orderSearch')?.addEventListener('input', () => renderKitchenOrders());
+        document.getElementById('kitchenFilterSelect')?.addEventListener('change', () => renderStaffTable());
+        document.getElementById('staffSearch')?.addEventListener('input', () => renderStaffTable());
 
         document.getElementById('modal').addEventListener('click', (e) => { if (e.target === document.getElementById('modal')) closeModal(); });
         document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
@@ -590,23 +759,28 @@
         window.toggleDropdown = () => document.getElementById('moreDropdown').classList.toggle('show');
         document.addEventListener('click', (e) => { if (!e.target.closest('.nav-dropdown')) document.getElementById('moreDropdown').classList.remove('show'); });
 
-        // Firebase listeners
-        db.ref('mugs_n_dines_franchises').on('value', (snapshot) => {
-            allKitchens = snapshot.val() || {};
+        async function loadData() {
+            const kitchensSnap = await db.ref('mugs_n_dines_franchises').once('value');
+            allKitchens = kitchensSnap.val() || {};
+            
+            const staffSnap = await db.ref('mugs_n_dines_kitchen_staff').once('value');
+            allStaff = staffSnap.val() || {};
+            
+            const ordersSnap = await db.ref('mugs_n_dines_orders').once('value');
+            allOrders = ordersSnap.val() || {};
+            
             updateStats();
             renderKitchens();
-            if (currentTab === 'orders') {
+            if (currentTab === 'staff') {
                 updateKitchenSelect();
-                renderKitchenOrders();
+                renderStaffTable();
             }
-        });
-        db.ref('mugs_n_dines_orders').on('value', (snapshot) => {
-            allOrders = snapshot.val() || {};
-            updateStats();
-            if (currentTab === 'orders') renderKitchenOrders();
-        });
+        }
 
-        auth.onAuthStateChanged((user) => { if (!user) window.location.href = '/workspaces/index.html'; });
+        auth.onAuthStateChanged((user) => { 
+            if (!user) window.location.href = '/workspaces/index.html';
+            else loadData();
+        });
     </script>
 </body>
 </html>
