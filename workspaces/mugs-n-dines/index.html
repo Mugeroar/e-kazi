@@ -1,392 +1,613 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>KazInni Workspaces | Mugs N Dines Dashboard</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>KazInni Workspaces | Mugs N Dines Dashboard</title>
+  
+  <meta name="theme-color" content="#f97316">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  
+  <link rel="apple-touch-icon" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
+  <link rel="icon" type="image/png" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --orange: #f97316;
+      --orange-dark: #c2410c;
+      --orange-light: #fb923c;
+      --card-bg: #ffffff;
+      --text-primary: #1e293b;
+      --text-muted: #64748b;
+      --border-light: #fed7aa;
+      --purple: #8b5cf6;
+      --green: #10b981;
+      --blue: #3b82f6;
+      --indigo: #6366f1;
+      --emerald: #059669;
+      --amber: #d97706;
+      --rose: #e11d48;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(145deg, #fff7ed 0%, #ffffff 100%);
+      color: var(--text-primary);
+      line-height: 1.4;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .navbar {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(16px);
+      padding: 0.5rem 2%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid rgba(249, 115, 22, 0.3);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .logo { display: flex; align-items: center; gap: 10px; cursor: pointer; text-decoration: none; }
+    .logo-img { height: 34px; width: 34px; border-radius: 10px; object-fit: contain; background: white; box-shadow: 0 4px 12px rgba(249, 115, 22, 0.2); }
+    .logo-text {
+      font-weight: 800; font-size: 1.1rem;
+      background: linear-gradient(145deg, #fb923c, #c2410c);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .logo-text span { font-weight: 600; font-size: 0.7rem; background: #f97316; -webkit-text-fill-color: #f97316; margin-left: 3px; }
+
+    .nav-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .nav-btn {
+      background: rgba(249, 115, 22, 0.08); border: 1px solid rgba(249, 115, 22, 0.2);
+      padding: 0.4rem 0.8rem; border-radius: 25px; color: var(--orange-dark);
+      font-weight: 600; font-size: 0.7rem; cursor: pointer; display: inline-flex;
+      align-items: center; gap: 5px; text-decoration: none; transition: all 0.2s;
+    }
+    .nav-btn:hover { background: var(--orange); color: white; }
+    .nav-btn.map-btn { background: rgba(59, 130, 246, 0.08); border-color: rgba(59, 130, 246, 0.2); color: #2563eb; }
+    .nav-btn.map-btn:hover { background: #3b82f6; color: white; }
+
+    .user-badge {
+      display: flex; align-items: center; gap: 6px; background: #fff7ed;
+      padding: 0.2rem 0.7rem 0.2rem 0.5rem; border-radius: 30px; font-size: 0.7rem;
+      color: var(--text-muted); border: 1px solid #fed7aa;
+    }
+    .user-avatar {
+      width: 30px; height: 30px; background: linear-gradient(145deg, #f97316, #c2410c);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 0.7rem; color: white;
+    }
+
+    .container { padding: 1.2rem 2%; flex: 1; }
+
+    .page-header { margin-bottom: 1.2rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.8rem; }
+    .page-header h1 { font-size: 1.3rem; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 10px; }
+    .page-header h1 i { color: var(--orange-dark); background: white; padding: 8px; border-radius: 12px; box-shadow: 0 6px 14px rgba(249,115,22,0.08); font-size: 1rem; }
+    .page-header p { color: #64748b; font-size: 0.8rem; }
+    .last-updated { font-size: 0.65rem; color: #94a3b8; margin-left: 6px; }
+    .last-updated i { color: #f97316; font-size: 0.4rem; }
+
+    .stats-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin-bottom: 1.2rem; }
+    .stat-card {
+      background: white; border-radius: 16px; padding: 1rem 1.2rem;
+      border: 1px solid var(--border-light); box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .stat-left h4 { font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; color: #64748b; margin-bottom: 0.2rem; }
+    .stat-number { font-size: 1.6rem; font-weight: 800; color: #0f172a; line-height: 1.1; }
+    .stat-trend { font-size: 0.55rem; margin-top: 2px; display: flex; align-items: center; gap: 3px; color: #64748b; }
+    .stat-icon { width: 42px; height: 42px; background: #fff7ed; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #c2410c; font-size: 1.2rem; }
+
+    /* Skeleton Loading Styles */
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
     
-    <meta name="theme-color" content="#f97316">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    .skeleton {
+      background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s ease-in-out infinite;
+      border-radius: 4px;
+    }
     
-    <link rel="apple-touch-icon" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
-    <link rel="icon" type="image/png" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
-    
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
-    
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+    .skeleton-text { height: 1rem; margin-bottom: 0.5rem; }
+    .skeleton-text-sm { height: 0.7rem; width: 60%; }
+    .skeleton-number { height: 2rem; width: 50%; margin-bottom: 0.3rem; }
+    .skeleton-icon { width: 42px; height: 42px; border-radius: 12px; }
+    .skeleton-card {
+      background: white;
+      border-radius: 16px;
+      padding: 1rem 1.2rem;
+      border: 1px solid #e5e7eb;
+    }
+    .skeleton-action-card {
+      background: white;
+      border-radius: 20px;
+      padding: 1.2rem;
+      border: 1px solid #e5e7eb;
+    }
+    .skeleton-action-icon { width: 46px; height: 46px; border-radius: 14px; margin-bottom: 0.8rem; }
+    .skeleton-recent-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0.7rem 1rem;
+      border-bottom: 1px solid #f3f4f6;
+    }
+    .skeleton-avatar { width: 32px; height: 32px; border-radius: 10px; flex-shrink: 0; }
+    .skeleton-badge { width: 60px; height: 20px; border-radius: 12px; margin-left: auto; }
+    .skeleton-quick-btn { height: 32px; width: 100px; border-radius: 30px; }
 
-        :root {
-            --orange: #f97316; --orange-dark: #c2410c; --orange-light: #fb923c;
-            --card-bg: #ffffff; --text-primary: #1e293b; --text-muted: #64748b;
-            --border-light: #fed7aa; --success: #10b981; --warning: #f59e0b;
-            --danger: #ef4444; --info: #3b82f6; --purple: #8b5cf6; --gold: #f59e0b;
-            --emerald: #059669; --amber: #d97706; --rose: #e11d48; --indigo: #4f46e5;
-        }
+    .action-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 1.2rem; }
+    .action-card {
+      background: white; border-radius: 20px; padding: 1.2rem;
+      border: 1px solid var(--border-light); box-shadow: 0 8px 20px -6px rgba(194,65,12,0.04);
+      transition: all 0.25s; text-decoration: none; color: inherit; display: block; cursor: pointer;
+    }
+    .action-card:hover { transform: translateY(-4px); box-shadow: 0 20px 35px -10px rgba(194,65,12,0.12); border-color: #fb923c; }
+    .action-icon {
+      width: 46px; height: 46px; background: linear-gradient(145deg, #fff7ed, #ffffff);
+      border-radius: 14px; display: flex; align-items: center; justify-content: center;
+      margin-bottom: 0.8rem; color: #c2410c; font-size: 1.4rem;
+      border: 1px solid rgba(194,65,12,0.15);
+    }
+    .action-card h2 { font-size: 0.9rem; font-weight: 800; margin-bottom: 0.3rem; }
+    .action-card p { color: #64748b; font-size: 0.65rem; margin-bottom: 0.8rem; line-height: 1.4; }
+    .action-link { display: inline-flex; align-items: center; gap: 5px; font-weight: 700; color: #c2410c; font-size: 0.65rem; }
 
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(145deg, #fff7ed 0%, #ffffff 100%);
-            color: var(--text-primary); line-height: 1.4;
-            min-height: 100vh; display: flex; flex-direction: column;
-        }
+    .menu-card .action-icon { color: #f59e0b; border-color: rgba(245,158,11,0.2); background: linear-gradient(145deg, #fffbeb, #ffffff); }
+    .menu-card .action-link { color: #d97706; }
+    .recipes-card .action-icon { color: #059669; border-color: rgba(5,150,105,0.2); background: linear-gradient(145deg, #ecfdf5, #ffffff); }
+    .recipes-card .action-link { color: #059669; }
+    .catering-card .action-icon { color: #8b5cf6; border-color: rgba(139,92,246,0.2); background: linear-gradient(145deg, #f5f0ff, #ffffff); }
+    .catering-card .action-link { color: #7c3aed; }
+    .kitchen-card .action-icon { color: #e11d48; border-color: rgba(225,29,72,0.2); background: linear-gradient(145deg, #fff1f2, #ffffff); }
+    .kitchen-card .action-link { color: #be123c; }
+    .dispatch-card .action-icon { color: #4f46e5; border-color: rgba(79,70,229,0.2); background: linear-gradient(145deg, #eef2ff, #ffffff); }
+    .dispatch-card .action-link { color: #4338ca; }
 
-        @keyframes shimmer {
-            0% { background-position: -200% 0; } 100% { background-position: 200% 0; }
-        }
-        .skeleton {
-            background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
-            background-size: 200% 100%; animation: shimmer 1.5s ease-in-out infinite; border-radius: 6px;
-        }
+    .map-card .action-icon { color: #3b82f6; border-color: rgba(59,130,246,0.2); background: linear-gradient(145deg, #eff6ff, #ffffff); }
+    .map-card .action-link { color: #2563eb; }
 
-        .navbar {
-            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(16px);
-            padding: 0.5rem 2%; display: flex; justify-content: space-between;
-            align-items: center; border-bottom: 2px solid rgba(249, 115, 22, 0.3);
-            position: sticky; top: 0; z-index: 100; flex-wrap: wrap; gap: 8px;
-        }
+    .quick-section {
+      background: white; border-radius: 18px; padding: 1rem 1.2rem;
+      border: 1px solid var(--border-light); margin-bottom: 1.2rem;
+    }
+    .quick-header { display: flex; align-items: center; gap: 8px; margin-bottom: 0.8rem; font-weight: 700; font-size: 0.85rem; }
+    .quick-header i { color: #c2410c; background: #fff7ed; padding: 6px; border-radius: 10px; font-size: 0.8rem; }
+    .quick-links { display: flex; flex-wrap: wrap; gap: 8px; }
+    .quick-btn {
+      background: #f8fafc; border: 1px solid #e2e8f0; padding: 0.45rem 0.9rem;
+      border-radius: 30px; color: #1e293b; font-weight: 500; font-size: 0.7rem;
+      text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;
+    }
+    .quick-btn i { color: #c2410c; font-size: 0.7rem; }
+    .quick-btn:hover { background: #c2410c; color: white; border-color: #c2410c; }
+    .quick-btn:hover i { color: white; }
 
-        .logo { display: flex; align-items: center; gap: 10px; cursor: pointer; text-decoration: none; }
-        .logo-img { height: 36px; width: 36px; border-radius: 10px; object-fit: contain; background: white; box-shadow: 0 4px 12px rgba(249, 115, 22, 0.2); }
-        .logo-text {
-            font-weight: 800; font-size: 1.2rem;
-            background: linear-gradient(145deg, #fb923c, #c2410c);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-        }
-        .logo-text span { font-weight: 600; font-size: 0.7rem; background: #f97316; -webkit-text-fill-color: #f97316; margin-left: 3px; }
+    .recent-section { margin-top: 1.2rem; }
+    .recent-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem; }
+    .recent-header h3 { font-size: 0.85rem; font-weight: 700; }
+    .recent-list { background: white; border-radius: 14px; border: 1px solid var(--border-light); overflow: hidden; }
+    .recent-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.7rem 1rem; border-bottom: 1px solid #fff7ed; font-size: 0.75rem;
+    }
+    .status-tag {
+      padding: 0.15rem 0.5rem; border-radius: 12px; font-size: 0.6rem; font-weight: 700; white-space: nowrap;
+    }
+    .status-new { background: #fef3c7; color: #92400e; }
+    .status-confirmed { background: #d1fae5; color: #065f46; }
+    .status-preparing { background: #e0f2fe; color: #0369a1; }
+    .status-ready { background: #fed7aa; color: #9a3412; }
+    .status-delivered { background: #d1fae5; color: #065f46; }
+    .status-cancelled { background: #fee2e2; color: #991b1b; }
+    .status-dispatched { background: #ede9fe; color: #5b21b6; }
 
-        .nav-right { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-        .nav-btn {
-            background: rgba(249, 115, 22, 0.08); border: 1px solid rgba(249, 115, 22, 0.2);
-            padding: 0.45rem 0.9rem; border-radius: 25px; color: var(--orange-dark);
-            font-weight: 600; font-size: 0.72rem; cursor: pointer; display: inline-flex;
-            align-items: center; gap: 5px; text-decoration: none; transition: all 0.2s;
-        }
-        .nav-btn:hover { background: var(--orange); color: white; }
-        .nav-btn.active { background: var(--orange); color: white; border-color: var(--orange-dark); }
-        .nav-btn.map-btn { background: var(--orange); color: white; border-color: var(--orange-dark); }
+    .empty-state { text-align: center; padding: 2rem; color: #94a3b8; font-size: 0.8rem; }
 
-        .nav-dropdown { position: relative; }
-        .dropdown-menu {
-            position: absolute; top: calc(100% + 8px); right: 0;
-            background: white; border: 1px solid var(--border-light);
-            border-radius: 16px; padding: 0.5rem; min-width: 180px;
-            display: none; z-index: 200; box-shadow: 0 15px 35px rgba(0,0,0,0.12);
-        }
-        .dropdown-menu.show { display: block; }
-        .dropdown-item {
-            padding: 0.55rem 0.8rem; border-radius: 10px;
-            display: flex; align-items: center; gap: 8px;
-            color: var(--text-primary); text-decoration: none;
-            font-size: 0.72rem; font-weight: 500; transition: all 0.15s;
-        }
-        .dropdown-item:hover { background: #fff7ed; color: var(--orange-dark); }
-        .dropdown-item i { width: 18px; color: var(--orange); font-size: 0.75rem; }
+    .footer { text-align: center; padding: 1rem; color: #94a3b8; font-size: 0.7rem; border-top: 1px solid var(--border-light); }
 
-        .user-badge {
-            display: flex; align-items: center; gap: 6px; background: #fff7ed;
-            padding: 0.25rem 0.75rem 0.25rem 0.5rem; border-radius: 30px; font-size: 0.72rem;
-            color: var(--text-muted); border: 1px solid #fed7aa;
-        }
-        .user-avatar {
-            width: 32px; height: 32px; background: linear-gradient(145deg, #f97316, #c2410c);
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-weight: 700; font-size: 0.75rem; color: white;
-        }
-
-        .container { padding: 1.5rem 2%; flex: 1; max-width: 1400px; margin: 0 auto; width: 100%; }
-
-        .page-header { margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.8rem; }
-        .page-header h1 { font-size: 1.5rem; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 10px; }
-        .page-header h1 i { color: var(--orange-dark); background: white; padding: 10px; border-radius: 14px; box-shadow: 0 6px 14px rgba(249,115,22,0.08); font-size: 1.1rem; }
-        .page-header p { color: #64748b; font-size: 0.85rem; }
-        .last-updated { font-size: 0.7rem; color: #94a3b8; margin-left: 8px; }
-        .last-updated i { color: #f97316; font-size: 0.45rem; }
-
-        .stats-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; margin-bottom: 1.5rem; }
-        .stat-card {
-            background: white; border-radius: 18px; padding: 1.2rem 1.4rem;
-            border: 1px solid #fed7aa; box-shadow: 0 4px 12px rgba(0,0,0,0.02);
-            display: flex; align-items: center; justify-content: space-between; transition: all 0.3s;
-        }
-        .stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(249,115,22,0.1); }
-        .stat-left h4 { font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; color: #64748b; margin-bottom: 0.2rem; }
-        .stat-number { font-size: 2rem; font-weight: 800; color: #0f172a; line-height: 1.1; }
-        .stat-trend { font-size: 0.6rem; margin-top: 3px; display: flex; align-items: center; gap: 3px; color: #64748b; }
-        .stat-icon { width: 44px; height: 44px; background: #fff7ed; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #c2410c; font-size: 1.2rem; }
-
-        .action-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 1.5rem; }
-        @media (min-width: 1300px) { .action-grid { grid-template-columns: repeat(7, 1fr); } }
-        .action-card {
-            background: white; border-radius: 20px; padding: 1.4rem 1.3rem;
-            border: 1px solid #fed7aa; box-shadow: 0 6px 16px -4px rgba(194,65,12,0.04);
-            transition: all 0.25s; text-decoration: none; color: inherit; display: block; cursor: pointer;
-        }
-        .action-card:hover { transform: translateY(-4px); box-shadow: 0 20px 35px -8px rgba(194,65,12,0.12); border-color: #fb923c; }
-        .action-icon {
-            width: 50px; height: 50px; background: linear-gradient(145deg, #fff7ed, #ffffff);
-            border-radius: 14px; display: flex; align-items: center; justify-content: center;
-            margin-bottom: 0.8rem; color: #c2410c; font-size: 1.5rem;
-            border: 1px solid rgba(194,65,12,0.15);
-        }
-        .action-card h2 { font-size: 0.95rem; font-weight: 800; margin-bottom: 0.3rem; }
-        .action-card p { color: #64748b; font-size: 0.7rem; margin-bottom: 0.8rem; line-height: 1.4; }
-        .action-link { display: inline-flex; align-items: center; gap: 5px; font-weight: 700; color: #c2410c; font-size: 0.7rem; }
-
-        .menu-card .action-icon { color: #f59e0b; border-color: rgba(245,158,11,0.2); background: linear-gradient(145deg, #fffbeb, #ffffff); }
-        .menu-card .action-link { color: #d97706; }
-        .recipes-card .action-icon { color: #059669; border-color: rgba(5,150,105,0.2); background: linear-gradient(145deg, #ecfdf5, #ffffff); }
-        .recipes-card .action-link { color: #059669; }
-        .catering-card .action-icon { color: #8b5cf6; border-color: rgba(139,92,246,0.2); background: linear-gradient(145deg, #f5f0ff, #ffffff); }
-        .catering-card .action-link { color: #7c3aed; }
-        .franchise-card .action-icon { color: #e11d48; border-color: rgba(225,29,72,0.2); background: linear-gradient(145deg, #fff1f2, #ffffff); }
-        .franchise-card .action-link { color: #be123c; }
-        .dispatch-card .action-icon { color: #4f46e5; border-color: rgba(79,70,229,0.2); background: linear-gradient(145deg, #eef2ff, #ffffff); }
-        .dispatch-card .action-link { color: #4338ca; }
-
-        .quick-section {
-            background: white; border-radius: 18px; padding: 1.2rem 1.4rem;
-            border: 1px solid #fed7aa; margin-bottom: 1.5rem;
-        }
-        .quick-header { display: flex; align-items: center; gap: 8px; margin-bottom: 0.8rem; font-weight: 700; font-size: 0.9rem; }
-        .quick-header i { color: #c2410c; background: #fff7ed; padding: 8px; border-radius: 12px; font-size: 0.85rem; }
-        .quick-links { display: flex; flex-wrap: wrap; gap: 10px; }
-        .quick-btn {
-            background: #f8fafc; border: 1px solid #e2e8f0; padding: 0.5rem 1rem;
-            border-radius: 30px; color: #1e293b; font-weight: 500; font-size: 0.75rem;
-            text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;
-        }
-        .quick-btn i { color: #c2410c; font-size: 0.75rem; }
-        .quick-btn:hover { background: #c2410c; color: white; border-color: #c2410c; }
-        .quick-btn:hover i { color: white; }
-        .quick-btn.highlight { background: var(--orange); color: white; border-color: var(--orange-dark); }
-
-        .recent-section { margin-top: 1.5rem; }
-        .recent-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem; }
-        .recent-header h3 { font-size: 0.9rem; font-weight: 700; }
-        .recent-list { background: white; border-radius: 14px; border: 1px solid #fed7aa; overflow: hidden; }
-        .recent-item {
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 0.8rem 1.2rem; border-bottom: 1px solid #fff7ed; font-size: 0.78rem; cursor: pointer;
-        }
-        .recent-item:hover { background: #fff7ed; }
-        .status-tag { padding: 0.2rem 0.6rem; border-radius: 12px; font-size: 0.65rem; font-weight: 700; white-space: nowrap; }
-        .status-new { background: #fef3c7; color: #92400e; }
-        .status-confirmed { background: #d1fae5; color: #065f46; }
-        .status-preparing { background: #e0f2fe; color: #0369a1; }
-        .status-ready { background: #fef3c7; color: #b45309; }
-        .status-delivered { background: #d1fae5; color: #065f46; }
-        .status-cancelled { background: #fee2e2; color: #991b1b; }
-
-        .empty-state { text-align: center; padding: 2.5rem; color: #94a3b8; font-size: 0.85rem; }
-        .footer { text-align: center; padding: 1.2rem; color: #94a3b8; font-size: 0.72rem; border-top: 1px solid #fed7aa; }
-
-        @media (max-width: 1400px) { .action-grid { grid-template-columns: repeat(4, 1fr); } .stats-grid { grid-template-columns: repeat(3, 1fr); } }
-        @media (max-width: 900px) { .action-grid { grid-template-columns: repeat(2, 1fr); } .stats-grid { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 600px) { .action-grid { grid-template-columns: 1fr; } .stats-grid { grid-template-columns: 1fr; } .container { padding: 0.8rem; } }
-    </style>
+    @media (max-width: 1200px) { .stats-grid { grid-template-columns: repeat(3, 1fr); } .action-grid { grid-template-columns: repeat(4, 1fr); } }
+    @media (max-width: 768px) {
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .action-grid { grid-template-columns: repeat(2, 1fr); }
+      .container { padding: 0.8rem; }
+      .page-header h1 { font-size: 1.1rem; }
+    }
+    @media (max-width: 500px) { .action-grid { grid-template-columns: 1fr; } }
+  </style>
 </head>
 <body>
+  <nav class="navbar">
+    <a href="/workspaces/mugs-n-dines/index.html" class="logo">
+      <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png" alt="Mugs N Dines Logo" class="logo-img">
+      <span class="logo-text" id="businessName">Mugs N Dines <span>🍽️</span></span>
+    </a>
+    <div class="nav-right">
+      <a href="/workspaces/mugs-n-dines/map.html" class="nav-btn map-btn"><i class="fas fa-map-location-dot"></i> Add to Map</a>
+      <a href="/workspaces/index.html" class="nav-btn"><i class="fas fa-arrow-left"></i> Workspaces</a>
+      <div class="user-badge">
+        <div class="user-avatar" id="userAvatar" style="width:30px;height:30px;border-radius:50%;">MD</div>
+        <span id="userName">Manager</span>
+      </div>
+    </div>
+  </nav>
 
-    <nav class="navbar">
-        <a href="/workspaces/mugs-n-dines/index.html" class="logo">
-            <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png" alt="Mugs N Dines" class="logo-img">
-            <span class="logo-text" id="businessName">Mugs N Dines</span>
-        </a>
-        <div class="nav-right">
-            <a href="/workspaces/mugs-n-dines/index.html" class="nav-btn active"><i class="fas fa-chart-pie"></i> Dashboard</a>
-            <a href="/workspaces/mugs-n-dines/orders.html" class="nav-btn"><i class="fas fa-shopping-cart"></i> Orders</a>
-            <a href="/workspaces/mugs-n-dines/menu.html" class="nav-btn"><i class="fas fa-utensils"></i> Menu</a>
-            <div class="nav-dropdown">
-                <button class="nav-btn" onclick="toggleDropdown()"><i class="fas fa-ellipsis-h"></i> More</button>
-                <div class="dropdown-menu" id="moreDropdown">
-                    <a href="/workspaces/mugs-n-dines/recipes.html" class="dropdown-item"><i class="fas fa-book-open"></i> Recipes</a>
-                    <a href="/workspaces/mugs-n-dines/catering.html" class="dropdown-item"><i class="fas fa-calendar-check"></i> Catering</a>
-                    <a href="/workspaces/mugs-n-dines/franchises.html" class="dropdown-item"><i class="fas fa-store-alt"></i> Franchises</a>
-                    <a href="/workspaces/mugs-n-dines/dispatch.html" class="dropdown-item"><i class="fas fa-truck-fast"></i> Dispatch</a>
-                </div>
-            </div>
-            <a href="/workspaces/mugs-n-dines/map.html" class="nav-btn map-btn"><i class="fas fa-map-marked-alt"></i> Map</a>
-            <div class="user-badge">
-                <div class="user-avatar" id="userAvatar">MD</div>
-                <span id="userName">Manager</span>
-            </div>
-        </div>
-    </nav>
-
-    <div class="container">
-        <div class="page-header">
-            <h1>
-                <i class="fas fa-utensils"></i>
-                Mugs N Dines
-                <span class="last-updated" id="lastUpdated"><i class="fas fa-circle"></i> Live</span>
-            </h1>
-            <p>Manage food orders, recipes, catering events, franchises & dispatch.</p>
-        </div>
-
-        <div class="stats-grid" id="statsGrid">
-            <div class="stat-card"><div class="stat-left"><h4>New Orders</h4><div class="stat-number" id="statNewOrders">0</div><div class="stat-trend"><i class="fas fa-inbox"></i> Awaiting action</div></div><div class="stat-icon"><i class="fas fa-inbox"></i></div></div>
-            <div class="stat-card"><div class="stat-left"><h4>Active Orders</h4><div class="stat-number" id="statActiveOrders">0</div><div class="stat-trend"><i class="fas fa-fire"></i> Being prepared</div></div><div class="stat-icon"><i class="fas fa-fire"></i></div></div>
-            <div class="stat-card"><div class="stat-left"><h4>Menu Items</h4><div class="stat-number" id="statMenuItems">0</div><div class="stat-trend"><i class="fas fa-utensils"></i> Available dishes</div></div><div class="stat-icon"><i class="fas fa-utensils"></i></div></div>
-            <div class="stat-card"><div class="stat-left"><h4>Recipes</h4><div class="stat-number" id="statRecipes">0</div><div class="stat-trend"><i class="fas fa-book-open"></i> Created recipes</div></div><div class="stat-icon"><i class="fas fa-book-open"></i></div></div>
-            <div class="stat-card"><div class="stat-left"><h4>Catering</h4><div class="stat-number" id="statCateringEvents">0</div><div class="stat-trend"><i class="fas fa-calendar"></i> Upcoming events</div></div><div class="stat-icon"><i class="fas fa-calendar"></i></div></div>
-            <div class="stat-card"><div class="stat-left"><h4>Franchises</h4><div class="stat-number" id="statFranchises">0</div><div class="stat-trend"><i class="fas fa-store-alt"></i> Active outlets</div></div><div class="stat-icon"><i class="fas fa-store-alt"></i></div></div>
-        </div>
-
-        <div class="action-grid">
-            <a href="/workspaces/mugs-n-dines/new-order.html" class="action-card"><div class="action-icon"><i class="fas fa-cart-plus"></i></div><h2>New Order</h2><p>Create a new food order for dine-in or delivery.</p><span class="action-link">Place Order <i class="fas fa-arrow-right"></i></span></a>
-            <a href="/workspaces/mugs-n-dines/orders.html" class="action-card"><div class="action-icon"><i class="fas fa-inbox"></i></div><h2>Orders</h2><p>View, update & track all food orders.</p><span class="action-link">View Orders <i class="fas fa-arrow-right"></i></span></a>
-            <a href="/workspaces/mugs-n-dines/menu.html" class="action-card menu-card"><div class="action-icon"><i class="fas fa-utensils"></i></div><h2>Menu</h2><p>Add, edit & manage your restaurant menu.</p><span class="action-link">Manage Menu <i class="fas fa-arrow-right"></i></span></a>
-            <a href="/workspaces/mugs-n-dines/recipes.html" class="action-card recipes-card"><div class="action-icon"><i class="fas fa-book-open"></i></div><h2>Recipes</h2><p>Create & manage recipes, ingredients & steps.</p><span class="action-link">View Recipes <i class="fas fa-arrow-right"></i></span></a>
-            <a href="/workspaces/mugs-n-dines/catering.html" class="action-card catering-card"><div class="action-icon"><i class="fas fa-calendar-check"></i></div><h2>Catering</h2><p>Book & manage catering events.</p><span class="action-link">Manage Events <i class="fas fa-arrow-right"></i></span></a>
-            <a href="/workspaces/mugs-n-dines/franchises.html" class="action-card franchise-card"><div class="action-icon"><i class="fas fa-store-alt"></i></div><h2>Franchises</h2><p>Manage restaurant outlets & locations.</p><span class="action-link">View Franchises <i class="fas fa-arrow-right"></i></span></a>
-            <a href="/workspaces/mugs-n-dines/dispatch.html" class="action-card dispatch-card"><div class="action-icon"><i class="fas fa-truck-fast"></i></div><h2>Dispatch</h2><p>Assign drivers & track deliveries.</p><span class="action-link">Dispatch <i class="fas fa-arrow-right"></i></span></a>
-        </div>
-
-        <div class="quick-section">
-            <div class="quick-header"><i class="fas fa-bolt"></i> Quick Actions</div>
-            <div class="quick-links">
-                <a href="/workspaces/mugs-n-dines/new-order.html" class="quick-btn"><i class="fas fa-plus-circle"></i> New Order</a>
-                <a href="/workspaces/mugs-n-dines/orders.html?filter=new" class="quick-btn"><i class="fas fa-clock"></i> Pending (<span id="pendingCount">0</span>)</a>
-                <a href="/workspaces/mugs-n-dines/menu.html" class="quick-btn"><i class="fas fa-utensils"></i> Menu</a>
-                <a href="/workspaces/mugs-n-dines/recipes.html" class="quick-btn"><i class="fas fa-book-open"></i> Recipes</a>
-                <a href="/workspaces/mugs-n-dines/catering.html" class="quick-btn"><i class="fas fa-calendar"></i> Catering</a>
-                <a href="/workspaces/mugs-n-dines/franchises.html" class="quick-btn"><i class="fas fa-store-alt"></i> Franchises</a>
-                <a href="/workspaces/mugs-n-dines/dispatch.html" class="quick-btn"><i class="fas fa-truck"></i> Dispatch (<span id="dispatchCount">0</span>)</a>
-                <a href="/workspaces/mugs-n-dines/map.html" class="quick-btn highlight"><i class="fas fa-map-marked-alt"></i> Map</a>
-            </div>
-        </div>
-
-        <div class="recent-section">
-            <div class="recent-header"><h3><i class="fas fa-clock-rotate-left" style="color:#c2410c;"></i> Recent Food Orders</h3><a href="/workspaces/mugs-n-dines/orders.html" style="color:#c2410c;font-weight:600;font-size:0.78rem;">View all</a></div>
-            <div class="recent-list" id="recentOrders"><div class="empty-state"><i class="fas fa-shopping-cart" style="font-size:1.8rem;display:block;margin-bottom:10px;opacity:0.4;"></i><p>No orders yet — start by placing a new order</p></div></div>
-        </div>
-
-        <div class="recent-section">
-            <div class="recent-header"><h3><i class="fas fa-calendar-check" style="color:#7c3aed;"></i> Upcoming Catering Events</h3><a href="/workspaces/mugs-n-dines/catering.html" style="color:#7c3aed;font-weight:600;font-size:0.78rem;">View all</a></div>
-            <div class="recent-list" id="recentCatering"><div class="empty-state"><i class="fas fa-calendar" style="font-size:1.8rem;display:block;margin-bottom:10px;opacity:0.4;"></i><p>No upcoming events — book a catering event</p></div></div>
-        </div>
+  <div class="container">
+    <div class="page-header">
+      <h1>
+        <i class="fas fa-utensils"></i>
+        Mugs N Dines Dashboard
+        <span class="last-updated" id="lastUpdated"><i class="fas fa-circle"></i> Live</span>
+      </h1>
+      <p>Manage food orders, recipes, catering events, kitchens & dispatch.</p>
     </div>
 
-    <div class="footer"><i class="far fa-copyright"></i> 2026 Mugs N Dines · Food & Catering · <span id="footerStats">Loading...</span></div>
+    <!-- Stats Grid with Skeleton Support -->
+    <div class="stats-grid" id="statsGrid">
+      <div class="stat-card skeleton-card">
+        <div class="stat-left">
+          <div class="skeleton skeleton-text-sm" style="width:80px;"></div>
+          <div class="skeleton skeleton-number" style="width:40px;"></div>
+          <div class="skeleton skeleton-text-sm" style="width:100px;"></div>
+        </div>
+        <div class="skeleton skeleton-icon"></div>
+      </div>
+      <div class="stat-card skeleton-card">
+        <div class="stat-left">
+          <div class="skeleton skeleton-text-sm" style="width:80px;"></div>
+          <div class="skeleton skeleton-number" style="width:40px;"></div>
+          <div class="skeleton skeleton-text-sm" style="width:100px;"></div>
+        </div>
+        <div class="skeleton skeleton-icon"></div>
+      </div>
+      <div class="stat-card skeleton-card">
+        <div class="stat-left">
+          <div class="skeleton skeleton-text-sm" style="width:80px;"></div>
+          <div class="skeleton skeleton-number" style="width:40px;"></div>
+          <div class="skeleton skeleton-text-sm" style="width:100px;"></div>
+        </div>
+        <div class="skeleton skeleton-icon"></div>
+      </div>
+      <div class="stat-card skeleton-card">
+        <div class="stat-left">
+          <div class="skeleton skeleton-text-sm" style="width:80px;"></div>
+          <div class="skeleton skeleton-number" style="width:40px;"></div>
+          <div class="skeleton skeleton-text-sm" style="width:100px;"></div>
+        </div>
+        <div class="skeleton skeleton-icon"></div>
+      </div>
+      <div class="stat-card skeleton-card">
+        <div class="stat-left">
+          <div class="skeleton skeleton-text-sm" style="width:80px;"></div>
+          <div class="skeleton skeleton-number" style="width:40px;"></div>
+          <div class="skeleton skeleton-text-sm" style="width:100px;"></div>
+        </div>
+        <div class="skeleton skeleton-icon"></div>
+      </div>
+      <div class="stat-card skeleton-card">
+        <div class="stat-left">
+          <div class="skeleton skeleton-text-sm" style="width:80px;"></div>
+          <div class="skeleton skeleton-number" style="width:40px;"></div>
+          <div class="skeleton skeleton-text-sm" style="width:100px;"></div>
+        </div>
+        <div class="skeleton skeleton-icon"></div>
+      </div>
+    </div>
 
-    <script type="importmap">
-        { "imports": { "firebase/app": "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js", "firebase/auth": "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js", "firebase/database": "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js" } }
-    </script>
+    <!-- Action Grid with Skeleton Support -->
+    <div class="action-grid" id="actionGrid">
+      <div class="skeleton-action-card"><div class="skeleton skeleton-action-icon"></div><div class="skeleton skeleton-text" style="width:80%;"></div><div class="skeleton skeleton-text-sm" style="width:100%;"></div><div class="skeleton skeleton-text-sm" style="width:60%;"></div></div>
+      <div class="skeleton-action-card"><div class="skeleton skeleton-action-icon"></div><div class="skeleton skeleton-text" style="width:80%;"></div><div class="skeleton skeleton-text-sm" style="width:100%;"></div><div class="skeleton skeleton-text-sm" style="width:60%;"></div></div>
+      <div class="skeleton-action-card"><div class="skeleton skeleton-action-icon"></div><div class="skeleton skeleton-text" style="width:80%;"></div><div class="skeleton skeleton-text-sm" style="width:100%;"></div><div class="skeleton skeleton-text-sm" style="width:60%;"></div></div>
+      <div class="skeleton-action-card"><div class="skeleton skeleton-action-icon"></div><div class="skeleton skeleton-text" style="width:80%;"></div><div class="skeleton skeleton-text-sm" style="width:100%;"></div><div class="skeleton skeleton-text-sm" style="width:60%;"></div></div>
+      <div class="skeleton-action-card"><div class="skeleton skeleton-action-icon"></div><div class="skeleton skeleton-text" style="width:80%;"></div><div class="skeleton skeleton-text-sm" style="width:100%;"></div><div class="skeleton skeleton-text-sm" style="width:60%;"></div></div>
+      <div class="skeleton-action-card"><div class="skeleton skeleton-action-icon"></div><div class="skeleton skeleton-text" style="width:80%;"></div><div class="skeleton skeleton-text-sm" style="width:100%;"></div><div class="skeleton skeleton-text-sm" style="width:60%;"></div></div>
+      <div class="skeleton-action-card"><div class="skeleton skeleton-action-icon"></div><div class="skeleton skeleton-text" style="width:80%;"></div><div class="skeleton skeleton-text-sm" style="width:100%;"></div><div class="skeleton skeleton-text-sm" style="width:60%;"></div></div>
+    </div>
 
-    <script type="module">
-        import { initializeApp } from "firebase/app";
-        import { getAuth, onAuthStateChanged } from "firebase/auth";
-        import { getDatabase, ref, get, onValue } from "firebase/database";
+    <!-- Quick Actions with Skeleton -->
+    <div class="quick-section" id="quickSection">
+      <div class="quick-header"><i class="fas fa-bolt"></i> Quick Actions</div>
+      <div class="quick-links" id="quickLinks">
+        <div class="skeleton skeleton-quick-btn"></div>
+        <div class="skeleton skeleton-quick-btn"></div>
+        <div class="skeleton skeleton-quick-btn" style="width:80px;"></div>
+        <div class="skeleton skeleton-quick-btn"></div>
+        <div class="skeleton skeleton-quick-btn" style="width:90px;"></div>
+        <div class="skeleton skeleton-quick-btn"></div>
+        <div class="skeleton skeleton-quick-btn" style="width:85px;"></div>
+        <div class="skeleton skeleton-quick-btn"></div>
+      </div>
+    </div>
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
-            authDomain: "mugera-e51cc.firebaseapp.com",
-            databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "mugera-e51cc",
-            storageBucket: "mugera-e51cc.firebasestorage.app",
-            messagingSenderId: "1024868637509",
-            appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
-        };
+    <!-- Recent Orders with Skeleton -->
+    <div class="recent-section" id="recentSection">
+      <div class="recent-header">
+        <h3><i class="fas fa-clock-rotate-left" style="color:#c2410c;"></i> Recent Orders</h3>
+        <a href="/workspaces/mugs-n-dines/orders.html" style="color:#c2410c;font-weight:600;font-size:0.75rem;">View all</a>
+      </div>
+      <div class="recent-list" id="recentList">
+        <div class="skeleton-recent-item"><div class="skeleton skeleton-avatar"></div><div style="flex:1;"><div class="skeleton skeleton-text" style="width:50%;"></div><div class="skeleton skeleton-text-sm" style="width:80%;"></div></div><div class="skeleton skeleton-badge"></div></div>
+        <div class="skeleton-recent-item"><div class="skeleton skeleton-avatar"></div><div style="flex:1;"><div class="skeleton skeleton-text" style="width:60%;"></div><div class="skeleton skeleton-text-sm" style="width:70%;"></div></div><div class="skeleton skeleton-badge"></div></div>
+        <div class="skeleton-recent-item"><div class="skeleton skeleton-avatar"></div><div style="flex:1;"><div class="skeleton skeleton-text" style="width:45%;"></div><div class="skeleton skeleton-text-sm" style="width:75%;"></div></div><div class="skeleton skeleton-badge"></div></div>
+        <div class="skeleton-recent-item"><div class="skeleton skeleton-avatar"></div><div style="flex:1;"><div class="skeleton skeleton-text" style="width:55%;"></div><div class="skeleton skeleton-text-sm" style="width:65%;"></div></div><div class="skeleton skeleton-badge"></div></div>
+        <div class="skeleton-recent-item"><div class="skeleton skeleton-avatar"></div><div style="flex:1;"><div class="skeleton skeleton-text" style="width:50%;"></div><div class="skeleton skeleton-text-sm" style="width:85%;"></div></div><div class="skeleton skeleton-badge"></div></div>
+      </div>
+    </div>
+  </div>
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getDatabase(app);
+  <div class="footer">
+    <i class="far fa-copyright"></i> 2026 Mugs N Dines · Food & Catering · <span id="footerStats">Loading...</span>
+  </div>
 
-        let allOrders = {}, allMenuItems = {}, allRecipes = {}, allCateringEvents = {}, allFranchises = {}, allDispatch = {};
+  <script type="importmap">
+    {
+      "imports": {
+        "firebase/app": "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js",
+        "firebase/auth": "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js",
+        "firebase/database": "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js"
+      }
+    }
+  </script>
 
-        function escapeHtml(s) { if (!s) return ''; return String(s).replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : m === '>' ? '&gt;' : m); }
-        function getInitials(n) { if (!n) return 'MD'; return n.split(' ').map(x => x[0]).join('').toUpperCase().substring(0, 2); }
-        function formatTimeAgo(ts) { if (!ts) return ''; const d = new Date(ts); const diff = Date.now() - d.getTime(); const m = Math.floor(diff / 60000); const h = Math.floor(m / 60); const days = Math.floor(h / 24); if (days > 0) return `${days}d ago`; if (h > 0) return `${h}h ago`; if (m > 0) return `${m}m ago`; return 'Just now'; }
-        function getStatusClass(s) { const map = { new: 'status-new', pending: 'status-new', confirmed: 'status-confirmed', preparing: 'status-preparing', ready: 'status-ready', delivered: 'status-delivered', cancelled: 'status-cancelled' }; return map[s] || 'status-new'; }
+  <script type="module">
+    import { initializeApp } from "firebase/app";
+    import { getAuth, onAuthStateChanged } from "firebase/auth";
+    import { getDatabase, ref, get, onValue } from "firebase/database";
 
-        function renderRecentOrders() {
-            const list = document.getElementById('recentOrders');
-            const orders = Object.entries(allOrders).map(([id, data]) => ({ id, ...data })).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)).slice(0, 6);
-            if (!orders.length) { list.innerHTML = '<div class="empty-state"><i class="fas fa-shopping-cart" style="font-size:1.8rem;display:block;margin-bottom:10px;opacity:0.4;"></i><p>No orders yet — start by placing a new order</p></div>'; return; }
-            list.innerHTML = orders.map(o => `<div class="recent-item"><div style="display:flex;align-items:center;gap:12px;"><div style="width:36px;height:36px;background:#fff7ed;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;">🍽️</div><div><strong>${escapeHtml(o.customerName || 'Customer')}</strong><p style="font-size:0.68rem;color:#64748b;">${(o.items || []).length} items · KES ${(o.total || 0).toLocaleString()} ${formatTimeAgo(o.createdAt) ? '· ' + formatTimeAgo(o.createdAt) : ''}</p></div></div><span class="status-tag ${getStatusClass(o.status)}">${o.status || 'new'}</span></div>`).join('');
-        }
+    const firebaseConfig = {
+      apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+      authDomain: "mugera-e51cc.firebaseapp.com",
+      databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "mugera-e51cc",
+      storageBucket: "mugera-e51cc.firebasestorage.app",
+      messagingSenderId: "1024868637509",
+      appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
+    };
 
-        function renderRecentCatering() {
-            const list = document.getElementById('recentCatering');
-            const events = Object.entries(allCateringEvents).map(([id, data]) => ({ id, ...data })).filter(e => e.status !== 'cancelled' && e.status !== 'completed').sort((a, b) => (a.eventDate || 0) - (b.eventDate || 0)).slice(0, 5);
-            if (!events.length) { list.innerHTML = '<div class="empty-state"><i class="fas fa-calendar" style="font-size:1.8rem;display:block;margin-bottom:10px;opacity:0.4;"></i><p>No upcoming events — book a catering event</p></div>'; return; }
-            list.innerHTML = events.map(e => `<div class="recent-item"><div style="display:flex;align-items:center;gap:12px;"><div style="width:36px;height:36px;background:#f5f0ff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;">🎪</div><div><strong>${escapeHtml(e.eventName || 'Event')}</strong><p style="font-size:0.68rem;color:#64748b;">${e.eventDate ? new Date(e.eventDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'TBD'} · ${escapeHtml(e.clientName || 'Client')} · ${e.guests || 0} guests</p></div></div><span class="status-tag ${e.status === 'confirmed' ? 'status-confirmed' : 'status-new'}">${e.status || 'new'}</span></div>`).join('');
-        }
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
 
-        function updateStats() {
-            const orders = Object.values(allOrders), menuItems = Object.values(allMenuItems), recipes = Object.values(allRecipes);
-            const events = Object.values(allCateringEvents), franchises = Object.values(allFranchises), dispatch = Object.values(allDispatch);
-            const newOrders = orders.filter(o => o.status === 'new' || o.status === 'pending').length;
-            const activeOrders = orders.filter(o => o.status === 'confirmed' || o.status === 'preparing').length;
-            const upcomingEvents = events.filter(e => e.status !== 'cancelled' && e.status !== 'completed').length;
+    let allOrders = {};
+    let allMenuItems = {};
+    let allRecipes = {};
+    let allCateringEvents = {};
+    let allKitchens = {};
 
-            document.getElementById('statNewOrders').textContent = newOrders;
-            document.getElementById('statActiveOrders').textContent = activeOrders;
-            document.getElementById('statMenuItems').textContent = menuItems.length;
-            document.getElementById('statRecipes').textContent = recipes.length;
-            document.getElementById('statCateringEvents').textContent = upcomingEvents;
-            document.getElementById('statFranchises').textContent = franchises.length;
-            document.getElementById('pendingCount').textContent = newOrders;
-            document.getElementById('dispatchCount').textContent = dispatch.length;
-            document.getElementById('footerStats').innerHTML = `${orders.length} orders · ${menuItems.length} menu · ${recipes.length} recipes · ${events.length} events · ${franchises.length} franchises`;
-            document.getElementById('lastUpdated').innerHTML = '<i class="fas fa-circle" style="color:#f97316;"></i> Live';
-            renderRecentOrders(); 
-            renderRecentCatering();
-        }
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : m === '>' ? '&gt;' : m);
+    }
 
-        function setupListeners() {
-            const paths = ['mugsndines_orders','mugsndines_menu','mugsndines_recipes','mugsndines_catering','mugsndines_franchises','mugsndines_dispatch'];
-            const vars = ['allOrders','allMenuItems','allRecipes','allCateringEvents','allFranchises','allDispatch'];
-            paths.forEach((p, i) => {
-                onValue(ref(db, p), (snapshot) => { 
-                    window[vars[i]] = snapshot.val() || {}; 
-                    updateStats(); 
-                }, (error) => { 
-                    console.warn(`Error loading ${p}:`, error);
-                    window[vars[i]] = {}; 
-                    updateStats(); 
-                });
-            });
-        }
+    function getInitials(name) {
+      if (!name) return 'MD';
+      return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+    }
 
-        // Dropdown toggle
-        window.toggleDropdown = function() {
-            document.getElementById('moreDropdown').classList.toggle('show');
-        };
-        document.addEventListener('click', function(e) {
-            if (!e.target.closest('.nav-dropdown')) {
-                document.getElementById('moreDropdown').classList.remove('show');
-            }
-        });
+    function formatTimeAgo(timestamp) {
+      if (!timestamp) return '';
+      const date = typeof timestamp === 'number' ? new Date(timestamp) : new Date(timestamp);
+      if (isNaN(date.getTime())) return '';
+      const diff = Date.now() - date.getTime();
+      const mins = Math.floor(diff / 60000);
+      const hours = Math.floor(mins / 60);
+      const days = Math.floor(hours / 24);
+      if (days > 30) return '';
+      if (days > 0) return `${days}d ago`;
+      if (hours > 0) return `${hours}h ago`;
+      if (mins > 0) return `${mins}m ago`;
+      return 'Just now';
+    }
 
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                try {
-                    const snap = await get(ref(db, 'brandinn_users/' + user.uid));
-                    let name = user.email?.split('@')[0] || 'Manager';
-                    let biz = 'Mugs N Dines';
-                    if (snap.exists()) { 
-                        name = snap.val().name || name; 
-                        biz = snap.val().businessName || biz; 
-                    }
-                    document.getElementById('userName').textContent = name;
-                    document.getElementById('userAvatar').textContent = getInitials(name);
-                    document.getElementById('businessName').innerHTML = escapeHtml(biz) + ' <span>🍽️</span>';
-                    setupListeners();
-                } catch (err) {
-                    console.error("Auth user data error:", err);
-                    setupListeners(); // still try to load data
-                }
-            } else {
-                window.location.href = '/workspaces/index.html';
-            }
-        });
+    function getStatusClass(status) {
+      const s = (status || 'new').toLowerCase();
+      const map = { 
+        new: 'status-new', pending: 'status-new', confirmed: 'status-confirmed', 
+        preparing: 'status-preparing', ready: 'status-ready', 
+        delivered: 'status-delivered', cancelled: 'status-cancelled', dispatched: 'status-dispatched' 
+      };
+      return map[s] || 'status-new';
+    }
 
-        // Initial call to populate placeholders
+    function getStatusLabel(status) {
+      if (!status) return 'new';
+      return status;
+    }
+
+    function renderRecentOrders() {
+      const recentList = document.getElementById('recentList');
+      const orders = Object.entries(allOrders)
+        .filter(([_, o]) => o && o.customerName)
+        .map(([id, data]) => ({ id, ...data }))
+        .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
+        .slice(0, 6);
+
+      if (!orders.length) {
+        recentList.innerHTML = '<div class="empty-state"><i class="fas fa-shopping-cart"></i><p>No orders yet</p></div>';
+        return;
+      }
+
+      recentList.innerHTML = orders.map(order => {
+        const status = order.status || 'new';
+        const timeAgo = formatTimeAgo(order.createdAt);
+        const customer = order.customerName || 'Customer';
+        const itemCount = (order.items || []).length;
+        const total = order.total || 0;
+
+        return `
+          <div class="recent-item" onclick="window.location.href='/workspaces/mugs-n-dines/orders.html'">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div style="width:32px;height:32px;background:#fff7ed;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1rem;">🍽️</div>
+              <div>
+                <strong>${escapeHtml(customer)}</strong>
+                <p style="font-size:0.65rem;color:#64748b;">${itemCount} item${itemCount !== 1 ? 's' : ''} · KES ${Number(total).toLocaleString()} ${timeAgo ? '· ' + timeAgo : ''}</p>
+              </div>
+            </div>
+            <span class="status-tag ${getStatusClass(status)}">${getStatusLabel(status)}</span>
+          </div>`;
+      }).join('');
+    }
+
+    function renderCateringEvents() {
+      // Add upcoming events section if needed
+    }
+
+    function updateStats() {
+      const orders = Object.values(allOrders).filter(o => o);
+      const menuItems = Object.values(allMenuItems).filter(i => i);
+      const recipes = Object.values(allRecipes).filter(r => r);
+      const cateringEvents = Object.values(allCateringEvents).filter(e => e);
+      const kitchens = Object.values(allKitchens).filter(k => k);
+      
+      const newOrders = orders.filter(o => {
+        const s = (o.status || 'new').toLowerCase();
+        return s === 'new' || s === 'pending';
+      }).length;
+      
+      const preparingOrders = orders.filter(o => {
+        const s = (o.status || '').toLowerCase();
+        return s === 'confirmed' || s === 'preparing';
+      }).length;
+      
+      const upcomingEvents = cateringEvents.filter(e => {
+        const status = (e.status || '').toLowerCase();
+        return status !== 'cancelled' && status !== 'completed';
+      }).length;
+
+      // Replace skeleton stats with real content
+      document.getElementById('statsGrid').innerHTML = `
+        <div class="stat-card"><div class="stat-left"><h4>New Orders</h4><div class="stat-number">${newOrders}</div><div class="stat-trend"><i class="fas fa-inbox"></i> Awaiting action</div></div><div class="stat-icon"><i class="fas fa-inbox"></i></div></div>
+        <div class="stat-card"><div class="stat-left"><h4>Active Orders</h4><div class="stat-number">${preparingOrders}</div><div class="stat-trend"><i class="fas fa-fire"></i> Being prepared</div></div><div class="stat-icon"><i class="fas fa-fire"></i></div></div>
+        <div class="stat-card"><div class="stat-left"><h4>Menu Items</h4><div class="stat-number">${menuItems.length}</div><div class="stat-trend"><i class="fas fa-utensils"></i> Available dishes</div></div><div class="stat-icon"><i class="fas fa-utensils"></i></div></div>
+        <div class="stat-card"><div class="stat-left"><h4>Recipes</h4><div class="stat-number">${recipes.length}</div><div class="stat-trend"><i class="fas fa-book-open"></i> Created recipes</div></div><div class="stat-icon"><i class="fas fa-book-open"></i></div></div>
+        <div class="stat-card"><div class="stat-left"><h4>Catering</h4><div class="stat-number">${upcomingEvents}</div><div class="stat-trend"><i class="fas fa-calendar"></i> Upcoming events</div></div><div class="stat-icon"><i class="fas fa-calendar"></i></div></div>
+        <div class="stat-card"><div class="stat-left"><h4>Kitchens</h4><div class="stat-number">${kitchens.length}</div><div class="stat-trend"><i class="fas fa-store-alt"></i> Active outlets</div></div><div class="stat-icon"><i class="fas fa-store-alt"></i></div></div>
+      `;
+
+      // Replace skeleton action cards with real content
+      document.getElementById('actionGrid').innerHTML = `
+        <a href="/workspaces/mugs-n-dines/new-order.html" class="action-card">
+          <div class="action-icon"><i class="fas fa-cart-plus"></i></div>
+          <h2>New Order</h2>
+          <p>Create a new food order for takeaway or delivery.</p>
+          <span class="action-link">Place Order <i class="fas fa-arrow-right"></i></span>
+        </a>
+        <a href="/workspaces/mugs-n-dines/orders.html" class="action-card">
+          <div class="action-icon"><i class="fas fa-inbox"></i></div>
+          <h2>Orders</h2>
+          <p>View, update & track all food orders.</p>
+          <span class="action-link">View Orders <i class="fas fa-arrow-right"></i></span>
+        </a>
+        <a href="/workspaces/mugs-n-dines/menu.html" class="action-card menu-card">
+          <div class="action-icon"><i class="fas fa-utensils"></i></div>
+          <h2>Menu</h2>
+          <p>Add, edit & manage your restaurant menu.</p>
+          <span class="action-link">Manage Menu <i class="fas fa-arrow-right"></i></span>
+        </a>
+        <a href="/workspaces/mugs-n-dines/recipes.html" class="action-card recipes-card">
+          <div class="action-icon"><i class="fas fa-book-open"></i></div>
+          <h2>Recipes</h2>
+          <p>Create & manage recipes, ingredients & steps.</p>
+          <span class="action-link">View Recipes <i class="fas fa-arrow-right"></i></span>
+        </a>
+        <a href="/workspaces/mugs-n-dines/catering.html" class="action-card catering-card">
+          <div class="action-icon"><i class="fas fa-calendar-check"></i></div>
+          <h2>Catering</h2>
+          <p>Book & manage catering events.</p>
+          <span class="action-link">Manage Events <i class="fas fa-arrow-right"></i></span>
+        </a>
+        <a href="/workspaces/mugs-n-dines/kitchens.html" class="action-card kitchen-card">
+          <div class="action-icon"><i class="fas fa-store-alt"></i></div>
+          <h2>Kitchens</h2>
+          <p>Manage kitchen locations & staff.</p>
+          <span class="action-link">View Kitchens <i class="fas fa-arrow-right"></i></span>
+        </a>
+        <a href="/workspaces/mugs-n-dines/dispatch.html" class="action-card dispatch-card">
+          <div class="action-icon"><i class="fas fa-truck-fast"></i></div>
+          <h2>Dispatch</h2>
+          <p>Assign drivers & track deliveries.</p>
+          <span class="action-link">Dispatch <i class="fas fa-arrow-right"></i></span>
+        </a>
+      `;
+
+      // Replace skeleton quick links with real content
+      document.getElementById('quickLinks').innerHTML = `
+        <a href="/workspaces/mugs-n-dines/new-order.html" class="quick-btn"><i class="fas fa-plus-circle"></i> New Order</a>
+        <a href="/workspaces/mugs-n-dines/orders.html?filter=new" class="quick-btn"><i class="fas fa-clock"></i> Pending (${newOrders})</a>
+        <a href="/workspaces/mugs-n-dines/menu.html" class="quick-btn"><i class="fas fa-utensils"></i> Menu</a>
+        <a href="/workspaces/mugs-n-dines/recipes.html" class="quick-btn"><i class="fas fa-book-open"></i> Recipes</a>
+        <a href="/workspaces/mugs-n-dines/catering.html" class="quick-btn"><i class="fas fa-calendar"></i> Catering</a>
+        <a href="/workspaces/mugs-n-dines/kitchens.html" class="quick-btn"><i class="fas fa-store-alt"></i> Kitchens</a>
+        <a href="/workspaces/mugs-n-dines/dispatch.html" class="quick-btn"><i class="fas fa-truck"></i> Dispatch (${preparingOrders})</a>
+        <a href="/workspaces/mugs-n-dines/map.html" class="quick-btn"><i class="fas fa-map-marked-alt"></i> Map</a>
+      `;
+      
+      document.getElementById('footerStats').innerHTML = `${orders.length} orders · ${menuItems.length} menu · ${recipes.length} recipes · ${cateringEvents.length} events · ${kitchens.length} kitchens`;
+      document.getElementById('lastUpdated').innerHTML = `<i class="fas fa-circle" style="color:#f97316;"></i> Live`;
+      renderRecentOrders();
+    }
+
+    function setupRealtimeListeners() {
+      onValue(ref(db, 'mugs_n_dines_orders'), (snapshot) => {
+        allOrders = snapshot.val() || {};
         updateStats();
-    </script>
+      });
+      
+      onValue(ref(db, 'mugs_n_dines_menu'), (snapshot) => {
+        allMenuItems = snapshot.val() || {};
+        updateStats();
+      });
+      
+      onValue(ref(db, 'mugs_n_dines_recipes'), (snapshot) => {
+        allRecipes = snapshot.val() || {};
+        updateStats();
+      });
+      
+      onValue(ref(db, 'mugs_n_dines_catering_events'), (snapshot) => {
+        allCateringEvents = snapshot.val() || {};
+        updateStats();
+      });
+      
+      onValue(ref(db, 'mugs_n_dines_franchises'), (snapshot) => {
+        allKitchens = snapshot.val() || {};
+        updateStats();
+      });
+    }
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const userSnap = await get(ref(db, `brandinn_users/${user.uid}`));
+        let userName = user.email?.split('@')[0] || 'Manager';
+        let businessName = 'Mugs N Dines';
+        if (userSnap.exists()) {
+          userName = userSnap.val().name || userName;
+          businessName = userSnap.val().businessName || businessName;
+        }
+        document.getElementById('userName').textContent = userName;
+        document.getElementById('userAvatar').textContent = getInitials(userName);
+        document.getElementById('businessName').innerHTML = `${escapeHtml(businessName)} <span>🍽️</span>`;
+        setupRealtimeListeners();
+      } else {
+        window.location.href = '/workspaces/index.html';
+      }
+    });
+  </script>
 </body>
 </html>
