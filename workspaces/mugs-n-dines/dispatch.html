@@ -30,7 +30,6 @@
             --info: #3b82f6;
             --emerald: #059669;
             --purple: #8b5cf6;
-            --indigo: #4f46e5;
         }
 
         body {
@@ -114,8 +113,6 @@
         }
         .filter-btn:hover { border-color: var(--orange); color: var(--orange-dark); }
         .filter-btn.active { background: var(--orange); color: white; border-color: var(--orange); }
-        .filter-btn .count { background: rgba(255,255,255,0.25); padding: 0.1rem 0.4rem; border-radius: 10px; margin-left: 4px; }
-
         .search-box { flex: 1; min-width: 150px; max-width: 300px; position: relative; }
         .search-box input {
             width: 100%; padding: 0.35rem 0.8rem 0.35rem 2rem; border-radius: 20px;
@@ -128,7 +125,7 @@
             overflow: hidden;
         }
         .table-scroll { overflow-x: auto; max-height: 60vh; overflow-y: auto; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.72rem; min-width: 950px; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.72rem; min-width: 900px; }
         thead { position: sticky; top: 0; z-index: 2; background: #fff7ed; }
         th { padding: 0.6rem 0.7rem; text-align: left; font-weight: 700; color: #c2410c; font-size: 0.6rem; text-transform: uppercase; }
         td { padding: 0.5rem 0.7rem; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
@@ -142,7 +139,6 @@
         .status-assigned { background: #ede9fe; color: #5b21b6; }
         .status-en-route { background: #e0f2fe; color: #0369a1; }
         .status-delivered { background: #d1fae5; color: #065f46; }
-        .status-dispatched { background: #ede9fe; color: #5b21b6; }
 
         .order-type-badge {
             display: inline-block;
@@ -183,31 +179,12 @@
             display: block; font-size: 0.65rem; font-weight: 700; color: var(--text-muted);
             text-transform: uppercase; margin-bottom: 0.15rem;
         }
-        .form-group input, .form-group select, .form-group textarea {
+        .form-group select, .form-group textarea {
             width: 100%; padding: 0.5rem 0.7rem; border-radius: 10px;
             border: 1.5px solid #e2e8f0; font-size: 0.8rem;
             background: #f8fafc;
             font-family: 'Inter', sans-serif;
         }
-        .driver-list {
-            max-height: 200px;
-            overflow-y: auto;
-            border: 1px solid #e2e8f0;
-            border-radius: 10px;
-            margin-bottom: 0.5rem;
-        }
-        .driver-option {
-            padding: 0.6rem;
-            border-bottom: 1px solid #e2e8f0;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .driver-option:hover { background: #fff7ed; }
-        .driver-option.selected { background: #fff7ed; border-left: 3px solid var(--orange); }
-        .driver-name { font-weight: 600; font-size: 0.75rem; }
-        .driver-detail { font-size: 0.6rem; color: var(--text-muted); }
         .btn-row { display: flex; gap: 8px; margin-top: 1rem; justify-content: flex-end; }
         .btn {
             padding: 0.5rem 1rem; border-radius: 10px; border: none; font-weight: 700;
@@ -267,16 +244,16 @@
         </div>
 
         <div class="stats-row">
-            <div class="stat-mini"><div class="stat-num" id="statReady">0</div><div class="stat-label">Ready to Dispatch</div></div>
+            <div class="stat-mini"><div class="stat-num" id="statReady">0</div><div class="stat-label">Ready for Dispatch</div></div>
             <div class="stat-mini"><div class="stat-num" id="statAssigned">0</div><div class="stat-label">Assigned</div></div>
             <div class="stat-mini"><div class="stat-num" id="statEnRoute">0</div><div class="stat-label">En Route</div></div>
-            <div class="stat-mini"><div class="stat-num" id="statDelivered">0</div><div class="stat-label">Delivered</div></div>
+            <div class="stat-mini"><div class="stat-num" id="statDelivered">0</div><div class="stat-label">Delivered Today</div></div>
         </div>
 
         <div class="filter-bar">
-            <button class="filter-btn active" data-filter="all">All Ready Orders</button>
-            <button class="filter-btn" data-filter="ready">Ready</button>
-            <button class="filter-btn" data-filter="assigned">Assigned</button>
+            <button class="filter-btn active" data-filter="ready">Ready to Dispatch</button>
+            <button class="filter-btn" data-filter="assigned">In Transit</button>
+            <button class="filter-btn" data-filter="all">All Delivery Orders</button>
             <div class="search-box"><i class="fas fa-search"></i><input type="text" id="searchInput" placeholder="Search customer..."></div>
         </div>
 
@@ -288,7 +265,6 @@
                             <th>Order ID</th>
                             <th>Customer</th>
                             <th>Kitchen</th>
-                            <th>Type</th>
                             <th>Items</th>
                             <th>Total</th>
                             <th>Driver</th>
@@ -297,7 +273,7 @@
                         </tr>
                     </thead>
                     <tbody id="tableBody">
-                        <tr><td colspan="9" style="text-align:center; padding:2rem;">Loading orders...</td></tr>
+                        <tr><td colspan="8" style="text-align:center; padding:2rem;">Loading orders...</tr></tr>
                     </tbody>
                 </table>
             </div>
@@ -325,9 +301,8 @@
         let allOrders = {};
         let allDrivers = {};
         let allKitchens = {};
-        let currentFilter = 'all';
+        let currentFilter = 'ready';
         let searchQuery = '';
-        let selectedDriverId = null;
 
         function showToast(msg, isError = false) {
             const container = document.getElementById('toastContainer');
@@ -340,64 +315,77 @@
 
         function escapeHtml(s) { if (!s) return ''; return String(s).replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;'); }
 
-        function getInitials(name) { if (!name) return '??'; return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0,2); }
-
         function getStatusClass(status) {
-            const map = { ready:'status-ready', assigned:'status-assigned', 'en-route':'status-en-route', delivered:'status-delivered', dispatched:'status-dispatched' };
+            const map = { ready:'status-ready', assigned:'status-assigned', 'en-route':'status-en-route', delivered:'status-delivered' };
             return map[status] || 'status-ready';
         }
 
         function getStatusLabel(status) {
-            const map = { ready:'Ready', assigned:'Assigned', 'en-route':'En Route', delivered:'Delivered', dispatched:'Dispatched' };
+            const map = { ready:'Ready', assigned:'Assigned', 'en-route':'En Route', delivered:'Delivered' };
             return map[status] || status;
         }
 
         // Load delivery assistants (drivers)
         async function loadDrivers() {
-            const snap = await db.ref('delivery_assistants').once('value');
-            const data = snap.val() || {};
-            allDrivers = Object.entries(data)
-                .filter(([_, d]) => d.verified === true && d.status !== 'inactive')
-                .reduce((obj, [id, d]) => ({ ...obj, [id]: d }), {});
+            try {
+                const snap = await db.ref('delivery_assistants').once('value');
+                const data = snap.val() || {};
+                allDrivers = Object.entries(data)
+                    .filter(([_, d]) => d.verified === true && d.status !== 'inactive')
+                    .reduce((obj, [id, d]) => ({ ...obj, [id]: d }), {});
+                console.log('Drivers loaded:', Object.keys(allDrivers).length);
+            } catch(e) { console.error('Error loading drivers:', e); }
+        }
+
+        function getDriverOptions(selectedId = '') {
+            const drivers = Object.entries(allDrivers).sort((a, b) => (a[1].name || '').localeCompare(b[1].name || ''));
+            if (drivers.length === 0) return '<option value="">No drivers available</option>';
+            let options = '<option value="">— Select driver —</option>';
+            drivers.forEach(([id, d]) => {
+                const selected = id === selectedId ? 'selected' : '';
+                options += `<option value="${id}" ${selected}>🚗 ${d.name || 'Driver'} · ${d.phone || ''} · ${d.zone || ''}</option>`;
+            });
+            return options;
         }
 
         function updateStats() {
             const orders = Object.values(allOrders);
-            const readyOrders = orders.filter(o => o && o.status === 'ready');
-            const assignedOrders = orders.filter(o => o && (o.status === 'assigned' || o.status === 'dispatched'));
-            const enRouteOrders = orders.filter(o => o && o.status === 'en-route');
-            const deliveredOrders = orders.filter(o => o && o.status === 'delivered');
+            const readyCount = orders.filter(o => o && o.status === 'ready' && o.orderType === 'delivery').length;
+            const assignedCount = orders.filter(o => o && o.status === 'assigned').length;
+            const enRouteCount = orders.filter(o => o && o.status === 'en-route').length;
+            const deliveredToday = orders.filter(o => o && o.status === 'delivered' && o.deliveredAt && new Date(o.deliveredAt).toDateString() === new Date().toDateString()).length;
 
-            document.getElementById('statReady').textContent = readyOrders.length;
-            document.getElementById('statAssigned').textContent = assignedOrders.length;
-            document.getElementById('statEnRoute').textContent = enRouteOrders.length;
-            document.getElementById('statDelivered').textContent = deliveredOrders.length;
-            document.getElementById('orderCount').innerHTML = `${readyOrders.length} orders ready to dispatch`;
+            document.getElementById('statReady').textContent = readyCount;
+            document.getElementById('statAssigned').textContent = assignedCount;
+            document.getElementById('statEnRoute').textContent = enRouteCount;
+            document.getElementById('statDelivered').textContent = deliveredToday;
+            document.getElementById('orderCount').innerHTML = `${readyCount} orders ready for dispatch`;
         }
 
         function renderTable() {
+            // Get ONLY delivery orders
             let orders = Object.entries(allOrders)
                 .map(([id, data]) => ({ id, ...data }))
-                .filter(o => o && (o.status === 'ready' || o.status === 'assigned' || o.status === 'dispatched' || o.status === 'en-route' || o.status === 'delivered'));
+                .filter(o => o && o.orderType === 'delivery');
             
+            // Filter by status
             if (currentFilter === 'ready') {
                 orders = orders.filter(o => o.status === 'ready');
             } else if (currentFilter === 'assigned') {
-                orders = orders.filter(o => o.status === 'assigned' || o.status === 'dispatched' || o.status === 'en-route');
+                orders = orders.filter(o => o.status === 'assigned' || o.status === 'en-route');
             }
             
             if (searchQuery) {
                 const q = searchQuery.toLowerCase();
                 orders = orders.filter(o => 
-                    (o.customerName || '').toLowerCase().includes(q) ||
-                    (o.driverName || '').toLowerCase().includes(q)
+                    (o.customerName || '').toLowerCase().includes(q)
                 );
             }
             
             orders.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
             
             if (!orders.length) {
-                document.getElementById('tableBody').innerHTML = '<tr><td colspan="9" style="text-align:center; padding:2rem;">No orders to dispatch</td></tr>';
+                document.getElementById('tableBody').innerHTML = '<tr><td colspan="8" style="text-align:center; padding:2rem;">No delivery orders to dispatch</td></tr>';
                 return;
             }
 
@@ -407,36 +395,21 @@
                 const driver = order.driverName || '—';
                 const shortId = order.id.slice(-6);
                 const kitchenName = allKitchens[order.kitchenId]?.name || order.kitchenName || '—';
-                const isDelivery = order.orderType === 'delivery';
-                const typeBadge = isDelivery ? 
-                    '<span class="order-type-badge type-delivery">🚚 Delivery</span>' : 
-                    '<span class="order-type-badge type-takeaway">📦 Takeaway</span>';
 
                 let actions = `<button class="action-btn btn-view" onclick="viewOrder('${order.id}')"><i class="fas fa-eye"></i> View</button>`;
                 
-                // Only delivery orders need driver assignment
-                if (isDelivery) {
-                    if (status === 'ready') {
-                        actions += `<button class="action-btn btn-assign" onclick="showAssignModal('${order.id}')"><i class="fas fa-user-plus"></i> Assign Driver</button>`;
-                    }
-                    if (status === 'assigned' || status === 'dispatched') {
-                        actions += `<button class="action-btn btn-route" onclick="updateStatus('${order.id}','en-route')"><i class="fas fa-truck"></i> En Route</button>`;
-                    }
-                    if (status === 'en-route') {
-                        actions += `<button class="action-btn btn-deliver" onclick="updateStatus('${order.id}','delivered')"><i class="fas fa-check-double"></i> Delivered</button>`;
-                    }
-                } else {
-                    // Takeaway orders - just mark as collected
-                    if (status === 'ready') {
-                        actions += `<button class="action-btn btn-deliver" onclick="updateStatus('${order.id}','delivered')"><i class="fas fa-check"></i> Mark Collected</button>`;
-                    }
+                if (status === 'ready') {
+                    actions += `<button class="action-btn btn-assign" onclick="showAssignModal('${order.id}')"><i class="fas fa-user-plus"></i> Assign Driver</button>`;
+                } else if (status === 'assigned') {
+                    actions += `<button class="action-btn btn-route" onclick="updateStatus('${order.id}','en-route')"><i class="fas fa-truck"></i> Start Route</button>`;
+                } else if (status === 'en-route') {
+                    actions += `<button class="action-btn btn-deliver" onclick="updateStatus('${order.id}','delivered')"><i class="fas fa-check-double"></i> Complete Delivery</button>`;
                 }
 
                 return `<tr>
                     <td><code>#${shortId}</code></td>
                     <td><strong>${escapeHtml(order.customerName || 'Customer')}</strong><br><span style="font-size:0.6rem;">${order.customerPhone || ''}</span></td>
                     <td><span style="background:#fff7ed;padding:2px 6px;border-radius:8px;">${escapeHtml(kitchenName)}</span></td>
-                    <td>${typeBadge}</td>
                     <td>${itemCount} item(s)</td>
                     <td><strong>KES ${(order.total || 0).toLocaleString()}</strong></td>
                     <td>${driver}</td>
@@ -473,7 +446,6 @@
                     <div><strong>Customer:</strong> ${escapeHtml(order.customerName)}</div>
                     <div><strong>Phone:</strong> ${order.customerPhone || '—'}</div>
                     <div><strong>Kitchen:</strong> ${escapeHtml(kitchenName)}</div>
-                    <div><strong>Type:</strong> ${order.orderType === 'delivery' ? '🚚 Delivery' : '📦 Takeaway'}</div>
                     <div><strong>Status:</strong> <span class="status-badge ${getStatusClass(order.status)}">${getStatusLabel(order.status)}</span></div>
                     <div><strong>Total:</strong> KES ${(order.total || 0).toLocaleString()}</div>
                     <div><strong>Driver:</strong> ${order.driverName || 'Unassigned'}</div>
@@ -488,84 +460,49 @@
 
         function showAssignModal(orderId) {
             const order = allOrders[orderId];
-            const drivers = Object.entries(allDrivers);
-            
-            if (drivers.length === 0) {
-                document.getElementById('modalContent').innerHTML = `
-                    <h3><i class="fas fa-user-plus"></i> Assign Driver</h3>
-                    <p style="color:var(--danger);font-size:0.7rem;">No drivers available. Please add drivers first.</p>
-                    <div class="btn-row"><button class="btn btn-secondary" onclick="closeModal()">Close</button></div>
-                `;
-                document.getElementById('modal').classList.add('show');
-                return;
-            }
-            
-            let driversHtml = '';
-            drivers.forEach(([id, driver]) => {
-                driversHtml += `
-                    <div class="driver-option" onclick="selectDriver('${id}')" data-driver-id="${id}">
-                        <div>
-                            <div class="driver-name">${escapeHtml(driver.name || 'Driver')}</div>
-                            <div class="driver-detail">📞 ${driver.phone || 'No phone'} · 📍 ${driver.zone || 'Any zone'}</div>
-                        </div>
-                        <div><i class="fas fa-chevron-right" style="color:var(--orange);"></i></div>
-                    </div>
-                `;
-            });
-            
             document.getElementById('modalContent').innerHTML = `
-                <h3><i class="fas fa-user-plus"></i> Assign Driver to Package</h3>
-                <p style="font-size:0.7rem;color:var(--text-muted);margin-bottom:0.5rem;">Order #${orderId.slice(-6)} - ${escapeHtml(order.customerName)}</p>
-                <div class="driver-list" id="driverList">
-                    ${driversHtml}
+                <h3><i class="fas fa-user-plus"></i> Assign Driver</h3>
+                <p style="font-size:0.7rem;color:var(--text-muted);margin-bottom:0.8rem;">Order #${orderId.slice(-6)} - ${escapeHtml(order.customerName)}</p>
+                <div class="form-group">
+                    <label>Select Delivery Assistant</label>
+                    <select id="driverSelect" style="width:100%;padding:0.6rem;border-radius:10px;border:1.5px solid #e2e8f0;">
+                        ${getDriverOptions(order?.driverId || '')}
+                    </select>
                 </div>
                 <div class="form-group">
-                    <label>Package Details (Optional)</label>
-                    <textarea id="packageDetails" rows="2" placeholder="Package size, special instructions, etc..."></textarea>
+                    <label>Pickup Instructions (Optional)</label>
+                    <textarea id="assignNotes" rows="2" placeholder="Special instructions for driver..."></textarea>
                 </div>
                 <div class="btn-row">
-                    <button class="btn btn-primary" onclick="confirmAssignDriver('${orderId}')">Assign Driver</button>
+                    <button class="btn btn-primary" onclick="assignDriver('${orderId}')">Assign Driver</button>
                     <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
                 </div>
             `;
             document.getElementById('modal').classList.add('show');
-            selectedDriverId = null;
         }
-        
-        window.selectDriver = function(driverId) {
-            selectedDriverId = driverId;
-            document.querySelectorAll('.driver-option').forEach(opt => {
-                opt.classList.remove('selected');
-                if (opt.dataset.driverId === driverId) {
-                    opt.classList.add('selected');
-                }
-            });
-        };
-        
-        window.confirmAssignDriver = async function(orderId) {
-            if (!selectedDriverId) {
-                showToast('Please select a driver', true);
-                return;
-            }
+
+        async function assignDriver(orderId) {
+            const driverId = document.getElementById('driverSelect').value;
+            if (!driverId) { showToast('Select a driver', true); return; }
             
-            const driver = allDrivers[selectedDriverId];
-            const packageDetails = document.getElementById('packageDetails')?.value || '';
+            const driver = allDrivers[driverId];
+            const notes = document.getElementById('assignNotes')?.value || '';
             
             try {
                 await db.ref(`mugs_n_dines_orders/${orderId}`).update({
-                    driverId: selectedDriverId,
+                    driverId: driverId,
                     driverName: driver?.name || 'Driver',
                     driverPhone: driver?.phone || '',
                     driverVehicle: driver?.vehicle || '',
                     status: 'assigned',
                     assignedAt: firebase.database.ServerValue.TIMESTAMP,
-                    packageDetails: packageDetails,
+                    dispatchNotes: notes,
                     updatedAt: firebase.database.ServerValue.TIMESTAMP
                 });
-                showToast(`✅ Driver ${driver?.name || 'assigned'}! Order status: Assigned`);
+                showToast(`✅ Driver ${driver?.name || 'assigned'}! Order is now "Assigned"`);
                 closeModal();
             } catch(e) { showToast('Failed to assign', true); }
-        };
+        }
 
         function closeModal() { document.getElementById('modal').classList.remove('show'); }
 
@@ -592,6 +529,7 @@
 
         window.viewOrder = viewOrder;
         window.showAssignModal = showAssignModal;
+        window.assignDriver = assignDriver;
         window.updateStatus = updateStatus;
         window.closeModal = closeModal;
 
