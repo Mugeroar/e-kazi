@@ -21,6 +21,7 @@
             --card-bg: #ffffff; --text-primary: #1e293b; --text-muted: #64748b;
             --border-light: #fed7aa; --success: #10b981; --warning: #f59e0b;
             --danger: #ef4444; --info: #3b82f6; --emerald: #059669;
+            --purple: #8b5cf6;
         }
 
         body {
@@ -93,11 +94,8 @@
         }
         .btn-primary { background: var(--orange); color: white; }
         .btn-primary:hover { background: var(--orange-dark); }
-        .btn-success { background: var(--success); color: white; }
-        .btn-success:hover { background: #059669; }
         .btn-outline { background: transparent; border: 1.5px solid #e2e8f0; color: var(--text-muted); }
         .btn-outline:hover { border-color: var(--orange); color: var(--orange); }
-        .btn-danger { background: var(--danger); color: white; }
 
         .order-layout { display: grid; grid-template-columns: 1fr 380px; gap: 20px; }
         @media (max-width: 900px) { .order-layout { grid-template-columns: 1fr; } }
@@ -136,7 +134,7 @@
         }
         .cart-header { padding: 0.8rem 1rem; background: #fff7ed; border-bottom: 1px solid var(--border-light); }
         .cart-header h3 { font-size: 0.85rem; font-weight: 700; }
-        .cart-items { max-height: 40vh; overflow-y: auto; padding: 0.5rem; }
+        .cart-items { max-height: 35vh; overflow-y: auto; padding: 0.5rem; }
         .cart-item {
             display: flex; justify-content: space-between; align-items: center;
             padding: 0.6rem; border-bottom: 1px solid #f1f5f9;
@@ -204,7 +202,7 @@
                 <div class="dropdown-menu" id="moreDropdown">
                     <a href="/workspaces/mugs-n-dines/recipes.html" class="dropdown-item"><i class="fas fa-book-open"></i> Recipes</a>
                     <a href="/workspaces/mugs-n-dines/catering.html" class="dropdown-item"><i class="fas fa-calendar-check"></i> Catering</a>
-                    <a href="/workspaces/mugs-n-dines/franchises.html" class="dropdown-item"><i class="fas fa-store-alt"></i> Franchises</a>
+                    <a href="/workspaces/mugs-n-dines/kitchens.html" class="dropdown-item"><i class="fas fa-store-alt"></i> Kitchens</a>
                     <a href="/workspaces/mugs-n-dines/dispatch.html" class="dropdown-item"><i class="fas fa-truck-fast"></i> Dispatch</a>
                 </div>
             </div>
@@ -249,6 +247,12 @@
                     <h3><i class="fas fa-shopping-cart"></i> Order Cart <span id="cartCount">(0)</span></h3>
                 </div>
                 <div class="customer-form">
+                    <div class="form-group">
+                        <label>Select Kitchen *</label>
+                        <select id="kitchenSelect" required>
+                            <option value="">-- Select Kitchen --</option>
+                        </select>
+                    </div>
                     <div class="form-group">
                         <label>Order Type *</label>
                         <div class="order-type-buttons">
@@ -312,7 +316,8 @@
         const auth = firebase.auth();
 
         let allMenuItems = {};
-        let cart = []; // { id, name, price, quantity }
+        let allKitchens = {};
+        let cart = [];
         let currentFilter = 'all';
         let searchTerm = '';
         let currentOrderType = 'takeaway';
@@ -326,22 +331,37 @@
 
         function escapeHtml(s) { if (!s) return ''; return String(s).replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : m === '>' ? '&gt;' : m); }
 
+        // Load kitchens for dropdown
+        async function loadKitchens() {
+            try {
+                const snap = await db.ref('mugs_n_dines_franchises').once('value');
+                const kitchens = snap.val() || {};
+                // Only show active kitchens
+                allKitchens = Object.entries(kitchens)
+                    .filter(([_, k]) => k.status !== 'inactive')
+                    .reduce((obj, [id, k]) => ({ ...obj, [id]: k }), {});
+                
+                const select = document.getElementById('kitchenSelect');
+                select.innerHTML = '<option value="">-- Select Kitchen --</option>';
+                Object.entries(allKitchens).forEach(([id, k]) => {
+                    select.innerHTML += `<option value="${id}">${escapeHtml(k.name)} - ${escapeHtml(k.location || 'No location')}</option>`;
+                });
+            } catch(e) {
+                console.error('Error loading kitchens:', e);
+                showToast('Error loading kitchens', true);
+            }
+        }
+
         window.selectOrderType = (type) => {
             currentOrderType = type;
-            // Update button styles
             document.querySelectorAll('.order-type-btn').forEach(btn => {
-                if (btn.dataset.type === type) {
-                    btn.classList.add('active');
-                } else {
-                    btn.classList.remove('active');
-                }
+                if (btn.dataset.type === type) btn.classList.add('active');
+                else btn.classList.remove('active');
             });
-            // Show/hide delivery address field
             const addressGroup = document.getElementById('deliveryAddressGroup');
             addressGroup.style.display = type === 'delivery' ? 'block' : 'none';
         };
 
-        // Render menu grid
         function renderMenu() {
             const grid = document.getElementById('menuGrid');
             let items = Object.entries(allMenuItems).map(([id, data]) => ({ id, ...data })).filter(i => i.isActive !== false);
@@ -357,40 +377,30 @@
             `).join('');
         }
 
-        // Add to cart
         window.addToCart = (id, name, price) => {
             const existing = cart.find(item => item.id === id);
-            if (existing) {
-                existing.quantity++;
-            } else {
-                cart.push({ id, name, price, quantity: 1 });
-            }
+            if (existing) existing.quantity++;
+            else cart.push({ id, name, price, quantity: 1 });
             renderCart();
             showToast(`${name} added to cart`);
         };
 
-        // Update quantity
         window.updateQuantity = (id, delta) => {
             const index = cart.findIndex(item => item.id === id);
             if (index !== -1) {
                 const newQty = cart[index].quantity + delta;
-                if (newQty <= 0) {
-                    cart.splice(index, 1);
-                } else {
-                    cart[index].quantity = newQty;
-                }
+                if (newQty <= 0) cart.splice(index, 1);
+                else cart[index].quantity = newQty;
                 renderCart();
             }
         };
 
-        // Remove item
         window.removeItem = (id) => {
             cart = cart.filter(item => item.id !== id);
             renderCart();
             showToast('Item removed');
         };
 
-        // Clear cart
         window.clearCart = () => {
             if (cart.length && confirm('Clear entire cart?')) {
                 cart = [];
@@ -399,7 +409,6 @@
             }
         };
 
-        // Calculate totals
         function calculateTotals() {
             const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
             const tax = subtotal * 0.08;
@@ -407,7 +416,6 @@
             return { subtotal, tax, total };
         }
 
-        // Render cart
         function renderCart() {
             const container = document.getElementById('cartItems');
             const cartCount = document.getElementById('cartCount');
@@ -447,8 +455,10 @@
             totalSpan.textContent = `KES ${Math.round(total).toLocaleString()}`;
         }
 
-        // Place order
         window.placeOrder = async () => {
+            const kitchenId = document.getElementById('kitchenSelect').value;
+            if (!kitchenId) { showToast('Please select a kitchen', true); return; }
+            
             const customerName = document.getElementById('customerName')?.value.trim();
             if (!customerName) { showToast('Please enter customer name', true); return; }
             if (!cart.length) { showToast('Cart is empty', true); return; }
@@ -461,6 +471,7 @@
             const customerPhone = document.getElementById('customerPhone').value.trim();
             const deliveryAddress = document.getElementById('deliveryAddress')?.value.trim() || '';
             const specialInstructions = document.getElementById('specialInstructions')?.value.trim() || '';
+            const kitchenName = allKitchens[kitchenId]?.name || 'Kitchen';
 
             const { subtotal, tax, total } = calculateTotals();
 
@@ -470,6 +481,10 @@
                 orderType: currentOrderType,
                 deliveryAddress: currentOrderType === 'delivery' ? deliveryAddress : null,
                 specialInstructions: specialInstructions || null,
+                kitchenId: kitchenId,
+                kitchenName: kitchenName,
+                pickupFranchiseId: kitchenId,
+                pickupFranchiseName: kitchenName,
                 items: cart.map(item => ({
                     id: item.id,
                     name: item.name,
@@ -480,14 +495,15 @@
                 subtotal: Math.round(subtotal),
                 tax: Math.round(tax),
                 total: Math.round(total),
-                status: 'new',
+                status: 'new',  // Kitchen will see as 'new' order
+                kitchenStatus: 'pending',
                 createdAt: firebase.database.ServerValue.TIMESTAMP,
                 updatedAt: firebase.database.ServerValue.TIMESTAMP
             };
 
             try {
                 await db.ref('mugs_n_dines_orders').push(orderData);
-                showToast('✅ Order placed successfully!');
+                showToast('✅ Order placed successfully! Kitchen has been notified');
                 // Reset form
                 cart = [];
                 renderCart();
@@ -495,19 +511,17 @@
                 document.getElementById('customerPhone').value = '';
                 document.getElementById('deliveryAddress').value = '';
                 document.getElementById('specialInstructions').value = '';
-                // Reset to takeaway
+                document.getElementById('kitchenSelect').value = '';
                 selectOrderType('takeaway');
-                // Redirect after 1.5 seconds
                 setTimeout(() => {
                     window.location.href = '/workspaces/mugs-n-dines/orders.html';
-                }, 1500);
+                }, 2000);
             } catch (e) {
                 console.error(e);
                 showToast('Failed to place order', true);
             }
         };
 
-        // Filter and search listeners
         function setupFilters() {
             document.querySelectorAll('.filter-chip').forEach(btn => {
                 btn.addEventListener('click', () => {
@@ -523,20 +537,20 @@
             });
         }
 
-        // Firebase listeners
         db.ref('mugs_n_dines_menu').on('value', (snapshot) => {
             allMenuItems = snapshot.val() || {};
             renderMenu();
         });
 
-        // Dropdown toggle
         window.toggleDropdown = () => document.getElementById('moreDropdown').classList.toggle('show');
         document.addEventListener('click', (e) => { if (!e.target.closest('.nav-dropdown')) document.getElementById('moreDropdown').classList.remove('show'); });
 
-        // Auth check
-        auth.onAuthStateChanged((user) => { 
+        auth.onAuthStateChanged(async (user) => { 
             if (!user) window.location.href = '/workspaces/index.html';
-            else setupFilters();
+            else {
+                await loadKitchens();
+                setupFilters();
+            }
         });
     </script>
 </body>
