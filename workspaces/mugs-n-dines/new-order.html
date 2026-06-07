@@ -163,6 +163,15 @@
             width: 100%; padding: 0.45rem 0.7rem; border-radius: 10px;
             border: 1.5px solid #e2e8f0; font-size: 0.75rem; font-family: 'Inter', sans-serif;
         }
+        .order-type-buttons { display: flex; gap: 10px; margin-top: 5px; }
+        .order-type-btn {
+            flex: 1; padding: 0.5rem; border-radius: 10px; border: 1.5px solid #e2e8f0;
+            background: white; cursor: pointer; font-size: 0.7rem; font-weight: 600;
+            display: flex; align-items: center; justify-content: center; gap: 6px;
+            transition: all 0.15s;
+        }
+        .order-type-btn.active { background: var(--orange); color: white; border-color: var(--orange); }
+        .order-type-btn:hover:not(.active) { border-color: var(--orange); color: var(--orange); }
 
         .empty-state { text-align: center; padding: 2rem; color: #94a3b8; font-size: 0.75rem; }
 
@@ -242,23 +251,30 @@
                 <div class="customer-form">
                     <div class="form-group">
                         <label>Order Type *</label>
-                        <select id="orderType">
-                            <option value="dine-in">🍽️ Dine-in</option>
-                            <option value="takeaway">📦 Takeaway</option>
-                            <option value="delivery">🚚 Delivery</option>
-                        </select>
+                        <div class="order-type-buttons">
+                            <button type="button" class="order-type-btn active" data-type="takeaway" onclick="selectOrderType('takeaway')">
+                                <i class="fas fa-box"></i> Takeaway
+                            </button>
+                            <button type="button" class="order-type-btn" data-type="delivery" onclick="selectOrderType('delivery')">
+                                <i class="fas fa-truck"></i> Delivery
+                            </button>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label>Customer Name *</label>
                         <input type="text" id="customerName" placeholder="Enter customer name">
                     </div>
                     <div class="form-group" id="deliveryAddressGroup" style="display:none;">
-                        <label>Delivery Address</label>
-                        <textarea id="deliveryAddress" rows="2" placeholder="Enter delivery address"></textarea>
+                        <label>Delivery Address *</label>
+                        <textarea id="deliveryAddress" rows="2" placeholder="Enter full delivery address"></textarea>
                     </div>
                     <div class="form-group">
                         <label>Phone Number</label>
-                        <input type="tel" id="customerPhone" placeholder="Optional">
+                        <input type="tel" id="customerPhone" placeholder="Optional - for order updates">
+                    </div>
+                    <div class="form-group">
+                        <label>Special Instructions (optional)</label>
+                        <textarea id="specialInstructions" rows="1" placeholder="Any special requests..."></textarea>
                     </div>
                 </div>
                 <div class="cart-items" id="cartItems">
@@ -299,6 +315,7 @@
         let cart = []; // { id, name, price, quantity }
         let currentFilter = 'all';
         let searchTerm = '';
+        let currentOrderType = 'takeaway';
 
         function showToast(msg, isError = false) {
             const c = document.getElementById('toastContainer');
@@ -308,6 +325,21 @@
         }
 
         function escapeHtml(s) { if (!s) return ''; return String(s).replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : m === '>' ? '&gt;' : m); }
+
+        window.selectOrderType = (type) => {
+            currentOrderType = type;
+            // Update button styles
+            document.querySelectorAll('.order-type-btn').forEach(btn => {
+                if (btn.dataset.type === type) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+            // Show/hide delivery address field
+            const addressGroup = document.getElementById('deliveryAddressGroup');
+            addressGroup.style.display = type === 'delivery' ? 'block' : 'none';
+        };
 
         // Render menu grid
         function renderMenu() {
@@ -415,29 +447,29 @@
             totalSpan.textContent = `KES ${Math.round(total).toLocaleString()}`;
         }
 
-        // Toggle delivery address field
-        document.getElementById('orderType')?.addEventListener('change', (e) => {
-            const addressGroup = document.getElementById('deliveryAddressGroup');
-            addressGroup.style.display = e.target.value === 'delivery' ? 'block' : 'none';
-        });
-
         // Place order
         window.placeOrder = async () => {
             const customerName = document.getElementById('customerName')?.value.trim();
             if (!customerName) { showToast('Please enter customer name', true); return; }
             if (!cart.length) { showToast('Cart is empty', true); return; }
 
-            const orderType = document.getElementById('orderType').value;
+            if (currentOrderType === 'delivery') {
+                const deliveryAddress = document.getElementById('deliveryAddress')?.value.trim();
+                if (!deliveryAddress) { showToast('Please enter delivery address', true); return; }
+            }
+
             const customerPhone = document.getElementById('customerPhone').value.trim();
             const deliveryAddress = document.getElementById('deliveryAddress')?.value.trim() || '';
+            const specialInstructions = document.getElementById('specialInstructions')?.value.trim() || '';
 
             const { subtotal, tax, total } = calculateTotals();
 
             const orderData = {
                 customerName,
                 customerPhone: customerPhone || null,
-                orderType,
-                deliveryAddress: orderType === 'delivery' ? deliveryAddress : null,
+                orderType: currentOrderType,
+                deliveryAddress: currentOrderType === 'delivery' ? deliveryAddress : null,
+                specialInstructions: specialInstructions || null,
                 items: cart.map(item => ({
                     id: item.id,
                     name: item.name,
@@ -462,8 +494,9 @@
                 document.getElementById('customerName').value = '';
                 document.getElementById('customerPhone').value = '';
                 document.getElementById('deliveryAddress').value = '';
-                document.getElementById('orderType').value = 'dine-in';
-                document.getElementById('deliveryAddressGroup').style.display = 'none';
+                document.getElementById('specialInstructions').value = '';
+                // Reset to takeaway
+                selectOrderType('takeaway');
                 // Redirect after 1.5 seconds
                 setTimeout(() => {
                     window.location.href = '/workspaces/mugs-n-dines/orders.html';
