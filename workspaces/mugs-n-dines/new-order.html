@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>New Order | Mugs N Dines</title>
+    
+    <meta name="theme-color" content="#f97316">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <link rel="icon" type="image/png" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --orange: #f97316; --orange-dark: #c2410c; --orange-light: #fb923c;
+            --card-bg: #ffffff; --text-primary: #1e293b; --text-muted: #64748b;
+            --border-light: #fed7aa; --success: #10b981; --warning: #f59e0b;
+            --danger: #ef4444; --info: #3b82f6; --emerald: #059669;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(145deg, #fff7ed 0%, #ffffff 100%);
+            color: var(--text-primary); line-height: 1.4;
+            min-height: 100vh; display: flex; flex-direction: column;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; } 100% { background-position: 200% 0; }
+        }
+        .skeleton {
+            background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
+            background-size: 200% 100%; animation: shimmer 1.5s ease-in-out infinite; border-radius: 6px;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(16px);
+            padding: 0.5rem 2%; display: flex; justify-content: space-between;
+            align-items: center; border-bottom: 2px solid rgba(249, 115, 22, 0.3);
+            position: sticky; top: 0; z-index: 100; flex-wrap: wrap; gap: 8px;
+        }
+        .logo { display: flex; align-items: center; gap: 10px; cursor: pointer; text-decoration: none; }
+        .logo-img { height: 34px; width: 34px; border-radius: 10px; object-fit: contain; background: white; box-shadow: 0 4px 12px rgba(249, 115, 22, 0.2); }
+        .logo-text {
+            font-weight: 800; font-size: 1.1rem;
+            background: linear-gradient(145deg, #fb923c, #c2410c);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .logo-text span { font-weight: 600; font-size: 0.7rem; background: #f97316; -webkit-text-fill-color: #f97316; margin-left: 3px; }
+
+        .nav-right { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+        .nav-btn {
+            background: rgba(249, 115, 22, 0.08); border: 1px solid rgba(249, 115, 22, 0.2);
+            padding: 0.4rem 0.8rem; border-radius: 25px; color: var(--orange-dark);
+            font-weight: 600; font-size: 0.7rem; cursor: pointer; display: inline-flex;
+            align-items: center; gap: 5px; text-decoration: none; transition: all 0.2s;
+        }
+        .nav-btn:hover { background: var(--orange); color: white; }
+        .nav-btn.active { background: var(--orange); color: white; border-color: var(--orange-dark); }
+
+        .nav-dropdown { position: relative; }
+        .dropdown-menu {
+            position: absolute; top: calc(100% + 8px); right: 0;
+            background: white; border: 1px solid var(--border-light);
+            border-radius: 16px; padding: 0.5rem; min-width: 180px;
+            display: none; z-index: 200; box-shadow: 0 15px 35px rgba(0,0,0,0.12);
+        }
+        .dropdown-menu.show { display: block; }
+        .dropdown-item {
+            padding: 0.55rem 0.8rem; border-radius: 10px;
+            display: flex; align-items: center; gap: 8px;
+            color: var(--text-primary); text-decoration: none;
+            font-size: 0.72rem; font-weight: 500; transition: all 0.15s;
+        }
+        .dropdown-item:hover { background: #fff7ed; color: var(--orange-dark); }
+        .dropdown-item i { width: 18px; color: var(--orange); font-size: 0.75rem; }
+
+        .container { padding: 1rem 2%; flex: 1; max-width: 1400px; margin: 0 auto; width: 100%; }
+
+        .page-header { margin-bottom: 1.2rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.8rem; }
+        .page-header h1 { font-size: 1.3rem; font-weight: 800; color: #0f172a; }
+        .page-header h1 i { color: var(--orange-dark); margin-right: 6px; }
+
+        .btn {
+            padding: 0.5rem 1rem; border-radius: 10px; border: none; font-weight: 700;
+            font-size: 0.7rem; cursor: pointer; display: inline-flex; align-items: center;
+            gap: 5px; font-family: inherit; transition: all 0.15s; white-space: nowrap;
+        }
+        .btn-primary { background: var(--orange); color: white; }
+        .btn-primary:hover { background: var(--orange-dark); }
+        .btn-success { background: var(--success); color: white; }
+        .btn-success:hover { background: #059669; }
+        .btn-outline { background: transparent; border: 1.5px solid #e2e8f0; color: var(--text-muted); }
+        .btn-outline:hover { border-color: var(--orange); color: var(--orange); }
+        .btn-danger { background: var(--danger); color: white; }
+
+        .order-layout { display: grid; grid-template-columns: 1fr 380px; gap: 20px; }
+        @media (max-width: 900px) { .order-layout { grid-template-columns: 1fr; } }
+
+        .menu-section { background: white; border-radius: 20px; border: 1px solid var(--border-light); overflow: hidden; }
+        .menu-header { padding: 0.8rem 1rem; background: #fff7ed; border-bottom: 1px solid var(--border-light); }
+        .menu-header h3 { font-size: 0.85rem; font-weight: 700; }
+        .filter-bar { padding: 0.8rem 1rem; display: flex; gap: 8px; flex-wrap: wrap; border-bottom: 1px solid #f1f5f9; }
+        .filter-chip {
+            padding: 0.3rem 0.8rem; border-radius: 20px; border: 1px solid #e2e8f0;
+            background: white; font-size: 0.65rem; font-weight: 600; cursor: pointer;
+            transition: all 0.15s;
+        }
+        .filter-chip:hover { border-color: var(--orange); color: var(--orange); }
+        .filter-chip.active { background: var(--orange); color: white; border-color: var(--orange); }
+        .search-box { flex: 1; min-width: 150px; position: relative; }
+        .search-box input {
+            width: 100%; padding: 0.3rem 0.8rem 0.3rem 2rem; border-radius: 20px;
+            border: 1px solid #e2e8f0; font-size: 0.7rem;
+        }
+        .search-box i { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 0.7rem; }
+
+        .menu-items-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; padding: 1rem; max-height: 55vh; overflow-y: auto; }
+        .menu-item-card {
+            background: #f8fafc; border-radius: 12px; padding: 0.7rem;
+            border: 1px solid #e2e8f0; cursor: pointer; transition: all 0.2s;
+        }
+        .menu-item-card:hover { border-color: var(--orange); background: #fff7ed; transform: translateY(-2px); }
+        .menu-item-card h4 { font-size: 0.75rem; font-weight: 700; margin-bottom: 0.2rem; }
+        .menu-item-card .price { font-size: 0.7rem; font-weight: 800; color: var(--orange-dark); }
+        .menu-item-card .category { font-size: 0.55rem; color: var(--text-muted); display: inline-block; background: white; padding: 0.1rem 0.4rem; border-radius: 6px; margin-top: 0.2rem; }
+
+        .cart-section {
+            background: white; border-radius: 20px; border: 1px solid var(--border-light);
+            position: sticky; top: 80px; height: fit-content;
+        }
+        .cart-header { padding: 0.8rem 1rem; background: #fff7ed; border-bottom: 1px solid var(--border-light); }
+        .cart-header h3 { font-size: 0.85rem; font-weight: 700; }
+        .cart-items { max-height: 40vh; overflow-y: auto; padding: 0.5rem; }
+        .cart-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0.6rem; border-bottom: 1px solid #f1f5f9;
+        }
+        .cart-item-info { flex: 1; }
+        .cart-item-name { font-size: 0.75rem; font-weight: 600; }
+        .cart-item-price { font-size: 0.65rem; color: var(--text-muted); }
+        .cart-item-qty { display: flex; align-items: center; gap: 6px; }
+        .qty-btn {
+            width: 24px; height: 24px; border-radius: 6px; border: 1px solid #e2e8f0;
+            background: white; cursor: pointer; font-weight: 700;
+        }
+        .qty-btn:hover { background: var(--orange); color: white; border-color: var(--orange); }
+        .cart-item-total { font-weight: 700; font-size: 0.75rem; min-width: 60px; text-align: right; }
+        .remove-item { color: var(--danger); cursor: pointer; margin-left: 8px; font-size: 0.7rem; }
+        .cart-summary { padding: 1rem; border-top: 2px solid var(--border-light); background: #fff7ed; border-radius: 0 0 20px 20px; }
+        .summary-row { display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.75rem; }
+        .summary-total { font-weight: 800; font-size: 1rem; color: var(--orange-dark); border-top: 1px solid #fed7aa; padding-top: 0.5rem; margin-top: 0.5rem; }
+
+        .customer-form { padding: 1rem; border-bottom: 1px solid #f1f5f9; }
+        .form-group { margin-bottom: 0.7rem; }
+        .form-group label { display: block; font-size: 0.65rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.2rem; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%; padding: 0.45rem 0.7rem; border-radius: 10px;
+            border: 1.5px solid #e2e8f0; font-size: 0.75rem; font-family: 'Inter', sans-serif;
+        }
+
+        .empty-state { text-align: center; padding: 2rem; color: #94a3b8; font-size: 0.75rem; }
+
+        .toast {
+            position: fixed; bottom: 25px; right: 25px; background: var(--emerald); color: white;
+            padding: 0.7rem 1.2rem; border-radius: 20px; font-weight: 600; z-index: 4000;
+            animation: slideIn 0.3s ease; display: flex; align-items: center; gap: 6px; font-size: 0.75rem;
+        }
+        .toast.error { background: var(--danger); }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+        .footer { text-align: center; padding: 1rem; color: #94a3b8; font-size: 0.7rem; border-top: 1px solid var(--border-light); margin-top: 2rem; }
+
+        @media (max-width: 600px) { .menu-items-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="/workspaces/mugs-n-dines/index.html" class="logo">
+            <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png" alt="Mugs N Dines" class="logo-img">
+            <span class="logo-text">Mugs N Dines <span>🍽️</span></span>
+        </a>
+        <div class="nav-right">
+            <a href="/workspaces/mugs-n-dines/index.html" class="nav-btn"><i class="fas fa-arrow-left"></i> Dashboard</a>
+            <a href="/workspaces/mugs-n-dines/orders.html" class="nav-btn"><i class="fas fa-shopping-cart"></i> Orders</a>
+            <a href="/workspaces/mugs-n-dines/menu.html" class="nav-btn"><i class="fas fa-utensils"></i> Menu</a>
+            <div class="nav-dropdown">
+                <button class="nav-btn" onclick="toggleDropdown()"><i class="fas fa-ellipsis-h"></i> More</button>
+                <div class="dropdown-menu" id="moreDropdown">
+                    <a href="/workspaces/mugs-n-dines/recipes.html" class="dropdown-item"><i class="fas fa-book-open"></i> Recipes</a>
+                    <a href="/workspaces/mugs-n-dines/catering.html" class="dropdown-item"><i class="fas fa-calendar-check"></i> Catering</a>
+                    <a href="/workspaces/mugs-n-dines/franchises.html" class="dropdown-item"><i class="fas fa-store-alt"></i> Franchises</a>
+                    <a href="/workspaces/mugs-n-dines/dispatch.html" class="dropdown-item"><i class="fas fa-truck-fast"></i> Dispatch</a>
+                </div>
+            </div>
+            <a href="/workspaces/mugs-n-dines/map.html" class="nav-btn" style="background:var(--orange);color:white;border-color:var(--orange-dark);"><i class="fas fa-map-marked-alt"></i> Map</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1><i class="fas fa-cart-plus"></i> New Order</h1>
+            <a href="/workspaces/mugs-n-dines/orders.html" class="btn btn-outline"><i class="fas fa-list"></i> View All Orders</a>
+        </div>
+
+        <div class="order-layout">
+            <!-- Menu Section -->
+            <div class="menu-section">
+                <div class="menu-header">
+                    <h3><i class="fas fa-utensils"></i> Select Menu Items</h3>
+                </div>
+                <div class="filter-bar">
+                    <button class="filter-chip active" data-filter="all">All</button>
+                    <button class="filter-chip" data-filter="Appetizers">🍤 Appetizers</button>
+                    <button class="filter-chip" data-filter="Main Course">🥩 Main Course</button>
+                    <button class="filter-chip" data-filter="Desserts">🍰 Desserts</button>
+                    <button class="filter-chip" data-filter="Beverages">🥤 Beverages</button>
+                    <button class="filter-chip" data-filter="Breakfast">🥞 Breakfast</button>
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="menuSearch" placeholder="Search menu...">
+                    </div>
+                </div>
+                <div class="menu-items-grid" id="menuGrid">
+                    <div class="skeleton" style="height:80px;margin:5px;"></div>
+                    <div class="skeleton" style="height:80px;margin:5px;"></div>
+                    <div class="skeleton" style="height:80px;margin:5px;"></div>
+                </div>
+            </div>
+
+            <!-- Cart Section -->
+            <div class="cart-section">
+                <div class="cart-header">
+                    <h3><i class="fas fa-shopping-cart"></i> Order Cart <span id="cartCount">(0)</span></h3>
+                </div>
+                <div class="customer-form">
+                    <div class="form-group">
+                        <label>Order Type *</label>
+                        <select id="orderType">
+                            <option value="dine-in">🍽️ Dine-in</option>
+                            <option value="takeaway">📦 Takeaway</option>
+                            <option value="delivery">🚚 Delivery</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Customer Name *</label>
+                        <input type="text" id="customerName" placeholder="Enter customer name">
+                    </div>
+                    <div class="form-group" id="deliveryAddressGroup" style="display:none;">
+                        <label>Delivery Address</label>
+                        <textarea id="deliveryAddress" rows="2" placeholder="Enter delivery address"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="tel" id="customerPhone" placeholder="Optional">
+                    </div>
+                </div>
+                <div class="cart-items" id="cartItems">
+                    <div class="empty-state"><i class="fas fa-shopping-cart" style="font-size:2rem;opacity:0.4;"></i><p>Cart is empty</p><p style="font-size:0.65rem;">Click on menu items to add</p></div>
+                </div>
+                <div class="cart-summary">
+                    <div class="summary-row"><span>Subtotal</span><span id="subtotal">KES 0</span></div>
+                    <div class="summary-row"><span>Tax (8%)</span><span id="tax">KES 0</span></div>
+                    <div class="summary-row summary-total"><span>Total</span><span id="total">KES 0</span></div>
+                    <div style="display: flex; gap: 8px; margin-top: 12px;">
+                        <button class="btn btn-primary" onclick="placeOrder()" style="flex:1;"><i class="fas fa-check"></i> Place Order</button>
+                        <button class="btn btn-outline" onclick="clearCart()" style="flex:0.5;"><i class="fas fa-trash"></i> Clear</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toastContainer"></div>
+    <div class="footer"><i class="far fa-copyright"></i> 2026 Mugs N Dines · New Order</div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+            authDomain: "mugera-e51cc.firebaseapp.com",
+            databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "mugera-e51cc"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const auth = firebase.auth();
+
+        let allMenuItems = {};
+        let cart = []; // { id, name, price, quantity }
+        let currentFilter = 'all';
+        let searchTerm = '';
+
+        function showToast(msg, isError = false) {
+            const c = document.getElementById('toastContainer');
+            const t = document.createElement('div'); t.className = `toast ${isError ? 'error' : ''}`;
+            t.innerHTML = `<i class="fas fa-${isError ? 'exclamation-circle' : 'check-circle'}"></i> ${msg}`;
+            c.appendChild(t); setTimeout(() => t.remove(), 3500);
+        }
+
+        function escapeHtml(s) { if (!s) return ''; return String(s).replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : m === '>' ? '&gt;' : m); }
+
+        // Render menu grid
+        function renderMenu() {
+            const grid = document.getElementById('menuGrid');
+            let items = Object.entries(allMenuItems).map(([id, data]) => ({ id, ...data })).filter(i => i.isActive !== false);
+            if (currentFilter !== 'all') items = items.filter(i => i.category === currentFilter);
+            if (searchTerm) items = items.filter(i => (i.name || '').toLowerCase().includes(searchTerm));
+            if (!items.length) { grid.innerHTML = '<div class="empty-state"><i class="fas fa-utensils" style="font-size:1.5rem;opacity:0.4;"></i><p>No menu items found</p></div>'; return; }
+            grid.innerHTML = items.map(i => `
+                <div class="menu-item-card" onclick="addToCart('${i.id}', '${escapeHtml(i.name)}', ${i.price || 0})">
+                    <h4>${escapeHtml(i.name)}</h4>
+                    <div class="price">KES ${(i.price || 0).toLocaleString()}</div>
+                    <span class="category">${escapeHtml(i.category || 'General')}</span>
+                </div>
+            `).join('');
+        }
+
+        // Add to cart
+        window.addToCart = (id, name, price) => {
+            const existing = cart.find(item => item.id === id);
+            if (existing) {
+                existing.quantity++;
+            } else {
+                cart.push({ id, name, price, quantity: 1 });
+            }
+            renderCart();
+            showToast(`${name} added to cart`);
+        };
+
+        // Update quantity
+        window.updateQuantity = (id, delta) => {
+            const index = cart.findIndex(item => item.id === id);
+            if (index !== -1) {
+                const newQty = cart[index].quantity + delta;
+                if (newQty <= 0) {
+                    cart.splice(index, 1);
+                } else {
+                    cart[index].quantity = newQty;
+                }
+                renderCart();
+            }
+        };
+
+        // Remove item
+        window.removeItem = (id) => {
+            cart = cart.filter(item => item.id !== id);
+            renderCart();
+            showToast('Item removed');
+        };
+
+        // Clear cart
+        window.clearCart = () => {
+            if (cart.length && confirm('Clear entire cart?')) {
+                cart = [];
+                renderCart();
+                showToast('Cart cleared');
+            }
+        };
+
+        // Calculate totals
+        function calculateTotals() {
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const tax = subtotal * 0.08;
+            const total = subtotal + tax;
+            return { subtotal, tax, total };
+        }
+
+        // Render cart
+        function renderCart() {
+            const container = document.getElementById('cartItems');
+            const cartCount = document.getElementById('cartCount');
+            const subtotalSpan = document.getElementById('subtotal');
+            const taxSpan = document.getElementById('tax');
+            const totalSpan = document.getElementById('total');
+
+            cartCount.textContent = `(${cart.reduce((sum, i) => sum + i.quantity, 0)})`;
+
+            if (!cart.length) {
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-shopping-cart" style="font-size:2rem;opacity:0.4;"></i><p>Cart is empty</p><p style="font-size:0.65rem;">Click on menu items to add</p></div>';
+                subtotalSpan.textContent = 'KES 0';
+                taxSpan.textContent = 'KES 0';
+                totalSpan.textContent = 'KES 0';
+                return;
+            }
+
+            container.innerHTML = cart.map(item => `
+                <div class="cart-item">
+                    <div class="cart-item-info">
+                        <div class="cart-item-name">${escapeHtml(item.name)}</div>
+                        <div class="cart-item-price">KES ${(item.price).toLocaleString()}</div>
+                    </div>
+                    <div class="cart-item-qty">
+                        <button class="qty-btn" onclick="updateQuantity('${item.id}', -1)">-</button>
+                        <span style="min-width:24px;text-align:center;">${item.quantity}</span>
+                        <button class="qty-btn" onclick="updateQuantity('${item.id}', 1)">+</button>
+                    </div>
+                    <div class="cart-item-total">KES ${(item.price * item.quantity).toLocaleString()}</div>
+                    <div class="remove-item" onclick="removeItem('${item.id}')"><i class="fas fa-trash"></i></div>
+                </div>
+            `).join('');
+
+            const { subtotal, tax, total } = calculateTotals();
+            subtotalSpan.textContent = `KES ${subtotal.toLocaleString()}`;
+            taxSpan.textContent = `KES ${Math.round(tax).toLocaleString()}`;
+            totalSpan.textContent = `KES ${Math.round(total).toLocaleString()}`;
+        }
+
+        // Toggle delivery address field
+        document.getElementById('orderType')?.addEventListener('change', (e) => {
+            const addressGroup = document.getElementById('deliveryAddressGroup');
+            addressGroup.style.display = e.target.value === 'delivery' ? 'block' : 'none';
+        });
+
+        // Place order
+        window.placeOrder = async () => {
+            const customerName = document.getElementById('customerName')?.value.trim();
+            if (!customerName) { showToast('Please enter customer name', true); return; }
+            if (!cart.length) { showToast('Cart is empty', true); return; }
+
+            const orderType = document.getElementById('orderType').value;
+            const customerPhone = document.getElementById('customerPhone').value.trim();
+            const deliveryAddress = document.getElementById('deliveryAddress')?.value.trim() || '';
+
+            const { subtotal, tax, total } = calculateTotals();
+
+            const orderData = {
+                customerName,
+                customerPhone: customerPhone || null,
+                orderType,
+                deliveryAddress: orderType === 'delivery' ? deliveryAddress : null,
+                items: cart.map(item => ({
+                    id: item.id,
+                    name: item.name,
+                    price: item.price,
+                    quantity: item.quantity,
+                    total: item.price * item.quantity
+                })),
+                subtotal: Math.round(subtotal),
+                tax: Math.round(tax),
+                total: Math.round(total),
+                status: 'new',
+                createdAt: firebase.database.ServerValue.TIMESTAMP,
+                updatedAt: firebase.database.ServerValue.TIMESTAMP
+            };
+
+            try {
+                await db.ref('mugs_n_dines_orders').push(orderData);
+                showToast('✅ Order placed successfully!');
+                // Reset form
+                cart = [];
+                renderCart();
+                document.getElementById('customerName').value = '';
+                document.getElementById('customerPhone').value = '';
+                document.getElementById('deliveryAddress').value = '';
+                document.getElementById('orderType').value = 'dine-in';
+                document.getElementById('deliveryAddressGroup').style.display = 'none';
+                // Redirect after 1.5 seconds
+                setTimeout(() => {
+                    window.location.href = '/workspaces/mugs-n-dines/orders.html';
+                }, 1500);
+            } catch (e) {
+                console.error(e);
+                showToast('Failed to place order', true);
+            }
+        };
+
+        // Filter and search listeners
+        function setupFilters() {
+            document.querySelectorAll('.filter-chip').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentFilter = btn.dataset.filter;
+                    renderMenu();
+                });
+            });
+            document.getElementById('menuSearch')?.addEventListener('input', (e) => {
+                searchTerm = e.target.value.toLowerCase();
+                renderMenu();
+            });
+        }
+
+        // Firebase listeners
+        db.ref('mugs_n_dines_menu').on('value', (snapshot) => {
+            allMenuItems = snapshot.val() || {};
+            renderMenu();
+        });
+
+        // Dropdown toggle
+        window.toggleDropdown = () => document.getElementById('moreDropdown').classList.toggle('show');
+        document.addEventListener('click', (e) => { if (!e.target.closest('.nav-dropdown')) document.getElementById('moreDropdown').classList.remove('show'); });
+
+        // Auth check
+        auth.onAuthStateChanged((user) => { 
+            if (!user) window.location.href = '/workspaces/index.html';
+            else setupFilters();
+        });
+    </script>
+</body>
+</html>
