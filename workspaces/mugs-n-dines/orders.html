@@ -11,7 +11,7 @@
   
   <link rel="icon" type="image/png" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
   
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -80,7 +80,7 @@
     .page-header h1 i { color: var(--orange-dark); margin-right: 6px; }
     .page-header p { color: var(--text-muted); font-size: 0.75rem; }
 
-    .stats-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 1rem; }
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 1rem; }
     .stat-mini {
       background: white; border-radius: 14px; padding: 0.8rem 1rem; text-align: center;
       border: 1px solid #fed7aa; box-shadow: 0 2px 8px rgba(249,115,22,0.03);
@@ -145,10 +145,6 @@
     }
     .btn-confirm { background: #d1fae5; color: #065f46; }
     .btn-confirm:hover { background: #10b981; color: white; }
-    .btn-process { background: #e0f2fe; color: #0369a1; }
-    .btn-process:hover { background: #3b82f6; color: white; }
-    .btn-ready { background: #fed7aa; color: #9a3412; }
-    .btn-ready:hover { background: #f59e0b; color: white; }
     .btn-cancel { background: #fee2e2; color: #991b1b; }
     .btn-cancel:hover { background: #ef4444; color: white; }
     .btn-view { background: #f1f5f9; color: #475569; }
@@ -171,7 +167,7 @@
     .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.75rem; margin-bottom: 1rem; }
     .detail-item { background: #f8fafc; padding: 0.6rem; border-radius: 10px; }
     .detail-item strong { display: block; font-size: 0.6rem; color: var(--orange-dark); text-transform: uppercase; margin-bottom: 0.1rem; }
-    .btn-row { display: flex; gap: 8px; margin-top: 1rem; }
+    .btn-row { display: flex; gap: 8px; margin-top: 1rem; justify-content: flex-end; }
     .btn {
       padding: 0.6rem 1.2rem; border-radius: 10px; border: none; font-weight: 700;
       font-size: 0.8rem; cursor: pointer; display: inline-flex; align-items: center;
@@ -181,6 +177,8 @@
     .btn-primary:hover { background: var(--orange-dark); }
     .btn-secondary { background: #f1f5f9; color: #475569; }
     .btn-secondary:hover { background: #e2e8f0; }
+    .btn-danger { background: #fee2e2; color: #991b1b; }
+    .btn-danger:hover { background: #ef4444; color: white; }
 
     .toast {
       position: fixed; bottom: 25px; right: 25px; background: #10b981; color: white;
@@ -201,11 +199,11 @@
   <nav class="navbar">
     <a href="/workspaces/mugs-n-dines/index.html" class="logo">
       <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png" alt="Mugs N Dines" class="logo-img">
-      <span class="logo-text">Mugs N Dines <span>Kitchen</span></span>
+      <span class="logo-text">Mugs N Dines <span>Management</span></span>
     </a>
     <div class="nav-right">
       <a href="/workspaces/mugs-n-dines/index.html" class="nav-btn"><i class="fas fa-arrow-left"></i> Dashboard</a>
-      <a href="/workspaces/mugs-n-dines/new-order.html" class="nav-btn"><i class="fas fa-plus"></i> New Order</a>
+      <a href="/workspaces/mugs-n-dines/kitchens.html" class="nav-btn"><i class="fas fa-store-alt"></i> Kitchens</a>
       <a href="/workspaces/mugs-n-dines/dispatch.html" class="nav-btn"><i class="fas fa-truck"></i> Dispatch</a>
     </div>
   </nav>
@@ -219,19 +217,14 @@
     <div class="stats-row">
       <div class="stat-mini"><div class="stat-num" id="statAll">0</div><div class="stat-label">Total Orders</div></div>
       <div class="stat-mini"><div class="stat-num" id="statNew">0</div><div class="stat-label">New Orders</div></div>
-      <div class="stat-mini"><div class="stat-num" id="statPreparing">0</div><div class="stat-label">Preparing</div></div>
-      <div class="stat-mini"><div class="stat-num" id="statReady">0</div><div class="stat-label">Ready</div></div>
-      <div class="stat-mini"><div class="stat-num" id="statDispatched">0</div><div class="stat-label">Dispatched/Delivered</div></div>
+      <div class="stat-mini"><div class="stat-num" id="statConfirmed">0</div><div class="stat-label">Confirmed</div></div>
+      <div class="stat-mini"><div class="stat-num" id="statCancelled">0</div><div class="stat-label">Cancelled</div></div>
     </div>
 
     <div class="filter-bar">
       <button class="filter-btn active" data-filter="all">All<span class="count" id="countAll">0</span></button>
       <button class="filter-btn" data-filter="new">New<span class="count" id="countNew">0</span></button>
       <button class="filter-btn" data-filter="confirmed">Confirmed<span class="count" id="countConfirmed">0</span></button>
-      <button class="filter-btn" data-filter="preparing">Preparing<span class="count" id="countPreparing">0</span></button>
-      <button class="filter-btn" data-filter="ready">Ready<span class="count" id="countReady">0</span></button>
-      <button class="filter-btn" data-filter="dispatched">Dispatched<span class="count" id="countDispatched">0</span></button>
-      <button class="filter-btn" data-filter="delivered">Delivered<span class="count" id="countDelivered">0</span></button>
       <button class="filter-btn" data-filter="cancelled">Cancelled<span class="count" id="countCancelled">0</span></button>
       <div class="search-box">
         <i class="fas fa-search"></i>
@@ -313,8 +306,7 @@
 
     function getStatusClass(status) {
       const map = { 
-        new:'status-new', confirmed:'status-confirmed', preparing:'status-preparing', 
-        ready:'status-ready', dispatched:'status-dispatched', delivered:'status-delivered', 
+        new:'status-new', confirmed:'status-confirmed', 
         cancelled:'status-cancelled' 
       };
       return map[status] || 'status-new';
@@ -327,7 +319,9 @@
         const select = document.getElementById('kitchenFilter');
         select.innerHTML = '<option value="all">All Kitchens</option>';
         Object.entries(allKitchens).forEach(([id, k]) => {
-          select.innerHTML += `<option value="${id}">${escapeHtml(k.name)}</option>`;
+          if (k.status !== 'inactive') {
+            select.innerHTML += `<option value="${id}">${escapeHtml(k.name)}</option>`;
+          }
         });
       } catch(e) { console.error('Error loading kitchens:', e); }
     }
@@ -335,26 +329,23 @@
     function updateStats() {
       const orders = Object.values(allOrders).filter(o => o);
       const counts = { 
-        all: orders.length, new: 0, confirmed: 0, preparing: 0, ready: 0, dispatched: 0, delivered: 0, cancelled: 0 
+        all: orders.length, 
+        new: orders.filter(o => o.status === 'new').length,
+        confirmed: orders.filter(o => o.status === 'confirmed').length,
+        cancelled: orders.filter(o => o.status === 'cancelled').length
       };
-      orders.forEach(o => { const s = o.status || 'new'; if (counts[s] !== undefined) counts[s]++; });
 
       document.getElementById('statAll').textContent = counts.all;
       document.getElementById('statNew').textContent = counts.new;
-      document.getElementById('statPreparing').textContent = counts.preparing;
-      document.getElementById('statReady').textContent = counts.ready;
-      document.getElementById('statDispatched').textContent = counts.dispatched + counts.delivered;
+      document.getElementById('statConfirmed').textContent = counts.confirmed;
+      document.getElementById('statCancelled').textContent = counts.cancelled;
 
       document.getElementById('countAll').textContent = counts.all;
       document.getElementById('countNew').textContent = counts.new;
       document.getElementById('countConfirmed').textContent = counts.confirmed;
-      document.getElementById('countPreparing').textContent = counts.preparing;
-      document.getElementById('countReady').textContent = counts.ready;
-      document.getElementById('countDispatched').textContent = counts.dispatched;
-      document.getElementById('countDelivered').textContent = counts.delivered;
       document.getElementById('countCancelled').textContent = counts.cancelled;
 
-      document.getElementById('orderCount').innerHTML = `${counts.all} total · ${counts.new} new · ${counts.preparing} preparing`;
+      document.getElementById('orderCount').innerHTML = `${counts.all} total · ${counts.new} new · ${counts.confirmed} confirmed · ${counts.cancelled} cancelled`;
     }
 
     function escapeHtml(s) {
@@ -402,20 +393,17 @@
         const shortId = String(order.id).slice(-6);
         const kitchenName = allKitchens[order.kitchenId]?.name || order.kitchenName || '—';
 
-        let actions = `<button class="action-btn btn-view" onclick="viewOrder('${order.id}')"><i class="fas fa-eye"></i></button>`;
+        let actions = `<button class="action-btn btn-view" onclick="viewOrder('${order.id}')"><i class="fas fa-eye"></i> View</button>`;
         
+        // Only show confirm button for 'new' orders
         if (status === 'new') {
-          actions += `<button class="action-btn btn-confirm" onclick="updateStatus('${order.id}','confirmed')"><i class="fas fa-check"></i> Confirm</button>`;
-          actions += `<button class="action-btn btn-cancel" onclick="updateStatus('${order.id}','cancelled')"><i class="fas fa-times"></i></button>`;
+          actions += `<button class="action-btn btn-confirm" onclick="confirmOrder('${order.id}')"><i class="fas fa-check"></i> Confirm</button>`;
+          actions += `<button class="action-btn btn-cancel" onclick="cancelOrder('${order.id}')"><i class="fas fa-times"></i> Cancel</button>`;
         }
+        
+        // Show cancel button for confirmed orders (but not for already cancelled)
         if (status === 'confirmed') {
-          actions += `<button class="action-btn btn-process" onclick="updateStatus('${order.id}','preparing')"><i class="fas fa-spinner"></i> Start Preparing</button>`;
-        }
-        if (status === 'preparing') {
-          actions += `<button class="action-btn btn-ready" onclick="updateStatus('${order.id}','ready')"><i class="fas fa-box"></i> Mark Ready</button>`;
-        }
-        if (status === 'ready') {
-          actions += `<button class="action-btn" style="background:#ede9fe;color:#5b21b6;" onclick="updateStatus('${order.id}','dispatched')"><i class="fas fa-truck"></i> Dispatch</button>`;
+          actions += `<button class="action-btn btn-cancel" onclick="cancelOrder('${order.id}')"><i class="fas fa-times"></i> Cancel</button>`;
         }
 
         return `
@@ -437,21 +425,42 @@
             <td><span class="status-badge ${getStatusClass(status)}">${status}</span></td>
             <td>${formatDate(order.createdAt)}</td>
             <td><div class="action-btns">${actions}</div></td>
-          </tr>`;
+          </tr>
+        `;
       }).join('');
     }
 
-    async function updateStatus(orderId, newStatus) {
-      if (!confirm(`Update order to "${newStatus}"?`)) return;
+    async function confirmOrder(orderId) {
+      if (!confirm('Confirm this order? It will be sent to the kitchen for preparation.')) return;
       try {
-        const updates = { status: newStatus, updatedAt: firebase.database.ServerValue.TIMESTAMP };
-        if (newStatus === 'preparing') updates.startedPreparingAt = firebase.database.ServerValue.TIMESTAMP;
-        if (newStatus === 'ready') updates.readyAt = firebase.database.ServerValue.TIMESTAMP;
-        if (newStatus === 'dispatched') updates.dispatchedAt = firebase.database.ServerValue.TIMESTAMP;
-        
-        await database.ref(`mugs_n_dines_orders/${orderId}`).update(updates);
-        showToast(`✅ Order ${newStatus}`);
-      } catch (e) { console.error(e); showToast('Failed to update', true); }
+        await database.ref(`mugs_n_dines_orders/${orderId}`).update({
+          status: 'confirmed',
+          confirmedAt: firebase.database.ServerValue.TIMESTAMP,
+          updatedAt: firebase.database.ServerValue.TIMESTAMP
+        });
+        showToast('✅ Order confirmed and sent to kitchen');
+      } catch (e) {
+        console.error(e);
+        showToast('Failed to confirm order', true);
+      }
+    }
+
+    async function cancelOrder(orderId) {
+      const reason = prompt('Enter cancellation reason (optional):');
+      if (!confirm('Are you sure you want to cancel this order?')) return;
+      try {
+        await database.ref(`mugs_n_dines_orders/${orderId}`).update({
+          status: 'cancelled',
+          cancellationReason: reason || 'No reason provided',
+          cancelledAt: firebase.database.ServerValue.TIMESTAMP,
+          updatedAt: firebase.database.ServerValue.TIMESTAMP
+        });
+        showToast('❌ Order cancelled');
+        closeModal();
+      } catch (e) {
+        console.error(e);
+        showToast('Failed to cancel order', true);
+      }
     }
 
     function viewOrder(orderId) {
@@ -460,6 +469,8 @@
       const items = order.items || [];
       const status = order.status || 'new';
       const kitchenName = allKitchens[order.kitchenId]?.name || order.kitchenName || '—';
+      const showConfirmButton = status === 'new';
+      const showCancelButton = status === 'new' || status === 'confirmed';
 
       modalContent.innerHTML = `
         <h3><i class="fas fa-info-circle"></i> Order #${String(orderId).slice(-6)}</h3>
@@ -474,8 +485,9 @@
           <div class="detail-item"><strong>Tax (8%)</strong>KES ${(order.tax || 0).toLocaleString()}</div>
           <div class="detail-item"><strong>Total</strong>KES ${(order.total || 0).toLocaleString()}</div>
           <div class="detail-item"><strong>Created</strong>${formatDate(order.createdAt)}</div>
-          ${order.readyAt ? `<div class="detail-item"><strong>Ready At</strong>${formatDate(order.readyAt)}</div>` : ''}
-          ${order.dispatchedAt ? `<div class="detail-item"><strong>Dispatched At</strong>${formatDate(order.dispatchedAt)}</div>` : ''}
+          ${order.confirmedAt ? `<div class="detail-item"><strong>Confirmed At</strong>${formatDate(order.confirmedAt)}</div>` : ''}
+          ${order.cancelledAt ? `<div class="detail-item"><strong>Cancelled At</strong>${formatDate(order.cancelledAt)}</div>` : ''}
+          ${order.cancellationReason ? `<div class="detail-item"><strong>Cancellation Reason</strong>${escapeHtml(order.cancellationReason)}</div>` : ''}
         </div>
         ${items.length ? `
           <p style="font-weight:700;font-size:0.75rem;margin-bottom:0.5rem;">Items Ordered:</p>
@@ -487,9 +499,26 @@
           `).join('')}
         ` : ''}
         ${order.specialInstructions ? `<div class="detail-item" style="margin-top:0.5rem;"><strong>Special Instructions</strong>${escapeHtml(order.specialInstructions)}</div>` : ''}
-        <div class="btn-row"><button class="btn btn-secondary" onclick="closeModal()">Close</button></div>
+        <div class="btn-row">
+          ${showConfirmButton ? `<button class="btn btn-primary" onclick="confirmOrderFromModal('${orderId}')"><i class="fas fa-check"></i> Confirm Order</button>` : ''}
+          ${showCancelButton ? `<button class="btn btn-danger" onclick="cancelOrderFromModal('${orderId}')"><i class="fas fa-times"></i> Cancel Order</button>` : ''}
+          <button class="btn btn-secondary" onclick="closeModal()">Close</button>
+        </div>
       `;
       modal.classList.add('show');
+      
+      // Store orderId in modal for actions
+      modal.dataset.currentOrderId = orderId;
+    }
+
+    async function confirmOrderFromModal(orderId) {
+      closeModal();
+      await confirmOrder(orderId);
+    }
+
+    async function cancelOrderFromModal(orderId) {
+      closeModal();
+      await cancelOrder(orderId);
     }
 
     function closeModal() { modal.classList.remove('show'); }
@@ -517,7 +546,15 @@
     modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
 
-    // Firebase listener
+    // Make functions global for onclick handlers
+    window.confirmOrder = confirmOrder;
+    window.cancelOrder = cancelOrder;
+    window.viewOrder = viewOrder;
+    window.confirmOrderFromModal = confirmOrderFromModal;
+    window.cancelOrderFromModal = cancelOrderFromModal;
+    window.closeModal = closeModal;
+
+    // Firebase listener - only listen for orders
     database.ref('mugs_n_dines_orders').on('value', (snapshot) => {
       allOrders = snapshot.val() || {};
       updateStats();
@@ -528,10 +565,6 @@
       if (!user) window.location.href = '/workspaces/index.html';
       else await loadKitchens();
     });
-    
-    window.viewOrder = viewOrder;
-    window.updateStatus = updateStatus;
-    window.closeModal = closeModal;
   </script>
 </body>
 </html>
