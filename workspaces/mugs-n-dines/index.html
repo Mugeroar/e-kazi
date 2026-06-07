@@ -57,7 +57,7 @@
         }
         .logo-text span { font-weight: 600; font-size: 0.7rem; background: #f97316; -webkit-text-fill-color: #f97316; margin-left: 3px; }
 
-        .nav-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .nav-right { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
         .nav-btn {
             background: rgba(249, 115, 22, 0.08); border: 1px solid rgba(249, 115, 22, 0.2);
             padding: 0.4rem 0.8rem; border-radius: 25px; color: var(--orange-dark);
@@ -67,6 +67,24 @@
         .nav-btn:hover { background: var(--orange); color: white; }
         .nav-btn.active { background: var(--orange); color: white; border-color: var(--orange-dark); }
         .nav-btn.map-btn { background: var(--orange); color: white; border-color: var(--orange-dark); }
+
+        /* Dropdown */
+        .nav-dropdown { position: relative; }
+        .dropdown-menu {
+            position: absolute; top: calc(100% + 8px); right: 0;
+            background: white; border: 1px solid var(--border-light);
+            border-radius: 16px; padding: 0.5rem; min-width: 180px;
+            display: none; z-index: 200; box-shadow: 0 15px 35px rgba(0,0,0,0.12);
+        }
+        .dropdown-menu.show { display: block; }
+        .dropdown-item {
+            padding: 0.55rem 0.8rem; border-radius: 10px;
+            display: flex; align-items: center; gap: 8px;
+            color: var(--text-primary); text-decoration: none;
+            font-size: 0.72rem; font-weight: 500; transition: all 0.15s;
+        }
+        .dropdown-item:hover { background: #fff7ed; color: var(--orange-dark); }
+        .dropdown-item i { width: 18px; color: var(--orange); font-size: 0.75rem; }
 
         .user-badge {
             display: flex; align-items: center; gap: 6px; background: #fff7ed;
@@ -118,7 +136,6 @@
         .action-card p { color: #64748b; font-size: 0.65rem; margin-bottom: 0.6rem; line-height: 1.3; }
         .action-link { display: inline-flex; align-items: center; gap: 4px; font-weight: 700; color: #c2410c; font-size: 0.65rem; }
 
-        /* Card color variations */
         .menu-card .action-icon { color: #f59e0b; border-color: rgba(245,158,11,0.2); background: linear-gradient(145deg, #fffbeb, #ffffff); }
         .menu-card .action-link { color: #d97706; }
         .recipes-card .action-icon { color: #059669; border-color: rgba(5,150,105,0.2); background: linear-gradient(145deg, #ecfdf5, #ffffff); }
@@ -165,7 +182,6 @@
         .status-cancelled { background: #fee2e2; color: #991b1b; }
 
         .empty-state { text-align: center; padding: 2rem; color: #94a3b8; font-size: 0.8rem; }
-
         .footer { text-align: center; padding: 1rem; color: #94a3b8; font-size: 0.7rem; border-top: 1px solid #fed7aa; }
 
         @media (max-width: 1200px) { .action-grid { grid-template-columns: repeat(4, 1fr); } .stats-grid { grid-template-columns: repeat(3, 1fr); } }
@@ -184,14 +200,21 @@
             <a href="/workspaces/mugsndines/index.html" class="nav-btn active"><i class="fas fa-chart-pie"></i> Dashboard</a>
             <a href="/workspaces/mugsndines/orders.html" class="nav-btn"><i class="fas fa-shopping-cart"></i> Orders</a>
             <a href="/workspaces/mugsndines/menu.html" class="nav-btn"><i class="fas fa-utensils"></i> Menu</a>
-            <a href="/workspaces/mugsndines/recipes.html" class="nav-btn"><i class="fas fa-book-open"></i> Recipes</a>
-            <a href="/workspaces/mugsndines/catering.html" class="nav-btn"><i class="fas fa-calendar-check"></i> Catering</a>
-            <a href="/workspaces/mugsndines/franchises.html" class="nav-btn"><i class="fas fa-store-alt"></i> Franchises</a>
-            <a href="/workspaces/mugsndines/dispatch.html" class="nav-btn"><i class="fas fa-truck-fast"></i> Dispatch</a>
+            
+            <div class="nav-dropdown">
+                <button class="nav-btn" onclick="toggleDropdown()"><i class="fas fa-ellipsis-h"></i> More</button>
+                <div class="dropdown-menu" id="moreDropdown">
+                    <a href="/workspaces/mugsndines/recipes.html" class="dropdown-item"><i class="fas fa-book-open"></i> Recipes</a>
+                    <a href="/workspaces/mugsndines/catering.html" class="dropdown-item"><i class="fas fa-calendar-check"></i> Catering</a>
+                    <a href="/workspaces/mugsndines/franchises.html" class="dropdown-item"><i class="fas fa-store-alt"></i> Franchises</a>
+                    <a href="/workspaces/mugsndines/dispatch.html" class="dropdown-item"><i class="fas fa-truck-fast"></i> Dispatch</a>
+                </div>
+            </div>
+            
             <a href="/workspaces/mugsndines/map.html" class="nav-btn map-btn"><i class="fas fa-map-marked-alt"></i> Map</a>
             <div class="user-badge">
                 <div class="user-avatar" id="userAvatar">MD</div>
-                <span id="userName">Restaurant Manager</span>
+                <span id="userName">Manager</span>
             </div>
         </div>
     </nav>
@@ -206,74 +229,25 @@
             <p>Manage food orders, recipes, catering events, franchises & dispatch.</p>
         </div>
 
-        <!-- Stats Grid -->
         <div class="stats-grid" id="statsGrid">
-            <div class="stat-card">
-                <div class="stat-left"><h4>New Orders</h4><div class="stat-number" id="statNewOrders">0</div><div class="stat-trend"><i class="fas fa-inbox"></i> Awaiting action</div></div>
-                <div class="stat-icon"><i class="fas fa-inbox"></i></div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-left"><h4>Active Orders</h4><div class="stat-number" id="statActiveOrders">0</div><div class="stat-trend"><i class="fas fa-fire"></i> Being prepared</div></div>
-                <div class="stat-icon"><i class="fas fa-fire"></i></div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-left"><h4>Menu Items</h4><div class="stat-number" id="statMenuItems">0</div><div class="stat-trend"><i class="fas fa-utensils"></i> Available dishes</div></div>
-                <div class="stat-icon"><i class="fas fa-utensils"></i></div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-left"><h4>Recipes</h4><div class="stat-number" id="statRecipes">0</div><div class="stat-trend"><i class="fas fa-book-open"></i> Created recipes</div></div>
-                <div class="stat-icon"><i class="fas fa-book-open"></i></div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-left"><h4>Catering</h4><div class="stat-number" id="statCateringEvents">0</div><div class="stat-trend"><i class="fas fa-calendar"></i> Upcoming events</div></div>
-                <div class="stat-icon"><i class="fas fa-calendar"></i></div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-left"><h4>Franchises</h4><div class="stat-number" id="statFranchises">0</div><div class="stat-trend"><i class="fas fa-store-alt"></i> Active outlets</div></div>
-                <div class="stat-icon"><i class="fas fa-store-alt"></i></div>
-            </div>
+            <div class="stat-card"><div class="stat-left"><h4>New Orders</h4><div class="stat-number" id="statNewOrders">0</div><div class="stat-trend"><i class="fas fa-inbox"></i> Awaiting action</div></div><div class="stat-icon"><i class="fas fa-inbox"></i></div></div>
+            <div class="stat-card"><div class="stat-left"><h4>Active Orders</h4><div class="stat-number" id="statActiveOrders">0</div><div class="stat-trend"><i class="fas fa-fire"></i> Being prepared</div></div><div class="stat-icon"><i class="fas fa-fire"></i></div></div>
+            <div class="stat-card"><div class="stat-left"><h4>Menu Items</h4><div class="stat-number" id="statMenuItems">0</div><div class="stat-trend"><i class="fas fa-utensils"></i> Available dishes</div></div><div class="stat-icon"><i class="fas fa-utensils"></i></div></div>
+            <div class="stat-card"><div class="stat-left"><h4>Recipes</h4><div class="stat-number" id="statRecipes">0</div><div class="stat-trend"><i class="fas fa-book-open"></i> Created recipes</div></div><div class="stat-icon"><i class="fas fa-book-open"></i></div></div>
+            <div class="stat-card"><div class="stat-left"><h4>Catering</h4><div class="stat-number" id="statCateringEvents">0</div><div class="stat-trend"><i class="fas fa-calendar"></i> Upcoming events</div></div><div class="stat-icon"><i class="fas fa-calendar"></i></div></div>
+            <div class="stat-card"><div class="stat-left"><h4>Franchises</h4><div class="stat-number" id="statFranchises">0</div><div class="stat-trend"><i class="fas fa-store-alt"></i> Active outlets</div></div><div class="stat-icon"><i class="fas fa-store-alt"></i></div></div>
         </div>
 
-        <!-- Action Cards (7 cards) -->
         <div class="action-grid">
-            <a href="/workspaces/mugsndines/new-order.html" class="action-card">
-                <div class="action-icon"><i class="fas fa-cart-plus"></i></div>
-                <h2>New Order</h2><p>Create a new food order for dine-in or delivery.</p>
-                <span class="action-link">Place Order <i class="fas fa-arrow-right"></i></span>
-            </a>
-            <a href="/workspaces/mugsndines/orders.html" class="action-card">
-                <div class="action-icon"><i class="fas fa-inbox"></i></div>
-                <h2>Orders</h2><p>View, update & track all food orders.</p>
-                <span class="action-link">View Orders <i class="fas fa-arrow-right"></i></span>
-            </a>
-            <a href="/workspaces/mugsndines/menu.html" class="action-card menu-card">
-                <div class="action-icon"><i class="fas fa-utensils"></i></div>
-                <h2>Menu</h2><p>Add, edit & manage your restaurant menu.</p>
-                <span class="action-link">Manage Menu <i class="fas fa-arrow-right"></i></span>
-            </a>
-            <a href="/workspaces/mugsndines/recipes.html" class="action-card recipes-card">
-                <div class="action-icon"><i class="fas fa-book-open"></i></div>
-                <h2>Recipes</h2><p>Create & manage recipes, ingredients & steps.</p>
-                <span class="action-link">View Recipes <i class="fas fa-arrow-right"></i></span>
-            </a>
-            <a href="/workspaces/mugsndines/catering.html" class="action-card catering-card">
-                <div class="action-icon"><i class="fas fa-calendar-check"></i></div>
-                <h2>Catering</h2><p>Book & manage catering events.</p>
-                <span class="action-link">Manage Events <i class="fas fa-arrow-right"></i></span>
-            </a>
-            <a href="/workspaces/mugsndines/franchises.html" class="action-card franchise-card">
-                <div class="action-icon"><i class="fas fa-store-alt"></i></div>
-                <h2>Franchises</h2><p>Manage restaurant outlets & locations.</p>
-                <span class="action-link">View Franchises <i class="fas fa-arrow-right"></i></span>
-            </a>
-            <a href="/workspaces/mugsndines/dispatch.html" class="action-card dispatch-card">
-                <div class="action-icon"><i class="fas fa-truck-fast"></i></div>
-                <h2>Dispatch</h2><p>Assign drivers & track deliveries.</p>
-                <span class="action-link">Dispatch <i class="fas fa-arrow-right"></i></span>
-            </a>
+            <a href="/workspaces/mugsndines/new-order.html" class="action-card"><div class="action-icon"><i class="fas fa-cart-plus"></i></div><h2>New Order</h2><p>Create a new food order for dine-in or delivery.</p><span class="action-link">Place Order <i class="fas fa-arrow-right"></i></span></a>
+            <a href="/workspaces/mugsndines/orders.html" class="action-card"><div class="action-icon"><i class="fas fa-inbox"></i></div><h2>Orders</h2><p>View, update & track all food orders.</p><span class="action-link">View Orders <i class="fas fa-arrow-right"></i></span></a>
+            <a href="/workspaces/mugsndines/menu.html" class="action-card menu-card"><div class="action-icon"><i class="fas fa-utensils"></i></div><h2>Menu</h2><p>Add, edit & manage your restaurant menu.</p><span class="action-link">Manage Menu <i class="fas fa-arrow-right"></i></span></a>
+            <a href="/workspaces/mugsndines/recipes.html" class="action-card recipes-card"><div class="action-icon"><i class="fas fa-book-open"></i></div><h2>Recipes</h2><p>Create & manage recipes, ingredients & steps.</p><span class="action-link">View Recipes <i class="fas fa-arrow-right"></i></span></a>
+            <a href="/workspaces/mugsndines/catering.html" class="action-card catering-card"><div class="action-icon"><i class="fas fa-calendar-check"></i></div><h2>Catering</h2><p>Book & manage catering events.</p><span class="action-link">Manage Events <i class="fas fa-arrow-right"></i></span></a>
+            <a href="/workspaces/mugsndines/franchises.html" class="action-card franchise-card"><div class="action-icon"><i class="fas fa-store-alt"></i></div><h2>Franchises</h2><p>Manage restaurant outlets & locations.</p><span class="action-link">View Franchises <i class="fas fa-arrow-right"></i></span></a>
+            <a href="/workspaces/mugsndines/dispatch.html" class="action-card dispatch-card"><div class="action-icon"><i class="fas fa-truck-fast"></i></div><h2>Dispatch</h2><p>Assign drivers & track deliveries.</p><span class="action-link">Dispatch <i class="fas fa-arrow-right"></i></span></a>
         </div>
 
-        <!-- Quick Actions -->
         <div class="quick-section">
             <div class="quick-header"><i class="fas fa-bolt"></i> Quick Actions</div>
             <div class="quick-links">
@@ -288,32 +262,18 @@
             </div>
         </div>
 
-        <!-- Recent Orders -->
         <div class="recent-section">
-            <div class="recent-header">
-                <h3><i class="fas fa-clock-rotate-left" style="color:#c2410c;"></i> Recent Food Orders</h3>
-                <a href="/workspaces/mugsndines/orders.html" style="color:#c2410c;font-weight:600;font-size:0.75rem;">View all</a>
-            </div>
-            <div class="recent-list" id="recentOrders">
-                <div class="empty-state"><i class="fas fa-shopping-cart" style="font-size:1.5rem;display:block;margin-bottom:8px;opacity:0.4;"></i><p>No orders yet — start by placing a new order</p></div>
-            </div>
+            <div class="recent-header"><h3><i class="fas fa-clock-rotate-left" style="color:#c2410c;"></i> Recent Food Orders</h3><a href="/workspaces/mugsndines/orders.html" style="color:#c2410c;font-weight:600;font-size:0.75rem;">View all</a></div>
+            <div class="recent-list" id="recentOrders"><div class="empty-state"><i class="fas fa-shopping-cart" style="font-size:1.5rem;display:block;margin-bottom:8px;opacity:0.4;"></i><p>No orders yet</p></div></div>
         </div>
 
-        <!-- Upcoming Catering Events -->
         <div class="recent-section">
-            <div class="recent-header">
-                <h3><i class="fas fa-calendar-check" style="color:#7c3aed;"></i> Upcoming Catering Events</h3>
-                <a href="/workspaces/mugsndines/catering.html" style="color:#7c3aed;font-weight:600;font-size:0.75rem;">View all</a>
-            </div>
-            <div class="recent-list" id="recentCatering">
-                <div class="empty-state"><i class="fas fa-calendar" style="font-size:1.5rem;display:block;margin-bottom:8px;opacity:0.4;"></i><p>No upcoming events — book a catering event</p></div>
-            </div>
+            <div class="recent-header"><h3><i class="fas fa-calendar-check" style="color:#7c3aed;"></i> Upcoming Catering Events</h3><a href="/workspaces/mugsndines/catering.html" style="color:#7c3aed;font-weight:600;font-size:0.75rem;">View all</a></div>
+            <div class="recent-list" id="recentCatering"><div class="empty-state"><i class="fas fa-calendar" style="font-size:1.5rem;display:block;margin-bottom:8px;opacity:0.4;"></i><p>No upcoming events</p></div></div>
         </div>
     </div>
 
-    <div class="footer">
-        <i class="far fa-copyright"></i> 2026 Mugs N Dines · Food & Catering · <span id="footerStats">Loading...</span>
-    </div>
+    <div class="footer"><i class="far fa-copyright"></i> 2026 Mugs N Dines · Food & Catering · <span id="footerStats">Loading...</span></div>
 
     <script type="importmap">
         { "imports": { "firebase/app": "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js", "firebase/auth": "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js", "firebase/database": "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js" } }
@@ -338,51 +298,30 @@
         const auth = getAuth(app);
         const db = getDatabase(app);
 
-        let allOrders = {};
-        let allMenuItems = {};
-        let allRecipes = {};
-        let allCateringEvents = {};
-        let allFranchises = {};
-        let allDispatch = {};
+        let allOrders = {}, allMenuItems = {}, allRecipes = {}, allCateringEvents = {}, allFranchises = {}, allDispatch = {};
 
         function escapeHtml(s) { if (!s) return ''; return String(s).replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : m === '>' ? '&gt;' : m); }
         function getInitials(n) { if (!n) return 'MD'; return n.split(' ').map(x => x[0]).join('').toUpperCase().substring(0, 2); }
         function formatTimeAgo(ts) { if (!ts) return ''; const d = new Date(ts); const diff = Date.now() - d.getTime(); const m = Math.floor(diff / 60000); const h = Math.floor(m / 60); const days = Math.floor(h / 24); if (days > 0) return `${days}d ago`; if (h > 0) return `${h}h ago`; if (m > 0) return `${m}m ago`; return 'Just now'; }
-
-        function getStatusClass(status) {
-            const map = { new: 'status-new', confirmed: 'status-confirmed', preparing: 'status-preparing', ready: 'status-ready', delivered: 'status-delivered', cancelled: 'status-cancelled' };
-            return map[status] || 'status-new';
-        }
+        function getStatusClass(s) { const map = { new: 'status-new', confirmed: 'status-confirmed', preparing: 'status-preparing', ready: 'status-ready', delivered: 'status-delivered', cancelled: 'status-cancelled' }; return map[s] || 'status-new'; }
 
         function renderRecentOrders() {
             const list = document.getElementById('recentOrders');
             const orders = Object.entries(allOrders).map(([id, data]) => ({ id, ...data })).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)).slice(0, 6);
-            if (!orders.length) { list.innerHTML = '<div class="empty-state"><i class="fas fa-shopping-cart" style="font-size:1.5rem;display:block;margin-bottom:8px;opacity:0.4;"></i><p>No orders yet — start by placing a new order</p></div>'; return; }
-            list.innerHTML = orders.map(o => {
-                const status = o.status || 'new';
-                const items = o.items || [];
-                return `<div class="recent-item"><div style="display:flex;align-items:center;gap:10px;"><div style="width:32px;height:32px;background:#fff7ed;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1rem;">🍽️</div><div><strong>${escapeHtml(o.customerName || 'Customer')}</strong><p style="font-size:0.65rem;color:#64748b;">${items.length} item${items.length !== 1 ? 's' : ''} · KES ${(o.total || 0).toLocaleString()} ${formatTimeAgo(o.createdAt) ? '· ' + formatTimeAgo(o.createdAt) : ''}</p></div></div><span class="status-tag ${getStatusClass(status)}">${status}</span></div>`;
-            }).join('');
+            if (!orders.length) { list.innerHTML = '<div class="empty-state"><i class="fas fa-shopping-cart" style="font-size:1.5rem;display:block;margin-bottom:8px;opacity:0.4;"></i><p>No orders yet</p></div>'; return; }
+            list.innerHTML = orders.map(o => `<div class="recent-item"><div style="display:flex;align-items:center;gap:10px;"><div style="width:32px;height:32px;background:#fff7ed;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1rem;">🍽️</div><div><strong>${escapeHtml(o.customerName || 'Customer')}</strong><p style="font-size:0.65rem;color:#64748b;">${(o.items || []).length} items · KES ${(o.total || 0).toLocaleString()} ${formatTimeAgo(o.createdAt) ? '· ' + formatTimeAgo(o.createdAt) : ''}</p></div></div><span class="status-tag ${getStatusClass(o.status)}">${o.status || 'new'}</span></div>`).join('');
         }
 
         function renderRecentCatering() {
             const list = document.getElementById('recentCatering');
             const events = Object.entries(allCateringEvents).map(([id, data]) => ({ id, ...data })).filter(e => e.status !== 'cancelled').sort((a, b) => (a.eventDate || 0) - (b.eventDate || 0)).slice(0, 5);
-            if (!events.length) { list.innerHTML = '<div class="empty-state"><i class="fas fa-calendar" style="font-size:1.5rem;display:block;margin-bottom:8px;opacity:0.4;"></i><p>No upcoming events — book a catering event</p></div>'; return; }
-            list.innerHTML = events.map(e => {
-                const eventDate = e.eventDate ? new Date(e.eventDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'TBD';
-                return `<div class="recent-item"><div style="display:flex;align-items:center;gap:10px;"><div style="width:32px;height:32px;background:#f5f0ff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1rem;">🎪</div><div><strong>${escapeHtml(e.eventName || 'Event')}</strong><p style="font-size:0.65rem;color:#64748b;">${eventDate} · ${escapeHtml(e.clientName || 'Client')} · ${e.guests || 0} guests</p></div></div><span class="status-tag ${e.status === 'confirmed' ? 'status-confirmed' : 'status-new'}">${e.status || 'new'}</span></div>`;
-            }).join('');
+            if (!events.length) { list.innerHTML = '<div class="empty-state"><i class="fas fa-calendar" style="font-size:1.5rem;display:block;margin-bottom:8px;opacity:0.4;"></i><p>No upcoming events</p></div>'; return; }
+            list.innerHTML = events.map(e => `<div class="recent-item"><div style="display:flex;align-items:center;gap:10px;"><div style="width:32px;height:32px;background:#f5f0ff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1rem;">🎪</div><div><strong>${escapeHtml(e.eventName || 'Event')}</strong><p style="font-size:0.65rem;color:#64748b;">${e.eventDate ? new Date(e.eventDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'TBD'} · ${escapeHtml(e.clientName || 'Client')} · ${e.guests || 0} guests</p></div></div><span class="status-tag ${e.status === 'confirmed' ? 'status-confirmed' : 'status-new'}">${e.status || 'new'}</span></div>`).join('');
         }
 
         function updateStats() {
-            const orders = Object.values(allOrders);
-            const menuItems = Object.values(allMenuItems);
-            const recipes = Object.values(allRecipes);
-            const events = Object.values(allCateringEvents);
-            const franchises = Object.values(allFranchises);
-            const dispatch = Object.values(allDispatch);
-            
+            const orders = Object.values(allOrders), menuItems = Object.values(allMenuItems), recipes = Object.values(allRecipes);
+            const events = Object.values(allCateringEvents), franchises = Object.values(allFranchises), dispatch = Object.values(allDispatch);
             const newOrders = orders.filter(o => o.status === 'new' || o.status === 'pending').length;
             const activeOrders = orders.filter(o => o.status === 'confirmed' || o.status === 'preparing').length;
             const upcomingEvents = events.filter(e => e.status !== 'cancelled' && e.status !== 'completed').length;
@@ -394,38 +333,30 @@
             document.getElementById('statRecipes').textContent = recipes.length;
             document.getElementById('statCateringEvents').textContent = upcomingEvents;
             document.getElementById('statFranchises').textContent = franchises.length;
-            
             document.getElementById('pendingCount').textContent = newOrders;
             document.getElementById('dispatchCount').textContent = dispatch.length;
-
             document.getElementById('footerStats').textContent = `${orders.length} orders · ${menuItems.length} menu · ${recipes.length} recipes · ${events.length} events · ${franchises.length} franchises`;
             document.getElementById('lastUpdated').innerHTML = '<i class="fas fa-circle" style="color:#f97316;"></i> Live';
-
-            renderRecentOrders();
-            renderRecentCatering();
+            renderRecentOrders(); renderRecentCatering();
         }
 
         function setupListeners() {
-            const paths = [
-                { ref: 'mugsndines_orders', var: 'allOrders' },
-                { ref: 'mugsndines_menu', var: 'allMenuItems' },
-                { ref: 'mugsndines_recipes', var: 'allRecipes' },
-                { ref: 'mugsndines_catering', var: 'allCateringEvents' },
-                { ref: 'mugsndines_franchises', var: 'allFranchises' },
-                { ref: 'mugsndines_dispatch', var: 'allDispatch' }
-            ];
-
-            paths.forEach(p => {
-                onValue(ref(db, p.ref), (snapshot) => {
-                    window[p.var] = snapshot.val() || {};
-                    updateStats();
-                }, (error) => {
-                    console.log(`${p.ref} path pending:`, error.message);
-                    window[p.var] = {};
-                    updateStats();
-                });
+            const paths = ['mugsndines_orders','mugsndines_menu','mugsndines_recipes','mugsndines_catering','mugsndines_franchises','mugsndines_dispatch'];
+            const vars = ['allOrders','allMenuItems','allRecipes','allCateringEvents','allFranchises','allDispatch'];
+            paths.forEach((p, i) => {
+                onValue(ref(db, p), (snapshot) => { window[vars[i]] = snapshot.val() || {}; updateStats(); }, (error) => { window[vars[i]] = {}; updateStats(); });
             });
         }
+
+        // Dropdown toggle
+        window.toggleDropdown = function() {
+            document.getElementById('moreDropdown').classList.toggle('show');
+        };
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.nav-dropdown')) {
+                document.getElementById('moreDropdown').classList.remove('show');
+            }
+        });
 
         onAuthStateChanged(auth, async (user) => {
             if (user) {
