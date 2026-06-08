@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>KazInni Workspaces | Latter Logistics</title>
+  
+  <meta name="theme-color" content="#2563eb">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  
+  <link rel="apple-touch-icon" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
+  <link rel="icon" type="image/png" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --logistics: #2563eb;
+      --logistics-dark: #1d4ed8;
+      --logistics-light: #dbeafe;
+      --logistics-accent: #f59e0b;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --purple: #8b5cf6;
+      --card-bg: #ffffff;
+      --text-primary: #1e293b;
+      --text-muted: #64748b;
+      --border-light: #e2e8f0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%);
+      color: var(--text-primary);
+      line-height: 1.4;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+    
+    .skeleton {
+      background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s ease-in-out infinite;
+      border-radius: 8px;
+    }
+    
+    .skeleton-text { height: 1rem; margin-bottom: 0.5rem; }
+    .skeleton-text-sm { height: 0.7rem; width: 60%; }
+    .skeleton-number { height: 1.8rem; width: 50%; }
+    .skeleton-icon { width: 44px; height: 44px; border-radius: 12px; }
+    .skeleton-stat-card {
+      background: white; border-radius: 20px; padding: 1.2rem;
+      border: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between;
+    }
+    .skeleton-shipment-card {
+      background: white; border-radius: 16px; padding: 1rem;
+      border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;
+    }
+    .skeleton-badge { width: 80px; height: 24px; border-radius: 30px; }
+
+    .navbar {
+      background: rgba(255, 255, 255, 0.97);
+      backdrop-filter: blur(16px);
+      padding: 0.5rem 2%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid rgba(37, 99, 235, 0.3);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .logo { display: flex; align-items: center; gap: 10px; cursor: pointer; text-decoration: none; }
+    .logo-img { height: 34px; width: 34px; border-radius: 10px; object-fit: contain; background: white; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); }
+    .logo-text {
+      font-weight: 800; font-size: 1.1rem;
+      background: linear-gradient(145deg, #3b82f6, #1d4ed8);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .logo-text span { font-weight: 600; font-size: 0.7rem; background: #2563eb; -webkit-text-fill-color: #2563eb; margin-left: 3px; }
+
+    .nav-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .nav-btn {
+      background: rgba(37, 99, 235, 0.08); border: 1px solid rgba(37, 99, 235, 0.2);
+      padding: 0.4rem 0.8rem; border-radius: 25px; color: var(--logistics-dark);
+      font-weight: 600; font-size: 0.7rem; cursor: pointer; display: inline-flex;
+      align-items: center; gap: 5px; text-decoration: none; transition: all 0.2s;
+    }
+    .nav-btn:hover { background: var(--logistics); color: white; }
+    .nav-btn.active { background: var(--logistics); color: white; border-color: var(--logistics-dark); }
+
+    .user-badge {
+      display: flex; align-items: center; gap: 6px; background: #eff6ff;
+      padding: 0.2rem 0.7rem 0.2rem 0.5rem; border-radius: 30px; font-size: 0.7rem;
+      color: var(--text-muted); border: 1px solid var(--logistics-light);
+    }
+    .user-avatar {
+      width: 30px; height: 30px; background: linear-gradient(145deg, #2563eb, #1d4ed8);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 0.7rem; color: white;
+    }
+
+    .container { padding: 1.2rem 2%; flex: 1; max-width: 1400px; margin: 0 auto; width: 100%; }
+
+    .page-header { margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.8rem; }
+    .page-header h1 { font-size: 1.3rem; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 10px; }
+    .page-header h1 i { color: var(--logistics-dark); background: white; padding: 8px; border-radius: 12px; box-shadow: 0 4px 12px rgba(37,99,235,0.1); font-size: 1rem; }
+    .page-header p { color: #64748b; font-size: 0.8rem; }
+    .last-updated { font-size: 0.65rem; color: #94a3b8; margin-left: 6px; }
+    .last-updated i { color: #10b981; font-size: 0.4rem; }
+
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+    .stat-card {
+      background: white; border-radius: 20px; padding: 1rem 1.2rem;
+      border: 1px solid var(--logistics-light); box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+      display: flex; align-items: center; justify-content: space-between;
+      transition: all 0.2s;
+    }
+    .stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(37,99,235,0.08); }
+    .stat-left h4 { font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b; margin-bottom: 0.3rem; }
+    .stat-number { font-size: 1.6rem; font-weight: 800; color: #0f172a; line-height: 1.1; }
+    .stat-trend { font-size: 0.6rem; margin-top: 4px; display: flex; align-items: center; gap: 3px; color: #64748b; }
+    .stat-icon { width: 44px; height: 44px; background: #eff6ff; border-radius: 14px; display: flex; align-items: center; justify-content: center; color: #2563eb; font-size: 1.3rem; }
+
+    .action-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+    @media (max-width: 768px) { .action-grid { grid-template-columns: 1fr; } }
+    .action-card {
+      background: white; border-radius: 20px; padding: 1.2rem;
+      border: 1px solid var(--logistics-light); text-decoration: none; color: inherit;
+      transition: all 0.2s; display: block; cursor: pointer;
+    }
+    .action-card:hover { transform: translateY(-3px); box-shadow: 0 12px 24px -8px rgba(37,99,235,0.15); border-color: #3b82f6; }
+    .action-icon { width: 48px; height: 48px; background: #eff6ff; border-radius: 14px; display: flex; align-items: center; justify-content: center; margin-bottom: 0.8rem; color: #2563eb; font-size: 1.3rem; }
+    .action-card h3 { font-size: 0.9rem; font-weight: 700; margin-bottom: 0.2rem; }
+    .action-card p { color: #64748b; font-size: 0.65rem; margin-bottom: 0.5rem; }
+    .action-link { font-size: 0.65rem; font-weight: 600; color: #2563eb; display: inline-flex; align-items: center; gap: 4px; }
+
+    .quick-section {
+      background: white; border-radius: 20px; padding: 1rem 1.2rem;
+      border: 1px solid var(--logistics-light); margin-bottom: 1.5rem;
+    }
+    .quick-header { display: flex; align-items: center; gap: 8px; margin-bottom: 0.8rem; font-weight: 700; font-size: 0.8rem; }
+    .quick-header i { color: #2563eb; background: #eff6ff; padding: 6px; border-radius: 10px; }
+    .quick-links { display: flex; flex-wrap: wrap; gap: 8px; }
+    .quick-btn {
+      background: #f8fafc; border: 1px solid #e2e8f0; padding: 0.4rem 0.9rem;
+      border-radius: 30px; color: #1e293b; font-weight: 500; font-size: 0.7rem;
+      text-decoration: none; display: inline-flex; align-items: center; gap: 6px;
+    }
+    .quick-btn i { color: #2563eb; }
+    .quick-btn:hover { background: #2563eb; color: white; border-color: #2563eb; }
+    .quick-btn:hover i { color: white; }
+
+    .shipments-section { margin-top: 0.5rem; }
+    .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem; }
+    .section-header h3 { font-size: 0.85rem; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+    .shipments-list { background: white; border-radius: 20px; border: 1px solid var(--logistics-light); overflow: hidden; }
+    .shipment-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.8rem 1rem; border-bottom: 1px solid #f1f5f9; cursor: pointer;
+      transition: background 0.2s;
+    }
+    .shipment-item:hover { background: #f8fafc; }
+    .shipment-info { display: flex; align-items: center; gap: 12px; flex: 2; flex-wrap: wrap; }
+    .shipment-tracking { font-weight: 600; font-size: 0.7rem; font-family: monospace; background: #f1f5f9; padding: 0.2rem 0.5rem; border-radius: 6px; }
+    .shipment-route { font-size: 0.7rem; color: #475569; }
+    .shipment-route i { font-size: 0.6rem; color: #94a3b8; margin: 0 4px; }
+    .shipment-customer { font-size: 0.7rem; color: #64748b; }
+    .status-badge {
+      padding: 0.2rem 0.7rem; border-radius: 20px; font-size: 0.6rem; font-weight: 700;
+      white-space: nowrap;
+    }
+    .status-in-transit { background: #dbeafe; color: #1d4ed8; }
+    .status-delivered { background: #d1fae5; color: #065f46; }
+    .status-pending { background: #fed7aa; color: #9a3412; }
+    .status-customs { background: #f3e8ff; color: #6b21a5; }
+    .status-delayed { background: #fee2e2; color: #991b1b; }
+
+    .empty-state { text-align: center; padding: 2rem; color: #94a3b8; font-size: 0.8rem; }
+
+    .footer { text-align: center; padding: 1rem; color: #94a3b8; font-size: 0.7rem; border-top: 1px solid var(--logistics-light); margin-top: 1rem; }
+
+    @media (max-width: 768px) {
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .action-grid { grid-template-columns: 1fr; }
+      .shipment-info { gap: 6px; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <a href="#" class="logo" onclick="return false;">
+      <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png" alt="KazInni" class="logo-img">
+      <span class="logo-text">Latter Logistics <span>Intercounty</span></span>
+    </a>
+    <div class="nav-right">
+      <a href="#" class="nav-btn active"><i class="fas fa-truck"></i> Dashboard</a>
+      <a href="#" class="nav-btn" onclick="showNewShipmentModal()"><i class="fas fa-plus-circle"></i> New Shipment</a>
+      <a href="#" class="nav-btn"><i class="fas fa-map-marked-alt"></i> Track</a>
+      <a href="#" class="nav-btn"><i class="fas fa-handshake"></i> Partners</a>
+      <a href="#" class="nav-btn"><i class="fas fa-chart-line"></i> Analytics</a>
+      <div class="user-badge">
+        <div class="user-avatar" id="userAvatar">LL</div>
+        <span id="userName">Logistics Manager</span>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="page-header">
+      <h1><i class="fas fa-truck-ramp-box"></i> Latter Logistics · Last Mile <span class="last-updated" id="lastUpdated"><i class="fas fa-circle"></i> Live</span></h1>
+      <p>Intercounty & international freight — seamless tracking, customs clearance, end-to-end delivery.</p>
+    </div>
+
+    <!-- Stats Grid Skeleton -->
+    <div class="stats-grid" id="statsGrid">
+      <div class="skeleton-stat-card"><div><div class="skeleton skeleton-text-sm" style="width:70px;"></div><div class="skeleton skeleton-number" style="width:50px;"></div><div class="skeleton skeleton-text-sm" style="width:80px; margin-top:6px;"></div></div><div class="skeleton skeleton-icon"></div></div>
+      <div class="skeleton-stat-card"><div><div class="skeleton skeleton-text-sm" style="width:70px;"></div><div class="skeleton skeleton-number" style="width:50px;"></div><div class="skeleton skeleton-text-sm" style="width:80px; margin-top:6px;"></div></div><div class="skeleton skeleton-icon"></div></div>
+      <div class="skeleton-stat-card"><div><div class="skeleton skeleton-text-sm" style="width:70px;"></div><div class="skeleton skeleton-number" style="width:50px;"></div><div class="skeleton skeleton-text-sm" style="width:80px; margin-top:6px;"></div></div><div class="skeleton skeleton-icon"></div></div>
+      <div class="skeleton-stat-card"><div><div class="skeleton skeleton-text-sm" style="width:70px;"></div><div class="skeleton skeleton-number" style="width:50px;"></div><div class="skeleton skeleton-text-sm" style="width:80px; margin-top:6px;"></div></div><div class="skeleton skeleton-icon"></div></div>
+    </div>
+
+    <!-- Action Cards Skeleton -->
+    <div class="action-grid" id="actionGrid">
+      <div style="background:white; border-radius:20px; padding:1.2rem; border:1px solid #e2e8f0;"><div class="skeleton skeleton-icon" style="margin-bottom:0.8rem;"></div><div class="skeleton skeleton-text" style="width:60%;"></div><div class="skeleton skeleton-text-sm" style="width:80%;"></div><div class="skeleton skeleton-text-sm" style="width:40%; margin-top:0.5rem;"></div></div>
+      <div style="background:white; border-radius:20px; padding:1.2rem; border:1px solid #e2e8f0;"><div class="skeleton skeleton-icon" style="margin-bottom:0.8rem;"></div><div class="skeleton skeleton-text" style="width:60%;"></div><div class="skeleton skeleton-text-sm" style="width:80%;"></div><div class="skeleton skeleton-text-sm" style="width:40%; margin-top:0.5rem;"></div></div>
+      <div style="background:white; border-radius:20px; padding:1.2rem; border:1px solid #e2e8f0;"><div class="skeleton skeleton-icon" style="margin-bottom:0.8rem;"></div><div class="skeleton skeleton-text" style="width:60%;"></div><div class="skeleton skeleton-text-sm" style="width:80%;"></div><div class="skeleton skeleton-text-sm" style="width:40%; margin-top:0.5rem;"></div></div>
+      <div style="background:white; border-radius:20px; padding:1.2rem; border:1px solid #e2e8f0;"><div class="skeleton skeleton-icon" style="margin-bottom:0.8rem;"></div><div class="skeleton skeleton-text" style="width:60%;"></div><div class="skeleton skeleton-text-sm" style="width:80%;"></div><div class="skeleton skeleton-text-sm" style="width:40%; margin-top:0.5rem;"></div></div>
+    </div>
+
+    <!-- Quick Actions Skeleton -->
+    <div class="quick-section" id="quickSection">
+      <div class="quick-header"><i class="fas fa-bolt"></i> Quick Actions</div>
+      <div class="quick-links" id="quickLinks">
+        <div class="skeleton skeleton-text" style="width:100px; height:30px; border-radius:30px;"></div>
+        <div class="skeleton skeleton-text" style="width:120px; height:30px; border-radius:30px;"></div>
+        <div class="skeleton skeleton-text" style="width:90px; height:30px; border-radius:30px;"></div>
+        <div class="skeleton skeleton-text" style="width:110px; height:30px; border-radius:30px;"></div>
+      </div>
+    </div>
+
+    <!-- Recent Shipments Section -->
+    <div class="shipments-section">
+      <div class="section-header">
+        <h3><i class="fas fa-shipping-fast" style="color:#2563eb;"></i> Active Shipments · Intercounty & International</h3>
+        <a href="#" style="color:#2563eb; font-weight:600; font-size:0.7rem;" onclick="refreshShipments()">Refresh <i class="fas fa-sync-alt"></i></a>
+      </div>
+      <div class="shipments-list" id="shipmentsList">
+        <div class="skeleton-shipment-card"><div class="skeleton skeleton-text" style="width:100px;"></div><div class="skeleton skeleton-text" style="width:150px;"></div><div class="skeleton skeleton-badge"></div></div>
+        <div class="skeleton-shipment-card"><div class="skeleton skeleton-text" style="width:100px;"></div><div class="skeleton skeleton-text" style="width:150px;"></div><div class="skeleton skeleton-badge"></div></div>
+        <div class="skeleton-shipment-card"><div class="skeleton skeleton-text" style="width:100px;"></div><div class="skeleton skeleton-text" style="width:150px;"></div><div class="skeleton skeleton-badge"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <i class="far fa-copyright"></i> 2026 KazInni Workspaces · Latter Logistics — Intercounty & International Last Mile Delivery
+  </div>
+
+  <!-- Simple Modal for New Shipment -->
+  <div id="shipmentModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; justify-content:center; align-items:center;">
+    <div style="background:white; border-radius:24px; padding:1.5rem; max-width:500px; width:90%;">
+      <h3 style="margin-bottom:1rem;"><i class="fas fa-plus-circle"></i> New Shipment</h3>
+      <input type="text" id="newCustomer" placeholder="Customer Name" style="width:100%; padding:0.7rem; margin-bottom:0.8rem; border:1px solid #e2e8f0; border-radius:12px;">
+      <input type="text" id="newOrigin" placeholder="Origin (e.g., Nairobi)" style="width:100%; padding:0.7rem; margin-bottom:0.8rem; border:1px solid #e2e8f0; border-radius:12px;">
+      <input type="text" id="newDestination" placeholder="Destination (e.g., Mombasa / Kampala)" style="width:100%; padding:0.7rem; margin-bottom:0.8rem; border:1px solid #e2e8f0; border-radius:12px;">
+      <select id="newType" style="width:100%; padding:0.7rem; margin-bottom:1rem; border:1px solid #e2e8f0; border-radius:12px;">
+        <option value="intercounty">Intercounty (Kenya)</option>
+        <option value="international">International (Cross-border)</option>
+      </select>
+      <div style="display:flex; gap:0.8rem;">
+        <button onclick="createShipment()" style="flex:1; background:#2563eb; color:white; border:none; padding:0.7rem; border-radius:12px; font-weight:600;">Create</button>
+        <button onclick="closeModal()" style="flex:1; background:#f1f5f9; border:none; padding:0.7rem; border-radius:12px;">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "firebase/app": "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js",
+        "firebase/auth": "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js",
+        "firebase/database": "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js"
+      }
+    }
+  </script>
+
+  <script type="module">
+    import { initializeApp } from "firebase/app";
+    import { getAuth, onAuthStateChanged } from "firebase/auth";
+    import { getDatabase, ref, onValue, push, set, serverTimestamp } from "firebase/database";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+      authDomain: "mugera-e51cc.firebaseapp.com",
+      databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "mugera-e51cc",
+      storageBucket: "mugera-e51cc.firebasestorage.app",
+      messagingSenderId: "1024868637509",
+      appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    let allShipments = {};
+
+    function getStatusClass(status) {
+      const map = {
+        'in-transit': 'status-in-transit',
+        'delivered': 'status-delivered',
+        'pending': 'status-pending',
+        'customs': 'status-customs',
+        'delayed': 'status-delayed'
+      };
+      return map[status] || 'status-pending';
+    }
+
+    function getStatusLabel(status) {
+      const map = {
+        'in-transit': 'In Transit',
+        'delivered': 'Delivered',
+        'pending': 'Pending Pickup',
+        'customs': 'Customs Hold',
+        'delayed': 'Delayed'
+      };
+      return map[status] || status;
+    }
+
+    function renderStats() {
+      const shipments = Object.values(allShipments);
+      const active = shipments.filter(s => s.status !== 'delivered').length;
+      const intercounty = shipments.filter(s => s.type === 'intercounty' && s.status !== 'delivered').length;
+      const international = shipments.filter(s => s.type === 'international' && s.status !== 'delivered').length;
+      const revenue = shipments.filter(s => s.status === 'delivered').reduce((sum, s) => sum + (s.amount || 0), 0);
+
+      document.getElementById('statsGrid').innerHTML = `
+        <div class="stat-card"><div class="stat-left"><h4>Active Shipments</h4><div class="stat-number">${active}</div><div class="stat-trend"><i class="fas fa-boxes"></i> In transit</div></div><div class="stat-icon"><i class="fas fa-boxes"></i></div></div>
+        <div class="stat-card"><div class="stat-left"><h4>Intercounty</h4><div class="stat-number">${intercounty}</div><div class="stat-trend"><i class="fas fa-route"></i> Kenya wide</div></div><div class="stat-icon"><i class="fas fa-route"></i></div></div>
+        <div class="stat-card"><div class="stat-left"><h4>International</h4><div class="stat-number">${international}</div><div class="stat-trend"><i class="fas fa-globe"></i> Cross-border</div></div><div class="stat-icon"><i class="fas fa-globe"></i></div></div>
+        <div class="stat-card"><div class="stat-left"><h4>Revenue (KES)</h4><div class="stat-number">${revenue.toLocaleString()}</div><div class="stat-trend"><i class="fas fa-chart-line"></i> Completed</div></div><div class="stat-icon"><i class="fas fa-chart-line"></i></div></div>
+      `;
+    }
+
+    function renderActionCards() {
+      document.getElementById('actionGrid').innerHTML = `
+        <a href="#" class="action-card" onclick="showNewShipmentModal(); return false;"><div class="action-icon"><i class="fas fa-plus-circle"></i></div><h3>New Shipment</h3><p>Create intercounty or international shipment</p><span class="action-link">Create <i class="fas fa-arrow-right"></i></span></a>
+        <a href="#" class="action-card" onclick="return false;"><div class="action-icon"><i class="fas fa-search"></i></div><h3>Track Package</h3><p>Real-time tracking with location updates</p><span class="action-link">Track <i class="fas fa-arrow-right"></i></span></a>
+        <a href="#" class="action-card" onclick="return false;"><div class="action-icon"><i class="fas fa-file-invoice"></i></div><h3>Customs Clearance</h3><p>Document processing for cross-border</p><span class="action-link">Process <i class="fas fa-arrow-right"></i></span></a>
+        <a href="#" class="action-card" onclick="return false;"><div class="action-icon"><i class="fas fa-handshake"></i></div><h3>Partner Carriers</h3><p>Manage logistics partners & rates</p><span class="action-link">Manage <i class="fas fa-arrow-right"></i></span></a>
+      `;
+    }
+
+    function renderQuickLinks() {
+      document.getElementById('quickLinks').innerHTML = `
+        <a href="#" class="quick-btn" onclick="showNewShipmentModal(); return false;"><i class="fas fa-truck"></i> New Shipment</a>
+        <a href="#" class="quick-btn" onclick="return false;"><i class="fas fa-passport"></i> Customs Docs</a>
+        <a href="#" class="quick-btn" onclick="return false;"><i class="fas fa-chart-bar"></i> Freight Rates</a>
+        <a href="#" class="quick-btn" onclick="return false;"><i class="fas fa-flag-checkered"></i> Cross-border</a>
+      `;
+    }
+
+    function renderShipments() {
+      const shipments = Object.entries(allShipments).map(([id, s]) => ({ id, ...s }))
+        .filter(s => s.status !== 'delivered')
+        .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
+        .slice(0, 10);
+
+      if (shipments.length === 0) {
+        document.getElementById('shipmentsList').innerHTML = '<div class="empty-state"><i class="fas fa-truck" style="font-size:2rem;opacity:0.4;margin-bottom:0.5rem;display:block;"></i>No active shipments. Click "New Shipment" to create one.</div>';
+        return;
+      }
+
+      document.getElementById('shipmentsList').innerHTML = shipments.map(s => {
+        const route = `${s.origin || 'Origin'} <i class="fas fa-arrow-right"></i> ${s.destination || 'Destination'}`;
+        return `
+          <div class="shipment-item" onclick="alert('Tracking ID: ${s.trackingId || s.id.substring(0, 8).toUpperCase()}\\nCustomer: ${s.customerName}\\nRoute: ${s.origin} → ${s.destination}\\nStatus: ${getStatusLabel(s.status)}')">
+            <div class="shipment-info">
+              <span class="shipment-tracking"><i class="fas fa-hashtag"></i> ${s.trackingId || s.id.substring(0, 8).toUpperCase()}</span>
+              <span class="shipment-route"><i class="fas fa-map-marker-alt" style="color:#2563eb;"></i> ${s.origin || '?'} <i class="fas fa-arrow-right"></i> ${s.destination || '?'}</span>
+              <span class="shipment-customer"><i class="fas fa-building"></i> ${s.customerName || 'Unknown'}</span>
+            </div>
+            <span class="status-badge ${getStatusClass(s.status)}">${getStatusLabel(s.status)}</span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function updateDashboard() {
+      renderStats();
+      renderActionCards();
+      renderQuickLinks();
+      renderShipments();
+      document.getElementById('lastUpdated').innerHTML = '<i class="fas fa-circle" style="color:#10b981;"></i> Live';
+    }
+
+    // Listen to Firebase
+    onValue(ref(db, 'latter_logistics_shipments'), (snapshot) => {
+      allShipments = snapshot.val() || {};
+      updateDashboard();
+    });
+
+    // Auth check
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        window.location.href = 'https://kazinni-staff.vercel.app';
+      } else {
+        document.getElementById('userName').textContent = user.email?.split('@')[0] || 'Manager';
+        document.getElementById('userAvatar').textContent = (user.email?.split('@')[0]?.substring(0, 2) || 'LL').toUpperCase();
+      }
+    });
+
+    // Global functions for modal and creating shipments
+    window.showNewShipmentModal = function() {
+      document.getElementById('shipmentModal').style.display = 'flex';
+    };
+
+    window.closeModal = function() {
+      document.getElementById('shipmentModal').style.display = 'none';
+      document.getElementById('newCustomer').value = '';
+      document.getElementById('newOrigin').value = '';
+      document.getElementById('newDestination').value = '';
+    };
+
+    window.createShipment = async function() {
+      const customerName = document.getElementById('newCustomer').value.trim();
+      const origin = document.getElementById('newOrigin').value.trim();
+      const destination = document.getElementById('newDestination').value.trim();
+      const type = document.getElementById('newType').value;
+
+      if (!customerName || !origin || !destination) {
+        alert('Please fill all fields');
+        return;
+      }
+
+      const trackingId = 'LL-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+      const newShipmentRef = push(ref(db, 'latter_logistics_shipments'));
+      
+      await set(newShipmentRef, {
+        trackingId: trackingId,
+        customerName: customerName,
+        origin: origin,
+        destination: destination,
+        type: type,
+        status: 'pending',
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+        amount: type === 'intercounty' ? 2500 : 15000
+      });
+
+      closeModal();
+      alert(`Shipment created! Tracking ID: ${trackingId}`);
+    };
+
+    window.refreshShipments = function() {
+      // Manual refresh - Firebase already syncs
+      updateDashboard();
+    };
+  </script>
+</body>
+</html>
