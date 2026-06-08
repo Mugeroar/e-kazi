@@ -167,7 +167,6 @@
     .action-card p { color: #64748b; font-size: 0.7rem; margin-bottom: 0.8rem; line-height: 1.4; }
     .action-link { display: inline-flex; align-items: center; gap: 5px; font-weight: 700; color: #a21caf; font-size: 0.7rem; }
 
-    /* Scheduler card custom style */
     .action-card.scheduler-card .action-icon { background: linear-gradient(145deg, #f5f3ff, #ffffff); color: var(--scheduler-dark); border-color: rgba(139,92,246,0.2); }
     .action-card.scheduler-card .action-link { color: var(--scheduler-dark); }
     .action-card.scheduler-card:hover { border-color: var(--scheduler); }
@@ -229,6 +228,7 @@
       <a href="/workspaces/heritage/heritage-campaigns.html" class="nav-btn"><i class="fas fa-bullhorn"></i> Campaigns</a>
       <a href="/workspaces/heritage/heritage-monitoring.html" class="nav-btn"><i class="fas fa-chart-line"></i> Monitoring</a>
       <a href="/workspaces/heritage/heritage-partners.html" class="nav-btn"><i class="fas fa-handshake"></i> Partners</a>
+      <a href="/workspaces/heritage/content-scheduler.html" class="nav-btn"><i class="fas fa-calendar-alt"></i> Scheduler</a>
       <a href="/workspaces/heritage/map.html" class="nav-btn map-btn"><i class="fas fa-map-marked-alt"></i> Map</a>
       <div class="user-badge">
         <div class="user-avatar" id="userAvatar">TH</div>
@@ -339,13 +339,18 @@
     const auth = getAuth(app);
     const db = getDatabase(app);
 
-    let allListings = {}, allCampaigns = {}, allPartners = {};
-    let scheduledContentCount = 3; // demo dynamic content scheduler count (could be extended from DB later)
+    let allListings = {}, allCampaigns = {}, allPartners = {}, allScheduledContent = {};
     let dataLoaded = false;
 
     function escapeHtml(s) { if (!s) return ''; return String(s).replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : m === '>' ? '&gt;' : m); }
     function getInitials(n) { if (!n) return 'TH'; return n.split(' ').map(x => x[0]).join('').toUpperCase().substring(0, 2); }
     function isExpiringSoon(d) { if (!d) return false; var e = new Date(d); var n = new Date(); var days = Math.ceil((e - n) / (1000 * 60 * 60 * 24)); return days <= 7 && days > 0; }
+
+    function getScheduledCount() {
+      const items = Object.values(allScheduledContent);
+      // Count only scheduled or pending posts (not published or cancelled)
+      return items.filter(c => c.status === 'scheduled' || c.status === 'pending').length;
+    }
 
     function renderRecentListings() {
       var list = document.getElementById('recentListings');
@@ -374,6 +379,7 @@
       var activeC = c.filter(x => x.status === 'active' || x.status === 'live').length;
       var expiring = l.filter(x => isExpiringSoon(x.endDate) && (x.status === 'active' || !x.status)).length;
       var rev = l.filter(x => x.status === 'active' || !x.status).reduce((s, x) => s + (x.price || 0), 0);
+      var scheduledCount = getScheduledCount();
 
       // Update stats grid
       document.getElementById('statsGrid').innerHTML = 
@@ -382,25 +388,25 @@
         '<div class="stat-card"><div class="stat-left"><h4>Business Partners</h4><div class="stat-number">' + p.length + '</div><div class="stat-trend"><i class="fas fa-handshake"></i> Active advertisers</div></div><div class="stat-icon"><i class="fas fa-handshake"></i></div></div>' +
         '<div class="stat-card"><div class="stat-left"><h4>Revenue (KES)</h4><div class="stat-number">' + (rev >= 1000 ? Math.round(rev/1000) + 'K' : rev) + '</div><div class="stat-trend"><i class="fas fa-chart-line"></i> This month</div></div><div class="stat-icon"><i class="fas fa-chart-line"></i></div></div>';
 
-      // NEW CARD ADDED: Content Scheduler (preserves all existing functionality)
+      // Update action grid with REAL scheduler count
       document.getElementById('actionGrid').innerHTML = 
         '<a href="/workspaces/heritage/heritage-listings.html" class="action-card"><div class="action-icon"><i class="fas fa-th-large"></i></div><h2>Advert Listings</h2><p>Manage ad spaces — billboards, screens, banners, digital slots.</p><span class="action-link">Manage Listings <i class="fas fa-arrow-right"></i></span></a>' +
         '<a href="/workspaces/heritage/heritage-campaigns.html" class="action-card"><div class="action-icon"><i class="fas fa-bullhorn"></i></div><h2>Ad Campaigns</h2><p>Create & manage client advertising campaigns.</p><span class="action-link">Campaigns <i class="fas fa-arrow-right"></i></span></a>' +
         '<a href="/workspaces/heritage/heritage-monitoring.html" class="action-card"><div class="action-icon"><i class="fas fa-chart-line"></i></div><h2>Ad Monitoring</h2><p>Track performance, impressions & ROI of all ads.</p><span class="action-link">Monitor Ads <i class="fas fa-arrow-right"></i></span></a>' +
         '<a href="/workspaces/heritage/heritage-partners.html" class="action-card"><div class="action-icon"><i class="fas fa-handshake"></i></div><h2>Partners Manager</h2><p>Manage advertisers, bookings & payment history.</p><span class="action-link">Manage Partners <i class="fas fa-arrow-right"></i></span></a>' +
-        '<a href="/workspaces/heritage/content-scheduler.html" class="action-card scheduler-card"><div class="action-icon"><i class="fas fa-calendar-alt"></i></div><h2>Content Scheduler</h2><p>Plan & automate social media posts, campaigns, and heritage stories across platforms.</p><span class="action-link">Schedule Content <i class="fas fa-arrow-right"></i> <span style="background:#ede9fe; padding:2px 6px; border-radius:30px; font-size:0.65rem; margin-left:4px;">' + scheduledContentCount + ' upcoming</span></span></a>';
+        '<a href="/workspaces/heritage/content-scheduler.html" class="action-card scheduler-card"><div class="action-icon"><i class="fas fa-calendar-alt"></i></div><h2>Content Scheduler</h2><p>Plan & automate social media posts, campaigns, and heritage stories across platforms.</p><span class="action-link">Schedule Content <i class="fas fa-arrow-right"></i> <span style="background:#ede9fe; padding:2px 6px; border-radius:30px; font-size:0.65rem; margin-left:4px;">' + scheduledCount + ' upcoming</span></span></a>';
 
-      // Update quick links (including scheduler shortcut)
+      // Update quick links (including scheduler shortcut with real count)
       document.getElementById('quickLinks').innerHTML = 
         '<a href="/workspaces/heritage/map.html" class="quick-btn highlight"><i class="fas fa-map-marked-alt"></i> Operations Map</a>' +
         '<a href="/workspaces/heritage/heritage-listings.html" class="quick-btn"><i class="fas fa-plus-circle"></i> New Listing</a>' +
         '<a href="/workspaces/heritage/heritage-campaigns.html" class="quick-btn"><i class="fas fa-bullhorn"></i> New Campaign</a>' +
         '<a href="/workspaces/heritage/heritage-monitoring.html" class="quick-btn"><i class="fas fa-chart-line"></i> Performance</a>' +
         '<a href="/workspaces/heritage/heritage-partners.html" class="quick-btn"><i class="fas fa-handshake"></i> Add Partner</a>' +
-        '<a href="/workspaces/heritage/content-scheduler.html" class="quick-btn"><i class="fas fa-calendar-week"></i> Content Scheduler</a>' +
+        '<a href="/workspaces/heritage/content-scheduler.html" class="quick-btn"><i class="fas fa-calendar-week"></i> Content Scheduler ' + (scheduledCount > 0 ? '(' + scheduledCount + ')' : '') + '</a>' +
         '<a href="/workspaces/heritage/heritage-listings.html?filter=expiring" class="quick-btn"><i class="fas fa-clock"></i> Expiring Soon (' + expiring + ')</a>';
 
-      document.getElementById('footerStats').textContent = activeL + ' listings · ' + activeC + ' campaigns · ' + p.length + ' partners · ' + scheduledContentCount + ' scheduled posts';
+      document.getElementById('footerStats').textContent = activeL + ' listings · ' + activeC + ' campaigns · ' + p.length + ' partners · ' + scheduledCount + ' scheduled posts';
       document.getElementById('lastUpdated').innerHTML = '<i class="fas fa-circle" style="color:#d946ef;"></i> Live';
       
       renderRecentListings(); 
@@ -408,20 +414,11 @@
       renderRecentPartners();
     }
 
-    // Optional: simulate real-time scheduled content count (could be extended to firebase)
-    function fetchScheduledCount() {
-      // For demonstration we set a dynamic count and update every minute (simulating real data)
-      setInterval(() => {
-        scheduledContentCount = Math.floor(Math.random() * 6) + 2; // between 2-7
-        updateStats(); // re-render with new scheduler badge
-      }, 45000);
-    }
-
     function setupListeners() {
       onValue(ref(db, 'heritage_listings'), s => { allListings = s.val() || {}; updateStats(); });
       onValue(ref(db, 'heritage_campaigns'), s => { allCampaigns = s.val() || {}; updateStats(); });
       onValue(ref(db, 'heritage_partners'), s => { allPartners = s.val() || {}; updateStats(); });
-      fetchScheduledCount();
+      onValue(ref(db, 'heritage_scheduled_content'), s => { allScheduledContent = s.val() || {}; updateStats(); });
     }
 
     onAuthStateChanged(auth, async (user) => {
