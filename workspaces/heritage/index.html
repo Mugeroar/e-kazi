@@ -28,6 +28,8 @@
       --border-light: #f0abfc;
       --success: #10b981;
       --amber: #f59e0b;
+      --scheduler: #8b5cf6;
+      --scheduler-dark: #6d28d9;
     }
 
     body {
@@ -147,7 +149,8 @@
     .stat-icon { width: 42px; height: 42px; background: #fdf4ff; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #a21caf; font-size: 1.2rem; }
 
     .action-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-bottom: 1.2rem; }
-    @media (min-width: 1100px) { .action-grid { grid-template-columns: repeat(4, 1fr); } }
+    @media (min-width: 1100px) { .action-grid { grid-template-columns: repeat(5, 1fr); } }
+    @media (max-width: 768px) { .action-grid { grid-template-columns: 1fr; } }
     .action-card {
       background: white; border-radius: 20px; padding: 1.2rem;
       border: 1px solid #f0abfc; box-shadow: 0 8px 20px -6px rgba(162,28,175,0.04);
@@ -163,6 +166,11 @@
     .action-card h2 { font-size: 1rem; font-weight: 800; margin-bottom: 0.3rem; }
     .action-card p { color: #64748b; font-size: 0.7rem; margin-bottom: 0.8rem; line-height: 1.4; }
     .action-link { display: inline-flex; align-items: center; gap: 5px; font-weight: 700; color: #a21caf; font-size: 0.7rem; }
+
+    /* Scheduler card custom style */
+    .action-card.scheduler-card .action-icon { background: linear-gradient(145deg, #f5f3ff, #ffffff); color: var(--scheduler-dark); border-color: rgba(139,92,246,0.2); }
+    .action-card.scheduler-card .action-link { color: var(--scheduler-dark); }
+    .action-card.scheduler-card:hover { border-color: var(--scheduler); }
 
     .map-card .action-icon { background: var(--heritage); color: white; border-color: var(--heritage-dark); }
     .map-card .action-link { color: var(--heritage-dark); }
@@ -197,13 +205,13 @@
     .status-active { background: #d1fae5; color: #065f46; }
     .status-draft { background: #fdf4ff; color: #a21caf; }
     .status-expired { background: #fee2e2; color: #991b1b; }
+    .status-scheduled { background: #ede9fe; color: #6d28d9; }
 
     .empty-state { text-align: center; padding: 2rem; color: #94a3b8; font-size: 0.8rem; }
     .footer { text-align: center; padding: 1rem; color: #94a3b8; font-size: 0.7rem; border-top: 1px solid #f0abfc; }
 
     @media (max-width: 768px) {
       .stats-grid { grid-template-columns: 1fr 1fr; }
-      .action-grid { grid-template-columns: 1fr; }
       .container { padding: 0.8rem; }
     }
   </style>
@@ -232,7 +240,7 @@
   <div class="container">
     <div class="page-header">
       <h1><i class="fas fa-landmark"></i> The Heritage · Ads Platform <span class="last-updated" id="lastUpdated"><i class="fas fa-circle"></i> Live</span></h1>
-      <p>Manage ad spaces, campaigns, monitoring & business partners across Kenya.</p>
+      <p>Manage ad spaces, campaigns, monitoring, business partners & content scheduling across Kenya.</p>
     </div>
 
     <!-- Stats Grid with Skeleton -->
@@ -255,8 +263,9 @@
       </div>
     </div>
 
-    <!-- Action Grid with Skeleton -->
+    <!-- Action Grid with Skeleton (now includes Content Scheduler) -->
     <div class="action-grid" id="actionGrid">
+      <div class="skeleton-action-card"><div class="skeleton skeleton-action-icon"></div><div class="skeleton skeleton-text" style="width:70%;"></div><div class="skeleton skeleton-text-sm" style="width:90%;margin-bottom:0.5rem;"></div><div class="skeleton skeleton-text-sm" style="width:50%;"></div></div>
       <div class="skeleton-action-card"><div class="skeleton skeleton-action-icon"></div><div class="skeleton skeleton-text" style="width:70%;"></div><div class="skeleton skeleton-text-sm" style="width:90%;margin-bottom:0.5rem;"></div><div class="skeleton skeleton-text-sm" style="width:50%;"></div></div>
       <div class="skeleton-action-card"><div class="skeleton skeleton-action-icon"></div><div class="skeleton skeleton-text" style="width:70%;"></div><div class="skeleton skeleton-text-sm" style="width:90%;margin-bottom:0.5rem;"></div><div class="skeleton skeleton-text-sm" style="width:50%;"></div></div>
       <div class="skeleton-action-card"><div class="skeleton skeleton-action-icon"></div><div class="skeleton skeleton-text" style="width:70%;"></div><div class="skeleton skeleton-text-sm" style="width:90%;margin-bottom:0.5rem;"></div><div class="skeleton skeleton-text-sm" style="width:50%;"></div></div>
@@ -331,6 +340,7 @@
     const db = getDatabase(app);
 
     let allListings = {}, allCampaigns = {}, allPartners = {};
+    let scheduledContentCount = 3; // demo dynamic content scheduler count (could be extended from DB later)
     let dataLoaded = false;
 
     function escapeHtml(s) { if (!s) return ''; return String(s).replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : m === '>' ? '&gt;' : m); }
@@ -372,23 +382,25 @@
         '<div class="stat-card"><div class="stat-left"><h4>Business Partners</h4><div class="stat-number">' + p.length + '</div><div class="stat-trend"><i class="fas fa-handshake"></i> Active advertisers</div></div><div class="stat-icon"><i class="fas fa-handshake"></i></div></div>' +
         '<div class="stat-card"><div class="stat-left"><h4>Revenue (KES)</h4><div class="stat-number">' + (rev >= 1000 ? Math.round(rev/1000) + 'K' : rev) + '</div><div class="stat-trend"><i class="fas fa-chart-line"></i> This month</div></div><div class="stat-icon"><i class="fas fa-chart-line"></i></div></div>';
 
-      // Update action grid
+      // NEW CARD ADDED: Content Scheduler (preserves all existing functionality)
       document.getElementById('actionGrid').innerHTML = 
         '<a href="/workspaces/heritage/heritage-listings.html" class="action-card"><div class="action-icon"><i class="fas fa-th-large"></i></div><h2>Advert Listings</h2><p>Manage ad spaces — billboards, screens, banners, digital slots.</p><span class="action-link">Manage Listings <i class="fas fa-arrow-right"></i></span></a>' +
         '<a href="/workspaces/heritage/heritage-campaigns.html" class="action-card"><div class="action-icon"><i class="fas fa-bullhorn"></i></div><h2>Ad Campaigns</h2><p>Create & manage client advertising campaigns.</p><span class="action-link">Campaigns <i class="fas fa-arrow-right"></i></span></a>' +
         '<a href="/workspaces/heritage/heritage-monitoring.html" class="action-card"><div class="action-icon"><i class="fas fa-chart-line"></i></div><h2>Ad Monitoring</h2><p>Track performance, impressions & ROI of all ads.</p><span class="action-link">Monitor Ads <i class="fas fa-arrow-right"></i></span></a>' +
-        '<a href="/workspaces/heritage/heritage-partners.html" class="action-card"><div class="action-icon"><i class="fas fa-handshake"></i></div><h2>Partners Manager</h2><p>Manage advertisers, bookings & payment history.</p><span class="action-link">Manage Partners <i class="fas fa-arrow-right"></i></span></a>';
+        '<a href="/workspaces/heritage/heritage-partners.html" class="action-card"><div class="action-icon"><i class="fas fa-handshake"></i></div><h2>Partners Manager</h2><p>Manage advertisers, bookings & payment history.</p><span class="action-link">Manage Partners <i class="fas fa-arrow-right"></i></span></a>' +
+        '<a href="/workspaces/heritage/content-scheduler.html" class="action-card scheduler-card"><div class="action-icon"><i class="fas fa-calendar-alt"></i></div><h2>Content Scheduler</h2><p>Plan & automate social media posts, campaigns, and heritage stories across platforms.</p><span class="action-link">Schedule Content <i class="fas fa-arrow-right"></i> <span style="background:#ede9fe; padding:2px 6px; border-radius:30px; font-size:0.65rem; margin-left:4px;">' + scheduledContentCount + ' upcoming</span></span></a>';
 
-      // Update quick links
+      // Update quick links (including scheduler shortcut)
       document.getElementById('quickLinks').innerHTML = 
         '<a href="/workspaces/heritage/map.html" class="quick-btn highlight"><i class="fas fa-map-marked-alt"></i> Operations Map</a>' +
         '<a href="/workspaces/heritage/heritage-listings.html" class="quick-btn"><i class="fas fa-plus-circle"></i> New Listing</a>' +
         '<a href="/workspaces/heritage/heritage-campaigns.html" class="quick-btn"><i class="fas fa-bullhorn"></i> New Campaign</a>' +
         '<a href="/workspaces/heritage/heritage-monitoring.html" class="quick-btn"><i class="fas fa-chart-line"></i> Performance</a>' +
         '<a href="/workspaces/heritage/heritage-partners.html" class="quick-btn"><i class="fas fa-handshake"></i> Add Partner</a>' +
+        '<a href="/workspaces/heritage/content-scheduler.html" class="quick-btn"><i class="fas fa-calendar-week"></i> Content Scheduler</a>' +
         '<a href="/workspaces/heritage/heritage-listings.html?filter=expiring" class="quick-btn"><i class="fas fa-clock"></i> Expiring Soon (' + expiring + ')</a>';
 
-      document.getElementById('footerStats').textContent = activeL + ' listings · ' + activeC + ' campaigns · ' + p.length + ' partners';
+      document.getElementById('footerStats').textContent = activeL + ' listings · ' + activeC + ' campaigns · ' + p.length + ' partners · ' + scheduledContentCount + ' scheduled posts';
       document.getElementById('lastUpdated').innerHTML = '<i class="fas fa-circle" style="color:#d946ef;"></i> Live';
       
       renderRecentListings(); 
@@ -396,10 +408,20 @@
       renderRecentPartners();
     }
 
+    // Optional: simulate real-time scheduled content count (could be extended to firebase)
+    function fetchScheduledCount() {
+      // For demonstration we set a dynamic count and update every minute (simulating real data)
+      setInterval(() => {
+        scheduledContentCount = Math.floor(Math.random() * 6) + 2; // between 2-7
+        updateStats(); // re-render with new scheduler badge
+      }, 45000);
+    }
+
     function setupListeners() {
       onValue(ref(db, 'heritage_listings'), s => { allListings = s.val() || {}; updateStats(); });
       onValue(ref(db, 'heritage_campaigns'), s => { allCampaigns = s.val() || {}; updateStats(); });
       onValue(ref(db, 'heritage_partners'), s => { allPartners = s.val() || {}; updateStats(); });
+      fetchScheduledCount();
     }
 
     onAuthStateChanged(auth, async (user) => {
