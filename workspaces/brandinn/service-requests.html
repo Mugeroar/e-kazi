@@ -3,6 +3,598 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Service Requests | BrandInn Agency</title>
+  
+  <meta name="theme-color" content="#7c3aed">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  
+  <link rel="icon" type="image/png" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --primary: #7c3aed;
+      --primary-dark: #5b21b6;
+      --primary-light: #a78bfa;
+      --primary-bg: #f5f0ff;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --info: #3b82f6;
+      --text-primary: #1e293b;
+      --text-muted: #64748b;
+      --border-light: #e9d5ff;
+      --gray-50: #f8fafc;
+      --gray-100: #f1f5f9;
+      --gray-200: #e2e8f0;
+      --gray-300: #cbd5e1;
+      --gray-400: #94a3b8;
+      --gray-500: #64748b;
+      --gray-600: #475569;
+      --gray-700: #334155;
+      --gray-800: #1e293b;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #f8fafc;
+      color: var(--text-primary);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .navbar {
+      background: white;
+      padding: 0.8rem 4%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--gray-200);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+    .logo-img { height: 38px; width: 38px; border-radius: 12px; object-fit: contain; }
+    .logo-text {
+      font-weight: 800; font-size: 1.2rem;
+      color: var(--gray-800);
+    }
+    .logo-text span { font-weight: 600; font-size: 0.75rem; color: var(--primary); margin-left: 5px; }
+
+    .nav-right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .nav-btn {
+      background: transparent; border: none;
+      padding: 0.45rem 1rem; border-radius: 30px; color: var(--gray-600);
+      font-weight: 600; font-size: 0.8rem; cursor: pointer; display: inline-flex;
+      align-items: center; gap: 6px; text-decoration: none; transition: all 0.2s;
+    }
+    .nav-btn:hover { background: var(--gray-100); color: var(--primary); }
+    .nav-btn.active { background: var(--primary); color: white; }
+
+    .container { max-width: 1400px; margin: 0 auto; padding: 1.5rem 4%; flex: 1; width: 100%; }
+
+    .page-header { margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+    .page-header h1 { font-size: 1.5rem; font-weight: 800; color: var(--gray-800); display: flex; align-items: center; gap: 10px; }
+    .page-header h1 i { color: var(--primary); }
+    .page-header p { color: var(--gray-500); font-size: 0.85rem; margin-top: 0.3rem; }
+
+    .btn-manage {
+      background: var(--primary); color: white; border: none;
+      padding: 0.6rem 1.3rem; border-radius: 40px; font-weight: 600;
+      font-size: 0.8rem; cursor: pointer; display: inline-flex;
+      align-items: center; gap: 8px; transition: all 0.2s;
+      text-decoration: none;
+    }
+    .btn-manage:hover { background: var(--primary-dark); transform: translateY(-1px); }
+
+    /* Stats Row */
+    .stats-row {
+      display: grid; grid-template-columns: repeat(6, 1fr); gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .stat-card {
+      background: white; border-radius: 16px; padding: 1rem;
+      border: 1px solid var(--gray-200); text-align: center;
+    }
+    .stat-card .stat-number { font-size: 1.6rem; font-weight: 800; color: var(--primary); }
+    .stat-card .stat-label { font-size: 0.7rem; color: var(--gray-500); text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* Filter Bar */
+    .filter-bar {
+      display: flex; gap: 0.8rem; flex-wrap: wrap; margin-bottom: 1.5rem;
+      align-items: center; justify-content: space-between;
+    }
+    .filter-group { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .filter-chip {
+      padding: 0.4rem 1rem; border-radius: 30px; font-size: 0.75rem;
+      font-weight: 600; background: white; color: var(--gray-600);
+      cursor: pointer; border: 1px solid var(--gray-200); transition: all 0.2s;
+    }
+    .filter-chip:hover { border-color: var(--primary); color: var(--primary); }
+    .filter-chip.active { background: var(--primary); color: white; border-color: var(--primary); }
+    
+    .assign-filter select, .urgency-filter select {
+      padding: 0.4rem 1rem; border-radius: 30px; font-size: 0.75rem;
+      border: 1px solid var(--gray-200); background: white; outline: none;
+    }
+    .search-box {
+      display: flex; align-items: center; background: white;
+      border-radius: 30px; padding: 0.3rem 1rem; gap: 8px;
+      border: 1px solid var(--gray-200);
+    }
+    .search-box i { color: var(--gray-400); font-size: 0.75rem; }
+    .search-box input {
+      border: none; background: transparent; padding: 0.4rem 0;
+      font-size: 0.75rem; width: 200px; outline: none;
+    }
+
+    /* Requests Table */
+    .requests-table {
+      background: white; border-radius: 20px; border: 1px solid var(--gray-200);
+      overflow-x: auto;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+    th {
+      text-align: left; padding: 1rem 1rem; background: var(--gray-50);
+      font-weight: 600; color: var(--gray-600); border-bottom: 1px solid var(--gray-200);
+      font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    td { padding: 0.9rem 1rem; border-bottom: 1px solid var(--gray-100); vertical-align: middle; }
+    tr:hover td { background: var(--gray-50); cursor: pointer; }
+    
+    .status-badge {
+      display: inline-block; padding: 0.25rem 0.7rem; border-radius: 30px;
+      font-size: 0.65rem; font-weight: 600; text-transform: uppercase;
+    }
+    .status-pending { background: #fef3c7; color: #92400e; }
+    .status-processing { background: #dbeafe; color: #1e40af; }
+    .status-approved { background: #d1fae5; color: #065f46; }
+    .status-completed { background: #d1fae5; color: #065f46; }
+    .status-rejected { background: #fee2e2; color: #991b1b; }
+    .status-cancelled { background: #fee2e2; color: #991b1b; }
+    .status-quoted { background: #f3e8ff; color: #6b21a5; }
+    
+    .urgency-badge { padding: 0.2rem 0.5rem; border-radius: 20px; font-size: 0.6rem; font-weight: 600; }
+    .urgency-normal { background: #e2e8f0; color: #475569; }
+    .urgency-urgent { background: #fed7aa; color: #9a3412; }
+    .urgency-express { background: #fee2e2; color: #991b1b; }
+    
+    .action-btns { display: flex; gap: 6px; }
+    .action-icon {
+      width: 32px; height: 32px; border-radius: 10px; display: inline-flex;
+      align-items: center; justify-content: center; cursor: pointer;
+      background: transparent; border: none; color: var(--gray-500);
+    }
+    .action-icon:hover { background: var(--gray-100); color: var(--primary); }
+    
+    .empty-state { text-align: center; padding: 3rem; color: var(--gray-400); font-size: 0.85rem; }
+
+    /* Modal */
+    .modal-overlay {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.4); backdrop-filter: blur(2px);
+      z-index: 1000; justify-content: center; align-items: center;
+    }
+    .modal-overlay.show { display: flex; }
+    .modal {
+      background: white; border-radius: 24px; width: 90%; max-width: 700px;
+      max-height: 85vh; overflow-y: auto; box-shadow: 0 20px 35px -10px rgba(0,0,0,0.2);
+    }
+    .modal-header {
+      padding: 1.2rem 1.5rem; border-bottom: 1px solid var(--gray-200);
+      display: flex; justify-content: space-between; align-items: center;
+      position: sticky; top: 0; background: white;
+    }
+    .modal-header h3 { font-size: 1rem; font-weight: 800; }
+    .modal-close { background: none; border: none; font-size: 1.3rem; cursor: pointer; color: var(--gray-400); }
+    .modal-body { padding: 1.5rem; }
+    .form-group { margin-bottom: 1rem; }
+    .form-group label { display: block; font-size: 0.7rem; font-weight: 700; color: var(--gray-600); margin-bottom: 0.3rem; text-transform: uppercase; letter-spacing: 0.5px; }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%; padding: 0.7rem 1rem; border-radius: 12px;
+      border: 1px solid var(--gray-200); font-size: 0.8rem;
+      font-family: 'Inter', sans-serif; background: var(--gray-50);
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      border-color: var(--primary); outline: none; background: white;
+    }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    
+    .services-list { margin: 0.5rem 0; max-height: 200px; overflow-y: auto; }
+    .service-line {
+      background: var(--gray-50); padding: 0.6rem; border-radius: 10px;
+      margin-bottom: 0.5rem; font-size: 0.75rem;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    
+    .btn-save { background: var(--primary); color: white; border: none; padding: 0.7rem; border-radius: 40px; font-weight: 700; cursor: pointer; width: 100%; font-size: 0.8rem; margin-top: 0.5rem; }
+    .btn-save:hover { background: var(--primary-dark); }
+    .btn-danger { background: var(--danger); color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 40px; font-weight: 600; cursor: pointer; font-size: 0.75rem; }
+    .btn-danger:hover { background: #dc2626; }
+    
+    .toast {
+      position: fixed; bottom: 20px; right: 20px; background: var(--success); color: white;
+      padding: 0.6rem 1.2rem; border-radius: 30px; font-weight: 600; z-index: 2000;
+      animation: slideIn 0.2s ease; font-size: 0.75rem;
+    }
+    .toast.error { background: var(--danger); }
+    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+    @media (max-width: 900px) { .stats-row { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 768px) {
+      .filter-bar { flex-direction: column; align-items: stretch; }
+      .form-row { grid-template-columns: 1fr; }
+      th, td { padding: 0.7rem 0.8rem; }
+      .page-header { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <a href="/workspaces/brandinn/index.html" class="logo">
+      <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png" alt="BrandInn" class="logo-img">
+      <span class="logo-text">BrandInn <span>Agency</span></span>
+    </a>
+    <div class="nav-right">
+      <a href="/workspaces/brandinn/index.html" class="nav-btn"><i class="fas fa-arrow-left"></i> Dashboard</a>
+      <a href="/workspaces/brandinn/projects.html" class="nav-btn"><i class="fas fa-project-diagram"></i> Projects</a>
+      <a href="/workspaces/brandinn/bookings.html" class="nav-btn"><i class="fas fa-calendar-check"></i> Bookings</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="page-header">
+      <div>
+        <h1><i class="fas fa-headset"></i> Service Requests</h1>
+        <p>View, manage, and respond to client service inquiries</p>
+      </div>
+      <a href="/workspaces/brandinn/service-requests-management.html" class="btn-manage">
+        <i class="fas fa-arrow-right"></i> Manage All Requests
+      </a>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-number" id="statTotal">0</div><div class="stat-label">Total</div></div>
+      <div class="stat-card"><div class="stat-number" id="statPending">0</div><div class="stat-label">Pending</div></div>
+      <div class="stat-card"><div class="stat-number" id="statProcessing">0</div><div class="stat-label">Processing</div></div>
+      <div class="stat-card"><div class="stat-number" id="statQuoted">0</div><div class="stat-label">Quoted</div></div>
+      <div class="stat-card"><div class="stat-number" id="statApproved">0</div><div class="stat-label">Approved</div></div>
+      <div class="stat-card"><div class="stat-number" id="statCompleted">0</div><div class="stat-label">Completed</div></div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filter-bar">
+      <div class="filter-group">
+        <button class="filter-chip active" data-status="all">All</button>
+        <button class="filter-chip" data-status="pending">Pending</button>
+        <button class="filter-chip" data-status="processing">Processing</button>
+        <button class="filter-chip" data-status="quoted">Quoted</button>
+        <button class="filter-chip" data-status="approved">Approved</button>
+        <button class="filter-chip" data-status="completed">Completed</button>
+        <button class="filter-chip" data-status="rejected">Rejected</button>
+      </div>
+      <div class="assign-filter">
+        <i class="fas fa-user"></i>
+        <select id="assigneeFilter">
+          <option value="all">All Staff</option>
+          <option value="unassigned">Unassigned</option>
+        </select>
+      </div>
+      <div class="urgency-filter">
+        <i class="fas fa-clock"></i>
+        <select id="urgencyFilter">
+          <option value="all">All Urgency</option>
+          <option value="normal">Normal</option>
+          <option value="urgent">Urgent</option>
+          <option value="express">Express</option>
+        </select>
+      </div>
+      <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input type="text" id="searchInput" placeholder="Search client or business...">
+      </div>
+    </div>
+
+    <!-- Requests Table -->
+    <div class="requests-table">
+      <table>
+        <thead>
+          <tr><th>ID</th><th>Client</th><th>Services</th><th>Total (KES)</th><th>Urgency</th><th>Status</th><th>Date</th><th>Assigned</th><th style="width:60px;"></th></tr>
+        </thead>
+        <tbody id="requestsTableBody">
+          <tr><td colspan="9" class="empty-state">Loading requests...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="toastContainer"></div>
+
+  <!-- Request Detail Modal -->
+  <div class="modal-overlay" id="requestModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3><i class="fas fa-file-alt"></i> Request Details</h3>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-row">
+          <div class="form-group"><label>Client Name</label><input type="text" id="viewClientName" readonly disabled style="background:#f8fafc;"></div>
+          <div class="form-group"><label>Phone</label><input type="text" id="viewPhone" readonly disabled></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Email</label><input type="text" id="viewEmail" readonly disabled></div>
+          <div class="form-group"><label>Business Name</label><input type="text" id="viewBusiness" readonly disabled></div>
+        </div>
+        <div class="form-group"><label>Services Requested</label><div id="viewServices" class="services-list"></div></div>
+        <div class="form-row">
+          <div class="form-group"><label>Subtotal</label><input type="text" id="viewSubtotal" readonly disabled></div>
+          <div class="form-group"><label>Urgency Fee</label><input type="text" id="viewUrgencyFee" readonly disabled></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Service Fee</label><input type="text" id="viewServiceFee" readonly disabled></div>
+          <div class="form-group"><label>Total Amount</label><input type="text" id="viewTotal" style="font-weight:700;color:var(--primary);" readonly disabled></div>
+        </div>
+        <div class="form-group"><label>Instructions / Notes</label><textarea id="viewInstructions" rows="2" readonly disabled></textarea></div>
+        <div class="form-group"><label>Assigned To</label>
+          <select id="editAssignedTo">
+            <option value="">Unassigned</option>
+            <option value="Jane">Jane</option><option value="Mike">Mike</option>
+            <option value="Sarah">Sarah</option><option value="David">David</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Update Status</label>
+          <select id="editStatus">
+            <option value="pending">Pending</option><option value="processing">Processing</option>
+            <option value="quoted">Quoted</option><option value="approved">Approved</option>
+            <option value="completed">Completed</option><option value="rejected">Rejected</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Admin Notes</label><textarea id="editAdminNotes" rows="2" placeholder="Internal notes..."></textarea></div>
+        <input type="hidden" id="editRequestId">
+        <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
+          <button class="btn-save" onclick="updateRequest()"><i class="fas fa-save"></i> Update Request</button>
+          <button class="btn-danger" id="deleteBtn" style="display:none;" onclick="deleteRequest()"><i class="fas fa-trash"></i> Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+      authDomain: "mugera-e51cc.firebaseapp.com",
+      databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "mugera-e51cc",
+      storageBucket: "mugera-e51cc.firebasestorage.app",
+      messagingSenderId: "1024868637509",
+      appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    const auth = firebase.auth();
+
+    let allRequests = {};
+    let currentFilter = 'all';
+    let currentAssigneeFilter = 'all';
+    let currentUrgencyFilter = 'all';
+    let searchQuery = '';
+
+    function showToast(msg, isError = false) {
+      const c = document.getElementById('toastContainer');
+      const existing = c.querySelector('.toast');
+      if (existing) existing.remove();
+      const t = document.createElement('div');
+      t.className = `toast ${isError ? 'error' : ''}`;
+      t.innerHTML = `<i class="fas fa-${isError ? 'exclamation-circle' : 'check-circle'}"></i> ${msg}`;
+      c.appendChild(t);
+      setTimeout(() => t.remove(), 3000);
+    }
+
+    function escapeHtml(str) { if (!str) return ''; return String(str).replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : m === '>' ? '&gt;' : m); }
+
+    function formatDate(timestamp) {
+      if (!timestamp) return '';
+      const d = new Date(timestamp);
+      return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+    }
+
+    function getStatusClass(status) {
+      const map = { pending: 'status-pending', processing: 'status-processing', quoted: 'status-quoted', approved: 'status-approved', completed: 'status-completed', rejected: 'status-rejected', cancelled: 'status-cancelled' };
+      return map[status] || 'status-pending';
+    }
+
+    function getUrgencyClass(urgency) {
+      const map = { normal: 'urgency-normal', urgent: 'urgency-urgent', express: 'urgency-express' };
+      return map[urgency] || 'urgency-normal';
+    }
+
+    function updateAssigneeFilter() {
+      const select = document.getElementById('assigneeFilter');
+      const assignees = new Set();
+      Object.values(allRequests).forEach(r => { if (r.assignedTo) assignees.add(r.assignedTo); });
+      select.innerHTML = '<option value="all">All Staff</option><option value="unassigned">Unassigned</option>' + 
+        Array.from(assignees).sort().map(a => `<option value="${escapeHtml(a)}">${escapeHtml(a)}</option>`).join('');
+    }
+
+    function renderRequests() {
+      const tbody = document.getElementById('requestsTableBody');
+      let requests = Object.entries(allRequests).map(([id, r]) => ({ id, ...r }));
+      
+      if (currentFilter !== 'all') requests = requests.filter(r => r.status === currentFilter);
+      if (currentAssigneeFilter !== 'all') {
+        if (currentAssigneeFilter === 'unassigned') requests = requests.filter(r => !r.assignedTo);
+        else requests = requests.filter(r => r.assignedTo === currentAssigneeFilter);
+      }
+      if (currentUrgencyFilter !== 'all') requests = requests.filter(r => r.urgency === currentUrgencyFilter);
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        requests = requests.filter(r => (r.clientName || '').toLowerCase().includes(q) || (r.businessName || '').toLowerCase().includes(q));
+      }
+      requests.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+      
+      if (requests.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="9" class="empty-state">No service requests found</td></tr>';
+        updateStats(requests);
+        return;
+      }
+      
+      tbody.innerHTML = requests.map(r => {
+        const serviceCount = r.services ? r.services.length : 0;
+        const urgencyClass = getUrgencyClass(r.urgency);
+        const urgencyLabel = r.urgency === 'express' ? 'Express' : r.urgency === 'urgent' ? 'Urgent' : 'Normal';
+        const assignedDisplay = r.assignedTo || '—';
+        return `
+          <tr onclick="openRequestDetails('${r.id}')">
+            <td style="font-family:monospace;">#${r.id.substring(0,6)}</td>
+            <td><strong>${escapeHtml(r.clientName || '—')}</strong><br><span style="font-size:0.65rem;color:var(--gray-500);">${escapeHtml(r.businessName || '')}</span></td>
+            <td>${serviceCount} service${serviceCount !== 1 ? 's' : ''}</td>
+            <td><strong>KES ${(r.total || 0).toLocaleString()}</strong></td>
+            <td><span class="urgency-badge ${urgencyClass}">${urgencyLabel}</span></td>
+            <td><span class="status-badge ${getStatusClass(r.status)}">${r.status || 'pending'}</span></td>
+            <td>${formatDate(r.createdAt)}</td>
+            <td>${escapeHtml(assignedDisplay)}</td>
+            <td onclick="event.stopPropagation()"><div class="action-btns"><button class="action-icon" onclick="openRequestDetails('${r.id}')"><i class="fas fa-edit"></i></button></div></td>
+          </tr>`;
+      }).join('');
+      
+      updateStats(requests);
+    }
+
+    function updateStats(requests) {
+      const total = requests.length;
+      const pending = requests.filter(r => r.status === 'pending').length;
+      const processing = requests.filter(r => r.status === 'processing').length;
+      const quoted = requests.filter(r => r.status === 'quoted').length;
+      const approved = requests.filter(r => r.status === 'approved').length;
+      const completed = requests.filter(r => r.status === 'completed').length;
+      document.getElementById('statTotal').textContent = total;
+      document.getElementById('statPending').textContent = pending;
+      document.getElementById('statProcessing').textContent = processing;
+      document.getElementById('statQuoted').textContent = quoted;
+      document.getElementById('statApproved').textContent = approved;
+      document.getElementById('statCompleted').textContent = completed;
+    }
+
+    function openRequestDetails(id) {
+      const r = allRequests[id];
+      if (!r) return;
+      
+      document.getElementById('viewClientName').value = r.clientName || '';
+      document.getElementById('viewPhone').value = r.phone || '';
+      document.getElementById('viewEmail').value = r.email || '';
+      document.getElementById('viewBusiness').value = r.businessName || '';
+      document.getElementById('viewInstructions').value = r.instructions || '';
+      document.getElementById('viewSubtotal').value = r.subtotal ? `KES ${r.subtotal.toLocaleString()}` : 'KES 0';
+      document.getElementById('viewUrgencyFee').value = r.urgencyFee ? `KES ${Math.round(r.urgencyFee).toLocaleString()}` : 'KES 0';
+      document.getElementById('viewServiceFee').value = r.serviceFee ? `KES ${r.serviceFee.toLocaleString()}` : 'KES 0';
+      document.getElementById('viewTotal').value = `KES ${(r.total || 0).toLocaleString()}`;
+      document.getElementById('editAssignedTo').value = r.assignedTo || '';
+      document.getElementById('editStatus').value = r.status || 'pending';
+      document.getElementById('editAdminNotes').value = r.adminNotes || '';
+      document.getElementById('editRequestId').value = id;
+      document.getElementById('deleteBtn').style.display = 'block';
+      
+      const servicesContainer = document.getElementById('viewServices');
+      if (r.services && r.services.length) {
+        servicesContainer.innerHTML = r.services.map(s => `
+          <div class="service-line">
+            <span><strong>${escapeHtml(s.name)}</strong> x${s.quantity}</span>
+            <span>KES ${(s.price * s.quantity).toLocaleString()}</span>
+          </div>
+        `).join('');
+      } else {
+        servicesContainer.innerHTML = '<div style="padding:0.5rem;color:var(--gray-400);">No services selected</div>';
+      }
+      
+      document.getElementById('requestModal').classList.add('show');
+    }
+
+    async function updateRequest() {
+      const id = document.getElementById('editRequestId').value;
+      if (!id) return;
+      
+      const updates = {
+        assignedTo: document.getElementById('editAssignedTo').value,
+        status: document.getElementById('editStatus').value,
+        adminNotes: document.getElementById('editAdminNotes').value,
+        updatedAt: firebase.database.ServerValue.TIMESTAMP
+      };
+      
+      try {
+        await database.ref(`brandinn_service_requests/${id}`).update(updates);
+        showToast('Request updated successfully');
+        closeModal();
+      } catch(e) { showToast('Failed to update', true); }
+    }
+
+    async function deleteRequest() {
+      const id = document.getElementById('editRequestId').value;
+      if (!id) return;
+      if (!confirm('Delete this service request permanently?')) return;
+      try {
+        await database.ref(`brandinn_service_requests/${id}`).remove();
+        showToast('Request deleted');
+        closeModal();
+      } catch(e) { showToast('Delete failed', true); }
+    }
+
+    function closeModal() {
+      document.getElementById('requestModal').classList.remove('show');
+      document.getElementById('editRequestId').value = '';
+      document.getElementById('deleteBtn').style.display = 'none';
+    }
+
+    // Firebase listeners
+    database.ref('brandinn_service_requests').on('value', (snapshot) => {
+      allRequests = snapshot.val() || {};
+      updateAssigneeFilter();
+      renderRequests();
+    });
+
+    // Filter event listeners
+    document.querySelectorAll('.filter-chip').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        currentFilter = this.dataset.status;
+        renderRequests();
+      });
+    });
+    document.getElementById('assigneeFilter')?.addEventListener('change', e => { currentAssigneeFilter = e.target.value; renderRequests(); });
+    document.getElementById('urgencyFilter')?.addEventListener('change', e => { currentUrgencyFilter = e.target.value; renderRequests(); });
+    document.getElementById('searchInput').addEventListener('input', e => { searchQuery = e.target.value; renderRequests(); });
+    
+    auth.onAuthStateChanged(u => { if (!u) window.location.href = 'https://kazinni.vercel.app'; });
+    
+    window.openRequestDetails = openRequestDetails;
+    window.updateRequest = updateRequest;
+    window.deleteRequest = deleteRequest;
+    window.closeModal = closeModal;
+  </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Service Requests | BrandInn</title>
   
   <meta name="theme-color" content="#7c3aed">
