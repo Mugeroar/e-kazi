@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Project Management | BrandInn</title>
+  
+  <meta name="theme-color" content="#7c3aed">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  
+  <link rel="icon" type="image/png" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --primary: #7c3aed;
+      --primary-dark: #5b21b6;
+      --primary-light: #a78bfa;
+      --primary-bg: #f5f0ff;
+      --text-primary: #1e293b;
+      --text-muted: #64748b;
+      --border-light: #e9d5ff;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --info: #3b82f6;
+      --gray-50: #f8fafc;
+      --gray-100: #f1f5f9;
+      --gray-200: #e2e8f0;
+      --gray-300: #cbd5e1;
+      --gray-400: #94a3b8;
+      --gray-500: #64748b;
+      --gray-600: #475569;
+      --gray-700: #334155;
+      --gray-800: #1e293b;
+      --gray-900: #0f172a;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(135deg, #faf9fe 0%, #ffffff 100%);
+      color: var(--text-primary);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .navbar {
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(16px);
+      padding: 0.75rem 4%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(124, 58, 237, 0.15);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+    .logo-img { height: 38px; width: 38px; border-radius: 12px; object-fit: contain; background: white; box-shadow: 0 6px 16px rgba(124, 58, 237, 0.15); }
+    .logo-text {
+      font-weight: 800; font-size: 1.2rem;
+      background: linear-gradient(135deg, #8b5cf6, #5b21b6);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .logo-text span { font-weight: 600; font-size: 0.75rem; background: #7c3aed; -webkit-text-fill-color: #7c3aed; margin-left: 5px; }
+
+    .nav-right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .nav-btn {
+      background: rgba(124, 58, 237, 0.08); border: 1px solid rgba(124, 58, 237, 0.2);
+      padding: 0.45rem 1rem; border-radius: 30px; color: var(--primary-dark);
+      font-weight: 600; font-size: 0.75rem; cursor: pointer; display: inline-flex;
+      align-items: center; gap: 6px; text-decoration: none; transition: all 0.2s;
+    }
+    .nav-btn:hover { background: var(--primary); color: white; }
+
+    .container { max-width: 1400px; margin: 0 auto; padding: 1.5rem 4%; flex: 1; width: 100%; }
+
+    .page-header { margin-bottom: 1.8rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+    .page-header h1 {
+      font-size: 1.6rem; font-weight: 800; color: #0f172a;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .page-header h1 i { color: var(--primary-dark); background: white; padding: 10px; border-radius: 16px; box-shadow: 0 6px 14px rgba(124,58,237,0.08); }
+    .page-header p { color: var(--gray-500); font-size: 0.85rem; margin-top: 0.3rem; }
+
+    .btn-create {
+      background: var(--primary); color: white; border: none;
+      padding: 0.7rem 1.5rem; border-radius: 40px; font-weight: 700;
+      font-size: 0.85rem; cursor: pointer; display: inline-flex;
+      align-items: center; gap: 8px; transition: all 0.2s;
+    }
+    .btn-create:hover { background: var(--primary-dark); transform: translateY(-1px); }
+
+    /* Stats Bar */
+    .stats-bar {
+      display: grid; grid-template-columns: repeat(6, 1fr); gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: white; border-radius: 20px; padding: 1rem;
+      border: 1px solid var(--border-light); text-align: center;
+    }
+    .stat-card .stat-number { font-size: 1.8rem; font-weight: 800; color: var(--primary); }
+    .stat-card .stat-label { font-size: 0.7rem; color: var(--gray-500); text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* Filter Bar */
+    .filter-bar {
+      display: flex; gap: 0.8rem; flex-wrap: wrap; margin-bottom: 1.5rem;
+      align-items: center; justify-content: space-between;
+    }
+    .filter-group { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .filter-chip {
+      padding: 0.4rem 1rem; border-radius: 30px; font-size: 0.75rem;
+      font-weight: 600; background: var(--gray-100); color: var(--gray-600);
+      cursor: pointer; border: 1px solid transparent; transition: all 0.2s;
+    }
+    .filter-chip:hover { background: var(--primary-bg); color: var(--primary); }
+    .filter-chip.active { background: var(--primary); color: white; }
+    
+    .assign-filter {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--gray-100); padding: 0.2rem 0.8rem;
+      border-radius: 30px;
+    }
+    .assign-filter select {
+      border: none; background: transparent; padding: 0.4rem;
+      font-size: 0.75rem; font-weight: 500; outline: none;
+    }
+    
+    .search-box {
+      display: flex; align-items: center; background: var(--gray-100);
+      border-radius: 40px; padding: 0.3rem 1rem; gap: 8px;
+    }
+    .search-box i { color: var(--gray-400); }
+    .search-box input {
+      border: none; background: transparent; padding: 0.4rem;
+      font-size: 0.8rem; width: 200px; outline: none;
+    }
+
+    /* Projects Grid */
+    .projects-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+      gap: 1.2rem; margin-bottom: 2rem;
+    }
+    .project-card {
+      background: white; border-radius: 20px; border: 1px solid var(--border-light);
+      overflow: hidden; transition: all 0.2s; cursor: pointer;
+    }
+    .project-card:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(124,58,237,0.1); border-color: var(--primary-light); }
+    
+    .project-header {
+      padding: 1rem 1.2rem; background: linear-gradient(135deg, var(--gray-50), white);
+      border-bottom: 1px solid var(--gray-200);
+      display: flex; justify-content: space-between; align-items: flex-start;
+    }
+    .project-title h4 { font-size: 1rem; font-weight: 800; margin-bottom: 0.2rem; }
+    .project-title .business { font-size: 0.7rem; color: var(--primary); font-weight: 600; }
+    .status-badge {
+      padding: 0.2rem 0.7rem; border-radius: 30px; font-size: 0.65rem;
+      font-weight: 700; text-transform: uppercase;
+    }
+    .status-planning { background: #fef3c7; color: #92400e; }
+    .status-in-progress { background: #dbeafe; color: #1e40af; }
+    .status-review { background: #f3e8ff; color: #6b21a5; }
+    .status-completed { background: #d1fae5; color: #065f46; }
+    .status-on-hold { background: #fee2e2; color: #991b1b; }
+
+    .project-body { padding: 1rem 1.2rem; }
+    .project-dates { display: flex; gap: 1rem; margin-bottom: 0.8rem; font-size: 0.7rem; color: var(--gray-500); }
+    .progress-section { margin: 0.8rem 0; }
+    .progress-label { display: flex; justify-content: space-between; font-size: 0.65rem; margin-bottom: 0.3rem; }
+    .progress-bar {
+      height: 6px; background: var(--gray-200); border-radius: 10px; overflow: hidden;
+    }
+    .progress-fill { height: 100%; background: var(--primary); border-radius: 10px; transition: width 0.3s; }
+    .milestone-preview { font-size: 0.7rem; color: var(--gray-600); margin-top: 0.5rem; }
+    .assigned-badge {
+      display: inline-block; background: var(--primary-bg); padding: 0.2rem 0.6rem;
+      border-radius: 20px; font-size: 0.65rem; font-weight: 600; color: var(--primary-dark);
+      margin-top: 0.5rem;
+    }
+    .project-footer {
+      padding: 0.8rem 1.2rem; background: var(--gray-50); border-top: 1px solid var(--gray-200);
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 0.7rem; color: var(--gray-500);
+    }
+
+    .empty-state { text-align: center; padding: 3rem; color: var(--gray-400); }
+    .empty-state i { font-size: 3rem; margin-bottom: 1rem; opacity: 0.5; }
+
+    /* Modal Styles */
+    .modal-overlay {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
+      z-index: 1000; justify-content: center; align-items: center;
+    }
+    .modal-overlay.show { display: flex; }
+    .modal {
+      background: white; border-radius: 28px; width: 90%; max-width: 700px;
+      max-height: 85vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+    }
+    .modal-header {
+      padding: 1.2rem 1.5rem; border-bottom: 1px solid var(--gray-200);
+      display: flex; justify-content: space-between; align-items: center;
+      position: sticky; top: 0; background: white; z-index: 10;
+    }
+    .modal-header h3 { font-size: 1.2rem; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+    .modal-close { background: none; border: none; font-size: 1.3rem; cursor: pointer; color: var(--gray-400); }
+    .modal-body { padding: 1.5rem; }
+    .form-group { margin-bottom: 1rem; }
+    .form-group label { display: block; font-size: 0.75rem; font-weight: 700; color: var(--gray-600); margin-bottom: 0.3rem; text-transform: uppercase; letter-spacing: 0.5px; }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%; padding: 0.7rem 1rem; border-radius: 12px;
+      border: 1.5px solid var(--gray-200); font-size: 0.85rem;
+      font-family: 'Inter', sans-serif; background: var(--gray-50);
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      border-color: var(--primary); outline: none; background: white;
+    }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+    /* Multi-select for assignments */
+    .assignees-container {
+      display: flex; flex-wrap: wrap; gap: 8px; margin-top: 5px;
+    }
+    .assignee-tag {
+      background: var(--gray-100); border-radius: 30px; padding: 0.3rem 0.8rem;
+      display: inline-flex; align-items: center; gap: 6px; font-size: 0.75rem;
+      cursor: pointer; transition: all 0.2s; border: 1px solid var(--gray-200);
+    }
+    .assignee-tag.selected { background: var(--primary); color: white; border-color: var(--primary); }
+    .assignee-tag .remove { cursor: pointer; font-size: 0.7rem; opacity: 0.7; }
+    .assignee-tag.selected .remove { color: white; }
+    .add-assignee { display: flex; gap: 8px; margin-top: 8px; }
+    .add-assignee input { flex: 1; padding: 0.5rem; border-radius: 30px; border: 1px solid var(--gray-200); font-size: 0.75rem; }
+    .add-assignee button { background: var(--primary); color: white; border: none; padding: 0.3rem 1rem; border-radius: 30px; cursor: pointer; }
+
+    .milestone-item {
+      background: var(--gray-50); border-radius: 12px; padding: 0.8rem;
+      margin-bottom: 0.8rem; border: 1px solid var(--gray-200);
+    }
+    .milestone-header { display: flex; gap: 0.8rem; align-items: center; flex-wrap: wrap; }
+    .milestone-header input { flex: 2; }
+    .milestone-header input[type="date"] { flex: 1; }
+    .btn-remove-milestone {
+      background: var(--danger); color: white; border: none;
+      width: 28px; height: 28px; border-radius: 8px; cursor: pointer;
+    }
+    .btn-add-milestone {
+      background: var(--primary-bg); color: var(--primary); border: 2px dashed var(--primary-light);
+      padding: 0.6rem; border-radius: 12px; width: 100%; cursor: pointer;
+      font-weight: 600; margin-top: 0.5rem;
+    }
+
+    .btn-save { background: var(--primary); color: white; border: none; padding: 0.8rem 1.5rem; border-radius: 40px; font-weight: 700; cursor: pointer; width: 100%; }
+    .btn-save:hover { background: var(--primary-dark); }
+
+    .toast {
+      position: fixed; bottom: 30px; right: 30px; background: var(--success); color: white;
+      padding: 0.8rem 1.5rem; border-radius: 50px; font-weight: 600; z-index: 2000;
+      animation: slideIn 0.3s ease; box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    }
+    .toast.error { background: var(--danger); }
+    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+    @media (max-width: 1000px) { .stats-bar { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 768px) {
+      .stats-bar { grid-template-columns: repeat(2, 1fr); }
+      .projects-grid { grid-template-columns: 1fr; }
+      .form-row { grid-template-columns: 1fr; }
+      .filter-bar { flex-direction: column; align-items: stretch; }
+      .search-box input { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <a href="/workspaces/brandinn/index.html" class="logo">
+      <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png" alt="BrandInn" class="logo-img">
+      <span class="logo-text">BrandInn <span>Agency</span></span>
+    </a>
+    <div class="nav-right">
+      <a href="/workspaces/brandinn/index.html" class="nav-btn"><i class="fas fa-arrow-left"></i> Dashboard</a>
+      <a href="/workspaces/brandinn/business-listings.html" class="nav-btn"><i class="fas fa-store"></i> Businesses</a>
+      <a href="/workspaces/brandinn/service-requests.html" class="nav-btn"><i class="fas fa-headset"></i> Service Requests</a>
+      <a href="/workspaces/brandinn/projects.html" class="nav-btn active"><i class="fas fa-project-diagram"></i> Projects</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="page-header">
+      <div>
+        <h1><i class="fas fa-project-diagram"></i> Project Management</h1>
+        <p>Track progress, assign team members, and manage client projects</p>
+      </div>
+      <button class="btn-create" id="createProjectBtn"><i class="fas fa-plus"></i> New Project</button>
+    </div>
+
+    <!-- Stats Overview -->
+    <div class="stats-bar" id="statsBar">
+      <div class="stat-card"><div class="stat-number" id="statTotal">0</div><div class="stat-label">Total Projects</div></div>
+      <div class="stat-card"><div class="stat-number" id="statActive">0</div><div class="stat-label">In Progress</div></div>
+      <div class="stat-card"><div class="stat-number" id="statCompleted">0</div><div class="stat-label">Completed</div></div>
+      <div class="stat-card"><div class="stat-number" id="statOnHold">0</div><div class="stat-label">On Hold</div></div>
+      <div class="stat-card"><div class="stat-number" id="statPlanning">0</div><div class="stat-label">Planning</div></div>
+      <div class="stat-card"><div class="stat-number" id="statOverdue">0</div><div class="stat-label">Overdue</div></div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filter-bar">
+      <div class="filter-group" id="filterGroup">
+        <button class="filter-chip active" data-status="all">All Projects</button>
+        <button class="filter-chip" data-status="planning">Planning</button>
+        <button class="filter-chip" data-status="in-progress">In Progress</button>
+        <button class="filter-chip" data-status="review">Review</button>
+        <button class="filter-chip" data-status="completed">Completed</button>
+        <button class="filter-chip" data-status="on-hold">On Hold</button>
+      </div>
+      <div class="assign-filter">
+        <i class="fas fa-user-check"></i>
+        <select id="assigneeFilter">
+          <option value="all">All Team Members</option>
+          <option value="unassigned">Unassigned</option>
+        </select>
+      </div>
+      <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input type="text" id="searchInput" placeholder="Search projects...">
+      </div>
+    </div>
+
+    <!-- Projects Grid -->
+    <div class="projects-grid" id="projectsGrid">
+      <div class="empty-state"><i class="fas fa-folder-open"></i><br>No projects yet. Click "New Project" to get started.</div>
+    </div>
+  </div>
+
+  <div id="toastContainer"></div>
+
+  <!-- Create/Edit Project Modal -->
+  <div class="modal-overlay" id="projectModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3><i class="fas fa-plus-circle"></i> <span id="modalTitle">New Project</span></h3>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="projectForm">
+          <div class="form-row">
+            <div class="form-group"><label>Project Name *</label><input type="text" id="projectName" required></div>
+            <div class="form-group"><label>Business/Client *</label><input type="text" id="businessName" placeholder="Business name" required></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Service Type</label>
+              <select id="serviceType">
+                <option value="Website Development">Website Development</option>
+                <option value="Landing Page">Landing Page</option>
+                <option value="E-Commerce Store">E-Commerce Store</option>
+                <option value="Logo Design">Logo Design</option>
+                <option value="Brand Identity">Brand Identity</option>
+                <option value="Social Media Management">Social Media Management</option>
+                <option value="Meta Ads Management">Meta Ads Management</option>
+                <option value="SEO & Google Business">SEO & Google Business</option>
+                <option value="Print Design">Print Design</option>
+                <option value="Custom">Custom</option>
+              </select>
+            </div>
+            <div class="form-group"><label>Project Status</label>
+              <select id="projectStatus">
+                <option value="planning">Planning</option>
+                <option value="in-progress">In Progress</option>
+                <option value="review">Review</option>
+                <option value="completed">Completed</option>
+                <option value="on-hold">On Hold</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Start Date</label><input type="date" id="startDate"></div>
+            <div class="form-group"><label>Target Completion</label><input type="date" id="targetDate"></div>
+          </div>
+          <div class="form-group"><label>Project Description / Expected Outcome</label>
+            <textarea id="description" rows="3" placeholder="What is the goal of this project? What should be delivered?"></textarea>
+          </div>
+          
+          <!-- ASSIGNMENT SECTION -->
+          <div class="form-group">
+            <label><i class="fas fa-users"></i> Assign Team Members</label>
+            <div id="assigneesList" class="assignees-container"></div>
+            <div class="add-assignee">
+              <input type="text" id="newAssigneeName" placeholder="Enter name (e.g., John Kamau)" onkeypress="if(event.key==='Enter') addAssignee()">
+              <button type="button" onclick="addAssignee()"><i class="fas fa-plus"></i> Add</button>
+            </div>
+            <small style="font-size: 0.65rem; color: var(--gray-400);">Click on a name to remove from assignment</small>
+          </div>
+          
+          <div class="form-group">
+            <label>Milestones & Timeline</label>
+            <div id="milestonesContainer"></div>
+            <button type="button" class="btn-add-milestone" onclick="addMilestone()"><i class="fas fa-plus"></i> Add Milestone</button>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Budget (KES)</label><input type="number" id="budget" placeholder="0"></div>
+            <div class="form-group"><label>Priority</label>
+              <select id="priority">
+                <option value="low">Low</option>
+                <option value="medium" selected>Medium</option>
+                <option value="high">High</option>
+                <option value="urgent">Urgent</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group"><label>Internal Notes</label><textarea id="internalNotes" rows="2" placeholder="Private notes for team..."></textarea></div>
+          <input type="hidden" id="editProjectId" value="">
+          <button type="button" class="btn-save" onclick="saveProject()"><i class="fas fa-save"></i> Save Project</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+      authDomain: "mugera-e51cc.firebaseapp.com",
+      databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "mugera-e51cc",
+      storageBucket: "mugera-e51cc.firebasestorage.app",
+      messagingSenderId: "1024868637509",
+      appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    const auth = firebase.auth();
+
+    let allProjects = {};
+    let currentFilter = 'all';
+    let currentAssigneeFilter = 'all';
+    let searchQuery = '';
+    let milestones = [];
+    let assignees = [];
+
+    function showToast(msg, isError = false) {
+      const container = document.getElementById('toastContainer');
+      const existing = container.querySelector('.toast');
+      if (existing) existing.remove();
+      const toast = document.createElement('div');
+      toast.className = `toast ${isError ? 'error' : ''}`;
+      toast.innerHTML = `<i class="fas fa-${isError ? 'exclamation-circle' : 'check-circle'}"></i> ${msg}`;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 3500);
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : m === '>' ? '&gt;' : m);
+    }
+
+    // Assignment functions
+    function renderAssigneesList() {
+      const container = document.getElementById('assigneesList');
+      if (!container) return;
+      
+      if (assignees.length === 0) {
+        container.innerHTML = '<span style="font-size:0.7rem; color:var(--gray-400);">No team members assigned</span>';
+        return;
+      }
+      
+      container.innerHTML = assignees.map(assignee => `
+        <div class="assignee-tag" onclick="removeAssignee('${escapeHtml(assignee)}')">
+          <i class="fas fa-user"></i> ${escapeHtml(assignee)}
+          <span class="remove">×</span>
+        </div>
+      `).join('');
+    }
+    
+    function addAssignee() {
+      const input = document.getElementById('newAssigneeName');
+      const name = input.value.trim();
+      if (!name) return;
+      if (!assignees.includes(name)) {
+        assignees.push(name);
+        renderAssigneesList();
+      }
+      input.value = '';
+    }
+    
+    function removeAssignee(name) {
+      assignees = assignees.filter(a => a !== name);
+      renderAssigneesList();
+    }
+
+    function addMilestone(title = '', dueDate = '', completed = false) {
+      const container = document.getElementById('milestonesContainer');
+      const index = milestones.length;
+      milestones.push({ title, dueDate, completed });
+      
+      const milestoneDiv = document.createElement('div');
+      milestoneDiv.className = 'milestone-item';
+      milestoneDiv.innerHTML = `
+        <div class="milestone-header">
+          <input type="text" placeholder="Milestone title" value="${escapeHtml(title)}" style="flex:2;" 
+                 onchange="updateMilestone(${index}, 'title', this.value)">
+          <input type="date" value="${dueDate}" style="flex:1;" 
+                 onchange="updateMilestone(${index}, 'dueDate', this.value)">
+          <button type="button" class="btn-remove-milestone" onclick="removeMilestone(${index})">✕</button>
+        </div>
+        <div style="margin-top: 0.5rem;">
+          <label style="font-size:0.65rem;"><input type="checkbox" ${completed ? 'checked' : ''} 
+                 onchange="updateMilestone(${index}, 'completed', this.checked)"> Mark as completed</label>
+        </div>
+      `;
+      container.appendChild(milestoneDiv);
+    }
+
+    function updateMilestone(index, field, value) {
+      if (milestones[index]) milestones[index][field] = value;
+    }
+
+    function removeMilestone(index) {
+      milestones.splice(index, 1);
+      renderMilestones();
+    }
+
+    function renderMilestones() {
+      const container = document.getElementById('milestonesContainer');
+      if (!container) return;
+      container.innerHTML = '';
+      milestones.forEach((m, i) => {
+        const div = document.createElement('div');
+        div.className = 'milestone-item';
+        div.innerHTML = `
+          <div class="milestone-header">
+            <input type="text" placeholder="Milestone title" value="${escapeHtml(m.title || '')}" style="flex:2;" 
+                   onchange="updateMilestone(${i}, 'title', this.value)">
+            <input type="date" value="${m.dueDate || ''}" style="flex:1;" 
+                   onchange="updateMilestone(${i}, 'dueDate', this.value)">
+            <button type="button" class="btn-remove-milestone" onclick="removeMilestone(${i})">✕</button>
+          </div>
+          <div style="margin-top: 0.5rem;">
+            <label style="font-size:0.65rem;"><input type="checkbox" ${m.completed ? 'checked' : ''} 
+                   onchange="updateMilestone(${i}, 'completed', this.checked)"> Mark as completed</label>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function calculateProgress(milestonesList) {
+      if (!milestonesList || milestonesList.length === 0) return 0;
+      const completed = milestonesList.filter(m => m.completed).length;
+      return Math.round((completed / milestonesList.length) * 100);
+    }
+
+    function isOverdue(targetDate, status) {
+      if (!targetDate || status === 'completed') return false;
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const target = new Date(targetDate);
+      target.setHours(0, 0, 0, 0);
+      return target < today;
+    }
+
+    function getStatusClass(status) {
+      const map = {
+        'planning': 'status-planning', 'in-progress': 'status-in-progress',
+        'review': 'status-review', 'completed': 'status-completed', 'on-hold': 'status-on-hold'
+      };
+      return map[status] || 'status-planning';
+    }
+
+    function updateAssigneeFilterDropdown() {
+      const select = document.getElementById('assigneeFilter');
+      if (!select) return;
+      
+      const allAssignees = new Set();
+      Object.values(allProjects).forEach(project => {
+        if (project.assignees && project.assignees.length) {
+          project.assignees.forEach(a => allAssignees.add(a));
+        }
+      });
+      
+      let options = '<option value="all">All Team Members</option><option value="unassigned">Unassigned</option>';
+      Array.from(allAssignees).sort().forEach(name => {
+        options += `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`;
+      });
+      select.innerHTML = options;
+      select.value = currentAssigneeFilter;
+    }
+
+    function renderProjects() {
+      const grid = document.getElementById('projectsGrid');
+      let projects = Object.entries(allProjects).map(([id, p]) => ({ id, ...p }));
+      
+      if (currentFilter !== 'all') {
+        projects = projects.filter(p => p.status === currentFilter);
+      }
+      
+      if (currentAssigneeFilter !== 'all') {
+        if (currentAssigneeFilter === 'unassigned') {
+          projects = projects.filter(p => !p.assignees || p.assignees.length === 0);
+        } else {
+          projects = projects.filter(p => p.assignees && p.assignees.includes(currentAssigneeFilter));
+        }
+      }
+      
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase();
+        projects = projects.filter(p => 
+          (p.projectName || '').toLowerCase().includes(q) ||
+          (p.businessName || '').toLowerCase().includes(q) ||
+          (p.serviceType || '').toLowerCase().includes(q)
+        );
+      }
+      
+      projects.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+      
+      if (projects.length === 0) {
+        grid.innerHTML = '<div class="empty-state"><i class="fas fa-folder-open"></i><br>No projects found</div>';
+        return;
+      }
+      
+      grid.innerHTML = projects.map(project => {
+        const progress = calculateProgress(project.milestones);
+        const statusClass = getStatusClass(project.status);
+        const statusLabel = project.status?.replace('-', ' ') || 'Planning';
+        const completedMilestones = project.milestones?.filter(m => m.completed).length || 0;
+        const totalMilestones = project.milestones?.length || 0;
+        const overdue = isOverdue(project.targetDate, project.status);
+        const assigneesList = project.assignees && project.assignees.length ? project.assignees.join(', ') : 'Unassigned';
+        const priorityIcon = project.priority === 'high' ? '🔴' : project.priority === 'urgent' ? '🔥' : project.priority === 'low' ? '🟢' : '🟡';
+        
+        return `
+          <div class="project-card" onclick="openProjectDetails('${project.id}')">
+            <div class="project-header">
+              <div class="project-title">
+                <h4>${escapeHtml(project.projectName || 'Untitled')} ${priorityIcon}</h4>
+                <div class="business"><i class="fas fa-building"></i> ${escapeHtml(project.businessName || 'Unknown')}</div>
+              </div>
+              <span class="status-badge ${statusClass}">${statusLabel}</span>
+            </div>
+            <div class="project-body">
+              <div class="project-dates">
+                <span><i class="fas fa-calendar"></i> Start: ${project.startDate || 'TBD'}</span>
+                <span><i class="fas fa-flag-checkered"></i> Target: ${project.targetDate || 'TBD'} ${overdue ? '<span style="color:var(--danger);">⚠️ Overdue</span>' : ''}</span>
+              </div>
+              <div class="progress-section">
+                <div class="progress-label"><span>Overall Progress</span><span>${progress}%</span></div>
+                <div class="progress-bar"><div class="progress-fill" style="width: ${progress}%"></div></div>
+              </div>
+              <div class="milestone-preview">
+                <i class="fas fa-tasks"></i> ${completedMilestones}/${totalMilestones} milestones completed
+              </div>
+              <div class="assigned-badge"><i class="fas fa-user-friends"></i> ${escapeHtml(assigneesList)}</div>
+            </div>
+            <div class="project-footer">
+              <span><i class="fas fa-tag"></i> ${escapeHtml(project.serviceType || 'Service')}</span>
+              <span><i class="fas fa-clock"></i> ${project.updatedAt ? new Date(project.updatedAt).toLocaleDateString() : 'New'}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+      
+      updateStats();
+    }
+
+    function updateStats() {
+      const projects = Object.values(allProjects);
+      const total = projects.length;
+      const active = projects.filter(p => p.status === 'in-progress').length;
+      const completed = projects.filter(p => p.status === 'completed').length;
+      const onHold = projects.filter(p => p.status === 'on-hold').length;
+      const planning = projects.filter(p => p.status === 'planning' || !p.status).length;
+      const overdue = projects.filter(p => isOverdue(p.targetDate, p.status)).length;
+      
+      document.getElementById('statTotal').textContent = total;
+      document.getElementById('statActive').textContent = active;
+      document.getElementById('statCompleted').textContent = completed;
+      document.getElementById('statOnHold').textContent = onHold;
+      document.getElementById('statPlanning').textContent = planning;
+      document.getElementById('statOverdue').textContent = overdue;
+    }
+
+    function openProjectDetails(projectId) {
+      const project = allProjects[projectId];
+      if (!project) return;
+      
+      document.getElementById('modalTitle').textContent = 'Edit Project';
+      document.getElementById('projectName').value = project.projectName || '';
+      document.getElementById('businessName').value = project.businessName || '';
+      document.getElementById('serviceType').value = project.serviceType || 'Custom';
+      document.getElementById('projectStatus').value = project.status || 'planning';
+      document.getElementById('startDate').value = project.startDate || '';
+      document.getElementById('targetDate').value = project.targetDate || '';
+      document.getElementById('description').value = project.description || '';
+      document.getElementById('budget').value = project.budget || '';
+      document.getElementById('internalNotes').value = project.internalNotes || '';
+      document.getElementById('priority').value = project.priority || 'medium';
+      document.getElementById('editProjectId').value = projectId;
+      
+      assignees = project.assignees ? [...project.assignees] : [];
+      milestones = project.milestones ? [...project.milestones] : [];
+      
+      renderAssigneesList();
+      renderMilestones();
+      
+      document.getElementById('projectModal').classList.add('show');
+    }
+
+    async function saveProject() {
+      const projectName = document.getElementById('projectName').value.trim();
+      const businessName = document.getElementById('businessName').value.trim();
+      
+      if (!projectName) { showToast('Enter project name', true); return; }
+      if (!businessName) { showToast('Enter business/client name', true); return; }
+      
+      const projectData = {
+        projectName,
+        businessName,
+        serviceType: document.getElementById('serviceType').value,
+        status: document.getElementById('projectStatus').value,
+        startDate: document.getElementById('startDate').value,
+        targetDate: document.getElementById('targetDate').value,
+        description: document.getElementById('description').value.trim(),
+        budget: parseInt(document.getElementById('budget').value) || 0,
+        internalNotes: document.getElementById('internalNotes').value.trim(),
+        priority: document.getElementById('priority').value,
+        assignees: assignees,
+        milestones: milestones,
+        updatedAt: firebase.database.ServerValue.TIMESTAMP
+      };
+      
+      const editId = document.getElementById('editProjectId').value;
+      
+      try {
+        if (editId) {
+          await database.ref(`brandinn_projects/${editId}`).update(projectData);
+          showToast('Project updated successfully!');
+        } else {
+          projectData.createdAt = firebase.database.ServerValue.TIMESTAMP;
+          projectData.createdBy = auth.currentUser?.email || 'brandinn-staff';
+          await database.ref('brandinn_projects').push().set(projectData);
+          showToast('Project created successfully!');
+        }
+        closeModal();
+      } catch (e) {
+        console.error(e);
+        showToast('Failed to save project', true);
+      }
+    }
+
+    function closeModal() {
+      document.getElementById('projectModal').classList.remove('show');
+      document.getElementById('projectForm').reset();
+      document.getElementById('editProjectId').value = '';
+      document.getElementById('modalTitle').textContent = 'New Project';
+      assignees = [];
+      milestones = [];
+      renderAssigneesList();
+      renderMilestones();
+    }
+
+    function resetModal() {
+      document.getElementById('projectForm').reset();
+      document.getElementById('editProjectId').value = '';
+      document.getElementById('modalTitle').textContent = 'New Project';
+      assignees = [];
+      milestones = [];
+      renderAssigneesList();
+      renderMilestones();
+    }
+
+    // Firebase listeners
+    database.ref('brandinn_projects').on('value', (snapshot) => {
+      allProjects = snapshot.val() || {};
+      updateAssigneeFilterDropdown();
+      renderProjects();
+    });
+
+    // Filter event listeners
+    document.querySelectorAll('.filter-chip').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        currentFilter = this.dataset.status;
+        renderProjects();
+      });
+    });
+    
+    document.getElementById('assigneeFilter')?.addEventListener('change', (e) => {
+      currentAssigneeFilter = e.target.value;
+      renderProjects();
+    });
+    
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+      searchQuery = e.target.value;
+      renderProjects();
+    });
+    
+    document.getElementById('createProjectBtn').addEventListener('click', () => {
+      resetModal();
+      document.getElementById('projectModal').classList.add('show');
+    });
+    
+    // Auth check
+    auth.onAuthStateChanged((user) => {
+      if (!user) {
+        window.location.href = 'https://kazinni.vercel.app';
+      }
+    });
+    
+    // Expose global functions
+    window.openProjectDetails = openProjectDetails;
+    window.saveProject = saveProject;
+    window.closeModal = closeModal;
+    window.addMilestone = () => addMilestone('', '', false);
+    window.updateMilestone = updateMilestone;
+    window.removeMilestone = removeMilestone;
+    window.addAssignee = addAssignee;
+    window.removeAssignee = removeAssignee;
+  </script>
+</body>
+</html>
