@@ -26,7 +26,6 @@
       --info: #3b82f6;
       --text-primary: #1e293b;
       --text-muted: #64748b;
-      --border-light: #e9d5ff;
       --gray-50: #f8fafc;
       --gray-100: #f1f5f9;
       --gray-200: #e2e8f0;
@@ -218,8 +217,6 @@
     
     .btn-save { background: var(--primary); color: white; border: none; padding: 0.7rem; border-radius: 40px; font-weight: 700; cursor: pointer; width: 100%; font-size: 0.8rem; margin-top: 0.5rem; }
     .btn-save:hover { background: var(--primary-dark); }
-    .btn-danger { background: var(--danger); color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 40px; font-weight: 600; cursor: pointer; font-size: 0.75rem; }
-    .btn-danger:hover { background: #dc2626; }
     
     .toast {
       position: fixed; bottom: 20px; right: 20px; background: var(--success); color: white;
@@ -259,7 +256,7 @@
         <p>View, manage, and respond to client service inquiries</p>
       </div>
       <a href="/workspaces/brandinn/service-requests-management.html" class="btn-manage">
-        <i class="fas fa-arrow-right"></i> Manage All Requests
+        <i class="fas fa-external-link-alt"></i> Manage All Requests
       </a>
     </div>
 
@@ -302,7 +299,7 @@
       </div>
       <div class="search-box">
         <i class="fas fa-search"></i>
-        <input type="text" id="searchInput" placeholder="Search client or business...">
+        <input type="text" id="searchInput" placeholder="Search client...">
       </div>
     </div>
 
@@ -310,7 +307,7 @@
     <div class="requests-table">
       <table>
         <thead>
-          <tr><th>ID</th><th>Client</th><th>Services</th><th>Total (KES)</th><th>Urgency</th><th>Status</th><th>Date</th><th>Assigned</th><th style="width:60px;"></th></tr>
+          <tr><th>ID</th><th>Client</th><th>Services</th><th>Total (KES)</th><th>Urgency</th><th>Status</th><th>Date</th><th>Assigned</th><th></th></tr>
         </thead>
         <tbody id="requestsTableBody">
           <tr><td colspan="9" class="empty-state">Loading requests...</td></tr>
@@ -321,7 +318,7 @@
 
   <div id="toastContainer"></div>
 
-  <!-- Request Detail Modal -->
+  <!-- Request Detail Modal (View & Update) -->
   <div class="modal-overlay" id="requestModal">
     <div class="modal">
       <div class="modal-header">
@@ -330,7 +327,7 @@
       </div>
       <div class="modal-body">
         <div class="form-row">
-          <div class="form-group"><label>Client Name</label><input type="text" id="viewClientName" readonly disabled style="background:#f8fafc;"></div>
+          <div class="form-group"><label>Client Name</label><input type="text" id="viewClientName" readonly disabled></div>
           <div class="form-group"><label>Phone</label><input type="text" id="viewPhone" readonly disabled></div>
         </div>
         <div class="form-row">
@@ -364,10 +361,7 @@
         </div>
         <div class="form-group"><label>Admin Notes</label><textarea id="editAdminNotes" rows="2" placeholder="Internal notes..."></textarea></div>
         <input type="hidden" id="editRequestId">
-        <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
-          <button class="btn-save" onclick="updateRequest()"><i class="fas fa-save"></i> Update Request</button>
-          <button class="btn-danger" id="deleteBtn" style="display:none;" onclick="deleteRequest()"><i class="fas fa-trash"></i> Delete</button>
-        </div>
+        <button class="btn-save" onclick="updateRequest()"><i class="fas fa-save"></i> Update Request</button>
       </div>
     </div>
   </div>
@@ -472,7 +466,8 @@
             <td>${formatDate(r.createdAt)}</td>
             <td>${escapeHtml(assignedDisplay)}</td>
             <td onclick="event.stopPropagation()"><div class="action-btns"><button class="action-icon" onclick="openRequestDetails('${r.id}')"><i class="fas fa-edit"></i></button></div></td>
-          </tr>`;
+          </tr>
+        `;
       }).join('');
       
       updateStats(requests);
@@ -510,7 +505,6 @@
       document.getElementById('editStatus').value = r.status || 'pending';
       document.getElementById('editAdminNotes').value = r.adminNotes || '';
       document.getElementById('editRequestId').value = id;
-      document.getElementById('deleteBtn').style.display = 'block';
       
       const servicesContainer = document.getElementById('viewServices');
       if (r.services && r.services.length) {
@@ -545,21 +539,9 @@
       } catch(e) { showToast('Failed to update', true); }
     }
 
-    async function deleteRequest() {
-      const id = document.getElementById('editRequestId').value;
-      if (!id) return;
-      if (!confirm('Delete this service request permanently?')) return;
-      try {
-        await database.ref(`brandinn_service_requests/${id}`).remove();
-        showToast('Request deleted');
-        closeModal();
-      } catch(e) { showToast('Delete failed', true); }
-    }
-
     function closeModal() {
       document.getElementById('requestModal').classList.remove('show');
       document.getElementById('editRequestId').value = '';
-      document.getElementById('deleteBtn').style.display = 'none';
     }
 
     // Firebase listeners
@@ -586,7 +568,6 @@
     
     window.openRequestDetails = openRequestDetails;
     window.updateRequest = updateRequest;
-    window.deleteRequest = deleteRequest;
     window.closeModal = closeModal;
   </script>
 </body>
