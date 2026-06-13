@@ -200,48 +200,18 @@
 
     .footer { text-align: center; padding: 1rem; color: #7a7260; font-size: 0.7rem; border-top: 1px solid rgba(212,175,55,0.15); }
 
-    /* Skeleton loading styles */
     .skeleton {
       background: linear-gradient(90deg, var(--skeleton-base) 25%, var(--skeleton-shine) 50%, var(--skeleton-base) 75%);
-      background-size: 200% 100%;
-      animation: shimmer 1.5s ease-in-out infinite;
-      border-radius: 8px;
+      background-size: 200% 100%; animation: shimmer 1.5s ease-in-out infinite; border-radius: 8px;
     }
-    .skeleton-stat {
-      height: 80px;
-      border-radius: 16px;
-      background: var(--bg-card);
-      border: 1px solid var(--border-card);
-    }
-    .skeleton-card {
-      height: 180px;
-      border-radius: 20px;
-      background: var(--bg-card);
-      border: 1px solid var(--border-card);
-    }
-    .skeleton-text {
-      height: 14px;
-      margin-bottom: 8px;
-      width: 70%;
-    }
+    .skeleton-stat { height: 80px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-card); }
+    .skeleton-card { height: 180px; border-radius: 20px; background: var(--bg-card); border: 1px solid var(--border-card); }
+    .skeleton-text { height: 14px; margin-bottom: 8px; width: 70%; }
     .skeleton-text.short { width: 40%; }
     .skeleton-text.long { width: 90%; }
-    .skeleton-avatar {
-      width: 32px;
-      height: 32px;
-      border-radius: 10px;
-    }
-    .skeleton-recent {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 0.7rem 1rem;
-    }
-    @keyframes shimmer {
-      0% { background-position: -200% 0; }
-      100% { background-position: 200% 0; }
-    }
-    .loaded .skeleton { display: none; }
+    .skeleton-avatar { width: 32px; height: 32px; border-radius: 10px; }
+    .skeleton-recent { display: flex; align-items: center; gap: 10px; padding: 0.7rem 1rem; }
+    @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
 
     @media (max-width: 1100px) {
       .stats-grid { grid-template-columns: repeat(3, 1fr); }
@@ -416,6 +386,14 @@
       return 'Just now';
     }
 
+    function formatPrice(price) {
+      if (!price) return '0';
+      const num = Number(price);
+      if (num >= 1000000) return (num / 1000000).toFixed(2) + 'M';
+      if (num >= 1000) return (num / 1000).toFixed(0) + 'K';
+      return num.toLocaleString();
+    }
+
     function getStatusClass(status) {
       const s = (status || 'available').toLowerCase();
       if (s === 'sold') return 'status-sold';
@@ -461,15 +439,15 @@
         </div>
       `;
 
-      // Action Grid
+      // Action Grid with proper links
       document.getElementById('actionGrid').innerHTML = `
-        <a href="/workspaces/epitome-reviews/car-sales.html" class="action-card car-sale-card">
+        <a href="/workspaces/epitome-reviews/car-listings.html" class="action-card car-sale-card">
           <div class="action-icon"><i class="fas fa-car-side"></i></div>
           <h2>Car Sales</h2>
           <p>Manage vehicle inventory, list new cars, update pricing & details.</p>
           <span class="action-link">View Cars <i class="fas fa-arrow-right"></i></span>
         </a>
-        <a href="/workspaces/epitome-reviews/house-sales.html" class="action-card house-sale-card">
+        <a href="/workspaces/epitome-reviews/house-listings.html" class="action-card house-sale-card">
           <div class="action-icon"><i class="fas fa-home-lg"></i></div>
           <h2>House Sales</h2>
           <p>Manage property listings for sale or rent, add photos & descriptions.</p>
@@ -515,8 +493,8 @@
 
       // Quick Links
       document.getElementById('quickLinks').innerHTML = `
-        <a href="/workspaces/epitome-reviews/car-sales.html" class="quick-btn"><i class="fas fa-plus-circle"></i> Add Car</a>
-        <a href="/workspaces/epitome-reviews/house-sales.html" class="quick-btn"><i class="fas fa-plus-circle"></i> Add House</a>
+        <a href="/workspaces/epitome-reviews/car-listings.html" class="quick-btn"><i class="fas fa-plus-circle"></i> Add Car</a>
+        <a href="/workspaces/epitome-reviews/house-listings.html" class="quick-btn"><i class="fas fa-plus-circle"></i> Add House</a>
         <a href="/workspaces/epitome-reviews/custom-interior.html" class="quick-btn"><i class="fas fa-palette"></i> Interior Request</a>
         <a href="/workspaces/epitome-reviews/test-drives.html" class="quick-btn highlight"><i class="fas fa-calendar-check"></i> Schedule Test Drive</a>
         <a href="/workspaces/epitome-reviews/home-visits.html" class="quick-btn highlight"><i class="fas fa-calendar-plus"></i> Book Home Visit</a>
@@ -533,7 +511,7 @@
       // Listings header link
       document.querySelector('#listingsSection .recent-header').innerHTML = `
         <h3><i class="fas fa-list-check" style="color:#d4af37;"></i> Recent Listings</h3>
-        <a href="/workspaces/epitome-reviews/car-sales.html" style="color:#d4af37;font-weight:600;font-size:0.75rem;">View all</a>
+        <a href="/workspaces/epitome-reviews/car-listings.html" style="color:#d4af37;font-weight:600;font-size:0.75rem;">View all</a>
       `;
     }
 
@@ -598,7 +576,7 @@
                 <strong>${escapeHtml(title)}</strong>
                 <p style="font-size:0.65rem;color:#a8a090;">
                   <span class="type-badge ${item.type}">${item.type.toUpperCase()}</span>
-                  KES ${Number(price).toLocaleString()} ${formatTimeAgo(item.createdAt) ? '· ' + formatTimeAgo(item.createdAt) : ''}
+                  KES ${formatPrice(price)} ${formatTimeAgo(item.createdAt) ? '· ' + formatTimeAgo(item.createdAt) : ''}
                 </p>
               </div>
             </div>
@@ -638,7 +616,7 @@
       if (totalHousesEl) totalHousesEl.textContent = houses.length;
       if (totalPartnersEl) totalPartnersEl.textContent = partners.length;
       if (totalReviewsEl) totalReviewsEl.textContent = reviews.length;
-      if (totalSalesValueEl) totalSalesValueEl.textContent = monthlySalesValue >= 1000 ? Math.round(monthlySalesValue/1000) + 'K' : monthlySalesValue;
+      if (totalSalesValueEl) totalSalesValueEl.textContent = formatPrice(monthlySalesValue);
       if (pendingReviewsBadge) pendingReviewsBadge.textContent = pendingReviews;
       
       document.getElementById('footerStats').textContent = `${cars.length} cars · ${houses.length} houses · ${partners.length} partners · ${reviews.length} reviews`;
@@ -691,7 +669,6 @@
     }
 
     function checkAllDataLoaded() {
-      // Once we have at least some data from Firebase, build the real UI
       if (!dataLoaded) {
         dataLoaded = true;
         buildRealContent();
@@ -719,7 +696,6 @@
       }
     });
 
-    // Fallback: if Firebase doesn't respond within 8 seconds, show empty states
     setTimeout(() => {
       if (!dataLoaded) {
         dataLoaded = true;
