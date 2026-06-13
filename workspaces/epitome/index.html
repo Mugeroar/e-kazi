@@ -147,6 +147,8 @@
     .partner-card .action-link { color: #2ecc71; }
     .review-card .action-icon { color: #e74c3c; border-color: rgba(231,76,60,0.3); background: linear-gradient(145deg, rgba(231,76,60,0.1), #1a1a1a); }
     .review-card .action-link { color: #e74c3c; }
+    .sales-card .action-icon { color: #d4af37; border-color: rgba(212,175,55,0.3); background: linear-gradient(145deg, rgba(212,175,55,0.15), #1a1a1a); }
+    .sales-card .action-link { color: #d4af37; }
 
     .quick-section {
       background: var(--bg-card); border-radius: 18px; padding: 1rem 1.2rem;
@@ -184,6 +186,7 @@
     .status-active { background: rgba(52,152,219,0.2); color: #3498db; }
     .status-new { background: rgba(155,89,182,0.2); color: #9b59b6; }
     .status-scheduled { background: rgba(26,188,156,0.2); color: #1abc9c; }
+    .status-completed { background: rgba(46,204,113,0.2); color: #2ecc71; }
 
     .type-badge {
       padding: 0.15rem 0.5rem; border-radius: 12px; font-size: 0.6rem; font-weight: 600;
@@ -195,6 +198,7 @@
     .type-badge.interior { background: rgba(155,89,182,0.2); color: #9b59b6; }
     .type-badge.testdrive { background: rgba(52,152,219,0.2); color: #3498db; }
     .type-badge.homevisit { background: rgba(243,156,18,0.2); color: #f39c12; }
+    .type-badge.sale { background: rgba(212,175,55,0.2); color: #d4af37; }
 
     .empty-state { text-align: center; padding: 2rem; color: #7a7260; font-size: 0.8rem; }
 
@@ -252,7 +256,7 @@
         Epitome Reviews · Premium Dealership
         <span class="last-updated" id="lastUpdated"><i class="fas fa-circle"></i> Live</span>
       </h1>
-      <p>Manage cars, houses, custom interiors, test drives, home visits & partners.</p>
+      <p>Manage cars, houses, custom interiors, test drives, home visits, sales & partners.</p>
     </div>
 
     <!-- Stats Grid with Skeleton -->
@@ -286,17 +290,17 @@
         <span class="skeleton" style="width:130px;height:32px;border-radius:30px;display:inline-block;"></span>
         <span class="skeleton" style="width:115px;height:32px;border-radius:30px;display:inline-block;"></span>
         <span class="skeleton" style="width:95px;height:32px;border-radius:30px;display:inline-block;"></span>
-        <span class="skeleton" style="width:120px;height:32px;border-radius:30px;display:inline-block;"></span>
+        <span class="skeleton" style="width:80px;height:32px;border-radius:30px;display:inline-block;"></span>
       </div>
     </div>
 
-    <!-- Recent Appointments -->
-    <div class="recent-section" id="appointmentsSection">
+    <!-- Recent Sales -->
+    <div class="recent-section" id="salesSection">
       <div class="recent-header">
-        <h3><i class="fas fa-calendar-alt" style="color:#d4af37;"></i> Upcoming Appointments</h3>
+        <h3><i class="fas fa-file-invoice-dollar" style="color:#d4af37;"></i> Recent Sales</h3>
         <span class="skeleton" style="width:60px;height:16px;display:inline-block;"></span>
       </div>
-      <div class="recent-list" id="recentAppointments">
+      <div class="recent-list" id="recentSales">
         <div class="skeleton-recent"><span class="skeleton skeleton-avatar"></span><span class="skeleton skeleton-text long"></span></div>
         <div class="skeleton-recent"><span class="skeleton skeleton-avatar"></span><span class="skeleton skeleton-text"></span></div>
         <div class="skeleton-recent"><span class="skeleton skeleton-avatar"></span><span class="skeleton skeleton-text long"></span></div>
@@ -401,6 +405,7 @@
       if (s === 'active') return 'status-active';
       if (s === 'new') return 'status-new';
       if (s === 'scheduled') return 'status-scheduled';
+      if (s === 'completed') return 'status-completed';
       return 'status-available';
     }
 
@@ -411,6 +416,7 @@
       if (type === 'homevisit') return '🏡';
       if (type === 'interior') return '🎨';
       if (type === 'partner') return '🤝';
+      if (type === 'sale') return '💰';
       return '📋';
     }
 
@@ -430,11 +436,11 @@
           <div class="stat-icon"><i class="fas fa-handshake"></i></div>
         </div>
         <div class="stat-card">
-          <div class="stat-left"><h4>Reviews</h4><div class="stat-number" id="totalReviews">0</div><div class="stat-trend"><i class="fas fa-star"></i> Published</div></div>
-          <div class="stat-icon"><i class="fas fa-star"></i></div>
+          <div class="stat-left"><h4>Total Sales</h4><div class="stat-number" id="totalSales">0</div><div class="stat-trend"><i class="fas fa-receipt"></i> Transactions</div></div>
+          <div class="stat-icon"><i class="fas fa-file-invoice-dollar"></i></div>
         </div>
         <div class="stat-card">
-          <div class="stat-left"><h4>Sales (KES)</h4><div class="stat-number" id="totalSalesValue">0</div><div class="stat-trend"><i class="fas fa-chart-line"></i> This month</div></div>
+          <div class="stat-left"><h4>Revenue (KES)</h4><div class="stat-number" id="totalRevenue">0</div><div class="stat-trend"><i class="fas fa-chart-line"></i> This month</div></div>
           <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
         </div>
       `;
@@ -477,17 +483,17 @@
           <p>Manage partner agents, dealerships & collaboration details.</p>
           <span class="action-link">Manage Partners <i class="fas fa-arrow-right"></i></span>
         </a>
+        <a href="/workspaces/epitome/sales.html" class="action-card sales-card">
+          <div class="action-icon"><i class="fas fa-file-invoice-dollar"></i></div>
+          <h2>Sales</h2>
+          <p>Record transactions, track commissions & manage revenue.</p>
+          <span class="action-link">View Sales <i class="fas fa-arrow-right"></i></span>
+        </a>
         <a href="/workspaces/epitome/reviews.html" class="action-card review-card">
           <div class="action-icon"><i class="fas fa-star-half-stroke"></i></div>
           <h2>Reviews</h2>
           <p>Moderate & publish car and house reviews from customers.</p>
           <span class="action-link">Manage Reviews <i class="fas fa-arrow-right"></i></span>
-        </a>
-        <a href="/workspaces/epitome/map.html" class="action-card map-card">
-          <div class="action-icon"><i class="fas fa-map-location-dot"></i></div>
-          <h2>Location Map</h2>
-          <p>View listed properties & car yards on an interactive map.</p>
-          <span class="action-link">Open Map <i class="fas fa-arrow-right"></i></span>
         </a>
       `;
 
@@ -495,17 +501,17 @@
       document.getElementById('quickLinks').innerHTML = `
         <a href="/workspaces/epitome/car-listings.html" class="quick-btn"><i class="fas fa-plus-circle"></i> Add Car</a>
         <a href="/workspaces/epitome/house-listings.html" class="quick-btn"><i class="fas fa-plus-circle"></i> Add House</a>
-        <a href="/workspaces/epitome/custom-interior.html" class="quick-btn"><i class="fas fa-palette"></i> Interior Request</a>
-        <a href="/workspaces/epitome/test-drives.html" class="quick-btn highlight"><i class="fas fa-calendar-check"></i> Schedule Test Drive</a>
-        <a href="/workspaces/epitome/home-visits.html" class="quick-btn highlight"><i class="fas fa-calendar-plus"></i> Book Home Visit</a>
+        <a href="/workspaces/epitome/sales.html" class="quick-btn highlight"><i class="fas fa-plus-circle"></i> Record Sale</a>
+        <a href="/workspaces/epitome/test-drives.html" class="quick-btn"><i class="fas fa-calendar-check"></i> Test Drive</a>
+        <a href="/workspaces/epitome/home-visits.html" class="quick-btn"><i class="fas fa-calendar-plus"></i> Home Visit</a>
         <a href="/workspaces/epitome/partners.html" class="quick-btn"><i class="fas fa-user-plus"></i> Add Partner</a>
-        <a href="/workspaces/epitome/reviews.html" class="quick-btn"><i class="fas fa-pen-to-square"></i> Pending Reviews (<span id="pendingReviewsBadge">0</span>)</a>
+        <a href="/workspaces/epitome/custom-interior.html" class="quick-btn"><i class="fas fa-palette"></i> Interior</a>
       `;
 
-      // Appointments header link
-      document.querySelector('#appointmentsSection .recent-header').innerHTML = `
-        <h3><i class="fas fa-calendar-alt" style="color:#d4af37;"></i> Upcoming Appointments</h3>
-        <a href="/workspaces/epitome/test-drives.html" style="color:#d4af37;font-weight:600;font-size:0.75rem;">View all</a>
+      // Sales header link
+      document.querySelector('#salesSection .recent-header').innerHTML = `
+        <h3><i class="fas fa-file-invoice-dollar" style="color:#d4af37;"></i> Recent Sales</h3>
+        <a href="/workspaces/epitome/sales.html" style="color:#d4af37;font-weight:600;font-size:0.75rem;">View all</a>
       `;
 
       // Listings header link
@@ -515,33 +521,32 @@
       `;
     }
 
-    function renderRecentAppointments() {
-      const list = document.getElementById('recentAppointments');
-      const drives = Object.entries(allTestDrives).map(([id, d]) => ({ id, type: 'testdrive', ...d }));
-      const visits = Object.entries(allHomeVisits).map(([id, d]) => ({ id, type: 'homevisit', ...d }));
-      const combined = [...drives, ...visits]
+    function renderRecentSales() {
+      const list = document.getElementById('recentSales');
+      const sales = Object.entries(allSales)
+        .map(([id, data]) => ({ id, type: 'sale', ...data }))
         .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
         .slice(0, 4);
 
-      if (!combined.length) {
-        list.innerHTML = '<div class="empty-state">No upcoming appointments</div>';
+      if (!sales.length) {
+        list.innerHTML = '<div class="empty-state">No sales recorded yet</div>';
         return;
       }
 
-      list.innerHTML = combined.map(item => {
-        const status = item.status || 'scheduled';
-        const customer = item.customerName || item.clientName || 'Client';
-        const vehicle = item.carModel || item.propertyTitle || '';
-        const date = item.appointmentDate || item.date || '';
+      list.innerHTML = sales.map(sale => {
+        const status = sale.status || 'completed';
+        const buyer = sale.buyer || 'Customer';
+        const amount = sale.amount || 0;
+        const saleType = sale.type || 'car';
         return `
           <div class="recent-item">
             <div style="display:flex;align-items:center;gap:10px;">
-              <div style="width:32px;height:32px;background:rgba(212,175,55,0.1);border-radius:10px;display:flex;align-items:center;justify-content:center;">${getTypeIcon(item.type)}</div>
+              <div style="width:32px;height:32px;background:rgba(212,175,55,0.1);border-radius:10px;display:flex;align-items:center;justify-content:center;">${getTypeIcon(saleType)}</div>
               <div>
-                <strong>${escapeHtml(customer)}</strong>
+                <strong>${escapeHtml(buyer)}</strong>
                 <p style="font-size:0.65rem;color:#a8a090;">
-                  <span class="type-badge ${item.type}">${item.type === 'testdrive' ? 'TEST DRIVE' : 'HOME VISIT'}</span>
-                  ${escapeHtml(vehicle)} ${date ? '· ' + date : ''}
+                  <span class="type-badge ${saleType}">${saleType === 'car' ? 'CAR' : 'HOUSE'}</span>
+                  KES ${formatPrice(amount)} ${formatTimeAgo(sale.createdAt) ? '· ' + formatTimeAgo(sale.createdAt) : ''}
                 </p>
               </div>
             </div>
@@ -591,38 +596,30 @@
       const cars = Object.values(allCars).filter(c => c);
       const houses = Object.values(allHouses).filter(h => h);
       const partners = Object.values(allPartners).filter(p => p);
-      const reviews = Object.values(allReviews).filter(r => r);
       const sales = Object.values(allSales).filter(s => s);
       
       const now = new Date();
       const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
-      const monthlySalesValue = sales
+      const monthlyRevenue = sales
         .filter(s => (s.createdAt || 0) >= startOfMonth)
-        .reduce((sum, s) => sum + (s.amount || s.total || 0), 0);
-      
-      const pendingReviews = reviews.filter(r => {
-        const stat = (r.status || '').toLowerCase();
-        return stat === 'pending' || stat === 'new';
-      }).length;
+        .reduce((sum, s) => sum + (s.amount || 0), 0);
 
       const totalCarsEl = document.getElementById('totalCars');
       const totalHousesEl = document.getElementById('totalHouses');
       const totalPartnersEl = document.getElementById('totalPartners');
-      const totalReviewsEl = document.getElementById('totalReviews');
-      const totalSalesValueEl = document.getElementById('totalSalesValue');
-      const pendingReviewsBadge = document.getElementById('pendingReviewsBadge');
+      const totalSalesEl = document.getElementById('totalSales');
+      const totalRevenueEl = document.getElementById('totalRevenue');
       
       if (totalCarsEl) totalCarsEl.textContent = cars.length;
       if (totalHousesEl) totalHousesEl.textContent = houses.length;
       if (totalPartnersEl) totalPartnersEl.textContent = partners.length;
-      if (totalReviewsEl) totalReviewsEl.textContent = reviews.length;
-      if (totalSalesValueEl) totalSalesValueEl.textContent = formatPrice(monthlySalesValue);
-      if (pendingReviewsBadge) pendingReviewsBadge.textContent = pendingReviews;
+      if (totalSalesEl) totalSalesEl.textContent = sales.length;
+      if (totalRevenueEl) totalRevenueEl.textContent = formatPrice(monthlyRevenue);
       
-      document.getElementById('footerStats').textContent = `${cars.length} cars · ${houses.length} houses · ${partners.length} partners · ${reviews.length} reviews`;
+      document.getElementById('footerStats').textContent = `${cars.length} cars · ${houses.length} houses · ${partners.length} partners · ${sales.length} sales`;
       document.getElementById('lastUpdated').innerHTML = `<i class="fas fa-circle" style="color:#d4af37;"></i> Live`;
 
-      renderRecentAppointments();
+      renderRecentSales();
       renderRecentListings();
     }
 
@@ -642,13 +639,13 @@
         checkAllDataLoaded();
       });
 
-      onValue(ref(db, 'epitome_reviews'), (snapshot) => {
-        allReviews = snapshot.val() || {};
+      onValue(ref(db, 'epitome_sales'), (snapshot) => {
+        allSales = snapshot.val() || {};
         checkAllDataLoaded();
       });
 
-      onValue(ref(db, 'epitome_sales'), (snapshot) => {
-        allSales = snapshot.val() || {};
+      onValue(ref(db, 'epitome_reviews'), (snapshot) => {
+        allReviews = snapshot.val() || {};
         checkAllDataLoaded();
       });
 
