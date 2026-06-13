@@ -29,6 +29,8 @@
       --text-muted: #a8a090;
       --border-gold: rgba(212, 175, 55, 0.3);
       --border-card: rgba(212, 175, 55, 0.12);
+      --skeleton-base: #2a2a2a;
+      --skeleton-shine: #3a3a3a;
       --success: #2ecc71;
       --warning: #f39c12;
       --danger: #e74c3c;
@@ -114,10 +116,9 @@
     .stat-trend { font-size: 0.6rem; margin-top: 2px; display: flex; align-items: center; gap: 3px; color: #a8a090; }
     .stat-icon { width: 42px; height: 42px; background: rgba(212,175,55,0.08); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #d4af37; font-size: 1.2rem; }
 
-    .action-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 1.2rem; }
-    @media (min-width: 1300px) { .action-grid { grid-template-columns: repeat(8, 1fr); } }
+    .action-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 1.5rem; }
     .action-card {
-      background: var(--bg-card); border-radius: 20px; padding: 1.2rem;
+      background: var(--bg-card); border-radius: 20px; padding: 1.3rem 1.2rem;
       border: 1px solid var(--border-card); box-shadow: 0 8px 20px -6px rgba(0,0,0,0.6);
       transition: all 0.25s; text-decoration: none; color: inherit; display: block; cursor: pointer;
     }
@@ -199,31 +200,66 @@
 
     .footer { text-align: center; padding: 1rem; color: #7a7260; font-size: 0.7rem; border-top: 1px solid rgba(212,175,55,0.15); }
 
-    .loading-overlay {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(5,5,5,0.85); backdrop-filter: blur(6px);
-      display: flex; justify-content: center; align-items: center; z-index: 999;
+    /* Skeleton loading styles */
+    .skeleton {
+      background: linear-gradient(90deg, var(--skeleton-base) 25%, var(--skeleton-shine) 50%, var(--skeleton-base) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s ease-in-out infinite;
+      border-radius: 8px;
     }
-    .loading-overlay.hide { display: none; }
-    .spinner {
-      width: 35px; height: 35px; border: 3px solid rgba(212,175,55,0.2);
-      border-top-color: #d4af37; border-radius: 50%; animation: spin 0.8s linear infinite;
+    .skeleton-stat {
+      height: 80px;
+      border-radius: 16px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
     }
-    @keyframes spin { to { transform: rotate(360deg); } }
+    .skeleton-card {
+      height: 180px;
+      border-radius: 20px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+    }
+    .skeleton-text {
+      height: 14px;
+      margin-bottom: 8px;
+      width: 70%;
+    }
+    .skeleton-text.short { width: 40%; }
+    .skeleton-text.long { width: 90%; }
+    .skeleton-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+    }
+    .skeleton-recent {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0.7rem 1rem;
+    }
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+    .loaded .skeleton { display: none; }
 
-    @media (max-width: 1100px) { .stats-grid { grid-template-columns: repeat(3, 1fr); } .action-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 1100px) {
+      .stats-grid { grid-template-columns: repeat(3, 1fr); }
+      .action-grid { grid-template-columns: repeat(2, 1fr); }
+    }
     @media (max-width: 768px) {
       .stats-grid { grid-template-columns: 1fr 1fr; }
       .action-grid { grid-template-columns: 1fr 1fr; }
       .container { padding: 0.8rem; }
       .page-header h1 { font-size: 1.1rem; }
     }
-    @media (max-width: 500px) { .action-grid { grid-template-columns: 1fr; } .stats-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 500px) {
+      .action-grid { grid-template-columns: 1fr; }
+      .stats-grid { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
-  <div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div></div>
-
   <nav class="navbar">
     <div class="logo" id="logoClick">
       <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png" alt="Epitome Reviews Logo" class="logo-img" id="logoIcon">
@@ -239,7 +275,7 @@
     </div>
   </nav>
 
-  <div class="container">
+  <div class="container" id="dashboardContainer">
     <div class="page-header">
       <h1>
         <i class="fas fa-crown"></i>
@@ -249,110 +285,65 @@
       <p>Manage cars, houses, custom interiors, test drives, home visits & partners.</p>
     </div>
 
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-left"><h4>Cars Listed</h4><div class="stat-number" id="totalCars">0</div><div class="stat-trend"><i class="fas fa-car"></i> Available</div></div>
-        <div class="stat-icon"><i class="fas fa-car"></i></div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-left"><h4>Houses Listed</h4><div class="stat-number" id="totalHouses">0</div><div class="stat-trend"><i class="fas fa-home"></i> For sale/rent</div></div>
-        <div class="stat-icon"><i class="fas fa-home"></i></div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-left"><h4>Partners</h4><div class="stat-number" id="totalPartners">0</div><div class="stat-trend"><i class="fas fa-handshake"></i> Active</div></div>
-        <div class="stat-icon"><i class="fas fa-handshake"></i></div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-left"><h4>Reviews</h4><div class="stat-number" id="totalReviews">0</div><div class="stat-trend"><i class="fas fa-star"></i> Published</div></div>
-        <div class="stat-icon"><i class="fas fa-star"></i></div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-left"><h4>Sales (KES)</h4><div class="stat-number" id="totalSalesValue">0</div><div class="stat-trend"><i class="fas fa-chart-line"></i> This month</div></div>
-        <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
-      </div>
+    <!-- Stats Grid with Skeleton -->
+    <div class="stats-grid" id="statsGrid">
+      <div class="stat-card skeleton-stat"></div>
+      <div class="stat-card skeleton-stat"></div>
+      <div class="stat-card skeleton-stat"></div>
+      <div class="stat-card skeleton-stat"></div>
+      <div class="stat-card skeleton-stat"></div>
     </div>
 
-    <div class="action-grid">
-      <a href="/workspaces/epitome-reviews/car-sales.html" class="action-card car-sale-card">
-        <div class="action-icon"><i class="fas fa-car-side"></i></div>
-        <h2>Car Sales</h2>
-        <p>Manage vehicle inventory, list new cars, update pricing & details.</p>
-        <span class="action-link">View Cars <i class="fas fa-arrow-right"></i></span>
-      </a>
-      <a href="/workspaces/epitome-reviews/house-sales.html" class="action-card house-sale-card">
-        <div class="action-icon"><i class="fas fa-home-lg"></i></div>
-        <h2>House Sales</h2>
-        <p>Manage property listings for sale or rent, add photos & descriptions.</p>
-        <span class="action-link">View Houses <i class="fas fa-arrow-right"></i></span>
-      </a>
-      <a href="/workspaces/epitome-reviews/custom-interior.html" class="action-card interior-card">
-        <div class="action-icon"><i class="fas fa-paint-roller"></i></div>
-        <h2>Custom Interior</h2>
-        <p>Design & manage bespoke car interior projects and requests.</p>
-        <span class="action-link">Interior Studio <i class="fas fa-arrow-right"></i></span>
-      </a>
-      <a href="/workspaces/epitome-reviews/test-drives.html" class="action-card testdrive-card">
-        <div class="action-icon"><i class="fas fa-steering-wheel"></i></div>
-        <h2>Test Drives</h2>
-        <p>Schedule & manage car test drive appointments with customers.</p>
-        <span class="action-link">Schedule Drive <i class="fas fa-arrow-right"></i></span>
-      </a>
-      <a href="/workspaces/epitome-reviews/home-visits.html" class="action-card homevisit-card">
-        <div class="action-icon"><i class="fas fa-house-chimney-user"></i></div>
-        <h2>Home Visits</h2>
-        <p>Arrange property viewing visits & manage client schedules.</p>
-        <span class="action-link">Book Visit <i class="fas fa-arrow-right"></i></span>
-      </a>
-      <a href="/workspaces/epitome-reviews/partners.html" class="action-card partner-card">
-        <div class="action-icon"><i class="fas fa-handshake-angle"></i></div>
-        <h2>Partners</h2>
-        <p>Manage partner agents, dealerships & collaboration details.</p>
-        <span class="action-link">Manage Partners <i class="fas fa-arrow-right"></i></span>
-      </a>
-      <a href="/workspaces/epitome-reviews/reviews.html" class="action-card review-card">
-        <div class="action-icon"><i class="fas fa-star-half-stroke"></i></div>
-        <h2>Reviews</h2>
-        <p>Moderate & publish car and house reviews from customers.</p>
-        <span class="action-link">Manage Reviews <i class="fas fa-arrow-right"></i></span>
-      </a>
-      <a href="/workspaces/epitome-reviews/map.html" class="action-card map-card">
-        <div class="action-icon"><i class="fas fa-map-location-dot"></i></div>
-        <h2>Location Map</h2>
-        <p>View listed properties & car yards on an interactive map.</p>
-        <span class="action-link">Open Map <i class="fas fa-arrow-right"></i></span>
-      </a>
+    <!-- Action Grid with Skeleton -->
+    <div class="action-grid" id="actionGrid">
+      <div class="action-card skeleton-card"></div>
+      <div class="action-card skeleton-card"></div>
+      <div class="action-card skeleton-card"></div>
+      <div class="action-card skeleton-card"></div>
+      <div class="action-card skeleton-card"></div>
+      <div class="action-card skeleton-card"></div>
+      <div class="action-card skeleton-card"></div>
+      <div class="action-card skeleton-card"></div>
     </div>
 
-    <div class="quick-section">
+    <!-- Quick Actions -->
+    <div class="quick-section" id="quickSection">
       <div class="quick-header"><i class="fas fa-bolt"></i> Quick Actions</div>
-      <div class="quick-links">
-        <a href="/workspaces/epitome-reviews/car-sales.html" class="quick-btn"><i class="fas fa-plus-circle"></i> Add Car</a>
-        <a href="/workspaces/epitome-reviews/house-sales.html" class="quick-btn"><i class="fas fa-plus-circle"></i> Add House</a>
-        <a href="/workspaces/epitome-reviews/custom-interior.html" class="quick-btn"><i class="fas fa-palette"></i> Interior Request</a>
-        <a href="/workspaces/epitome-reviews/test-drives.html" class="quick-btn highlight"><i class="fas fa-calendar-check"></i> Schedule Test Drive</a>
-        <a href="/workspaces/epitome-reviews/home-visits.html" class="quick-btn highlight"><i class="fas fa-calendar-plus"></i> Book Home Visit</a>
-        <a href="/workspaces/epitome-reviews/partners.html" class="quick-btn"><i class="fas fa-user-plus"></i> Add Partner</a>
-        <a href="/workspaces/epitome-reviews/reviews.html" class="quick-btn"><i class="fas fa-pen-to-square"></i> Pending Reviews (<span id="pendingReviewsBadge">0</span>)</a>
+      <div class="quick-links" id="quickLinks">
+        <span class="skeleton" style="width:90px;height:32px;border-radius:30px;display:inline-block;"></span>
+        <span class="skeleton" style="width:110px;height:32px;border-radius:30px;display:inline-block;"></span>
+        <span class="skeleton" style="width:100px;height:32px;border-radius:30px;display:inline-block;"></span>
+        <span class="skeleton" style="width:130px;height:32px;border-radius:30px;display:inline-block;"></span>
+        <span class="skeleton" style="width:115px;height:32px;border-radius:30px;display:inline-block;"></span>
+        <span class="skeleton" style="width:95px;height:32px;border-radius:30px;display:inline-block;"></span>
+        <span class="skeleton" style="width:120px;height:32px;border-radius:30px;display:inline-block;"></span>
       </div>
     </div>
 
-    <div class="recent-section">
+    <!-- Recent Appointments -->
+    <div class="recent-section" id="appointmentsSection">
       <div class="recent-header">
         <h3><i class="fas fa-calendar-alt" style="color:#d4af37;"></i> Upcoming Appointments</h3>
-        <a href="/workspaces/epitome-reviews/test-drives.html" style="color:#d4af37;font-weight:600;font-size:0.75rem;">View all</a>
+        <span class="skeleton" style="width:60px;height:16px;display:inline-block;"></span>
       </div>
       <div class="recent-list" id="recentAppointments">
-        <div class="empty-state">Loading appointments...</div>
+        <div class="skeleton-recent"><span class="skeleton skeleton-avatar"></span><span class="skeleton skeleton-text long"></span></div>
+        <div class="skeleton-recent"><span class="skeleton skeleton-avatar"></span><span class="skeleton skeleton-text"></span></div>
+        <div class="skeleton-recent"><span class="skeleton skeleton-avatar"></span><span class="skeleton skeleton-text long"></span></div>
       </div>
     </div>
 
-    <div class="recent-section">
+    <!-- Recent Listings -->
+    <div class="recent-section" id="listingsSection">
       <div class="recent-header">
         <h3><i class="fas fa-list-check" style="color:#d4af37;"></i> Recent Listings</h3>
-        <a href="/workspaces/epitome-reviews/car-sales.html" style="color:#d4af37;font-weight:600;font-size:0.75rem;">View all</a>
+        <span class="skeleton" style="width:60px;height:16px;display:inline-block;"></span>
       </div>
       <div class="recent-list" id="recentListings">
-        <div class="empty-state">Loading listings...</div>
+        <div class="skeleton-recent"><span class="skeleton skeleton-avatar"></span><span class="skeleton skeleton-text"></span></div>
+        <div class="skeleton-recent"><span class="skeleton skeleton-avatar"></span><span class="skeleton skeleton-text long"></span></div>
+        <div class="skeleton-recent"><span class="skeleton skeleton-avatar"></span><span class="skeleton skeleton-text"></span></div>
+        <div class="skeleton-recent"><span class="skeleton skeleton-avatar"></span><span class="skeleton skeleton-text long"></span></div>
       </div>
     </div>
   </div>
@@ -398,8 +389,7 @@
     let allTestDrives = {};
     let allHomeVisits = {};
     let allInteriors = {};
-
-    const loadingOverlay = document.getElementById('loadingOverlay');
+    let dataLoaded = false;
 
     function escapeHtml(str) {
       if (!str) return '';
@@ -444,6 +434,107 @@
       if (type === 'interior') return '🎨';
       if (type === 'partner') return '🤝';
       return '📋';
+    }
+
+    function buildRealContent() {
+      // Stats Grid
+      document.getElementById('statsGrid').innerHTML = `
+        <div class="stat-card">
+          <div class="stat-left"><h4>Cars Listed</h4><div class="stat-number" id="totalCars">0</div><div class="stat-trend"><i class="fas fa-car"></i> Available</div></div>
+          <div class="stat-icon"><i class="fas fa-car"></i></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-left"><h4>Houses Listed</h4><div class="stat-number" id="totalHouses">0</div><div class="stat-trend"><i class="fas fa-home"></i> For sale/rent</div></div>
+          <div class="stat-icon"><i class="fas fa-home"></i></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-left"><h4>Partners</h4><div class="stat-number" id="totalPartners">0</div><div class="stat-trend"><i class="fas fa-handshake"></i> Active</div></div>
+          <div class="stat-icon"><i class="fas fa-handshake"></i></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-left"><h4>Reviews</h4><div class="stat-number" id="totalReviews">0</div><div class="stat-trend"><i class="fas fa-star"></i> Published</div></div>
+          <div class="stat-icon"><i class="fas fa-star"></i></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-left"><h4>Sales (KES)</h4><div class="stat-number" id="totalSalesValue">0</div><div class="stat-trend"><i class="fas fa-chart-line"></i> This month</div></div>
+          <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
+        </div>
+      `;
+
+      // Action Grid
+      document.getElementById('actionGrid').innerHTML = `
+        <a href="/workspaces/epitome-reviews/car-sales.html" class="action-card car-sale-card">
+          <div class="action-icon"><i class="fas fa-car-side"></i></div>
+          <h2>Car Sales</h2>
+          <p>Manage vehicle inventory, list new cars, update pricing & details.</p>
+          <span class="action-link">View Cars <i class="fas fa-arrow-right"></i></span>
+        </a>
+        <a href="/workspaces/epitome-reviews/house-sales.html" class="action-card house-sale-card">
+          <div class="action-icon"><i class="fas fa-home-lg"></i></div>
+          <h2>House Sales</h2>
+          <p>Manage property listings for sale or rent, add photos & descriptions.</p>
+          <span class="action-link">View Houses <i class="fas fa-arrow-right"></i></span>
+        </a>
+        <a href="/workspaces/epitome-reviews/custom-interior.html" class="action-card interior-card">
+          <div class="action-icon"><i class="fas fa-paint-roller"></i></div>
+          <h2>Custom Interior</h2>
+          <p>Design & manage bespoke car interior projects and requests.</p>
+          <span class="action-link">Interior Studio <i class="fas fa-arrow-right"></i></span>
+        </a>
+        <a href="/workspaces/epitome-reviews/test-drives.html" class="action-card testdrive-card">
+          <div class="action-icon"><i class="fas fa-steering-wheel"></i></div>
+          <h2>Test Drives</h2>
+          <p>Schedule & manage car test drive appointments with customers.</p>
+          <span class="action-link">Schedule Drive <i class="fas fa-arrow-right"></i></span>
+        </a>
+        <a href="/workspaces/epitome-reviews/home-visits.html" class="action-card homevisit-card">
+          <div class="action-icon"><i class="fas fa-house-chimney-user"></i></div>
+          <h2>Home Visits</h2>
+          <p>Arrange property viewing visits & manage client schedules.</p>
+          <span class="action-link">Book Visit <i class="fas fa-arrow-right"></i></span>
+        </a>
+        <a href="/workspaces/epitome-reviews/partners.html" class="action-card partner-card">
+          <div class="action-icon"><i class="fas fa-handshake-angle"></i></div>
+          <h2>Partners</h2>
+          <p>Manage partner agents, dealerships & collaboration details.</p>
+          <span class="action-link">Manage Partners <i class="fas fa-arrow-right"></i></span>
+        </a>
+        <a href="/workspaces/epitome-reviews/reviews.html" class="action-card review-card">
+          <div class="action-icon"><i class="fas fa-star-half-stroke"></i></div>
+          <h2>Reviews</h2>
+          <p>Moderate & publish car and house reviews from customers.</p>
+          <span class="action-link">Manage Reviews <i class="fas fa-arrow-right"></i></span>
+        </a>
+        <a href="/workspaces/epitome-reviews/map.html" class="action-card map-card">
+          <div class="action-icon"><i class="fas fa-map-location-dot"></i></div>
+          <h2>Location Map</h2>
+          <p>View listed properties & car yards on an interactive map.</p>
+          <span class="action-link">Open Map <i class="fas fa-arrow-right"></i></span>
+        </a>
+      `;
+
+      // Quick Links
+      document.getElementById('quickLinks').innerHTML = `
+        <a href="/workspaces/epitome-reviews/car-sales.html" class="quick-btn"><i class="fas fa-plus-circle"></i> Add Car</a>
+        <a href="/workspaces/epitome-reviews/house-sales.html" class="quick-btn"><i class="fas fa-plus-circle"></i> Add House</a>
+        <a href="/workspaces/epitome-reviews/custom-interior.html" class="quick-btn"><i class="fas fa-palette"></i> Interior Request</a>
+        <a href="/workspaces/epitome-reviews/test-drives.html" class="quick-btn highlight"><i class="fas fa-calendar-check"></i> Schedule Test Drive</a>
+        <a href="/workspaces/epitome-reviews/home-visits.html" class="quick-btn highlight"><i class="fas fa-calendar-plus"></i> Book Home Visit</a>
+        <a href="/workspaces/epitome-reviews/partners.html" class="quick-btn"><i class="fas fa-user-plus"></i> Add Partner</a>
+        <a href="/workspaces/epitome-reviews/reviews.html" class="quick-btn"><i class="fas fa-pen-to-square"></i> Pending Reviews (<span id="pendingReviewsBadge">0</span>)</a>
+      `;
+
+      // Appointments header link
+      document.querySelector('#appointmentsSection .recent-header').innerHTML = `
+        <h3><i class="fas fa-calendar-alt" style="color:#d4af37;"></i> Upcoming Appointments</h3>
+        <a href="/workspaces/epitome-reviews/test-drives.html" style="color:#d4af37;font-weight:600;font-size:0.75rem;">View all</a>
+      `;
+
+      // Listings header link
+      document.querySelector('#listingsSection .recent-header').innerHTML = `
+        <h3><i class="fas fa-list-check" style="color:#d4af37;"></i> Recent Listings</h3>
+        <a href="/workspaces/epitome-reviews/car-sales.html" style="color:#d4af37;font-weight:600;font-size:0.75rem;">View all</a>
+      `;
     }
 
     function renderRecentAppointments() {
@@ -517,6 +608,8 @@
     }
 
     function updateStats() {
+      if (!dataLoaded) return;
+      
       const cars = Object.values(allCars).filter(c => c);
       const houses = Object.values(allHouses).filter(h => h);
       const partners = Object.values(allPartners).filter(p => p);
@@ -534,12 +627,20 @@
         return stat === 'pending' || stat === 'new';
       }).length;
 
-      document.getElementById('totalCars').textContent = cars.length;
-      document.getElementById('totalHouses').textContent = houses.length;
-      document.getElementById('totalPartners').textContent = partners.length;
-      document.getElementById('totalReviews').textContent = reviews.length;
-      document.getElementById('totalSalesValue').textContent = monthlySalesValue >= 1000 ? Math.round(monthlySalesValue/1000) + 'K' : monthlySalesValue;
-      document.getElementById('pendingReviewsBadge').textContent = pendingReviews;
+      const totalCarsEl = document.getElementById('totalCars');
+      const totalHousesEl = document.getElementById('totalHouses');
+      const totalPartnersEl = document.getElementById('totalPartners');
+      const totalReviewsEl = document.getElementById('totalReviews');
+      const totalSalesValueEl = document.getElementById('totalSalesValue');
+      const pendingReviewsBadge = document.getElementById('pendingReviewsBadge');
+      
+      if (totalCarsEl) totalCarsEl.textContent = cars.length;
+      if (totalHousesEl) totalHousesEl.textContent = houses.length;
+      if (totalPartnersEl) totalPartnersEl.textContent = partners.length;
+      if (totalReviewsEl) totalReviewsEl.textContent = reviews.length;
+      if (totalSalesValueEl) totalSalesValueEl.textContent = monthlySalesValue >= 1000 ? Math.round(monthlySalesValue/1000) + 'K' : monthlySalesValue;
+      if (pendingReviewsBadge) pendingReviewsBadge.textContent = pendingReviews;
+      
       document.getElementById('footerStats').textContent = `${cars.length} cars · ${houses.length} houses · ${partners.length} partners · ${reviews.length} reviews`;
       document.getElementById('lastUpdated').innerHTML = `<i class="fas fa-circle" style="color:#d4af37;"></i> Live`;
 
@@ -550,44 +651,54 @@
     function setupRealtimeListeners() {
       onValue(ref(db, 'epitome_cars'), (snapshot) => {
         allCars = snapshot.val() || {};
-        updateStats();
-        loadingOverlay.classList.add('hide');
+        checkAllDataLoaded();
       });
 
       onValue(ref(db, 'epitome_houses'), (snapshot) => {
         allHouses = snapshot.val() || {};
-        updateStats();
+        checkAllDataLoaded();
       });
 
       onValue(ref(db, 'epitome_partners'), (snapshot) => {
         allPartners = snapshot.val() || {};
-        updateStats();
+        checkAllDataLoaded();
       });
 
       onValue(ref(db, 'epitome_reviews'), (snapshot) => {
         allReviews = snapshot.val() || {};
-        updateStats();
+        checkAllDataLoaded();
       });
 
       onValue(ref(db, 'epitome_sales'), (snapshot) => {
         allSales = snapshot.val() || {};
-        updateStats();
+        checkAllDataLoaded();
       });
 
       onValue(ref(db, 'epitome_testdrives'), (snapshot) => {
         allTestDrives = snapshot.val() || {};
-        updateStats();
+        checkAllDataLoaded();
       });
 
       onValue(ref(db, 'epitome_homevisits'), (snapshot) => {
         allHomeVisits = snapshot.val() || {};
-        updateStats();
+        checkAllDataLoaded();
       });
 
       onValue(ref(db, 'epitome_interiors'), (snapshot) => {
         allInteriors = snapshot.val() || {};
-        updateStats();
+        checkAllDataLoaded();
       });
+    }
+
+    function checkAllDataLoaded() {
+      // Once we have at least some data from Firebase, build the real UI
+      if (!dataLoaded) {
+        dataLoaded = true;
+        buildRealContent();
+        updateStats();
+      } else {
+        updateStats();
+      }
     }
 
     onAuthStateChanged(auth, async (user) => {
@@ -608,7 +719,14 @@
       }
     });
 
-    setTimeout(() => loadingOverlay.classList.add('hide'), 8000);
+    // Fallback: if Firebase doesn't respond within 8 seconds, show empty states
+    setTimeout(() => {
+      if (!dataLoaded) {
+        dataLoaded = true;
+        buildRealContent();
+        updateStats();
+      }
+    }, 8000);
   </script>
 </body>
 </html>
