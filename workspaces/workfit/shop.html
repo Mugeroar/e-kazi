@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>KazInni WorkFit · Shop Manager</title>
+  <meta name="theme-color" content="#f97316">
+  <link rel="icon" type="image/png" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --orange: #f97316; --orange-dark: #c2410c; --orange-light: #fb923c;
+      --card-bg: #ffffff; --text-primary: #1e293b; --text-muted: #64748b;
+      --border-light: #fed7aa; --success: #10b981; --warning: #f59e0b; --danger: #ef4444;
+      --skeleton-base: #e2e8f0; --skeleton-shine: #f1f5f9;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(145deg, #fff7ed 0%, #ffffff 100%);
+      color: var(--text-primary); min-height: 100vh; display: flex; flex-direction: column;
+    }
+    .navbar {
+      background: rgba(255,255,255,0.95); backdrop-filter: blur(16px);
+      padding: 0.7rem 3%; display: flex; justify-content: space-between; align-items: center;
+      border-bottom: 2px solid rgba(249,115,22,0.3); position: sticky; top: 0; z-index: 2000;
+      flex-wrap: wrap; gap: 10px;
+    }
+    .logo { display: flex; align-items: center; gap: 12px; cursor: pointer; }
+    .logo-img { height: 40px; width: 40px; border-radius: 12px; object-fit: contain; background: white; box-shadow: 0 6px 16px rgba(249,115,22,0.3); }
+    .logo-text { font-weight: 800; font-size: 1.3rem; background: linear-gradient(145deg, #fb923c, #c2410c); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .logo-text span { font-weight: 600; font-size: 0.8rem; background: #f97316; -webkit-text-fill-color: #f97316; margin-left: 4px; }
+    .nav-right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .nav-btn {
+      background: rgba(249,115,22,0.1); border: 1px solid var(--orange); padding: 0.5rem 1rem;
+      border-radius: 40px; color: var(--orange-dark); font-weight: 600; font-size: 0.75rem;
+      cursor: pointer; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; transition: 0.2s; white-space: nowrap;
+    }
+    .nav-btn:hover { background: var(--orange); color: white; }
+    .container { max-width: 1300px; margin: 0 auto; padding: 2rem 3%; flex: 1; width: 100%; }
+    .page-header { margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+    .page-header h1 { font-size: 2rem; font-weight: 800; display: flex; align-items: center; gap: 12px; }
+    .page-header h1 i { color: var(--orange-dark); background: white; padding: 10px; border-radius: 14px; box-shadow: 0 8px 16px rgba(249,115,22,0.08); }
+    .add-btn {
+      background: var(--orange); color: white; border: none; padding: 0.7rem 1.5rem; border-radius: 40px;
+      font-weight: 700; font-size: 0.85rem; display: flex; align-items: center; gap: 8px; cursor: pointer;
+      text-decoration: none; transition: 0.2s; box-shadow: 0 6px 14px rgba(249,115,22,0.25);
+    }
+    .add-btn:hover { background: var(--orange-dark); transform: translateY(-1px); }
+    .stats-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: white; border-radius: 20px; padding: 1.2rem; border: 1px solid #fed7aa;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.02); display: flex; align-items: center; justify-content: space-between;
+    }
+    .stat-left h4 { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; color: #64748b; margin-bottom: 0.3rem; }
+    .stat-number { font-size: 1.8rem; font-weight: 800; color: #0f172a; }
+    .stat-icon { width: 44px; height: 44px; background: #fff7ed; border-radius: 14px; display: flex; align-items: center; justify-content: center; color: #c2410c; font-size: 1.2rem; }
+    .filter-bar {
+      display: flex; gap: 12px; margin-bottom: 1.5rem; flex-wrap: wrap; align-items: center;
+      background: white; padding: 0.8rem 1.2rem; border-radius: 20px; border: 1px solid #fed7aa;
+    }
+    .filter-bar input, .filter-bar select {
+      padding: 0.5rem 1rem; border: 1px solid #e2e8f0; border-radius: 30px;
+      font-family: 'Inter', sans-serif; font-size: 0.8rem; background: #f8fafc; outline: none;
+    }
+    .filter-bar input:focus, .filter-bar select:focus { border-color: #f97316; }
+    .filter-bar input { flex: 1; min-width: 180px; }
+    .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+    .product-card {
+      background: white; border-radius: 20px; padding: 1.4rem; border: 1px solid #fed7aa;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.02); transition: all 0.25s; display: flex; flex-direction: column; gap: 12px;
+    }
+    .product-card:hover { transform: translateY(-4px); box-shadow: 0 18px 30px -10px rgba(194,65,12,0.12); border-color: #fb923c; }
+    .product-header { display: flex; gap: 14px; align-items: center; }
+    .product-icon {
+      width: 52px; height: 52px; border-radius: 16px; background: linear-gradient(145deg, #fff7ed, #ffffff);
+      display: flex; align-items: center; justify-content: center; font-size: 1.8rem; border: 1px solid #fed7aa;
+    }
+    .product-info { flex: 1; }
+    .product-name { font-weight: 700; font-size: 1rem; }
+    .product-category { font-size: 0.7rem; color: #64748b; margin-top: 2px; display: flex; align-items: center; gap: 6px; }
+    .product-meta { display: flex; gap: 8px; flex-wrap: wrap; font-size: 0.7rem; color: #475569; }
+    .product-meta span { background: #f8fafc; padding: 0.2rem 0.7rem; border-radius: 20px; display: flex; align-items: center; gap: 4px; }
+    .product-stats { display: flex; justify-content: space-between; background: #fff7ed; border-radius: 14px; padding: 0.8rem; }
+    .product-stat { text-align: center; }
+    .product-stat strong { display: block; font-size: 1.1rem; color: #0f172a; }
+    .product-stat small { font-size: 0.6rem; color: #64748b; text-transform: uppercase; }
+    .product-actions { display: flex; gap: 8px; }
+    .product-actions button {
+      flex: 1; padding: 0.5rem; border-radius: 30px; font-weight: 600; font-size: 0.7rem; border: 1px solid #e2e8f0;
+      background: white; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 4px;
+    }
+    .product-actions button:hover { background: #f97316; color: white; border-color: #f97316; }
+    .badge {
+      padding: 0.15rem 0.5rem; border-radius: 12px; font-size: 0.6rem; font-weight: 600;
+    }
+    .badge.supplements { background: #d1fae5; color: #065f46; }
+    .badge.apparel { background: #ede9fe; color: #5b21b6; }
+    .badge.equipment { background: #fef3c7; color: #92400e; }
+    .badge.accessories { background: #e0f2fe; color: #0369a1; }
+    .badge.nutrition { background: #fee2e2; color: #991b1b; }
+    .status-tag {
+      padding: 0.2rem 0.7rem; border-radius: 20px; font-size: 0.65rem; font-weight: 700;
+    }
+    .status-tag.in_stock { background: #d1fae5; color: #065f46; }
+    .status-tag.low_stock { background: #fef3c7; color: #b45309; }
+    .status-tag.out_of_stock { background: #fee2e2; color: #991b1b; }
+    .empty-state { text-align: center; padding: 3rem; color: #94a3b8; background: white; border-radius: 20px; border: 1px solid #fed7aa; }
+    .footer { text-align: center; padding: 1.2rem; color: #94a3b8; font-size: 0.75rem; border-top: 1px solid #fed7aa; }
+
+    /* Modal Styles */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
+      display: flex; justify-content: center; align-items: center; z-index: 3000;
+      opacity: 0; visibility: hidden; transition: all 0.3s;
+    }
+    .modal-overlay.active { opacity: 1; visibility: visible; }
+    .modal {
+      background: white; border-radius: 24px; padding: 2rem; width: 90%; max-width: 600px;
+      max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    }
+    .modal-header {
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;
+    }
+    .modal-header h2 { font-size: 1.3rem; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+    .modal-close {
+      width: 36px; height: 36px; border-radius: 50%; border: 1px solid #e2e8f0;
+      background: white; cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center;
+    }
+    .modal-close:hover { background: #fee2e2; color: #ef4444; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .form-group { display: flex; flex-direction: column; gap: 0.3rem; }
+    .form-group.full { grid-column: span 2; }
+    .form-group label { font-weight: 600; font-size: 0.75rem; color: #334155; }
+    .form-group input, .form-group select, .form-group textarea {
+      padding: 0.6rem 1rem; border: 1px solid #e2e8f0; border-radius: 12px;
+      font-family: 'Inter', sans-serif; font-size: 0.85rem; background: #f8fafc; outline: none;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      border-color: #f97316; box-shadow: 0 0 0 3px rgba(249,115,22,0.1);
+    }
+    .submit-btn {
+      background: var(--orange); color: white; border: none; padding: 0.8rem; border-radius: 40px;
+      font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: 0.2s; width: 100%; margin-top: 1rem;
+    }
+    .submit-btn:hover { background: var(--orange-dark); }
+    .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .message { padding: 0.7rem; border-radius: 12px; margin-bottom: 1rem; font-size: 0.75rem; display: none; }
+    .message.success { background: #d1fae5; color: #065f46; display: block; }
+    .message.error { background: #fee2e2; color: #991b1b; display: block; }
+    .loading-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.8); backdrop-filter:blur(4px); display:flex; justify-content:center; align-items:center; z-index:999; }
+    .loading-overlay.hide { display: none; }
+    .spinner { width:40px; height:40px; border:3px solid #fed7aa; border-top-color:#c2410c; border-radius:50%; animation:spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 768px) {
+      .container { padding: 1.2rem 1rem; }
+      .products-grid { grid-template-columns: 1fr; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      .form-grid { grid-template-columns: 1fr; }
+      .form-group.full { grid-column: span 1; }
+    }
+  </style>
+</head>
+<body>
+  <div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div></div>
+
+  <!-- Add Product Modal -->
+  <div class="modal-overlay" id="addProductModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2><i class="fas fa-plus-circle" style="color:#c2410c;"></i> Add Product</h2>
+        <button class="modal-close" id="closeModalBtn"><i class="fas fa-times"></i></button>
+      </div>
+      <div id="modalMessage" class="message"></div>
+      <form id="productForm">
+        <div class="form-grid">
+          <div class="form-group full">
+            <label>Product Name *</label>
+            <input type="text" id="productName" placeholder="e.g. Whey Protein 2kg" required>
+          </div>
+          <div class="form-group">
+            <label>Category *</label>
+            <select id="productCategory" required>
+              <option value="">Select category</option>
+              <option value="Supplements">Supplements</option>
+              <option value="Apparel">Apparel</option>
+              <option value="Equipment">Equipment</option>
+              <option value="Accessories">Accessories</option>
+              <option value="Nutrition">Nutrition</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Brand</label>
+            <input type="text" id="productBrand" placeholder="e.g. Optimum Nutrition">
+          </div>
+          <div class="form-group">
+            <label>Price (KES) *</label>
+            <input type="number" id="productPrice" placeholder="e.g. 4500" min="0" required>
+          </div>
+          <div class="form-group">
+            <label>Stock Quantity *</label>
+            <input type="number" id="productStock" placeholder="e.g. 50" min="0" required>
+          </div>
+          <div class="form-group">
+            <label>SKU / Code</label>
+            <input type="text" id="productSku" placeholder="e.g. WF-SUP-001">
+          </div>
+          <div class="form-group">
+            <label>Status</label>
+            <select id="productStatus">
+              <option value="in_stock">In Stock</option>
+              <option value="low_stock">Low Stock</option>
+              <option value="out_of_stock">Out of Stock</option>
+            </select>
+          </div>
+          <div class="form-group full">
+            <label>Description</label>
+            <textarea id="productDescription" rows="2" placeholder="Product details, usage instructions..."></textarea>
+          </div>
+        </div>
+        <button type="submit" class="submit-btn" id="submitBtn">
+          <i class="fas fa-save"></i> Add Product
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <nav class="navbar">
+    <div class="logo" onclick="window.location.href='/workspaces/workfit/dashboard.html'">
+      <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png" alt="Logo" class="logo-img">
+      <span class="logo-text">WorkFit<span>Club</span></span>
+    </div>
+    <div class="nav-right">
+      <a href="/workspaces/workfit/dashboard.html" class="nav-btn"><i class="fas fa-arrow-left"></i> Dashboard</a>
+      <button class="add-btn" id="openModalBtn"><i class="fas fa-plus"></i> Add Product</button>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="page-header">
+      <h1><i class="fas fa-store"></i> WorkFit Shop</h1>
+    </div>
+
+    <!-- Stats Overview -->
+    <div class="stats-grid" id="statsGrid">
+      <div class="stat-card">
+        <div class="stat-left"><h4>Total Products</h4><div class="stat-number" id="totalProducts">0</div></div>
+        <div class="stat-icon"><i class="fas fa-boxes-stacked"></i></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-left"><h4>In Stock</h4><div class="stat-number" id="inStock">0</div></div>
+        <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-left"><h4>Low Stock</h4><div class="stat-number" id="lowStock">0</div></div>
+        <div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-left"><h4>Inventory Value (KES)</h4><div class="stat-number" id="inventoryValue">0</div></div>
+        <div class="stat-icon"><i class="fas fa-coins"></i></div>
+      </div>
+    </div>
+
+    <div class="filter-bar">
+      <i class="fas fa-search" style="color:#94a3b8;"></i>
+      <input type="text" id="searchInput" placeholder="Search products by name, brand or category...">
+      <select id="categoryFilter">
+        <option value="all">All Categories</option>
+        <option value="supplements">Supplements</option>
+        <option value="apparel">Apparel</option>
+        <option value="equipment">Equipment</option>
+        <option value="accessories">Accessories</option>
+        <option value="nutrition">Nutrition</option>
+      </select>
+      <select id="statusFilter">
+        <option value="all">All Status</option>
+        <option value="in_stock">In Stock</option>
+        <option value="low_stock">Low Stock</option>
+        <option value="out_of_stock">Out of Stock</option>
+      </select>
+    </div>
+
+    <div id="productsContainer" class="products-grid">
+      <div class="empty-state"><i class="fas fa-sync-alt fa-spin"></i><p>Loading products...</p></div>
+    </div>
+  </div>
+  <div class="footer"><i class="far fa-copyright"></i> 2026 WorkFit Club · Shop Management</div>
+
+  <script type="importmap">
+    { "imports": { "firebase/app": "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js", "firebase/auth": "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js", "firebase/database": "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js" } }
+  </script>
+
+  <script type="module">
+    import { initializeApp } from "firebase/app";
+    import { getAuth, onAuthStateChanged } from "firebase/auth";
+    import { getDatabase, ref, onValue, push, serverTimestamp } from "firebase/database";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+      authDomain: "mugera-e51cc.firebaseapp.com",
+      databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "mugera-e51cc",
+      storageBucket: "mugera-e51cc.firebasestorage.app",
+      messagingSenderId: "1024868637509",
+      appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+    let allProducts = {};
+
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const productsContainer = document.getElementById('productsContainer');
+    const searchInput = document.getElementById('searchInput');
+    const categoryFilter = document.getElementById('categoryFilter');
+    const statusFilter = document.getElementById('statusFilter');
+    const addProductModal = document.getElementById('addProductModal');
+    const openModalBtn = document.getElementById('openModalBtn');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const productForm = document.getElementById('productForm');
+    const modalMessage = document.getElementById('modalMessage');
+    const submitBtn = document.getElementById('submitBtn');
+    const totalProductsEl = document.getElementById('totalProducts');
+    const inStockEl = document.getElementById('inStock');
+    const lowStockEl = document.getElementById('lowStock');
+    const inventoryValueEl = document.getElementById('inventoryValue');
+
+    function escapeHtml(str) {
+      return String(str || '').replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : m === '>' ? '&gt;' : m);
+    }
+
+    function getProductIcon(category) {
+      const c = (category || '').toLowerCase();
+      if (c.includes('supplement')) return '🥤';
+      if (c.includes('apparel')) return '👕';
+      if (c.includes('equipment')) return '🏋️';
+      if (c.includes('accessor')) return '🎒';
+      if (c.includes('nutrition')) return '🍎';
+      return '📦';
+    }
+
+    function getCategoryBadge(category) {
+      const c = (category || '').toLowerCase();
+      if (c.includes('supplement')) return 'supplements';
+      if (c.includes('apparel')) return 'apparel';
+      if (c.includes('equipment')) return 'equipment';
+      if (c.includes('accessor')) return 'accessories';
+      if (c.includes('nutrition')) return 'nutrition';
+      return 'supplements';
+    }
+
+    function getStatusClass(status) {
+      const s = (status || 'in_stock').toLowerCase();
+      if (s === 'in_stock') return 'in_stock';
+      if (s === 'low_stock') return 'low_stock';
+      if (s === 'out_of_stock') return 'out_of_stock';
+      return 'in_stock';
+    }
+
+    function getStatusLabel(status) {
+      const s = (status || 'in_stock').toLowerCase();
+      if (s === 'in_stock') return 'In Stock';
+      if (s === 'low_stock') return 'Low Stock';
+      if (s === 'out_of_stock') return 'Out of Stock';
+      return 'In Stock';
+    }
+
+    function formatCurrency(amount) {
+      if (!amount) return '0';
+      const num = Number(amount);
+      if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+      if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+      return num.toLocaleString();
+    }
+
+    function updateStats() {
+      const products = Object.values(allProducts).filter(p => p && p.name);
+      const inStock = products.filter(p => (p.status || 'in_stock').toLowerCase() === 'in_stock').length;
+      const lowStock = products.filter(p => (p.status || '').toLowerCase() === 'low_stock').length;
+      const totalVal = products.reduce((sum, p) => sum + (Number(p.price) || 0) * (Number(p.stock) || 0), 0);
+
+      totalProductsEl.textContent = products.length;
+      inStockEl.textContent = inStock;
+      lowStockEl.textContent = lowStock;
+      inventoryValueEl.textContent = formatCurrency(totalVal);
+    }
+
+    function renderProducts() {
+      const searchTerm = searchInput.value.toLowerCase();
+      const catVal = categoryFilter.value;
+      const statVal = statusFilter.value;
+
+      let products = Object.entries(allProducts).map(([id, data]) => ({ id, ...data })).filter(p => p && p.name);
+
+      if (catVal !== 'all') {
+        products = products.filter(p => (p.category || '').toLowerCase().includes(catVal));
+      }
+      if (statVal !== 'all') {
+        products = products.filter(p => (p.status || 'in_stock').toLowerCase() === statVal);
+      }
+      if (searchTerm) {
+        products = products.filter(p =>
+          (p.name || '').toLowerCase().includes(searchTerm) ||
+          (p.brand || '').toLowerCase().includes(searchTerm) ||
+          (p.category || '').toLowerCase().includes(searchTerm)
+        );
+      }
+
+      updateStats();
+
+      if (!products.length) {
+        productsContainer.innerHTML = `<div class="empty-state"><i class="fas fa-store-slash"></i><p>No products found. <a href="#" id="addFirstLink">Add your first product</a></p></div>`;
+        document.getElementById('addFirstLink')?.addEventListener('click', (e) => {
+          e.preventDefault();
+          openModal();
+        });
+        return;
+      }
+
+      productsContainer.innerHTML = products.map(p => {
+        const name = escapeHtml(p.name || 'Product');
+        const category = escapeHtml(p.category || 'General');
+        const brand = escapeHtml(p.brand || '');
+        const price = p.price || 0;
+        const stock = p.stock || 0;
+        const sku = p.sku || '';
+        const status = p.status || 'in_stock';
+        const statusLabel = getStatusLabel(status);
+        const totalVal = Number(price) * Number(stock);
+
+        return `
+          <div class="product-card">
+            <div class="product-header">
+              <div class="product-icon">${getProductIcon(category)}</div>
+              <div class="product-info">
+                <div class="product-name">${name}</div>
+                <div class="product-category">
+                  <span class="badge ${getCategoryBadge(category)}">${category}</span>
+                  ${brand ? `<span style="font-size:0.65rem;color:#64748b;">${brand}</span>` : ''}
+                </div>
+              </div>
+            </div>
+            <div class="product-meta">
+              ${sku ? `<span><i class="fas fa-barcode"></i> ${escapeHtml(sku)}</span>` : ''}
+              <span class="status-tag ${getStatusClass(status)}">${statusLabel}</span>
+            </div>
+            <div class="product-stats">
+              <div class="product-stat"><strong>KES ${formatCurrency(price)}</strong><small>Price</small></div>
+              <div class="product-stat"><strong>${stock}</strong><small>In Stock</small></div>
+              <div class="product-stat"><strong>KES ${formatCurrency(totalVal)}</strong><small>Total Value</small></div>
+            </div>
+            <div class="product-actions">
+              <button onclick="alert('Edit: ${name}')"><i class="fas fa-pen"></i> Edit</button>
+              <button onclick="alert('Restock: ${name}')"><i class="fas fa-truck"></i> Restock</button>
+              <button onclick="if(confirm('Delete ${name}?')) deleteProduct('${p.id}')"><i class="fas fa-trash"></i> Delete</button>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    function openModal() {
+      addProductModal.classList.add('active');
+      productForm.reset();
+      modalMessage.className = 'message';
+      modalMessage.textContent = '';
+    }
+
+    function closeModal() {
+      addProductModal.classList.remove('active');
+    }
+
+    window.deleteProduct = async function(productId) {
+      try {
+        const { remove } = await import("firebase/database");
+        await remove(ref(db, `workfit_shop_products/${productId}`));
+        alert('Product deleted successfully.');
+      } catch (error) {
+        alert('Failed to delete product.');
+      }
+    };
+
+    openModalBtn.addEventListener('click', openModal);
+    closeModalBtn.addEventListener('click', closeModal);
+    addProductModal.addEventListener('click', (e) => {
+      if (e.target === addProductModal) closeModal();
+    });
+
+    productForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('productName').value.trim();
+      const category = document.getElementById('productCategory').value;
+      const price = document.getElementById('productPrice').value;
+      const stock = document.getElementById('productStock').value;
+      
+      if (!name || !category || !price || !stock) {
+        modalMessage.textContent = 'Please fill in all required fields.';
+        modalMessage.className = 'message error';
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
+      const productData = {
+        name: name,
+        category: category,
+        brand: document.getElementById('productBrand').value.trim(),
+        price: Number(price) || 0,
+        stock: Number(stock) || 0,
+        sku: document.getElementById('productSku').value.trim(),
+        status: document.getElementById('productStatus').value,
+        description: document.getElementById('productDescription').value.trim(),
+        createdAt: serverTimestamp(),
+        timestamp: Date.now()
+      };
+
+      try {
+        await push(ref(db, 'workfit_shop_products'), productData);
+        modalMessage.textContent = '✅ Product added to shop!';
+        modalMessage.className = 'message success';
+        productForm.reset();
+        setTimeout(() => {
+          closeModal();
+          modalMessage.className = 'message';
+        }, 1500);
+      } catch (error) {
+        console.error('Error adding product:', error);
+        modalMessage.textContent = '❌ Failed to add product.';
+        modalMessage.className = 'message error';
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-save"></i> Add Product';
+      }
+    });
+
+    searchInput.addEventListener('input', renderProducts);
+    categoryFilter.addEventListener('change', renderProducts);
+    statusFilter.addEventListener('change', renderProducts);
+
+    onAuthStateChanged(auth, (user) => {
+      if (!user) { window.location.href = '/'; return; }
+
+      onValue(ref(db, 'workfit_shop_products'), (snapshot) => {
+        allProducts = snapshot.val() || {};
+        renderProducts();
+        loadingOverlay.classList.add('hide');
+      });
+    });
+
+    setTimeout(() => loadingOverlay.classList.add('hide'), 8000);
+  </script>
+</body>
+</html>
