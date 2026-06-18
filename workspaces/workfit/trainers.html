@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>KazInni WorkFit · Trainers</title>
+  <meta name="theme-color" content="#f97316">
+  <link rel="icon" type="image/png" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --orange: #f97316; --orange-dark: #c2410c; --orange-light: #fb923c;
+      --card-bg: #ffffff; --text-primary: #1e293b; --text-muted: #64748b;
+      --border-light: #fed7aa; --success: #10b981; --warning: #f59e0b; --info: #3b82f6;
+      --skeleton-base: #e2e8f0; --skeleton-shine: #f1f5f9;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(145deg, #fff7ed 0%, #ffffff 100%);
+      color: var(--text-primary); min-height: 100vh; display: flex; flex-direction: column;
+    }
+    .navbar {
+      background: rgba(255,255,255,0.95); backdrop-filter: blur(16px);
+      padding: 0.7rem 3%; display: flex; justify-content: space-between; align-items: center;
+      border-bottom: 2px solid rgba(249,115,22,0.3); position: sticky; top: 0; z-index: 2000;
+      flex-wrap: wrap; gap: 10px;
+    }
+    .logo { display: flex; align-items: center; gap: 12px; cursor: pointer; }
+    .logo-img { height: 40px; width: 40px; border-radius: 12px; object-fit: contain; background: white; box-shadow: 0 6px 16px rgba(249,115,22,0.3); }
+    .logo-text { font-weight: 800; font-size: 1.3rem; background: linear-gradient(145deg, #fb923c, #c2410c); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .logo-text span { font-weight: 600; font-size: 0.8rem; background: #f97316; -webkit-text-fill-color: #f97316; margin-left: 4px; }
+    .nav-right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .nav-btn {
+      background: rgba(249,115,22,0.1); border: 1px solid var(--orange); padding: 0.5rem 1rem;
+      border-radius: 40px; color: var(--orange-dark); font-weight: 600; font-size: 0.75rem;
+      cursor: pointer; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; transition: 0.2s; white-space: nowrap;
+    }
+    .nav-btn:hover { background: var(--orange); color: white; }
+    .container { max-width: 1300px; margin: 0 auto; padding: 2rem 3%; flex: 1; width: 100%; }
+    .page-header { margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+    .page-header h1 { font-size: 2rem; font-weight: 800; display: flex; align-items: center; gap: 12px; }
+    .page-header h1 i { color: var(--orange-dark); background: white; padding: 10px; border-radius: 14px; box-shadow: 0 8px 16px rgba(249,115,22,0.08); }
+    .add-btn {
+      background: var(--orange); color: white; border: none; padding: 0.7rem 1.5rem; border-radius: 40px;
+      font-weight: 700; font-size: 0.85rem; display: flex; align-items: center; gap: 8px; cursor: pointer;
+      text-decoration: none; transition: 0.2s; box-shadow: 0 6px 14px rgba(249,115,22,0.25);
+    }
+    .add-btn:hover { background: var(--orange-dark); transform: translateY(-1px); }
+    .filter-bar {
+      display: flex; gap: 12px; margin-bottom: 1.5rem; flex-wrap: wrap; align-items: center;
+      background: white; padding: 0.8rem 1.2rem; border-radius: 20px; border: 1px solid #fed7aa;
+    }
+    .filter-bar input, .filter-bar select {
+      padding: 0.5rem 1rem; border: 1px solid #e2e8f0; border-radius: 30px;
+      font-family: 'Inter', sans-serif; font-size: 0.8rem; background: #f8fafc; outline: none;
+    }
+    .filter-bar input:focus, .filter-bar select:focus { border-color: #f97316; }
+    .filter-bar input { flex: 1; min-width: 180px; }
+    .trainers-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+    .trainer-card {
+      background: white; border-radius: 20px; padding: 1.4rem; border: 1px solid #fed7aa;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.02); transition: all 0.25s; display: flex; flex-direction: column; gap: 12px;
+    }
+    .trainer-card:hover { transform: translateY(-4px); box-shadow: 0 18px 30px -10px rgba(194,65,12,0.12); border-color: #fb923c; }
+    .trainer-header { display: flex; gap: 14px; align-items: center; }
+    .trainer-avatar {
+      width: 52px; height: 52px; border-radius: 16px; background: linear-gradient(145deg, #fff7ed, #ffffff);
+      display: flex; align-items: center; justify-content: center; font-size: 1.8rem; border: 1px solid #fed7aa;
+    }
+    .trainer-info { flex: 1; }
+    .trainer-name { font-weight: 700; font-size: 1rem; }
+    .trainer-specialty { font-size: 0.7rem; color: #64748b; display: flex; align-items: center; gap: 6px; margin-top: 2px; }
+    .trainer-meta { display: flex; gap: 8px; flex-wrap: wrap; font-size: 0.7rem; color: #475569; }
+    .trainer-meta span { background: #f8fafc; padding: 0.2rem 0.7rem; border-radius: 20px; display: flex; align-items: center; gap: 4px; }
+    .trainer-stats { display: flex; justify-content: space-between; background: #fff7ed; border-radius: 14px; padding: 0.8rem; }
+    .trainer-stat { text-align: center; }
+    .trainer-stat strong { display: block; font-size: 1.2rem; color: #0f172a; }
+    .trainer-stat small { font-size: 0.6rem; color: #64748b; text-transform: uppercase; }
+    .trainer-actions { display: flex; gap: 8px; }
+    .trainer-actions button {
+      flex: 1; padding: 0.5rem; border-radius: 30px; font-weight: 600; font-size: 0.7rem; border: 1px solid #e2e8f0;
+      background: white; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 4px;
+    }
+    .trainer-actions button:hover { background: #f97316; color: white; border-color: #f97316; }
+    .status-tag {
+      padding: 0.2rem 0.7rem; border-radius: 20px; font-size: 0.65rem; font-weight: 700;
+    }
+    .status-tag.available { background: #d1fae5; color: #065f46; }
+    .status-tag.busy { background: #fef3c7; color: #b45309; }
+    .status-tag.on_leave { background: #fee2e2; color: #991b1b; }
+    .badge {
+      padding: 0.15rem 0.5rem; border-radius: 12px; font-size: 0.6rem; font-weight: 600;
+    }
+    .badge.yoga { background: #ede9fe; color: #5b21b6; }
+    .badge.cardio { background: #fee2e2; color: #991b1b; }
+    .badge.strength { background: #fef3c7; color: #92400e; }
+    .badge.hiit { background: #dbeafe; color: #1e40af; }
+    .badge.zumba { background: #fce7f3; color: #9d174d; }
+    .badge.pilates { background: #e0f2fe; color: #0369a1; }
+    .badge.crossfit { background: #f1f5f9; color: #0f172a; }
+    .badge.aerobics { background: #d1fae5; color: #065f46; }
+    .badge.spin { background: #fdf4ff; color: #a21caf; }
+    .empty-state { text-align: center; padding: 3rem; color: #94a3b8; background: white; border-radius: 20px; border: 1px solid #fed7aa; }
+    .footer { text-align: center; padding: 1.2rem; color: #94a3b8; font-size: 0.75rem; border-top: 1px solid #fed7aa; }
+
+    /* Modal Styles */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
+      display: flex; justify-content: center; align-items: center; z-index: 3000;
+      opacity: 0; visibility: hidden; transition: all 0.3s;
+    }
+    .modal-overlay.active { opacity: 1; visibility: visible; }
+    .modal {
+      background: white; border-radius: 24px; padding: 2rem; width: 90%; max-width: 600px;
+      max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    }
+    .modal-header {
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;
+    }
+    .modal-header h2 { font-size: 1.3rem; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+    .modal-close {
+      width: 36px; height: 36px; border-radius: 50%; border: 1px solid #e2e8f0;
+      background: white; cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center;
+    }
+    .modal-close:hover { background: #fee2e2; color: #ef4444; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .form-group { display: flex; flex-direction: column; gap: 0.3rem; }
+    .form-group.full { grid-column: span 2; }
+    .form-group label { font-weight: 600; font-size: 0.75rem; color: #334155; }
+    .form-group input, .form-group select, .form-group textarea {
+      padding: 0.6rem 1rem; border: 1px solid #e2e8f0; border-radius: 12px;
+      font-family: 'Inter', sans-serif; font-size: 0.85rem; background: #f8fafc; outline: none;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      border-color: #f97316; box-shadow: 0 0 0 3px rgba(249,115,22,0.1);
+    }
+    .submit-btn {
+      background: var(--orange); color: white; border: none; padding: 0.8rem; border-radius: 40px;
+      font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: 0.2s; width: 100%; margin-top: 1rem;
+    }
+    .submit-btn:hover { background: var(--orange-dark); }
+    .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .message { padding: 0.7rem; border-radius: 12px; margin-bottom: 1rem; font-size: 0.75rem; display: none; }
+    .message.success { background: #d1fae5; color: #065f46; display: block; }
+    .message.error { background: #fee2e2; color: #991b1b; display: block; }
+
+    @media (max-width: 768px) {
+      .container { padding: 1.2rem 1rem; }
+      .trainers-grid { grid-template-columns: 1fr; }
+      .form-grid { grid-template-columns: 1fr; }
+      .form-group.full { grid-column: span 1; }
+    }
+  </style>
+</head>
+<body>
+  <div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div></div>
+
+  <!-- Add Trainer Modal -->
+  <div class="modal-overlay" id="addTrainerModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2><i class="fas fa-user-plus" style="color:#c2410c;"></i> Add New Trainer</h2>
+        <button class="modal-close" id="closeModalBtn"><i class="fas fa-times"></i></button>
+      </div>
+      <div id="modalMessage" class="message"></div>
+      <form id="trainerForm">
+        <div class="form-grid">
+          <div class="form-group full">
+            <label>Full Name *</label>
+            <input type="text" id="trainerName" placeholder="e.g. James Ochieng" required>
+          </div>
+          <div class="form-group">
+            <label>Phone</label>
+            <input type="tel" id="trainerPhone" placeholder="+254 7XX XXX XXX">
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="trainerEmail" placeholder="trainer@email.com">
+          </div>
+          <div class="form-group">
+            <label>Specialty *</label>
+            <select id="trainerSpecialty" required>
+              <option value="">Select specialty</option>
+              <option value="Yoga">Yoga</option>
+              <option value="Cardio">Cardio</option>
+              <option value="Strength Training">Strength Training</option>
+              <option value="HIIT">HIIT</option>
+              <option value="Zumba">Zumba</option>
+              <option value="Pilates">Pilates</option>
+              <option value="CrossFit">CrossFit</option>
+              <option value="Spin">Spin</option>
+              <option value="Aerobics">Aerobics</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Certification</label>
+            <input type="text" id="trainerCert" placeholder="e.g. ACE, NASM">
+          </div>
+          <div class="form-group">
+            <label>Status</label>
+            <select id="trainerStatus">
+              <option value="available">Available</option>
+              <option value="busy">Busy</option>
+              <option value="on_leave">On Leave</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Assigned Club</label>
+            <select id="trainerClub">
+              <option value="">Not assigned</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Experience (years)</label>
+            <input type="number" id="trainerExperience" placeholder="e.g. 3" min="0">
+          </div>
+          <div class="form-group">
+            <label>Hourly Rate (KES)</label>
+            <input type="number" id="trainerRate" placeholder="e.g. 1500" min="0">
+          </div>
+          <div class="form-group full">
+            <label>Bio / Notes</label>
+            <textarea id="trainerBio" rows="2" placeholder="Brief background, achievements..."></textarea>
+          </div>
+        </div>
+        <button type="submit" class="submit-btn" id="submitBtn">
+          <i class="fas fa-save"></i> Save Trainer
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <nav class="navbar">
+    <div class="logo" onclick="window.location.href='/workspaces/workfit/dashboard.html'">
+      <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png" alt="Logo" class="logo-img">
+      <span class="logo-text">WorkFit<span>Club</span></span>
+    </div>
+    <div class="nav-right">
+      <a href="/workspaces/workfit/dashboard.html" class="nav-btn"><i class="fas fa-arrow-left"></i> Dashboard</a>
+      <button class="add-btn" id="openModalBtn"><i class="fas fa-plus"></i> Add Trainer</button>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="page-header">
+      <h1><i class="fas fa-users-gear"></i> Trainers</h1>
+    </div>
+
+    <div class="filter-bar">
+      <i class="fas fa-search" style="color:#94a3b8;"></i>
+      <input type="text" id="searchInput" placeholder="Search by name, specialty or club...">
+      <select id="statusFilter">
+        <option value="all">All Status</option>
+        <option value="available">Available</option>
+        <option value="busy">Busy</option>
+        <option value="on_leave">On Leave</option>
+      </select>
+      <select id="specialtyFilter">
+        <option value="all">All Specialties</option>
+        <option value="yoga">Yoga</option>
+        <option value="cardio">Cardio</option>
+        <option value="strength">Strength</option>
+        <option value="hiit">HIIT</option>
+        <option value="zumba">Zumba</option>
+        <option value="pilates">Pilates</option>
+        <option value="crossfit">CrossFit</option>
+        <option value="spin">Spin</option>
+      </select>
+    </div>
+
+    <div id="trainersContainer" class="trainers-grid">
+      <div class="empty-state"><i class="fas fa-sync-alt fa-spin"></i><p>Loading trainers...</p></div>
+    </div>
+  </div>
+  <div class="footer"><i class="far fa-copyright"></i> 2026 WorkFit Club · Trainer Management</div>
+
+  <script type="importmap">
+    { "imports": { "firebase/app": "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js", "firebase/auth": "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js", "firebase/database": "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js" } }
+  </script>
+
+  <script type="module">
+    import { initializeApp } from "firebase/app";
+    import { getAuth, onAuthStateChanged } from "firebase/auth";
+    import { getDatabase, ref, onValue, push, serverTimestamp, get } from "firebase/database";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+      authDomain: "mugera-e51cc.firebaseapp.com",
+      databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "mugera-e51cc",
+      storageBucket: "mugera-e51cc.firebasestorage.app",
+      messagingSenderId: "1024868637509",
+      appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+    let allTrainers = {};
+    let allClubs = {};
+
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const trainersContainer = document.getElementById('trainersContainer');
+    const searchInput = document.getElementById('searchInput');
+    const statusFilter = document.getElementById('statusFilter');
+    const specialtyFilter = document.getElementById('specialtyFilter');
+    const addTrainerModal = document.getElementById('addTrainerModal');
+    const openModalBtn = document.getElementById('openModalBtn');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const trainerForm = document.getElementById('trainerForm');
+    const modalMessage = document.getElementById('modalMessage');
+    const submitBtn = document.getElementById('submitBtn');
+    const trainerClubSelect = document.getElementById('trainerClub');
+
+    function escapeHtml(str) {
+      return String(str || '').replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : m === '>' ? '&gt;' : m);
+    }
+
+    function getTrainerIcon(specialty) {
+      const s = (specialty || '').toLowerCase();
+      if (s.includes('yoga')) return '🧘';
+      if (s.includes('cardio')) return '🏃';
+      if (s.includes('strength')) return '💪';
+      if (s.includes('hiit')) return '⚡';
+      if (s.includes('zumba')) return '💃';
+      if (s.includes('pilates')) return '🤸';
+      if (s.includes('crossfit')) return '🏋️';
+      if (s.includes('spin')) return '🚴';
+      return '💪';
+    }
+
+    function getSpecialtyBadge(specialty) {
+      const s = (specialty || '').toLowerCase();
+      if (s.includes('yoga')) return 'yoga';
+      if (s.includes('cardio')) return 'cardio';
+      if (s.includes('strength')) return 'strength';
+      if (s.includes('hiit')) return 'hiit';
+      if (s.includes('zumba')) return 'zumba';
+      if (s.includes('pilates')) return 'pilates';
+      if (s.includes('crossfit')) return 'crossfit';
+      if (s.includes('spin')) return 'spin';
+      return 'strength';
+    }
+
+    function populateClubDropdown() {
+      trainerClubSelect.innerHTML = '<option value="">Not assigned</option>';
+      Object.entries(allClubs).forEach(([id, club]) => {
+        if (club && (club.businessName || club.name)) {
+          const option = document.createElement('option');
+          option.value = id;
+          option.textContent = club.businessName || club.name;
+          trainerClubSelect.appendChild(option);
+        }
+      });
+    }
+
+    function renderTrainers() {
+      const searchTerm = searchInput.value.toLowerCase();
+      const statusVal = statusFilter.value;
+      const specialtyVal = specialtyFilter.value;
+
+      let trainers = Object.entries(allTrainers).map(([id, data]) => ({ id, ...data })).filter(t => t && t.name);
+
+      if (statusVal !== 'all') {
+        trainers = trainers.filter(t => (t.status || 'available').toLowerCase() === statusVal);
+      }
+      if (specialtyVal !== 'all') {
+        trainers = trainers.filter(t => (t.specialty || t.specialization || '').toLowerCase().includes(specialtyVal));
+      }
+      if (searchTerm) {
+        trainers = trainers.filter(t =>
+          (t.name || t.trainerName || '').toLowerCase().includes(searchTerm) ||
+          (t.specialty || '').toLowerCase().includes(searchTerm) ||
+          (t.clubName || t.assignedClub || '').toLowerCase().includes(searchTerm)
+        );
+      }
+
+      if (!trainers.length) {
+        trainersContainer.innerHTML = `<div class="empty-state"><i class="fas fa-user-slash"></i><p>No trainers found. <a href="#" id="addFirstLink">Add your first trainer</a></p></div>`;
+        document.getElementById('addFirstLink')?.addEventListener('click', (e) => {
+          e.preventDefault();
+          openModal();
+        });
+        return;
+      }
+
+      trainersContainer.innerHTML = trainers.map(t => {
+        const name = escapeHtml(t.name || t.trainerName || 'Trainer');
+        const specialty = escapeHtml(t.specialty || t.specialization || 'General');
+        const status = (t.status || 'available').toLowerCase();
+        const statusLabel = status.replace(/_/g, ' ');
+        const clubName = t.clubName || t.assignedClub || 'Unassigned';
+        const clubId = t.clubId || t.assignedClubId || '';
+        const cert = t.certification || '';
+        const experience = t.experience || t.yearsOfExperience || 0;
+        const rate = t.hourlyRate || t.rate || 0;
+        const phone = t.phone || '';
+        const email = t.email || '';
+
+        return `
+          <div class="trainer-card">
+            <div class="trainer-header">
+              <div class="trainer-avatar">${getTrainerIcon(specialty)}</div>
+              <div class="trainer-info">
+                <div class="trainer-name">${name}</div>
+                <div class="trainer-specialty">
+                  <span class="badge ${getSpecialtyBadge(specialty)}">${specialty}</span>
+                  <span class="status-tag ${status}">${statusLabel}</span>
+                </div>
+              </div>
+            </div>
+            <div class="trainer-meta">
+              ${cert ? `<span><i class="fas fa-certificate"></i> ${escapeHtml(cert)}</span>` : ''}
+              ${phone ? `<span><i class="fas fa-phone"></i> ${escapeHtml(phone)}</span>` : ''}
+              ${email ? `<span><i class="fas fa-envelope"></i> ${escapeHtml(email)}</span>` : ''}
+              <span><i class="fas fa-building"></i> ${escapeHtml(clubName)}</span>
+            </div>
+            <div class="trainer-stats">
+              <div class="trainer-stat"><strong>${experience}</strong><small>Years Exp</small></div>
+              <div class="trainer-stat"><strong>KES ${Number(rate).toLocaleString()}</strong><small>Hourly Rate</small></div>
+              <div class="trainer-stat"><strong>${t.sessions || 0}</strong><small>Sessions</small></div>
+            </div>
+            <div class="trainer-actions">
+              <button onclick="alert('Edit trainer: ${name}')"><i class="fas fa-pen"></i> Edit</button>
+              <button onclick="alert('Assign club to: ${name}')"><i class="fas fa-building"></i> Assign</button>
+              <button onclick="if(confirm('Delete ${name}?')) deleteTrainer('${t.id}')"><i class="fas fa-trash"></i> Delete</button>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    function openModal() {
+      addTrainerModal.classList.add('active');
+      populateClubDropdown();
+      trainerForm.reset();
+      modalMessage.className = 'message';
+      modalMessage.textContent = '';
+    }
+
+    function closeModal() {
+      addTrainerModal.classList.remove('active');
+    }
+
+    window.deleteTrainer = async function(trainerId) {
+      try {
+        const { remove } = await import("firebase/database");
+        await remove(ref(db, `workfit_trainers/${trainerId}`));
+        alert('Trainer deleted successfully.');
+      } catch (error) {
+        alert('Failed to delete trainer.');
+      }
+    };
+
+    openModalBtn.addEventListener('click', openModal);
+    closeModalBtn.addEventListener('click', closeModal);
+    addTrainerModal.addEventListener('click', (e) => {
+      if (e.target === addTrainerModal) closeModal();
+    });
+
+    trainerForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('trainerName').value.trim();
+      if (!name) {
+        modalMessage.textContent = 'Please enter trainer name.';
+        modalMessage.className = 'message error';
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
+      const selectedClubId = document.getElementById('trainerClub').value;
+      let clubName = '';
+      if (selectedClubId && allClubs[selectedClubId]) {
+        clubName = allClubs[selectedClubId].businessName || allClubs[selectedClubId].name || '';
+      }
+
+      const trainerData = {
+        name: name,
+        trainerName: name,
+        phone: document.getElementById('trainerPhone').value.trim(),
+        email: document.getElementById('trainerEmail').value.trim(),
+        specialty: document.getElementById('trainerSpecialty').value,
+        specialization: document.getElementById('trainerSpecialty').value,
+        certification: document.getElementById('trainerCert').value.trim(),
+        status: document.getElementById('trainerStatus').value,
+        clubId: selectedClubId,
+        assignedClubId: selectedClubId,
+        clubName: clubName,
+        assignedClub: clubName,
+        experience: Number(document.getElementById('trainerExperience').value) || 0,
+        yearsOfExperience: Number(document.getElementById('trainerExperience').value) || 0,
+        hourlyRate: Number(document.getElementById('trainerRate').value) || 0,
+        rate: Number(document.getElementById('trainerRate').value) || 0,
+        bio: document.getElementById('trainerBio').value.trim(),
+        sessions: 0,
+        createdAt: serverTimestamp(),
+        hiredAt: Date.now(),
+        timestamp: Date.now()
+      };
+
+      try {
+        await push(ref(db, 'workfit_trainers'), trainerData);
+        modalMessage.textContent = '✅ Trainer added successfully!';
+        modalMessage.className = 'message success';
+        trainerForm.reset();
+        setTimeout(() => {
+          closeModal();
+          modalMessage.className = 'message';
+        }, 1500);
+      } catch (error) {
+        console.error('Error adding trainer:', error);
+        modalMessage.textContent = '❌ Failed to add trainer. Please try again.';
+        modalMessage.className = 'message error';
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-save"></i> Save Trainer';
+      }
+    });
+
+    searchInput.addEventListener('input', renderTrainers);
+    statusFilter.addEventListener('change', renderTrainers);
+    specialtyFilter.addEventListener('change', renderTrainers);
+
+    onAuthStateChanged(auth, (user) => {
+      if (!user) { window.location.href = '/'; return; }
+
+      onValue(ref(db, 'workfit_trainers'), (snapshot) => {
+        allTrainers = snapshot.val() || {};
+        renderTrainers();
+        loadingOverlay.classList.add('hide');
+      });
+
+      onValue(ref(db, 'workfit_clubs'), (snapshot) => {
+        allClubs = snapshot.val() || {};
+        renderTrainers();
+      });
+    });
+
+    setTimeout(() => loadingOverlay.classList.add('hide'), 8000);
+  </script>
+</body>
+</html>
