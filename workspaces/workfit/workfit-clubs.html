@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>KazInni WorkFit · Club Manager</title>
+  <meta name="theme-color" content="#f97316">
+  <link rel="icon" type="image/png" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --orange: #f97316; --orange-dark: #c2410c; --orange-light: #fb923c;
+      --card-bg: #ffffff; --text-primary: #1e293b; --text-muted: #64748b;
+      --border-light: #fed7aa; --success: #10b981; --warning: #f59e0b; --info: #3b82f6;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(145deg, #fff7ed 0%, #ffffff 100%);
+      color: var(--text-primary); min-height: 100vh; display: flex; flex-direction: column;
+    }
+    .navbar {
+      background: rgba(255,255,255,0.95); backdrop-filter: blur(16px);
+      padding: 0.7rem 3%; display: flex; justify-content: space-between; align-items: center;
+      border-bottom: 2px solid rgba(249,115,22,0.3); position: sticky; top: 0; z-index: 2000;
+      flex-wrap: wrap; gap: 10px;
+    }
+    .logo { display: flex; align-items: center; gap: 12px; cursor: pointer; }
+    .logo-img { height: 40px; width: 40px; border-radius: 12px; object-fit: contain; background: white; box-shadow: 0 6px 16px rgba(249,115,22,0.3); }
+    .logo-text { font-weight: 800; font-size: 1.3rem; background: linear-gradient(145deg, #fb923c, #c2410c); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .logo-text span { font-weight: 600; font-size: 0.8rem; background: #f97316; -webkit-text-fill-color: #f97316; margin-left: 4px; }
+    .nav-right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .nav-btn {
+      background: rgba(249,115,22,0.1); border: 1px solid var(--orange); padding: 0.5rem 1rem;
+      border-radius: 40px; color: var(--orange-dark); font-weight: 600; font-size: 0.75rem;
+      cursor: pointer; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; transition: 0.2s; white-space: nowrap;
+    }
+    .nav-btn:hover { background: var(--orange); color: white; }
+    .container { max-width: 1300px; margin: 0 auto; padding: 2rem 3%; flex: 1; width: 100%; }
+    .page-header { margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+    .page-header h1 { font-size: 2rem; font-weight: 800; display: flex; align-items: center; gap: 12px; }
+    .page-header h1 i { color: var(--orange-dark); background: white; padding: 10px; border-radius: 14px; box-shadow: 0 8px 16px rgba(249,115,22,0.08); }
+    .add-btn {
+      background: var(--orange); color: white; border: none; padding: 0.7rem 1.5rem; border-radius: 40px;
+      font-weight: 700; font-size: 0.85rem; display: flex; align-items: center; gap: 8px; cursor: pointer;
+      text-decoration: none; transition: 0.2s; box-shadow: 0 6px 14px rgba(249,115,22,0.25);
+    }
+    .add-btn:hover { background: var(--orange-dark); transform: translateY(-1px); }
+    .search-bar {
+      background: white; border: 1px solid #fed7aa; border-radius: 40px; padding: 0.5rem 1.2rem;
+      display: flex; align-items: center; gap: 8px; margin-bottom: 2rem; box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+    }
+    .search-bar input { border: none; background: transparent; flex: 1; padding: 0.4rem 0; font-size: 0.9rem; outline: none; }
+    .search-bar i { color: #94a3b8; }
+    .clubs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+    .club-card {
+      background: white; border-radius: 20px; padding: 1.4rem; border: 1px solid #fed7aa;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.02); transition: all 0.25s; display: flex; flex-direction: column; gap: 12px;
+    }
+    .club-card:hover { transform: translateY(-4px); box-shadow: 0 18px 30px -10px rgba(194,65,12,0.12); border-color: #fb923c; }
+    .club-header { display: flex; justify-content: space-between; align-items: flex-start; }
+    .club-name { font-weight: 700; font-size: 1.1rem; display: flex; align-items: center; gap: 8px; }
+    .club-location { font-size: 0.75rem; color: #64748b; display: flex; align-items: center; gap: 4px; margin-top: 2px; }
+    .club-meta { display: flex; gap: 12px; flex-wrap: wrap; font-size: 0.7rem; color: #475569; margin-top: 0.3rem; }
+    .club-meta span { background: #f8fafc; padding: 0.2rem 0.7rem; border-radius: 20px; display: flex; align-items: center; gap: 4px; }
+    .club-stats { display: flex; justify-content: space-between; background: #fff7ed; border-radius: 14px; padding: 0.8rem; margin-top: 0.3rem; }
+    .club-stat { text-align: center; }
+    .club-stat strong { display: block; font-size: 1.2rem; color: #0f172a; }
+    .club-stat small { font-size: 0.6rem; color: #64748b; text-transform: uppercase; }
+    .club-actions { display: flex; gap: 8px; margin-top: 0.3rem; }
+    .club-actions button {
+      flex: 1; padding: 0.5rem; border-radius: 30px; font-weight: 600; font-size: 0.7rem; border: 1px solid #e2e8f0;
+      background: white; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 4px;
+    }
+    .club-actions button:hover { background: #f97316; color: white; border-color: #f97316; }
+    .empty-state { text-align: center; padding: 3rem; color: #94a3b8; background: white; border-radius: 20px; border: 1px solid #fed7aa; }
+    .footer { text-align: center; padding: 1.2rem; color: #94a3b8; font-size: 0.75rem; border-top: 1px solid #fed7aa; }
+    .loading-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.8); backdrop-filter:blur(4px); display:flex; justify-content:center; align-items:center; z-index:999; }
+    .loading-overlay.hide { display: none; }
+    .spinner { width:40px; height:40px; border:3px solid #fed7aa; border-top-color:#c2410c; border-radius:50%; animation:spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @media (max-width: 768px) {
+      .container { padding: 1.2rem 1rem; }
+      .clubs-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div></div>
+  <nav class="navbar">
+    <div class="logo" onclick="window.location.href='workfit-club-dashboard.html'">
+      <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png" alt="Logo" class="logo-img">
+      <span class="logo-text">WorkFit<span>Club</span></span>
+    </div>
+    <div class="nav-right">
+      <a href="workfit-club-dashboard.html" class="nav-btn"><i class="fas fa-arrow-left"></i> Dashboard</a>
+      <a href="map-operations.html?service=workfit" class="nav-btn" style="background:var(--orange); color:white;"><i class="fas fa-map-marked-alt"></i> Map</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="page-header">
+      <h1><i class="fas fa-building"></i> Club Manager</h1>
+      <a href="map-operations.html?service=workfit" class="add-btn"><i class="fas fa-plus-circle"></i> Register New Club</a>
+    </div>
+
+    <div class="search-bar">
+      <i class="fas fa-search"></i>
+      <input type="text" id="searchInput" placeholder="Search clubs by name, location or tier...">
+    </div>
+
+    <div id="clubsContainer" class="clubs-grid">
+      <div class="empty-state"><i class="fas fa-sync-alt fa-spin"></i><p>Loading clubs...</p></div>
+    </div>
+  </div>
+  <div class="footer"><i class="far fa-copyright"></i> 2026 WorkFit Club · Franchise Management</div>
+
+  <script type="importmap">
+    { "imports": { "firebase/app": "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js", "firebase/auth": "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js", "firebase/database": "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js" } }
+  </script>
+
+  <script type="module">
+    import { initializeApp } from "firebase/app";
+    import { getAuth, onAuthStateChanged } from "firebase/auth";
+    import { getDatabase, ref, onValue, get } from "firebase/database";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+      authDomain: "mugera-e51cc.firebaseapp.com",
+      databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "mugera-e51cc",
+      storageBucket: "mugera-e51cc.firebasestorage.app",
+      messagingSenderId: "1024868637509",
+      appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+    let allClubs = {};
+
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const clubsContainer = document.getElementById('clubsContainer');
+    const searchInput = document.getElementById('searchInput');
+
+    function escapeHtml(str) {
+      return String(str || '').replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : m === '>' ? '&gt;' : m);
+    }
+
+    function renderClubs(filterText = '') {
+      const clubsArray = Object.entries(allClubs).map(([id, data]) => ({ id, ...data })).filter(c => c && (c.businessName || c.name));
+      const filtered = clubsArray.filter(c => {
+        if (!filterText) return true;
+        const term = filterText.toLowerCase();
+        return (c.businessName || c.name || '').toLowerCase().includes(term) ||
+               (c.location || c.city || c.county || '').toLowerCase().includes(term) ||
+               (c.tier || '').toLowerCase().includes(term);
+      });
+
+      if (!filtered.length) {
+        clubsContainer.innerHTML = `<div class="empty-state"><i class="fas fa-building"></i><p>No clubs found. <a href="map-operations.html?service=workfit">Register via map</a></p></div>`;
+        return;
+      }
+
+      clubsContainer.innerHTML = filtered.map(club => {
+        const name = escapeHtml(club.businessName || club.name || 'Unnamed Club');
+        const location = escapeHtml(club.location || club.city || club.county || 'Location N/A');
+        const tier = (club.tier || 'standard').toUpperCase();
+        const members = club.members || club.totalMembers || 0;
+        const trainers = club.trainers || club.totalTrainers || 0;
+        const revenue = club.revenue || club.monthlyRevenue || 0;
+        const status = (club.status || 'active').toLowerCase();
+        const statusColor = status === 'active' ? '#10b981' : (status === 'inactive' ? '#ef4444' : '#f59e0b');
+
+        return `
+          <div class="club-card">
+            <div class="club-header">
+              <div>
+                <div class="club-name">🏋️ ${name}</div>
+                <div class="club-location"><i class="fas fa-map-pin"></i> ${location}</div>
+              </div>
+              <span style="background:${statusColor}15; color:${statusColor}; padding:0.2rem 0.7rem; border-radius:20px; font-size:0.65rem; font-weight:700;">${status}</span>
+            </div>
+            <div class="club-meta">
+              <span><i class="fas fa-crown"></i> ${tier}</span>
+              <span><i class="fas fa-calendar"></i> ${club.established || '—'}</span>
+            </div>
+            <div class="club-stats">
+              <div class="club-stat"><strong>${members}</strong><small>Members</small></div>
+              <div class="club-stat"><strong>${trainers}</strong><small>Trainers</small></div>
+              <div class="club-stat"><strong>KES ${Number(revenue).toLocaleString()}</strong><small>Revenue</small></div>
+            </div>
+            <div class="club-actions">
+              <button onclick="window.location.href='workfit-trainers.html?club=${club.id}'"><i class="fas fa-users"></i> Trainers</button>
+              <button onclick="window.location.href='workfit-equipment.html?club=${club.id}'"><i class="fas fa-box"></i> Equipment</button>
+              <button onclick="alert('Edit club: ${name}')"><i class="fas fa-pen"></i> Edit</button>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    searchInput.addEventListener('input', (e) => renderClubs(e.target.value));
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) { window.location.href = '/'; return; }
+      const userSnap = await get(ref(db, `brandinn_users/${user.uid}`));
+      // Load clubs from Firebase
+      onValue(ref(db, 'workfit_clubs'), (snapshot) => {
+        allClubs = snapshot.val() || {};
+        console.log('🏋️ Clubs loaded:', Object.keys(allClubs).length);
+        renderClubs(searchInput.value);
+        loadingOverlay.classList.add('hide');
+      }, () => {
+        loadingOverlay.classList.add('hide');
+        clubsContainer.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>Could not load clubs.</p></div>';
+      });
+    });
+
+    setTimeout(() => loadingOverlay.classList.add('hide'), 7000);
+  </script>
+</body>
+</html>
