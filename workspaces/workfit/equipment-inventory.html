@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>KazInni WorkFit · Equipment Inventory</title>
+  <meta name="theme-color" content="#f97316">
+  <link rel="icon" type="image/png" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --orange: #f97316; --orange-dark: #c2410c; --orange-light: #fb923c;
+      --card-bg: #ffffff; --text-primary: #1e293b; --text-muted: #64748b;
+      --border-light: #fed7aa; --success: #10b981; --warning: #f59e0b; --danger: #ef4444;
+      --skeleton-base: #e2e8f0; --skeleton-shine: #f1f5f9;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(145deg, #fff7ed 0%, #ffffff 100%);
+      color: var(--text-primary); min-height: 100vh; display: flex; flex-direction: column;
+    }
+    .navbar {
+      background: rgba(255,255,255,0.95); backdrop-filter: blur(16px);
+      padding: 0.7rem 3%; display: flex; justify-content: space-between; align-items: center;
+      border-bottom: 2px solid rgba(249,115,22,0.3); position: sticky; top: 0; z-index: 2000;
+      flex-wrap: wrap; gap: 10px;
+    }
+    .logo { display: flex; align-items: center; gap: 12px; cursor: pointer; }
+    .logo-img { height: 40px; width: 40px; border-radius: 12px; object-fit: contain; background: white; box-shadow: 0 6px 16px rgba(249,115,22,0.3); }
+    .logo-text { font-weight: 800; font-size: 1.3rem; background: linear-gradient(145deg, #fb923c, #c2410c); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .logo-text span { font-weight: 600; font-size: 0.8rem; background: #f97316; -webkit-text-fill-color: #f97316; margin-left: 4px; }
+    .nav-right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .nav-btn {
+      background: rgba(249,115,22,0.1); border: 1px solid var(--orange); padding: 0.5rem 1rem;
+      border-radius: 40px; color: var(--orange-dark); font-weight: 600; font-size: 0.75rem;
+      cursor: pointer; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; transition: 0.2s; white-space: nowrap;
+    }
+    .nav-btn:hover { background: var(--orange); color: white; }
+    .container { max-width: 1300px; margin: 0 auto; padding: 2rem 3%; flex: 1; width: 100%; }
+    .page-header { margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+    .page-header h1 { font-size: 2rem; font-weight: 800; display: flex; align-items: center; gap: 12px; }
+    .page-header h1 i { color: var(--orange-dark); background: white; padding: 10px; border-radius: 14px; box-shadow: 0 8px 16px rgba(249,115,22,0.08); }
+    .add-btn {
+      background: var(--orange); color: white; border: none; padding: 0.7rem 1.5rem; border-radius: 40px;
+      font-weight: 700; font-size: 0.85rem; display: flex; align-items: center; gap: 8px; cursor: pointer;
+      text-decoration: none; transition: 0.2s; box-shadow: 0 6px 14px rgba(249,115,22,0.25);
+    }
+    .add-btn:hover { background: var(--orange-dark); transform: translateY(-1px); }
+    .stats-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: white; border-radius: 20px; padding: 1.2rem; border: 1px solid #fed7aa;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.02); display: flex; align-items: center; justify-content: space-between;
+    }
+    .stat-left h4 { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; color: #64748b; margin-bottom: 0.3rem; }
+    .stat-number { font-size: 1.8rem; font-weight: 800; color: #0f172a; }
+    .stat-icon { width: 44px; height: 44px; background: #fff7ed; border-radius: 14px; display: flex; align-items: center; justify-content: center; color: #c2410c; font-size: 1.2rem; }
+    .filter-bar {
+      display: flex; gap: 12px; margin-bottom: 1.5rem; flex-wrap: wrap; align-items: center;
+      background: white; padding: 0.8rem 1.2rem; border-radius: 20px; border: 1px solid #fed7aa;
+    }
+    .filter-bar input, .filter-bar select {
+      padding: 0.5rem 1rem; border: 1px solid #e2e8f0; border-radius: 30px;
+      font-family: 'Inter', sans-serif; font-size: 0.8rem; background: #f8fafc; outline: none;
+    }
+    .filter-bar input:focus, .filter-bar select:focus { border-color: #f97316; }
+    .filter-bar input { flex: 1; min-width: 180px; }
+    .inventory-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+    .equipment-card {
+      background: white; border-radius: 20px; padding: 1.4rem; border: 1px solid #fed7aa;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.02); transition: all 0.25s; display: flex; flex-direction: column; gap: 12px;
+    }
+    .equipment-card:hover { transform: translateY(-4px); box-shadow: 0 18px 30px -10px rgba(194,65,12,0.12); border-color: #fb923c; }
+    .equipment-header { display: flex; gap: 14px; align-items: center; }
+    .equipment-icon {
+      width: 52px; height: 52px; border-radius: 16px; background: linear-gradient(145deg, #fff7ed, #ffffff);
+      display: flex; align-items: center; justify-content: center; font-size: 1.8rem; border: 1px solid #fed7aa;
+    }
+    .equipment-info { flex: 1; }
+    .equipment-name { font-weight: 700; font-size: 1rem; }
+    .equipment-category { font-size: 0.7rem; color: #64748b; margin-top: 2px; }
+    .equipment-meta { display: flex; gap: 8px; flex-wrap: wrap; font-size: 0.7rem; color: #475569; }
+    .equipment-meta span { background: #f8fafc; padding: 0.2rem 0.7rem; border-radius: 20px; display: flex; align-items: center; gap: 4px; }
+    .equipment-stats { display: flex; justify-content: space-between; background: #fff7ed; border-radius: 14px; padding: 0.8rem; }
+    .equipment-stat { text-align: center; }
+    .equipment-stat strong { display: block; font-size: 1.1rem; color: #0f172a; }
+    .equipment-stat small { font-size: 0.6rem; color: #64748b; text-transform: uppercase; }
+    .equipment-actions { display: flex; gap: 8px; }
+    .equipment-actions button {
+      flex: 1; padding: 0.5rem; border-radius: 30px; font-weight: 600; font-size: 0.7rem; border: 1px solid #e2e8f0;
+      background: white; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 4px;
+    }
+    .equipment-actions button:hover { background: #f97316; color: white; border-color: #f97316; }
+    .status-tag {
+      padding: 0.2rem 0.7rem; border-radius: 20px; font-size: 0.65rem; font-weight: 700;
+    }
+    .status-tag.good { background: #d1fae5; color: #065f46; }
+    .status-tag.maintenance { background: #fef3c7; color: #b45309; }
+    .status-tag.damaged { background: #fee2e2; color: #991b1b; }
+    .badge {
+      padding: 0.15rem 0.5rem; border-radius: 12px; font-size: 0.6rem; font-weight: 600;
+    }
+    .badge.cardio { background: #fee2e2; color: #991b1b; }
+    .badge.strength { background: #fef3c7; color: #92400e; }
+    .badge.flexibility { background: #ede9fe; color: #5b21b6; }
+    .badge.accessories { background: #e0f2fe; color: #0369a1; }
+    .badge.machines { background: #d1fae5; color: #065f46; }
+    .empty-state { text-align: center; padding: 3rem; color: #94a3b8; background: white; border-radius: 20px; border: 1px solid #fed7aa; }
+    .footer { text-align: center; padding: 1.2rem; color: #94a3b8; font-size: 0.75rem; border-top: 1px solid #fed7aa; }
+
+    /* Modal Styles */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
+      display: flex; justify-content: center; align-items: center; z-index: 3000;
+      opacity: 0; visibility: hidden; transition: all 0.3s;
+    }
+    .modal-overlay.active { opacity: 1; visibility: visible; }
+    .modal {
+      background: white; border-radius: 24px; padding: 2rem; width: 90%; max-width: 600px;
+      max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    }
+    .modal-header {
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;
+    }
+    .modal-header h2 { font-size: 1.3rem; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+    .modal-close {
+      width: 36px; height: 36px; border-radius: 50%; border: 1px solid #e2e8f0;
+      background: white; cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center;
+    }
+    .modal-close:hover { background: #fee2e2; color: #ef4444; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .form-group { display: flex; flex-direction: column; gap: 0.3rem; }
+    .form-group.full { grid-column: span 2; }
+    .form-group label { font-weight: 600; font-size: 0.75rem; color: #334155; }
+    .form-group input, .form-group select, .form-group textarea {
+      padding: 0.6rem 1rem; border: 1px solid #e2e8f0; border-radius: 12px;
+      font-family: 'Inter', sans-serif; font-size: 0.85rem; background: #f8fafc; outline: none;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      border-color: #f97316; box-shadow: 0 0 0 3px rgba(249,115,22,0.1);
+    }
+    .submit-btn {
+      background: var(--orange); color: white; border: none; padding: 0.8rem; border-radius: 40px;
+      font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: 0.2s; width: 100%; margin-top: 1rem;
+    }
+    .submit-btn:hover { background: var(--orange-dark); }
+    .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .message { padding: 0.7rem; border-radius: 12px; margin-bottom: 1rem; font-size: 0.75rem; display: none; }
+    .message.success { background: #d1fae5; color: #065f46; display: block; }
+    .message.error { background: #fee2e2; color: #991b1b; display: block; }
+    .loading-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.8); backdrop-filter:blur(4px); display:flex; justify-content:center; align-items:center; z-index:999; }
+    .loading-overlay.hide { display: none; }
+    .spinner { width:40px; height:40px; border:3px solid #fed7aa; border-top-color:#c2410c; border-radius:50%; animation:spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 768px) {
+      .container { padding: 1.2rem 1rem; }
+      .inventory-grid { grid-template-columns: 1fr; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      .form-grid { grid-template-columns: 1fr; }
+      .form-group.full { grid-column: span 1; }
+    }
+  </style>
+</head>
+<body>
+  <div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div></div>
+
+  <!-- Add Equipment Modal -->
+  <div class="modal-overlay" id="addEquipmentModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2><i class="fas fa-plus-circle" style="color:#c2410c;"></i> Add Equipment</h2>
+        <button class="modal-close" id="closeModalBtn"><i class="fas fa-times"></i></button>
+      </div>
+      <div id="modalMessage" class="message"></div>
+      <form id="equipmentForm">
+        <div class="form-grid">
+          <div class="form-group full">
+            <label>Equipment Name *</label>
+            <input type="text" id="equipName" placeholder="e.g. Treadmill Pro X200" required>
+          </div>
+          <div class="form-group">
+            <label>Category *</label>
+            <select id="equipCategory" required>
+              <option value="">Select category</option>
+              <option value="Cardio">Cardio</option>
+              <option value="Strength">Strength</option>
+              <option value="Flexibility">Flexibility</option>
+              <option value="Machines">Machines</option>
+              <option value="Accessories">Accessories</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Condition *</label>
+            <select id="equipCondition" required>
+              <option value="good">Good</option>
+              <option value="maintenance">Needs Maintenance</option>
+              <option value="damaged">Damaged</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Quantity</label>
+            <input type="number" id="equipQuantity" placeholder="e.g. 5" min="1" value="1">
+          </div>
+          <div class="form-group">
+            <label>Value (KES)</label>
+            <input type="number" id="equipValue" placeholder="e.g. 50000" min="0">
+          </div>
+          <div class="form-group">
+            <label>Assigned Club</label>
+            <select id="equipClub">
+              <option value="">All Clubs (General)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Purchase Date</label>
+            <input type="date" id="equipPurchaseDate">
+          </div>
+          <div class="form-group">
+            <label>Last Maintained</label>
+            <input type="date" id="equipLastMaintained">
+          </div>
+          <div class="form-group full">
+            <label>Notes</label>
+            <textarea id="equipNotes" rows="2" placeholder="Maintenance notes, serial number..."></textarea>
+          </div>
+        </div>
+        <button type="submit" class="submit-btn" id="submitBtn">
+          <i class="fas fa-save"></i> Add to Inventory
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <nav class="navbar">
+    <div class="logo" onclick="window.location.href='/workspaces/workfit/dashboard.html'">
+      <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png" alt="Logo" class="logo-img">
+      <span class="logo-text">WorkFit<span>Club</span></span>
+    </div>
+    <div class="nav-right">
+      <a href="/workspaces/workfit/dashboard.html" class="nav-btn"><i class="fas fa-arrow-left"></i> Dashboard</a>
+      <button class="add-btn" id="openModalBtn"><i class="fas fa-plus"></i> Add Equipment</button>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="page-header">
+      <h1><i class="fas fa-clipboard-list"></i> Equipment Inventory</h1>
+    </div>
+
+    <!-- Stats Overview -->
+    <div class="stats-grid" id="statsGrid">
+      <div class="stat-card">
+        <div class="stat-left"><h4>Total Items</h4><div class="stat-number" id="totalItems">0</div></div>
+        <div class="stat-icon"><i class="fas fa-boxes-stacked"></i></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-left"><h4>Good Condition</h4><div class="stat-number" id="goodCondition">0</div></div>
+        <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-left"><h4>Needs Maintenance</h4><div class="stat-number" id="needsMaintenance">0</div></div>
+        <div class="stat-icon"><i class="fas fa-wrench"></i></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-left"><h4>Total Value (KES)</h4><div class="stat-number" id="totalValue">0</div></div>
+        <div class="stat-icon"><i class="fas fa-coins"></i></div>
+      </div>
+    </div>
+
+    <div class="filter-bar">
+      <i class="fas fa-search" style="color:#94a3b8;"></i>
+      <input type="text" id="searchInput" placeholder="Search equipment name or category...">
+      <select id="categoryFilter">
+        <option value="all">All Categories</option>
+        <option value="cardio">Cardio</option>
+        <option value="strength">Strength</option>
+        <option value="flexibility">Flexibility</option>
+        <option value="machines">Machines</option>
+        <option value="accessories">Accessories</option>
+      </select>
+      <select id="conditionFilter">
+        <option value="all">All Conditions</option>
+        <option value="good">Good</option>
+        <option value="maintenance">Needs Maintenance</option>
+        <option value="damaged">Damaged</option>
+      </select>
+    </div>
+
+    <div id="inventoryContainer" class="inventory-grid">
+      <div class="empty-state"><i class="fas fa-sync-alt fa-spin"></i><p>Loading inventory...</p></div>
+    </div>
+  </div>
+  <div class="footer"><i class="far fa-copyright"></i> 2026 WorkFit Club · Equipment Inventory</div>
+
+  <script type="importmap">
+    { "imports": { "firebase/app": "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js", "firebase/auth": "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js", "firebase/database": "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js" } }
+  </script>
+
+  <script type="module">
+    import { initializeApp } from "firebase/app";
+    import { getAuth, onAuthStateChanged } from "firebase/auth";
+    import { getDatabase, ref, onValue, push, serverTimestamp } from "firebase/database";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+      authDomain: "mugera-e51cc.firebaseapp.com",
+      databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "mugera-e51cc",
+      storageBucket: "mugera-e51cc.firebasestorage.app",
+      messagingSenderId: "1024868637509",
+      appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+    let allInventory = {};
+    let allClubs = {};
+
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const inventoryContainer = document.getElementById('inventoryContainer');
+    const searchInput = document.getElementById('searchInput');
+    const categoryFilter = document.getElementById('categoryFilter');
+    const conditionFilter = document.getElementById('conditionFilter');
+    const addEquipmentModal = document.getElementById('addEquipmentModal');
+    const openModalBtn = document.getElementById('openModalBtn');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const equipmentForm = document.getElementById('equipmentForm');
+    const modalMessage = document.getElementById('modalMessage');
+    const submitBtn = document.getElementById('submitBtn');
+    const equipClubSelect = document.getElementById('equipClub');
+    const totalItemsEl = document.getElementById('totalItems');
+    const goodConditionEl = document.getElementById('goodCondition');
+    const needsMaintenanceEl = document.getElementById('needsMaintenance');
+    const totalValueEl = document.getElementById('totalValue');
+
+    function escapeHtml(str) {
+      return String(str || '').replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : m === '>' ? '&gt;' : m);
+    }
+
+    function getEquipmentIcon(category) {
+      const c = (category || '').toLowerCase();
+      if (c.includes('cardio')) return '🏃';
+      if (c.includes('strength')) return '🏋️';
+      if (c.includes('flexibility')) return '🧘';
+      if (c.includes('machine')) return '⚙️';
+      if (c.includes('accessor')) return '🎒';
+      return '📦';
+    }
+
+    function getCategoryBadge(category) {
+      const c = (category || '').toLowerCase();
+      if (c.includes('cardio')) return 'cardio';
+      if (c.includes('strength')) return 'strength';
+      if (c.includes('flexibility')) return 'flexibility';
+      if (c.includes('machine')) return 'machines';
+      if (c.includes('accessor')) return 'accessories';
+      return 'strength';
+    }
+
+    function getConditionClass(condition) {
+      const c = (condition || 'good').toLowerCase();
+      if (c === 'good') return 'good';
+      if (c === 'maintenance') return 'maintenance';
+      if (c === 'damaged') return 'damaged';
+      return 'good';
+    }
+
+    function formatCurrency(amount) {
+      if (!amount) return '0';
+      const num = Number(amount);
+      if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+      if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+      return num.toLocaleString();
+    }
+
+    function populateClubDropdown() {
+      equipClubSelect.innerHTML = '<option value="">All Clubs (General)</option>';
+      Object.entries(allClubs).forEach(([id, club]) => {
+        if (club && (club.businessName || club.name)) {
+          const option = document.createElement('option');
+          option.value = id;
+          option.textContent = club.businessName || club.name;
+          equipClubSelect.appendChild(option);
+        }
+      });
+    }
+
+    function updateStats() {
+      const items = Object.values(allInventory).filter(i => i && i.name);
+      const good = items.filter(i => (i.condition || 'good').toLowerCase() === 'good').length;
+      const maintenance = items.filter(i => (i.condition || '').toLowerCase() === 'maintenance').length;
+      const totalVal = items.reduce((sum, i) => sum + (Number(i.value) || 0) * (Number(i.quantity) || 1), 0);
+
+      totalItemsEl.textContent = items.length;
+      goodConditionEl.textContent = good;
+      needsMaintenanceEl.textContent = maintenance;
+      totalValueEl.textContent = formatCurrency(totalVal);
+    }
+
+    function renderInventory() {
+      const searchTerm = searchInput.value.toLowerCase();
+      const catVal = categoryFilter.value;
+      const condVal = conditionFilter.value;
+
+      let items = Object.entries(allInventory).map(([id, data]) => ({ id, ...data })).filter(i => i && i.name);
+
+      if (catVal !== 'all') {
+        items = items.filter(i => (i.category || '').toLowerCase().includes(catVal));
+      }
+      if (condVal !== 'all') {
+        items = items.filter(i => (i.condition || 'good').toLowerCase() === condVal);
+      }
+      if (searchTerm) {
+        items = items.filter(i =>
+          (i.name || '').toLowerCase().includes(searchTerm) ||
+          (i.category || '').toLowerCase().includes(searchTerm) ||
+          (i.clubName || '').toLowerCase().includes(searchTerm)
+        );
+      }
+
+      updateStats();
+
+      if (!items.length) {
+        inventoryContainer.innerHTML = `<div class="empty-state"><i class="fas fa-box-open"></i><p>No equipment found. <a href="#" id="addFirstLink">Add your first item</a></p></div>`;
+        document.getElementById('addFirstLink')?.addEventListener('click', (e) => {
+          e.preventDefault();
+          openModal();
+        });
+        return;
+      }
+
+      inventoryContainer.innerHTML = items.map(item => {
+        const name = escapeHtml(item.name || 'Equipment');
+        const category = escapeHtml(item.category || 'General');
+        const condition = (item.condition || 'good').toLowerCase();
+        const conditionLabel = condition === 'maintenance' ? 'Needs Maintenance' : condition;
+        const clubName = item.clubName || 'General';
+        const quantity = item.quantity || 1;
+        const value = item.value || 0;
+        const totalVal = Number(value) * Number(quantity);
+        const purchaseDate = item.purchaseDate || '';
+        const lastMaintained = item.lastMaintained || '';
+
+        return `
+          <div class="equipment-card">
+            <div class="equipment-header">
+              <div class="equipment-icon">${getEquipmentIcon(category)}</div>
+              <div class="equipment-info">
+                <div class="equipment-name">${name}</div>
+                <div class="equipment-category">
+                  <span class="badge ${getCategoryBadge(category)}">${category}</span>
+                  <span class="status-tag ${getConditionClass(condition)}">${conditionLabel}</span>
+                </div>
+              </div>
+            </div>
+            <div class="equipment-meta">
+              <span><i class="fas fa-building"></i> ${escapeHtml(clubName)}</span>
+              ${purchaseDate ? `<span><i class="fas fa-calendar"></i> Purchased: ${purchaseDate}</span>` : ''}
+              ${lastMaintained ? `<span><i class="fas fa-wrench"></i> Maintained: ${lastMaintained}</span>` : ''}
+            </div>
+            <div class="equipment-stats">
+              <div class="equipment-stat"><strong>${quantity}</strong><small>Quantity</small></div>
+              <div class="equipment-stat"><strong>KES ${formatCurrency(value)}</strong><small>Unit Value</small></div>
+              <div class="equipment-stat"><strong>KES ${formatCurrency(totalVal)}</strong><small>Total Value</small></div>
+            </div>
+            <div class="equipment-actions">
+              <button onclick="alert('Edit: ${name}')"><i class="fas fa-pen"></i> Edit</button>
+              <button onclick="alert('Maintenance log: ${name}')"><i class="fas fa-wrench"></i> Maintain</button>
+              <button onclick="if(confirm('Delete ${name}?')) deleteEquipment('${item.id}')"><i class="fas fa-trash"></i> Delete</button>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    function openModal() {
+      addEquipmentModal.classList.add('active');
+      populateClubDropdown();
+      equipmentForm.reset();
+      modalMessage.className = 'message';
+      modalMessage.textContent = '';
+      document.getElementById('equipQuantity').value = '1';
+    }
+
+    function closeModal() {
+      addEquipmentModal.classList.remove('active');
+    }
+
+    window.deleteEquipment = async function(equipId) {
+      try {
+        const { remove } = await import("firebase/database");
+        await remove(ref(db, `workfit_equipment_inventory/${equipId}`));
+        alert('Equipment deleted successfully.');
+      } catch (error) {
+        alert('Failed to delete equipment.');
+      }
+    };
+
+    openModalBtn.addEventListener('click', openModal);
+    closeModalBtn.addEventListener('click', closeModal);
+    addEquipmentModal.addEventListener('click', (e) => {
+      if (e.target === addEquipmentModal) closeModal();
+    });
+
+    equipmentForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('equipName').value.trim();
+      const category = document.getElementById('equipCategory').value;
+      if (!name || !category) {
+        modalMessage.textContent = 'Please fill in name and category.';
+        modalMessage.className = 'message error';
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
+      const selectedClubId = document.getElementById('equipClub').value;
+      let clubName = 'General';
+      if (selectedClubId && allClubs[selectedClubId]) {
+        clubName = allClubs[selectedClubId].businessName || allClubs[selectedClubId].name || 'General';
+      }
+
+      const equipData = {
+        name: name,
+        category: category,
+        condition: document.getElementById('equipCondition').value,
+        quantity: Number(document.getElementById('equipQuantity').value) || 1,
+        value: Number(document.getElementById('equipValue').value) || 0,
+        clubId: selectedClubId || '',
+        clubName: clubName,
+        purchaseDate: document.getElementById('equipPurchaseDate').value,
+        lastMaintained: document.getElementById('equipLastMaintained').value,
+        notes: document.getElementById('equipNotes').value.trim(),
+        createdAt: serverTimestamp(),
+        timestamp: Date.now()
+      };
+
+      try {
+        await push(ref(db, 'workfit_equipment_inventory'), equipData);
+        modalMessage.textContent = '✅ Equipment added to inventory!';
+        modalMessage.className = 'message success';
+        equipmentForm.reset();
+        document.getElementById('equipQuantity').value = '1';
+        setTimeout(() => {
+          closeModal();
+          modalMessage.className = 'message';
+        }, 1500);
+      } catch (error) {
+        console.error('Error adding equipment:', error);
+        modalMessage.textContent = '❌ Failed to add equipment.';
+        modalMessage.className = 'message error';
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-save"></i> Add to Inventory';
+      }
+    });
+
+    searchInput.addEventListener('input', renderInventory);
+    categoryFilter.addEventListener('change', renderInventory);
+    conditionFilter.addEventListener('change', renderInventory);
+
+    onAuthStateChanged(auth, (user) => {
+      if (!user) { window.location.href = '/'; return; }
+
+      onValue(ref(db, 'workfit_equipment_inventory'), (snapshot) => {
+        allInventory = snapshot.val() || {};
+        renderInventory();
+        loadingOverlay.classList.add('hide');
+      });
+
+      onValue(ref(db, 'workfit_clubs'), (snapshot) => {
+        allClubs = snapshot.val() || {};
+        renderInventory();
+      });
+    });
+
+    setTimeout(() => loadingOverlay.classList.add('hide'), 8000);
+  </script>
+</body>
+</html>
