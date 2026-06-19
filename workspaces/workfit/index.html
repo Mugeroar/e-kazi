@@ -13,12 +13,13 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
     :root {
       --orange: #f97316; --orange-dark: #c2410c; --orange-light: #fb923c;
-      --bg: #fafbfc; --surface: #ffffff; --text: #0f172a; --text-secondary: #64748b;
+      --bg: #f8fafc; --surface: #ffffff; --text: #0f172a; --text-secondary: #64748b;
       --border: #e2e8f0; --border-light: #f1f5f9;
       --success: #10b981; --warning: #f59e0b; --danger: #ef4444; --info: #3b82f6;
       --shadow-sm: 0 1px 2px rgba(0,0,0,0.05); --shadow: 0 1px 3px rgba(0,0,0,0.1);
       --shadow-md: 0 4px 6px rgba(0,0,0,0.07); --shadow-lg: 0 10px 25px rgba(0,0,0,0.1);
       --radius-sm: 8px; --radius: 12px; --radius-lg: 16px; --radius-xl: 20px;
+      --skeleton-base: #e2e8f0; --skeleton-shine: #f1f5f9;
     }
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -57,11 +58,31 @@
     .page-title { font-size: 1.5rem; font-weight: 800; display: flex; align-items: center; gap: 10px; }
     .page-subtitle { font-size: 0.78rem; color: var(--text-secondary); margin-top: 0.3rem; }
 
+    /* Skeleton Loading */
+    .skeleton {
+      background: linear-gradient(90deg, var(--skeleton-base) 25%, var(--skeleton-shine) 50%, var(--skeleton-base) 75%);
+      background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 6px;
+    }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+    .skeleton-text { height: 14px; margin-bottom: 8px; width: 60%; }
+    .skeleton-text.short { width: 40%; }
+    .skeleton-value { height: 32px; width: 50%; margin-bottom: 4px; }
+    .skeleton-icon { width: 44px; height: 44px; border-radius: 12px; }
+    .skeleton-chart { height: 200px; width: 100%; border-radius: var(--radius); }
+    .skeleton-card {
+      background: var(--surface); border-radius: var(--radius-lg); padding: 1.1rem;
+      border: 1px solid var(--border-light); box-shadow: var(--shadow-sm);
+    }
+    .skeleton-card-header { display: flex; gap: 14px; align-items: center; margin-bottom: 12px; }
+    .skeleton-card-content { display: flex; flex-direction: column; }
+
     .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 1.5rem; }
     .stat-card {
       background: var(--surface); border-radius: var(--radius-lg); padding: 1.1rem;
       border: 1px solid var(--border-light); box-shadow: var(--shadow-sm); display: flex; align-items: center; gap: 14px;
+      transition: all 0.2s;
     }
+    .stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
     .stat-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
     .stat-icon.orange { background: #fff7ed; color: #f97316; }
     .stat-icon.green { background: #ecfdf5; color: #10b981; }
@@ -118,9 +139,6 @@
     .badge-info { background: #eff6ff; color: #1e40af; }
     .empty-state { text-align: center; padding: 1.5rem; color: #94a3b8; font-size: 0.72rem; }
     .footer { text-align: center; padding: 1rem; color: #94a3b8; font-size: 0.65rem; border-top: 1px solid var(--border-light); margin-top: 1rem; }
-    .skeleton { background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 6px; }
-    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-    .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 400; padding: 0.6rem 1.2rem; border-radius: 10px; font-size: 0.75rem; font-weight: 600; box-shadow: var(--shadow-lg); background: #0f172a; color: white; display: none; }
 
     @media (max-width: 1100px) {
       .action-grid { grid-template-columns: repeat(2, 1fr); }
@@ -135,6 +153,8 @@
       .chart-card.full-width, .chart-card.wide { grid-column: span 1; }
       .recent-grid { grid-template-columns: 1fr; }
       .navbar { padding: 0 0.8rem; }
+      .navbar-right { gap: 4px; }
+      .nav-btn { padding: 0.35rem 0.6rem; font-size: 0.65rem; }
     }
   </style>
 </head>
@@ -150,6 +170,9 @@
     <div class="navbar-right">
       <a href="/workspaces/workfit/clubs.html" class="nav-btn"><i class="fas fa-building"></i> Clubs</a>
       <a href="/workspaces/workfit/memberships.html" class="nav-btn"><i class="fas fa-id-card"></i> Members</a>
+      <a href="/workspaces/workfit/trainers.html" class="nav-btn"><i class="fas fa-users-gear"></i> Trainers</a>
+      <a href="/workspaces/workfit/shop.html" class="nav-btn"><i class="fas fa-store"></i> Shop</a>
+      <a href="/workspaces/workfit/equipment-inventory.html" class="nav-btn"><i class="fas fa-clipboard-list"></i> Inventory</a>
       <a href="/workspaces/workfit/map-operations.html" class="nav-btn primary"><i class="fas fa-map-marked-alt"></i> Map</a>
       <div class="user-pill"><div class="user-avatar" id="userAvatar">WF</div><span id="userName">Director</span></div>
     </div>
@@ -161,13 +184,15 @@
       <p class="page-subtitle">Central dashboard for managing gym franchises, trainers, members, and tracking growth across Kenya.</p>
     </div>
 
+    <!-- Stats Grid with Skeleton Loading -->
     <div class="stats-grid" id="statsGrid">
-      <div class="stat-card"><div class="stat-icon orange"><i class="fas fa-building"></i></div><div><div class="stat-value" id="statClubs">-</div><div class="stat-label">Total Clubs</div></div></div>
-      <div class="stat-card"><div class="stat-icon green"><i class="fas fa-users"></i></div><div><div class="stat-value" id="statMembers">-</div><div class="stat-label">Total Members</div></div></div>
-      <div class="stat-card"><div class="stat-icon blue"><i class="fas fa-user-check"></i></div><div><div class="stat-value" id="statTrainers">-</div><div class="stat-label">Active Trainers</div></div></div>
-      <div class="stat-card"><div class="stat-icon purple"><i class="fas fa-chart-line"></i></div><div><div class="stat-value" id="statRevenue">-</div><div class="stat-label">Revenue (KES)</div></div></div>
+      <div class="stat-card"><div class="stat-icon orange"><i class="fas fa-building"></i></div><div><div class="stat-value skeleton skeleton-value" id="statClubs">—</div><div class="stat-label">Total Clubs</div></div></div>
+      <div class="stat-card"><div class="stat-icon green"><i class="fas fa-users"></i></div><div><div class="stat-value skeleton skeleton-value" id="statMembers">—</div><div class="stat-label">Total Members</div></div></div>
+      <div class="stat-card"><div class="stat-icon blue"><i class="fas fa-user-check"></i></div><div><div class="stat-value skeleton skeleton-value" id="statTrainers">—</div><div class="stat-label">Active Trainers</div></div></div>
+      <div class="stat-card"><div class="stat-icon purple"><i class="fas fa-chart-line"></i></div><div><div class="stat-value skeleton skeleton-value" id="statRevenue">—</div><div class="stat-label">Revenue (KES)</div></div></div>
     </div>
 
+    <!-- Action Cards -->
     <div class="action-grid">
       <a href="/workspaces/workfit/clubs.html" class="action-card">
         <div class="action-icon"><i class="fas fa-building"></i></div>
@@ -186,46 +211,61 @@
       </a>
       <a href="/workspaces/workfit/shop.html" class="action-card">
         <div class="action-icon"><i class="fas fa-store"></i></div>
-        <h3>Shop & Inventory</h3><p>Browse products, manage equipment inventory, and track supplies.</p>
+        <h3>Shop</h3><p>Manage products, supplements, apparel, and merchandise.</p>
         <span class="action-link">Open Shop <i class="fas fa-arrow-right"></i></span>
+      </a>
+      <a href="/workspaces/workfit/equipment-inventory.html" class="action-card">
+        <div class="action-icon"><i class="fas fa-clipboard-list"></i></div>
+        <h3>Equipment Inventory</h3><p>Track gym equipment, maintenance schedules, and asset values.</p>
+        <span class="action-link">View Inventory <i class="fas fa-arrow-right"></i></span>
+      </a>
+      <a href="/workspaces/workfit/map-operations.html" class="action-card">
+        <div class="action-icon"><i class="fas fa-map-marked-alt"></i></div>
+        <h3>Operations Map</h3><p>View all club locations on an interactive map.</p>
+        <span class="action-link">Open Map <i class="fas fa-arrow-right"></i></span>
       </a>
     </div>
 
+    <!-- Analytics Section with Skeleton Loading -->
     <div class="analytics-section">
       <div class="analytics-grid">
-        <div class="chart-card wide">
+        <div class="chart-card wide" id="chartCard1">
           <div class="chart-header"><h3><i class="fas fa-chart-bar" style="color:#f97316;"></i> Members by Club</h3></div>
-          <div class="chart-body"><canvas id="membersByClubChart"></canvas></div>
+          <div class="chart-body"><div class="skeleton skeleton-chart" id="skeletonChart1"></div><canvas id="membersByClubChart" style="display:none;"></canvas></div>
         </div>
-        <div class="chart-card">
+        <div class="chart-card" id="chartCard2">
           <div class="chart-header"><h3><i class="fas fa-chart-pie" style="color:#8b5cf6;"></i> Membership Tiers</h3></div>
-          <div class="chart-body"><canvas id="tierDistributionChart"></canvas></div>
+          <div class="chart-body"><div class="skeleton skeleton-chart" id="skeletonChart2"></div><canvas id="tierDistributionChart" style="display:none;"></canvas></div>
         </div>
-        <div class="chart-card">
+        <div class="chart-card" id="chartCard3">
           <div class="chart-header"><h3><i class="fas fa-chart-line" style="color:#10b981;"></i> Monthly Revenue</h3></div>
-          <div class="chart-body"><canvas id="revenueChart"></canvas></div>
+          <div class="chart-body"><div class="skeleton skeleton-chart" id="skeletonChart3"></div><canvas id="revenueChart" style="display:none;"></canvas></div>
         </div>
-        <div class="chart-card full-width">
+        <div class="chart-card full-width" id="chartCard4">
           <div class="chart-header"><h3><i class="fas fa-chart-area" style="color:#3b82f6;"></i> Trainer Distribution by Specialty</h3></div>
-          <div class="chart-body"><canvas id="trainerSpecialtyChart"></canvas></div>
+          <div class="chart-body"><div class="skeleton skeleton-chart" id="skeletonChart4"></div><canvas id="trainerSpecialtyChart" style="display:none;"></canvas></div>
         </div>
       </div>
     </div>
 
+    <!-- Recent Activity with Skeleton Loading -->
     <div class="recent-grid">
       <div class="recent-card">
         <div class="recent-header"><h3><i class="fas fa-building"></i> Recent Clubs</h3><a href="/workspaces/workfit/clubs.html">View all →</a></div>
-        <div class="recent-list" id="recentClubs"><div class="empty-state">Loading...</div></div>
+        <div class="recent-list" id="recentClubs">
+          <div class="empty-state"><div class="skeleton skeleton-text" style="margin:0 auto 8px;"></div><div class="skeleton skeleton-text short" style="margin:0 auto;"></div></div>
+        </div>
       </div>
       <div class="recent-card">
         <div class="recent-header"><h3><i class="fas fa-user"></i> Recent Members</h3><a href="/workspaces/workfit/memberships.html">View all →</a></div>
-        <div class="recent-list" id="recentMembers"><div class="empty-state">Loading...</div></div>
+        <div class="recent-list" id="recentMembers">
+          <div class="empty-state"><div class="skeleton skeleton-text" style="margin:0 auto 8px;"></div><div class="skeleton skeleton-text short" style="margin:0 auto;"></div></div>
+        </div>
       </div>
     </div>
   </div>
 
   <div class="footer">© 2026 WorkFit Club · Fitness Franchise Management · <span id="footerStats">Loading...</span></div>
-  <div id="toast" class="toast"></div>
 
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
@@ -243,16 +283,25 @@
 
     let allClubs = {}, allMembers = {}, allTrainers = {}, allRevenue = {};
     let charts = {};
+    let dataLoaded = false;
 
     function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
     function formatCurrency(n) { if (!n) return '0'; const num = Number(n); if (num >= 1e6) return (num/1e6).toFixed(1)+'M'; if (num >= 1e3) return (num/1e3).toFixed(1)+'K'; return num.toLocaleString(); }
-    function timeAgo(ts) { if (!ts) return ''; const d = new Date(ts); if (isNaN(d.getTime())) return ''; const diff = Date.now() - d.getTime(); const days = Math.floor(diff/864e5); if (days > 30) return ''; if (days > 0) return days+'d ago'; const hrs = Math.floor(diff/36e5); if (hrs > 0) return hrs+'h ago'; return 'Just now'; }
+
+    function removeSkeleton(valueEl) {
+      if (valueEl) valueEl.classList.remove('skeleton', 'skeleton-value');
+    }
 
     function updateStats() {
       const clubs = Object.values(allClubs).filter(c => c && (c.businessName || c.name));
       const members = Object.values(allMembers).filter(m => m && m.name);
       const trainers = Object.values(allTrainers).filter(t => t && t.name);
       const revenueTotal = Object.values(allRevenue).reduce((s, r) => s + (Number(r.amount)||0), 0);
+      
+      removeSkeleton(document.getElementById('statClubs'));
+      removeSkeleton(document.getElementById('statMembers'));
+      removeSkeleton(document.getElementById('statTrainers'));
+      removeSkeleton(document.getElementById('statRevenue'));
       
       document.getElementById('statClubs').textContent = clubs.length;
       document.getElementById('statMembers').textContent = members.length;
@@ -271,7 +320,7 @@
       
       document.getElementById('recentClubs').innerHTML = clubs.length ? clubs.map(c => `
         <div class="recent-item" onclick="window.location.href='/workspaces/workfit/clubs.html'">
-          <div><strong>${esc(c.businessName||c.name)}</strong><br><small>${esc(c.city||c.location||'')} · <span class="badge ${(c.tier||'standard').toLowerCase()==='premium'?'badge-warning':(c.tier||'standard').toLowerCase()==='standard'?'badge-info':'badge-info'}">${(c.tier||'Standard').toUpperCase()}</span></small></div>
+          <div><strong>${esc(c.businessName||c.name)}</strong><br><small>${esc(c.city||c.location||'')} · <span class="badge ${(c.tier||'standard')==='premium'?'badge-warning':'badge-info'}">${(c.tier||'Standard').toUpperCase()}</span></small></div>
           <span class="badge ${c.status==='active'?'badge-success':'badge-danger'}">${c.status||'active'}</span>
         </div>`).join('') : '<div class="empty-state">No clubs yet</div>';
       
@@ -284,37 +333,48 @@
 
     function destroyChart(key) { if (charts[key]) { charts[key].destroy(); delete charts[key]; } }
 
+    function showChartCanvas(chartId, skeletonId) {
+      const canvas = document.getElementById(chartId);
+      const skeleton = document.getElementById(skeletonId);
+      if (canvas) canvas.style.display = 'block';
+      if (skeleton) skeleton.style.display = 'none';
+    }
+
     function renderCharts() {
       const clubs = Object.values(allClubs).filter(c => c && (c.businessName || c.name));
       const members = Object.values(allMembers).filter(m => m && m.name);
       const trainers = Object.values(allTrainers).filter(t => t && t.name);
       const revenue = Object.values(allRevenue).filter(r => r && r.amount);
 
-      // Members by Club Chart
+      if (!clubs.length && !members.length && !trainers.length) return;
+
+      // Members by Club
       destroyChart('membersByClub');
       const clubNames = clubs.map(c => (c.businessName||c.name||'').substring(0,15));
       const clubMemberCounts = clubs.map(c => members.filter(m => m.clubId === c.id).length);
       const ctx1 = document.getElementById('membersByClubChart')?.getContext('2d');
       if (ctx1 && clubNames.length) {
+        showChartCanvas('membersByClubChart', 'skeletonChart1');
         charts.membersByClub = new Chart(ctx1, {
           type: 'bar', data: { labels: clubNames, datasets: [{ label: 'Members', data: clubMemberCounts, backgroundColor: ['#f97316','#fb923c','#fdba74','#fed7aa','#fff7ed','#ffedd5'], borderRadius: 8 }] },
           options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
         });
       }
 
-      // Tier Distribution Chart
+      // Tier Distribution
       destroyChart('tierDistribution');
       const tiers = ['Basic','Standard','Premium'];
       const tierCounts = tiers.map(t => members.filter(m => m.membershipTier === t).length);
       const ctx2 = document.getElementById('tierDistributionChart')?.getContext('2d');
       if (ctx2) {
+        showChartCanvas('tierDistributionChart', 'skeletonChart2');
         charts.tierDistribution = new Chart(ctx2, {
           type: 'doughnut', data: { labels: tiers, datasets: [{ data: tierCounts, backgroundColor: ['#94a3b8','#3b82f6','#f59e0b'], borderWidth: 0 }] },
           options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, padding: 12, font: { size: 10 } } } } }
         });
       }
 
-      // Monthly Revenue Chart
+      // Monthly Revenue
       destroyChart('revenue');
       const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
       const now = new Date();
@@ -326,18 +386,20 @@
       const revData = last6.map(l => revenue.filter(r => { const rd = new Date(r.date||r.createdAt); return rd.getMonth()===l.month && rd.getFullYear()===l.year; }).reduce((s,r) => s+(Number(r.amount)||0), 0));
       const ctx3 = document.getElementById('revenueChart')?.getContext('2d');
       if (ctx3) {
+        showChartCanvas('revenueChart', 'skeletonChart3');
         charts.revenue = new Chart(ctx3, {
-          type: 'line', data: { labels: last6.map(l=>l.label), datasets: [{ label: 'Revenue (KES)', data: revData, borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.1)', fill: true, tension: 0.4, pointRadius: 4, pointBackgroundColor: '#10b981' }] },
+          type: 'line', data: { labels: last6.map(l=>l.label), datasets: [{ label: 'Revenue', data: revData, borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.1)', fill: true, tension: 0.4, pointRadius: 4, pointBackgroundColor: '#10b981' }] },
           options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { callback: v => formatCurrency(v) } } } }
         });
       }
 
-      // Trainer Specialty Chart
+      // Trainer Specialty
       destroyChart('trainerSpecialty');
       const specialties = ['Yoga','Cardio','Strength Training','HIIT','Zumba','Pilates','CrossFit','Spin'];
       const specCounts = specialties.map(s => trainers.filter(t => (t.specialty||'').toLowerCase().includes(s.toLowerCase())).length);
       const ctx4 = document.getElementById('trainerSpecialtyChart')?.getContext('2d');
       if (ctx4) {
+        showChartCanvas('trainerSpecialtyChart', 'skeletonChart4');
         charts.trainerSpecialty = new Chart(ctx4, {
           type: 'bar', data: { labels: specialties, datasets: [{ label: 'Trainers', data: specCounts, backgroundColor: '#3b82f6', borderRadius: 6 }] },
           options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } } } }
