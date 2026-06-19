@@ -26,7 +26,7 @@
     }
 
     .topbar {
-      background: rgba(255,255,255,0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      background: rgba(255,255,255,0.85); backdrop-filter: blur(20px);
       border-bottom: 1px solid var(--border-light); padding: 0 1.5rem; height: 56px;
       display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100;
     }
@@ -95,13 +95,15 @@
     .badge {
       padding: 0.18rem 0.5rem; border-radius: 6px; font-size: 0.6rem; font-weight: 600; text-transform: capitalize;
     }
-    .badge.active { background: #ecfdf5; color: #065f46; }
-    .badge.inactive { background: #fef2f2; color: #991b1b; }
-    .badge.pending { background: #fffbeb; color: #92400e; }
-    .badge.premium { background: #fffbeb; color: #92400e; }
-    .badge.standard { background: #eff6ff; color: #1e40af; }
-    .badge.basic { background: #f1f5f9; color: #475569; }
+    .badge-success { background: #ecfdf5; color: #065f46; }
+    .badge-danger { background: #fef2f2; color: #991b1b; }
+    .badge-warning { background: #fffbeb; color: #92400e; }
+    .badge-info { background: #eff6ff; color: #1e40af; }
+    .badge-neutral { background: #f1f5f9; color: #475569; }
 
+    .club-details { padding: 0 1.2rem 0.5rem; display: flex; flex-wrap: wrap; gap: 6px; font-size: 0.65rem; color: var(--text-secondary); }
+    .club-details span { background: #f8fafc; padding: 0.2rem 0.5rem; border-radius: 6px; display: flex; align-items: center; gap: 4px; }
+    
     .club-stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--border-light); }
     .club-stat-cell {
       background: white; padding: 0.7rem 0.5rem; text-align: center;
@@ -127,7 +129,6 @@
     .empty-state { text-align: center; padding: 3rem; color: #94a3b8; background: white; border-radius: var(--radius-lg); border: 1px solid var(--border-light); }
     .empty-state i { font-size: 3rem; display: block; margin-bottom: 1rem; color: #cbd5e1; }
 
-    /* Modal */
     .modal-overlay {
       position: fixed; inset: 0; background: rgba(15,23,42,0.4); backdrop-filter: blur(4px);
       display: flex; align-items: flex-end; justify-content: center; z-index: 300;
@@ -152,7 +153,6 @@
     }
     .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--orange); box-shadow: 0 0 0 3px rgba(249,115,22,0.06); background: white; }
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
-
     .btn {
       padding: 0.5rem 1rem; border-radius: var(--radius-sm); font-weight: 600; font-size: 0.75rem;
       cursor: pointer; border: 1px solid transparent; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px;
@@ -168,6 +168,13 @@
       border-bottom: 1px solid var(--border-light);
     }
     .member-list-item:last-child { border-bottom: none; }
+    
+    .revenue-item {
+      display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 0;
+      border-bottom: 1px solid var(--border-light); font-size: 0.75rem;
+    }
+    .revenue-item:last-child { border-bottom: none; }
+
     .toast {
       position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 400;
       padding: 0.6rem 1.2rem; border-radius: 10px; font-size: 0.75rem; font-weight: 600;
@@ -187,19 +194,9 @@
   </style>
 </head>
 <body>
-  <!-- Club Form Modal -->
-  <div class="modal-overlay" id="clubModal">
-    <div class="modal" id="clubModalContent">
-      <div class="modal-handle"></div>
-    </div>
-  </div>
-
-  <!-- Members Modal -->
-  <div class="modal-overlay" id="membersModal">
-    <div class="modal wide" id="membersModalContent">
-      <div class="modal-handle"></div>
-    </div>
-  </div>
+  <div class="modal-overlay" id="clubModal"><div class="modal" id="clubModalContent"><div class="modal-handle"></div></div></div>
+  <div class="modal-overlay" id="membersModal"><div class="modal wide" id="membersModalContent"><div class="modal-handle"></div></div></div>
+  <div class="modal-overlay" id="revenueModal"><div class="modal wide" id="revenueModalContent"><div class="modal-handle"></div></div></div>
 
   <div class="topbar">
     <div class="topbar-left">
@@ -209,7 +206,8 @@
       </a>
     </div>
     <div style="display:flex;gap:8px;">
-      <a href="/workspaces/workfit/dashboard.html" class="nav-btn"><i class="fas fa-arrow-left"></i> Dashboard</a>
+      <a href="/workspaces/workfit/index.html" class="nav-btn"><i class="fas fa-arrow-left"></i> Dashboard</a>
+      <a href="/workspaces/workfit/memberships.html" class="nav-btn"><i class="fas fa-id-card"></i> Members</a>
       <button class="nav-btn primary" onclick="openClubForm()"><i class="fas fa-plus"></i> Add Club</button>
     </div>
   </div>
@@ -218,15 +216,15 @@
     <div class="page-header">
       <div>
         <h1 class="page-title">🏢 Club Manager</h1>
-        <p class="page-subtitle">Manage all WorkFit gym franchises</p>
+        <p class="page-subtitle">Manage all WorkFit gym franchises, members, and revenue</p>
       </div>
     </div>
 
     <div class="stats-row">
       <div class="stat-card"><div class="stat-icon orange"><i class="fas fa-building"></i></div><div class="stat-value" id="statTotal">0</div><div class="stat-label">Total Clubs</div></div>
-      <div class="stat-card"><div class="stat-icon green"><i class="fas fa-check-circle"></i></div><div class="stat-value" id="statActive">0</div><div class="stat-label">Active</div></div>
+      <div class="stat-card"><div class="stat-icon green"><i class="fas fa-check-circle"></i></div><div class="stat-value" id="statActive">0</div><div class="stat-label">Active Clubs</div></div>
       <div class="stat-card"><div class="stat-icon purple"><i class="fas fa-users"></i></div><div class="stat-value" id="statMembers">0</div><div class="stat-label">Total Members</div></div>
-      <div class="stat-card"><div class="stat-icon blue"><i class="fas fa-user-check"></i></div><div class="stat-value" id="statTrainers">0</div><div class="stat-label">Total Trainers</div></div>
+      <div class="stat-card"><div class="stat-icon blue"><i class="fas fa-chart-line"></i></div><div class="stat-value" id="statRevenue">0</div><div class="stat-label">Total Revenue (KES)</div></div>
     </div>
 
     <div class="filter-bar">
@@ -255,9 +253,7 @@
     const auth = firebase.auth();
     const db = firebase.database();
 
-    let allClubs = {};
-    let allMembers = {};
-    let allTrainers = {};
+    let allClubs = {}, allMembers = {}, allTrainers = {}, allRevenue = {};
     let isEditing = false;
 
     function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
@@ -267,6 +263,7 @@
       t.style.display = 'block'; clearTimeout(t._timeout);
       t._timeout = setTimeout(() => t.style.display = 'none', 2800);
     }
+    function formatCurrency(n) { if (!n) return '0'; const num = Number(n); if (num >= 1e6) return (num/1e6).toFixed(1)+'M'; if (num >= 1e3) return (num/1e3).toFixed(1)+'K'; return num.toLocaleString(); }
 
     function getClubIcon(tier) {
       const t = (tier || 'standard').toLowerCase();
@@ -278,6 +275,12 @@
     }
     function getTrainerCount(clubId) {
       return Object.values(allTrainers).filter(t => t && (t.clubId === clubId || t.assignedClubId === clubId)).length;
+    }
+    function getClubRevenue(clubId) {
+      return Object.values(allRevenue).filter(r => r && r.clubId === clubId).reduce((sum, r) => sum + (Number(r.amount) || 0), 0);
+    }
+    function getClubRevenueCount(clubId) {
+      return Object.values(allRevenue).filter(r => r && r.clubId === clubId).length;
     }
 
     function renderClubs() {
@@ -298,10 +301,11 @@
 
       // Global stats
       const all = Object.values(allClubs).filter(c => c && (c.businessName || c.name));
+      const totalRevenue = Object.values(allRevenue).reduce((s, r) => s + (Number(r.amount)||0), 0);
       document.getElementById('statTotal').textContent = all.length;
       document.getElementById('statActive').textContent = all.filter(c => c.status === 'active').length;
       document.getElementById('statMembers').textContent = Object.values(allMembers).filter(m => m).length;
-      document.getElementById('statTrainers').textContent = Object.values(allTrainers).filter(t => t).length;
+      document.getElementById('statRevenue').textContent = formatCurrency(totalRevenue);
 
       const container = document.getElementById('clubsContainer');
       
@@ -322,7 +326,8 @@
         const capacity = c.capacity || 0;
         const memberCount = getMemberCount(c.id);
         const trainerCount = getTrainerCount(c.id);
-        const revenue = c.revenue || c.monthlyRevenue || 0;
+        const revenue = getClubRevenue(c.id);
+        const revenueCount = getClubRevenueCount(c.id);
 
         return `
           <div class="club-card">
@@ -332,17 +337,17 @@
                 <div class="club-name">${name}</div>
                 <div class="club-location"><i class="fas fa-map-pin"></i> ${location}</div>
                 <div class="club-badges">
-                  <span class="badge ${tier}">${tier}</span>
-                  <span class="badge ${status}">${status}</span>
-                  ${established ? `<span class="badge" style="background:#f1f5f9;color:#475569;">Est. ${established}</span>` : ''}
+                  <span class="badge ${tier==='premium'?'badge-warning':tier==='standard'?'badge-info':'badge-neutral'}">${tier}</span>
+                  <span class="badge ${status==='active'?'badge-success':status==='pending'?'badge-warning':'badge-danger'}">${status}</span>
+                  ${established ? `<span class="badge badge-neutral">Est. ${established}</span>` : ''}
                 </div>
               </div>
             </div>
             ${address || phone || email ? `
-            <div style="padding:0 1.2rem 0.5rem;display:flex;flex-wrap:wrap;gap:6px;font-size:0.65rem;color:var(--text-secondary);">
-              ${address ? `<span style="background:#f8fafc;padding:0.2rem 0.5rem;border-radius:6px;"><i class="fas fa-location-dot"></i> ${address}</span>` : ''}
-              ${phone ? `<span style="background:#f8fafc;padding:0.2rem 0.5rem;border-radius:6px;"><i class="fas fa-phone"></i> ${phone}</span>` : ''}
-              ${email ? `<span style="background:#f8fafc;padding:0.2rem 0.5rem;border-radius:6px;"><i class="fas fa-envelope"></i> ${email}</span>` : ''}
+            <div class="club-details">
+              ${address ? `<span><i class="fas fa-location-dot"></i> ${address}</span>` : ''}
+              ${phone ? `<span><i class="fas fa-phone"></i> ${phone}</span>` : ''}
+              ${email ? `<span><i class="fas fa-envelope"></i> ${email}</span>` : ''}
             </div>` : ''}
             <div class="club-stats-row">
               <div class="club-stat-cell clickable" onclick="viewClubMembers('${c.id}', '${esc(name)}')">
@@ -352,16 +357,53 @@
                 <strong>${trainerCount}</strong><small>Trainers</small>
               </div>
               <div class="club-stat-cell"><strong>${capacity}</strong><small>Capacity</small></div>
-              <div class="club-stat-cell"><strong>${Number(revenue).toLocaleString()}</strong><small>Revenue</small></div>
+              <div class="club-stat-cell clickable" onclick="viewClubRevenue('${c.id}', '${esc(name)}')">
+                <strong>${formatCurrency(revenue)}</strong><small>Revenue (${revenueCount})</small>
+              </div>
             </div>
             <div class="club-card-footer">
               <button class="primary-action" onclick="viewClubMembers('${c.id}', '${esc(name)}')"><i class="fas fa-users"></i> Members</button>
+              <button onclick="viewClubRevenue('${c.id}', '${esc(name)}')"><i class="fas fa-chart-line"></i> Revenue</button>
               <button onclick="openClubForm('${c.id}')"><i class="fas fa-pen"></i> Edit</button>
               <button onclick="if(confirm('Delete ${name}?')) deleteClub('${c.id}')"><i class="fas fa-trash"></i> Delete</button>
             </div>
           </div>`;
       }).join('');
     }
+
+    // View Revenue for a club
+    window.viewClubRevenue = function(clubId, clubName) {
+      const revenue = Object.entries(allRevenue)
+        .filter(([id, r]) => r && r.clubId === clubId)
+        .map(([id, r]) => ({ id, ...r }))
+        .sort((a, b) => (b.createdAt || b.timestamp || 0) - (a.createdAt || a.timestamp || 0));
+      
+      const total = revenue.reduce((s, r) => s + (Number(r.amount)||0), 0);
+      
+      let html = `
+        <div class="modal-header"><h3>💰 Revenue for ${esc(clubName)}</h3><button class="modal-close" onclick="closeRevenueModal()"><i class="fas fa-times"></i></button></div>
+        <div style="display:flex;gap:12px;margin-bottom:1rem;">
+          <div style="flex:1;background:#f8fafc;border-radius:10px;padding:0.8rem;text-align:center;"><strong style="font-size:1.2rem;display:block;">${revenue.length}</strong><small style="font-size:0.6rem;color:var(--text-secondary);">Transactions</small></div>
+          <div style="flex:1;background:#ecfdf5;border-radius:10px;padding:0.8rem;text-align:center;"><strong style="font-size:1.2rem;display:block;color:#065f46;">KES ${formatCurrency(total)}</strong><small style="font-size:0.6rem;color:var(--text-secondary);">Total Revenue</small></div>
+        </div>
+      `;
+      
+      if (!revenue.length) {
+        html += `<div class="empty-state" style="padding:1.5rem;"><i class="fas fa-receipt"></i><p>No revenue recorded for this club</p></div>`;
+      } else {
+        html += `<div style="max-height:50vh;overflow-y:auto;">`;
+        revenue.forEach(r => {
+          html += `<div class="revenue-item"><div><strong>${esc(r.description || r.type || 'Sale')}</strong><br><small style="font-size:0.65rem;color:var(--text-secondary);">${r.date || ''} · ${esc(r.customerName || '')} · ${esc(r.type || '')}</small></div><strong style="color:var(--text);">KES ${(r.amount||0).toLocaleString()}</strong></div>`;
+        });
+        html += `</div>`;
+      }
+      
+      document.getElementById('revenueModalContent').innerHTML = '<div class="modal-handle"></div>' + html;
+      document.getElementById('revenueModal').classList.add('active');
+    };
+
+    function closeRevenueModal() { document.getElementById('revenueModal').classList.remove('active'); }
+    document.getElementById('revenueModal').addEventListener('click', function(e) { if (e.target === this) closeRevenueModal(); });
 
     // View Members
     window.viewClubMembers = function(clubId, clubName) {
@@ -375,7 +417,7 @@
       } else {
         html += `<div style="max-height:50vh;overflow-y:auto;">`;
         members.forEach(m => {
-          html += `<div class="member-list-item"><div><strong style="font-size:0.8rem;">${esc(m.name || m.fullName || 'Member')}</strong><br><small style="font-size:0.65rem;color:var(--text-secondary);">${esc(m.membershipTier || 'Standard')} · ${m.phone || 'No phone'} · ${m.email || ''}</small></div><div style="display:flex;gap:4px;"><span class="badge ${m.status==='active'?'active':'inactive'}">${m.status||'active'}</span><button class="btn btn-xs" style="background:#fef2f2;color:#ef4444;border-color:#fee2e2;" onclick="if(confirm('Remove member?')) removeMember('${m.id}')"><i class="fas fa-trash"></i></button></div></div>`;
+          html += `<div class="member-list-item"><div><strong style="font-size:0.8rem;">${esc(m.name || m.fullName || 'Member')}</strong><br><small style="font-size:0.65rem;color:var(--text-secondary);">${esc(m.membershipTier || 'Standard')} · ${m.phone || 'No phone'}</small></div><div style="display:flex;gap:4px;"><span class="badge ${m.status==='active'?'badge-success':'badge-danger'}">${m.status||'active'}</span><button class="btn btn-xs" style="background:#fef2f2;color:#ef4444;border-color:#fee2e2;" onclick="if(confirm('Remove member?')) removeMember('${m.id}')"><i class="fas fa-trash"></i></button></div></div>`;
         });
         html += `</div>`;
       }
@@ -385,13 +427,14 @@
 
     window.addMemberToClub = function(clubId, clubName) {
       closeMembersModal();
-      openModal(`
+      document.getElementById('clubModalContent').innerHTML = '<div class="modal-handle"></div>' + `
         <div class="modal-header"><h3>Add Member to ${esc(clubName)}</h3><button class="modal-close" onclick="closeClubModal()"><i class="fas fa-times"></i></button></div>
         <div class="form-group"><label>Full Name *</label><input id="memName" placeholder="Member name"></div>
         <div class="form-row"><div class="form-group"><label>Phone</label><input id="memPhone" placeholder="+254..."></div><div class="form-group"><label>Email</label><input id="memEmail" placeholder="email@..."></div></div>
         <div class="form-row"><div class="form-group"><label>Tier</label><select id="memTier"><option>Basic</option><option>Standard</option><option>Premium</option></select></div><div class="form-group"><label>Status</label><select id="memStatus"><option value="active">Active</option><option value="inactive">Inactive</option></select></div></div>
         <button class="btn btn-primary" style="width:100%;" onclick="saveMemberToClub('${clubId}', '${esc(clubName)}')">Save Member</button>
-      `);
+      `;
+      document.getElementById('clubModal').classList.add('active');
     };
 
     window.saveMemberToClub = async function(clubId, clubName) {
@@ -421,17 +464,13 @@
     document.getElementById('membersModal').addEventListener('click', function(e) { if (e.target === this) closeMembersModal(); });
 
     // Club Form Modal
-    function openModal(html) {
-      document.getElementById('clubModalContent').innerHTML = '<div class="modal-handle"></div>' + html;
-      document.getElementById('clubModal').classList.add('active');
-    }
     function closeClubModal() { document.getElementById('clubModal').classList.remove('active'); }
     document.getElementById('clubModal').addEventListener('click', function(e) { if (e.target === this) closeClubModal(); });
 
     window.openClubForm = function(clubId) {
       const c = clubId ? allClubs[clubId] : null;
       isEditing = !!clubId;
-      openModal(`
+      document.getElementById('clubModalContent').innerHTML = '<div class="modal-handle"></div>' + `
         <div class="modal-header"><h3>${clubId ? '✏️ Edit' : '➕ Add'} Club</h3><button class="modal-close" onclick="closeClubModal()"><i class="fas fa-times"></i></button></div>
         <input type="hidden" id="editClubId" value="${clubId || ''}">
         <div class="form-group"><label>Club Name *</label><input id="clubName" value="${esc(c?.businessName || c?.name || '')}" placeholder="e.g. WorkFit Westlands"></div>
@@ -445,7 +484,8 @@
           <button class="btn btn-secondary" style="flex:1;" onclick="closeClubModal()">Cancel</button>
           <button class="btn btn-primary" style="flex:1;" onclick="saveClub()">${clubId ? 'Update' : 'Save'} Club</button>
         </div>
-      `);
+      `;
+      document.getElementById('clubModal').classList.add('active');
     };
 
     window.saveClub = async function() {
@@ -472,8 +512,6 @@
         if (editId) {
           await db.ref('workfit_clubs/' + editId).update(data);
         } else {
-          data.members = 0; data.totalMembers = 0; data.trainers = 0; data.totalTrainers = 0;
-          data.revenue = 0; data.monthlyRevenue = 0;
           data.createdAt = firebase.database.ServerValue.TIMESTAMP; data.registeredAt = Date.now();
           await db.ref('workfit_clubs').push(data);
         }
@@ -490,13 +528,14 @@
     document.getElementById('statusFilter').addEventListener('change', renderClubs);
     document.getElementById('tierFilter').addEventListener('change', renderClubs);
 
-    // Auth + Data
+    // Auth + Data - NOW LOADING REVENUE
     auth.onAuthStateChanged(user => {
       if (!user) { window.location.href = '/'; return; }
 
       db.ref('workfit_clubs').on('value', snap => { allClubs = snap.val() || {}; renderClubs(); });
       db.ref('workfit_members').on('value', snap => { allMembers = snap.val() || {}; renderClubs(); });
       db.ref('workfit_trainers').on('value', snap => { allTrainers = snap.val() || {}; renderClubs(); });
+      db.ref('workfit_revenue').on('value', snap => { allRevenue = snap.val() || {}; renderClubs(); });
     });
   </script>
 </body>
