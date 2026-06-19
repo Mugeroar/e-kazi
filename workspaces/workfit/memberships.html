@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Membership Manager | WorkFit Club</title>
+  <meta name="theme-color" content="#f97316">
+  <link rel="icon" type="image/png" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --orange: #f97316; --orange-dark: #c2410c; --orange-light: #fb923c;
+      --bg: #f8fafc; --surface: #ffffff; --text: #0f172a; --text-secondary: #64748b;
+      --border: #e2e8f0; --border-light: #f1f5f9;
+      --success: #10b981; --warning: #f59e0b; --danger: #ef4444; --info: #3b82f6;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05); --shadow: 0 1px 3px rgba(0,0,0,0.1);
+      --shadow-md: 0 4px 6px rgba(0,0,0,0.07); --shadow-lg: 0 10px 25px rgba(0,0,0,0.1);
+      --radius-sm: 8px; --radius: 12px; --radius-lg: 16px; --radius-xl: 20px;
+    }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg); color: var(--text); min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .topbar {
+      background: rgba(255,255,255,0.85); backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border-light); padding: 0 1.5rem; height: 56px;
+      display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 12px; }
+    .brand { display: flex; align-items: center; gap: 8px; text-decoration: none; }
+    .brand img { width: 30px; height: 30px; border-radius: 8px; }
+    .brand span { font-weight: 700; font-size: 0.9rem; color: var(--text); }
+    .nav-btn {
+      padding: 0.4rem 0.9rem; border-radius: var(--radius-sm); font-weight: 600; font-size: 0.72rem;
+      cursor: pointer; border: 1px solid var(--border); background: white; color: var(--text-secondary);
+      transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; text-decoration: none;
+    }
+    .nav-btn:hover { background: #f8fafc; }
+    .nav-btn.primary { background: var(--orange); color: white; border-color: var(--orange); }
+    .nav-btn.primary:hover { background: var(--orange-dark); }
+
+    .main { padding: 1.5rem; max-width: 1200px; margin: 0 auto; }
+    .page-header { margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+    .page-title { font-size: 1.4rem; font-weight: 800; }
+    .page-subtitle { font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.2rem; }
+
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 1.5rem; }
+    .stat-card {
+      background: var(--surface); border-radius: var(--radius-lg); padding: 1rem;
+      border: 1px solid var(--border-light); box-shadow: var(--shadow-sm);
+    }
+    .stat-card .stat-icon { width: 36px; height: 36px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; margin-bottom: 0.6rem; font-size: 0.9rem; }
+    .stat-icon.orange { background: #fff7ed; color: #f97316; }
+    .stat-icon.green { background: #ecfdf5; color: #10b981; }
+    .stat-icon.purple { background: #faf5ff; color: #8b5cf6; }
+    .stat-icon.blue { background: #eff6ff; color: #3b82f6; }
+    .stat-value { font-size: 1.6rem; font-weight: 800; color: var(--text); line-height: 1; }
+    .stat-label { font-size: 0.6rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 0.2rem; }
+
+    .filter-bar {
+      display: flex; gap: 10px; margin-bottom: 1.2rem; flex-wrap: wrap; align-items: center;
+      background: white; padding: 0.6rem 1rem; border-radius: var(--radius); border: 1px solid var(--border-light); box-shadow: var(--shadow-sm);
+    }
+    .filter-bar input, .filter-bar select {
+      padding: 0.5rem 0.8rem; border: 1px solid var(--border); border-radius: var(--radius-sm);
+      font-family: 'Inter', sans-serif; font-size: 0.78rem; background: #f8fafc; outline: none; color: #334155;
+    }
+    .filter-bar input:focus, .filter-bar select:focus { border-color: var(--orange); box-shadow: 0 0 0 3px rgba(249,115,22,0.06); }
+    .filter-bar input { flex: 1; min-width: 180px; }
+
+    .section { background: var(--surface); border-radius: var(--radius-xl); border: 1px solid var(--border-light); box-shadow: var(--shadow-sm); overflow: hidden; margin-bottom: 1.5rem; }
+    .section-header { padding: 1rem 1.2rem; border-bottom: 1px solid var(--border-light); display: flex; justify-content: space-between; align-items: center; }
+    .section-header h3 { font-size: 0.85rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+    .section-body { padding: 0; }
+
+    .member-row {
+      display: grid; grid-template-columns: 1fr 140px 100px 120px 60px;
+      align-items: center; padding: 0.75rem 1.2rem; border-bottom: 1px solid var(--border-light);
+      transition: background 0.15s; gap: 10px;
+    }
+    .member-row:hover { background: #fafbfc; }
+    .member-row:last-child { border-bottom: none; }
+    .member-info { min-width: 0; }
+    .member-name { font-weight: 600; font-size: 0.82rem; color: var(--text); }
+    .member-details { font-size: 0.65rem; color: var(--text-secondary); margin-top: 2px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .member-club { font-size: 0.7rem; color: var(--orange-dark); font-weight: 500; display: flex; align-items: center; gap: 4px; }
+    .member-tier { text-align: center; }
+    .member-status { text-align: center; }
+    .member-actions { display: flex; gap: 4px; justify-content: flex-end; }
+
+    .badge {
+      padding: 0.18rem 0.5rem; border-radius: 6px; font-size: 0.6rem; font-weight: 600; text-transform: capitalize; display: inline-block;
+    }
+    .badge-success { background: #ecfdf5; color: #065f46; }
+    .badge-warning { background: #fffbeb; color: #92400e; }
+    .badge-danger { background: #fef2f2; color: #991b1b; }
+    .badge-info { background: #eff6ff; color: #1e40af; }
+    .badge-neutral { background: #f1f5f9; color: #475569; }
+    .badge.premium { background: #fffbeb; color: #92400e; }
+    .badge.standard { background: #eff6ff; color: #1e40af; }
+    .badge.basic { background: #f1f5f9; color: #475569; }
+
+    .btn {
+      padding: 0.4rem 0.8rem; border-radius: var(--radius-sm); font-weight: 600; font-size: 0.68rem;
+      cursor: pointer; border: 1px solid transparent; transition: all 0.2s; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;
+    }
+    .btn-primary { background: var(--orange); color: white; border-color: var(--orange); }
+    .btn-primary:hover { background: var(--orange-dark); }
+    .btn-outline { background: white; border-color: var(--border); color: var(--text-secondary); }
+    .btn-outline:hover { background: #f8fafc; }
+    .btn-xs { padding: 0.2rem 0.4rem; font-size: 0.6rem; border-radius: 4px; }
+
+    .subscription-bar {
+      display: flex; align-items: center; gap: 6px; margin-top: 3px;
+    }
+    .subscription-days {
+      height: 4px; flex: 1; background: #e2e8f0; border-radius: 2px; overflow: hidden; min-width: 40px;
+    }
+    .subscription-fill { height: 100%; border-radius: 2px; transition: width 0.3s; }
+    .subscription-fill.active { background: #10b981; }
+    .subscription-fill.expiring { background: #f59e0b; }
+    .subscription-fill.expired { background: #ef4444; }
+
+    .empty-state { text-align: center; padding: 2.5rem 1rem; }
+    .empty-state i { font-size: 2.5rem; color: #cbd5e1; display: block; margin-bottom: 0.8rem; }
+    .empty-state p { font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 1rem; }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(15,23,42,0.4); backdrop-filter: blur(4px);
+      display: flex; align-items: flex-end; justify-content: center; z-index: 300;
+      opacity: 0; visibility: hidden; transition: all 0.25s;
+    }
+    .modal-overlay.active { opacity: 1; visibility: visible; }
+    .modal {
+      background: white; border-radius: 20px 20px 0 0; padding: 1.5rem; width: 100%; max-width: 520px;
+      max-height: 85vh; overflow-y: auto; box-shadow: 0 -4px 30px rgba(0,0,0,0.1);
+    }
+    .modal-handle { width: 36px; height: 4px; background: #e2e8f0; border-radius: 2px; margin: 0 auto 1rem; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem; }
+    .modal-header h3 { font-size: 1rem; font-weight: 700; }
+    .modal-close { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border); background: white; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; transition: all 0.2s; }
+    .modal-close:hover { background: #fef2f2; color: #ef4444; }
+    .form-group { margin-bottom: 0.8rem; }
+    .form-group label { display: block; font-weight: 600; font-size: 0.7rem; color: var(--text-secondary); margin-bottom: 0.3rem; }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%; padding: 0.55rem 0.8rem; border: 1px solid var(--border); border-radius: var(--radius-sm);
+      font-family: 'Inter', sans-serif; font-size: 0.8rem; background: #f8fafc; outline: none; transition: all 0.2s;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--orange); box-shadow: 0 0 0 3px rgba(249,115,22,0.06); background: white; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+
+    .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-bottom: 1rem; }
+    .detail-item {
+      background: #f8fafc; border-radius: var(--radius-sm); padding: 0.6rem 0.8rem; border: 1px solid var(--border-light);
+    }
+    .detail-item.full { grid-column: span 2; }
+    .detail-item strong { display: block; font-size: 0.6rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.2rem; }
+    .detail-item span { font-size: 0.8rem; font-weight: 600; color: var(--text); }
+
+    .toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 400;
+      padding: 0.6rem 1.2rem; border-radius: 10px; font-size: 0.75rem; font-weight: 600;
+      box-shadow: var(--shadow-lg); animation: toastIn 0.3s ease; white-space: nowrap;
+      background: #0f172a; color: white;
+    }
+    .toast.error { background: #991b1b; }
+    @keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(15px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+
+    @media (max-width: 768px) {
+      .main { padding: 1rem; }
+      .stats-row { grid-template-columns: 1fr 1fr; }
+      .member-row { grid-template-columns: 1fr 80px 70px; gap: 6px; }
+      .member-club, .member-actions { display: none; }
+      .form-row, .detail-grid { grid-template-columns: 1fr; }
+      .detail-item.full { grid-column: span 1; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Member Form Modal -->
+  <div class="modal-overlay" id="memberModal">
+    <div class="modal" id="memberModalContent"><div class="modal-handle"></div></div>
+  </div>
+
+  <!-- Member Detail Modal -->
+  <div class="modal-overlay" id="detailModal">
+    <div class="modal" id="detailModalContent"><div class="modal-handle"></div></div>
+  </div>
+
+  <div class="topbar">
+    <div class="topbar-left">
+      <a class="brand" href="/workspaces/workfit/dashboard.html">
+        <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png" alt="Logo">
+        <span>WorkFit Club</span>
+      </a>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <a href="/workspaces/workfit/dashboard.html" class="nav-btn"><i class="fas fa-arrow-left"></i> Dashboard</a>
+      <button class="nav-btn primary" onclick="openMemberForm()"><i class="fas fa-plus"></i> Add Member</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">🎫 Membership Manager</h1>
+        <p class="page-subtitle">Track members, subscriptions, and renewals across all clubs</p>
+      </div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-icon orange"><i class="fas fa-users"></i></div><div class="stat-value" id="statTotal">0</div><div class="stat-label">Total Members</div></div>
+      <div class="stat-card"><div class="stat-icon green"><i class="fas fa-check-circle"></i></div><div class="stat-value" id="statActive">0</div><div class="stat-label">Active</div></div>
+      <div class="stat-card"><div class="stat-icon purple"><i class="fas fa-gem"></i></div><div class="stat-value" id="statPremium">0</div><div class="stat-label">Premium</div></div>
+      <div class="stat-card"><div class="stat-icon blue"><i class="fas fa-clock"></i></div><div class="stat-value" id="statExpiring">0</div><div class="stat-label">Expiring Soon</div></div>
+    </div>
+
+    <div class="filter-bar">
+      <i class="fas fa-search" style="color:#94a3b8;"></i>
+      <input type="text" id="searchInput" placeholder="Search by name, phone, email or club...">
+      <select id="clubFilter"><option value="all">All Clubs</option></select>
+      <select id="tierFilter"><option value="all">All Tiers</option><option value="basic">Basic</option><option value="standard">Standard</option><option value="premium">Premium</option></select>
+      <select id="statusFilter"><option value="all">All Status</option><option value="active">Active</option><option value="inactive">Inactive</option><option value="expiring">Expiring Soon</option><option value="expired">Expired</option></select>
+    </div>
+
+    <div class="section">
+      <div class="section-header">
+        <h3><i class="fas fa-list"></i> All Members (<span id="memberCount">0</span>)</h3>
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-outline btn-xs" onclick="exportMembers()"><i class="fas fa-download"></i> Export</button>
+        </div>
+      </div>
+      <div class="section-body" id="membersList"></div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" style="display:none;"></div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
+  <script>
+    firebase.initializeApp({
+      apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+      authDomain: "mugera-e51cc.firebaseapp.com",
+      databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "mugera-e51cc"
+    });
+    const auth = firebase.auth();
+    const db = firebase.database();
+
+    let allMembers = {};
+    let allClubs = {};
+
+    function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+    function toast(msg, err) {
+      const t = document.getElementById('toast');
+      t.textContent = msg; t.className = 'toast' + (err ? ' error' : '');
+      t.style.display = 'block'; clearTimeout(t._timeout);
+      t._timeout = setTimeout(() => t.style.display = 'none', 2800);
+    }
+
+    function openMemberModal(html) {
+      document.getElementById('memberModalContent').innerHTML = '<div class="modal-handle"></div>' + html;
+      document.getElementById('memberModal').classList.add('active');
+    }
+    function closeMemberModal() { document.getElementById('memberModal').classList.remove('active'); }
+    document.getElementById('memberModal').addEventListener('click', function(e) { if (e.target === this) closeMemberModal(); });
+
+    function openDetailModal(html) {
+      document.getElementById('detailModalContent').innerHTML = '<div class="modal-handle"></div>' + html;
+      document.getElementById('detailModal').classList.add('active');
+    }
+    function closeDetailModal() { document.getElementById('detailModal').classList.remove('active'); }
+    document.getElementById('detailModal').addEventListener('click', function(e) { if (e.target === this) closeDetailModal(); });
+
+    function getSubscriptionStatus(m) {
+      const start = m.subscriptionStart || m.joinedAt || m.createdAt;
+      const duration = m.subscriptionDuration || 30; // days
+      if (!start) return { status: 'unknown', daysLeft: 0, percentage: 0 };
+      const startDate = new Date(start);
+      const endDate = new Date(startDate.getTime() + duration * 86400000);
+      const now = new Date();
+      const daysLeft = Math.ceil((endDate - now) / 86400000);
+      const totalDays = duration;
+      const percentage = Math.max(0, Math.min(100, Math.round((daysLeft / totalDays) * 100)));
+      
+      if (daysLeft <= 0) return { status: 'expired', daysLeft: 0, percentage: 0, endDate };
+      if (daysLeft <= 7) return { status: 'expiring', daysLeft, percentage, endDate };
+      return { status: 'active', daysLeft, percentage, endDate };
+    }
+
+    function populateClubFilter() {
+      const sel = document.getElementById('clubFilter');
+      sel.innerHTML = '<option value="all">All Clubs</option>';
+      Object.entries(allClubs).forEach(([id, club]) => {
+        if (club && (club.businessName || club.name)) {
+          sel.innerHTML += `<option value="${id}">${esc(club.businessName || club.name)}</option>`;
+        }
+      });
+    }
+
+    function renderMembers() {
+      const searchTerm = (document.getElementById('searchInput').value || '').toLowerCase();
+      const clubVal = document.getElementById('clubFilter').value;
+      const tierVal = document.getElementById('tierFilter').value;
+      const statusVal = document.getElementById('statusFilter').value;
+
+      let members = Object.entries(allMembers).map(([id, m]) => ({ id, ...m })).filter(m => m && m.name);
+      
+      if (clubVal !== 'all') members = members.filter(m => m.clubId === clubVal);
+      if (tierVal !== 'all') members = members.filter(m => (m.membershipTier || 'Standard').toLowerCase() === tierVal);
+      if (searchTerm) {
+        members = members.filter(m =>
+          (m.name || '').toLowerCase().includes(searchTerm) ||
+          (m.phone || '').toLowerCase().includes(searchTerm) ||
+          (m.email || '').toLowerCase().includes(searchTerm) ||
+          (m.clubName || '').toLowerCase().includes(searchTerm)
+        );
+      }
+
+      // Add subscription status
+      members = members.map(m => ({ ...m, subStatus: getSubscriptionStatus(m) }));
+
+      // Filter by subscription status
+      if (statusVal === 'expiring') members = members.filter(m => m.subStatus.status === 'expiring');
+      if (statusVal === 'expired') members = members.filter(m => m.subStatus.status === 'expired');
+      if (statusVal === 'active') members = members.filter(m => m.subStatus.status === 'active');
+
+      // Sort: expiring first, then active, then expired
+      members.sort((a, b) => {
+        const order = { expiring: 0, active: 1, expired: 2, unknown: 3 };
+        return (order[a.subStatus.status] || 3) - (order[b.subStatus.status] || 3);
+      });
+
+      // Stats
+      const all = Object.values(allMembers).filter(m => m && m.name);
+      document.getElementById('statTotal').textContent = all.length;
+      document.getElementById('statActive').textContent = all.filter(m => m.status === 'active').length;
+      document.getElementById('statPremium').textContent = all.filter(m => m.membershipTier === 'Premium').length;
+      document.getElementById('statExpiring').textContent = all.filter(m => getSubscriptionStatus(m).status === 'expiring').length;
+      document.getElementById('memberCount').textContent = members.length;
+
+      const container = document.getElementById('membersList');
+      
+      if (!members.length) {
+        container.innerHTML = `<div class="empty-state"><i class="fas fa-user-slash"></i><p>No members found</p><button class="btn btn-primary" onclick="openMemberForm()"><i class="fas fa-plus"></i> Add Member</button></div>`;
+        return;
+      }
+
+      container.innerHTML = members.map(m => {
+        const clubName = esc(m.clubName || 'Unassigned');
+        const tier = m.membershipTier || 'Standard';
+        const sub = m.subStatus;
+        let subLabel = '';
+        let subColor = '';
+        if (sub.status === 'active') { subLabel = `${sub.daysLeft}d left`; subColor = 'active'; }
+        else if (sub.status === 'expiring') { subLabel = `⚠️ ${sub.daysLeft}d left`; subColor = 'expiring'; }
+        else if (sub.status === 'expired') { subLabel = 'Expired'; subColor = 'expired'; }
+        else { subLabel = 'N/A'; subColor = ''; }
+
+        return `
+          <div class="member-row">
+            <div class="member-info">
+              <div class="member-name">${esc(m.name || m.fullName || 'Member')}</div>
+              <div class="member-details">
+                ${m.phone ? `<span><i class="fas fa-phone"></i> ${esc(m.phone)}</span>` : ''}
+                ${m.email ? `<span><i class="fas fa-envelope"></i> ${esc(m.email)}</span>` : ''}
+              </div>
+              ${sub.status !== 'unknown' ? `
+              <div class="subscription-bar">
+                <span style="font-size:0.6rem;color:var(--text-secondary);">${subLabel}</span>
+                <div class="subscription-days"><div class="subscription-fill ${subColor}" style="width:${sub.percentage}%;"></div></div>
+              </div>` : ''}
+            </div>
+            <div class="member-club"><i class="fas fa-building"></i> ${clubName}</div>
+            <div class="member-tier"><span class="badge ${tier.toLowerCase()}">${tier}</span></div>
+            <div class="member-status"><span class="badge ${m.status==='active'?'badge-success':'badge-danger'}">${m.status||'active'}</span></div>
+            <div class="member-actions">
+              <button class="btn btn-outline btn-xs" onclick="viewMemberDetail('${m.id}')" title="View"><i class="fas fa-eye"></i></button>
+              <button class="btn btn-outline btn-xs" onclick="openMemberForm('${m.id}')" title="Edit"><i class="fas fa-pen"></i></button>
+              <button class="btn btn-outline btn-xs" style="color:#ef4444;" onclick="if(confirm('Remove this member?')) deleteMember('${m.id}')" title="Delete"><i class="fas fa-trash"></i></button>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    // View Member Detail
+    window.viewMemberDetail = function(memberId) {
+      const m = allMembers[memberId];
+      if (!m) return;
+      const sub = getSubscriptionStatus(m);
+      const clubName = esc(m.clubName || 'Unassigned');
+      
+      openDetailModal(`
+        <div class="modal-header"><h3>👤 Member Details</h3><button class="modal-close" onclick="closeDetailModal()"><i class="fas fa-times"></i></button></div>
+        <div class="detail-grid">
+          <div class="detail-item full"><strong>Name</strong><span>${esc(m.name || m.fullName || 'N/A')}</span></div>
+          <div class="detail-item"><strong>Phone</strong><span>${esc(m.phone || '—')}</span></div>
+          <div class="detail-item"><strong>Email</strong><span>${esc(m.email || '—')}</span></div>
+          <div class="detail-item"><strong>Club</strong><span>${clubName}</span></div>
+          <div class="detail-item"><strong>Tier</strong><span class="badge ${(m.membershipTier||'Standard').toLowerCase()}">${m.membershipTier||'Standard'}</span></div>
+          <div class="detail-item"><strong>Status</strong><span class="badge ${m.status==='active'?'badge-success':'badge-danger'}">${m.status||'active'}</span></div>
+          <div class="detail-item"><strong>Subscription</strong><span>${sub.status === 'expired' ? '🔴 Expired' : sub.status === 'expiring' ? '🟡 Expiring' : '🟢 Active'}</span></div>
+          <div class="detail-item"><strong>Days Left</strong><span>${sub.daysLeft || 0} days</span></div>
+          <div class="detail-item"><strong>Start Date</strong><span>${m.subscriptionStart ? new Date(m.subscriptionStart).toLocaleDateString() : '—'}</span></div>
+          <div class="detail-item"><strong>End Date</strong><span>${sub.endDate ? sub.endDate.toLocaleDateString() : '—'}</span></div>
+          <div class="detail-item"><strong>Duration</strong><span>${m.subscriptionDuration || 30} days</span></div>
+          <div class="detail-item"><strong>Amount Paid</strong><span>KES ${(m.subscriptionAmount || 0).toLocaleString()}</span></div>
+          <div class="detail-item"><strong>Payment Method</strong><span>${esc(m.paymentMethod || '—')}</span></div>
+          <div class="detail-item full"><strong>Notes</strong><span>${esc(m.notes || 'No notes')}</span></div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:0.5rem;">
+          <button class="btn btn-primary" style="flex:1;" onclick="closeDetailModal(); openMemberForm('${memberId}')"><i class="fas fa-pen"></i> Edit</button>
+          <button class="btn btn-outline" style="flex:1;" onclick="renewSubscription('${memberId}')"><i class="fas fa-sync"></i> Renew</button>
+        </div>
+      `);
+    };
+
+    // Add/Edit Member Form
+    window.openMemberForm = function(memberId) {
+      const m = memberId ? allMembers[memberId] : null;
+      let clubOptions = '<option value="">Select club</option>';
+      Object.entries(allClubs).forEach(([id, club]) => {
+        if (club && (club.businessName || club.name)) {
+          clubOptions += `<option value="${id}" ${(m?.clubId)===id?'selected':''}>${esc(club.businessName || club.name)}</option>`;
+        }
+      });
+
+      openMemberModal(`
+        <div class="modal-header"><h3>${memberId ? '✏️ Edit' : '➕ Add'} Member</h3><button class="modal-close" onclick="closeMemberModal()"><i class="fas fa-times"></i></button></div>
+        <input type="hidden" id="editMemberId" value="${memberId || ''}">
+        <div class="form-row">
+          <div class="form-group"><label>Full Name *</label><input id="memName" value="${esc(m?.name || m?.fullName || '')}" placeholder="Full name"></div>
+          <div class="form-group"><label>Phone</label><input id="memPhone" value="${esc(m?.phone || '')}" placeholder="+254..."></div>
+        </div>
+        <div class="form-group"><label>Email</label><input id="memEmail" value="${esc(m?.email || '')}" placeholder="email@..."></div>
+        <div class="form-row">
+          <div class="form-group"><label>Club *</label><select id="memClub">${clubOptions}</select></div>
+          <div class="form-group"><label>Membership Tier</label><select id="memTier"><option value="Basic" ${(m?.membershipTier)=='Basic'?'selected':''}>Basic</option><option value="Standard" ${(m?.membershipTier)=='Standard'?'selected':''}>Standard</option><option value="Premium" ${(m?.membershipTier)=='Premium'?'selected':''}>Premium</option></select></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Status</label><select id="memStatus"><option value="active" ${(m?.status)=='active'?'selected':''}>Active</option><option value="inactive" ${(m?.status)=='inactive'?'selected':''}>Inactive</option></select></div>
+          <div class="form-group"><label>Subscription Duration</label><select id="memDuration"><option value="7" ${m?.subscriptionDuration==7?'selected':''}>7 days</option><option value="14" ${m?.subscriptionDuration==14?'selected':''}>14 days</option><option value="30" ${m?.subscriptionDuration==30?'selected':''}>30 days</option><option value="90" ${m?.subscriptionDuration==90?'selected':''}>90 days</option><option value="180" ${m?.subscriptionDuration==180?'selected':''}>180 days</option><option value="365" ${m?.subscriptionDuration==365?'selected':''}>365 days</option></select></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Amount Paid (KES)</label><input id="memAmount" type="number" value="${m?.subscriptionAmount || ''}" placeholder="e.g. 3000"></div>
+          <div class="form-group"><label>Payment Method</label><select id="memPayment"><option value="M-Pesa" ${m?.paymentMethod=='M-Pesa'?'selected':''}>M-Pesa</option><option value="Cash" ${m?.paymentMethod=='Cash'?'selected':''}>Cash</option><option value="Bank Transfer" ${m?.paymentMethod=='Bank Transfer'?'selected':''}>Bank Transfer</option><option value="Card" ${m?.paymentMethod=='Card'?'selected':''}>Card</option></select></div>
+        </div>
+        <div class="form-group"><label>Start Date</label><input id="memStartDate" type="date" value="${m?.subscriptionStart ? new Date(m.subscriptionStart).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]}"></div>
+        <div class="form-group"><label>Notes</label><textarea id="memNotes" rows="2" placeholder="Any notes...">${esc(m?.notes || '')}</textarea></div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-outline" style="flex:1;" onclick="closeMemberModal()">Cancel</button>
+          <button class="btn btn-primary" style="flex:1;" onclick="saveMember()">${memberId ? 'Update' : 'Save'} Member</button>
+        </div>
+      `);
+    };
+
+    window.saveMember = async function() {
+      const name = document.getElementById('memName').value.trim();
+      const clubId = document.getElementById('memClub').value;
+      if (!name) return toast('Name required', true);
+      if (!clubId) return toast('Club required', true);
+      
+      const clubName = allClubs[clubId]?.businessName || allClubs[clubId]?.name || '';
+      const data = {
+        name, fullName: name,
+        phone: document.getElementById('memPhone').value.trim(),
+        email: document.getElementById('memEmail').value.trim(),
+        clubId, clubName,
+        membershipTier: document.getElementById('memTier').value,
+        status: document.getElementById('memStatus').value,
+        subscriptionDuration: Number(document.getElementById('memDuration').value),
+        subscriptionAmount: Number(document.getElementById('memAmount').value) || 0,
+        paymentMethod: document.getElementById('memPayment').value,
+        subscriptionStart: document.getElementById('memStartDate').value,
+        notes: document.getElementById('memNotes').value.trim(),
+        updatedAt: firebase.database.ServerValue.TIMESTAMP
+      };
+
+      const editId = document.getElementById('editMemberId').value;
+      try {
+        if (editId) {
+          await db.ref('workfit_members/' + editId).update(data);
+        } else {
+          data.createdAt = firebase.database.ServerValue.TIMESTAMP;
+          data.joinedAt = Date.now();
+          await db.ref('workfit_members').push(data);
+        }
+        closeMemberModal(); toast(editId ? 'Member updated!' : 'Member added!');
+      } catch(e) { toast('Error', true); }
+    };
+
+    window.renewSubscription = function(memberId) {
+      closeDetailModal();
+      openMemberForm(memberId);
+      setTimeout(() => {
+        document.getElementById('memStartDate').value = new Date().toISOString().split('T')[0];
+      }, 200);
+    };
+
+    window.deleteMember = async function(id) {
+      try { await db.ref('workfit_members/' + id).remove(); toast('Member removed'); } catch(e) { toast('Error', true); }
+    };
+
+    window.exportMembers = function() {
+      const members = Object.values(allMembers).filter(m => m && m.name);
+      let csv = 'Name,Phone,Email,Club,Tier,Status,Subscription End,Days Left\n';
+      members.forEach(m => {
+        const sub = getSubscriptionStatus(m);
+        csv += `"${m.name || ''}","${m.phone || ''}","${m.email || ''}","${m.clubName || ''}","${m.membershipTier || ''}","${m.status || ''}","${sub.endDate ? sub.endDate.toLocaleDateString() : ''}","${sub.daysLeft || 0}"\n`;
+      });
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'workfit_members.csv'; a.click();
+      URL.revokeObjectURL(url);
+      toast('CSV exported!');
+    };
+
+    // Filters
+    document.getElementById('searchInput').addEventListener('input', renderMembers);
+    document.getElementById('clubFilter').addEventListener('change', renderMembers);
+    document.getElementById('tierFilter').addEventListener('change', renderMembers);
+    document.getElementById('statusFilter').addEventListener('change', renderMembers);
+
+    // Auth + Data
+    auth.onAuthStateChanged(user => {
+      if (!user) { window.location.href = '/'; return; }
+
+      db.ref('workfit_members').on('value', snap => {
+        allMembers = snap.val() || {};
+        renderMembers();
+      });
+
+      db.ref('workfit_clubs').on('value', snap => {
+        allClubs = snap.val() || {};
+        populateClubFilter();
+        renderMembers();
+      });
+    });
+  </script>
+</body>
+</html>
