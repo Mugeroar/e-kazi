@@ -411,9 +411,11 @@
                     <h2>Available Workspaces <span class="badge badge-gold" id="wsCount" style="margin-left:0.5rem;">0</span></h2>
                 </div>
 
-                <!-- Workspace Cards -->
+                <!-- Workspace Cards - Loading State -->
                 <div class="cards-grid" id="workspacesContainer">
-                    <!-- Dynamically rendered -->
+                    <div class="skeleton-card"><div class="skeleton skeleton-image"></div><div style="padding:1.3rem 1.5rem;"><div class="skeleton skeleton-badge"></div><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-desc"></div><div class="skeleton skeleton-desc-sm"></div><div class="skeleton skeleton-link"></div></div></div>
+                    <div class="skeleton-card"><div class="skeleton skeleton-image"></div><div style="padding:1.3rem 1.5rem;"><div class="skeleton skeleton-badge"></div><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-desc"></div><div class="skeleton skeleton-desc-sm"></div><div class="skeleton skeleton-link"></div></div></div>
+                    <div class="skeleton-card"><div class="skeleton skeleton-image"></div><div style="padding:1.3rem 1.5rem;"><div class="skeleton skeleton-badge"></div><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-desc"></div><div class="skeleton skeleton-desc-sm"></div><div class="skeleton skeleton-link"></div></div></div>
                 </div>
             </section>
         </div>
@@ -437,110 +439,97 @@
         let allWorkspaces = [];
         let filteredWorkspaces = [];
 
-        // Workspace definitions with images
-        const WORKSPACE_DEFINITIONS = {
+        // Default workspace definitions with fallback images
+        const DEFAULT_WORKSPACES = {
             'brandinn': { 
                 title: 'BrandInn Business', 
                 icon: 'fa-building', 
                 color: '#8b5cf6', 
-                description: 'Business branding & website management platform. Create and manage business pages, subdomains, and brand identities.',
-                image: 'https://i.postimg.cc/7Y6cnc2g/Untitled-design-11.webp',
+                description: 'Business branding & website management platform.',
                 link: '/workspaces/brandinn/index.html'
             },
             'brandinn-print': { 
                 title: 'BrandInn Print', 
                 icon: 'fa-print', 
                 color: '#8b5cf6', 
-                description: 'Print & Merchandise Business. Manage print orders, franchises, stock, and customer printing jobs.',
-                image: 'https://i.postimg.cc/k5w26G75/Untitled-design-7.webp',
+                description: 'Print & Merchandise Business Management.',
                 link: '/workspaces/brandinn-print/index.html'
             },
             'pick-up': { 
                 title: 'Pick-Up Deliveries', 
                 icon: 'fa-truck-fast', 
                 color: '#f59e0b', 
-                description: 'Delivery Management Platform. Manage pickup and delivery operations, assign drivers, and track packages.',
-                image: 'https://i.postimg.cc/fy44wGdy/Untitled-design-2-1.webp',
+                description: 'Delivery Management Platform.',
                 link: '/workspaces/pick-up/index.html'
             },
             'pick-me': { 
                 title: 'Pick-Me Rides', 
                 icon: 'fa-taxi', 
                 color: '#06b6d4', 
-                description: 'Ride-hailing Management. Schedule rides, manage drivers, and handle passenger bookings.',
-                image: 'https://i.postimg.cc/fy44wGdy/Untitled-design-2-1.webp',
+                description: 'Ride-hailing Management.',
                 link: '/workspaces/pick-me/index.html'
             },
             'ekazi': { 
                 title: 'E-Kazi Tasks', 
                 icon: 'fa-tasks', 
                 color: '#10b981', 
-                description: 'Freelance Task Management. Post jobs, assign tasks to taskers, and manage submissions.',
-                image: 'https://i.postimg.cc/7Y6cnc2g/Untitled-design-11.webp',
+                description: 'Freelance Task Management.',
                 link: '/workspaces/ekazi/index.html'
             },
             'dsog': { 
                 title: 'DSOG Fashion', 
                 icon: 'fa-tshirt', 
                 color: '#ec4899', 
-                description: 'Fashion & Apparel Management. Handle orders, franchisees, and fashion inventory with dispatch capabilities.',
-                image: 'https://i.postimg.cc/L8tczHsR/JSEKAH-FURNITURES.webp',
+                description: 'Fashion & Apparel Management.',
                 link: '/workspaces/dsog/index.html'
             },
             'fusion-foods': { 
                 title: 'Fusion Foods', 
                 icon: 'fa-utensils', 
                 color: '#10b981', 
-                description: 'Food & Grocery Supply Management. Manage orders, inventory, suppliers, and weekly pricing for your food supply business.',
-                image: 'https://i.postimg.cc/RZhvK1Fx/White-Cabbage.jpg',
+                description: 'Food & Grocery Supply Management.',
                 link: '/workspaces/fusion-foods/index.html'
             },
             'heritage': { 
                 title: 'Heritage Ads', 
                 icon: 'fa-bullhorn', 
                 color: '#d946ef', 
-                description: 'Outdoor Advertising Platform. Manage billboard listings, campaigns, and partner relationships.',
-                image: 'https://i.postimg.cc/k5w26G75/Untitled-design-7.webp',
+                description: 'Outdoor Advertising Platform.',
                 link: '/workspaces/heritage/index.html'
             },
             'heritage-marketplace': { 
                 title: 'Heritage Marketplace', 
                 icon: 'fa-store', 
                 color: '#8b5cf6', 
-                description: 'E-commerce Marketplace. List products, manage orders, and handle customer transactions.',
-                image: 'https://i.postimg.cc/c4zbbLHX/Untitled-design(1).gif',
+                description: 'E-commerce Marketplace.',
                 link: '/workspaces/heritage-marketplace/index.html'
             },
             'mugs-n-dines': { 
                 title: 'Mugs n Dines', 
                 icon: 'fa-utensil-spoon', 
                 color: '#ef4444', 
-                description: 'Restaurant Management. Handle food orders, menu management, and kitchen operations.',
-                image: 'https://i.postimg.cc/43gptxpC/Gemini-Generated-Image-h09o9uh09o9uh09o.png',
+                description: 'Restaurant Management.',
                 link: '/workspaces/mugs-n-dines/index.html'
             },
             'workfit': { 
                 title: 'WorkFit Club', 
                 icon: 'fa-dumbbell', 
                 color: '#22c55e', 
-                description: 'Fitness Club Management. Manage members, schedules, trainers, and fitness operations.',
-                image: 'https://i.postimg.cc/T1Jwm35J/20250917_1209_Outdoor_Fitness_Enthusiasts_simple_compose_01k5bey8x1ff2sdbrwczrh69wx.png',
+                description: 'Fitness Club Management.',
                 link: '/workspaces/workfit/index.html'
             },
             'epitome': { 
                 title: 'Epitome Reviews', 
                 icon: 'fa-home', 
                 color: '#3b82f6', 
-                description: 'Real Estate & Car Sales. Manage property listings, vehicle sales, and customer reviews.',
-                image: 'https://i.postimg.cc/CLZmbrSj/Screenshot_2025-09-11_170957.png',
+                description: 'Real Estate & Car Sales.',
                 link: '/workspaces/epitome/index.html'
             },
             'latter-logistics': { 
                 title: 'Latter Logistics', 
                 icon: 'fa-ship', 
                 color: '#0d9488', 
-                description: 'Intercounty & Cross-border Logistics. Real-time tracking, customs support, pay-per-shipment.',
-                image: 'https://i.postimg.cc/c4zbbLHX/Untitled-design(1).gif',
+                description: 'Cross-border Logistics.',
                 link: '/workspaces/latter-logistics/index.html'
             }
         };
@@ -582,7 +571,7 @@
 
         async function loadWorkspaces() {
             try {
-                // Load custom workspace data from resources
+                // Load workspaces from resources/workspaces (where admin adds them)
                 let resourceWorkspaces = [];
                 try {
                     const snap = await database.ref('resources/workspaces').once('value');
@@ -592,26 +581,45 @@
                         ...item,
                         workspaceId: id
                     }));
+                    console.log('Loaded workspaces from resources:', resourceWorkspaces.length);
                 } catch(e) {
                     console.warn('Could not load resource workspaces:', e);
                 }
 
-                // Build workspace list from definitions and resources
+                // Build workspace list from resources or defaults
                 const workspaceList = [];
                 
-                for (const [id, def] of Object.entries(WORKSPACE_DEFINITIONS)) {
-                    const resourceMatch = resourceWorkspaces.find(rw => rw.id === id || rw.title === def.title);
+                // First, add all workspaces from resources
+                resourceWorkspaces.forEach(rw => {
                     workspaceList.push({
-                        id: id,
-                        workspaceId: id,
-                        title: resourceMatch?.title || def.title,
-                        description: resourceMatch?.description || def.description,
-                        link: resourceMatch?.link || def.link,
-                        icon: resourceMatch?.icon || def.icon,
-                        color: resourceMatch?.color || def.color,
-                        image: resourceMatch?.image || def.image,
-                        category: resourceMatch?.category || id
+                        id: rw.id,
+                        workspaceId: rw.id,
+                        title: rw.title || DEFAULT_WORKSPACES[rw.id]?.title || rw.id,
+                        description: rw.description || DEFAULT_WORKSPACES[rw.id]?.description || '',
+                        link: rw.link || DEFAULT_WORKSPACES[rw.id]?.link || `/workspaces/${rw.id}/index.html`,
+                        icon: rw.icon || DEFAULT_WORKSPACES[rw.id]?.icon || 'fa-building',
+                        color: rw.color || DEFAULT_WORKSPACES[rw.id]?.color || '#ca8a04',
+                        image: rw.image || '', // Image from resource admin
+                        category: rw.category || rw.id
                     });
+                });
+
+                // Then add any missing default workspaces
+                for (const [id, def] of Object.entries(DEFAULT_WORKSPACES)) {
+                    const exists = workspaceList.find(w => w.id === id);
+                    if (!exists) {
+                        workspaceList.push({
+                            id: id,
+                            workspaceId: id,
+                            title: def.title,
+                            description: def.description,
+                            link: def.link,
+                            icon: def.icon,
+                            color: def.color,
+                            image: '', // No image if not in resources
+                            category: id
+                        });
+                    }
                 }
 
                 // Filter based on permissions
@@ -628,8 +636,8 @@
                     // Also include any workspaces the user has permission for that aren't in the list
                     permissionKeys.forEach(permId => {
                         const exists = accessibleWorkspaces.find(w => (w.workspaceId || w.id) === permId);
-                        if (!exists && WORKSPACE_DEFINITIONS[permId]) {
-                            const def = WORKSPACE_DEFINITIONS[permId];
+                        if (!exists && DEFAULT_WORKSPACES[permId]) {
+                            const def = DEFAULT_WORKSPACES[permId];
                             accessibleWorkspaces.push({
                                 id: permId,
                                 workspaceId: permId,
@@ -638,7 +646,7 @@
                                 link: def.link,
                                 icon: def.icon,
                                 color: def.color,
-                                image: def.image,
+                                image: '',
                                 category: permId
                             });
                         }
@@ -682,6 +690,7 @@
                 const hasAccess = userHasWorkspaceAccess(workspaceId);
                 const isLocked = !hasAccess;
                 
+                // Use image from resource if available, otherwise placeholder
                 const imageHtml = w.image ? 
                     `<img src="${escapeHtml(w.image)}" alt="${escapeHtml(title)}" loading="lazy" onerror="this.style.display='none';this.parentElement.innerHTML='<div class=\\'image-placeholder\\' style=\\'background:linear-gradient(135deg, ${bgColor}, ${bgColor}50); color:${color};\\'><i class=\\'fas ${iconClass}\\'></i></div>';">` : 
                     `<div class="image-placeholder" style="background:linear-gradient(135deg, ${bgColor}, ${bgColor}50); color:${color};"><i class="fas ${iconClass}"></i></div>`;
