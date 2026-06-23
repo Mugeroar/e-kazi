@@ -172,6 +172,31 @@
         .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
         .btn-sm { padding: 0.4rem 1rem; font-size: 0.75rem; }
 
+        /* Access Denied Banner */
+        .access-denied {
+            background: #fef2f2; border: 1px solid #fecaca; border-radius: 16px;
+            padding: 2rem; text-align: center; margin-bottom: 1.5rem;
+        }
+        .access-denied i { font-size: 3rem; color: var(--danger); margin-bottom: 1rem; display: block; }
+        .access-denied h2 { font-size: 1.3rem; color: var(--danger); font-family: var(--font-display); }
+        .access-denied p { color: var(--text-muted); margin-top: 0.5rem; }
+        .access-denied .btn-request {
+            margin-top: 1rem;
+            background: var(--gold-gradient);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 0.7rem 2rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: var(--font-heading);
+            transition: all 0.2s;
+        }
+        .access-denied .btn-request:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-gold);
+        }
+
         .profile-header {
             background: var(--card-bg); border: 1px solid var(--border-light);
             border-radius: 32px; padding: 2rem 2.5rem; margin-bottom: 1.5rem;
@@ -329,6 +354,33 @@
         }
         @keyframes spin { to{transform:rotate(360deg)} }
 
+        /* Modal */
+        .modal-overlay {
+            position: fixed; top:0; left:0; width:100%; height:100%;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(8px);
+            z-index: 2000; display: none;
+        }
+        .modal-overlay.active { display: block; }
+        .modal {
+            position: fixed; top:50%; left:50%; transform: translate(-50%,-50%);
+            background: var(--card-bg); border-radius: 24px; padding: 1.5rem;
+            max-width: 500px; width: 90%; z-index: 2001;
+            box-shadow: var(--shadow-xl); display: none;
+        }
+        .modal.active { display: block; animation: slideIn 0.2s; }
+        .modal-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 1rem;
+        }
+        .modal-header h3 {
+            font-family: var(--font-display); font-size: 1.2rem;
+        }
+        .modal-close {
+            background: none; border: none; font-size: 1.2rem;
+            cursor: pointer; color: var(--text-muted);
+        }
+        .modal-close:hover { color: var(--danger); }
+
         @media (max-width:1024px) {
             .profile-grid { grid-template-columns: 1fr; }
             .stats-row { grid-template-columns: repeat(2,1fr); }
@@ -369,6 +421,16 @@
 
     <main class="main-content">
         <div id="profileContent">
+            <!-- Access Denied Banner -->
+            <div class="access-denied" id="accessDenied" style="display:none;">
+                <i class="fas fa-lock"></i>
+                <h2>No Workspace Access</h2>
+                <p>You don't have permission to view any workspace data. Contact your administrator to request access.</p>
+                <button class="btn-request" onclick="window.location.href='workspaces.html'">
+                    <i class="fas fa-arrow-right"></i> View Workspaces
+                </button>
+            </div>
+
             <!-- Profile Header -->
             <div class="profile-header">
                 <div class="profile-avatar-large" id="profileAvatar">K</div>
@@ -408,6 +470,7 @@
                         <div class="info-item"><div class="info-label">Member Since</div><div class="info-value" id="memberSince">—</div></div>
                         <div class="info-item"><div class="info-label">Account Type</div><div class="info-value"><span class="badge badge-gold">PROFESSIONAL</span></div></div>
                         <div class="info-item"><div class="info-label">Status</div><div class="info-value"><span class="badge badge-success">ACTIVE</span></div></div>
+                        <div class="info-item"><div class="info-label">Workspace Access</div><div class="info-value" id="workspaceCount">0</div></div>
                     </div>
                 </div>
 
@@ -453,11 +516,11 @@
     </main>
 
     <!-- Edit Profile Modal -->
-    <div class="modal-overlay" id="editModalOverlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);z-index:2000;"></div>
-    <div class="modal" id="editModal" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--card-bg);border-radius:24px;padding:1.5rem;max-width:500px;width:90%;z-index:2001;box-shadow:var(--shadow-xl);">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
-            <h3 style="font-family:var(--font-display);font-size:1.2rem;">Edit Profile</h3>
-            <button onclick="closeEditModal()" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--text-muted);"><i class="fas fa-times"></i></button>
+    <div class="modal-overlay" id="editModalOverlay"></div>
+    <div class="modal" id="editModal">
+        <div class="modal-header">
+            <h3><i class="fas fa-edit"></i> Edit Profile</h3>
+            <button class="modal-close" onclick="closeEditModal()"><i class="fas fa-times"></i></button>
         </div>
         <form id="editProfileForm" onsubmit="saveProfileChanges(event)">
             <div class="form-group"><label>Full Name</label><input type="text" class="form-control" id="editName" required></div>
@@ -487,6 +550,24 @@
 
         let currentUser = null;
         let userProfile = {};
+        let userPermissions = {};
+        let isAdmin = false;
+
+        // Workspace configuration with permission keys
+        const WORKSPACE_CONFIG = {
+            'fusion-foods': { name: 'Fusion Foods', desc: 'Food & Grocery Supply', icon: 'fa-utensils', color: '#10b981', bgColor: '#ecfdf5', link: '/workspaces/fusion-foods/index.html', paths: ['fusion_foods_orders', 'fusion_foods_products', 'fusion_foods_stores'] },
+            'dsog': { name: 'DSOG Fashion', desc: 'Fashion & Apparel', icon: 'fa-tshirt', color: '#ec4899', bgColor: '#fdf2f8', link: '/workspaces/dsog-fashion/index.html', paths: ['dsog_fashion_orders'] },
+            'heritage': { name: 'Heritage Ads', desc: 'Outdoor Advertising', icon: 'fa-landmark', color: '#d946ef', bgColor: '#faf5ff', link: '/workspaces/heritage/index.html', paths: ['heritage_listings'] },
+            'brandinn': { name: 'BrandInn Print', desc: 'Print & Merchandise', icon: 'fa-print', color: '#8b5cf6', bgColor: '#f5f3ff', link: '/workspaces/brandinn/index.html', paths: ['brandinn_print_orders'] },
+            'heritage-marketplace': { name: 'Heritage Mkt', desc: 'WhatsApp Marketplace', icon: 'fa-store', color: '#d97706', bgColor: '#fffbeb', link: '/workspaces/heritage-marketplace/index.html', paths: ['heritage_orders'] },
+            'pick-up': { name: 'Pick-Up Deliveries', desc: 'Delivery Management', icon: 'fa-truck-fast', color: '#f59e0b', bgColor: '#fffbeb', link: '/workspaces/pick-up/index.html', paths: ['pickup_deliveries'] },
+            'pick-me': { name: 'Pick-Me Rides', desc: 'Ride-hailing', icon: 'fa-taxi', color: '#06b6d4', bgColor: '#ecfeff', link: '/workspaces/pick-me/index.html', paths: ['pickme_rides'] },
+            'ekazi': { name: 'E-Kazi Tasks', desc: 'Freelance Task Management', icon: 'fa-tasks', color: '#10b981', bgColor: '#ecfdf5', link: '/workspaces/ekazi/index.html', paths: ['ekazi_assigned_tasks'] },
+            'mugs-n-dines': { name: 'Mugs n Dines', desc: 'Restaurant Management', icon: 'fa-utensil-spoon', color: '#ef4444', bgColor: '#fef2f2', link: '/workspaces/mugs-n-dines/index.html', paths: ['mugs_n_dines_orders'] },
+            'workfit': { name: 'WorkFit Club', desc: 'Fitness Management', icon: 'fa-dumbbell', color: '#22c55e', bgColor: '#f0fdf4', link: '/workspaces/workfit/index.html', paths: ['workfit_clubs'] },
+            'epitome': { name: 'Epitome Reviews', desc: 'Real Estate & Cars', icon: 'fa-home', color: '#3b82f6', bgColor: '#eff6ff', link: '/workspaces/epitome/index.html', paths: ['epitome_cars'] },
+            'latter-logistics': { name: 'Latter Logistics', desc: 'Cross-border Logistics', icon: 'fa-ship', color: '#0d9488', bgColor: '#f0fdfa', link: '/workspaces/latter-logistics/index.html', paths: ['latter_logistics_shipments'] }
+        };
 
         auth.onAuthStateChanged(async (user) => {
             if (user) {
@@ -497,9 +578,33 @@
             }
         });
 
+        function userHasWorkspaceAccess(workspaceId) {
+            if (isAdmin) return true;
+            return userPermissions[workspaceId] === true;
+        }
+
+        function getAccessibleWorkspaces() {
+            const accessible = [];
+            for (const [id, config] of Object.entries(WORKSPACE_CONFIG)) {
+                if (userHasWorkspaceAccess(id)) {
+                    accessible.push({ id, ...config });
+                }
+            }
+            return accessible;
+        }
+
         async function loadProfile(user) {
             showLoading(true);
             try {
+                // Check admin status
+                const adminSnap = await database.ref(`admins/${user.uid}`).once('value');
+                isAdmin = adminSnap.val() === true;
+
+                // Load workspace permissions
+                const permSnap = await database.ref(`workspacePermissions/${user.uid}`).once('value');
+                userPermissions = permSnap.exists() ? permSnap.val() : {};
+
+                // Load user data
                 const snap = await database.ref(`brandinn_users/${user.uid}`).once('value');
                 userProfile = snap.exists() ? snap.val() : {
                     name: user.displayName || user.email?.split('@')[0] || 'User',
@@ -514,10 +619,27 @@
                 }
                 
                 updateProfileUI();
+
+                // Check if user has any workspace access
+                const hasAccess = isAdmin || Object.keys(userPermissions).some(k => userPermissions[k] === true);
+                
+                if (!hasAccess) {
+                    document.getElementById('accessDenied').style.display = 'block';
+                    document.getElementById('statsRow').innerHTML = '';
+                    document.getElementById('workspaceList').innerHTML = '<div style="text-align:center;padding:1rem;color:var(--text-muted);">No workspace access</div>';
+                    document.getElementById('activityTimeline').innerHTML = '<div style="text-align:center;padding:1rem;color:var(--text-muted);">No activity to show</div>';
+                    document.getElementById('workspaceCount').textContent = '0';
+                    showLoading(false);
+                    return;
+                }
+
+                document.getElementById('accessDenied').style.display = 'none';
+                
                 await loadWorkspaceData();
                 await loadRecentActivity();
                 
             } catch(e) {
+                console.error('Error loading profile:', e);
                 showToast('Error loading profile', 'error');
             } finally {
                 showLoading(false);
@@ -557,118 +679,151 @@
         }
 
         async function loadWorkspaceData() {
-            const workspaces = [];
-            let totalOrders = 0, totalProducts = 0, totalStores = 0, totalSuppliers = 0;
-
-            try {
-                const fusionOrdersSnap = await database.ref('fusion_foods_orders').once('value');
-                totalOrders += Object.keys(fusionOrdersSnap.val() || {}).length;
-                
-                const fusionProductsSnap = await database.ref('fusion_foods_products').once('value');
-                totalProducts += Object.keys(fusionProductsSnap.val() || {}).length;
-                
-                const fusionStoresSnap = await database.ref('fusion_foods_stores').once('value');
-                totalStores += Object.keys(fusionStoresSnap.val() || {}).length;
-                
-                const fusionSuppliersSnap = await database.ref('fusion_foods_suppliers').once('value');
-                totalSuppliers += Object.keys(fusionSuppliersSnap.val() || {}).length;
-
-                if (totalOrders > 0 || totalProducts > 0) {
-                    workspaces.push({
-                        name: 'Fusion Foods', desc: 'Food & Grocery Supply',
-                        icon: 'fa-utensils', color: '#10b981', bgColor: '#ecfdf5',
-                        orders: totalOrders, products: totalProducts,
-                        link: '/workspaces/fusion-foods/index.html'
-                    });
-                }
-
-                // Check other workspaces
-                const dsogSnap = await database.ref('dsog_fashion_orders').once('value');
-                const dsogCount = Object.keys(dsogSnap.val() || {}).length;
-                if (dsogCount > 0) {
-                    workspaces.push({
-                        name: 'DSOG Fashion', desc: 'Fashion & Apparel',
-                        icon: 'fa-tshirt', color: '#ec4899', bgColor: '#fdf2f8',
-                        orders: dsogCount, link: '/workspaces/dsog-fashion/index.html'
-                    });
-                }
-
-                const heritageSnap = await database.ref('heritage_listings').once('value');
-                const heritageCount = Object.keys(heritageSnap.val() || {}).length;
-                if (heritageCount > 0) {
-                    workspaces.push({
-                        name: 'Heritage', desc: 'Outdoor Advertising',
-                        icon: 'fa-landmark', color: '#d946ef', bgColor: '#faf5ff',
-                        orders: heritageCount, link: '/workspaces/heritage/index.html'
-                    });
-                }
-
-                // Update stats
-                document.getElementById('statsRow').innerHTML = `
-                    <div class="stat-card"><div class="stat-value">${workspaces.length}</div><div class="stat-label">Workspaces</div></div>
-                    <div class="stat-card"><div class="stat-value">${totalOrders}</div><div class="stat-label">Total Orders</div></div>
-                    <div class="stat-card"><div class="stat-value">${totalProducts}</div><div class="stat-label">Products</div></div>
-                    <div class="stat-card"><div class="stat-value">${totalStores + totalSuppliers}</div><div class="stat-label">Partners</div></div>
-                `;
-
-                // Render workspace list
-                const wsList = document.getElementById('workspaceList');
-                wsList.innerHTML = workspaces.map(w => `
-                    <a href="${w.link}" class="workspace-item">
-                        <div class="ws-icon" style="background:${w.bgColor};color:${w.color};"><i class="fas ${w.icon}"></i></div>
-                        <div class="ws-info"><div class="ws-name">${w.name}</div><div class="ws-desc">${w.desc}</div></div>
-                        <div class="ws-stat">${w.orders || w.products || 0}</div>
-                    </a>
-                `).join('') || '<div style="text-align:center;padding:1rem;color:var(--text-muted);">No workspaces yet</div>';
-
-            } catch(e) {
-                console.error('Error loading workspace data:', e);
+            const accessibleWorkspaces = getAccessibleWorkspaces();
+            
+            if (accessibleWorkspaces.length === 0) {
+                document.getElementById('workspaceList').innerHTML = '<div style="text-align:center;padding:1rem;color:var(--text-muted);">No workspace access</div>';
+                document.getElementById('workspaceCount').textContent = '0';
+                return;
             }
+
+            let totalOrders = 0, totalProducts = 0, totalStores = 0, totalSuppliers = 0;
+            const workspaceItems = [];
+
+            for (const ws of accessibleWorkspaces) {
+                let orderCount = 0;
+                let productCount = 0;
+                let storeCount = 0;
+                let supplierCount = 0;
+
+                for (const path of ws.paths) {
+                    try {
+                        const snap = await database.ref(path).once('value');
+                        const data = snap.val() || {};
+                        const count = Object.keys(data).length;
+                        
+                        if (path.includes('orders') || path.includes('listings') || path.includes('shipments')) {
+                            orderCount += count;
+                            totalOrders += count;
+                        } else if (path.includes('products') || path.includes('inventory')) {
+                            productCount += count;
+                            totalProducts += count;
+                        } else if (path.includes('stores')) {
+                            storeCount += count;
+                            totalStores += count;
+                        } else if (path.includes('suppliers') || path.includes('partners') || path.includes('franchisees')) {
+                            supplierCount += count;
+                            totalSuppliers += count;
+                        }
+                    } catch(e) {
+                        console.warn(`Error loading ${path}:`, e);
+                    }
+                }
+
+                // Only show workspaces that have data
+                if (orderCount > 0 || productCount > 0 || storeCount > 0 || supplierCount > 0) {
+                    workspaceItems.push({
+                        ...ws,
+                        orders: orderCount,
+                        products: productCount,
+                        stores: storeCount,
+                        suppliers: supplierCount,
+                        displayCount: orderCount || productCount || storeCount || supplierCount
+                    });
+                }
+            }
+
+            // Update stats
+            document.getElementById('statsRow').innerHTML = `
+                <div class="stat-card"><div class="stat-value">${accessibleWorkspaces.length}</div><div class="stat-label">Workspaces</div></div>
+                <div class="stat-card"><div class="stat-value">${totalOrders}</div><div class="stat-label">Total Orders</div></div>
+                <div class="stat-card"><div class="stat-value">${totalProducts}</div><div class="stat-label">Products</div></div>
+                <div class="stat-card"><div class="stat-value">${totalStores + totalSuppliers}</div><div class="stat-label">Partners</div></div>
+            `;
+            document.getElementById('workspaceCount').textContent = accessibleWorkspaces.length;
+
+            // Render workspace list
+            const wsList = document.getElementById('workspaceList');
+            if (workspaceItems.length === 0) {
+                wsList.innerHTML = '<div style="text-align:center;padding:1rem;color:var(--text-muted);">No data in accessible workspaces yet</div>';
+                return;
+            }
+
+            wsList.innerHTML = workspaceItems.map(w => `
+                <a href="${w.link}" class="workspace-item">
+                    <div class="ws-icon" style="background:${w.bgColor};color:${w.color};"><i class="fas ${w.icon}"></i></div>
+                    <div class="ws-info"><div class="ws-name">${w.name}</div><div class="ws-desc">${w.desc}</div></div>
+                    <div class="ws-stat">${w.displayCount}</div>
+                </a>
+            `).join('');
         }
 
         async function loadRecentActivity() {
+            const accessibleWorkspaces = getAccessibleWorkspaces();
             const timeline = document.getElementById('activityTimeline');
-            try {
-                const snap = await database.ref('fusion_foods_orders').once('value');
-                const orders = Object.entries(snap.val() || {})
-                    .sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0))
-                    .slice(0, 5);
+            const allActivities = [];
 
-                if (!orders.length) {
-                    timeline.innerHTML = '<div style="text-align:center;padding:1rem;color:var(--text-muted);">No recent activity</div>';
-                    return;
+            for (const ws of accessibleWorkspaces) {
+                for (const path of ws.paths) {
+                    if (path.includes('orders') || path.includes('listings') || path.includes('shipments')) {
+                        try {
+                            const snap = await database.ref(path).once('value');
+                            const data = snap.val() || {};
+                            
+                            Object.entries(data).forEach(([id, item]) => {
+                                const name = item.restaurantName || item.customerName || item.businessName || 'Order';
+                                allActivities.push({
+                                    title: `${name} · ${path.replace(/_/g,' ')}`,
+                                    meta: `#${id.slice(-6)} · KES ${(item.total || 0).toLocaleString()}`,
+                                    time: item.createdAt || 0,
+                                    status: item.status || 'new',
+                                    wsName: ws.name,
+                                    wsColor: ws.color
+                                });
+                            });
+                        } catch(e) {
+                            console.warn(`Error loading activity from ${path}:`, e);
+                        }
+                    }
                 }
-
-                timeline.innerHTML = orders.map(([id, order]) => {
-                    const timeAgo = getTimeAgo(order.createdAt);
-                    const statusBadge = order.status === 'delivered' ? 'badge-success' : 
-                                       order.status === 'shipped' ? 'badge-purple' : 'badge-info';
-                    return `
-                    <div class="timeline-item">
-                        <div class="timeline-dot"></div>
-                        <div class="timeline-content">
-                            <div class="timeline-title">${escapeHtml(order.restaurantName || 'Restaurant')} · Order #${id.slice(-6)}</div>
-                            <div class="timeline-meta">
-                                ${(order.products || []).length} items · KES ${(order.total || 0).toLocaleString()} · 
-                                <span class="badge ${statusBadge}">${(order.status || 'new').replace(/-/g,' ')}</span> · ${timeAgo}
-                            </div>
-                        </div>
-                    </div>`;
-                }).join('');
-
-            } catch(e) {
-                timeline.innerHTML = '<div style="text-align:center;padding:1rem;color:var(--text-muted);">Unable to load activity</div>';
             }
+
+            // Sort by time (newest first)
+            allActivities.sort((a, b) => (b.time || 0) - (a.time || 0));
+
+            if (allActivities.length === 0) {
+                timeline.innerHTML = '<div style="text-align:center;padding:1rem;color:var(--text-muted);">No recent activity</div>';
+                return;
+            }
+
+            const recent = allActivities.slice(0, 5);
+            timeline.innerHTML = recent.map(a => {
+                const timeAgo = getTimeAgo(a.time);
+                const statusBadge = a.status === 'delivered' ? 'badge-success' : 
+                                   a.status === 'shipped' ? 'badge-purple' : 'badge-info';
+                return `
+                <div class="timeline-item">
+                    <div class="timeline-dot" style="background:${a.wsColor};"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">${escapeHtml(a.title)}</div>
+                        <div class="timeline-meta">
+                            ${escapeHtml(a.meta)} · 
+                            <span class="badge ${statusBadge}">${(a.status || 'new').replace(/-/g,' ')}</span> · 
+                            <span style="color:${a.wsColor};">${escapeHtml(a.wsName)}</span> · ${timeAgo}
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
         }
 
         window.openEditModal = function() {
-            document.getElementById('editModal').style.display = 'block';
-            document.getElementById('editModalOverlay').style.display = 'block';
+            document.getElementById('editModal').classList.add('active');
+            document.getElementById('editModalOverlay').classList.add('active');
         };
 
         window.closeEditModal = function() {
-            document.getElementById('editModal').style.display = 'none';
-            document.getElementById('editModalOverlay').style.display = 'none';
+            document.getElementById('editModal').classList.remove('active');
+            document.getElementById('editModalOverlay').classList.remove('active');
         };
 
         window.saveProfileChanges = async function(e) {
@@ -739,8 +894,7 @@
 
         function getTimeAgo(timestamp) {
             if (!timestamp) return '';
-            const date = new Date(timestamp);
-            const diff = Date.now() - date.getTime();
+            const diff = Date.now() - new Date(timestamp).getTime();
             const mins = Math.floor(diff / 60000);
             const hours = Math.floor(mins / 60);
             const days = Math.floor(hours / 24);
@@ -761,6 +915,7 @@
             setTimeout(()=>{t.style.opacity='0';t.style.transition='0.3s';setTimeout(()=>t.remove(),300);},3000); 
         }
 
+        // Modal close handlers
         document.getElementById('editModalOverlay').addEventListener('click', closeEditModal);
     </script>
 </body>
