@@ -111,6 +111,15 @@
 
         .main-content { max-width: 1400px; margin: calc(var(--header-height) + 1.5rem) auto 2rem; padding: 0 2.5rem; }
 
+        /* Access Denied Banner */
+        .access-denied {
+            background: #fef2f2; border: 1px solid #fecaca; border-radius: 16px;
+            padding: 2rem; text-align: center; margin-bottom: 1.5rem;
+        }
+        .access-denied i { font-size: 3rem; color: var(--danger); margin-bottom: 1rem; display: block; }
+        .access-denied h2 { font-size: 1.3rem; color: var(--danger); font-family: var(--font-display); }
+        .access-denied p { color: var(--text-muted); margin-top: 0.5rem; }
+
         .welcome-section { background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 32px; padding: 1.8rem 2.5rem; margin-bottom: 1.5rem; box-shadow: var(--shadow-sm); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
         .welcome-text h1 { font-size: 1.8rem; font-weight: 800; color: var(--text-primary); margin-bottom: 0.2rem; font-family: var(--font-display); letter-spacing: -0.02em; }
         .welcome-text p { color: var(--text-muted); font-size: 0.9rem; display: flex; align-items: center; gap: 0.5rem; }
@@ -238,10 +247,20 @@
 
     <main class="main-content">
         <div id="dashboardContent">
+            <!-- Access Denied Banner (hidden by default) -->
+            <div class="access-denied" id="accessDenied" style="display:none;">
+                <i class="fas fa-lock"></i>
+                <h2>No Workspace Access</h2>
+                <p>You don't have permission to view any workspace data. Contact your administrator to request access.</p>
+                <button class="btn btn-primary" onclick="window.location.href='workspaces.html'" style="margin-top:1rem; background:var(--gold-gradient); color:white; border:none; border-radius:50px; padding:0.7rem 2rem; font-weight:600; cursor:pointer; font-family:var(--font-heading);">
+                    <i class="fas fa-arrow-right"></i> View Workspaces
+                </button>
+            </div>
+
             <div class="welcome-section">
                 <div class="welcome-text">
                     <h1>Good <span id="greeting">Morning</span>, <span id="userName">User</span> 👋</h1>
-                    <p><i class="fas fa-chart-line"></i> Real-time operations overview across all workspaces</p>
+                    <p><i class="fas fa-chart-line"></i> Real-time operations overview across your workspaces</p>
                 </div>
                 <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
                     <span class="badge badge-gold" id="roleBadge">PRO</span>
@@ -256,7 +275,7 @@
                 <div class="stat-card skeleton-card"><div class="skeleton skeleton-icon"></div><div><div class="skeleton skeleton-number"></div><div class="skeleton skeleton-text-sm"></div></div></div>
             </div>
 
-            <div class="charts-grid">
+            <div class="charts-grid" id="chartsGrid">
                 <div class="chart-card">
                     <div class="chart-header"><div class="chart-title"><i class="fas fa-chart-bar"></i> Operations Overview</div><span class="badge badge-gold">Real-time</span></div>
                     <div class="chart-container"><canvas id="ordersChart"></canvas></div>
@@ -344,8 +363,26 @@
         auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 
         let currentUser = null;
+        let userPermissions = {};
+        let isAdmin = false;
         let ordersChart = null, distributionChart = null;
         let overviewMap = null, mapMarkers = [];
+
+        // Workspace definitions with their permission keys
+        const WORKSPACE_CONFIG = {
+            'fusion-foods': { name: 'Fusion Foods', desc: 'Food & Grocery Supply', icon: 'fa-utensils', color: '#10b981', bgColor: '#ecfdf5', link: '/workspaces/fusion-foods/index.html', paths: ['fusion_foods_orders', 'fusion_foods_products', 'fusion_foods_stores'] },
+            'dsog': { name: 'DSOG Fashion', desc: 'Fashion & Apparel', icon: 'fa-tshirt', color: '#ec4899', bgColor: '#fdf2f8', link: '/workspaces/dsog-fashion/index.html', paths: ['dsog_fashion_orders', 'dsog_fashion_franchisees'] },
+            'heritage': { name: 'Heritage Ads', desc: 'Outdoor Advertising', icon: 'fa-landmark', color: '#d946ef', bgColor: '#faf5ff', link: '/workspaces/heritage/index.html', paths: ['heritage_listings', 'heritage_partners'] },
+            'brandinn': { name: 'BrandInn Print', desc: 'Print & Merchandise', icon: 'fa-print', color: '#8b5cf6', bgColor: '#f5f3ff', link: '/workspaces/brandinn/index.html', paths: ['brandinn_print_orders', 'iam_mugera_registrations', 'brandinn_franchises'] },
+            'heritage-marketplace': { name: 'Heritage Mkt', desc: 'WhatsApp Marketplace', icon: 'fa-store', color: '#d97706', bgColor: '#fffbeb', link: '/workspaces/heritage-marketplace/index.html', paths: ['heritage_orders', 'heritage_products'] },
+            'pick-up': { name: 'Pick-Up Deliveries', desc: 'Delivery Management', icon: 'fa-truck-fast', color: '#f59e0b', bgColor: '#fffbeb', link: '/workspaces/pick-up/index.html', paths: ['pickup_deliveries'] },
+            'pick-me': { name: 'Pick-Me Rides', desc: 'Ride-hailing', icon: 'fa-taxi', color: '#06b6d4', bgColor: '#ecfeff', link: '/workspaces/pick-me/index.html', paths: ['pickme_rides'] },
+            'ekazi': { name: 'E-Kazi Tasks', desc: 'Freelance Task Management', icon: 'fa-tasks', color: '#10b981', bgColor: '#ecfdf5', link: '/workspaces/ekazi/index.html', paths: ['ekazi_assigned_tasks'] },
+            'mugs-n-dines': { name: 'Mugs n Dines', desc: 'Restaurant Management', icon: 'fa-utensil-spoon', color: '#ef4444', bgColor: '#fef2f2', link: '/workspaces/mugs-n-dines/index.html', paths: ['mugs_n_dines_orders'] },
+            'workfit': { name: 'WorkFit Club', desc: 'Fitness Management', icon: 'fa-dumbbell', color: '#22c55e', bgColor: '#f0fdf4', link: '/workspaces/workfit/index.html', paths: ['workfit_clubs'] },
+            'epitome': { name: 'Epitome Reviews', desc: 'Real Estate & Cars', icon: 'fa-home', color: '#3b82f6', bgColor: '#eff6ff', link: '/workspaces/epitome/index.html', paths: ['epitome_cars', 'epitome_houses'] },
+            'latter-logistics': { name: 'Latter Logistics', desc: 'Cross-border Logistics', icon: 'fa-ship', color: '#0d9488', bgColor: '#f0fdfa', link: '/workspaces/latter-logistics/index.html', paths: ['latter_logistics_shipments'] }
+        };
 
         auth.onAuthStateChanged(async (user) => {
             if (user) { currentUser = user; await initializeDashboard(user); }
@@ -354,16 +391,60 @@
 
         async function initializeDashboard(user) {
             try {
+                // Check admin status
+                const adminSnap = await database.ref(`admins/${user.uid}`).once('value');
+                isAdmin = adminSnap.val() === true;
+
+                // Load workspace permissions
+                const permSnap = await database.ref(`workspacePermissions/${user.uid}`).once('value');
+                userPermissions = permSnap.exists() ? permSnap.val() : {};
+
+                // Load user data
                 const userSnap = await database.ref(`brandinn_users/${user.uid}`).once('value');
                 const userData = userSnap.exists() ? userSnap.val() : {};
                 const userName = userData.name || user.displayName || user.email?.split('@')[0] || 'User';
                 const businessName = userData.businessName || '';
+                
                 updateUserInterface(userName, businessName);
                 initOverviewMap();
+                
+                // Check if user has any workspace access
+                const hasAccess = isAdmin || Object.keys(userPermissions).some(k => userPermissions[k] === true);
+                
+                if (!hasAccess) {
+                    document.getElementById('accessDenied').style.display = 'block';
+                    document.getElementById('statsGrid').innerHTML = '';
+                    document.getElementById('chartsGrid').style.display = 'none';
+                    document.getElementById('activityCard').style.display = 'none';
+                    document.getElementById('workspaceCard').style.display = 'none';
+                    document.getElementById('mapCard').style.display = 'none';
+                    showToast('No workspace access - please request permissions', 'info');
+                    return;
+                }
+
+                document.getElementById('accessDenied').style.display = 'none';
                 await loadAllData();
                 await checkWorkspaceHealth();
                 setupLiveListeners();
-            } catch(e) { showToast('Error loading dashboard', 'error'); }
+            } catch(e) { 
+                console.error('Dashboard error:', e);
+                showToast('Error loading dashboard', 'error'); 
+            }
+        }
+
+        function userHasWorkspaceAccess(workspaceId) {
+            if (isAdmin) return true;
+            return userPermissions[workspaceId] === true;
+        }
+
+        function getAccessibleWorkspaces() {
+            const accessible = [];
+            for (const [id, config] of Object.entries(WORKSPACE_CONFIG)) {
+                if (userHasWorkspaceAccess(id)) {
+                    accessible.push({ id, ...config });
+                }
+            }
+            return accessible;
         }
 
         function updateUserInterface(userName, businessName) {
@@ -377,43 +458,63 @@
         }
 
         async function checkWorkspaceHealth() {
-            const workspaces = [
-                { name: 'Fusion Foods', path: 'fusion_foods_orders', dotId: 0 },
-                { name: 'DSOG Fashion', path: 'dsog_fashion_orders', dotId: 1 },
-                { name: 'Heritage Ads', path: 'heritage_listings', dotId: 2 },
-                { name: 'BrandInn', path: 'brandinn_print_orders', dotId: 3 },
-                { name: 'Heritage Mkt', path: 'heritage_orders', dotId: 4 }
-            ];
-            let healthyCount = 0;
+            const accessibleWorkspaces = getAccessibleWorkspaces();
             const dotElements = document.getElementById('healthDots').querySelectorAll('.health-dot');
-            for (const ws of workspaces) {
-                try {
-                    const startTime = Date.now();
-                    const snap = await database.ref(ws.path).once('value');
-                    const responseTime = Date.now() - startTime;
-                    ws.health = (snap.exists() || responseTime < 5000) ? 'online' : 'degraded';
-                    if (ws.health === 'online') healthyCount++;
-                } catch(e) { ws.health = 'down'; }
-            }
-            workspaces.forEach((ws, index) => {
-                if (dotElements[index]) {
-                    dotElements[index].className = `health-dot ${ws.health}`;
-                    dotElements[index].style.background = ws.health === 'online' ? '#10b981' : ws.health === 'degraded' ? '#f59e0b' : '#ef4444';
-                    dotElements[index].setAttribute('data-tooltip', `${ws.name}: ${ws.health === 'online' ? 'Online' : ws.health === 'degraded' ? 'Degraded' : 'Down'}`);
+            
+            // Only show dots for accessible workspaces
+            const workspaceNames = accessibleWorkspaces.map(w => w.name);
+            let healthyCount = 0;
+
+            for (let i = 0; i < dotElements.length; i++) {
+                const dot = dotElements[i];
+                const wsName = dot.getAttribute('data-tooltip')?.split(':')[0]?.trim() || '';
+                
+                if (workspaceNames.includes(wsName)) {
+                    dot.style.display = 'block';
+                    try {
+                        const config = accessibleWorkspaces.find(w => w.name === wsName);
+                        if (config && config.paths && config.paths.length > 0) {
+                            const snap = await database.ref(config.paths[0]).once('value');
+                            const isHealthy = snap.exists();
+                            dot.className = `health-dot ${isHealthy ? 'online' : 'degraded'}`;
+                            dot.style.background = isHealthy ? '#10b981' : '#f59e0b';
+                            dot.setAttribute('data-tooltip', `${wsName}: ${isHealthy ? 'Online' : 'Degraded'}`);
+                            if (isHealthy) healthyCount++;
+                        }
+                    } catch(e) {
+                        dot.className = 'health-dot down';
+                        dot.style.background = '#ef4444';
+                        dot.setAttribute('data-tooltip', `${wsName}: Down`);
+                    }
+                } else {
+                    dot.style.display = 'none';
                 }
-            });
+            }
+
+            // Update status
             const statusIcon = document.getElementById('statusIndicatorIcon');
             const statusMain = document.getElementById('statusMainText');
             const statusSub = document.getElementById('statusSubText');
-            if (healthyCount === workspaces.length) {
-                statusIcon.className = 'status-indicator-icon all-systems'; statusIcon.innerHTML = '<i class="fas fa-check"></i>';
-                statusMain.textContent = 'All Systems Operational'; statusMain.className = 'status-main-text';
-                statusSub.textContent = `${workspaces.length}/${workspaces.length} workspaces healthy`;
-            } else {
-                statusIcon.className = 'status-indicator-icon has-issues'; statusIcon.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
-                statusMain.textContent = healthyCount >= workspaces.length - 1 ? 'Minor Degradation' : 'Service Disruption';
+            
+            const total = accessibleWorkspaces.length;
+            if (total === 0) {
+                statusIcon.className = 'status-indicator-icon has-issues';
+                statusIcon.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
+                statusMain.textContent = 'No Access';
                 statusMain.className = 'status-main-text has-issues';
-                statusSub.textContent = `${healthyCount}/${workspaces.length} workspaces healthy`;
+                statusSub.textContent = 'No workspaces accessible';
+            } else if (healthyCount === total) {
+                statusIcon.className = 'status-indicator-icon all-systems';
+                statusIcon.innerHTML = '<i class="fas fa-check"></i>';
+                statusMain.textContent = 'All Systems Operational';
+                statusMain.className = 'status-main-text';
+                statusSub.textContent = `${healthyCount}/${total} workspaces healthy`;
+            } else {
+                statusIcon.className = 'status-indicator-icon has-issues';
+                statusIcon.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
+                statusMain.textContent = healthyCount >= total - 1 ? 'Minor Degradation' : 'Service Disruption';
+                statusMain.className = 'status-main-text has-issues';
+                statusSub.textContent = `${healthyCount}/${total} workspaces healthy`;
             }
         }
 
@@ -424,94 +525,109 @@
         }
 
         async function loadAllData() {
-            const workspaces = [];
+            const accessibleWorkspaces = getAccessibleWorkspaces();
+            
+            if (accessibleWorkspaces.length === 0) {
+                document.getElementById('accessDenied').style.display = 'block';
+                return;
+            }
+
             let totalOrders = 0, totalProducts = 0, totalClients = 0;
             const activities = [];
             const workspaceStats = {};
+            const accessibleWorkspaceNames = accessibleWorkspaces.map(w => w.name);
+            const businesses = [];
 
-            // Fusion Foods
-            const fusionOrdersSnap = await database.ref('fusion_foods_orders').once('value');
-            const fusionOrders = fusionOrdersSnap.val() || {};
-            totalOrders += Object.keys(fusionOrders).length;
-            const fusionProductsSnap = await database.ref('fusion_foods_products').once('value');
-            totalProducts += Object.keys(fusionProductsSnap.val() || {}).length;
-            const fusionStoresSnap = await database.ref('fusion_foods_stores').once('value');
-            totalClients += Object.keys(fusionStoresSnap.val() || {}).length;
-            if (Object.keys(fusionOrders).length > 0 || Object.keys(fusionProductsSnap.val() || {}).length > 0) {
-                workspaces.push({ name: 'Fusion Foods', desc: 'Food & Grocery Supply', icon: 'fa-utensils', color: '#10b981', bgColor: '#ecfdf5', stats: { orders: Object.keys(fusionOrders).length }, link: '/workspaces/fusion-foods/index.html' });
-                workspaceStats['Fusion Foods'] = Object.keys(fusionOrders).length;
-            }
-            Object.entries(fusionOrders).sort((a,b)=>(b[1].createdAt||0)-(a[1].createdAt||0)).slice(0,3).forEach(([id, order]) => {
-                activities.push({ icon: 'fa-utensils', iconBg: '#ecfdf5', iconColor: '#059669', title: `${order.restaurantName||'Restaurant'} · Order #${id.slice(-6)}`, meta: `${(order.products||[]).length} items · KES ${(order.total||0).toLocaleString()}`, time: getTimeAgo(order.createdAt), status: order.status||'new' });
-            });
+            // Only load data from accessible workspaces
+            for (const ws of accessibleWorkspaces) {
+                let orderCount = 0;
+                let productCount = 0;
+                let clientCount = 0;
 
-            // DSOG Fashion
-            const dsogOrdersSnap = await database.ref('dsog_fashion_orders').once('value');
-            const dsogOrders = dsogOrdersSnap.val() || {};
-            totalOrders += Object.keys(dsogOrders).length;
-            const dsogFranchiseesSnap = await database.ref('dsog_fashion_franchisees').once('value');
-            totalClients += Object.keys(dsogFranchiseesSnap.val() || {}).length;
-            if (Object.keys(dsogOrders).length > 0) {
-                workspaces.push({ name: 'DSOG Fashion', desc: 'Fashion & Apparel', icon: 'fa-tshirt', color: '#ec4899', bgColor: '#fdf2f8', stats: { orders: Object.keys(dsogOrders).length }, link: '/workspaces/dsog-fashion/index.html' });
-                workspaceStats['DSOG Fashion'] = Object.keys(dsogOrders).length;
-            }
+                for (const path of ws.paths) {
+                    try {
+                        const snap = await database.ref(path).once('value');
+                        const data = snap.val() || {};
+                        const count = Object.keys(data).length;
+                        
+                        if (path.includes('orders') || path.includes('listings') || path.includes('shipments')) {
+                            orderCount += count;
+                            totalOrders += count;
+                            
+                            // Get recent activities
+                            Object.entries(data).sort((a,b) => (b[1].createdAt||0) - (a[1].createdAt||0)).slice(0,2).forEach(([id, item]) => {
+                                const name = item.restaurantName || item.customerName || item.businessName || 'Customer';
+                                activities.push({
+                                    icon: ws.icon,
+                                    iconBg: ws.bgColor,
+                                    iconColor: ws.color,
+                                    title: `${name} · ${path.replace(/_/g,' ')}`,
+                                    meta: `#${id.slice(-6)} · KES ${(item.total || 0).toLocaleString()}`,
+                                    time: getTimeAgo(item.createdAt),
+                                    status: item.status || 'new'
+                                });
+                            });
+                        } else if (path.includes('products') || path.includes('inventory')) {
+                            productCount += count;
+                            totalProducts += count;
+                        } else if (path.includes('franchisees') || path.includes('stores') || path.includes('partners') || path.includes('users')) {
+                            clientCount += count;
+                            totalClients += count;
+                        } else if (path === 'iam_mugera_registrations') {
+                            // BrandInn registrations
+                            const bizData = Object.values(data).filter(b => b.operation === 'brandinn' && b.lat && b.lng);
+                            businesses.push(...bizData);
+                            clientCount += bizData.length;
+                            totalClients += bizData.length;
+                        }
+                    } catch(e) {
+                        console.warn(`Error loading ${path}:`, e);
+                    }
+                }
 
-            // Heritage Ads
-            const heritageSnap = await database.ref('heritage_listings').once('value');
-            const heritageCount = Object.keys(heritageSnap.val() || {}).length;
-            const heritagePartnersSnap = await database.ref('heritage_partners').once('value');
-            totalClients += Object.keys(heritagePartnersSnap.val() || {}).length;
-            if (heritageCount > 0) {
-                workspaces.push({ name: 'Heritage Ads', desc: 'Outdoor Advertising', icon: 'fa-landmark', color: '#d946ef', bgColor: '#faf5ff', stats: { listings: heritageCount }, link: '/workspaces/heritage/index.html' });
-                workspaceStats['Heritage Ads'] = heritageCount;
-            }
-
-            // Heritage Marketplace
-            const heritageOrdersSnap = await database.ref('heritage_orders').once('value');
-            const heritageOrders = heritageOrdersSnap.val() || {};
-            const heritageOrderCount = Object.keys(heritageOrders).length;
-            totalOrders += heritageOrderCount;
-            const heritageProductsSnap = await database.ref('heritage_products').once('value');
-            totalProducts += Object.keys(heritageProductsSnap.val() || {}).length;
-            const heritageMktPartnersSnap = await database.ref('heritage_partners').once('value');
-            totalClients += Object.keys(heritageMktPartnersSnap.val() || {}).length;
-            if (heritageOrderCount > 0 || Object.keys(heritageProductsSnap.val() || {}).length > 0) {
-                workspaces.push({ name: 'Heritage Mkt', desc: 'WhatsApp Marketplace', icon: 'fa-store', color: '#d97706', bgColor: '#fffbeb', stats: { orders: heritageOrderCount }, link: '/workspaces/heritage-marketplace/index.html' });
-                workspaceStats['Heritage Mkt'] = heritageOrderCount;
-            }
-            Object.entries(heritageOrders).sort((a,b)=>(b[1].createdAt||0)-(a[1].createdAt||0)).slice(0,2).forEach(([id, order]) => {
-                activities.push({ icon: 'fa-store', iconBg: '#fffbeb', iconColor: '#d97706', title: `${order.customerName||'Customer'} · Order #${id.slice(-6)}`, meta: `Heritage Mkt · KES ${(order.total||0).toLocaleString()}`, time: getTimeAgo(order.createdAt), status: order.status||'new' });
-            });
-
-            // BrandInn
-            const brandinnRegSnap = await database.ref('iam_mugera_registrations').once('value');
-            const brandinnBusinesses = Object.values(brandinnRegSnap.val() || {}).filter(b => b.operation === 'brandinn');
-            totalClients += brandinnBusinesses.length;
-            const brandinnOrdersSnap = await database.ref('brandinn_print_orders').once('value');
-            totalOrders += Object.keys(brandinnOrdersSnap.val() || {}).length;
-            const brandinnFranchisesSnap = await database.ref('brandinn_franchises').once('value');
-            totalClients += Object.keys(brandinnFranchisesSnap.val() || {}).length;
-            if (brandinnBusinesses.length > 0 || Object.keys(brandinnOrdersSnap.val() || {}).length > 0) {
-                workspaces.push({ name: 'BrandInn Print', desc: 'Print & Merchandise', icon: 'fa-print', color: '#8b5cf6', bgColor: '#f5f3ff', stats: { orders: Object.keys(brandinnOrdersSnap.val()||{}).length, businesses: brandinnBusinesses.length }, link: '/workspaces/brandinn/index.html' });
-                workspaceStats['BrandInn Print'] = Object.keys(brandinnOrdersSnap.val()||{}).length;
+                workspaceStats[ws.name] = orderCount || productCount || clientCount || 0;
             }
 
-            activities.sort((a,b) => (b.time||0)-(a.time||0));
-            renderStats(totalOrders, totalProducts, totalClients, workspaces.length);
+            // Filter activities to only show from accessible workspaces
+            const accessibleActivityIcons = accessibleWorkspaces.map(w => w.icon);
+            const filteredActivities = activities
+                .filter(a => accessibleActivityIcons.includes(a.icon))
+                .sort((a,b) => (b.time || 0) - (a.time || 0))
+                .slice(0,6);
+
+            renderStats(totalOrders, totalProducts, totalClients, accessibleWorkspaces.length);
             renderCharts(workspaceStats);
-            renderActivities(activities.slice(0,6));
-            renderWorkspaces(workspaces);
-            renderBrandInnStats(brandinnBusinesses.length, Object.keys(brandinnOrdersSnap.val()||{}).length, Object.keys(brandinnFranchisesSnap.val()||{}).length);
-            updateMapMarkers(Object.values(brandinnRegSnap.val() || {}).filter(b => b.lat && b.lng));
+            renderActivities(filteredActivities);
+            renderWorkspaces(accessibleWorkspaces);
+            
+            // Only show BrandInn stats if user has access to BrandInn
+            if (userHasWorkspaceAccess('brandinn')) {
+                const brandinnRegistrations = businesses.length;
+                const brandinnOrders = workspaceStats['BrandInn Print'] || 0;
+                const brandinnFranchises = workspaceStats['BrandInn Print'] || 0; // Approximate
+                renderBrandInnStats(brandinnRegistrations, brandinnOrders, brandinnFranchises);
+                updateMapMarkers(businesses);
+            } else {
+                document.getElementById('brandinnStats').innerHTML = `
+                    <div class="brandinn-stat-item"><div class="brandinn-stat-value" style="color:#9ca3af;">—</div><div class="brandinn-stat-label">No Access</div></div>
+                    <div class="brandinn-stat-item"><div class="brandinn-stat-value" style="color:#9ca3af;">—</div><div class="brandinn-stat-label">No Access</div></div>
+                    <div class="brandinn-stat-item"><div class="brandinn-stat-value" style="color:#9ca3af;">—</div><div class="brandinn-stat-label">No Access</div></div>
+                `;
+            }
         }
 
         function updateMapMarkers(businesses) {
-            mapMarkers.forEach(m => overviewMap.removeLayer(m)); mapMarkers = []; const bounds = [];
+            mapMarkers.forEach(m => overviewMap.removeLayer(m)); 
+            mapMarkers = []; 
+            const bounds = [];
+            
             businesses.forEach(biz => {
                 const color = biz.operation === 'brandinn' ? '#7c3aed' : biz.operation === 'deliveries' ? '#f59e0b' : '#ca8a04';
                 const marker = L.circleMarker([biz.lat, biz.lng], { radius: 5, fillColor: color, color: '#ffffff', weight: 1.5, fillOpacity: 0.8 }).addTo(overviewMap);
-                mapMarkers.push(marker); bounds.push([biz.lat, biz.lng]);
+                mapMarkers.push(marker); 
+                bounds.push([biz.lat, biz.lng]);
             });
+            
             if (bounds.length > 0) overviewMap.fitBounds(bounds, { padding: [20, 20], maxZoom: 15 });
         }
 
@@ -527,18 +643,45 @@
         function renderCharts(workspaceStats) {
             if (ordersChart) ordersChart.destroy();
             if (distributionChart) distributionChart.destroy();
-            const labels = ['Fusion Foods', 'DSOG Fashion', 'Heritage Ads', 'BrandInn', 'Heritage Mkt'];
-            const data = [workspaceStats['Fusion Foods']||0, workspaceStats['DSOG Fashion']||0, workspaceStats['Heritage Ads']||0, workspaceStats['BrandInn Print']||0, workspaceStats['Heritage Mkt']||0];
-            const colors = ['#10b981','#ec4899','#d946ef','#8b5cf6','#d97706'];
+
+            const entries = Object.entries(workspaceStats).filter(([_, val]) => val > 0);
+            const labels = entries.map(([name]) => name);
+            const data = entries.map(([_, val]) => val);
             
+            const colors = {
+                'Fusion Foods': '#10b981',
+                'DSOG Fashion': '#ec4899',
+                'Heritage Ads': '#d946ef',
+                'BrandInn Print': '#8b5cf6',
+                'Heritage Mkt': '#d97706',
+                'Pick-Up Deliveries': '#f59e0b',
+                'Pick-Me Rides': '#06b6d4',
+                'E-Kazi Tasks': '#10b981',
+                'Mugs n Dines': '#ef4444',
+                'WorkFit Club': '#22c55e',
+                'Epitome Reviews': '#3b82f6',
+                'Latter Logistics': '#0d9488'
+            };
+
+            const chartColors = labels.map(l => colors[l] || '#ca8a04');
+
+            if (labels.length === 0) {
+                document.getElementById('ordersChart').getContext('2d').clearRect(0, 0, 100, 100);
+                document.getElementById('distributionChart').getContext('2d').clearRect(0, 0, 100, 100);
+                return;
+            }
+
             const ctx1 = document.getElementById('ordersChart').getContext('2d');
             ordersChart = new Chart(ctx1, {
-                type: 'bar', data: { labels, datasets: [{ data, backgroundColor: colors.map(c=>c+'99'), borderColor: colors, borderWidth:2, borderRadius:8 }] },
+                type: 'bar', 
+                data: { labels, datasets: [{ data, backgroundColor: chartColors.map(c=>c+'99'), borderColor: chartColors, borderWidth:2, borderRadius:8 }] },
                 options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true,ticks:{stepSize:1,font:{size:10}},grid:{color:'#f3f4f6'}},x:{grid:{display:false},ticks:{font:{size:9}}}} }
             });
+
             const ctx2 = document.getElementById('distributionChart').getContext('2d');
             distributionChart = new Chart(ctx2, {
-                type: 'doughnut', data: { labels, datasets: [{ data, backgroundColor: colors, borderWidth:2, borderColor:'#ffffff' }] },
+                type: 'doughnut', 
+                data: { labels, datasets: [{ data, backgroundColor: chartColors, borderWidth:2, borderColor:'#ffffff' }] },
                 options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom',labels:{padding:12,usePointStyle:true,font:{size:9}}}} }
             });
         }
@@ -554,8 +697,8 @@
 
         function renderWorkspaces(workspaces) {
             const container = document.getElementById('workspaceList');
-            if (!workspaces.length) { container.innerHTML = '<div style="text-align:center;padding:1.5rem;color:var(--text-muted);"><i class="fas fa-cubes"></i><p>No workspaces yet</p></div>'; return; }
-            container.innerHTML = workspaces.map(w => `<a href="${w.link}" class="workspace-card"><div class="workspace-icon" style="background:${w.bgColor};color:${w.color};"><i class="fas ${w.icon}"></i></div><div class="workspace-info"><div class="workspace-name">${w.name}</div><div class="workspace-desc">${w.desc}</div></div><div class="workspace-stat">${w.stats.orders!==undefined?`<div class="number">${w.stats.orders}</div><div class="label">Orders</div>`:''}${w.stats.listings!==undefined?`<div class="number">${w.stats.listings}</div><div class="label">Listings</div>`:''}${w.stats.businesses!==undefined?`<div class="number">${w.stats.businesses}</div><div class="label">Businesses</div>`:''}</div></a>`).join('');
+            if (!workspaces.length) { container.innerHTML = '<div style="text-align:center;padding:1.5rem;color:var(--text-muted);"><i class="fas fa-cubes"></i><p>No workspaces accessible</p></div>'; return; }
+            container.innerHTML = workspaces.map(w => `<a href="${w.link}" class="workspace-card"><div class="workspace-icon" style="background:${w.bgColor};color:${w.color};"><i class="fas ${w.icon}"></i></div><div class="workspace-info"><div class="workspace-name">${w.name}</div><div class="workspace-desc">${w.desc}</div></div><div class="workspace-stat"><span class="number">✓</span><div class="label">Access</div></div></a>`).join('');
         }
 
         function renderBrandInnStats(businesses, orders, franchises) {
@@ -567,9 +710,19 @@
         }
 
         function setupLiveListeners() {
-            const paths = ['fusion_foods_orders','dsog_fashion_orders','brandinn_print_orders','iam_mugera_registrations','heritage_orders','heritage_products','heritage_partners'];
+            const accessibleWorkspaces = getAccessibleWorkspaces();
+            const paths = [];
+            for (const ws of accessibleWorkspaces) {
+                paths.push(...ws.paths);
+            }
+            
             paths.forEach(p => {
-                database.ref(p).on('child_added', () => { document.querySelector('.live-dot').style.animation = 'none'; setTimeout(() => document.querySelector('.live-dot').style.animation = 'pulse-glow 2s infinite', 10); loadAllData(); checkWorkspaceHealth(); });
+                database.ref(p).on('child_added', () => { 
+                    document.querySelector('.live-dot').style.animation = 'none'; 
+                    setTimeout(() => document.querySelector('.live-dot').style.animation = 'pulse-glow 2s infinite', 10); 
+                    loadAllData(); 
+                    checkWorkspaceHealth(); 
+                });
                 database.ref(p).on('child_changed', () => loadAllData());
             });
             setInterval(checkWorkspaceHealth, 60000);
@@ -581,10 +734,35 @@
             const mins = Math.floor(diff/60000), hrs = Math.floor(mins/60), days = Math.floor(hrs/24);
             if (days>0) return `${days}d ago`; if (hrs>0) return `${hrs}h ago`; if (mins>0) return `${mins}m ago`; return 'Just now';
         }
+        
         function escapeHtml(t) { const d=document.createElement('div'); d.textContent=t||''; return d.innerHTML; }
-        function showToast(m, type='info') { const t=document.createElement('div'); t.className=`toast ${type}`; t.innerHTML=`<i class="fas fa-${type==='error'?'exclamation-circle':'check-circle'}"></i><span>${escapeHtml(m)}</span>`; document.getElementById('toastContainer').appendChild(t); setTimeout(()=>{t.style.opacity='0';t.style.transition='0.3s';setTimeout(()=>t.remove(),300);},3000); }
-        window.refreshData = async () => { initOverviewMap(); await loadAllData(); await checkWorkspaceHealth(); showToast('Dashboard refreshed!', 'success'); };
-        window.handleLogout = async () => { if(confirm('Sign out?')) { ['fusion_foods_orders','dsog_fashion_orders','brandinn_print_orders','iam_mugera_registrations','heritage_orders','heritage_products','heritage_partners'].forEach(p => database.ref(p).off()); await auth.signOut(); window.location.href = 'index.html'; } };
+        
+        function showToast(m, type='info') { 
+            const t=document.createElement('div'); t.className=`toast ${type}`; 
+            t.innerHTML=`<i class="fas fa-${type==='error'?'exclamation-circle':'check-circle'}"></i><span>${escapeHtml(m)}</span>`; 
+            document.getElementById('toastContainer').appendChild(t); 
+            setTimeout(()=>{t.style.opacity='0';t.style.transition='0.3s';setTimeout(()=>t.remove(),300);},3000); 
+        }
+        
+        window.refreshData = async () => { 
+            initOverviewMap(); 
+            await loadAllData(); 
+            await checkWorkspaceHealth(); 
+            showToast('Dashboard refreshed!', 'success'); 
+        };
+        
+        window.handleLogout = async () => { 
+            if(confirm('Sign out?')) { 
+                const accessibleWorkspaces = getAccessibleWorkspaces();
+                const paths = [];
+                for (const ws of accessibleWorkspaces) {
+                    paths.push(...ws.paths);
+                }
+                paths.forEach(p => database.ref(p).off()); 
+                await auth.signOut(); 
+                window.location.href = 'index.html'; 
+            } 
+        };
     </script>
 </body>
 </html>
