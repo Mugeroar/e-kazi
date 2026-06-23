@@ -39,6 +39,32 @@
         .skeleton { background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%); background-size: 200% 100%; animation: shimmer 1.5s ease-in-out infinite; border-radius: 6px; }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         .animate-in { animation: fadeInUp 0.6s ease-out; }
+
+        /* Access Denied Banner */
+        .access-denied {
+            background: #fef2f2; border: 1px solid #fecaca; border-radius: 16px;
+            padding: 2rem; text-align: center; margin-bottom: 1.5rem;
+        }
+        .access-denied i { font-size: 3rem; color: var(--danger); margin-bottom: 1rem; display: block; }
+        .access-denied h2 { font-size: 1.3rem; color: var(--danger); font-family: var(--font-display); }
+        .access-denied p { color: var(--text-muted); margin-top: 0.5rem; }
+        .access-denied .btn-request {
+            margin-top: 1rem;
+            background: var(--gold-gradient);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 0.7rem 2rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: var(--font-heading);
+            transition: all 0.2s;
+        }
+        .access-denied .btn-request:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-gold);
+        }
+
         .site-header { position:fixed; top:0; width:100%; height:var(--header-height); background:var(--nav-bg); backdrop-filter:blur(25px); border-bottom:1px solid rgba(202,138,4,0.08); z-index:1000; padding:0 2rem; }
         .header-container { max-width:1400px; height:100%; margin:0 auto; display:flex; align-items:center; justify-content:space-between; }
         .logo{display:flex;align-items:center;gap:0.7rem;text-decoration:none;} .logo img{height:36px;width:auto;}
@@ -104,6 +130,17 @@
 
     <main class="main-content">
         <div class="blog-header"><h1><i class="fas fa-newspaper"></i> Operations Blog</h1><p>Daily analytics · System performance · Workspace insights · Predictions</p></div>
+        
+        <!-- Access Denied Banner -->
+        <div class="access-denied" id="accessDenied" style="display:none;">
+            <i class="fas fa-lock"></i>
+            <h2>No Workspace Access</h2>
+            <p>You don't have permission to view any workspace data. Contact your administrator to request access.</p>
+            <button class="btn-request" onclick="window.location.href='workspaces.html'">
+                <i class="fas fa-arrow-right"></i> View Workspaces
+            </button>
+        </div>
+
         <div id="skeletonState">
             <div class="blog-skeleton-card">
                 <div class="skeleton" style="height:2rem;width:50%;margin-bottom:0.6rem;"></div>
@@ -124,93 +161,380 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database(); const auth = firebase.auth();
         let blogPosts = {}; let isGenerating = false; let embeddedCharts = []; let embeddedMap = null;
+        let userPermissions = {};
+        let isAdmin = false;
+        let currentUser = null;
+        let hasWorkspaceAccess = false;
+
+        // Workspace configuration with permission keys
+        const WORKSPACE_CONFIG = {
+            'fusion-foods': { key: 'fusion-foods', name: 'Fusion Foods', icon: 'fa-utensils', color: '#10b981', path: 'fusion_foods_orders' },
+            'dsog': { key: 'dsog', name: 'DSOG Fashion', icon: 'fa-tshirt', color: '#ec4899', path: 'dsog_fashion_orders' },
+            'brandinn': { key: 'brandinn', name: 'BrandInn', icon: 'fa-print', color: '#7c3aed', path: 'brandinn_print_orders' },
+            'heritage': { key: 'heritage', name: 'Heritage Ads', icon: 'fa-landmark', color: '#d946ef', path: 'heritage_listings' },
+            'heritage-marketplace': { key: 'heritage-marketplace', name: 'Heritage Mkt', icon: 'fa-store', color: '#d97706', path: 'heritage_orders' },
+            'pick-up': { key: 'pick-up', name: 'Pick-Up', icon: 'fa-truck-fast', color: '#f59e0b', path: 'pickup_deliveries' },
+            'pick-me': { key: 'pick-me', name: 'Pick-Me', icon: 'fa-taxi', color: '#06b6d4', path: 'pickme_rides' },
+            'ekazi': { key: 'ekazi', name: 'E-Kazi', icon: 'fa-tasks', color: '#10b981', path: 'ekazi_assigned_tasks' },
+            'mugs-n-dines': { key: 'mugs-n-dines', name: 'Mugs n Dines', icon: 'fa-utensil-spoon', color: '#ef4444', path: 'mugs_n_dines_orders' },
+            'workfit': { key: 'workfit', name: 'WorkFit', icon: 'fa-dumbbell', color: '#22c55e', path: 'workfit_clubs' },
+            'epitome': { key: 'epitome', name: 'Epitome', icon: 'fa-home', color: '#3b82f6', path: 'epitome_cars' },
+            'latter-logistics': { key: 'latter-logistics', name: 'Latter Logistics', icon: 'fa-ship', color: '#0d9488', path: 'latter_logistics_shipments' }
+        };
 
         auth.onAuthStateChanged(async (user) => {
             if (!user) { window.location.href = 'index.html'; return; }
+            currentUser = user;
+
+            // Check admin status
+            const adminSnap = await db.ref(`admins/${user.uid}`).once('value');
+            isAdmin = adminSnap.val() === true;
+
+            // Load workspace permissions
+            const permSnap = await db.ref(`workspacePermissions/${user.uid}`).once('value');
+            userPermissions = permSnap.exists() ? permSnap.val() : {};
+
+            // Load user data
             const snap = await db.ref(`brandinn_users/${user.uid}`).once('value');
             const name = snap.exists() ? (snap.val().name || user.email?.split('@')[0]) : user.email?.split('@')[0];
             document.getElementById('userDisplayName').textContent = name || 'Staff';
             document.getElementById('userAvatar').textContent = (name || 'K').charAt(0).toUpperCase();
-            await loadBlogPosts(); await checkAndGenerateToday();
+
+            // Check if user has any workspace access
+            hasWorkspaceAccess = isAdmin || Object.keys(userPermissions).some(k => userPermissions[k] === true);
+
+            if (!hasWorkspaceAccess) {
+                document.getElementById('accessDenied').style.display = 'block';
+                document.getElementById('skeletonState').style.display = 'none';
+                document.getElementById('liveState').style.display = 'none';
+                return;
+            }
+
+            document.getElementById('accessDenied').style.display = 'none';
+            await loadBlogPosts(); 
+            await checkAndGenerateToday();
         });
 
-        async function loadBlogPosts() { try { const snap = await db.ref('operation_blogs').once('value'); blogPosts = snap.val() || {}; } catch(e) { blogPosts = {}; } }
+        function userHasWorkspaceAccess(workspaceId) {
+            if (isAdmin) return true;
+            return userPermissions[workspaceId] === true;
+        }
+
+        function getAccessibleWorkspacePaths() {
+            const paths = [];
+            for (const [id, config] of Object.entries(WORKSPACE_CONFIG)) {
+                if (userHasWorkspaceAccess(id)) {
+                    paths.push({ key: id, path: config.path, config: config });
+                }
+            }
+            return paths;
+        }
+
+        function getAccessibleWorkspaceNames() {
+            const names = [];
+            for (const [id, config] of Object.entries(WORKSPACE_CONFIG)) {
+                if (userHasWorkspaceAccess(id)) {
+                    names.push(config.name);
+                }
+            }
+            return names;
+        }
+
+        async function loadBlogPosts() { 
+            try { 
+                const snap = await db.ref('operation_blogs').once('value'); 
+                blogPosts = snap.val() || {}; 
+            } catch(e) { blogPosts = {}; } 
+        }
 
         async function checkAndGenerateToday() {
             const today = new Date().toISOString().split('T')[0];
             const existingPost = blogPosts[today];
             const hasNewFormat = existingPost?.content?.includes('Executive Summary') && existingPost?.content?.includes('System Performance');
-            if (existingPost && hasNewFormat) { renderBlogDisplay(today, existingPost); revealContent(); }
-            else { await generateTodayPost(today); revealContent(); }
+            if (existingPost && hasNewFormat) { 
+                // Only show if the user has access to the workspaces mentioned
+                const accessibleNames = getAccessibleWorkspaceNames();
+                const postHasAccessibleData = existingPost.stats?.chartData && 
+                    Object.keys(existingPost.stats.chartData).some(key => 
+                        accessibleNames.some(name => name.toLowerCase().includes(key.toLowerCase()))
+                    );
+                if (postHasAccessibleData || isAdmin) {
+                    renderBlogDisplay(today, existingPost); 
+                    revealContent();
+                    return;
+                }
+            }
+            await generateTodayPost(today); 
+            revealContent(); 
         }
-        function revealContent() { document.getElementById('skeletonState').style.display = 'none'; document.getElementById('liveState').style.display = 'block'; }
+
+        function revealContent() { 
+            document.getElementById('skeletonState').style.display = 'none'; 
+            document.getElementById('liveState').style.display = 'block'; 
+        }
 
         async function generateTodayPost(dateStr) {
             if (isGenerating) return; isGenerating = true; cleanupCharts();
             const todayStart = new Date(dateStr + 'T00:00:00+03:00').getTime();
             const todayEnd = new Date(dateStr + 'T23:59:59.999+03:00').getTime();
+            
             try {
-                const paths = [
-                    { key: 'fusionOrders', path: 'fusion_foods_orders' }, { key: 'dsogOrders', path: 'dsog_fashion_orders' },
-                    { key: 'brandinnOrders', path: 'brandinn_print_orders' }, { key: 'heritageListings', path: 'heritage_listings' },
-                    { key: 'heritageOrders', path: 'heritage_orders' }, { key: 'fieldRegs', path: 'iam_mugera_registrations' }
-                ];
+                // Only load accessible workspace paths
+                const accessiblePaths = getAccessibleWorkspacePaths();
                 const rawData = {};
-                for (const p of paths) { const snap = await db.ref(p.path).once('value'); rawData[p.key] = snap.val() || {}; }
-                const filterByDate = (obj) => Object.entries(obj).filter(([_, item]) => { const ts = item.createdAt || item.timestamp || 0; return ts >= todayStart && ts <= todayEnd; });
-                const fusionOrders = filterByDate(rawData.fusionOrders); const dsogOrders = filterByDate(rawData.dsogOrders);
-                const brandinnOrders = filterByDate(rawData.brandinnOrders); const heritageListings = filterByDate(rawData.heritageListings);
-                const heritageOrders = filterByDate(rawData.heritageOrders); const fieldRegs = filterByDate(rawData.fieldRegs);
+                
+                // Load data from accessible workspaces
+                for (const ws of accessiblePaths) {
+                    try {
+                        const snap = await db.ref(ws.path).once('value');
+                        rawData[ws.key] = snap.val() || {};
+                    } catch(e) {
+                        console.warn(`Could not load ${ws.path}:`, e);
+                        rawData[ws.key] = {};
+                    }
+                }
 
-                const allTimestamps = [...fusionOrders, ...dsogOrders, ...brandinnOrders, ...heritageListings, ...heritageOrders, ...fieldRegs].map(([_, item]) => item.createdAt || item.timestamp || 0).filter(t => t > 0);
-                const hourlyBins = new Array(24).fill(0); allTimestamps.forEach(ts => { hourlyBins[new Date(ts).getHours()]++; });
-                const peakHour = hourlyBins.indexOf(Math.max(...hourlyBins)); const peakCount = hourlyBins[peakHour];
-                const totalOps = fusionOrders.length + dsogOrders.length + brandinnOrders.length + heritageListings.length + heritageOrders.length;
+                // Load field registrations if user has access to BrandInn or Pick-Up
+                let fieldData = {};
+                if (userHasWorkspaceAccess('brandinn') || userHasWorkspaceAccess('pick-up')) {
+                    try {
+                        const fieldSnap = await db.ref('iam_mugera_registrations').once('value');
+                        fieldData = fieldSnap.val() || {};
+                    } catch(e) {
+                        console.warn('Could not load field registrations:', e);
+                    }
+                }
+
+                const filterByDate = (obj) => Object.entries(obj).filter(([_, item]) => { 
+                    const ts = item.createdAt || item.timestamp || item.assignedAt || item.postedAt || 0; 
+                    return ts >= todayStart && ts <= todayEnd; 
+                });
+
+                // Get filtered data for each workspace
+                const workspaceData = {};
+                let totalOps = 0;
+                
+                for (const ws of accessiblePaths) {
+                    const filtered = filterByDate(rawData[ws.key] || {});
+                    workspaceData[ws.key] = { filtered, count: filtered.length };
+                    totalOps += filtered.length;
+                }
+
+                // Filter field registrations
+                const fieldRegs = filterByDate(fieldData);
+                const fieldCount = fieldRegs.length;
+                totalOps += fieldCount;
+
+                // Collect all timestamps for hourly bins
+                const allTimestamps = [];
+                for (const ws of accessiblePaths) {
+                    const items = workspaceData[ws.key]?.filtered || [];
+                    items.forEach(([_, item]) => {
+                        const ts = item.createdAt || item.timestamp || item.assignedAt || 0;
+                        if (ts > 0) allTimestamps.push(ts);
+                    });
+                }
+                fieldRegs.forEach(([_, r]) => {
+                    const ts = r.timestamp || 0;
+                    if (ts > 0) allTimestamps.push(ts);
+                });
+
+                const hourlyBins = new Array(24).fill(0);
+                allTimestamps.forEach(ts => { 
+                    try { hourlyBins[new Date(ts).getHours()]++; } catch(e) {} 
+                });
+                const peakHour = hourlyBins.indexOf(Math.max(...hourlyBins)); 
+                const peakCount = hourlyBins[peakHour] || 0;
                 const systemLoad = totalOps > 50 ? 'high' : totalOps > 15 ? 'moderate' : 'low';
 
+                // Collect contributors
                 const contributors = new Set();
-                [...fusionOrders, ...dsogOrders, ...brandinnOrders, ...heritageOrders].forEach(([_, o]) => { const by = o.recordedBy || o.clerkId || ''; if (by) contributors.add(by.includes('@') ? by.split('@')[0] : by); });
-                fieldRegs.forEach(([_, r]) => { const by = r.recordedBy || ''; if (by) contributors.add(by.includes('@') ? by.split('@')[0] : by); });
-                const contributorList = [...contributors]; const fieldRegsArray = fieldRegs.map(([_, r]) => r);
+                for (const ws of accessiblePaths) {
+                    const items = workspaceData[ws.key]?.filtered || [];
+                    items.forEach(([_, item]) => {
+                        const by = item.recordedBy || item.createdBy || item.clerkId || item.assignedBy || '';
+                        if (by) contributors.add(by.includes('@') ? by.split('@')[0] : by);
+                    });
+                }
+                fieldRegs.forEach(([_, r]) => {
+                    const by = r.recordedBy || '';
+                    if (by) contributors.add(by.includes('@') ? by.split('@')[0] : by);
+                });
+                const contributorList = [...contributors];
 
-                const fusionRestaurants = new Set(fusionOrders.map(([_, o]) => o.restaurantName).filter(Boolean));
-                const fusionValue = fusionOrders.reduce((sum, [_, o]) => sum + (o.total || 0), 0);
-                const fusionDelivered = fusionOrders.filter(([_, o]) => o.status === 'delivered').length;
-                const heritageMktCustomers = new Set(heritageOrders.map(([_, o]) => o.customerName).filter(Boolean));
-                const heritageMktValue = heritageOrders.reduce((sum, [_, o]) => sum + (o.total || 0), 0);
-                const fieldOps = {}; fieldRegs.forEach(([_, r]) => { const op = r.operation || 'other'; fieldOps[op] = (fieldOps[op] || 0) + 1; });
+                // Build chart data
+                const chartData = {};
+                for (const ws of accessiblePaths) {
+                    const displayName = ws.config.name;
+                    chartData[displayName] = workspaceData[ws.key]?.count || 0;
+                }
+                chartData['Field'] = fieldCount;
 
-                const yesterdayDate = new Date(Date.now() - 86400000).toISOString().split('T')[0];
-                const yesterdayPost = blogPosts[yesterdayDate]; const yesterdayTotal = yesterdayPost?.stats?.totalOperations || 0;
-                const trend = totalOps > yesterdayTotal ? 'increasing' : totalOps < yesterdayTotal ? 'decreasing' : 'stable';
-                const predictedTomorrow = Math.round(totalOps * (trend === 'increasing' ? 1.15 : trend === 'decreasing' ? 0.85 : 1.0));
+                // Generate title and subtitle
+                const parts = [];
+                for (const ws of accessiblePaths) {
+                    const count = workspaceData[ws.key]?.count || 0;
+                    if (count > 0) {
+                        const shortName = ws.config.name.replace(/ .*$/, '');
+                        parts.push(`${count} ${shortName}`);
+                    }
+                }
+                if (fieldCount > 0) parts.push(`${fieldCount} Field`);
+                
+                const title = parts.length === 0 ? 'A Quiet Day at the Operations Hub' :
+                              parts.length === 1 ? parts[0] + ' Processed Today' :
+                              parts.slice(0, 2).join(' & ') + ` — ${totalOps} Total Operations`;
 
-                const chartData = { fusion: fusionOrders.length, dsog: dsogOrders.length, brandinn: brandinnOrders.length, heritageAds: heritageListings.length, heritageMkt: heritageOrders.length, field: fieldRegs.length };
+                const today = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+                const subtitle = `Daily operations summary for ${today} · ${contributorList.length} team member${contributorList.length !== 1 ? 's' : ''} contributed`;
+
+                // Generate content based on accessible data
+                const content = generateBlogContent(workspaceData, accessiblePaths, fieldRegs, contributorList, hourlyBins, peakHour, peakCount, systemLoad, totalOps);
 
                 const blogData = {
-                    date: dateStr, title: generateTitle(totalOps, fieldRegs.length, fusionOrders.length, dsogOrders.length, brandinnOrders.length, heritageOrders.length),
-                    subtitle: generateSubtitle(totalOps, contributorList.length),
-                    stats: { totalOperations: totalOps, fieldRegistrations: fieldRegs.length, fusionOrders: fusionOrders.length, dsogOrders: dsogOrders.length, brandinnOrders: brandinnOrders.length, heritageListings: heritageListings.length, heritageOrders: heritageOrders.length, contributors: contributorList.length, contributorNames: contributorList, chartData, fieldRegsData: fieldRegsArray, hourlyBins, peakHour, peakCount, systemLoad, trend, predictedTomorrow, yesterdayTotal, fusionRestaurants: [...fusionRestaurants], fusionValue, fusionDelivered, heritageMktCustomers: [...heritageMktCustomers], heritageMktValue, fieldOps },
-                    content: generateBlogContent(fusionOrders, dsogOrders, brandinnOrders, heritageListings, heritageOrders, fieldRegs, contributorList, hourlyBins, peakHour, peakCount, systemLoad, trend, predictedTomorrow, totalOps, fusionRestaurants, fusionValue, fusionDelivered, heritageMktCustomers, heritageMktValue, fieldOps, yesterdayTotal),
-                    generatedAt: new Date().toISOString(), generatedBy: auth.currentUser?.email || 'System', formatVersion: '3.0'
+                    date: dateStr,
+                    title: title,
+                    subtitle: subtitle,
+                    stats: {
+                        totalOperations: totalOps,
+                        fieldRegistrations: fieldCount,
+                        contributors: contributorList.length,
+                        contributorNames: contributorList,
+                        chartData: chartData,
+                        hourlyBins: hourlyBins,
+                        peakHour: peakHour,
+                        peakCount: peakCount,
+                        systemLoad: systemLoad
+                    },
+                    content: content,
+                    generatedAt: new Date().toISOString(),
+                    generatedBy: auth.currentUser?.email || 'System',
+                    formatVersion: '3.0'
                 };
-                await db.ref(`operation_blogs/${dateStr}`).set(blogData); blogPosts[dateStr] = blogData; renderBlogDisplay(dateStr, blogData);
-            } catch(e) { console.error('Generation error:', e); } finally { isGenerating = false; }
+                
+                await db.ref(`operation_blogs/${dateStr}`).set(blogData); 
+                blogPosts[dateStr] = blogData; 
+                renderBlogDisplay(dateStr, blogData);
+            } catch(e) { 
+                console.error('Generation error:', e); 
+            } finally { isGenerating = false; }
+        }
+
+        function generateBlogContent(workspaceData, accessiblePaths, fieldRegs, contributors, hourlyBins, peakHour, peakCount, systemLoad, totalOps) {
+            let html = '';
+            const fieldCount = fieldRegs.length;
+
+            html += `<p>Welcome to today's edition of the <strong>KazInni Operations Blog</strong>, your daily digest across your accessible workspaces from <strong>midnight to 11:59 PM EAT</strong>.</p>`;
+
+            if (totalOps === 0 && fieldCount === 0) {
+                html += `<p>Today was a <span class="stat-inline gold">quiet day</span> across your workspaces.</p><div class="highlight-box">📊 All systems remain fully operational.</div>`;
+                return html;
+            }
+
+            html += `<h2>📋 Executive Summary</h2>`;
+            html += `<p>Today, KazInni processed <span class="stat-inline gold">${totalOps} operations</span> under <span class="stat-inline ${systemLoad==='high'?'rose':systemLoad==='moderate'?'gold':'green'}">${systemLoad.toUpperCase()} LOAD</span>. Peak: <span class="stat-inline rose">${peakHour}:00 (${peakCount} ops)</span>.</p>`;
+
+            html += `<h2>⚡ System Performance</h2><p>Avg <span class="stat-inline blue">${(totalOps/24).toFixed(1)} ops/hr</span>. Peak at ${peakHour}:00.</p>`;
+            html += `<div class="blog-chart-embed" id="blogHourlyChartEmbed"><canvas></canvas><div class="chart-label">Figure 1: Hourly Load — Peak at ${peakHour}:00 (${peakCount} ops)</div></div>`;
+            html += `<div class="highlight-box success">✅ System operating within capacity.</div>`;
+
+            // Workspace sections
+            for (const ws of accessiblePaths) {
+                const data = workspaceData[ws.key] || { filtered: [], count: 0 };
+                const count = data.count;
+                const icon = ws.config.icon;
+                const name = ws.config.name;
+                const color = ws.config.color;
+                
+                html += `<h2><i class="fas ${icon}" style="color:${color};"></i> ${name}</h2>`;
+                
+                if (count === 0) {
+                    html += `<p>No activity today.</p>`;
+                } else {
+                    html += `<p><span class="stat-inline gold">${count} operations</span> processed today.</p>`;
+                    // Show some details if available
+                    const sample = data.filtered[0]?.[1];
+                    if (sample) {
+                        const name = sample.restaurantName || sample.customerName || sample.businessName || '';
+                        if (name) html += `<p>${count > 1 ? `Including: ${escapeHtml(name)} and ${count-1} more` : `Customer: ${escapeHtml(name)}`}</p>`;
+                    }
+                }
+            }
+
+            // Field Operations
+            html += `<h2>📍 Field Operations</h2>`;
+            if (fieldCount === 0) {
+                html += `<p>No field registrations today.</p>`;
+            } else {
+                html += `<p><span class="stat-inline gold">${fieldCount} locations</span> mapped.</p>`;
+                html += `<div class="blog-map-embed" id="blogMapEmbed"></div><div class="chart-label">Figure 2: Field Registrations Map</div>`;
+            }
+
+            // Workspace Distribution
+            html += `<h2>📊 Workspace Distribution</h2><div class="blog-chart-embed" id="blogChartEmbed"><canvas></canvas><div class="chart-label">Figure 3: Operations by Workspace</div></div>`;
+
+            // Team
+            if (contributors.length > 0) {
+                html += `<h2>👥 Team</h2><p><span class="stat-inline blue">${contributors.length} contributors</span>: ${contributors.map(c=>`<span class="team-mention"><i class="fas fa-user-circle"></i> ${escapeHtml(c)}</span>`).join(' ')}</p>`;
+            }
+
+            html += `<h2>📝 Closing</h2><p>Auto-generated at ${new Date().toLocaleTimeString()}. See <a href="analytics.html" style="color:var(--gold);">Analytics</a> or <a href="reports.html" style="color:var(--gold);">Reports</a>.</p>`;
+            html += `<div class="highlight-box">📊 Today: ${totalOps} ops · ${fieldCount} field · ${systemLoad.toUpperCase()} load · Peak ${peakHour}:00 · ${contributors.length} contributors</div>`;
+            
+            return html;
         }
 
         function renderBlogDisplay(date, data) {
             document.getElementById('blogContent').innerHTML = `<div class="blog-post animate-in"><div class="blog-post-header"><div class="blog-post-date">${new Date(data.date).toLocaleDateString('en-US', {weekday:'long', month:'long', day:'numeric', year:'numeric'})}</div><h1 class="blog-post-title">${data.title}</h1><p class="blog-post-subtitle">${data.subtitle}</p><div class="blog-post-meta"><span><i class="fas fa-calendar-check"></i> ${new Date(data.generatedAt).toLocaleTimeString()}</span><span><i class="fas fa-robot"></i> Auto-generated</span></div></div><div class="blog-content">${data.content}</div></div>`;
-            setTimeout(() => { embedChart(data.stats?.chartData || {}); embedHourlyChart(data.stats?.hourlyBins || new Array(24).fill(0), data.stats?.peakHour || 0); embedMap(data.stats?.fieldRegsData || []); }, 500);
+            
+            // Embed charts after render
+            setTimeout(() => {
+                const chartData = data.stats?.chartData || {};
+                const accessibleWorkspaceNames = getAccessibleWorkspaceNames();
+                // Only show workspaces the user has access to
+                const filteredChartData = {};
+                for (const [key, value] of Object.entries(chartData)) {
+                    if (accessibleWorkspaceNames.includes(key) || key === 'Field' || isAdmin) {
+                        filteredChartData[key] = value;
+                    }
+                }
+                embedChart(filteredChartData); 
+                embedHourlyChart(data.stats?.hourlyBins || new Array(24).fill(0), data.stats?.peakHour || 0); 
+                embedMap(data.stats?.fieldRegsData || []);
+            }, 500);
         }
 
         function embedChart(chartData) {
             const container = document.getElementById('blogChartEmbed'); if (!container) return;
             const canvas = container.querySelector('canvas'); if (!canvas) return;
+            
+            const labels = Object.keys(chartData);
+            const data = Object.values(chartData);
+            const colors = ['#10b981','#ec4899','#7c3aed','#d946ef','#d97706','#f59e0b','#06b6d4','#22c55e','#ef4444','#3b82f6','#0d9488'];
+            const bgColors = labels.map((_, i) => colors[i % colors.length]);
+            
             const chart = new Chart(canvas.getContext('2d'), {
                 type: 'doughnut',
-                data: { labels: ['Fusion Foods', 'DSOG', 'BrandInn', 'Heritage Ads', 'Heritage Mkt', 'Field'], datasets: [{ data: [chartData.fusion||0, chartData.dsog||0, chartData.brandinn||0, chartData.heritageAds||0, chartData.heritageMkt||0, chartData.field||0], backgroundColor: ['#10b981','#ec4899','#7c3aed','#d946ef','#d97706','#3b82f6'], borderWidth: 2, borderColor: '#fff' }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { padding: 8, usePointStyle: true, font: { size: 8 } } } } }
-            }); embeddedCharts.push(chart);
+                data: { 
+                    labels: labels, 
+                    datasets: [{ 
+                        data: data, 
+                        backgroundColor: bgColors, 
+                        borderWidth: 2, 
+                        borderColor: '#fff' 
+                    }] 
+                },
+                options: { 
+                    responsive: true, maintainAspectRatio: false, 
+                    plugins: { 
+                        legend: { 
+                            position: 'bottom', 
+                            labels: { padding: 8, usePointStyle: true, font: { size: 8 } } 
+                        } 
+                    } 
+                }
+            }); 
+            embeddedCharts.push(chart);
         }
 
         function embedHourlyChart(hourlyBins, peakHour) {
@@ -218,98 +542,106 @@
             const canvas = container.querySelector('canvas'); if (!canvas) return;
             const labels = hourlyBins.map((_, i) => `${i}:00`);
             const bgColors = hourlyBins.map((_, i) => i === peakHour ? 'rgba(239,68,68,0.7)' : 'rgba(202,138,4,0.35)');
-            const chart = new Chart(canvas.getContext('2d'), { type: 'bar', data: { labels, datasets: [{ label: 'Operations', data: hourlyBins, backgroundColor: bgColors, borderColor: bgColors, borderWidth: 1, borderRadius: 4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 8 } }, grid: { color: '#f3f4f6' } }, x: { ticks: { font: { size: 7 }, maxTicksLimit: 12 }, grid: { display: false } } } } });
+            const chart = new Chart(canvas.getContext('2d'), { 
+                type: 'bar', 
+                data: { 
+                    labels, 
+                    datasets: [{ 
+                        label: 'Operations', 
+                        data: hourlyBins, 
+                        backgroundColor: bgColors, 
+                        borderColor: bgColors, 
+                        borderWidth: 1, 
+                        borderRadius: 4 
+                    }] 
+                }, 
+                options: { 
+                    responsive: true, maintainAspectRatio: false, 
+                    plugins: { legend: { display: false } }, 
+                    scales: { 
+                        y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 8 } }, grid: { color: '#f3f4f6' } }, 
+                        x: { ticks: { font: { size: 7 }, maxTicksLimit: 12 }, grid: { display: false } } 
+                    } 
+                } 
+            });
             embeddedCharts.push(chart);
         }
 
         function embedMap(fieldRegsArray) {
-            const container = document.getElementById('blogMapEmbed'); if (!container || !fieldRegsArray || fieldRegsArray.length === 0) return;
-            embeddedMap = L.map('blogMapEmbed', { zoomControl: false, attributionControl: false, dragging: false, scrollWheelZoom: false });
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(embeddedMap);
-            const bounds = []; const colors = { brandinn: '#7c3aed', deliveries: '#f59e0b', rides: '#22c55e', dsog: '#ec4899', fusion: '#10b981', heritage: '#d946ef' };
-            fieldRegsArray.forEach(r => { if (r.lat && r.lng) { L.circleMarker([r.lat, r.lng], { radius: 3, fillColor: colors[r.operation] || '#ca8a04', color: '#fff', weight: 0.5, fillOpacity: 0.8 }).addTo(embeddedMap); bounds.push([r.lat, r.lng]); } });
-            if (bounds.length > 0) embeddedMap.fitBounds(bounds, { padding: [15, 15], maxZoom: 15 }); else embeddedMap.setView([-1.2864, 36.8172], 7);
-        }
-
-        function cleanupCharts() { embeddedCharts.forEach(c => { try { c.destroy(); } catch(e) {} }); embeddedCharts = []; if (embeddedMap) { try { embeddedMap.remove(); } catch(e) {} embeddedMap = null; } }
-
-        function generateTitle(total, field, fusion, dsog, brandinn, heritageMkt) {
-            const parts = [];
-            if (fusion > 0) parts.push(`${fusion} Food Orders`); if (dsog > 0) parts.push(`${dsog} Fashion Orders`);
-            if (brandinn > 0) parts.push(`${brandinn} Print Jobs`); if (heritageMkt > 0) parts.push(`${heritageMkt} Mkt Orders`);
-            if (field > 0) parts.push(`${field} Field Registrations`);
-            if (parts.length === 0) return 'A Quiet Day at the Operations Hub';
-            if (parts.length === 1) return parts[0] + ' Processed Today';
-            return parts.slice(0, 2).join(' & ') + ` — ${total} Total Operations`;
-        }
-
-        function generateSubtitle(total, contributors) {
-            const today = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
-            return `Daily operations summary for ${today} · ${contributors} team member${contributors !== 1 ? 's' : ''} contributed`;
-        }
-
-        function generateBlogContent(fusion, dsog, brandinn, heritageAds, heritageMkt, field, contributors, hourlyBins, peakHour, peakCount, systemLoad, trend, predictedTomorrow, totalOps, fusionRestaurants, fusionValue, fusionDelivered, heritageMktCustomers, heritageMktValue, fieldOps, yesterdayTotal) {
-            let html = ''; const fieldCount = field.length;
-            html += `<p>Welcome to today's edition of the <strong>KazInni Operations Blog</strong>, your daily digest across all business workspaces from <strong>midnight to 11:59 PM EAT</strong>.</p>`;
-            if (totalOps === 0 && fieldCount === 0) {
-                html += `<p>Today was a <span class="stat-inline gold">quiet day</span> across all workspaces.</p><div class="highlight-box">📊 All systems remain fully operational.</div>`; return html;
+            const container = document.getElementById('blogMapEmbed'); 
+            if (!container || !fieldRegsArray || fieldRegsArray.length === 0) {
+                // Check if we have field data from the current state
+                if (embeddedMap) return;
+                return;
             }
-            html += `<h2>📋 Executive Summary</h2>`;
-            html += `<p>Today, KazInni processed <span class="stat-inline gold">${totalOps} operations</span> under <span class="stat-inline ${systemLoad==='high'?'rose':systemLoad==='moderate'?'gold':'green'}">${systemLoad.toUpperCase()} LOAD</span>. Peak: <span class="stat-inline rose">${peakHour}:00 (${peakCount} ops)</span>. Field: <span class="stat-inline green">${fieldCount} registrations</span>.</p>`;
-            html += `<p>vs yesterday (${yesterdayTotal||'N/A'}): <span class="stat-inline ${trend==='increasing'?'green':trend==='decreasing'?'rose':'gold'}">${trend}</span>. Predicted tomorrow: <span class="stat-inline blue">~${predictedTomorrow} ops</span>.</p>`;
-            html += `<h2>⚡ System Performance</h2><p>Avg <span class="stat-inline blue">${(totalOps/24).toFixed(1)} ops/hr</span>. Peak at ${peakHour}:00.</p>`;
-            html += `<div class="blog-chart-embed" id="blogHourlyChartEmbed"><canvas></canvas><div class="chart-label">Figure 1: Hourly Load — Peak at ${peakHour}:00 (${peakCount} ops)</div></div>`;
-            if (peakCount > 10) html += `<div class="highlight-box warning">⚠️ ${peakCount} ops at ${peakHour}:00 — monitor for queuing.</div>`;
-            else if (peakCount > 5) html += `<div class="highlight-box info">📈 ${peakCount} ops at ${peakHour}:00 — healthy utilization.</div>`;
-            else html += `<div class="highlight-box success">✅ Light load — system well within capacity.</div>`;
+            
+            // Get fresh field data if not provided
+            let dataToUse = fieldRegsArray;
+            if (!dataToUse || dataToUse.length === 0) {
+                // Try to get from the current state
+                const currentPost = document.getElementById('blogContent');
+                // No data, skip map
+                return;
+            }
 
-            // Fusion Foods
-            html += `<h2>🍽️ Fusion Foods</h2>`;
-            if (fusion.length === 0) html += `<p>No orders today.</p>`;
-            else { html += `<p><span class="stat-inline green">${fusion.length} orders</span> for <span class="stat-inline gold">${fusionRestaurants.size} restaurants</span> (KES ${fusionValue.toLocaleString()}). <span class="stat-inline green">${fusionDelivered} delivered</span>.</p>`; if (fusionRestaurants.size <= 6) html += `<p>Partners: <strong>${[...fusionRestaurants].map(r=>escapeHtml(r)).join(', ')}</strong>.</p>`; }
-
-            // DSOG
-            html += `<h2>👗 DSOG Fashion</h2>`;
-            html += dsog.length === 0 ? `<p>No orders today.</p>` : `<p><span class="stat-inline purple">${dsog.length} orders</span> processed.</p>`;
-
-            // BrandInn
-            html += `<h2>🖨️ BrandInn Print</h2>`;
-            html += brandinn.length === 0 ? `<p>No orders today.</p>` : `<p><span class="stat-inline purple">${brandinn.length} print orders</span> completed.</p>`;
-
-            // Heritage Ads
-            html += `<h2>🏛️ Heritage Ads</h2>`;
-            html += heritageAds.length === 0 ? `<p>No listings today.</p>` : `<p><span class="stat-inline green">${heritageAds.length} new listings</span>.</p>`;
-
-            // Heritage Marketplace
-            html += `<h2>🛒 Heritage Marketplace</h2>`;
-            if (heritageMkt.length === 0) html += `<p>No orders today.</p>`;
-            else { html += `<p><span class="stat-inline amber">${heritageMkt.length} orders</span> for <span class="stat-inline gold">${heritageMktCustomers.size} customers</span> (KES ${heritageMktValue.toLocaleString()}).</p>`; }
-
-            // Field Ops
-            html += `<h2>📍 Field Operations</h2>`;
-            if (fieldCount === 0) html += `<p>No registrations today.</p>`;
-            else { html += `<p><span class="stat-inline gold">${fieldCount} locations</span> mapped.</p>`; html += `<div class="blog-map-embed" id="blogMapEmbed"></div><div class="chart-label">Figure 2: Field Registrations Map</div>`; }
-
-            // Workspace Distribution
-            html += `<h2>📊 Workspace Distribution</h2><div class="blog-chart-embed" id="blogChartEmbed"><canvas></canvas><div class="chart-label">Figure 3: Operations by Workspace</div></div>`;
-
-            // Team
-            if (contributors.length > 0) { html += `<h2>👥 Team</h2><p><span class="stat-inline blue">${contributors.length} contributors</span>: ${contributors.map(c=>`<span class="team-mention"><i class="fas fa-user-circle"></i> ${escapeHtml(c)}</span>`).join(' ')}</p>`; }
-
-            // Predictions
-            html += `<h2>🔮 Tomorrow</h2><p>Forecast: <span class="stat-inline blue">~${predictedTomorrow} ops</span> (${trend} trend).</p>`;
-            if (predictedTomorrow > 30) html += `<div class="highlight-box danger">🔴 High volume expected.</div>`;
-            else if (predictedTomorrow > 10) html += `<div class="highlight-box info">🔵 Moderate day ahead.</div>`;
-            else html += `<div class="highlight-box success">🟢 Light day — good for maintenance.</div>`;
-
-            html += `<h2>📝 Closing</h2><p>Auto-generated at ${new Date().toLocaleTimeString()}. See <a href="analytics.html" style="color:var(--gold);">Analytics</a> or <a href="reports.html" style="color:var(--gold);">Reports</a>.</p>`;
-            html += `<div class="highlight-box">📊 Today: ${totalOps} ops · ${fieldCount} field · ${systemLoad.toUpperCase()} load · Peak ${peakHour}:00 · ${contributors.length} contributors · ~${predictedTomorrow} tomorrow</div>`;
-            return html;
+            embeddedMap = L.map('blogMapEmbed', { 
+                zoomControl: false, 
+                attributionControl: false, 
+                dragging: false, 
+                scrollWheelZoom: false 
+            });
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(embeddedMap);
+            
+            const bounds = []; 
+            const colors = { brandinn: '#7c3aed', deliveries: '#f59e0b', rides: '#22c55e', dsog: '#ec4899', fusion: '#10b981', heritage: '#d946ef' };
+            
+            dataToUse.forEach(r => { 
+                if (r.lat && r.lng) { 
+                    L.circleMarker([r.lat, r.lng], { 
+                        radius: 3, 
+                        fillColor: colors[r.operation] || '#ca8a04', 
+                        color: '#fff', 
+                        weight: 0.5, 
+                        fillOpacity: 0.8 
+                    }).addTo(embeddedMap); 
+                    bounds.push([r.lat, r.lng]); 
+                } 
+            });
+            
+            if (bounds.length > 0) { 
+                embeddedMap.fitBounds(bounds, { padding: [15, 15], maxZoom: 15 }); 
+            } else { 
+                embeddedMap.setView([-1.2864, 36.8172], 7); 
+            }
         }
 
-        window.regenerateToday = async function() { cleanupCharts(); document.getElementById('skeletonState').style.display='block'; document.getElementById('liveState').style.display='none'; const today=new Date().toISOString().split('T')[0]; await generateTodayPost(today); revealContent(); };
+        function cleanupCharts() { 
+            embeddedCharts.forEach(c => { try { c.destroy(); } catch(e) {} }); 
+            embeddedCharts = []; 
+            if (embeddedMap) { try { embeddedMap.remove(); } catch(e) {} embeddedMap = null; } 
+        }
+
+        window.regenerateToday = async function() { 
+            if (!hasWorkspaceAccess) {
+                alert('You don\'t have permission to view workspace data.');
+                return;
+            }
+            cleanupCharts(); 
+            document.getElementById('skeletonState').style.display='block'; 
+            document.getElementById('liveState').style.display='none'; 
+            const today = new Date().toISOString().split('T')[0]; 
+            await generateTodayPost(today); 
+            revealContent(); 
+        };
+
         function escapeHtml(t) { const d=document.createElement('div'); d.textContent=t||''; return d.innerHTML; }
-        window.handleLogout = async () => { if (confirm('Sign out?')) { await auth.signOut(); window.location.href = 'index.html'; } };
+        
+        window.handleLogout = async () => { 
+            if (confirm('Sign out?')) { 
+                await auth.signOut(); 
+                window.location.href = 'index.html'; 
+            } 
+        };
     </script>
 </body>
 </html>
