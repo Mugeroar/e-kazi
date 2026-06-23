@@ -102,7 +102,7 @@
             max-width: 1400px; height: 100%; margin: 0 auto;
             display: flex; align-items: center; justify-content: space-between;
         }
-        .logo { display: flex; align-items: center; gap: 0.85rem; }
+        .logo { display: flex; align-items: center; gap: 0.85rem; text-decoration: none; }
         .logo img { height: 44px; width: auto; filter: drop-shadow(0 4px 8px rgba(202,138,4,0.15)); }
         .logo span {
             font-size: 1.6rem; font-weight: 800;
@@ -178,16 +178,6 @@
             margin: 0 auto;
         }
 
-        .debug-info {
-            background: #1e293b; color: #e2e8f0; padding: 0.5rem 1rem; border-radius: 8px;
-            font-family: monospace; font-size: 0.7rem; margin-bottom: 1rem;
-            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;
-            gap: 0.5rem;
-        }
-        .debug-info .status { color: #4ade80; }
-        .debug-info .error { color: #f87171; }
-        .debug-info .warning { color: #fbbf24; }
-
         .search-bar {
             display: flex; align-items: center; gap: 1rem;
             max-width: 500px; margin: 0 auto 2rem;
@@ -259,7 +249,7 @@
             transform: none; border-color: var(--border-light);
         }
         .card-image {
-            width: 100%; height: 150px; background: var(--bg-secondary);
+            width: 100%; height: 160px; background: var(--bg-secondary);
             position: relative; overflow: hidden;
         }
         .card-image img {
@@ -318,6 +308,7 @@
             font-size: 1.2rem; font-weight: 700; color: var(--text-primary);
             margin-bottom: 0.5rem; font-family: var(--font-heading);
         }
+        .empty-section p { color: var(--text-muted); }
         .btn-request {
             margin-top: 1rem;
             background: var(--gold-gradient);
@@ -374,10 +365,10 @@
 
     <header class="site-header">
         <div class="header-container">
-            <div class="logo">
+            <a href="dashboard.html" class="logo">
                 <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview-1.png" alt="KazInni">
                 <span>KazInni</span>
-            </div>
+            </a>
             <nav class="nav-links">
                 <a href="dashboard.html" class="nav-link">Dashboard</a>
                 <a href="profile.html" class="nav-link">Profile</a>
@@ -403,12 +394,6 @@
                 <p>Access your business tools and management portals</p>
             </div>
 
-            <!-- Debug Info -->
-            <div class="debug-info" id="debugInfo">
-                <span><span class="status">●</span> Loading workspaces...</span>
-                <span id="debugDetails">Checking permissions...</span>
-            </div>
-
             <!-- Search Bar -->
             <div class="search-bar">
                 <i class="fas fa-search" style="color:var(--text-muted);"></i>
@@ -426,14 +411,9 @@
                     <h2>Available Workspaces <span class="badge badge-gold" id="wsCount" style="margin-left:0.5rem;">0</span></h2>
                 </div>
 
-                <!-- Skeleton Loading Grid -->
+                <!-- Workspace Cards -->
                 <div class="cards-grid" id="workspacesContainer">
-                    <div class="skeleton-card"><div class="skeleton skeleton-image"></div><div style="padding:1.3rem 1.5rem;"><div class="skeleton skeleton-badge"></div><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-desc"></div><div class="skeleton skeleton-desc-sm"></div><div class="skeleton skeleton-link"></div></div></div>
-                    <div class="skeleton-card"><div class="skeleton skeleton-image"></div><div style="padding:1.3rem 1.5rem;"><div class="skeleton skeleton-badge"></div><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-desc"></div><div class="skeleton skeleton-desc-sm"></div><div class="skeleton skeleton-link"></div></div></div>
-                    <div class="skeleton-card"><div class="skeleton skeleton-image"></div><div style="padding:1.3rem 1.5rem;"><div class="skeleton skeleton-badge"></div><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-desc"></div><div class="skeleton skeleton-desc-sm"></div><div class="skeleton skeleton-link"></div></div></div>
-                    <div class="skeleton-card"><div class="skeleton skeleton-image"></div><div style="padding:1.3rem 1.5rem;"><div class="skeleton skeleton-badge"></div><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-desc"></div><div class="skeleton skeleton-desc-sm"></div><div class="skeleton skeleton-link"></div></div></div>
-                    <div class="skeleton-card"><div class="skeleton skeleton-image"></div><div style="padding:1.3rem 1.5rem;"><div class="skeleton skeleton-badge"></div><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-desc"></div><div class="skeleton skeleton-desc-sm"></div><div class="skeleton skeleton-link"></div></div></div>
-                    <div class="skeleton-card"><div class="skeleton skeleton-image"></div><div style="padding:1.3rem 1.5rem;"><div class="skeleton skeleton-badge"></div><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-desc"></div><div class="skeleton skeleton-desc-sm"></div><div class="skeleton skeleton-link"></div></div></div>
+                    <!-- Dynamically rendered -->
                 </div>
             </section>
         </div>
@@ -457,43 +437,118 @@
         let allWorkspaces = [];
         let filteredWorkspaces = [];
 
-        // Workspace definitions (fallback if resources/workspaces is empty)
+        // Workspace definitions with images
         const WORKSPACE_DEFINITIONS = {
-            'brandinn': { title: 'BrandInn Business', icon: 'fa-building', color: '#8b5cf6', description: 'Business branding & website management platform.' },
-            'brandinn-print': { title: 'BrandInn Print', icon: 'fa-print', color: '#8b5cf6', description: 'Print & Merchandise Business Management.' },
-            'pick-up': { title: 'Pick-Up Deliveries', icon: 'fa-truck-fast', color: '#f59e0b', description: 'Delivery Management Platform.' },
-            'pick-me': { title: 'Pick-Me Rides', icon: 'fa-taxi', color: '#06b6d4', description: 'Ride-hailing Management.' },
-            'ekazi': { title: 'E-Kazi Tasks', icon: 'fa-tasks', color: '#10b981', description: 'Freelance Task Management.' },
-            'dsog': { title: 'DSOG Fashion', icon: 'fa-tshirt', color: '#ec4899', description: 'Fashion & Apparel Management.' },
-            'fusion-foods': { title: 'Fusion Foods', icon: 'fa-utensils', color: '#10b981', description: 'Food & Grocery Supply Management.' },
-            'heritage': { title: 'Heritage Ads', icon: 'fa-bullhorn', color: '#d946ef', description: 'Outdoor Advertising Platform.' },
-            'heritage-marketplace': { title: 'Heritage Marketplace', icon: 'fa-store', color: '#8b5cf6', description: 'E-commerce Marketplace.' },
-            'mugs-n-dines': { title: 'Mugs n Dines', icon: 'fa-utensil-spoon', color: '#ef4444', description: 'Restaurant Management.' },
-            'workfit': { title: 'WorkFit Club', icon: 'fa-dumbbell', color: '#22c55e', description: 'Fitness Club Management.' },
-            'epitome': { title: 'Epitome Reviews', icon: 'fa-home', color: '#3b82f6', description: 'Real Estate & Car Sales.' },
-            'latter-logistics': { title: 'Latter Logistics', icon: 'fa-ship', color: '#0d9488', description: 'Intercounty & Cross-border Logistics.' }
+            'brandinn': { 
+                title: 'BrandInn Business', 
+                icon: 'fa-building', 
+                color: '#8b5cf6', 
+                description: 'Business branding & website management platform. Create and manage business pages, subdomains, and brand identities.',
+                image: 'https://i.postimg.cc/7Y6cnc2g/Untitled-design-11.webp',
+                link: '/workspaces/brandinn/index.html'
+            },
+            'brandinn-print': { 
+                title: 'BrandInn Print', 
+                icon: 'fa-print', 
+                color: '#8b5cf6', 
+                description: 'Print & Merchandise Business. Manage print orders, franchises, stock, and customer printing jobs.',
+                image: 'https://i.postimg.cc/k5w26G75/Untitled-design-7.webp',
+                link: '/workspaces/brandinn-print/index.html'
+            },
+            'pick-up': { 
+                title: 'Pick-Up Deliveries', 
+                icon: 'fa-truck-fast', 
+                color: '#f59e0b', 
+                description: 'Delivery Management Platform. Manage pickup and delivery operations, assign drivers, and track packages.',
+                image: 'https://i.postimg.cc/fy44wGdy/Untitled-design-2-1.webp',
+                link: '/workspaces/pick-up/index.html'
+            },
+            'pick-me': { 
+                title: 'Pick-Me Rides', 
+                icon: 'fa-taxi', 
+                color: '#06b6d4', 
+                description: 'Ride-hailing Management. Schedule rides, manage drivers, and handle passenger bookings.',
+                image: 'https://i.postimg.cc/fy44wGdy/Untitled-design-2-1.webp',
+                link: '/workspaces/pick-me/index.html'
+            },
+            'ekazi': { 
+                title: 'E-Kazi Tasks', 
+                icon: 'fa-tasks', 
+                color: '#10b981', 
+                description: 'Freelance Task Management. Post jobs, assign tasks to taskers, and manage submissions.',
+                image: 'https://i.postimg.cc/7Y6cnc2g/Untitled-design-11.webp',
+                link: '/workspaces/ekazi/index.html'
+            },
+            'dsog': { 
+                title: 'DSOG Fashion', 
+                icon: 'fa-tshirt', 
+                color: '#ec4899', 
+                description: 'Fashion & Apparel Management. Handle orders, franchisees, and fashion inventory with dispatch capabilities.',
+                image: 'https://i.postimg.cc/L8tczHsR/JSEKAH-FURNITURES.webp',
+                link: '/workspaces/dsog/index.html'
+            },
+            'fusion-foods': { 
+                title: 'Fusion Foods', 
+                icon: 'fa-utensils', 
+                color: '#10b981', 
+                description: 'Food & Grocery Supply Management. Manage orders, inventory, suppliers, and weekly pricing for your food supply business.',
+                image: 'https://i.postimg.cc/RZhvK1Fx/White-Cabbage.jpg',
+                link: '/workspaces/fusion-foods/index.html'
+            },
+            'heritage': { 
+                title: 'Heritage Ads', 
+                icon: 'fa-bullhorn', 
+                color: '#d946ef', 
+                description: 'Outdoor Advertising Platform. Manage billboard listings, campaigns, and partner relationships.',
+                image: 'https://i.postimg.cc/k5w26G75/Untitled-design-7.webp',
+                link: '/workspaces/heritage/index.html'
+            },
+            'heritage-marketplace': { 
+                title: 'Heritage Marketplace', 
+                icon: 'fa-store', 
+                color: '#8b5cf6', 
+                description: 'E-commerce Marketplace. List products, manage orders, and handle customer transactions.',
+                image: 'https://i.postimg.cc/c4zbbLHX/Untitled-design(1).gif',
+                link: '/workspaces/heritage-marketplace/index.html'
+            },
+            'mugs-n-dines': { 
+                title: 'Mugs n Dines', 
+                icon: 'fa-utensil-spoon', 
+                color: '#ef4444', 
+                description: 'Restaurant Management. Handle food orders, menu management, and kitchen operations.',
+                image: 'https://i.postimg.cc/43gptxpC/Gemini-Generated-Image-h09o9uh09o9uh09o.png',
+                link: '/workspaces/mugs-n-dines/index.html'
+            },
+            'workfit': { 
+                title: 'WorkFit Club', 
+                icon: 'fa-dumbbell', 
+                color: '#22c55e', 
+                description: 'Fitness Club Management. Manage members, schedules, trainers, and fitness operations.',
+                image: 'https://i.postimg.cc/T1Jwm35J/20250917_1209_Outdoor_Fitness_Enthusiasts_simple_compose_01k5bey8x1ff2sdbrwczrh69wx.png',
+                link: '/workspaces/workfit/index.html'
+            },
+            'epitome': { 
+                title: 'Epitome Reviews', 
+                icon: 'fa-home', 
+                color: '#3b82f6', 
+                description: 'Real Estate & Car Sales. Manage property listings, vehicle sales, and customer reviews.',
+                image: 'https://i.postimg.cc/CLZmbrSj/Screenshot_2025-09-11_170957.png',
+                link: '/workspaces/epitome/index.html'
+            },
+            'latter-logistics': { 
+                title: 'Latter Logistics', 
+                icon: 'fa-ship', 
+                color: '#0d9488', 
+                description: 'Intercounty & Cross-border Logistics. Real-time tracking, customs support, pay-per-shipment.',
+                image: 'https://i.postimg.cc/c4zbbLHX/Untitled-design(1).gif',
+                link: '/workspaces/latter-logistics/index.html'
+            }
         };
 
-        function updateDebug(status, details) {
-            const el = document.getElementById('debugInfo');
-            const statusClass = status === 'connected' ? 'status' : (status === 'error' ? 'error' : (status === 'warning' ? 'warning' : 'status'));
-            el.innerHTML = `<span><span class="${statusClass}">●</span> ${status}</span><span id="debugDetails">${details}</span>`;
-        }
-
-        auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                currentUser = user;
-                updateDebug('authenticating', 'Loading user data...');
-                await loadUserData(user);
-                await loadWorkspaces();
-            } else {
-                window.location.href = 'index.html';
-            }
-        });
-
+        // Load user data
         async function loadUserData(user) {
             try {
-                // Check if user is admin
+                // Check admin status
                 const adminSnap = await database.ref(`admins/${user.uid}`).once('value');
                 isAdmin = adminSnap.val() === true;
 
@@ -501,87 +556,74 @@
                 const permSnap = await database.ref(`workspacePermissions/${user.uid}`).once('value');
                 userPermissions = permSnap.exists() ? permSnap.val() : {};
 
+                // Load user profile for display
+                const snap = await database.ref(`brandinn_users/${user.uid}`).once('value');
+                const userData = snap.exists() ? snap.val() : {};
+                const name = userData.name || user.displayName || user.email?.split('@')[0] || 'User';
+                
+                document.getElementById('userDisplayName').textContent = name;
+                document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
+
+                // If admin, grant all permissions
                 if (isAdmin) {
-                    updateDebug('connected', '👑 Admin access - all workspaces available');
-                } else if (Object.keys(userPermissions).length === 0) {
-                    updateDebug('warning', '🔒 No workspace permissions found');
-                } else {
-                    const permCount = Object.keys(userPermissions).filter(k => userPermissions[k] === true).length;
-                    updateDebug('connected', `✅ ${permCount} workspaces accessible`);
+                    userPermissions.isAdmin = true;
                 }
 
             } catch(e) {
-                console.error('Error loading user:', e);
-                updateDebug('error', 'Error loading user data');
+                console.error('Error loading user data:', e);
+                showToast('Error loading user data', 'error');
             }
         }
 
         function userHasWorkspaceAccess(workspaceId) {
-            // Admin has access to everything
-            if (isAdmin) return true;
-            // Check specific permission - must be explicitly true
+            if (isAdmin || userPermissions.isAdmin === true) return true;
             return userPermissions[workspaceId] === true;
         }
 
         async function loadWorkspaces() {
             try {
-                updateDebug('loading', 'Loading workspace definitions...');
-
-                let workspaceList = [];
-
-                // Load workspaces from resources/workspaces
+                // Load custom workspace data from resources
+                let resourceWorkspaces = [];
                 try {
                     const snap = await database.ref('resources/workspaces').once('value');
                     const data = snap.val() || {};
-                    
-                    workspaceList = Object.entries(data).map(([id, item]) => ({
-                        id: id,
-                        workspaceId: id,
-                        title: item.title || WORKSPACE_DEFINITIONS[id]?.title || id,
-                        description: item.description || WORKSPACE_DEFINITIONS[id]?.description || '',
-                        link: item.link || `/workspaces/${id}/index.html`,
-                        icon: item.icon || WORKSPACE_DEFINITIONS[id]?.icon || 'fa-building',
-                        color: item.color || WORKSPACE_DEFINITIONS[id]?.color || '#ca8a04',
-                        image: item.image || '',
-                        category: item.category || id
+                    resourceWorkspaces = Object.entries(data).map(([id, item]) => ({ 
+                        id, 
+                        ...item,
+                        workspaceId: id
                     }));
-                    
-                    updateDebug('connected', `📂 Loaded ${workspaceList.length} workspaces from resources`);
                 } catch(e) {
-                    console.warn('Could not load from resources:', e);
-                    updateDebug('warning', 'Using default workspace definitions');
+                    console.warn('Could not load resource workspaces:', e);
                 }
 
-                // If no workspaces loaded, use defaults
-                if (workspaceList.length === 0) {
-                    workspaceList = Object.entries(WORKSPACE_DEFINITIONS).map(([id, def]) => ({
+                // Build workspace list from definitions and resources
+                const workspaceList = [];
+                
+                for (const [id, def] of Object.entries(WORKSPACE_DEFINITIONS)) {
+                    const resourceMatch = resourceWorkspaces.find(rw => rw.id === id || rw.title === def.title);
+                    workspaceList.push({
                         id: id,
                         workspaceId: id,
-                        title: def.title,
-                        description: def.description,
-                        link: `/workspaces/${id}/index.html`,
-                        icon: def.icon,
-                        color: def.color,
-                        image: '',
-                        category: id
-                    }));
+                        title: resourceMatch?.title || def.title,
+                        description: resourceMatch?.description || def.description,
+                        link: resourceMatch?.link || def.link,
+                        icon: resourceMatch?.icon || def.icon,
+                        color: resourceMatch?.color || def.color,
+                        image: resourceMatch?.image || def.image,
+                        category: resourceMatch?.category || id
+                    });
                 }
 
-                // 🔑 CRITICAL: Filter based on permissions
-                // If not admin, only show workspaces where permission is explicitly true
+                // Filter based on permissions
                 let accessibleWorkspaces;
                 
-                if (isAdmin) {
-                    // Admin sees everything
+                if (isAdmin || userPermissions.isAdmin === true) {
                     accessibleWorkspaces = workspaceList;
                 } else {
-                    // Non-admin: ONLY show workspaces with explicit permission
                     const permissionKeys = Object.keys(userPermissions).filter(k => userPermissions[k] === true);
-                    
-                    accessibleWorkspaces = workspaceList.filter(w => {
-                        const hasAccess = permissionKeys.includes(w.workspaceId || w.id);
-                        return hasAccess;
-                    });
+                    accessibleWorkspaces = workspaceList.filter(w => 
+                        permissionKeys.includes(w.workspaceId || w.id)
+                    );
                     
                     // Also include any workspaces the user has permission for that aren't in the list
                     permissionKeys.forEach(permId => {
@@ -593,10 +635,10 @@
                                 workspaceId: permId,
                                 title: def.title,
                                 description: def.description,
-                                link: `/workspaces/${permId}/index.html`,
+                                link: def.link,
                                 icon: def.icon,
                                 color: def.color,
-                                image: '',
+                                image: def.image,
                                 category: permId
                             });
                         }
@@ -605,13 +647,10 @@
 
                 allWorkspaces = accessibleWorkspaces;
                 filteredWorkspaces = [...allWorkspaces];
-                
-                updateDebug('connected', `🎯 Showing ${filteredWorkspaces.length} workspaces`);
                 renderWorkspaces();
                 
             } catch(e) {
                 console.error('Error loading workspaces:', e);
-                updateDebug('error', 'Error loading workspaces');
                 showToast('Error loading workspaces', 'error');
             }
         }
@@ -644,7 +683,7 @@
                 const isLocked = !hasAccess;
                 
                 const imageHtml = w.image ? 
-                    `<img src="${escapeHtml(w.image)}" alt="${escapeHtml(title)}" loading="lazy">` : 
+                    `<img src="${escapeHtml(w.image)}" alt="${escapeHtml(title)}" loading="lazy" onerror="this.style.display='none';this.parentElement.innerHTML='<div class=\\'image-placeholder\\' style=\\'background:linear-gradient(135deg, ${bgColor}, ${bgColor}50); color:${color};\\'><i class=\\'fas ${iconClass}\\'></i></div>';">` : 
                     `<div class="image-placeholder" style="background:linear-gradient(135deg, ${bgColor}, ${bgColor}50); color:${color};"><i class="fas ${iconClass}"></i></div>`;
 
                 return `
@@ -671,11 +710,9 @@
             const clearBtn = document.getElementById('searchClear');
             const countEl = document.getElementById('searchCount');
             
-            let results = filteredWorkspaces;
-            
             if (query) {
                 clearBtn.classList.add('visible');
-                results = filteredWorkspaces.filter(w => {
+                const results = filteredWorkspaces.filter(w => {
                     const title = w.title || '';
                     const desc = w.description || '';
                     return title.toLowerCase().includes(query) || desc.toLowerCase().includes(query);
@@ -687,57 +724,58 @@
                 } else {
                     countEl.classList.remove('visible');
                 }
+                
+                // Re-render with filtered results
+                const container = document.getElementById('workspacesContainer');
+                document.getElementById('wsCount').textContent = results.length;
+
+                if (!results.length) {
+                    container.innerHTML = `
+                        <div class="empty-section">
+                            <i class="fas fa-search"></i>
+                            <h3>No Matching Workspaces</h3>
+                            <p>Try adjusting your search terms.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = results.map(w => {
+                    const workspaceId = w.workspaceId || w.id;
+                    const iconClass = w.icon || 'fa-building';
+                    const color = w.color || '#ca8a04';
+                    const bgColor = `${color}15`;
+                    const title = w.title || workspaceId;
+                    const hasAccess = userHasWorkspaceAccess(workspaceId);
+                    const isLocked = !hasAccess;
+                    
+                    const imageHtml = w.image ? 
+                        `<img src="${escapeHtml(w.image)}" alt="${escapeHtml(title)}" loading="lazy" onerror="this.style.display='none';this.parentElement.innerHTML='<div class=\\'image-placeholder\\' style=\\'background:linear-gradient(135deg, ${bgColor}, ${bgColor}50); color:${color};\\'><i class=\\'fas ${iconClass}\\'></i></div>';">` : 
+                        `<div class="image-placeholder" style="background:linear-gradient(135deg, ${bgColor}, ${bgColor}50); color:${color};"><i class="fas ${iconClass}"></i></div>`;
+
+                    return `
+                    <div class="workspace-card ${isLocked ? 'disabled' : ''}" onclick="${hasAccess ? `openWorkspace('${escapeHtml(w.link)}')` : ''}">
+                        <div class="card-image">${imageHtml}</div>
+                        <div class="card-content">
+                            <span class="workspace-badge ${isLocked ? 'locked' : ''}">
+                                <i class="fas ${iconClass}"></i> 
+                                ${isLocked ? '🔒 Locked' : 'Workspace'}
+                            </span>
+                            <h3 class="card-title">${escapeHtml(title)}</h3>
+                            <p class="card-description">${escapeHtml(w.description || 'Access this workspace to manage your operations.')}</p>
+                            <span class="card-link ${isLocked ? 'locked' : ''}">
+                                ${isLocked ? 'No Access' : 'Launch Workspace'}
+                                <i class="fas ${isLocked ? 'fa-lock' : 'fa-arrow-right'}"></i>
+                            </span>
+                        </div>
+                    </div>`;
+                }).join('');
+                
             } else {
                 clearBtn.classList.remove('visible');
                 countEl.classList.remove('visible');
-                results = [...filteredWorkspaces];
+                renderWorkspaces();
             }
-            
-            // Re-render with filtered results
-            const container = document.getElementById('workspacesContainer');
-            document.getElementById('wsCount').textContent = results.length;
-
-            if (!results.length) {
-                container.innerHTML = `
-                    <div class="empty-section">
-                        <i class="fas fa-search"></i>
-                        <h3>No Matching Workspaces</h3>
-                        <p>Try adjusting your search terms.</p>
-                    </div>
-                `;
-                return;
-            }
-
-            container.innerHTML = results.map(w => {
-                const workspaceId = w.workspaceId || w.id;
-                const iconClass = w.icon || 'fa-building';
-                const color = w.color || '#ca8a04';
-                const bgColor = `${color}15`;
-                const title = w.title || workspaceId;
-                const hasAccess = userHasWorkspaceAccess(workspaceId);
-                const isLocked = !hasAccess;
-                
-                const imageHtml = w.image ? 
-                    `<img src="${escapeHtml(w.image)}" alt="${escapeHtml(title)}" loading="lazy">` : 
-                    `<div class="image-placeholder" style="background:linear-gradient(135deg, ${bgColor}, ${bgColor}50); color:${color};"><i class="fas ${iconClass}"></i></div>`;
-
-                return `
-                <div class="workspace-card ${isLocked ? 'disabled' : ''}" onclick="${hasAccess ? `openWorkspace('${escapeHtml(w.link)}')` : ''}">
-                    <div class="card-image">${imageHtml}</div>
-                    <div class="card-content">
-                        <span class="workspace-badge ${isLocked ? 'locked' : ''}">
-                            <i class="fas ${iconClass}"></i> 
-                            ${isLocked ? '🔒 Locked' : 'Workspace'}
-                        </span>
-                        <h3 class="card-title">${escapeHtml(title)}</h3>
-                        <p class="card-description">${escapeHtml(w.description || 'Access this workspace to manage your operations.')}</p>
-                        <span class="card-link ${isLocked ? 'locked' : ''}">
-                            ${isLocked ? 'No Access' : 'Launch Workspace'}
-                            <i class="fas ${isLocked ? 'fa-lock' : 'fa-arrow-right'}"></i>
-                        </span>
-                    </div>
-                </div>`;
-            }).join('');
         };
 
         window.clearSearch = function() {
@@ -768,11 +806,9 @@
         };
 
         window.refreshData = async function() {
+            showToast('Refreshing...', 'info');
             await loadUserData(currentUser);
             await loadWorkspaces();
-            document.getElementById('searchInput').value = '';
-            document.getElementById('searchClear').classList.remove('visible');
-            document.getElementById('searchCount').classList.remove('visible');
             showToast('Workspaces refreshed!', 'success');
         };
 
@@ -800,6 +836,17 @@
                 setTimeout(()=>t.remove(),300);
             },3000);
         }
+
+        // Initialize
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                currentUser = user;
+                await loadUserData(user);
+                await loadWorkspaces();
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
     </script>
 </body>
 </html>
