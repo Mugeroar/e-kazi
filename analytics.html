@@ -68,6 +68,31 @@
         }
         .animate-in { animation: countUp 0.5s ease-out; }
 
+        /* Access Denied Banner */
+        .access-denied {
+            background: #fef2f2; border: 1px solid #fecaca; border-radius: 16px;
+            padding: 2rem; text-align: center; margin-bottom: 1.5rem;
+        }
+        .access-denied i { font-size: 3rem; color: var(--danger); margin-bottom: 1rem; display: block; }
+        .access-denied h2 { font-size: 1.3rem; color: var(--danger); font-family: var(--font-display); }
+        .access-denied p { color: var(--text-muted); margin-top: 0.5rem; }
+        .access-denied .btn-request {
+            margin-top: 1rem;
+            background: var(--gold-gradient);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 0.7rem 2rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: var(--font-heading);
+            transition: all 0.2s;
+        }
+        .access-denied .btn-request:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-gold);
+        }
+
         .site-header {
             position: fixed; top: 0; width: 100%; height: var(--header-height);
             background: var(--nav-bg); backdrop-filter: blur(25px);
@@ -317,6 +342,16 @@
     </header>
 
     <main class="main-content">
+        <!-- Access Denied Banner -->
+        <div class="access-denied" id="accessDenied" style="display:none;">
+            <i class="fas fa-lock"></i>
+            <h2>No Workspace Access</h2>
+            <p>You don't have permission to view any workspace data. Contact your administrator to request access.</p>
+            <button class="btn-request" onclick="window.location.href='workspaces.html'">
+                <i class="fas fa-arrow-right"></i> View Workspaces
+            </button>
+        </div>
+
         <div class="page-header">
             <h1><i class="fas fa-chart-pie"></i> Live Analytics</h1>
             <div class="last-refresh" id="lastRefresh"><i class="fas fa-sync-alt fa-spin"></i> Loading...</div>
@@ -333,7 +368,7 @@
         </div>
 
         <!-- Main Charts -->
-        <div class="charts-grid">
+        <div class="charts-grid" id="chartsGrid">
             <div class="chart-card">
                 <div class="chart-header">
                     <div class="chart-title"><i class="fas fa-chart-line"></i> Operations Trend (30 Days)</div>
@@ -414,17 +449,90 @@
         let trendChart, workspaceSplitChart, operationTypesChart, miniMap;
         let allData = { orders: {}, products: {}, listings: {}, registrations: {}, businesses: {}, franchises: {}, partners: {}, catalogues: {} };
         let previousData = {};
+        let userPermissions = {};
+        let isAdmin = false;
+        let currentUser = null;
+
+        // Workspace configuration with permission keys and data paths
+        const WORKSPACE_CONFIG = {
+            'fusion-foods': { key: 'fusion-foods', name: 'Fusion Foods', icon: 'fa-utensils', color: '#10b981', orderPath: 'fusion_foods_orders', productPath: 'fusion_foods_products' },
+            'dsog': { key: 'dsog', name: 'DSOG Fashion', icon: 'fa-tshirt', color: '#ec4899', orderPath: 'dsog_fashion_orders', productPath: 'dsog_fashion_products' },
+            'brandinn': { key: 'brandinn', name: 'BrandInn', icon: 'fa-print', color: '#7c3aed', orderPath: 'brandinn_print_orders' },
+            'heritage': { key: 'heritage', name: 'Heritage Ads', icon: 'fa-landmark', color: '#d946ef', listingPath: 'heritage_listings' },
+            'heritage-marketplace': { key: 'heritage-marketplace', name: 'Heritage Mkt', icon: 'fa-store', color: '#d97706', orderPath: 'heritage_orders', productPath: 'heritage_products' }
+        };
 
         auth.onAuthStateChanged(async (user) => {
             if (!user) { window.location.href = 'index.html'; return; }
+            currentUser = user;
+
+            // Check admin status
+            const adminSnap = await db.ref(`admins/${user.uid}`).once('value');
+            isAdmin = adminSnap.val() === true;
+
+            // Load workspace permissions
+            const permSnap = await db.ref(`workspacePermissions/${user.uid}`).once('value');
+            userPermissions = permSnap.exists() ? permSnap.val() : {};
+
+            // Load user data
             const snap = await db.ref(`brandinn_users/${user.uid}`).once('value');
             const name = snap.exists() ? (snap.val().name || user.email?.split('@')[0]) : user.email?.split('@')[0];
             document.getElementById('userDisplayName').textContent = name || 'Staff';
             document.getElementById('userAvatar').textContent = (name || 'K').charAt(0).toUpperCase();
+
+            // Check if user has any workspace access
+            const hasAccess = isAdmin || Object.keys(userPermissions).some(k => userPermissions[k] === true);
+
+            if (!hasAccess) {
+                document.getElementById('accessDenied').style.display = 'block';
+                document.getElementById('kpiGrid').innerHTML = '';
+                document.getElementById('chartsGrid').style.display = 'none';
+                document.getElementById('predictionsList').innerHTML = '';
+                document.getElementById('activityFeed').innerHTML = '';
+                document.getElementById('lastRefresh').innerHTML = '⚠️ No workspace permissions';
+                return;
+            }
+
+            document.getElementById('accessDenied').style.display = 'none';
             initMiniMap();
             await loadAllData();
             setupLiveListeners();
         });
+
+        function userHasWorkspaceAccess(workspaceId) {
+            if (isAdmin) return true;
+            return userPermissions[workspaceId] === true;
+        }
+
+        function getAccessibleWorkspaces() {
+            const accessible = [];
+            for (const [id, config] of Object.entries(WORKSPACE_CONFIG)) {
+                if (userHasWorkspaceAccess(id)) {
+                    accessible.push({ id, ...config });
+                }
+            }
+            return accessible;
+        }
+
+        function getAccessibleOrderPaths() {
+            const paths = [];
+            for (const [id, config] of Object.entries(WORKSPACE_CONFIG)) {
+                if (userHasWorkspaceAccess(id) && config.orderPath) {
+                    paths.push(config.orderPath);
+                }
+            }
+            return paths;
+        }
+
+        function getAccessibleProductPaths() {
+            const paths = [];
+            for (const [id, config] of Object.entries(WORKSPACE_CONFIG)) {
+                if (userHasWorkspaceAccess(id) && config.productPath) {
+                    paths.push(config.productPath);
+                }
+            }
+            return paths;
+        }
 
         function initMiniMap() {
             if (miniMap) { miniMap.remove(); miniMap = null; }
@@ -439,33 +547,58 @@
         async function loadAllData() {
             const startTime = Date.now();
             try {
+                const accessibleWorkspaces = getAccessibleWorkspaces();
+                const orderPaths = getAccessibleOrderPaths();
+                const productPaths = getAccessibleProductPaths();
+
                 const paths = {
-                    orders: [
-                        'fusion_foods_orders',
-                        'dsog_fashion_orders',
-                        'brandinn_print_orders',
-                        'heritage_orders'
-                    ],
-                    products: [
-                        'fusion_foods_products',
-                        'dsog_fashion_products',
-                        'heritage_products'
-                    ],
-                    listings: ['heritage_listings'],
-                    registrations: ['iam_mugera_registrations'],
-                    businesses: ['brandinn_businesses'],
-                    franchises: ['brandinn_franchises', 'dsog_fashion_franchisees'],
-                    partners: ['heritage_partners'],
-                    catalogues: ['heritage_catalogues']
+                    orders: orderPaths,
+                    products: productPaths,
+                    listings: [],
+                    registrations: [],
+                    businesses: [],
+                    franchises: [],
+                    partners: [],
+                    catalogues: []
                 };
+
+                // Add heritage listings if accessible
+                if (userHasWorkspaceAccess('heritage')) {
+                    paths.listings.push('heritage_listings');
+                }
+
+                // Add field registrations if accessible (BrandInn or Pick-Up)
+                if (userHasWorkspaceAccess('brandinn') || userHasWorkspaceAccess('pick-up')) {
+                    paths.registrations.push('iam_mugera_registrations');
+                }
+
+                // Add heritage partners if accessible
+                if (userHasWorkspaceAccess('heritage') || userHasWorkspaceAccess('heritage-marketplace')) {
+                    paths.partners.push('heritage_partners');
+                    paths.catalogues.push('heritage_catalogues');
+                }
+
+                // Add franchise data if accessible
+                if (userHasWorkspaceAccess('dsog')) {
+                    paths.franchises.push('dsog_fashion_franchisees');
+                }
+                if (userHasWorkspaceAccess('brandinn')) {
+                    paths.franchises.push('brandinn_franchises');
+                    paths.businesses.push('brandinn_businesses');
+                }
 
                 previousData = JSON.parse(JSON.stringify(allData));
 
                 for (const [key, pathList] of Object.entries(paths)) {
                     allData[key] = {};
                     for (const path of pathList) {
-                        const snap = await db.ref(path).once('value');
-                        allData[key][path] = snap.val() || {};
+                        try {
+                            const snap = await db.ref(path).once('value');
+                            allData[key][path] = snap.val() || {};
+                        } catch(e) {
+                            console.warn(`Could not load ${path}:`, e);
+                            allData[key][path] = {};
+                        }
                     }
                 }
 
@@ -483,21 +616,38 @@
         }
 
         function getWorkspaceBreakdown() {
-            return {
-                'Fusion Foods': Object.keys(allData.orders['fusion_foods_orders'] || {}).length,
-                'DSOG Fashion': Object.keys(allData.orders['dsog_fashion_orders'] || {}).length,
-                'Heritage Ads': Object.keys(allData.listings['heritage_listings'] || {}).length,
-                'BrandInn': Object.keys(allData.orders['brandinn_print_orders'] || {}).length,
-                'Heritage Mkt': Object.keys(allData.orders['heritage_orders'] || {}).length
-            };
+            const breakdown = {};
+            const accessibleWorkspaces = getAccessibleWorkspaces();
+            
+            accessibleWorkspaces.forEach(ws => {
+                let count = 0;
+                if (ws.orderPath && allData.orders[ws.orderPath]) {
+                    count += Object.keys(allData.orders[ws.orderPath]).length;
+                }
+                if (ws.listingPath && allData.listings[ws.listingPath]) {
+                    count += Object.keys(allData.listings[ws.listingPath]).length;
+                }
+                if (ws.productPath && allData.products[ws.productPath]) {
+                    count += Object.keys(allData.products[ws.productPath]).length;
+                }
+                if (count > 0) {
+                    breakdown[ws.name] = count;
+                }
+            });
+            
+            return breakdown;
         }
 
         function getOperationTypeBreakdown() {
-            const registrations = allData.registrations['iam_mugera_registrations'] || {};
             const counts = {};
-            Object.values(registrations).forEach(r => {
-                if (r.operation) counts[r.operation] = (counts[r.operation] || 0) + 1;
-            });
+            if (allData.registrations['iam_mugera_registrations']) {
+                Object.values(allData.registrations['iam_mugera_registrations']).forEach(r => {
+                    if (r.operation) {
+                        const op = r.operation.charAt(0).toUpperCase() + r.operation.slice(1);
+                        counts[op] = (counts[op] || 0) + 1;
+                    }
+                });
+            }
             return counts;
         }
 
@@ -505,91 +655,86 @@
             const breakdown = getWorkspaceBreakdown();
             const total = Object.values(breakdown).reduce((a, b) => a + b, 0);
             const predictions = [];
+            const accessibleWorkspaces = getAccessibleWorkspaces();
 
-            const fusionOrders = Object.values(allData.orders['fusion_foods_orders'] || {});
-            const recentFusion = fusionOrders.filter(o => {
-                const d = new Date(o.createdAt || 0);
-                return (Date.now() - d.getTime()) < 7 * 24 * 60 * 60 * 1000;
-            }).length;
-            const weeklyAvg = recentFusion / 7;
-            predictions.push({
-                name: 'Fusion Foods',
-                icon: 'fa-utensils', color: '#10b981', bgColor: '#ecfdf5',
-                prediction: `~${Math.round(weeklyAvg * 7)} orders/wk`,
-                trend: weeklyAvg > 0 ? 'up' : 'neutral',
-                detail: `${Math.round(weeklyAvg)} daily avg`
+            accessibleWorkspaces.forEach(ws => {
+                let orderData = [];
+                if (ws.orderPath && allData.orders[ws.orderPath]) {
+                    orderData = Object.values(allData.orders[ws.orderPath]);
+                }
+                
+                const recent = orderData.filter(o => {
+                    const d = new Date(o.createdAt || 0);
+                    return (Date.now() - d.getTime()) < 7 * 24 * 60 * 60 * 1000;
+                }).length;
+                const avg = recent / 7;
+
+                if (avg > 0 || orderData.length > 0) {
+                    predictions.push({
+                        name: ws.name,
+                        icon: ws.icon,
+                        color: ws.color,
+                        bgColor: ws.color + '15',
+                        prediction: avg > 0 ? `~${Math.round(avg * 7)}/wk` : `${orderData.length} total`,
+                        trend: avg > 0 ? 'up' : 'neutral',
+                        detail: avg > 0 ? `${Math.round(avg)} daily avg` : 'No recent activity'
+                    });
+                }
             });
 
-            const dsogOrders = Object.values(allData.orders['dsog_fashion_orders'] || {});
-            const recentDsog = dsogOrders.filter(o => {
-                const d = new Date(o.createdAt || 0);
-                return (Date.now() - d.getTime()) < 7 * 24 * 60 * 60 * 1000;
-            }).length;
-            const dsogAvg = recentDsog / 7;
-            predictions.push({
-                name: 'DSOG Fashion',
-                icon: 'fa-tshirt', color: '#ec4899', bgColor: '#fdf2f8',
-                prediction: `~${Math.round(dsogAvg * 30)} orders/mo`,
-                trend: dsogAvg > 0 ? 'up' : 'neutral',
-                detail: `${Math.round(dsogAvg)} daily avg`
-            });
-
-            const brandinnRegs = Object.values(allData.registrations['iam_mugera_registrations'] || {})
-                .filter(r => r.operation === 'brandinn');
-            const recentBrandinn = brandinnRegs.filter(r => {
-                const d = new Date(r.timestamp || 0);
-                return (Date.now() - d.getTime()) < 30 * 24 * 60 * 60 * 1000;
-            }).length;
-            predictions.push({
-                name: 'BrandInn Growth',
-                icon: 'fa-store', color: '#7c3aed', bgColor: '#f5f3ff',
-                prediction: `+${Math.round(recentBrandinn / 30 * 7)} businesses/wk`,
-                trend: recentBrandinn > 0 ? 'up' : 'neutral',
-                detail: `${brandinnRegs.length} total registered`
-            });
-
-            const heritageOrders = Object.values(allData.orders['heritage_orders'] || {});
-            const recentHeritage = heritageOrders.filter(o => {
-                const d = new Date(o.createdAt || 0);
-                return (Date.now() - d.getTime()) < 7 * 24 * 60 * 60 * 1000;
-            }).length;
-            const heritageAvg = recentHeritage / 7;
-            predictions.push({
-                name: 'Heritage Marketplace',
-                icon: 'fa-store', color: '#d97706', bgColor: '#fffbeb',
-                prediction: `~${Math.round(heritageAvg * 7)} orders/wk`,
-                trend: heritageAvg > 0 ? 'up' : 'neutral',
-                detail: `${Math.round(heritageAvg)} daily avg`
-            });
-
-            predictions.push({
-                name: 'Total Operations',
-                icon: 'fa-chart-line', color: '#ca8a04', bgColor: '#fef3c7',
-                prediction: `${total} active`,
-                trend: total > 0 ? 'up' : 'neutral',
-                detail: 'Across all workspaces'
-            });
+            // Add total if there's data
+            if (predictions.length > 1) {
+                predictions.push({
+                    name: 'Total Operations',
+                    icon: 'fa-chart-line',
+                    color: '#ca8a04',
+                    bgColor: '#fef3c7',
+                    prediction: `${total} active`,
+                    trend: total > 0 ? 'up' : 'neutral',
+                    detail: 'Across accessible workspaces'
+                });
+            }
 
             return predictions;
         }
 
         function getRecentActivity() {
             const activities = [];
-            const allOrders = [
-                ...Object.entries(allData.orders['fusion_foods_orders'] || {}).map(([id, o]) => ({ ...o, id, source: 'Fusion Foods', icon: 'fa-utensils', color: '#10b981' })),
-                ...Object.entries(allData.orders['dsog_fashion_orders'] || {}).map(([id, o]) => ({ ...o, id, source: 'DSOG', icon: 'fa-tshirt', color: '#ec4899' })),
-                ...Object.entries(allData.orders['brandinn_print_orders'] || {}).map(([id, o]) => ({ ...o, id, source: 'BrandInn', icon: 'fa-print', color: '#7c3aed' })),
-                ...Object.entries(allData.orders['heritage_orders'] || {}).map(([id, o]) => ({ ...o, id, source: 'Heritage Mkt', icon: 'fa-store', color: '#d97706' }))
-            ];
+            const accessibleWorkspaces = getAccessibleWorkspaces();
 
-            allOrders.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-            return allOrders.slice(0, 8).map(o => ({
-                title: `${o.source} · ${o.restaurantName || o.customerName || 'Order'}`,
-                meta: `${(o.products || []).length || 1} items`,
-                time: getTimeAgo(o.createdAt),
-                color: o.color,
-                icon: o.icon,
-                status: o.status || 'new'
+            accessibleWorkspaces.forEach(ws => {
+                if (ws.orderPath && allData.orders[ws.orderPath]) {
+                    Object.entries(allData.orders[ws.orderPath]).forEach(([id, o]) => {
+                        activities.push({
+                            ...o, id, source: ws.name, icon: ws.icon, color: ws.color,
+                            title: `${ws.name} · ${o.restaurantName || o.customerName || 'Order'}`,
+                            meta: `${(o.products || []).length || 1} items`,
+                            time: o.createdAt || 0,
+                            status: o.status || 'new'
+                        });
+                    });
+                }
+                if (ws.listingPath && allData.listings[ws.listingPath]) {
+                    Object.entries(allData.listings[ws.listingPath]).forEach(([id, l]) => {
+                        activities.push({
+                            ...l, id, source: ws.name, icon: ws.icon, color: ws.color,
+                            title: `${ws.name} · ${l.type || 'Listing'}`,
+                            meta: `${l.location || 'Unknown location'}`,
+                            time: l.createdAt || l.postedAt || 0,
+                            status: l.status || 'active'
+                        });
+                    });
+                }
+            });
+
+            activities.sort((a, b) => (b.time || 0) - (a.time || 0));
+            return activities.slice(0, 8).map(a => ({
+                title: a.title,
+                meta: a.meta,
+                time: getTimeAgo(a.time),
+                color: a.color,
+                icon: a.icon,
+                status: a.status
             }));
         }
 
@@ -609,7 +754,7 @@
             const totalListings = getTotalCount(allData.listings);
             const totalRegistrations = getTotalCount(allData.registrations);
             const totalPartners = getTotalCount(allData.partners);
-            const totalCatalogues = getTotalCount(allData.catalogues);
+            const totalFranchises = getTotalCount(allData.franchises);
 
             const prevTotalOrders = getTotalCount(previousData.orders || {});
             const orderChange = totalOrders - prevTotalOrders;
@@ -644,9 +789,9 @@
                     <div class="kpi-change neutral"><i class="fas fa-handshake"></i> Business partners</div>
                 </div>
                 <div class="kpi-card animate-in" style="animation-delay:0.25s">
-                    <div class="kpi-label">Catalogues</div>
-                    <div class="kpi-value" style="color:#7c3aed;">${totalCatalogues}</div>
-                    <div class="kpi-change neutral"><i class="fas fa-images"></i> Product collections</div>
+                    <div class="kpi-label">Franchises</div>
+                    <div class="kpi-value" style="color:#7c3aed;">${totalFranchises}</div>
+                    <div class="kpi-change neutral"><i class="fas fa-store-alt"></i> Active locations</div>
                 </div>
             `;
         }
@@ -656,38 +801,63 @@
             if (trendChart) trendChart.destroy();
 
             const days = [];
-            const fusionData = [], dsogData = [], brandinnData = [], heritageMktData = [];
+            const datasets = [];
+            const colors = ['#10b981', '#ec4899', '#7c3aed', '#d97706', '#d946ef', '#f59e0b', '#06b6d4', '#22c55e', '#ef4444', '#3b82f6', '#0d9488'];
+            let colorIndex = 0;
+            const accessibleWorkspaces = getAccessibleWorkspaces();
+
             for (let i = 29; i >= 0; i--) {
                 const d = new Date(Date.now() - i * 24 * 60 * 60 * 1000);
                 days.push(d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
-                const dayStart = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
-                const dayEnd = dayStart + 24 * 60 * 60 * 1000;
+            }
 
-                fusionData.push(Object.values(allData.orders['fusion_foods_orders'] || {}).filter(o => {
-                    const t = o.createdAt || 0; return t >= dayStart && t < dayEnd;
-                }).length);
-                dsogData.push(Object.values(allData.orders['dsog_fashion_orders'] || {}).filter(o => {
-                    const t = o.createdAt || 0; return t >= dayStart && t < dayEnd;
-                }).length);
-                brandinnData.push(Object.values(allData.orders['brandinn_print_orders'] || {}).filter(o => {
-                    const t = o.createdAt || 0; return t >= dayStart && t < dayEnd;
-                }).length);
-                heritageMktData.push(Object.values(allData.orders['heritage_orders'] || {}).filter(o => {
-                    const t = o.createdAt || 0; return t >= dayStart && t < dayEnd;
-                }).length);
+            accessibleWorkspaces.forEach(ws => {
+                const data = [];
+                const orderData = ws.orderPath ? (allData.orders[ws.orderPath] || {}) : {};
+                
+                for (let i = 29; i >= 0; i--) {
+                    const d = new Date(Date.now() - i * 24 * 60 * 60 * 1000);
+                    const dayStart = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+                    const dayEnd = dayStart + 24 * 60 * 60 * 1000;
+
+                    const count = Object.values(orderData).filter(o => {
+                        const t = o.createdAt || 0;
+                        return t >= dayStart && t < dayEnd;
+                    }).length;
+                    data.push(count);
+                }
+
+                const color = ws.color || colors[colorIndex % colors.length];
+                colorIndex++;
+
+                datasets.push({
+                    label: ws.name,
+                    data: data,
+                    borderColor: color,
+                    backgroundColor: color + '15',
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 0,
+                    borderWidth: 2
+                });
+            });
+
+            if (datasets.length === 0) {
+                datasets.push({
+                    label: 'No Data',
+                    data: days.map(() => 0),
+                    borderColor: '#e5e7eb',
+                    backgroundColor: '#e5e7eb15',
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 0,
+                    borderWidth: 2
+                });
             }
 
             trendChart = new Chart(ctx, {
                 type: 'line',
-                data: {
-                    labels: days,
-                    datasets: [
-                        { label: 'Fusion Foods', data: fusionData, borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.1)', fill: true, tension: 0.4, pointRadius: 0, borderWidth: 2 },
-                        { label: 'DSOG', data: dsogData, borderColor: '#ec4899', backgroundColor: 'rgba(236,72,153,0.1)', fill: true, tension: 0.4, pointRadius: 0, borderWidth: 2 },
-                        { label: 'BrandInn', data: brandinnData, borderColor: '#7c3aed', backgroundColor: 'rgba(124,58,237,0.1)', fill: true, tension: 0.4, pointRadius: 0, borderWidth: 2 },
-                        { label: 'Heritage Mkt', data: heritageMktData, borderColor: '#d97706', backgroundColor: 'rgba(217,119,6,0.1)', fill: true, tension: 0.4, pointRadius: 0, borderWidth: 2 }
-                    ]
-                },
+                data: { labels: days, datasets: datasets },
                 options: {
                     responsive: true, maintainAspectRatio: false,
                     plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, padding: 15, font: { size: 9 } } } },
@@ -704,14 +874,21 @@
             const ctx = document.getElementById('workspaceSplitChart').getContext('2d');
             if (workspaceSplitChart) workspaceSplitChart.destroy();
             const breakdown = getWorkspaceBreakdown();
+            const accessibleWorkspaces = getAccessibleWorkspaces();
+            
+            const labels = Object.keys(breakdown);
+            const data = Object.values(breakdown);
+            const colors = accessibleWorkspaces
+                .filter(ws => labels.includes(ws.name))
+                .map(ws => ws.color);
 
             workspaceSplitChart = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: Object.keys(breakdown),
+                    labels: labels,
                     datasets: [{
-                        data: Object.values(breakdown),
-                        backgroundColor: ['#10b981', '#ec4899', '#d946ef', '#7c3aed', '#d97706'],
+                        data: data,
+                        backgroundColor: colors.length > 0 ? colors : ['#e5e7eb'],
                         borderWidth: 2, borderColor: '#fff'
                     }]
                 },
@@ -730,7 +907,7 @@
             operationTypesChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: Object.keys(types).map(k => k.charAt(0).toUpperCase() + k.slice(1)),
+                    labels: Object.keys(types),
                     datasets: [{
                         label: 'Registrations',
                         data: Object.values(types),
@@ -760,7 +937,7 @@
                     </div>
                     <div class="prediction-value" style="color:${p.color};">${p.prediction}</div>
                 </div>
-            `).join('');
+            `).join('') || '<div style="text-align:center;padding:1rem;color:var(--text-muted);">No predictions available</div>';
         }
 
         function renderActivityFeed() {
@@ -804,11 +981,22 @@
         }
 
         function setupLiveListeners() {
-            const paths = [
-                'fusion_foods_orders', 'dsog_fashion_orders', 'brandinn_print_orders',
-                'fusion_foods_products', 'heritage_listings', 'iam_mugera_registrations',
-                'heritage_orders', 'heritage_products', 'heritage_partners', 'heritage_catalogues'
-            ];
+            const accessibleWorkspaces = getAccessibleWorkspaces();
+            const paths = [];
+
+            accessibleWorkspaces.forEach(ws => {
+                if (ws.orderPath) paths.push(ws.orderPath);
+                if (ws.productPath) paths.push(ws.productPath);
+                if (ws.listingPath) paths.push(ws.listingPath);
+            });
+
+            if (userHasWorkspaceAccess('brandinn') || userHasWorkspaceAccess('pick-up')) {
+                paths.push('iam_mugera_registrations');
+            }
+            if (userHasWorkspaceAccess('heritage') || userHasWorkspaceAccess('heritage-marketplace')) {
+                paths.push('heritage_partners', 'heritage_catalogues');
+            }
+
             paths.forEach(path => {
                 db.ref(path).on('child_added', () => {
                     document.querySelector('.live-dot').style.animation = 'none';
