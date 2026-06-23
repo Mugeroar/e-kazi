@@ -69,6 +69,31 @@
         .dropdown-item:hover{background:var(--bg-secondary);}
         .dropdown-item.danger:hover{color:var(--danger);}
 
+        /* Access Denied Banner */
+        .access-denied {
+            background: #fef2f2; border: 1px solid #fecaca; border-radius: 16px;
+            padding: 2rem; text-align: center; margin-bottom: 1.5rem;
+        }
+        .access-denied i { font-size: 3rem; color: var(--danger); margin-bottom: 1rem; display: block; }
+        .access-denied h2 { font-size: 1.3rem; color: var(--danger); font-family: var(--font-display); }
+        .access-denied p { color: var(--text-muted); margin-top: 0.5rem; }
+        .access-denied .btn-request {
+            margin-top: 1rem;
+            background: var(--gold-gradient);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 0.7rem 2rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: var(--font-heading);
+            transition: all 0.2s;
+        }
+        .access-denied .btn-request:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-gold);
+        }
+
         .main-content{max-width:1500px;margin:calc(var(--header-height) + 1.5rem) auto 2rem;padding:0 2rem;}
 
         .report-header {
@@ -196,6 +221,16 @@
     </header>
 
     <main class="main-content">
+        <!-- Access Denied Banner -->
+        <div class="access-denied" id="accessDenied" style="display:none;">
+            <i class="fas fa-lock"></i>
+            <h2>No Workspace Access</h2>
+            <p>You don't have permission to view any workspace data. Contact your administrator to request access.</p>
+            <button class="btn-request" onclick="window.location.href='workspaces.html'">
+                <i class="fas fa-arrow-right"></i> View Workspaces
+            </button>
+        </div>
+
         <div class="report-header">
             <div>
                 <div class="report-title"><h1><i class="fas fa-file-alt"></i> Operations Report</h1></div>
@@ -222,7 +257,7 @@
             <div class="kpi-card"><div class="skeleton" style="height:1.5rem;width:50%;margin:0 auto 0.3rem;"></div><div class="skeleton" style="height:0.6rem;width:60%;margin:0 auto;"></div></div>
         </div>
 
-        <div class="charts-grid">
+        <div class="charts-grid" id="chartsGrid">
             <div class="chart-card">
                 <div class="chart-header"><div class="chart-title"><i class="fas fa-chart-bar"></i> Operations by Workspace</div></div>
                 <div class="chart-container"><canvas id="workspaceBarChart"></canvas></div>
@@ -257,7 +292,7 @@
             </div>
         </div>
 
-        <div class="table-card">
+        <div class="table-card" id="fieldRegistrationsCard">
             <div class="table-header">
                 <div class="chart-title"><i class="fas fa-map-marker-alt"></i> Field Registrations</div>
                 <span style="font-size:0.65rem;color:var(--text-muted);" id="fieldCount">0 entries</span>
@@ -310,16 +345,77 @@
         let workspaceBarChart, activityPieChart;
         let currentRange = 'today';
         let isLoading = false;
+        let userPermissions = {};
+        let isAdmin = false;
+        let currentUser = null;
+
+        // Workspace configuration with permission keys
+        const WORKSPACE_CONFIG = {
+            'fusion-foods': { key: 'fusion-foods', name: 'Fusion Foods', icon: 'fa-utensils', color: '#10b981', path: 'fusion_foods_orders' },
+            'dsog': { key: 'dsog', name: 'DSOG Fashion', icon: 'fa-tshirt', color: '#ec4899', path: 'dsog_fashion_orders' },
+            'brandinn': { key: 'brandinn', name: 'BrandInn', icon: 'fa-print', color: '#7c3aed', path: 'brandinn_print_orders' },
+            'heritage': { key: 'heritage', name: 'Heritage Ads', icon: 'fa-landmark', color: '#d946ef', path: 'heritage_listings' },
+            'heritage-marketplace': { key: 'heritage-marketplace', name: 'Heritage Mkt', icon: 'fa-store', color: '#d97706', path: 'heritage_orders' },
+            'pick-up': { key: 'pick-up', name: 'Pick-Up', icon: 'fa-truck-fast', color: '#f59e0b', path: 'pickup_deliveries' },
+            'pick-me': { key: 'pick-me', name: 'Pick-Me', icon: 'fa-taxi', color: '#06b6d4', path: 'pickme_rides' },
+            'ekazi': { key: 'ekazi', name: 'E-Kazi', icon: 'fa-tasks', color: '#10b981', path: 'ekazi_assigned_tasks' },
+            'mugs-n-dines': { key: 'mugs-n-dines', name: 'Mugs n Dines', icon: 'fa-utensil-spoon', color: '#ef4444', path: 'mugs_n_dines_orders' },
+            'workfit': { key: 'workfit', name: 'WorkFit', icon: 'fa-dumbbell', color: '#22c55e', path: 'workfit_clubs' },
+            'epitome': { key: 'epitome', name: 'Epitome', icon: 'fa-home', color: '#3b82f6', path: 'epitome_cars' },
+            'latter-logistics': { key: 'latter-logistics', name: 'Latter Logistics', icon: 'fa-ship', color: '#0d9488', path: 'latter_logistics_shipments' }
+        };
 
         auth.onAuthStateChanged(async (user) => {
             if (!user) { window.location.href = 'index.html'; return; }
+            currentUser = user;
+
+            // Check admin status
+            const adminSnap = await db.ref(`admins/${user.uid}`).once('value');
+            isAdmin = adminSnap.val() === true;
+
+            // Load workspace permissions
+            const permSnap = await db.ref(`workspacePermissions/${user.uid}`).once('value');
+            userPermissions = permSnap.exists() ? permSnap.val() : {};
+
+            // Load user data
             const snap = await db.ref(`brandinn_users/${user.uid}`).once('value');
             const name = snap.exists() ? (snap.val().name || user.email?.split('@')[0]) : user.email?.split('@')[0];
             document.getElementById('userDisplayName').textContent = name || 'Staff';
             document.getElementById('userAvatar').textContent = (name || 'K').charAt(0).toUpperCase();
+
+            // Check if user has any workspace access
+            const hasAccess = isAdmin || Object.keys(userPermissions).some(k => userPermissions[k] === true);
+
+            if (!hasAccess) {
+                document.getElementById('accessDenied').style.display = 'block';
+                document.getElementById('kpiRow').innerHTML = '';
+                document.getElementById('chartsGrid').style.display = 'none';
+                document.getElementById('operationsTableBody').innerHTML = '<tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--text-muted);">No access to workspace data</td></tr>';
+                document.getElementById('fieldTableBody').innerHTML = '<tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--text-muted);">No access to field data</td></tr>';
+                document.getElementById('previousReports').innerHTML = '';
+                document.getElementById('reportMeta').innerHTML = '⚠️ No workspace permissions';
+                return;
+            }
+
+            document.getElementById('accessDenied').style.display = 'none';
             await generateReport('today');
             renderPreviousReports();
         });
+
+        function userHasWorkspaceAccess(workspaceId) {
+            if (isAdmin) return true;
+            return userPermissions[workspaceId] === true;
+        }
+
+        function getAccessibleWorkspaces() {
+            const accessible = [];
+            for (const [id, config] of Object.entries(WORKSPACE_CONFIG)) {
+                if (userHasWorkspaceAccess(id)) {
+                    accessible.push({ id, ...config });
+                }
+            }
+            return accessible;
+        }
 
         window.switchDateRange = function(range, btnElement) {
             if (isLoading) return;
@@ -359,63 +455,114 @@
             document.getElementById('reportMeta').innerHTML = `<i class="fas fa-calendar-alt"></i> ${new Date(start).toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}${range==='today'?' (Today)':range==='yesterday'?' (Yesterday)':''} · Generated ${new Date().toLocaleTimeString()}`;
 
             try {
-                const paths = [
-                    { key: 'fusionOrders', path: 'fusion_foods_orders' },
-                    { key: 'dsogOrders', path: 'dsog_fashion_orders' },
-                    { key: 'brandinnOrders', path: 'brandinn_print_orders' },
-                    { key: 'heritageListings', path: 'heritage_listings' },
-                    { key: 'heritageOrders', path: 'heritage_orders' },
-                    { key: 'fieldRegistrations', path: 'iam_mugera_registrations' }
-                ];
+                const accessibleWorkspaces = getAccessibleWorkspaces();
+                const allOperations = [];
+                const counts = {};
+                const workspaceColors = {};
 
-                const rawData = {};
-                await Promise.all(paths.map(async (p) => {
-                    const snap = await db.ref(p.path).once('value');
-                    rawData[p.key] = snap.val() || {};
+                // Initialize counts for accessible workspaces
+                accessibleWorkspaces.forEach(ws => {
+                    counts[ws.name] = 0;
+                    workspaceColors[ws.name] = ws.color;
+                });
+                counts['Field'] = 0;
+
+                // Load data from accessible workspaces only
+                await Promise.all(accessibleWorkspaces.map(async (ws) => {
+                    try {
+                        const snap = await db.ref(ws.path).once('value');
+                        const data = snap.val() || {};
+                        const filtered = Object.entries(data).filter(([_, item]) => {
+                            const ts = item.createdAt || item.timestamp || item.assignedAt || item.postedAt || 0;
+                            return ts >= start && ts <= end;
+                        });
+
+                        counts[ws.name] = filtered.length;
+
+                        filtered.forEach(([id, o]) => {
+                            let action = 'Operation';
+                            let details = '';
+                            let status = o.status || 'new';
+
+                            if (ws.path.includes('orders')) {
+                                action = 'Order';
+                                details = `${o.restaurantName || o.customerName || 'Customer'} · ${(o.products||[]).length || 1} items`;
+                            } else if (ws.path.includes('listings')) {
+                                action = 'Listing';
+                                details = `${o.type || 'Ad'} · ${o.location || 'Unknown'}`;
+                            } else if (ws.path.includes('deliveries')) {
+                                action = 'Delivery';
+                                details = `${o.recipient?.name || o.customerName || 'Customer'}`;
+                            } else if (ws.path.includes('rides')) {
+                                action = 'Ride';
+                                details = `${o.passengerName || 'Passenger'} · ${o.distance || 0}km`;
+                            } else if (ws.path.includes('tasks')) {
+                                action = 'Task';
+                                details = `${o.clientName || 'Client'} · ${o.category || 'General'}`;
+                            } else if (ws.path.includes('clubs')) {
+                                action = 'Club';
+                                details = `${o.businessName || 'Club'}`;
+                            } else if (ws.path.includes('cars') || ws.path.includes('houses')) {
+                                action = 'Listing';
+                                details = `${o.make || o.model || 'Property'} · ${o.price || 'Contact'}`;
+                            }
+
+                            allOperations.push({
+                                time: o.createdAt || o.timestamp || o.assignedAt || o.postedAt || 0,
+                                workspace: ws.name,
+                                icon: ws.icon,
+                                color: ws.color,
+                                action: action,
+                                details: details,
+                                performedBy: o.recordedBy || o.createdBy || o.clerkId || o.assignedBy || '—',
+                                status: status
+                            });
+                        });
+                    } catch(e) {
+                        console.warn(`Error loading ${ws.path}:`, e);
+                    }
                 }));
 
-                const filterByDate = (obj) => Object.entries(obj).filter(([_, item]) => {
-                    const ts = item.createdAt || item.timestamp || item.assignedAt || item.postedAt || 0;
-                    return ts >= start && ts <= end;
-                });
-
-                const fusionOrdersFiltered = filterByDate(rawData.fusionOrders);
-                const dsogOrdersFiltered = filterByDate(rawData.dsogOrders);
-                const brandinnOrdersFiltered = filterByDate(rawData.brandinnOrders);
-                const heritageFiltered = filterByDate(rawData.heritageListings);
-                const heritageOrdersFiltered = filterByDate(rawData.heritageOrders);
-                const fieldRegsFiltered = filterByDate(rawData.fieldRegistrations);
-
-                const allOperations = [];
-
-                fusionOrdersFiltered.forEach(([id, o]) => allOperations.push({ time: o.createdAt, workspace: 'Fusion Foods', icon: 'fa-utensils', color: '#10b981', action: 'Order', details: `${o.restaurantName||'Restaurant'} · ${(o.products||[]).length} items`, performedBy: o.recordedBy||o.clerkId||'—', status: o.status||'new' }));
-                dsogOrdersFiltered.forEach(([id, o]) => allOperations.push({ time: o.createdAt, workspace: 'DSOG Fashion', icon: 'fa-tshirt', color: '#ec4899', action: 'Order', details: `${o.customerName||'Customer'} · ${(o.products||[]).length} items`, performedBy: o.recordedBy||o.clerkId||'—', status: o.status||'new' }));
-                brandinnOrdersFiltered.forEach(([id, o]) => allOperations.push({ time: o.createdAt, workspace: 'BrandInn', icon: 'fa-print', color: '#7c3aed', action: 'Print Order', details: `${o.customerName||'Customer'} · ${o.product||'Product'}`, performedBy: o.recordedBy||o.clerkId||'—', status: o.status||'new' }));
-                heritageFiltered.forEach(([id, l]) => allOperations.push({ time: l.createdAt||l.postedAt, workspace: 'Heritage Ads', icon: 'fa-landmark', color: '#d946ef', action: 'Listing', details: `${l.type||'Ad'} · ${l.location||'Unknown'}`, performedBy: l.recordedBy||l.partnerId||'—', status: l.status||'active' }));
-                heritageOrdersFiltered.forEach(([id, o]) => allOperations.push({ time: o.createdAt, workspace: 'Heritage Mkt', icon: 'fa-store', color: '#d97706', action: 'Order', details: `${o.customerName||'Customer'} · ${(o.products||[]).length||1} items`, performedBy: o.recordedBy||o.clerkId||'—', status: o.status||'new' }));
+                // Load field registrations (always accessible to admins, otherwise check permission)
+                let fieldRegsFiltered = [];
+                if (isAdmin || userHasWorkspaceAccess('brandinn') || userHasWorkspaceAccess('pick-up')) {
+                    try {
+                        const fieldSnap = await db.ref('iam_mugera_registrations').once('value');
+                        const fieldData = fieldSnap.val() || {};
+                        fieldRegsFiltered = Object.entries(fieldData).filter(([_, r]) => {
+                            const ts = r.timestamp || 0;
+                            return ts >= start && ts <= end;
+                        });
+                        counts['Field'] = fieldRegsFiltered.length;
+                    } catch(e) {
+                        console.warn('Error loading field registrations:', e);
+                    }
+                }
 
                 allOperations.sort((a, b) => (b.time || 0) - (a.time || 0));
 
                 const totalOps = allOperations.length;
-                const counts = {
-                    fusion: allOperations.filter(o => o.workspace === 'Fusion Foods').length,
-                    dsog: allOperations.filter(o => o.workspace === 'DSOG Fashion').length,
-                    brandinn: allOperations.filter(o => o.workspace === 'BrandInn').length,
-                    heritageAds: allOperations.filter(o => o.workspace === 'Heritage Ads').length,
-                    heritageMkt: allOperations.filter(o => o.workspace === 'Heritage Mkt').length,
-                    field: fieldRegsFiltered.length
-                };
+                const totalField = fieldRegsFiltered.length;
 
+                // Build KPI rows - only show accessible workspaces
+                let kpiHtml = '';
+                const kpiOrder = accessibleWorkspaces.map(w => w.name);
+                kpiOrder.push('Field');
+
+                kpiOrder.forEach(name => {
+                    const color = workspaceColors[name] || '#ca8a04';
+                    const value = counts[name] || 0;
+                    const label = name === 'Field' ? 'Field Registrations' : name;
+                    kpiHtml += `<div class="kpi-card"><div class="kpi-value" style="color:${color};">${value}</div><div class="kpi-label">${label}</div></div>`;
+                });
+
+                // Add Total Operations at the beginning
                 document.getElementById('kpiRow').innerHTML = `
-                    <div class="kpi-card"><div class="kpi-value" style="color:#ca8a04;">${totalOps}</div><div class="kpi-label">Total Operations</div></div>
-                    <div class="kpi-card"><div class="kpi-value" style="color:#10b981;">${counts.fusion}</div><div class="kpi-label">Fusion Foods</div></div>
-                    <div class="kpi-card"><div class="kpi-value" style="color:#ec4899;">${counts.dsog}</div><div class="kpi-label">DSOG Fashion</div></div>
-                    <div class="kpi-card"><div class="kpi-value" style="color:#7c3aed;">${counts.brandinn}</div><div class="kpi-label">BrandInn</div></div>
-                    <div class="kpi-card"><div class="kpi-value" style="color:#d97706;">${counts.heritageMkt}</div><div class="kpi-label">Heritage Mkt</div></div>
-                    <div class="kpi-card"><div class="kpi-value" style="color:#2563eb;">${counts.field}</div><div class="kpi-label">Field Registrations</div></div>
+                    <div class="kpi-card"><div class="kpi-value" style="color:#ca8a04;">${totalOps + totalField}</div><div class="kpi-label">Total Operations</div></div>
+                    ${kpiHtml}
                 `;
 
-                renderCharts(counts);
+                renderCharts(counts, accessibleWorkspaces);
 
                 document.getElementById('tableCount').textContent = `${allOperations.length} entries`;
                 document.getElementById('operationsTableBody').innerHTML = allOperations.slice(0, 100).map(o => {
@@ -430,28 +577,50 @@
                     const displayName = recordedBy.includes('@') ? recordedBy.split('@')[0] : recordedBy;
                     const timeStr = r.timestamp ? new Date(r.timestamp).toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'}) : '—';
                     const opColors = {brandinn:'#7c3aed',deliveries:'#f59e0b',rides:'#22c55e',dsog:'#ec4899',fusion:'#10b981',heritage:'#d946ef'};
-                    return `<tr><td>${timeStr}</td><td><strong>${escapeHtml(r.businessName||'Unknown')}</strong></td><td><span class="badge" style="background:${(opColors[r.operation]||'#ca8a04')}15;color:${opColors[r.operation]||'#ca8a04'};">${r.operation||'N/A'}</span></td><td>📍 ${r.lat?.toFixed(4)}, ${r.lng?.toFixed(4)}</td><td><div class="attribution-cell"><div class="attribution-avatar" style="background:${getAvatarColor(recordedBy)};">${getInitials(displayName)}</div><span>${escapeHtml(displayName)}</span></div></td><td>${escapeHtml(r.ownerName||'N/A')}</td></tr>`;
+                    const opColor = opColors[r.operation] || '#ca8a04';
+                    return `<tr><td>${timeStr}</td><td><strong>${escapeHtml(r.businessName||'Unknown')}</strong></td><td><span class="badge" style="background:${opColor}15;color:${opColor};">${r.operation||'N/A'}</span></td><td>📍 ${r.lat?.toFixed(4)}, ${r.lng?.toFixed(4)}</td><td><div class="attribution-cell"><div class="attribution-avatar" style="background:${getAvatarColor(recordedBy)};">${getInitials(displayName)}</div><span>${escapeHtml(displayName)}</span></div></td><td>${escapeHtml(r.ownerName||'N/A')}</td></tr>`;
                 }).join('') || '<tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--text-muted);">No registrations in this period</td></tr>';
 
-            } catch(e) { console.error('Report error:', e); document.getElementById('reportMeta').innerHTML = '<i class="fas fa-exclamation-circle" style="color:var(--danger);"></i> Error loading report'; }
+            } catch(e) { 
+                console.error('Report error:', e); 
+                document.getElementById('reportMeta').innerHTML = '<i class="fas fa-exclamation-circle" style="color:var(--danger);"></i> Error loading report'; 
+            }
             finally { isLoading = false; }
         }
 
-        function renderCharts(counts) {
+        function renderCharts(counts, accessibleWorkspaces) {
+            const labels = accessibleWorkspaces.map(w => w.name);
+            const data = labels.map(name => counts[name] || 0);
+            const colors = accessibleWorkspaces.map(w => w.color);
+
+            // Add Field if present
+            if (counts['Field'] > 0) {
+                labels.push('Field');
+                data.push(counts['Field']);
+                colors.push('#3b82f6');
+            }
+
             const ctx1 = document.getElementById('workspaceBarChart').getContext('2d');
             if (workspaceBarChart) workspaceBarChart.destroy();
             workspaceBarChart = new Chart(ctx1, {
                 type: 'bar',
                 data: {
-                    labels: ['Fusion Foods', 'DSOG', 'BrandInn', 'Heritage Ads', 'Heritage Mkt', 'Field'],
+                    labels: labels,
                     datasets: [{
-                        data: [counts.fusion, counts.dsog, counts.brandinn, counts.heritageAds, counts.heritageMkt, counts.field],
-                        backgroundColor: ['rgba(16,185,129,0.6)','rgba(236,72,153,0.6)','rgba(124,58,237,0.6)','rgba(217,70,239,0.6)','rgba(217,119,6,0.6)','rgba(59,130,246,0.6)'],
-                        borderColor: ['#10b981','#ec4899','#7c3aed','#d946ef','#d97706','#3b82f6'],
+                        data: data,
+                        backgroundColor: colors.map(c => c + '99'),
+                        borderColor: colors,
                         borderWidth: 2, borderRadius: 8
                     }]
                 },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: '#f3f4f6' } }, x: { grid: { display: false } } } }
+                options: { 
+                    responsive: true, maintainAspectRatio: false, 
+                    plugins: { legend: { display: false } }, 
+                    scales: { 
+                        y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: '#f3f4f6' } }, 
+                        x: { grid: { display: false } } 
+                    } 
+                }
             });
 
             const ctx2 = document.getElementById('activityPieChart').getContext('2d');
@@ -459,14 +628,19 @@
             activityPieChart = new Chart(ctx2, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Fusion', 'DSOG', 'BrandInn', 'Heritage Ads', 'Heritage Mkt', 'Field'],
+                    labels: labels,
                     datasets: [{
-                        data: [counts.fusion, counts.dsog, counts.brandinn, counts.heritageAds, counts.heritageMkt, counts.field],
-                        backgroundColor: ['#10b981','#ec4899','#7c3aed','#d946ef','#d97706','#3b82f6'],
+                        data: data,
+                        backgroundColor: colors,
                         borderWidth: 2, borderColor: '#fff'
                     }]
                 },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { padding: 10, usePointStyle: true, font: { size: 9 } } } } }
+                options: { 
+                    responsive: true, maintainAspectRatio: false, 
+                    plugins: { 
+                        legend: { position: 'bottom', labels: { padding: 10, usePointStyle: true, font: { size: 9 } } } 
+                    } 
+                }
             });
         }
 
@@ -475,7 +649,11 @@
             const reports = [];
             for (let i = 1; i <= 7; i++) {
                 const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
-                reports.push({ dateStr: d.toISOString().split('T')[0], label: i===1?'Yesterday':i===2?'2 Days Ago':`${i} Days Ago`, displayDate: d.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'}) });
+                reports.push({ 
+                    dateStr: d.toISOString().split('T')[0], 
+                    label: i===1?'Yesterday':i===2?'2 Days Ago':`${i} Days Ago`, 
+                    displayDate: d.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'}) 
+                });
             }
             document.getElementById('previousReports').innerHTML = reports.map(r => `<div class="report-item" onclick="loadPreviousReport('${r.dateStr}')"><div class="report-item-icon" style="background:var(--gold-soft);color:var(--gold);"><i class="fas fa-file-alt"></i></div><div class="report-item-info"><div class="report-item-title">${r.displayDate}</div><div class="report-item-meta">Auto-generated daily report · ${r.label}</div></div><i class="fas fa-chevron-right" style="color:var(--text-muted);"></i></div>`).join('');
         }
@@ -488,7 +666,12 @@
             generateReport('custom');
         };
 
-        window.handleLogout = async () => { if (confirm('Sign out?')) { await auth.signOut(); window.location.href = 'index.html'; } };
+        window.handleLogout = async () => { 
+            if (confirm('Sign out?')) { 
+                await auth.signOut(); 
+                window.location.href = 'index.html'; 
+            } 
+        };
     </script>
 </body>
 </html>
