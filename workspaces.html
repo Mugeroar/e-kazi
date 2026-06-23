@@ -178,6 +178,16 @@
             margin: 0 auto;
         }
 
+        .debug-info {
+            background: #1e293b; color: #e2e8f0; padding: 0.5rem 1rem; border-radius: 8px;
+            font-family: monospace; font-size: 0.7rem; margin-bottom: 1rem;
+            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .debug-info .status { color: #4ade80; }
+        .debug-info .error { color: #f87171; }
+        .debug-info .warning { color: #fbbf24; }
+
         .search-bar {
             display: flex; align-items: center; gap: 1rem;
             max-width: 500px; margin: 0 auto 2rem;
@@ -245,6 +255,9 @@
         .workspace-card.disabled {
             opacity: 0.5; cursor: not-allowed; pointer-events: none;
         }
+        .workspace-card.disabled:hover {
+            transform: none; border-color: var(--border-light);
+        }
         .card-image {
             width: 100%; height: 150px; background: var(--bg-secondary);
             position: relative; overflow: hidden;
@@ -269,6 +282,9 @@
             width: fit-content; font-family: var(--font-heading);
             letter-spacing: 0.3px;
         }
+        .workspace-badge.locked {
+            background: #f3f4f6; color: #6b7280;
+        }
         .card-title {
             font-size: 1.1rem; font-weight: 700; color: var(--text-primary);
             margin-bottom: 0.4rem; font-family: var(--font-heading);
@@ -287,6 +303,10 @@
             transition: all 0.2s; font-family: var(--font-heading);
         }
         .card-link:hover { gap: 0.75rem; color: var(--gold-dark); }
+        .card-link.locked {
+            color: var(--text-muted); cursor: not-allowed;
+        }
+        .card-link.locked:hover { gap: 0.5rem; }
 
         .empty-section {
             text-align: center; padding: 4rem 2rem;
@@ -298,7 +318,7 @@
             font-size: 1.2rem; font-weight: 700; color: var(--text-primary);
             margin-bottom: 0.5rem; font-family: var(--font-heading);
         }
-        .empty-section .btn-request {
+        .btn-request {
             margin-top: 1rem;
             background: var(--gold-gradient);
             color: white;
@@ -310,7 +330,7 @@
             font-family: var(--font-heading);
             transition: all 0.2s;
         }
-        .empty-section .btn-request:hover {
+        .btn-request:hover {
             transform: translateY(-2px);
             box-shadow: var(--shadow-gold);
         }
@@ -321,7 +341,6 @@
             display: inline-block; font-family: var(--font-heading);
         }
         .badge-gold { background: var(--gold-soft); color: var(--gold-dark); }
-        .badge-locked { background: #f3f4f6; color: #6b7280; }
 
         .toast-container { position: fixed; top:20px; right:20px; z-index:4000; }
         .toast {
@@ -338,17 +357,6 @@
             from { opacity: 0; transform: translateX(20px); }
             to { opacity: 1; transform: translateX(0); }
         }
-
-        /* Debug banner */
-        .debug-info {
-            background: #1e293b; color: #e2e8f0; padding: 0.5rem 1rem; border-radius: 8px;
-            font-family: monospace; font-size: 0.7rem; margin-bottom: 1rem;
-            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;
-            gap: 0.5rem;
-        }
-        .debug-info .status { color: #4ade80; }
-        .debug-info .error { color: #f87171; }
-        .debug-info .warning { color: #fbbf24; }
 
         @media (max-width: 1024px) {
             .cards-grid { grid-template-columns: repeat(2, 1fr); }
@@ -418,7 +426,7 @@
                     <h2>Available Workspaces <span class="badge badge-gold" id="wsCount" style="margin-left:0.5rem;">0</span></h2>
                 </div>
 
-                <!-- Loading State -->
+                <!-- Skeleton Loading Grid -->
                 <div class="cards-grid" id="workspacesContainer">
                     <div class="skeleton-card"><div class="skeleton skeleton-image"></div><div style="padding:1.3rem 1.5rem;"><div class="skeleton skeleton-badge"></div><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-desc"></div><div class="skeleton skeleton-desc-sm"></div><div class="skeleton skeleton-link"></div></div></div>
                     <div class="skeleton-card"><div class="skeleton skeleton-image"></div><div style="padding:1.3rem 1.5rem;"><div class="skeleton skeleton-badge"></div><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-desc"></div><div class="skeleton skeleton-desc-sm"></div><div class="skeleton skeleton-link"></div></div></div>
@@ -444,132 +452,59 @@
         auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 
         let currentUser = null;
-        let currentUserData = null;
         let userPermissions = {};
+        let isAdmin = false;
         let allWorkspaces = [];
         let filteredWorkspaces = [];
-        let isAdmin = false;
 
-        // All 12 workspaces with their details
-        const WORKSPACE_DEFINITIONS = [
-            {
-                id: 'brandinn',
-                title: 'BrandInn Business',
-                description: 'Business branding & website management platform. Create and manage business pages, subdomains, and brand identities.',
-                link: '/workspaces/brandinn/index.html',
-                category: 'business',
-                icon: 'fa-building',
-                color: '#8b5cf6'
-            },
-            {
-                id: 'brandinn-print',
-                title: 'BrandInn Print',
-                description: 'Print & Merchandise Business. Manage print orders, franchises, stock, and customer printing jobs.',
-                link: '/workspaces/brandinn-print/index.html',
-                category: 'print',
-                icon: 'fa-print',
-                color: '#8b5cf6'
-            },
-            {
-                id: 'pick-up',
-                title: 'Pick-Up Deliveries',
-                description: 'Delivery Management Platform. Manage pickup and delivery operations, assign drivers, and track packages.',
-                link: '/workspaces/pick-up/index.html',
-                category: 'delivery',
-                icon: 'fa-truck-fast',
-                color: '#f59e0b'
-            },
-            {
-                id: 'pick-me',
-                title: 'Pick-Me Rides',
-                description: 'Ride-hailing Management. Schedule rides, manage drivers, and handle passenger bookings.',
-                link: '/workspaces/pick-me/index.html',
-                category: 'transport',
-                icon: 'fa-taxi',
-                color: '#06b6d4'
-            },
-            {
-                id: 'ekazi',
-                title: 'E-Kazi Tasks',
-                description: 'Freelance Task Management. Post jobs, assign tasks to taskers, and manage submissions.',
-                link: '/workspaces/ekazi/index.html',
-                category: 'tasks',
-                icon: 'fa-tasks',
-                color: '#10b981'
-            },
-            {
-                id: 'dsog',
-                title: 'DSOG Fashion',
-                description: 'Fashion & Apparel Management. Handle orders, franchisees, and fashion inventory with dispatch capabilities.',
-                link: '/workspaces/dsog/index.html',
-                category: 'fashion',
-                icon: 'fa-tshirt',
-                color: '#ec4899'
-            },
-            {
-                id: 'fusion-foods',
-                title: 'Fusion Foods',
-                description: 'Food & Grocery Supply Management. Manage orders, inventory, suppliers, and weekly pricing for your food supply business.',
-                link: '/workspaces/fusion-foods/index.html',
-                category: 'food',
-                icon: 'fa-utensils',
-                color: '#10b981'
-            },
-            {
-                id: 'heritage',
-                title: 'Heritage Ads',
-                description: 'Outdoor Advertising Platform. Manage billboard listings, campaigns, and partner relationships.',
-                link: '/workspaces/heritage/index.html',
-                category: 'advertising',
-                icon: 'fa-bullhorn',
-                color: '#d946ef'
-            },
-            {
-                id: 'heritage-marketplace',
-                title: 'Heritage Marketplace',
-                description: 'E-commerce Marketplace. List products, manage orders, and handle customer transactions.',
-                link: '/workspaces/heritage-marketplace/index.html',
-                category: 'ecommerce',
-                icon: 'fa-store',
-                color: '#8b5cf6'
-            },
-            {
-                id: 'mugs-n-dines',
-                title: 'Mugs n Dines',
-                description: 'Restaurant Management. Handle food orders, menu management, and kitchen operations.',
-                link: '/workspaces/mugs-n-dines/index.html',
-                category: 'food',
-                icon: 'fa-utensil-spoon',
-                color: '#ef4444'
-            },
-            {
-                id: 'workfit',
-                title: 'WorkFit Club',
-                description: 'Fitness Club Management. Manage members, schedules, trainers, and fitness operations.',
-                link: '/workspaces/workfit/index.html',
-                category: 'fitness',
-                icon: 'fa-dumbbell',
-                color: '#22c55e'
-            },
-            {
-                id: 'epitome',
-                title: 'Epitome Reviews',
-                description: 'Real Estate & Car Sales. Manage property listings, vehicle sales, and customer reviews.',
-                link: '/workspaces/epitome/index.html',
-                category: 'realestate',
-                icon: 'fa-home',
-                color: '#3b82f6'
-            },
-            {
-                id: 'latter-logistics',
-                title: 'Latter Logistics',
-                description: 'Intercounty & Cross-border Logistics. Real-time tracking, customs support, pay-per-shipment.',
-                link: '/workspaces/latter-logistics/index.html',
-                category: 'logistics',
-                icon: 'fa-ship',
-                color: '#0d9488'
-            }
-        ];
+        // Workspace ID to display name mapping
+        const WORKSPACE_NAMES = {
+            'brandinn': 'BrandInn Business',
+            'brandinn-print': 'BrandInn Print',
+            'pick-up': 'Pick-Up Deliveries',
+            'pick-me': 'Pick-Me Rides',
+            'ekazi': 'E-Kazi Tasks',
+            'dsog': 'DSOG Fashion',
+            'fusion-foods': 'Fusion Foods',
+            'heritage': 'Heritage Ads',
+            'heritage-marketplace': 'Heritage Marketplace',
+            'mugs-n-dines': 'Mugs n Dines',
+            'workfit': 'WorkFit Club',
+            'epitome': 'Epitome Reviews',
+            'latter-logistics': 'Latter Logistics'
+        };
+
+        const WORKSPACE_ICONS = {
+            'brandinn': 'fa-building',
+            'brandinn-print': 'fa-print',
+            'pick-up': 'fa-truck-fast',
+            'pick-me': 'fa-taxi',
+            'ekazi': 'fa-tasks',
+            'dsog': 'fa-tshirt',
+            'fusion-foods': 'fa-utensils',
+            'heritage': 'fa-bullhorn',
+            'heritage-marketplace': 'fa-store',
+            'mugs-n-dines': 'fa-utensil-spoon',
+            'workfit': 'fa-dumbbell',
+            'epitome': 'fa-home',
+            'latter-logistics': 'fa-ship'
+        };
+
+        const WORKSPACE_COLORS = {
+            'brandinn': '#8b5cf6',
+            'brandinn-print': '#8b5cf6',
+            'pick-up': '#f59e0b',
+            'pick-me': '#06b6d4',
+            'ekazi': '#10b981',
+            'dsog': '#ec4899',
+            'fusion-foods': '#10b981',
+            'heritage': '#d946ef',
+            'heritage-marketplace': '#8b5cf6',
+            'mugs-n-dines': '#ef4444',
+            'workfit': '#22c55e',
+            'epitome': '#3b82f6',
+            'latter-logistics': '#0d9488'
+        };
 
         function updateDebug(status, details) {
             const el = document.getElementById('debugInfo');
@@ -590,13 +525,6 @@
 
         async function loadUserData(user) {
             try {
-                // Load user data
-                const snap = await database.ref(`brandinn_users/${user.uid}`).once('value');
-                currentUserData = snap.exists() ? snap.val() : {};
-                const name = currentUserData.name || user.displayName || user.email?.split('@')[0] || 'User';
-                document.getElementById('userDisplayName').textContent = name;
-                document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
-
                 // Check if user is admin
                 const adminSnap = await database.ref(`admins/${user.uid}`).once('value');
                 isAdmin = adminSnap.val() === true;
@@ -623,7 +551,6 @@
         function userHasWorkspaceAccess(workspaceId) {
             // Admin has access to everything
             if (isAdmin || userPermissions.isAdmin === true) return true;
-            
             // Check specific permission
             return userPermissions[workspaceId] === true;
         }
@@ -632,37 +559,63 @@
             try {
                 updateDebug('loading', 'Loading workspace definitions...');
 
-                // Load custom workspace data from resources
+                // Load workspaces from resources/workspaces
                 let resourceWorkspaces = [];
                 try {
                     const snap = await database.ref('resources/workspaces').once('value');
                     const data = snap.val() || {};
-                    resourceWorkspaces = Object.entries(data).map(([id, item]) => ({ id, ...item }));
+                    resourceWorkspaces = Object.entries(data).map(([id, item]) => ({ 
+                        id, 
+                        ...item,
+                        // Use the workspace ID for permission checking
+                        workspaceId: id
+                    }));
                 } catch(e) {
                     console.warn('Could not load resource workspaces:', e);
+                    updateDebug('warning', 'Could not load from resources, using defaults');
                 }
 
-                // Merge definitions with resource data
-                allWorkspaces = WORKSPACE_DEFINITIONS.map(wd => {
-                    const resourceMatch = resourceWorkspaces.find(rw => 
-                        rw.id === wd.id || 
-                        rw.title?.toLowerCase() === wd.title.toLowerCase()
-                    );
-                    return resourceMatch ? { ...wd, ...resourceMatch } : wd;
+                // If no workspaces in resources, use defaults
+                if (resourceWorkspaces.length === 0) {
+                    resourceWorkspaces = Object.entries(WORKSPACE_NAMES).map(([id, title]) => ({
+                        id,
+                        title,
+                        description: `Access the ${title} workspace to manage your operations.`,
+                        link: `/workspaces/${id}/index.html`,
+                        category: id,
+                        icon: WORKSPACE_ICONS[id] || 'fa-building',
+                        color: WORKSPACE_COLORS[id] || '#ca8a04',
+                        workspaceId: id
+                    }));
+                }
+
+                // Filter workspaces based on user permissions
+                allWorkspaces = resourceWorkspaces.filter(w => {
+                    const hasAccess = userHasWorkspaceAccess(w.workspaceId || w.id);
+                    return hasAccess;
                 });
 
-                // Add any additional workspaces from resources
-                resourceWorkspaces.forEach(rw => {
-                    const exists = allWorkspaces.find(w => w.id === rw.id);
-                    if (!exists) {
-                        allWorkspaces.push(rw);
+                // Also include any workspaces the user has permission for but aren't in the resource list
+                const permissionKeys = Object.keys(userPermissions).filter(k => userPermissions[k] === true && k !== 'isAdmin');
+                permissionKeys.forEach(permId => {
+                    const exists = allWorkspaces.find(w => (w.workspaceId || w.id) === permId);
+                    if (!exists && WORKSPACE_NAMES[permId]) {
+                        allWorkspaces.push({
+                            id: permId,
+                            workspaceId: permId,
+                            title: WORKSPACE_NAMES[permId],
+                            description: `Access the ${WORKSPACE_NAMES[permId]} workspace.`,
+                            link: `/workspaces/${permId}/index.html`,
+                            category: permId,
+                            icon: WORKSPACE_ICONS[permId] || 'fa-building',
+                            color: WORKSPACE_COLORS[permId] || '#ca8a04'
+                        });
                     }
                 });
 
-                // Filter workspaces based on user permissions
-                filteredWorkspaces = allWorkspaces.filter(w => userHasWorkspaceAccess(w.id));
-
-                updateDebug('connected', `Showing ${filteredWorkspaces.length} of ${allWorkspaces.length} workspaces`);
+                filteredWorkspaces = [...allWorkspaces];
+                
+                updateDebug('connected', `Showing ${filteredWorkspaces.length} accessible workspaces`);
                 renderWorkspaces();
                 
             } catch(e) {
@@ -691,27 +644,33 @@
             }
 
             container.innerHTML = filteredWorkspaces.map(w => {
-                const iconClass = w.icon || 'fa-building';
-                const color = w.color || '#ca8a04';
-                const bgColor = w.bgColor || `${color}15`;
-                const hasAccess = userHasWorkspaceAccess(w.id);
+                const workspaceId = w.workspaceId || w.id;
+                const iconClass = w.icon || WORKSPACE_ICONS[workspaceId] || 'fa-building';
+                const color = w.color || WORKSPACE_COLORS[workspaceId] || '#ca8a04';
+                const bgColor = `${color}15`;
+                const hasAccess = userHasWorkspaceAccess(workspaceId);
+                const title = w.title || WORKSPACE_NAMES[workspaceId] || workspaceId;
+                
                 const imageHtml = w.image ? 
-                    `<img src="${escapeHtml(w.image)}" alt="${escapeHtml(w.title)}" loading="lazy">` : 
+                    `<img src="${escapeHtml(w.image)}" alt="${escapeHtml(title)}" loading="lazy">` : 
                     `<div class="image-placeholder" style="background:linear-gradient(135deg, ${bgColor}, ${bgColor}50); color:${color};"><i class="fas ${iconClass}"></i></div>`;
 
+                const isLocked = !hasAccess;
+                const lockedClass = isLocked ? 'disabled' : '';
+
                 return `
-                <div class="workspace-card ${!hasAccess ? 'disabled' : ''}" onclick="${hasAccess ? `openWorkspace('${escapeHtml(w.link)}')` : ''}">
+                <div class="workspace-card ${lockedClass}" onclick="${hasAccess ? `openWorkspace('${escapeHtml(w.link)}')` : ''}">
                     <div class="card-image">${imageHtml}</div>
                     <div class="card-content">
-                        <span class="workspace-badge">
+                        <span class="workspace-badge ${isLocked ? 'locked' : ''}">
                             <i class="fas ${iconClass}"></i> 
-                            ${hasAccess ? 'Workspace' : '🔒 Locked'}
+                            ${isLocked ? '🔒 Locked' : 'Workspace'}
                         </span>
-                        <h3 class="card-title">${escapeHtml(w.title)}</h3>
+                        <h3 class="card-title">${escapeHtml(title)}</h3>
                         <p class="card-description">${escapeHtml(w.description || 'Access this workspace to manage your operations.')}</p>
-                        <span class="card-link">
-                            ${hasAccess ? 'Launch Workspace' : 'No Access'}
-                            <i class="fas ${hasAccess ? 'fa-arrow-right' : 'fa-lock'}"></i>
+                        <span class="card-link ${isLocked ? 'locked' : ''}">
+                            ${isLocked ? 'No Access' : 'Launch Workspace'}
+                            <i class="fas ${isLocked ? 'fa-lock' : 'fa-arrow-right'}"></i>
                         </span>
                     </div>
                 </div>`;
@@ -723,16 +682,15 @@
             const clearBtn = document.getElementById('searchClear');
             const countEl = document.getElementById('searchCount');
             
-            // Only search within filtered (accessible) workspaces
             let results = filteredWorkspaces;
             
             if (query) {
                 clearBtn.classList.add('visible');
-                results = filteredWorkspaces.filter(w => 
-                    (w.title || '').toLowerCase().includes(query) ||
-                    (w.description || '').toLowerCase().includes(query) ||
-                    (w.category || '').toLowerCase().includes(query)
-                );
+                results = filteredWorkspaces.filter(w => {
+                    const title = w.title || WORKSPACE_NAMES[w.workspaceId || w.id] || '';
+                    const desc = w.description || '';
+                    return title.toLowerCase().includes(query) || desc.toLowerCase().includes(query);
+                });
                 
                 if (results.length !== filteredWorkspaces.length) {
                     countEl.innerHTML = `Showing <strong>${results.length}</strong> of <strong>${filteredWorkspaces.length}</strong> accessible workspaces`;
@@ -762,27 +720,31 @@
             }
 
             container.innerHTML = results.map(w => {
-                const iconClass = w.icon || 'fa-building';
-                const color = w.color || '#ca8a04';
-                const bgColor = w.bgColor || `${color}15`;
-                const hasAccess = userHasWorkspaceAccess(w.id);
+                const workspaceId = w.workspaceId || w.id;
+                const iconClass = w.icon || WORKSPACE_ICONS[workspaceId] || 'fa-building';
+                const color = w.color || WORKSPACE_COLORS[workspaceId] || '#ca8a04';
+                const bgColor = `${color}15`;
+                const hasAccess = userHasWorkspaceAccess(workspaceId);
+                const title = w.title || WORKSPACE_NAMES[workspaceId] || workspaceId;
+                const isLocked = !hasAccess;
+                
                 const imageHtml = w.image ? 
-                    `<img src="${escapeHtml(w.image)}" alt="${escapeHtml(w.title)}" loading="lazy">` : 
+                    `<img src="${escapeHtml(w.image)}" alt="${escapeHtml(title)}" loading="lazy">` : 
                     `<div class="image-placeholder" style="background:linear-gradient(135deg, ${bgColor}, ${bgColor}50); color:${color};"><i class="fas ${iconClass}"></i></div>`;
 
                 return `
-                <div class="workspace-card ${!hasAccess ? 'disabled' : ''}" onclick="${hasAccess ? `openWorkspace('${escapeHtml(w.link)}')` : ''}">
+                <div class="workspace-card ${isLocked ? 'disabled' : ''}" onclick="${hasAccess ? `openWorkspace('${escapeHtml(w.link)}')` : ''}">
                     <div class="card-image">${imageHtml}</div>
                     <div class="card-content">
-                        <span class="workspace-badge">
+                        <span class="workspace-badge ${isLocked ? 'locked' : ''}">
                             <i class="fas ${iconClass}"></i> 
-                            ${hasAccess ? 'Workspace' : '🔒 Locked'}
+                            ${isLocked ? '🔒 Locked' : 'Workspace'}
                         </span>
-                        <h3 class="card-title">${escapeHtml(w.title)}</h3>
+                        <h3 class="card-title">${escapeHtml(title)}</h3>
                         <p class="card-description">${escapeHtml(w.description || 'Access this workspace to manage your operations.')}</p>
-                        <span class="card-link">
-                            ${hasAccess ? 'Launch Workspace' : 'No Access'}
-                            <i class="fas ${hasAccess ? 'fa-arrow-right' : 'fa-lock'}"></i>
+                        <span class="card-link ${isLocked ? 'locked' : ''}">
+                            ${isLocked ? 'No Access' : 'Launch Workspace'}
+                            <i class="fas ${isLocked ? 'fa-lock' : 'fa-arrow-right'}"></i>
                         </span>
                     </div>
                 </div>`;
@@ -812,7 +774,6 @@
             const body = encodeURIComponent(
                 `Hello,\n\nI would like to request access to workspaces.\n\nUser: ${email}\nUID: ${currentUser?.uid || 'N/A'}\n\nPlease grant me access to the following workspaces:\n\n[Please list the workspaces you need]\n\nThank you.`
             );
-            // Replace with your admin email
             window.location.href = `mailto:admin@kazinni.com?subject=${subject}&body=${body}`;
             showToast('Access request opened in your email client', 'info');
         };
