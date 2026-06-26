@@ -92,7 +92,7 @@
             max-width: 1400px; height: 100%; margin: 0 auto;
             display: flex; align-items: center; justify-content: space-between;
         }
-        .logo { display: flex; align-items: center; gap: 0.85rem; }
+        .logo { display: flex; align-items: center; gap: 0.85rem; text-decoration: none; }
         .logo img { height: 46px; width: auto; filter: drop-shadow(0 4px 8px rgba(202,138,4,0.15)); }
         .logo span {
             font-size: 1.6rem; font-weight: 800;
@@ -171,6 +171,7 @@
         }
         .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
         .btn-sm { padding: 0.4rem 1rem; font-size: 0.75rem; }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
         /* Access Denied Banner */
         .access-denied {
@@ -316,6 +317,10 @@
         }
         .form-control:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-glow); }
         .form-control:disabled, .form-control[readonly] { background: var(--bg-secondary); color: var(--text-muted); }
+        .form-control-auto {
+            background: #f0fdf4 !important;
+            border-color: #86efac !important;
+        }
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
 
         .badge {
@@ -327,6 +332,10 @@
         .badge-success { background: rgba(16,185,129,0.1); color: #059669; }
         .badge-info { background: rgba(59,130,246,0.1); color: #2563eb; }
         .badge-purple { background: rgba(139,92,246,0.1); color: #7c3aed; }
+        .badge-warning { background: rgba(245,158,11,0.1); color: #d97706; }
+        .badge-rose { background: rgba(225,29,72,0.1); color: #e11d48; }
+        .badge-emerald { background: rgba(5,150,105,0.1); color: #059669; }
+        .badge-indigo { background: rgba(79,70,229,0.1); color: #4f46e5; }
 
         .toast-container { position: fixed; top:20px; right:20px; z-index:4000; }
         .toast {
@@ -381,6 +390,16 @@
         }
         .modal-close:hover { color: var(--danger); }
 
+        .info-chip {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            background: var(--bg-secondary);
+            color: var(--text-muted);
+        }
+
         @media (max-width:1024px) {
             .profile-grid { grid-template-columns: 1fr; }
             .stats-row { grid-template-columns: repeat(2,1fr); }
@@ -401,11 +420,14 @@
 
     <header class="site-header">
         <div class="header-container">
-            <div class="logo"><img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview-1.png" alt="KazInni"><span>KazInni</span></div>
+            <a href="dashboard.html" class="logo">
+                <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview-1.png" alt="KazInni">
+                <span>KazInni</span>
+            </a>
             <nav class="nav-links">
                 <a href="dashboard.html" class="nav-link">Dashboard</a>
                 <a href="profile.html" class="nav-link active">Profile</a>
-                <a href="workspaces.html" class="nav-link">Workspaces</a>
+                <a href="workspaces.html" class="nav-link">Workspace</a>
                 <a href="resources.html" class="nav-link">Resources</a>
             </nav>
             <div class="user-menu">
@@ -436,12 +458,17 @@
                 <div class="profile-avatar-large" id="profileAvatar">K</div>
                 <div class="profile-info">
                     <h1 id="profileName">Loading...</h1>
-                    <p><i class="fas fa-envelope"></i> <span id="profileEmail">loading...</span> <span class="badge badge-success" id="profileStatus">ACTIVE</span></p>
+                    <p>
+                        <i class="fas fa-envelope"></i> <span id="profileEmail">loading...</span>
+                        <span class="badge badge-success" id="profileStatus">ACTIVE</span>
+                        <span class="badge" id="accountTypeBadge" style="background:var(--gold-soft);color:var(--gold-dark);">PROFESSIONAL</span>
+                    </p>
                     <div class="profile-meta">
                         <span><i class="fas fa-phone"></i> <span id="profilePhone">—</span></span>
                         <span><i class="fas fa-map-marker-alt"></i> <span id="profileLocation">Nairobi, Kenya</span></span>
                         <span><i class="fas fa-calendar"></i> Joined <span id="profileJoined">—</span></span>
                         <span><i class="fas fa-building"></i> <span id="profileBusiness">—</span></span>
+                        <span><i class="fas fa-user-tag"></i> <span id="profileRole">—</span></span>
                     </div>
                 </div>
                 <button class="btn btn-primary" onclick="openEditModal()"><i class="fas fa-edit"></i> Edit Profile</button>
@@ -464,13 +491,15 @@
                         <div class="info-item"><div class="info-label">Phone</div><div class="info-value" id="contactPhone">—</div></div>
                         <div class="info-item"><div class="info-label">Location</div><div class="info-value" id="contactLocation">Nairobi, Kenya</div></div>
                         <div class="info-item"><div class="info-label">Business</div><div class="info-value" id="contactBusiness">—</div></div>
+                        <div class="info-item"><div class="info-label">Role / Title</div><div class="info-value" id="contactRole">—</div></div>
                     </div>
                     <div class="card">
                         <div class="card-title"><i class="fas fa-shield-alt"></i> Account Details</div>
                         <div class="info-item"><div class="info-label">Member Since</div><div class="info-value" id="memberSince">—</div></div>
-                        <div class="info-item"><div class="info-label">Account Type</div><div class="info-value"><span class="badge badge-gold">PROFESSIONAL</span></div></div>
+                        <div class="info-item"><div class="info-label">Account Type</div><div class="info-value"><span class="badge badge-gold" id="accountTypeDisplay">PROFESSIONAL</span></div></div>
                         <div class="info-item"><div class="info-label">Status</div><div class="info-value"><span class="badge badge-success">ACTIVE</span></div></div>
                         <div class="info-item"><div class="info-label">Workspace Access</div><div class="info-value" id="workspaceCount">0</div></div>
+                        <div class="info-item"><div class="info-label">User ID</div><div class="info-value" style="font-size:0.7rem;font-family:monospace;color:var(--text-muted);" id="userIdDisplay">—</div></div>
                     </div>
                 </div>
 
@@ -496,14 +525,35 @@
                         <div class="card-title"><i class="fas fa-cog"></i> Quick Settings</div>
                         <form id="settingsForm" onsubmit="updateSettings(event)">
                             <div class="form-row">
-                                <div class="form-group"><label>Full Name</label><input type="text" class="form-control" id="settingsName" readonly></div>
-                                <div class="form-group"><label>Email</label><input type="email" class="form-control" id="settingsEmail" readonly></div>
+                                <div class="form-group">
+                                    <label>Full Name</label>
+                                    <input type="text" class="form-control" id="settingsName" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label>Email</label>
+                                    <input type="email" class="form-control" id="settingsEmail" readonly>
+                                </div>
                             </div>
                             <div class="form-row">
-                                <div class="form-group"><label>Phone</label><input type="tel" class="form-control" id="settingsPhone"></div>
-                                <div class="form-group"><label>Business Name</label><input type="text" class="form-control" id="settingsBusiness"></div>
+                                <div class="form-group">
+                                    <label>Phone</label>
+                                    <input type="tel" class="form-control" id="settingsPhone">
+                                </div>
+                                <div class="form-group">
+                                    <label>Business Name <span class="info-chip">Auto-detected</span></label>
+                                    <input type="text" class="form-control form-control-auto" id="settingsBusiness" readonly>
+                                </div>
                             </div>
-                            <div class="form-group"><label>Location</label><input type="text" class="form-control" id="settingsLocation"></div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Location</label>
+                                    <input type="text" class="form-control" id="settingsLocation">
+                                </div>
+                                <div class="form-group">
+                                    <label>Account Type <span class="info-chip">Auto-detected</span></label>
+                                    <input type="text" class="form-control form-control-auto" id="settingsAccountType" readonly>
+                                </div>
+                            </div>
                             <div style="display:flex;justify-content:flex-end;gap:1rem;">
                                 <button type="button" class="btn btn-outline btn-sm" onclick="resetSettings()">Reset</button>
                                 <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-save"></i> Save Changes</button>
@@ -523,13 +573,29 @@
             <button class="modal-close" onclick="closeEditModal()"><i class="fas fa-times"></i></button>
         </div>
         <form id="editProfileForm" onsubmit="saveProfileChanges(event)">
-            <div class="form-group"><label>Full Name</label><input type="text" class="form-control" id="editName" required></div>
-            <div class="form-row">
-                <div class="form-group"><label>Phone</label><input type="tel" class="form-control" id="editPhone"></div>
-                <div class="form-group"><label>Business Name</label><input type="text" class="form-control" id="editBusiness"></div>
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" class="form-control" id="editName" required>
             </div>
-            <div class="form-group"><label>Location</label><input type="text" class="form-control" id="editLocation"></div>
-            <div style="display:flex;justify-content:flex-end;gap:1rem;">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Phone</label>
+                    <input type="tel" class="form-control" id="editPhone">
+                </div>
+                <div class="form-group">
+                    <label>Location</label>
+                    <input type="text" class="form-control" id="editLocation">
+                </div>
+            </div>
+            <div class="form-group" style="background:#f0fdf4;padding:0.8rem;border-radius:10px;border:1px solid #86efac;">
+                <label style="color:#059669;"><i class="fas fa-info-circle"></i> Auto-detected Information</label>
+                <div style="display:flex;gap:1rem;flex-wrap:wrap;font-size:0.85rem;">
+                    <span><strong>Business:</strong> <span id="editBusinessDisplay">—</span></span>
+                    <span><strong>Account Type:</strong> <span id="editAccountTypeDisplay">—</span></span>
+                    <span><strong>Role:</strong> <span id="editRoleDisplay">—</span></span>
+                </div>
+            </div>
+            <div style="display:flex;justify-content:flex-end;gap:1rem;margin-top:0.5rem;">
                 <button type="button" class="btn btn-outline btn-sm" onclick="closeEditModal()">Cancel</button>
                 <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-save"></i> Save</button>
             </div>
@@ -552,21 +618,133 @@
         let userProfile = {};
         let userPermissions = {};
         let isAdmin = false;
+        let userRole = '';
 
-        // Workspace configuration with permission keys
+        // ===== CORRECTED WORKSPACE CONFIGURATION =====
         const WORKSPACE_CONFIG = {
-            'fusion-foods': { name: 'Fusion Foods', desc: 'Food & Grocery Supply', icon: 'fa-utensils', color: '#10b981', bgColor: '#ecfdf5', link: '/workspaces/fusion-foods/index.html', paths: ['fusion_foods_orders', 'fusion_foods_products', 'fusion_foods_stores'] },
-            'dsog': { name: 'DSOG Fashion', desc: 'Fashion & Apparel', icon: 'fa-tshirt', color: '#ec4899', bgColor: '#fdf2f8', link: '/workspaces/dsog-fashion/index.html', paths: ['dsog_fashion_orders'] },
-            'heritage': { name: 'Heritage Ads', desc: 'Outdoor Advertising', icon: 'fa-landmark', color: '#d946ef', bgColor: '#faf5ff', link: '/workspaces/heritage/index.html', paths: ['heritage_listings'] },
-            'brandinn': { name: 'BrandInn Print', desc: 'Print & Merchandise', icon: 'fa-print', color: '#8b5cf6', bgColor: '#f5f3ff', link: '/workspaces/brandinn/index.html', paths: ['brandinn_print_orders'] },
-            'heritage-marketplace': { name: 'Heritage Mkt', desc: 'WhatsApp Marketplace', icon: 'fa-store', color: '#d97706', bgColor: '#fffbeb', link: '/workspaces/heritage-marketplace/index.html', paths: ['heritage_orders'] },
-            'pick-up': { name: 'Pick-Up Deliveries', desc: 'Delivery Management', icon: 'fa-truck-fast', color: '#f59e0b', bgColor: '#fffbeb', link: '/workspaces/pick-up/index.html', paths: ['pickup_deliveries'] },
-            'pick-me': { name: 'Pick-Me Rides', desc: 'Ride-hailing', icon: 'fa-taxi', color: '#06b6d4', bgColor: '#ecfeff', link: '/workspaces/pick-me/index.html', paths: ['pickme_rides'] },
-            'ekazi': { name: 'E-Kazi Tasks', desc: 'Freelance Task Management', icon: 'fa-tasks', color: '#10b981', bgColor: '#ecfdf5', link: '/workspaces/ekazi/index.html', paths: ['ekazi_assigned_tasks'] },
-            'mugs-n-dines': { name: 'Mugs n Dines', desc: 'Restaurant Management', icon: 'fa-utensil-spoon', color: '#ef4444', bgColor: '#fef2f2', link: '/workspaces/mugs-n-dines/index.html', paths: ['mugs_n_dines_orders'] },
-            'workfit': { name: 'WorkFit Club', desc: 'Fitness Management', icon: 'fa-dumbbell', color: '#22c55e', bgColor: '#f0fdf4', link: '/workspaces/workfit/index.html', paths: ['workfit_clubs'] },
-            'epitome': { name: 'Epitome Reviews', desc: 'Real Estate & Cars', icon: 'fa-home', color: '#3b82f6', bgColor: '#eff6ff', link: '/workspaces/epitome/index.html', paths: ['epitome_cars'] },
-            'latter-logistics': { name: 'Latter Logistics', desc: 'Cross-border Logistics', icon: 'fa-ship', color: '#0d9488', bgColor: '#f0fdfa', link: '/workspaces/latter-logistics/index.html', paths: ['latter_logistics_shipments'] }
+            // === BRANDING & BUSINESS ===
+            'brandinn': { 
+                name: 'BrandInn Business', 
+                desc: 'Business Management', 
+                icon: 'fa-building', 
+                color: '#4f46e5', 
+                bgColor: '#eef2ff', 
+                link: '/workspaces/brandinn/index.html', 
+                paths: ['brandinn_users', 'brandinn_franchises'] 
+            },
+            'brandinn-print': { 
+                name: 'BrandInn Print', 
+                desc: 'Print & Merchandise', 
+                icon: 'fa-print', 
+                color: '#db2777', 
+                bgColor: '#fdf2f8', 
+                link: '/workspaces/brandinn-print/index.html', 
+                paths: ['brandinn_print_orders'] 
+            },
+            
+            // === LOGISTICS ===
+            'pick-up': { 
+                name: 'Pick-Up Deliveries', 
+                desc: 'Delivery Management', 
+                icon: 'fa-truck-fast', 
+                color: '#f59e0b', 
+                bgColor: '#fffbeb', 
+                link: '/workspaces/pick-up/index.html', 
+                paths: ['pickup_deliveries'] 
+            },
+            'pick-me': { 
+                name: 'Pick-Me Rides', 
+                desc: 'Ride-hailing', 
+                icon: 'fa-taxi', 
+                color: '#06b6d4', 
+                bgColor: '#ecfeff', 
+                link: '/workspaces/pick-me/index.html', 
+                paths: ['pickme_rides'] 
+            },
+            
+            // === TASKS ===
+            'ekazi': { 
+                name: 'E-Kazi Tasks', 
+                desc: 'Freelance Task Management', 
+                icon: 'fa-tasks', 
+                color: '#059669', 
+                bgColor: '#ecfdf5', 
+                link: '/workspaces/ekazi/index.html', 
+                paths: ['ekazi_assigned_tasks'] 
+            },
+            
+            // === COMMERCE ===
+            'dsog': { 
+                name: 'DSOG Fashion', 
+                desc: 'Fashion & Apparel', 
+                icon: 'fa-tshirt', 
+                color: '#ec4899', 
+                bgColor: '#fdf2f8', 
+                link: '/workspaces/dsog/index.html', 
+                paths: ['dsog_fashion_orders', 'dsog_fashion_inventory'] 
+            },
+            'fusion-foods': { 
+                name: 'Fusion Foods', 
+                desc: 'Food & Grocery Supply', 
+                icon: 'fa-utensils', 
+                color: '#10b981', 
+                bgColor: '#ecfdf5', 
+                link: '/workspaces/fusion-foods/index.html', 
+                paths: ['fusion_foods_orders', 'fusion_foods_inventory'] 
+            },
+            
+            // === ADVERTISING ===
+            'heritage': { 
+                name: 'Heritage Ads', 
+                desc: 'Outdoor Advertising', 
+                icon: 'fa-bullhorn', 
+                color: '#d946ef', 
+                bgColor: '#faf5ff', 
+                link: '/workspaces/heritage/index.html', 
+                paths: ['heritage_listings', 'heritage_campaigns'] 
+            },
+            'heritage-marketplace': { 
+                name: 'Heritage Marketplace', 
+                desc: 'WhatsApp Marketplace', 
+                icon: 'fa-store', 
+                color: '#d97706', 
+                bgColor: '#fffbeb', 
+                link: '/workspaces/heritage-marketplace/index.html', 
+                paths: ['heritage_orders'] 
+            },
+            
+            // === HOSPITALITY ===
+            'mugs-n-dines': { 
+                name: 'Mugs n Dines', 
+                desc: 'Restaurant Management', 
+                icon: 'fa-utensil-spoon', 
+                color: '#ef4444', 
+                bgColor: '#fef2f2', 
+                link: '/workspaces/mugs-n-dines/index.html', 
+                paths: ['mugs_n_dines_orders'] 
+            },
+            
+            // === WELLNESS ===
+            'workfit': { 
+                name: 'WorkFit Club', 
+                desc: 'Fitness Management', 
+                icon: 'fa-dumbbell', 
+                color: '#22c55e', 
+                bgColor: '#f0fdf4', 
+                link: '/workspaces/workfit/index.html', 
+                paths: ['workfit_clubs'] 
+            },
+            
+            // === REAL ESTATE ===
+            'epitome': { 
+                name: 'Epitome Reviews', 
+                desc: 'Real Estate & Cars', 
+                icon: 'fa-home', 
+                color: '#3b82f6', 
+                bgColor: '#eff6ff', 
+                link: '/workspaces/epitome/index.html', 
+                paths: ['epitome_cars'] 
+            }
         };
 
         auth.onAuthStateChanged(async (user) => {
@@ -593,6 +771,104 @@
             return accessible;
         }
 
+        // ===== DETECT USER ROLE =====
+        function detectUserRole(userId) {
+            // Check if user is in any role-specific node
+            if (isAdmin) return 'Administrator';
+            
+            // Check by workspace access patterns
+            const hasWorkspaces = Object.keys(userPermissions).filter(k => userPermissions[k] === true);
+            
+            if (hasWorkspaces.includes('pick-up') && hasWorkspaces.includes('dsog')) {
+                return 'Delivery Assistant';
+            }
+            if (hasWorkspaces.includes('pick-me')) {
+                return 'Driver';
+            }
+            if (hasWorkspaces.includes('ekazi')) {
+                return 'Tasker';
+            }
+            if (hasWorkspaces.includes('brandinn')) {
+                return 'Business Manager';
+            }
+            if (hasWorkspaces.includes('brandinn-print')) {
+                return 'Print Manager';
+            }
+            if (hasWorkspaces.includes('heritage')) {
+                return 'Advertising Manager';
+            }
+            if (hasWorkspaces.includes('workfit')) {
+                return 'Fitness Coach';
+            }
+            if (hasWorkspaces.includes('mugs-n-dines')) {
+                return 'Restaurant Manager';
+            }
+            if (hasWorkspaces.includes('epitome')) {
+                return 'Real Estate Agent';
+            }
+            
+            // If they have any workspace access but no specific match
+            if (hasWorkspaces.length > 0) {
+                return 'Staff Member';
+            }
+            
+            return 'User';
+        }
+
+        // ===== DETECT ACCOUNT TYPE =====
+        function detectAccountType() {
+            const workspaces = getAccessibleWorkspaces();
+            const count = workspaces.length;
+            
+            if (isAdmin) return { type: 'Administrator', badge: 'badge-rose', icon: 'fa-crown' };
+            if (count >= 5) return { type: 'Enterprise', badge: 'badge-purple', icon: 'fa-building' };
+            if (count >= 3) return { type: 'Professional', badge: 'badge-gold', icon: 'fa-briefcase' };
+            if (count >= 1) return { type: 'Basic', badge: 'badge-info', icon: 'fa-user' };
+            return { type: 'Pending', badge: 'badge-warning', icon: 'fa-clock' };
+        }
+
+        // ===== DETECT BUSINESS NAME =====
+        function detectBusinessName() {
+            // Check if user has a business in brandinn_users
+            if (userProfile.businessName) return userProfile.businessName;
+            
+            // Try to find from brandinn_users data
+            if (userProfile.business) return userProfile.business;
+            
+            // Check if user has a business in subdomains
+            if (userProfile.subdomain) {
+                // Try to get business name from subdomain
+                const subdomainData = userProfile.subdomain;
+                if (typeof subdomainData === 'object' && subdomainData.businessName) {
+                    return subdomainData.businessName;
+                }
+                if (typeof subdomainData === 'string') {
+                    return subdomainData.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                }
+            }
+            
+            // Check workspace-specific business names
+            if (userHasWorkspaceAccess('brandinn')) {
+                // Could be a BrandInn business user
+                return 'BrandInn Business';
+            }
+            
+            if (userHasWorkspaceAccess('mugs-n-dines')) {
+                // Check if they have a restaurant
+                return 'Restaurant Owner';
+            }
+            
+            // Fallback: use email domain or name
+            if (currentUser && currentUser.email) {
+                const domain = currentUser.email.split('@')[1];
+                if (domain && !domain.includes('gmail') && !domain.includes('yahoo') && !domain.includes('outlook')) {
+                    return domain.split('.')[0].toUpperCase();
+                }
+            }
+            
+            return 'Freelancer';
+        }
+
         async function loadProfile(user) {
             showLoading(true);
             try {
@@ -604,13 +880,12 @@
                 const permSnap = await database.ref(`workspacePermissions/${user.uid}`).once('value');
                 userPermissions = permSnap.exists() ? permSnap.val() : {};
 
-                // Load user data
+                // Load user data from brandinn_users
                 const snap = await database.ref(`brandinn_users/${user.uid}`).once('value');
                 userProfile = snap.exists() ? snap.val() : {
                     name: user.displayName || user.email?.split('@')[0] || 'User',
                     email: user.email,
                     phone: '',
-                    businessName: '',
                     location: 'Nairobi, Kenya',
                     joinedAt: Date.now()
                 };
@@ -618,7 +893,18 @@
                     await database.ref(`brandinn_users/${user.uid}`).set(userProfile);
                 }
                 
-                updateProfileUI();
+                // Detect role and account type
+                userRole = detectUserRole(user.uid);
+                const accountType = detectAccountType();
+                const businessName = detectBusinessName();
+                
+                // Store business name in profile if not set
+                if (!userProfile.businessName && businessName && businessName !== 'Freelancer') {
+                    userProfile.businessName = businessName;
+                    await database.ref(`brandinn_users/${user.uid}/businessName`).set(businessName);
+                }
+                
+                updateProfileUI(userRole, accountType, businessName);
 
                 // Check if user has any workspace access
                 const hasAccess = isAdmin || Object.keys(userPermissions).some(k => userPermissions[k] === true);
@@ -646,8 +932,10 @@
             }
         }
 
-        function updateProfileUI() {
+        function updateProfileUI(role, accountType, businessName) {
             const name = userProfile.name || 'User';
+            
+            // Header
             document.getElementById('profileName').textContent = name;
             document.getElementById('profileEmail').textContent = currentUser?.email || '';
             document.getElementById('profileAvatar').textContent = name.charAt(0).toUpperCase();
@@ -655,26 +943,43 @@
             document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
             document.getElementById('profilePhone').textContent = userProfile.phone || '—';
             document.getElementById('profileLocation').textContent = userProfile.location || 'Nairobi, Kenya';
-            document.getElementById('profileBusiness').textContent = userProfile.businessName || '—';
+            document.getElementById('profileBusiness').textContent = businessName || '—';
             document.getElementById('profileJoined').textContent = userProfile.joinedAt ? new Date(userProfile.joinedAt).toLocaleDateString('en-US',{month:'long',year:'numeric'}) : 'Recently';
+            document.getElementById('profileRole').textContent = role || '—';
             
+            // Account type badge
+            const badge = document.getElementById('accountTypeBadge');
+            if (accountType) {
+                badge.textContent = accountType.type.toUpperCase();
+                badge.className = `badge ${accountType.badge}`;
+            }
+            
+            // Contact section
             document.getElementById('contactEmail').textContent = currentUser?.email || '—';
             document.getElementById('contactPhone').textContent = userProfile.phone || '—';
             document.getElementById('contactLocation').textContent = userProfile.location || 'Nairobi, Kenya';
-            document.getElementById('contactBusiness').textContent = userProfile.businessName || '—';
+            document.getElementById('contactBusiness').textContent = businessName || '—';
+            document.getElementById('contactRole').textContent = role || '—';
             document.getElementById('memberSince').textContent = userProfile.joinedAt ? new Date(userProfile.joinedAt).toLocaleDateString('en-US',{month:'long',year:'numeric'}) : 'Recently';
+            document.getElementById('accountTypeDisplay').textContent = accountType ? accountType.type.toUpperCase() : 'PROFESSIONAL';
+            document.getElementById('userIdDisplay').textContent = currentUser?.uid || '—';
             
             // Settings form
             document.getElementById('settingsName').value = name;
             document.getElementById('settingsEmail').value = currentUser?.email || '';
             document.getElementById('settingsPhone').value = userProfile.phone || '';
-            document.getElementById('settingsBusiness').value = userProfile.businessName || '';
+            document.getElementById('settingsBusiness').value = businessName || '—';
             document.getElementById('settingsLocation').value = userProfile.location || '';
+            document.getElementById('settingsAccountType').value = accountType ? accountType.type.toUpperCase() : 'PROFESSIONAL';
             
-            // Edit modal
+            // Edit modal auto-detected info
+            document.getElementById('editBusinessDisplay').textContent = businessName || '—';
+            document.getElementById('editAccountTypeDisplay').textContent = accountType ? accountType.type.toUpperCase() : 'PROFESSIONAL';
+            document.getElementById('editRoleDisplay').textContent = role || '—';
+            
+            // Edit modal fields
             document.getElementById('editName').value = name;
             document.getElementById('editPhone').value = userProfile.phone || '';
-            document.getElementById('editBusiness').value = userProfile.businessName || '';
             document.getElementById('editLocation').value = userProfile.location || '';
         }
 
@@ -817,6 +1122,13 @@
         }
 
         window.openEditModal = function() {
+            // Refresh auto-detected info in modal
+            const accountType = detectAccountType();
+            const businessName = detectBusinessName();
+            document.getElementById('editBusinessDisplay').textContent = businessName || '—';
+            document.getElementById('editAccountTypeDisplay').textContent = accountType ? accountType.type.toUpperCase() : 'PROFESSIONAL';
+            document.getElementById('editRoleDisplay').textContent = userRole || '—';
+            
             document.getElementById('editModal').classList.add('active');
             document.getElementById('editModalOverlay').classList.add('active');
         };
@@ -831,7 +1143,6 @@
             const updates = {
                 name: document.getElementById('editName').value.trim(),
                 phone: document.getElementById('editPhone').value.trim(),
-                businessName: document.getElementById('editBusiness').value.trim(),
                 location: document.getElementById('editLocation').value.trim(),
                 updatedAt: Date.now()
             };
@@ -839,7 +1150,9 @@
             try {
                 await database.ref(`brandinn_users/${currentUser.uid}`).update(updates);
                 userProfile = {...userProfile, ...updates};
-                updateProfileUI();
+                const accountType = detectAccountType();
+                const businessName = detectBusinessName();
+                updateProfileUI(userRole, accountType, businessName);
                 showToast('Profile updated successfully!', 'success');
                 closeEditModal();
             } catch(e) {
@@ -853,7 +1166,6 @@
             e.preventDefault();
             const updates = {
                 phone: document.getElementById('settingsPhone').value.trim(),
-                businessName: document.getElementById('settingsBusiness').value.trim(),
                 location: document.getElementById('settingsLocation').value.trim(),
                 updatedAt: Date.now()
             };
@@ -861,7 +1173,9 @@
             try {
                 await database.ref(`brandinn_users/${currentUser.uid}`).update(updates);
                 userProfile = {...userProfile, ...updates};
-                updateProfileUI();
+                const accountType = detectAccountType();
+                const businessName = detectBusinessName();
+                updateProfileUI(userRole, accountType, businessName);
                 showToast('Settings saved!', 'success');
             } catch(e) {
                 showToast('Error saving settings', 'error');
@@ -872,7 +1186,6 @@
 
         window.resetSettings = function() {
             document.getElementById('settingsPhone').value = userProfile.phone || '';
-            document.getElementById('settingsBusiness').value = userProfile.businessName || '';
             document.getElementById('settingsLocation').value = userProfile.location || '';
             showToast('Settings reset', 'info');
         };
