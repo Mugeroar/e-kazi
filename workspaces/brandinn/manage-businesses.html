@@ -189,8 +189,8 @@
         
         .back-btn:hover { background: #f5f0ff; border-color: #7c3aed; color: #7c3aed; }
         
-        .admin-badge {
-            background: linear-gradient(135deg, #f59e0b, #d97706);
+        .user-badge {
+            background: linear-gradient(135deg, #7c3aed, #8b5cf6);
             color: white;
             padding: 0.5rem 1.2rem;
             border-radius: 40px;
@@ -453,7 +453,7 @@
             <i class="fas fa-shield-alt"></i>
         </div>
         <h2>KazInni Workspaces</h2>
-        <p>Admin Access Required</p>
+        <p>Staff Access Required</p>
         <input type="email" id="loginEmail" placeholder="Email address">
         <input type="password" id="loginPassword" placeholder="Password">
         <button class="login-btn" id="loginBtn">
@@ -472,9 +472,9 @@
         </div>
         <div class="nav-right">
             <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i><span>Dashboard</span></a>
-            <div class="admin-badge">
-                <i class="fas fa-crown"></i>
-                <span id="adminName">Admin</span>
+            <div class="user-badge">
+                <i class="fas fa-user"></i>
+                <span id="userName">Staff</span>
             </div>
             <button class="logout-btn" id="logoutBtn">
                 <i class="fas fa-sign-out-alt"></i> Logout
@@ -617,7 +617,6 @@
     let filteredBusinesses = [];
     let currentEditingBusiness = null;
     let currentEditingUid = null;
-    let isAdmin = false;
 
     // DOM Elements
     const loginOverlay = document.getElementById('loginOverlay');
@@ -627,7 +626,7 @@
     const loginEmail = document.getElementById('loginEmail');
     const loginPassword = document.getElementById('loginPassword');
     const loginError = document.getElementById('loginError');
-    const adminNameEl = document.getElementById('adminName');
+    const userNameEl = document.getElementById('userName');
     const tableBody = document.getElementById('tableBody');
     const emptyState = document.getElementById('emptyState');
     const resultsCount = document.getElementById('resultsCount');
@@ -653,18 +652,6 @@
     function escapeHtml(str) {
         if (!str) return '';
         return String(str).replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : m === '>' ? '&gt;' : m);
-    }
-
-    // Check if user is admin
-    async function checkAdminStatus(uid) {
-        try {
-            const adminRef = ref(db, `admins/${uid}`);
-            const snapshot = await get(adminRef);
-            return snapshot.exists() && snapshot.val() === true;
-        } catch (error) {
-            console.error("Error checking admin status:", error);
-            return false;
-        }
     }
 
     function filterBusinesses() {
@@ -1165,7 +1152,7 @@
                 ...businessData, 
                 pageData, 
                 updatedAt: Date.now(), 
-                updatedBy: adminNameEl.textContent 
+                updatedBy: userNameEl.textContent 
             };
             
             // Update brandinn_subdomains
@@ -1225,7 +1212,7 @@
     loginPassword.addEventListener('keypress', (e) => { if (e.key === 'Enter') loginBtn.click(); });
     loginEmail.addEventListener('keypress', (e) => { if (e.key === 'Enter') loginBtn.click(); });
 
-    // Logout - redirect to kazinni.vercel.app
+    // Logout
     logoutBtn.addEventListener('click', async () => {
         try {
             await signOut(auth);
@@ -1235,7 +1222,7 @@
         }
     });
 
-    // Auth State Listener with Admin Check
+    // Auth State Listener - NO ADMIN CHECK, just staff authentication
     onAuthStateChanged(auth, async (user) => {
         if (!user) {
             // User not signed in - redirect to kazinni.vercel.app
@@ -1243,18 +1230,8 @@
             return;
         }
         
-        // Check if user is admin
-        isAdmin = await checkAdminStatus(user.uid);
-        
-        if (!isAdmin) {
-            showToast('Access denied. Admin privileges required.', 'error');
-            await signOut(auth);
-            window.location.href = 'https://kazinni.vercel.app';
-            return;
-        }
-        
-        // Admin confirmed - show dashboard
-        adminNameEl.textContent = user.email?.split('@')[0] || 'Admin';
+        // Any authenticated user can access - no admin check
+        userNameEl.textContent = user.email?.split('@')[0] || 'Staff';
         loginOverlay.style.display = 'none';
         dashboardMain.style.display = 'block';
         loginBtn.disabled = false;
