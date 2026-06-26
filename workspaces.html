@@ -372,7 +372,7 @@
             <nav class="nav-links">
                 <a href="dashboard.html" class="nav-link">Dashboard</a>
                 <a href="profile.html" class="nav-link">Profile</a>
-                <a href="workspaces.html" class="nav-link active">Workspaces</a>
+                <a href="workspaces.html" class="nav-link active">Workspace</a>
                 <a href="resources.html" class="nav-link">Resources</a>
             </nav>
             <div class="user-menu" id="userMenu">
@@ -439,19 +439,19 @@
         let allWorkspaces = [];
         let filteredWorkspaces = [];
 
-        // Default workspace definitions with fallback images
+        // ===== CORRECTED: Only 12 unique workspaces =====
         const DEFAULT_WORKSPACES = {
             'brandinn': { 
                 title: 'BrandInn Business', 
                 icon: 'fa-building', 
-                color: '#8b5cf6', 
+                color: '#4f46e5', 
                 description: 'Business branding & website management platform.',
                 link: '/workspaces/brandinn/index.html'
             },
             'brandinn-print': { 
                 title: 'BrandInn Print', 
                 icon: 'fa-print', 
-                color: '#8b5cf6', 
+                color: '#db2777', 
                 description: 'Print & Merchandise Business Management.',
                 link: '/workspaces/brandinn-print/index.html'
             },
@@ -472,7 +472,7 @@
             'ekazi': { 
                 title: 'E-Kazi Tasks', 
                 icon: 'fa-tasks', 
-                color: '#10b981', 
+                color: '#059669', 
                 description: 'Freelance Task Management.',
                 link: '/workspaces/ekazi/index.html'
             },
@@ -500,7 +500,7 @@
             'heritage-marketplace': { 
                 title: 'Heritage Marketplace', 
                 icon: 'fa-store', 
-                color: '#8b5cf6', 
+                color: '#d97706', 
                 description: 'E-commerce Marketplace.',
                 link: '/workspaces/heritage-marketplace/index.html'
             },
@@ -524,28 +524,18 @@
                 color: '#3b82f6', 
                 description: 'Real Estate & Car Sales.',
                 link: '/workspaces/epitome/index.html'
-            },
-            'latter-logistics': { 
-                title: 'Latter Logistics', 
-                icon: 'fa-ship', 
-                color: '#0d9488', 
-                description: 'Cross-border Logistics.',
-                link: '/workspaces/latter-logistics/index.html'
             }
         };
 
-        // Load user data
+        // ===== FIXED: Load user data =====
         async function loadUserData(user) {
             try {
-                // Check admin status
                 const adminSnap = await database.ref(`admins/${user.uid}`).once('value');
                 isAdmin = adminSnap.val() === true;
 
-                // Load workspace permissions
                 const permSnap = await database.ref(`workspacePermissions/${user.uid}`).once('value');
                 userPermissions = permSnap.exists() ? permSnap.val() : {};
 
-                // Load user profile for display
                 const snap = await database.ref(`brandinn_users/${user.uid}`).once('value');
                 const userData = snap.exists() ? snap.val() : {};
                 const name = userData.name || user.displayName || user.email?.split('@')[0] || 'User';
@@ -553,7 +543,6 @@
                 document.getElementById('userDisplayName').textContent = name;
                 document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
 
-                // If admin, grant all permissions
                 if (isAdmin) {
                     userPermissions.isAdmin = true;
                 }
@@ -569,92 +558,89 @@
             return userPermissions[workspaceId] === true;
         }
 
+        // ===== FIXED: Load workspaces without duplicates =====
         async function loadWorkspaces() {
             try {
-                // Load workspaces from resources/workspaces (where admin adds them)
-                let resourceWorkspaces = [];
+                // 1. Load workspaces from Firebase resources
+                let resourceWorkspaces = {};
                 try {
                     const snap = await database.ref('resources/workspaces').once('value');
-                    const data = snap.val() || {};
-                    resourceWorkspaces = Object.entries(data).map(([id, item]) => ({ 
-                        id, 
-                        ...item,
-                        workspaceId: id
-                    }));
-                    console.log('Loaded workspaces from resources:', resourceWorkspaces.length);
+                    resourceWorkspaces = snap.val() || {};
+                    console.log('Loaded from resources:', Object.keys(resourceWorkspaces).length);
                 } catch(e) {
                     console.warn('Could not load resource workspaces:', e);
                 }
 
-                // Build workspace list from resources or defaults
-                const workspaceList = [];
-                
-                // First, add all workspaces from resources
-                resourceWorkspaces.forEach(rw => {
-                    workspaceList.push({
-                        id: rw.id,
-                        workspaceId: rw.id,
-                        title: rw.title || DEFAULT_WORKSPACES[rw.id]?.title || rw.id,
-                        description: rw.description || DEFAULT_WORKSPACES[rw.id]?.description || '',
-                        link: rw.link || DEFAULT_WORKSPACES[rw.id]?.link || `/workspaces/${rw.id}/index.html`,
-                        icon: rw.icon || DEFAULT_WORKSPACES[rw.id]?.icon || 'fa-building',
-                        color: rw.color || DEFAULT_WORKSPACES[rw.id]?.color || '#ca8a04',
-                        image: rw.image || '', // Image from resource admin
-                        category: rw.category || rw.id
-                    });
-                });
+                // 2. Build the final workspace list (use Set to avoid duplicates)
+                const workspaceMap = new Map();
 
-                // Then add any missing default workspaces
+                // First, add all DEFAULT workspaces (base list)
                 for (const [id, def] of Object.entries(DEFAULT_WORKSPACES)) {
-                    const exists = workspaceList.find(w => w.id === id);
-                    if (!exists) {
-                        workspaceList.push({
+                    workspaceMap.set(id, {
+                        id: id,
+                        workspaceId: id,
+                        title: def.title,
+                        description: def.description,
+                        link: def.link,
+                        icon: def.icon,
+                        color: def.color,
+                        image: '', // Will be overridden if found in resources
+                        category: id
+                    });
+                }
+
+                // Then, OVERRIDE with any resource workspaces (preserves custom images/descriptions)
+                for (const [id, item] of Object.entries(resourceWorkspaces)) {
+                    if (workspaceMap.has(id)) {
+                        // Update existing workspace with resource data (including image)
+                        const existing = workspaceMap.get(id);
+                        workspaceMap.set(id, {
+                            ...existing,
+                            title: item.title || existing.title,
+                            description: item.description || existing.description,
+                            link: item.link || existing.link,
+                            icon: item.icon || existing.icon,
+                            color: item.color || existing.color,
+                            image: item.image || '', // ← This is where the image comes from
+                            category: item.category || existing.category
+                        });
+                    } else {
+                        // Add new workspace from resources (if not in defaults)
+                        workspaceMap.set(id, {
                             id: id,
                             workspaceId: id,
-                            title: def.title,
-                            description: def.description,
-                            link: def.link,
-                            icon: def.icon,
-                            color: def.color,
-                            image: '', // No image if not in resources
-                            category: id
+                            title: item.title || id,
+                            description: item.description || '',
+                            link: item.link || `/workspaces/${id}/index.html`,
+                            icon: item.icon || 'fa-building',
+                            color: item.color || '#ca8a04',
+                            image: item.image || '',
+                            category: item.category || id
                         });
                     }
                 }
 
-                // Filter based on permissions
+                // 3. Convert Map to array
+                const allWorkspaceList = Array.from(workspaceMap.values());
+
+                // 4. Filter based on permissions
                 let accessibleWorkspaces;
                 
                 if (isAdmin || userPermissions.isAdmin === true) {
-                    accessibleWorkspaces = workspaceList;
+                    // Admin sees ALL workspaces (no duplicates)
+                    accessibleWorkspaces = allWorkspaceList;
                 } else {
+                    // Filter by permissions
                     const permissionKeys = Object.keys(userPermissions).filter(k => userPermissions[k] === true);
-                    accessibleWorkspaces = workspaceList.filter(w => 
+                    accessibleWorkspaces = allWorkspaceList.filter(w => 
                         permissionKeys.includes(w.workspaceId || w.id)
                     );
-                    
-                    // Also include any workspaces the user has permission for that aren't in the list
-                    permissionKeys.forEach(permId => {
-                        const exists = accessibleWorkspaces.find(w => (w.workspaceId || w.id) === permId);
-                        if (!exists && DEFAULT_WORKSPACES[permId]) {
-                            const def = DEFAULT_WORKSPACES[permId];
-                            accessibleWorkspaces.push({
-                                id: permId,
-                                workspaceId: permId,
-                                title: def.title,
-                                description: def.description,
-                                link: def.link,
-                                icon: def.icon,
-                                color: def.color,
-                                image: '',
-                                category: permId
-                            });
-                        }
-                    });
                 }
 
                 allWorkspaces = accessibleWorkspaces;
                 filteredWorkspaces = [...allWorkspaces];
+                
+                console.log('Total workspaces displayed:', filteredWorkspaces.length);
                 renderWorkspaces();
                 
             } catch(e) {
@@ -663,6 +649,7 @@
             }
         }
 
+        // ===== FIXED: Render workspaces with proper image handling =====
         function renderWorkspaces() {
             const container = document.getElementById('workspacesContainer');
             document.getElementById('wsCount').textContent = filteredWorkspaces.length;
@@ -690,10 +677,24 @@
                 const hasAccess = userHasWorkspaceAccess(workspaceId);
                 const isLocked = !hasAccess;
                 
-                // Use image from resource if available, otherwise placeholder
-                const imageHtml = w.image ? 
-                    `<img src="${escapeHtml(w.image)}" alt="${escapeHtml(title)}" loading="lazy" onerror="this.style.display='none';this.parentElement.innerHTML='<div class=\\'image-placeholder\\' style=\\'background:linear-gradient(135deg, ${bgColor}, ${bgColor}50); color:${color};\\'><i class=\\'fas ${iconClass}\\'></i></div>';">` : 
-                    `<div class="image-placeholder" style="background:linear-gradient(135deg, ${bgColor}, ${bgColor}50); color:${color};"><i class="fas ${iconClass}"></i></div>`;
+                // ===== FIXED: Better image handling with fallback =====
+                let imageHtml;
+                if (w.image && w.image.trim() !== '') {
+                    imageHtml = `
+                        <img 
+                            src="${escapeHtml(w.image)}" 
+                            alt="${escapeHtml(title)}" 
+                            loading="lazy"
+                            onerror="this.style.display='none';this.parentElement.innerHTML='<div class=\\'image-placeholder\\' style=\\'background:linear-gradient(135deg, ${bgColor}, ${bgColor}50); color:${color};\\'><i class=\\'fas ${iconClass}\\'></i></div>';"
+                        >
+                    `;
+                } else {
+                    imageHtml = `
+                        <div class="image-placeholder" style="background:linear-gradient(135deg, ${bgColor}, ${bgColor}50); color:${color};">
+                            <i class="fas ${iconClass}"></i>
+                        </div>
+                    `;
+                }
 
                 return `
                 <div class="workspace-card ${isLocked ? 'disabled' : ''}" onclick="${hasAccess ? `openWorkspace('${escapeHtml(w.link)}')` : ''}">
@@ -714,6 +715,7 @@
             }).join('');
         }
 
+        // ===== FILTER FUNCTIONS =====
         window.filterWorkspaces = function() {
             const query = document.getElementById('searchInput').value.trim().toLowerCase();
             const clearBtn = document.getElementById('searchClear');
@@ -721,68 +723,26 @@
             
             if (query) {
                 clearBtn.classList.add('visible');
-                const results = filteredWorkspaces.filter(w => {
+                const results = allWorkspaces.filter(w => {
                     const title = w.title || '';
                     const desc = w.description || '';
                     return title.toLowerCase().includes(query) || desc.toLowerCase().includes(query);
                 });
                 
-                if (results.length !== filteredWorkspaces.length) {
-                    countEl.innerHTML = `Showing <strong>${results.length}</strong> of <strong>${filteredWorkspaces.length}</strong> workspaces`;
+                filteredWorkspaces = results;
+                
+                if (results.length !== allWorkspaces.length) {
+                    countEl.innerHTML = `Showing <strong>${results.length}</strong> of <strong>${allWorkspaces.length}</strong> workspaces`;
                     countEl.classList.add('visible');
                 } else {
                     countEl.classList.remove('visible');
                 }
                 
-                // Re-render with filtered results
-                const container = document.getElementById('workspacesContainer');
-                document.getElementById('wsCount').textContent = results.length;
-
-                if (!results.length) {
-                    container.innerHTML = `
-                        <div class="empty-section">
-                            <i class="fas fa-search"></i>
-                            <h3>No Matching Workspaces</h3>
-                            <p>Try adjusting your search terms.</p>
-                        </div>
-                    `;
-                    return;
-                }
-
-                container.innerHTML = results.map(w => {
-                    const workspaceId = w.workspaceId || w.id;
-                    const iconClass = w.icon || 'fa-building';
-                    const color = w.color || '#ca8a04';
-                    const bgColor = `${color}15`;
-                    const title = w.title || workspaceId;
-                    const hasAccess = userHasWorkspaceAccess(workspaceId);
-                    const isLocked = !hasAccess;
-                    
-                    const imageHtml = w.image ? 
-                        `<img src="${escapeHtml(w.image)}" alt="${escapeHtml(title)}" loading="lazy" onerror="this.style.display='none';this.parentElement.innerHTML='<div class=\\'image-placeholder\\' style=\\'background:linear-gradient(135deg, ${bgColor}, ${bgColor}50); color:${color};\\'><i class=\\'fas ${iconClass}\\'></i></div>';">` : 
-                        `<div class="image-placeholder" style="background:linear-gradient(135deg, ${bgColor}, ${bgColor}50); color:${color};"><i class="fas ${iconClass}"></i></div>`;
-
-                    return `
-                    <div class="workspace-card ${isLocked ? 'disabled' : ''}" onclick="${hasAccess ? `openWorkspace('${escapeHtml(w.link)}')` : ''}">
-                        <div class="card-image">${imageHtml}</div>
-                        <div class="card-content">
-                            <span class="workspace-badge ${isLocked ? 'locked' : ''}">
-                                <i class="fas ${iconClass}"></i> 
-                                ${isLocked ? '🔒 Locked' : 'Workspace'}
-                            </span>
-                            <h3 class="card-title">${escapeHtml(title)}</h3>
-                            <p class="card-description">${escapeHtml(w.description || 'Access this workspace to manage your operations.')}</p>
-                            <span class="card-link ${isLocked ? 'locked' : ''}">
-                                ${isLocked ? 'No Access' : 'Launch Workspace'}
-                                <i class="fas ${isLocked ? 'fa-lock' : 'fa-arrow-right'}"></i>
-                            </span>
-                        </div>
-                    </div>`;
-                }).join('');
-                
+                renderWorkspaces();
             } else {
                 clearBtn.classList.remove('visible');
                 countEl.classList.remove('visible');
+                filteredWorkspaces = [...allWorkspaces];
                 renderWorkspaces();
             }
         };
@@ -791,6 +751,7 @@
             document.getElementById('searchInput').value = '';
             document.getElementById('searchClear').classList.remove('visible');
             document.getElementById('searchCount').classList.remove('visible');
+            filteredWorkspaces = [...allWorkspaces];
             renderWorkspaces();
         };
 
