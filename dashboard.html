@@ -247,12 +247,12 @@
 
     <main class="main-content">
         <div id="dashboardContent">
-            <!-- Access Denied Banner (hidden by default) -->
+            <!-- Access Denied Banner -->
             <div class="access-denied" id="accessDenied" style="display:none;">
                 <i class="fas fa-lock"></i>
                 <h2>No Workspace Access</h2>
                 <p>You don't have permission to view any workspace data. Contact your administrator to request access.</p>
-                <button class="btn btn-primary" onclick="window.location.href='workspaces.html'" style="margin-top:1rem; background:var(--gold-gradient); color:white; border:none; border-radius:50px; padding:0.7rem 2rem; font-weight:600; cursor:pointer; font-family:var(--font-heading);">
+                <button onclick="window.location.href='workspaces.html'" style="margin-top:1rem; background:var(--gold-gradient); color:white; border:none; border-radius:50px; padding:0.7rem 2rem; font-weight:600; cursor:pointer; font-family:var(--font-heading);">
                     <i class="fas fa-arrow-right"></i> View Workspaces
                 </button>
             </div>
@@ -368,25 +368,125 @@
         let ordersChart = null, distributionChart = null;
         let overviewMap = null, mapMarkers = [];
 
-        // Workspace definitions with their permission keys
+        // ⚠️ FIXED: Workspace IDs MUST match workspacePermission keys
         const WORKSPACE_CONFIG = {
-            'fusion-foods': { name: 'Fusion Foods', desc: 'Food & Grocery Supply', icon: 'fa-utensils', color: '#10b981', bgColor: '#ecfdf5', link: '/workspaces/fusion-foods/index.html', paths: ['fusion_foods_orders', 'fusion_foods_products', 'fusion_foods_stores'] },
-            'dsog': { name: 'DSOG Fashion', desc: 'Fashion & Apparel', icon: 'fa-tshirt', color: '#ec4899', bgColor: '#fdf2f8', link: '/workspaces/dsog-fashion/index.html', paths: ['dsog_fashion_orders', 'dsog_fashion_franchisees'] },
-            'heritage': { name: 'Heritage Ads', desc: 'Outdoor Advertising', icon: 'fa-landmark', color: '#d946ef', bgColor: '#faf5ff', link: '/workspaces/heritage/index.html', paths: ['heritage_listings', 'heritage_partners'] },
-            'brandinn': { name: 'BrandInn Print', desc: 'Print & Merchandise', icon: 'fa-print', color: '#8b5cf6', bgColor: '#f5f3ff', link: '/workspaces/brandinn/index.html', paths: ['brandinn_print_orders', 'iam_mugera_registrations', 'brandinn_franchises'] },
-            'heritage-marketplace': { name: 'Heritage Mkt', desc: 'WhatsApp Marketplace', icon: 'fa-store', color: '#d97706', bgColor: '#fffbeb', link: '/workspaces/heritage-marketplace/index.html', paths: ['heritage_orders', 'heritage_products'] },
-            'pick-up': { name: 'Pick-Up Deliveries', desc: 'Delivery Management', icon: 'fa-truck-fast', color: '#f59e0b', bgColor: '#fffbeb', link: '/workspaces/pick-up/index.html', paths: ['pickup_deliveries'] },
-            'pick-me': { name: 'Pick-Me Rides', desc: 'Ride-hailing', icon: 'fa-taxi', color: '#06b6d4', bgColor: '#ecfeff', link: '/workspaces/pick-me/index.html', paths: ['pickme_rides'] },
-            'ekazi': { name: 'E-Kazi Tasks', desc: 'Freelance Task Management', icon: 'fa-tasks', color: '#10b981', bgColor: '#ecfdf5', link: '/workspaces/ekazi/index.html', paths: ['ekazi_assigned_tasks'] },
-            'mugs-n-dines': { name: 'Mugs n Dines', desc: 'Restaurant Management', icon: 'fa-utensil-spoon', color: '#ef4444', bgColor: '#fef2f2', link: '/workspaces/mugs-n-dines/index.html', paths: ['mugs_n_dines_orders'] },
-            'workfit': { name: 'WorkFit Club', desc: 'Fitness Management', icon: 'fa-dumbbell', color: '#22c55e', bgColor: '#f0fdf4', link: '/workspaces/workfit/index.html', paths: ['workfit_clubs'] },
-            'epitome': { name: 'Epitome Reviews', desc: 'Real Estate & Cars', icon: 'fa-home', color: '#3b82f6', bgColor: '#eff6ff', link: '/workspaces/epitome/index.html', paths: ['epitome_cars', 'epitome_houses'] },
-            'latter-logistics': { name: 'Latter Logistics', desc: 'Cross-border Logistics', icon: 'fa-ship', color: '#0d9488', bgColor: '#f0fdfa', link: '/workspaces/latter-logistics/index.html', paths: ['latter_logistics_shipments'] }
+            'fusion-foods': { 
+                name: 'Fusion Foods', 
+                desc: 'Food & Grocery Supply', 
+                icon: 'fa-utensils', 
+                color: '#10b981', 
+                bgColor: '#ecfdf5', 
+                link: '/workspaces/fusion-foods/index.html', 
+                paths: ['fusion_foods_orders', 'fusion_foods_products', 'fusion_foods_stores'] 
+            },
+            'dsog': { 
+                name: 'DSOG Fashion', 
+                desc: 'Fashion & Apparel', 
+                icon: 'fa-tshirt', 
+                color: '#ec4899', 
+                bgColor: '#fdf2f8', 
+                link: '/workspaces/dsog/index.html', 
+                paths: ['dsog_fashion_orders', 'dsog_fashion_franchisees'] 
+            },
+            'heritage': { 
+                name: 'Heritage Ads', 
+                desc: 'Outdoor Advertising', 
+                icon: 'fa-landmark', 
+                color: '#d946ef', 
+                bgColor: '#faf5ff', 
+                link: '/workspaces/heritage/index.html', 
+                paths: ['heritage_listings', 'heritage_partners'] 
+            },
+            'brandinn-print': { 
+                name: 'BrandInn Print', 
+                desc: 'Print & Merchandise', 
+                icon: 'fa-print', 
+                color: '#8b5cf6', 
+                bgColor: '#f5f3ff', 
+                link: '/workspaces/brandinn-print/index.html', 
+                paths: ['brandinn_print_orders'] 
+            },
+            'heritage-marketplace': { 
+                name: 'Heritage Mkt', 
+                desc: 'WhatsApp Marketplace', 
+                icon: 'fa-store', 
+                color: '#d97706', 
+                bgColor: '#fffbeb', 
+                link: '/workspaces/heritage-marketplace/index.html', 
+                paths: ['heritage_orders', 'heritage_products'] 
+            },
+            'pick-up': { 
+                name: 'Pick-Up Deliveries', 
+                desc: 'Delivery Management', 
+                icon: 'fa-truck-fast', 
+                color: '#f59e0b', 
+                bgColor: '#fffbeb', 
+                link: '/workspaces/pick-up/index.html', 
+                paths: ['pickup_deliveries'] 
+            },
+            'pick-me': { 
+                name: 'Pick-Me Rides', 
+                desc: 'Ride-hailing', 
+                icon: 'fa-taxi', 
+                color: '#06b6d4', 
+                bgColor: '#ecfeff', 
+                link: '/workspaces/pick-me/index.html', 
+                paths: ['pickme_rides'] 
+            },
+            'ekazi': { 
+                name: 'E-Kazi Tasks', 
+                desc: 'Freelance Task Management', 
+                icon: 'fa-tasks', 
+                color: '#10b981', 
+                bgColor: '#ecfdf5', 
+                link: '/workspaces/ekazi/index.html', 
+                paths: ['ekazi_assigned_tasks'] 
+            },
+            'mugs-n-dines': { 
+                name: 'Mugs n Dines', 
+                desc: 'Restaurant Management', 
+                icon: 'fa-utensil-spoon', 
+                color: '#ef4444', 
+                bgColor: '#fef2f2', 
+                link: '/workspaces/mugs-n-dines/index.html', 
+                paths: ['mugs_n_dines_orders'] 
+            },
+            'workfit': { 
+                name: 'WorkFit Club', 
+                desc: 'Fitness Management', 
+                icon: 'fa-dumbbell', 
+                color: '#22c55e', 
+                bgColor: '#f0fdf4', 
+                link: '/workspaces/workfit/index.html', 
+                paths: ['workfit_clubs'] 
+            },
+            'epitome': { 
+                name: 'Epitome Reviews', 
+                desc: 'Real Estate & Cars', 
+                icon: 'fa-home', 
+                color: '#3b82f6', 
+                bgColor: '#eff6ff', 
+                link: '/workspaces/epitome/index.html', 
+                paths: ['epitome_cars', 'epitome_houses'] 
+            },
+            'latter-logistics': { 
+                name: 'Latter Logistics', 
+                desc: 'Cross-border Logistics', 
+                icon: 'fa-ship', 
+                color: '#0d9488', 
+                bgColor: '#f0fdfa', 
+                link: '/workspaces/latter-logistics/index.html', 
+                paths: ['latter_logistics_shipments'] 
+            }
         };
 
         auth.onAuthStateChanged(async (user) => {
-            if (user) { currentUser = user; await initializeDashboard(user); }
-            else { window.location.href = 'index.html'; }
+            if (user) { 
+                currentUser = user; 
+                await initializeDashboard(user); 
+            } else { 
+                window.location.href = 'index.html'; 
+            }
         });
 
         async function initializeDashboard(user) {
@@ -406,7 +506,6 @@
                 const businessName = userData.businessName || '';
                 
                 updateUserInterface(userName, businessName);
-                initOverviewMap();
                 
                 // Check if user has any workspace access
                 const hasAccess = isAdmin || Object.keys(userPermissions).some(k => userPermissions[k] === true);
@@ -418,11 +517,13 @@
                     document.getElementById('activityCard').style.display = 'none';
                     document.getElementById('workspaceCard').style.display = 'none';
                     document.getElementById('mapCard').style.display = 'none';
+                    document.getElementById('healthDots').innerHTML = '<span style="color:var(--text-muted);font-size:0.7rem;">No access</span>';
                     showToast('No workspace access - please request permissions', 'info');
                     return;
                 }
 
                 document.getElementById('accessDenied').style.display = 'none';
+                initOverviewMap();
                 await loadAllData();
                 await checkWorkspaceHealth();
                 setupLiveListeners();
@@ -460,8 +561,6 @@
         async function checkWorkspaceHealth() {
             const accessibleWorkspaces = getAccessibleWorkspaces();
             const dotElements = document.getElementById('healthDots').querySelectorAll('.health-dot');
-            
-            // Only show dots for accessible workspaces
             const workspaceNames = accessibleWorkspaces.map(w => w.name);
             let healthyCount = 0;
 
@@ -491,7 +590,6 @@
                 }
             }
 
-            // Update status
             const statusIcon = document.getElementById('statusIndicatorIcon');
             const statusMain = document.getElementById('statusMainText');
             const statusSub = document.getElementById('statusSubText');
@@ -519,8 +617,23 @@
         }
 
         function initOverviewMap() {
-            if (overviewMap) { overviewMap.remove(); mapMarkers = []; }
-            overviewMap = L.map('overviewMap', { center: [-1.2864, 36.8172], zoom: 12, zoomControl: false, attributionControl: false, dragging: false, scrollWheelZoom: false, doubleClickZoom: false, touchZoom: false });
+            try {
+                if (overviewMap) { 
+                    overviewMap.off(); 
+                    overviewMap.remove(); 
+                }
+            } catch(e) {}
+            mapMarkers = [];
+            overviewMap = L.map('overviewMap', { 
+                center: [-1.2864, 36.8172], 
+                zoom: 12, 
+                zoomControl: false, 
+                attributionControl: false, 
+                dragging: false, 
+                scrollWheelZoom: false, 
+                doubleClickZoom: false, 
+                touchZoom: false 
+            });
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(overviewMap);
         }
 
@@ -535,10 +648,8 @@
             let totalOrders = 0, totalProducts = 0, totalClients = 0;
             const activities = [];
             const workspaceStats = {};
-            const accessibleWorkspaceNames = accessibleWorkspaces.map(w => w.name);
             const businesses = [];
 
-            // Only load data from accessible workspaces
             for (const ws of accessibleWorkspaces) {
                 let orderCount = 0;
                 let productCount = 0;
@@ -550,31 +661,32 @@
                         const data = snap.val() || {};
                         const count = Object.keys(data).length;
                         
-                        if (path.includes('orders') || path.includes('listings') || path.includes('shipments')) {
+                        if (path.includes('orders') || path.includes('listings') || path.includes('shipments') || path.includes('rides')) {
                             orderCount += count;
                             totalOrders += count;
                             
                             // Get recent activities
-                            Object.entries(data).sort((a,b) => (b[1].createdAt||0) - (a[1].createdAt||0)).slice(0,2).forEach(([id, item]) => {
-                                const name = item.restaurantName || item.customerName || item.businessName || 'Customer';
+                            const entries = Object.entries(data).sort((a,b) => (b[1].createdAt||0) - (a[1].createdAt||0)).slice(0,2);
+                            entries.forEach(([id, item]) => {
+                                const name = item.restaurantName || item.customerName || item.businessName || item.passengerName || 'Customer';
+                                const orderTotal = item.total || item.fare || 0;
                                 activities.push({
                                     icon: ws.icon,
                                     iconBg: ws.bgColor,
                                     iconColor: ws.color,
                                     title: `${name} · ${path.replace(/_/g,' ')}`,
-                                    meta: `#${id.slice(-6)} · KES ${(item.total || 0).toLocaleString()}`,
-                                    time: getTimeAgo(item.createdAt),
+                                    meta: `#${id.slice(-6)} · KES ${orderTotal.toLocaleString()}`,
+                                    time: getTimeAgo(item.createdAt || item.requestedAt || item.bookingDate),
                                     status: item.status || 'new'
                                 });
                             });
                         } else if (path.includes('products') || path.includes('inventory')) {
                             productCount += count;
                             totalProducts += count;
-                        } else if (path.includes('franchisees') || path.includes('stores') || path.includes('partners') || path.includes('users')) {
+                        } else if (path.includes('franchisees') || path.includes('stores') || path.includes('partners') || path.includes('members')) {
                             clientCount += count;
                             totalClients += count;
                         } else if (path === 'iam_mugera_registrations') {
-                            // BrandInn registrations
                             const bizData = Object.values(data).filter(b => b.operation === 'brandinn' && b.lat && b.lng);
                             businesses.push(...bizData);
                             clientCount += bizData.length;
@@ -585,28 +697,44 @@
                     }
                 }
 
-                workspaceStats[ws.name] = orderCount || productCount || clientCount || 0;
+                const total = orderCount || productCount || clientCount;
+                if (total > 0) {
+                    workspaceStats[ws.name] = orderCount || productCount || clientCount;
+                }
             }
 
-            // Filter activities to only show from accessible workspaces
-            const accessibleActivityIcons = accessibleWorkspaces.map(w => w.icon);
-            const filteredActivities = activities
-                .filter(a => accessibleActivityIcons.includes(a.icon))
-                .sort((a,b) => (b.time || 0) - (a.time || 0))
-                .slice(0,6);
+            // Sort activities by time (newest first)
+            activities.sort((a,b) => (b.time || 0) - (a.time || 0));
+            const filteredActivities = activities.slice(0,6);
 
             renderStats(totalOrders, totalProducts, totalClients, accessibleWorkspaces.length);
             renderCharts(workspaceStats);
             renderActivities(filteredActivities);
             renderWorkspaces(accessibleWorkspaces);
             
-            // Only show BrandInn stats if user has access to BrandInn
-            if (userHasWorkspaceAccess('brandinn')) {
-                const brandinnRegistrations = businesses.length;
-                const brandinnOrders = workspaceStats['BrandInn Print'] || 0;
-                const brandinnFranchises = workspaceStats['BrandInn Print'] || 0; // Approximate
-                renderBrandInnStats(brandinnRegistrations, brandinnOrders, brandinnFranchises);
-                updateMapMarkers(businesses);
+            // BrandInn stats - use correct path
+            if (userHasWorkspaceAccess('brandinn-print')) {
+                try {
+                    const brandinnSnap = await database.ref('brandinn_print_orders').once('value');
+                    const brandinnOrders = Object.keys(brandinnSnap.val() || {}).length;
+                    
+                    const bizSnap = await database.ref('iam_mugera_registrations').once('value');
+                    const bizData = Object.values(bizSnap.val() || {}).filter(b => b.operation === 'brandinn');
+                    const brandinnRegistrations = bizData.length;
+                    
+                    const franchiseSnap = await database.ref('brandinn_franchises').once('value');
+                    const brandinnFranchises = Object.keys(franchiseSnap.val() || {}).length;
+                    
+                    renderBrandInnStats(brandinnRegistrations, brandinnOrders, brandinnFranchises);
+                    updateMapMarkers(bizData);
+                } catch(e) {
+                    console.warn('Error loading BrandInn stats:', e);
+                    document.getElementById('brandinnStats').innerHTML = `
+                        <div class="brandinn-stat-item"><div class="brandinn-stat-value" style="color:#9ca3af;">—</div><div class="brandinn-stat-label">No Data</div></div>
+                        <div class="brandinn-stat-item"><div class="brandinn-stat-value" style="color:#9ca3af;">—</div><div class="brandinn-stat-label">No Data</div></div>
+                        <div class="brandinn-stat-item"><div class="brandinn-stat-value" style="color:#9ca3af;">—</div><div class="brandinn-stat-label">No Data</div></div>
+                    `;
+                }
             } else {
                 document.getElementById('brandinnStats').innerHTML = `
                     <div class="brandinn-stat-item"><div class="brandinn-stat-value" style="color:#9ca3af;">—</div><div class="brandinn-stat-label">No Access</div></div>
@@ -617,18 +745,32 @@
         }
 
         function updateMapMarkers(businesses) {
-            mapMarkers.forEach(m => overviewMap.removeLayer(m)); 
-            mapMarkers = []; 
-            const bounds = [];
-            
-            businesses.forEach(biz => {
-                const color = biz.operation === 'brandinn' ? '#7c3aed' : biz.operation === 'deliveries' ? '#f59e0b' : '#ca8a04';
-                const marker = L.circleMarker([biz.lat, biz.lng], { radius: 5, fillColor: color, color: '#ffffff', weight: 1.5, fillOpacity: 0.8 }).addTo(overviewMap);
-                mapMarkers.push(marker); 
-                bounds.push([biz.lat, biz.lng]);
-            });
-            
-            if (bounds.length > 0) overviewMap.fitBounds(bounds, { padding: [20, 20], maxZoom: 15 });
+            try {
+                mapMarkers.forEach(m => { try { overviewMap.removeLayer(m); } catch(e) {} });
+                mapMarkers = []; 
+                const bounds = [];
+                
+                businesses.forEach(biz => {
+                    if (biz.lat && biz.lng) {
+                        const color = biz.operation === 'brandinn' ? '#7c3aed' : biz.operation === 'deliveries' ? '#f59e0b' : '#ca8a04';
+                        const marker = L.circleMarker([biz.lat, biz.lng], { 
+                            radius: 5, 
+                            fillColor: color, 
+                            color: '#ffffff', 
+                            weight: 1.5, 
+                            fillOpacity: 0.8 
+                        }).addTo(overviewMap);
+                        mapMarkers.push(marker); 
+                        bounds.push([biz.lat, biz.lng]);
+                    }
+                });
+                
+                if (bounds.length > 0) {
+                    overviewMap.fitBounds(bounds, { padding: [20, 20], maxZoom: 15 });
+                }
+            } catch(e) {
+                console.warn('Error updating map:', e);
+            }
         }
 
         function renderStats(orders, products, clients, workspacesCount) {
@@ -641,64 +783,131 @@
         }
 
         function renderCharts(workspaceStats) {
-            if (ordersChart) ordersChart.destroy();
-            if (distributionChart) distributionChart.destroy();
+            try {
+                if (ordersChart) { ordersChart.destroy(); ordersChart = null; }
+                if (distributionChart) { distributionChart.destroy(); distributionChart = null; }
 
-            const entries = Object.entries(workspaceStats).filter(([_, val]) => val > 0);
-            const labels = entries.map(([name]) => name);
-            const data = entries.map(([_, val]) => val);
-            
-            const colors = {
-                'Fusion Foods': '#10b981',
-                'DSOG Fashion': '#ec4899',
-                'Heritage Ads': '#d946ef',
-                'BrandInn Print': '#8b5cf6',
-                'Heritage Mkt': '#d97706',
-                'Pick-Up Deliveries': '#f59e0b',
-                'Pick-Me Rides': '#06b6d4',
-                'E-Kazi Tasks': '#10b981',
-                'Mugs n Dines': '#ef4444',
-                'WorkFit Club': '#22c55e',
-                'Epitome Reviews': '#3b82f6',
-                'Latter Logistics': '#0d9488'
-            };
+                const entries = Object.entries(workspaceStats).filter(([_, val]) => val > 0);
+                const labels = entries.map(([name]) => name);
+                const data = entries.map(([_, val]) => val);
+                
+                const colors = {
+                    'Fusion Foods': '#10b981',
+                    'DSOG Fashion': '#ec4899',
+                    'Heritage Ads': '#d946ef',
+                    'BrandInn Print': '#8b5cf6',
+                    'Heritage Mkt': '#d97706',
+                    'Pick-Up Deliveries': '#f59e0b',
+                    'Pick-Me Rides': '#06b6d4',
+                    'E-Kazi Tasks': '#10b981',
+                    'Mugs n Dines': '#ef4444',
+                    'WorkFit Club': '#22c55e',
+                    'Epitome Reviews': '#3b82f6',
+                    'Latter Logistics': '#0d9488'
+                };
 
-            const chartColors = labels.map(l => colors[l] || '#ca8a04');
+                const chartColors = labels.map(l => colors[l] || '#ca8a04');
 
-            if (labels.length === 0) {
-                document.getElementById('ordersChart').getContext('2d').clearRect(0, 0, 100, 100);
-                document.getElementById('distributionChart').getContext('2d').clearRect(0, 0, 100, 100);
-                return;
+                if (labels.length === 0) {
+                    const ctx1 = document.getElementById('ordersChart').getContext('2d');
+                    ctx1.clearRect(0, 0, 100, 100);
+                    const ctx2 = document.getElementById('distributionChart').getContext('2d');
+                    ctx2.clearRect(0, 0, 100, 100);
+                    return;
+                }
+
+                const ctx1 = document.getElementById('ordersChart').getContext('2d');
+                ordersChart = new Chart(ctx1, {
+                    type: 'bar', 
+                    data: { 
+                        labels, 
+                        datasets: [{ 
+                            data, 
+                            backgroundColor: chartColors.map(c=>c+'99'), 
+                            borderColor: chartColors, 
+                            borderWidth: 2, 
+                            borderRadius: 8 
+                        }] 
+                    },
+                    options: { 
+                        responsive: true, 
+                        maintainAspectRatio: false, 
+                        plugins: { legend: { display: false } }, 
+                        scales: {
+                            y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 10 } }, grid: { color: '#f3f4f6' } },
+                            x: { grid: { display: false }, ticks: { font: { size: 9 } } }
+                        }
+                    }
+                });
+
+                const ctx2 = document.getElementById('distributionChart').getContext('2d');
+                distributionChart = new Chart(ctx2, {
+                    type: 'doughnut', 
+                    data: { 
+                        labels, 
+                        datasets: [{ 
+                            data, 
+                            backgroundColor: chartColors, 
+                            borderWidth: 2, 
+                            borderColor: '#ffffff' 
+                        }] 
+                    },
+                    options: { 
+                        responsive: true, 
+                        maintainAspectRatio: false, 
+                        plugins: { 
+                            legend: { 
+                                position: 'bottom', 
+                                labels: { padding: 12, usePointStyle: true, font: { size: 9 } } 
+                            } 
+                        } 
+                    }
+                });
+            } catch(e) {
+                console.warn('Error rendering charts:', e);
             }
-
-            const ctx1 = document.getElementById('ordersChart').getContext('2d');
-            ordersChart = new Chart(ctx1, {
-                type: 'bar', 
-                data: { labels, datasets: [{ data, backgroundColor: chartColors.map(c=>c+'99'), borderColor: chartColors, borderWidth:2, borderRadius:8 }] },
-                options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true,ticks:{stepSize:1,font:{size:10}},grid:{color:'#f3f4f6'}},x:{grid:{display:false},ticks:{font:{size:9}}}} }
-            });
-
-            const ctx2 = document.getElementById('distributionChart').getContext('2d');
-            distributionChart = new Chart(ctx2, {
-                type: 'doughnut', 
-                data: { labels, datasets: [{ data, backgroundColor: chartColors, borderWidth:2, borderColor:'#ffffff' }] },
-                options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom',labels:{padding:12,usePointStyle:true,font:{size:9}}}} }
-            });
         }
 
         function renderActivities(activities) {
             const container = document.getElementById('activityList');
-            if (!activities.length) { container.innerHTML = '<div style="text-align:center;padding:1.5rem;color:var(--text-muted);"><i class="fas fa-clock"></i><p>No recent activity</p></div>'; return; }
+            if (!activities || activities.length === 0) { 
+                container.innerHTML = '<div style="text-align:center;padding:1.5rem;color:var(--text-muted);"><i class="fas fa-clock"></i><p>No recent activity</p></div>'; 
+                return; 
+            }
             container.innerHTML = activities.map(a => {
-                const sb = a.status==='delivered'?'badge-success':a.status==='shipped'?'badge-purple':a.status==='processing'?'badge-info':'badge-warning';
-                return `<div class="activity-item"><div class="activity-icon" style="background:${a.iconBg};color:${a.iconColor};"><i class="fas ${a.icon}"></i></div><div class="activity-content"><div class="activity-title">${escapeHtml(a.title)}</div><div class="activity-meta">${escapeHtml(a.meta)}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:0.2rem;"><span class="badge ${sb}">${(a.status||'new').replace(/-/g,' ')}</span><span class="activity-time">${a.time}</span></div></div>`;
+                const sb = a.status === 'delivered' ? 'badge-success' : 
+                           a.status === 'shipped' ? 'badge-purple' : 
+                           a.status === 'processing' ? 'badge-info' : 'badge-warning';
+                return `<div class="activity-item">
+                    <div class="activity-icon" style="background:${a.iconBg};color:${a.iconColor};"><i class="fas ${a.icon}"></i></div>
+                    <div class="activity-content">
+                        <div class="activity-title">${escapeHtml(a.title)}</div>
+                        <div class="activity-meta">${escapeHtml(a.meta)}</div>
+                    </div>
+                    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:0.2rem;">
+                        <span class="badge ${sb}">${(a.status||'new').replace(/-/g,' ')}</span>
+                        <span class="activity-time">${a.time}</span>
+                    </div>
+                </div>`;
             }).join('');
         }
 
         function renderWorkspaces(workspaces) {
             const container = document.getElementById('workspaceList');
-            if (!workspaces.length) { container.innerHTML = '<div style="text-align:center;padding:1.5rem;color:var(--text-muted);"><i class="fas fa-cubes"></i><p>No workspaces accessible</p></div>'; return; }
-            container.innerHTML = workspaces.map(w => `<a href="${w.link}" class="workspace-card"><div class="workspace-icon" style="background:${w.bgColor};color:${w.color};"><i class="fas ${w.icon}"></i></div><div class="workspace-info"><div class="workspace-name">${w.name}</div><div class="workspace-desc">${w.desc}</div></div><div class="workspace-stat"><span class="number">✓</span><div class="label">Access</div></div></a>`).join('');
+            if (!workspaces || workspaces.length === 0) { 
+                container.innerHTML = '<div style="text-align:center;padding:1.5rem;color:var(--text-muted);"><i class="fas fa-cubes"></i><p>No workspaces accessible</p></div>'; 
+                return; 
+            }
+            container.innerHTML = workspaces.map(w => `
+                <a href="${w.link}" class="workspace-card">
+                    <div class="workspace-icon" style="background:${w.bgColor};color:${w.color};"><i class="fas ${w.icon}"></i></div>
+                    <div class="workspace-info">
+                        <div class="workspace-name">${w.name}</div>
+                        <div class="workspace-desc">${w.desc}</div>
+                    </div>
+                    <div class="workspace-stat"><span class="number">✓</span><div class="label">Access</div></div>
+                </a>
+            `).join('');
         }
 
         function renderBrandInnStats(businesses, orders, franchises) {
@@ -713,7 +922,7 @@
             const accessibleWorkspaces = getAccessibleWorkspaces();
             const paths = [];
             for (const ws of accessibleWorkspaces) {
-                paths.push(...ws.paths);
+                if (ws.paths) paths.push(...ws.paths);
             }
             
             paths.forEach(p => {
@@ -732,23 +941,39 @@
             if (!timestamp) return '';
             const diff = Date.now() - new Date(timestamp).getTime();
             const mins = Math.floor(diff/60000), hrs = Math.floor(mins/60), days = Math.floor(hrs/24);
-            if (days>0) return `${days}d ago`; if (hrs>0) return `${hrs}h ago`; if (mins>0) return `${mins}m ago`; return 'Just now';
+            if (days>0) return `${days}d ago`; 
+            if (hrs>0) return `${hrs}h ago`; 
+            if (mins>0) return `${mins}m ago`; 
+            return 'Just now';
         }
         
-        function escapeHtml(t) { const d=document.createElement('div'); d.textContent=t||''; return d.innerHTML; }
+        function escapeHtml(t) { 
+            const d = document.createElement('div'); 
+            d.textContent = t || ''; 
+            return d.innerHTML; 
+        }
         
         function showToast(m, type='info') { 
-            const t=document.createElement('div'); t.className=`toast ${type}`; 
-            t.innerHTML=`<i class="fas fa-${type==='error'?'exclamation-circle':'check-circle'}"></i><span>${escapeHtml(m)}</span>`; 
+            const t = document.createElement('div'); 
+            t.className = `toast ${type}`; 
+            t.innerHTML = `<i class="fas fa-${type==='error'?'exclamation-circle':'check-circle'}"></i><span>${escapeHtml(m)}</span>`; 
             document.getElementById('toastContainer').appendChild(t); 
-            setTimeout(()=>{t.style.opacity='0';t.style.transition='0.3s';setTimeout(()=>t.remove(),300);},3000); 
+            setTimeout(() => {
+                t.style.opacity = '0';
+                t.style.transition = '0.3s';
+                setTimeout(() => t.remove(), 300);
+            }, 3000); 
         }
         
         window.refreshData = async () => { 
-            initOverviewMap(); 
-            await loadAllData(); 
-            await checkWorkspaceHealth(); 
-            showToast('Dashboard refreshed!', 'success'); 
+            try {
+                initOverviewMap(); 
+                await loadAllData(); 
+                await checkWorkspaceHealth(); 
+                showToast('Dashboard refreshed!', 'success');
+            } catch(e) {
+                showToast('Error refreshing dashboard', 'error');
+            }
         };
         
         window.handleLogout = async () => { 
@@ -756,7 +981,7 @@
                 const accessibleWorkspaces = getAccessibleWorkspaces();
                 const paths = [];
                 for (const ws of accessibleWorkspaces) {
-                    paths.push(...ws.paths);
+                    if (ws.paths) paths.push(...ws.paths);
                 }
                 paths.forEach(p => database.ref(p).off()); 
                 await auth.signOut(); 
