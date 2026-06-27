@@ -1,1 +1,492 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Digital services | Agency Dashboard</title>
+  
+  <meta name="theme-color" content="#7c3aed" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  
+  <link rel="icon" type="image/png" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png" />
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet" />
+  
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --primary: #7c3aed;
+      --primary-dark: #5b21b6;
+      --primary-light: #a78bfa;
+      --primary-bg: #f5f0ff;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --info: #3b82f6;
+      --text-primary: #1e293b;
+      --text-muted: #64748b;
+      --border-light: #e9d5ff;
+      --gray-50: #f8fafc;
+      --gray-100: #f1f5f9;
+      --gray-200: #e2e8f0;
+      --gray-300: #cbd5e1;
+      --gray-400: #94a3b8;
+      --gray-500: #64748b;
+      --gray-600: #475569;
+      --gray-700: #334155;
+      --gray-800: #1e293b;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #f8fafc;
+      color: var(--text-primary);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Skeleton Animation */
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+    
+    .skeleton {
+      background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 12px;
+    }
+    .skeleton-stat-card {
+      background: white; border-radius: 20px; padding: 1.2rem;
+      border: 1px solid var(--gray-200); display: flex; align-items: center; justify-content: space-between;
+    }
+    .skeleton-icon { width: 52px; height: 52px; border-radius: 14px; }
+    .skeleton-text { height: 0.9rem; margin-bottom: 0.5rem; }
+    .skeleton-number { height: 1.8rem; width: 40%; }
+    .skeleton-action-card {
+      background: white; border-radius: 16px; padding: 1rem;
+      border: 1px solid var(--gray-200);
+    }
+    .skeleton-action-icon { width: 44px; height: 44px; border-radius: 12px; margin-bottom: 0.8rem; }
+
+    .navbar {
+      background: white;
+      padding: 0.8rem 4%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--gray-200);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+    .logo-img { height: 38px; width: 38px; border-radius: 12px; object-fit: contain; }
+    .logo-text {
+      font-weight: 800; font-size: 1.2rem;
+      color: var(--gray-800);
+    }
+    .logo-text span { font-weight: 600; font-size: 0.75rem; color: var(--primary); margin-left: 5px; }
+
+    .nav-right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .nav-btn {
+      background: transparent; border: none;
+      padding: 0.45rem 1rem; border-radius: 30px; color: var(--gray-600);
+      font-weight: 600; font-size: 0.8rem; cursor: pointer; display: inline-flex;
+      align-items: center; gap: 6px; text-decoration: none; transition: all 0.2s;
+    }
+    .nav-btn:hover { background: var(--gray-100); color: var(--primary); }
+    .nav-btn.active { background: var(--primary); color: white; }
+    .nav-btn.map-btn { background: var(--primary); color: white; }
+
+    .user-badge {
+      display: flex; align-items: center; gap: 10px; background: var(--primary-bg);
+      padding: 0.3rem 1rem 0.3rem 0.7rem; border-radius: 40px;
+    }
+    .user-avatar {
+      width: 36px; height: 36px; background: var(--primary);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      color: white; font-weight: 700; font-size: 0.85rem;
+    }
+    .user-info .user-name { font-weight: 700; font-size: 0.85rem; }
+    .user-info .user-role { font-size: 0.65rem; color: var(--gray-500); }
+
+    .container { max-width: 1400px; margin: 0 auto; padding: 1.5rem 4%; flex: 1; width: 100%; }
+
+    .page-header { margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; }
+    .page-header h1 { font-size: 1.5rem; font-weight: 800; color: var(--gray-800); display: flex; align-items: center; gap: 10px; }
+    .page-header h1 i { color: var(--primary); font-size: 1.3rem; }
+    .page-header p { color: var(--gray-500); font-size: 0.85rem; margin-top: 0.3rem; }
+    .last-updated { font-size: 0.7rem; color: var(--gray-400); margin-left: 10px; }
+
+    /* Stats Grid */
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.8rem; }
+    .stat-card {
+      background: white; border-radius: 20px; padding: 1.2rem;
+      border: 1px solid var(--gray-200); display: flex; align-items: center; justify-content: space-between;
+      transition: all 0.2s;
+    }
+    .stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-color: var(--primary-light); }
+    .stat-left h4 { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--gray-500); margin-bottom: 0.3rem; }
+    .stat-number { font-size: 1.8rem; font-weight: 800; color: var(--gray-800); line-height: 1.2; }
+    .stat-trend { font-size: 0.65rem; margin-top: 4px; display: flex; align-items: center; gap: 4px; color: var(--gray-500); }
+    .stat-icon { width: 52px; height: 52px; background: var(--primary-bg); border-radius: 14px; display: flex; align-items: center; justify-content: center; color: var(--primary); font-size: 1.3rem; }
+
+    /* Action Grid - 8 cards */
+    .action-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.8rem; }
+    @media (min-width: 1200px) { .action-grid { grid-template-columns: repeat(8, 1fr); } }
+    @media (max-width: 1000px) { .action-grid { grid-template-columns: repeat(4, 1fr); } }
+    @media (max-width: 600px) { .action-grid { grid-template-columns: repeat(2, 1fr); } }
+    
+    .action-card {
+      background: white; border-radius: 16px; padding: 1rem;
+      border: 1px solid var(--gray-200); transition: all 0.2s;
+      text-decoration: none; color: inherit; display: block; cursor: pointer;
+      text-align: center;
+    }
+    .action-card:hover { transform: translateY(-3px); box-shadow: 0 6px 16px rgba(0,0,0,0.06); border-color: var(--primary-light); }
+    .action-icon {
+      width: 48px; height: 48px; background: var(--primary-bg);
+      border-radius: 14px; display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 0.8rem auto; color: var(--primary); font-size: 1.3rem;
+    }
+    .action-card h3 { font-size: 0.9rem; font-weight: 700; margin-bottom: 0.3rem; }
+    .action-card p { color: var(--gray-500); font-size: 0.7rem; margin-bottom: 0.6rem; line-height: 1.4; }
+    .action-link { font-size: 0.7rem; font-weight: 600; color: var(--primary); display: inline-flex; align-items: center; gap: 4px; }
+    
+    /* Card variations */
+    .intake-card .action-icon { background: #ecfdf5; color: #10b981; }
+    .task-card .action-icon { background: #eff6ff; color: #3b82f6; }
+    .qa-card .action-icon { background: #fffbeb; color: #d97706; }
+    .all-card .action-icon { background: #f5f0ff; color: #8b5cf6; }
+    .client-card .action-icon { background: #fdf2f8; color: #ec4899; }
+    .staff-card .action-icon { background: #fef3c7; color: #92400e; }
+    .payment-card .action-icon { background: #dbeafe; color: #1e40af; }
+    .template-card .action-icon { background: #f3e8ff; color: #7c3aed; }
+
+    .quick-section {
+      background: white; border-radius: 20px; padding: 1rem 1.2rem;
+      border: 1px solid var(--gray-200); margin-bottom: 1.5rem;
+    }
+    .quick-header { display: flex; align-items: center; gap: 8px; margin-bottom: 0.8rem; font-weight: 700; font-size: 0.85rem; }
+    .quick-header i { color: var(--primary); font-size: 0.9rem; }
+    .quick-links { display: flex; flex-wrap: wrap; gap: 10px; }
+    .quick-btn {
+      background: var(--gray-50); border: 1px solid var(--gray-200); padding: 0.45rem 1rem;
+      border-radius: 30px; color: var(--gray-600); font-weight: 500; font-size: 0.75rem;
+      text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;
+    }
+    .quick-btn i { color: var(--primary); font-size: 0.7rem; }
+    .quick-btn:hover { background: var(--primary); color: white; border-color: var(--primary); }
+    .quick-btn:hover i { color: white; }
+
+    .recent-section { margin-top: 1.2rem; }
+    .recent-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem; }
+    .recent-header h3 { font-size: 0.9rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+    .recent-list { background: white; border-radius: 16px; border: 1px solid var(--gray-200); overflow: hidden; }
+    .recent-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.8rem 1rem; border-bottom: 1px solid var(--gray-100);
+      font-size: 0.8rem; cursor: pointer;
+    }
+    .recent-item:hover { background: var(--gray-50); }
+    .recent-item:last-child { border-bottom: none; }
+    .status-tag {
+      padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.65rem; font-weight: 600;
+      white-space: nowrap;
+    }
+    .status-active { background: #d1fae5; color: #065f46; }
+    .status-pending { background: #fef3c7; color: #92400e; }
+    .status-processing { background: #dbeafe; color: #1e40af; }
+    .status-qa { background: #fef3c7; color: #92400e; }
+    .status-submitted { background: #dbeafe; color: #1e40af; }
+    .status-delivered { background: #d1fae5; color: #065f46; }
+    .status-rejected { background: #fee2e2; color: #991b1b; }
+
+    .empty-state { text-align: center; padding: 2rem; color: var(--gray-400); font-size: 0.8rem; }
+
+    .footer { text-align: center; padding: 1rem; color: var(--gray-400); font-size: 0.7rem; border-top: 1px solid var(--gray-200); margin-top: 1.5rem; }
+
+    @media (max-width: 768px) {
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .action-grid { grid-template-columns: repeat(2, 1fr); }
+      .container { padding: 1rem; }
+      .page-header h1 { font-size: 1.2rem; }
+      .recent-item { flex-wrap: wrap; gap: 8px; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <a href="/workspaces/digital-services/index.html" class="logo">
+      <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png" alt="Digital services" class="logo-img" />
+      <span class="logo-text">Digital services <span>Agency</span></span>
+    </a>
+    <div class="nav-right">
+      <a href="/workspaces/digital-services/map.html" class="nav-btn map-btn"><i class="fas fa-map-marked-alt"></i> Map</a>
+      <div class="user-badge">
+        <div class="user-avatar" id="userAvatar">DS</div>
+        <div class="user-info">
+          <div class="user-name" id="userName">Loading...</div>
+          <div class="user-role">Operations Manager</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="page-header">
+      <div>
+        <h1><i class="fas fa-file-signature"></i> Digital services Dashboard <span class="last-updated" id="lastUpdated"><i class="fas fa-circle"></i> Live</span></h1>
+        <p>Manage government service applications, track staff performance, and monitor client requests</p>
+      </div>
+    </div>
+
+    <!-- STATS GRID -->
+    <div class="stats-grid" id="statsGrid">
+      <!-- Rendered by JavaScript -->
+    </div>
+
+    <!-- ACTION GRID -->
+    <div class="action-grid" id="actionGrid">
+      <!-- Rendered by JavaScript -->
+    </div>
+
+    <!-- QUICK ACTIONS -->
+    <div class="quick-section" id="quickSection">
+      <div class="quick-header"><i class="fas fa-bolt"></i> Quick Actions</div>
+      <div class="quick-links" id="quickLinks">
+        <!-- Rendered by JavaScript -->
+      </div>
+    </div>
+
+    <!-- RECENT APPLICATIONS -->
+    <div class="recent-section">
+      <div class="recent-header"><h3><i class="fas fa-file-alt"></i> Recent Applications</h3><a href="/workspaces/digital-services/applications.html" style="color:var(--primary); font-size:0.7rem;">View all</a></div>
+      <div class="recent-list" id="recentApplications">
+        <!-- Rendered by JavaScript -->
+      </div>
+    </div>
+
+    <!-- STAFF PERFORMANCE -->
+    <div class="recent-section">
+      <div class="recent-header"><h3><i class="fas fa-users-cog"></i> Staff Performance</h3><a href="/workspaces/digital-services/staff.html" style="color:var(--primary); font-size:0.7rem;">View all</a></div>
+      <div class="recent-list" id="staffPerformance">
+        <!-- Rendered by JavaScript -->
+      </div>
+    </div>
+
+    <!-- REVENUE BREAKDOWN -->
+    <div class="recent-section">
+      <div class="recent-header"><h3><i class="fas fa-chart-pie"></i> Revenue Breakdown by Service</h3><a href="/workspaces/digital-services/finance.html" style="color:var(--primary); font-size:0.7rem;">View all</a></div>
+      <div class="recent-list" id="revenueBreakdown">
+        <!-- Rendered by JavaScript -->
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <i class="far fa-copyright"></i> 2026 Digital services Agency · <span id="footerStats">Loading...</span>
+  </div>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "firebase/app": "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js",
+        "firebase/auth": "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js",
+        "firebase/database": "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js"
+      }
+    }
+  </script>
+
+  <script type="module">
+    import { initializeApp } from "firebase/app";
+    import { getAuth, onAuthStateChanged } from "firebase/auth";
+    import { getDatabase, ref, get, onValue } from "firebase/database";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+      authDomain: "mugera-e51cc.firebaseapp.com",
+      databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "mugera-e51cc",
+      storageBucket: "mugera-e51cc.firebasestorage.app",
+      messagingSenderId: "1024868637509",
+      appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    // Sample data (in production, this would come from Firebase)
+    let applicationsData = [
+      { id: 1, clientName: "Grace Muthoni", service: "Passport", assignedStaff: "John K.", status: "processing", priority: "high", date: "2026-06-27" },
+      { id: 2, clientName: "Peter Ochieng", service: "National ID", assignedStaff: "Mary W.", status: "qa", priority: "normal", date: "2026-06-27" },
+      { id: 3, clientName: "Faith Akinyi", service: "KRA PIN", assignedStaff: "Michael O.", status: "submitted", priority: "normal", date: "2026-06-26" },
+      { id: 4, clientName: "James Kariuki", service: "NSSF", assignedStaff: "Grace N.", status: "delivered", priority: "low", date: "2026-06-26" },
+      { id: 5, clientName: "Sarah Wanjiru", service: "HELB", assignedStaff: "John K.", status: "rejected", priority: "high", date: "2026-06-25" },
+    ];
+
+    let staffData = [
+      { name: "John K.", applications: 12, successRate: 95, avgTime: "2.3 hrs", rating: 4.8, bonus: 1500 },
+      { name: "Mary W.", applications: 9, successRate: 88, avgTime: "3.1 hrs", rating: 4.5, bonus: 800 },
+      { name: "Michael O.", applications: 7, successRate: 92, avgTime: "2.7 hrs", rating: 4.7, bonus: 1000 },
+      { name: "Grace N.", applications: 5, successRate: 100, avgTime: "1.9 hrs", rating: 4.9, bonus: 2000 },
+    ];
+
+    let revenueData = [
+      { service: "Passport", applications: 45, revenue: 67500, cost: 15000, profit: 52500 },
+      { service: "National ID", applications: 38, revenue: 38000, cost: 9500, profit: 28500 },
+      { service: "KRA PIN", applications: 52, revenue: 31200, cost: 7800, profit: 23400 },
+      { service: "NSSF", applications: 28, revenue: 16800, cost: 4200, profit: 12600 },
+      { service: "HELB", applications: 15, revenue: 11250, cost: 3000, profit: 8250 },
+    ];
+
+    function getInitials(name) {
+      if (!name) return 'DS';
+      return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : m === '>' ? '&gt;' : m);
+    }
+
+    function getStatusClass(status) {
+      const map = {
+        'active': 'status-active',
+        'pending': 'status-pending',
+        'processing': 'status-processing',
+        'qa': 'status-qa',
+        'submitted': 'status-submitted',
+        'delivered': 'status-delivered',
+        'rejected': 'status-rejected'
+      };
+      return map[status] || 'status-pending';
+    }
+
+    function getPriorityIcon(priority) {
+      if (priority === 'high') return '🔥';
+      if (priority === 'low') return '⏳';
+      return '⏰';
+    }
+
+    function renderDashboard() {
+      const totalApps = applicationsData.length;
+      const activeApps = applicationsData.filter(a => a.status === 'processing' || a.status === 'qa').length;
+      const pendingQA = applicationsData.filter(a => a.status === 'qa').length;
+      const totalRevenue = revenueData.reduce((sum, r) => sum + r.revenue, 0);
+
+      // Stats Grid
+      document.getElementById('statsGrid').innerHTML = `
+        <div class="stat-card"><div class="stat-left"><h4>Total Applications</h4><div class="stat-number">${totalApps}</div><div class="stat-trend"><i class="fas fa-file-alt"></i> All time</div></div><div class="stat-icon"><i class="fas fa-file-alt"></i></div></div>
+        <div class="stat-card"><div class="stat-left"><h4>Active Applications</h4><div class="stat-number">${activeApps}</div><div class="stat-trend"><i class="fas fa-spinner"></i> In progress</div></div><div class="stat-icon"><i class="fas fa-spinner"></i></div></div>
+        <div class="stat-card"><div class="stat-left"><h4>Pending QA Review</h4><div class="stat-number">${pendingQA}</div><div class="stat-trend"><i class="fas fa-check-double"></i> Need approval</div></div><div class="stat-icon"><i class="fas fa-check-double"></i></div></div>
+        <div class="stat-card"><div class="stat-left"><h4>Revenue (This Month)</h4><div class="stat-number">Ksh ${totalRevenue.toLocaleString()}</div><div class="stat-trend"><i class="fas fa-arrow-up"></i> +12% vs last month</div></div><div class="stat-icon"><i class="fas fa-coin"></i></div></div>
+      `;
+
+      // Action Grid
+      document.getElementById('actionGrid').innerHTML = `
+        <a href="/workspaces/digital-services/new-application.html" class="action-card intake-card"><div class="action-icon"><i class="fas fa-plus-circle"></i></div><h3>New Application</h3><p>Register client request</p><span class="action-link">Start →</span></a>
+        <a href="/workspaces/digital-services/my-tasks.html" class="action-card task-card"><div class="action-icon"><i class="fas fa-tasks"></i></div><h3>My Tasks</h3><p>Your assigned apps</p><span class="action-link">View →</span></a>
+        <a href="/workspaces/digital-services/pending-review.html" class="action-card qa-card"><div class="action-icon"><i class="fas fa-clipboard-check"></i></div><h3>Pending Review</h3><p>QA approvals</p><span class="action-link">Review →</span></a>
+        <a href="/workspaces/digital-services/applications.html" class="action-card all-card"><div class="action-icon"><i class="fas fa-list-ul"></i></div><h3>All Applications</h3><p>Full list & filters</p><span class="action-link">Browse →</span></a>
+        <a href="/workspaces/digital-services/clients.html" class="action-card client-card"><div class="action-icon"><i class="fas fa-user-friends"></i></div><h3>Client Management</h3><p>View client profiles</p><span class="action-link">Manage →</span></a>
+        <a href="/workspaces/digital-services/staff.html" class="action-card staff-card"><div class="action-icon"><i class="fas fa-user-tie"></i></div><h3>Staff Management</h3><p>Team & performance</p><span class="action-link">Manage →</span></a>
+        <a href="/workspaces/digital-services/payments.html" class="action-card payment-card"><div class="action-icon"><i class="fas fa-money-bill-wave"></i></div><h3>Payments</h3><p>Invoices & receipts</p><span class="action-link">View →</span></a>
+        <a href="/workspaces/digital-services/templates.html" class="action-card template-card"><div class="action-icon"><i class="fas fa-copy"></i></div><h3>Templates</h3><p>Form checklists</p><span class="action-link">Open →</span></a>
+      `;
+
+      // Quick Actions
+      document.getElementById('quickLinks').innerHTML = `
+        <a href="/workspaces/digital-services/new-application.html" class="quick-btn"><i class="fas fa-plus-circle"></i> New App</a>
+        <a href="/workspaces/digital-services/my-tasks.html" class="quick-btn"><i class="fas fa-tasks"></i> My Tasks (${activeApps})</a>
+        <a href="/workspaces/digital-services/pending-review.html" class="quick-btn"><i class="fas fa-clipboard-check"></i> Pending QA (${pendingQA})</a>
+        <a href="/workspaces/digital-services/urgent.html" class="quick-btn"><i class="fas fa-exclamation-triangle"></i> Urgent (${applicationsData.filter(a => a.priority === 'high' && a.status !== 'delivered').length})</a>
+        <a href="/workspaces/digital-services/bulk-upload.html" class="quick-btn"><i class="fas fa-upload"></i> Bulk Upload</a>
+        <a href="/workspaces/digital-services/verify-docs.html" class="quick-btn"><i class="fas fa-id-card"></i> Verify Documents</a>
+      `;
+
+      // Recent Applications
+      const recentApps = applicationsData.slice(0, 5);
+      document.getElementById('recentApplications').innerHTML = recentApps.length ? recentApps.map(app => `
+        <div class="recent-item" onclick="window.location.href='/workspaces/digital-services/application-detail.html?id=${app.id}'">
+          <div>
+            <strong>${escapeHtml(app.clientName)}</strong>
+            <br><span style="font-size:0.7rem;color:var(--gray-500);">${escapeHtml(app.service)} · ${getPriorityIcon(app.priority)} ${app.priority}</span>
+          </div>
+          <div style="text-align:right;">
+            <span style="font-size:0.7rem;color:var(--gray-500);display:block;">${escapeHtml(app.assignedStaff)}</span>
+            <span class="status-tag ${getStatusClass(app.status)}">${app.status}</span>
+          </div>
+        </div>
+      `).join('') : '<div class="empty-state">No applications yet</div>';
+
+      // Staff Performance
+      document.getElementById('staffPerformance').innerHTML = staffData.map(staff => `
+        <div class="recent-item" onclick="window.location.href='/workspaces/digital-services/staff-detail.html?name=${encodeURIComponent(staff.name)}'">
+          <div>
+            <strong>${escapeHtml(staff.name)}</strong>
+            <br><span style="font-size:0.7rem;color:var(--gray-500);">⭐ ${staff.rating} · ${staff.applications} apps</span>
+          </div>
+          <div style="text-align:right;">
+            <span style="font-size:0.7rem;color:var(--gray-500);display:block;">${staff.avgTime} avg</span>
+            <span style="font-size:0.75rem;font-weight:700;color:var(--success);">${staff.successRate}% success</span>
+          </div>
+        </div>
+      `).join('');
+
+      // Revenue Breakdown
+      document.getElementById('revenueBreakdown').innerHTML = revenueData.map(item => `
+        <div class="recent-item" onclick="window.location.href='/workspaces/digital-services/finance.html#${encodeURIComponent(item.service)}'">
+          <div>
+            <strong>${escapeHtml(item.service)}</strong>
+            <br><span style="font-size:0.7rem;color:var(--gray-500);">${item.applications} apps · Cost: Ksh ${item.cost.toLocaleString()}</span>
+          </div>
+          <div style="text-align:right;">
+            <span style="font-size:0.7rem;color:var(--gray-500);display:block;">Revenue</span>
+            <span style="font-size:0.85rem;font-weight:700;color:var(--primary);">Ksh ${item.revenue.toLocaleString()}</span>
+            <span style="font-size:0.65rem;color:${item.profit > 0 ? 'var(--success)' : 'var(--danger)'};display:block;">Profit: Ksh ${item.profit.toLocaleString()}</span>
+          </div>
+        </div>
+      `).join('');
+
+      // Footer
+      const totalProfit = revenueData.reduce((sum, r) => sum + r.profit, 0);
+      document.getElementById('footerStats').textContent = 
+        `${totalApps} total apps · ${activeApps} active · ${pendingQA} pending QA · Ksh ${totalRevenue.toLocaleString()} revenue · Ksh ${totalProfit.toLocaleString()} profit`;
+      
+      document.getElementById('lastUpdated').innerHTML = `<i class="fas fa-circle" style="color:#10b981;"></i> Live · ${new Date().toLocaleTimeString()}`;
+    }
+
+    // Authentication
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const userSnap = await get(ref(db, `brandinn_users/${user.uid}`));
+        let userName = user.email?.split('@')[0] || 'Manager';
+        if (userSnap.exists()) userName = userSnap.val().name || userName;
+        document.getElementById('userName').textContent = userName;
+        document.getElementById('userAvatar').textContent = getInitials(userName);
+        renderDashboard();
+      } else {
+        // For demo purposes, render even if not logged in
+        document.getElementById('userName').textContent = 'Demo Manager';
+        document.getElementById('userAvatar').textContent = 'DM';
+        renderDashboard();
+        // In production: window.location.href = 'https://kazinni.vercel.app';
+      }
+    });
+  </script>
+</body>
+</html>
