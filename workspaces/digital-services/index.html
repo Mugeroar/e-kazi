@@ -50,31 +50,6 @@
       flex-direction: column;
     }
 
-    /* Skeleton Animation */
-    @keyframes shimmer {
-      0% { background-position: 200% 0; }
-      100% { background-position: -200% 0; }
-    }
-    
-    .skeleton {
-      background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
-      background-size: 200% 100%;
-      animation: shimmer 1.5s infinite;
-      border-radius: 12px;
-    }
-    .skeleton-stat-card {
-      background: white; border-radius: 20px; padding: 1.2rem;
-      border: 1px solid var(--gray-200); display: flex; align-items: center; justify-content: space-between;
-    }
-    .skeleton-icon { width: 52px; height: 52px; border-radius: 14px; }
-    .skeleton-text { height: 0.9rem; margin-bottom: 0.5rem; }
-    .skeleton-number { height: 1.8rem; width: 40%; }
-    .skeleton-action-card {
-      background: white; border-radius: 16px; padding: 1rem;
-      border: 1px solid var(--gray-200);
-    }
-    .skeleton-action-icon { width: 44px; height: 44px; border-radius: 12px; margin-bottom: 0.8rem; }
-
     .navbar {
       background: white;
       padding: 0.8rem 4%;
@@ -128,41 +103,135 @@
     .page-header p { color: var(--gray-500); font-size: 0.85rem; margin-top: 0.3rem; }
     .last-updated { font-size: 0.7rem; color: var(--gray-400); margin-left: 10px; }
 
-    /* Stats Grid */
-    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.8rem; }
+    /* Stats Grid - 4 Square Cards */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.8rem;
+    }
+    
     .stat-card {
-      background: white; border-radius: 20px; padding: 1.2rem;
-      border: 1px solid var(--gray-200); display: flex; align-items: center; justify-content: space-between;
+      background: white;
+      border-radius: 20px;
+      padding: 1.2rem;
+      border: 1px solid var(--gray-200);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
       transition: all 0.2s;
+      aspect-ratio: 1 / 1;
+      position: relative;
+      overflow: hidden;
     }
     .stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-color: var(--primary-light); }
-    .stat-left h4 { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--gray-500); margin-bottom: 0.3rem; }
-    .stat-number { font-size: 1.8rem; font-weight: 800; color: var(--gray-800); line-height: 1.2; }
-    .stat-number.empty { color: var(--gray-300); font-weight: 400; font-size: 1.2rem; }
-    .stat-trend { font-size: 0.65rem; margin-top: 4px; display: flex; align-items: center; gap: 4px; color: var(--gray-500); }
-    .stat-icon { width: 52px; height: 52px; background: var(--primary-bg); border-radius: 14px; display: flex; align-items: center; justify-content: center; color: var(--primary); font-size: 1.3rem; }
+    
+    .stat-card .stat-icon-top {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      width: 44px;
+      height: 44px;
+      background: var(--primary-bg);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--primary);
+      font-size: 1.2rem;
+    }
+    
+    .stat-card .stat-left h4 {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--gray-500);
+      margin-bottom: 0.3rem;
+    }
+    .stat-card .stat-number {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--gray-800);
+      line-height: 1.1;
+      margin-bottom: 0.3rem;
+    }
+    .stat-card .stat-number.empty { color: var(--gray-300); font-weight: 400; font-size: 1.5rem; }
+    .stat-card .stat-trend {
+      font-size: 0.65rem;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      color: var(--gray-500);
+    }
 
-    /* Action Grid - 8 cards */
-    .action-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.8rem; }
-    @media (min-width: 1200px) { .action-grid { grid-template-columns: repeat(8, 1fr); } }
-    @media (max-width: 1000px) { .action-grid { grid-template-columns: repeat(4, 1fr); } }
-    @media (max-width: 600px) { .action-grid { grid-template-columns: repeat(2, 1fr); } }
+    /* Action Grid - 8 Square Cards */
+    .action-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.8rem;
+    }
+    @media (max-width: 768px) {
+      .action-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 480px) {
+      .action-grid { grid-template-columns: repeat(2, 1fr); }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    }
     
     .action-card {
-      background: white; border-radius: 16px; padding: 1rem;
-      border: 1px solid var(--gray-200); transition: all 0.2s;
-      text-decoration: none; color: inherit; display: block; cursor: pointer;
+      background: white;
+      border-radius: 16px;
+      padding: 1rem;
+      border: 1px solid var(--gray-200);
+      transition: all 0.2s;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
       text-align: center;
+      cursor: pointer;
+      aspect-ratio: 1 / 1;
     }
     .action-card:hover { transform: translateY(-3px); box-shadow: 0 6px 16px rgba(0,0,0,0.06); border-color: var(--primary-light); }
+    
     .action-icon {
-      width: 48px; height: 48px; background: var(--primary-bg);
-      border-radius: 14px; display: flex; align-items: center; justify-content: center;
-      margin: 0 auto 0.8rem auto; color: var(--primary); font-size: 1.3rem;
+      width: 48px;
+      height: 48px;
+      background: var(--primary-bg);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--primary);
+      font-size: 1.3rem;
+      margin-bottom: 0.6rem;
+      flex-shrink: 0;
     }
-    .action-card h3 { font-size: 0.9rem; font-weight: 700; margin-bottom: 0.3rem; }
-    .action-card p { color: var(--gray-500); font-size: 0.7rem; margin-bottom: 0.6rem; line-height: 1.4; }
-    .action-link { font-size: 0.7rem; font-weight: 600; color: var(--primary); display: inline-flex; align-items: center; gap: 4px; }
+    .action-card h3 {
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-bottom: 0.2rem;
+      line-height: 1.2;
+    }
+    .action-card p {
+      color: var(--gray-500);
+      font-size: 0.65rem;
+      margin-bottom: 0.4rem;
+      line-height: 1.3;
+    }
+    .action-link {
+      font-size: 0.65rem;
+      font-weight: 600;
+      color: var(--primary);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
     
     /* Card color variations */
     .intake-card .action-icon { background: #ecfdf5; color: #10b981; }
@@ -228,6 +297,7 @@
       .container { padding: 1rem; }
       .page-header h1 { font-size: 1.2rem; }
       .recent-item { flex-wrap: wrap; gap: 8px; }
+      .stat-card .stat-number { font-size: 1.6rem; }
     }
   </style>
 </head>
@@ -258,43 +328,43 @@
       </div>
     </div>
 
-    <!-- STATS GRID -->
+    <!-- STATS GRID - 4 Square Cards -->
     <div class="stats-grid" id="statsGrid">
       <div class="stat-card">
+        <div class="stat-icon-top"><i class="fas fa-file-alt"></i></div>
         <div class="stat-left">
           <h4>Total Applications</h4>
           <div class="stat-number empty">--</div>
-          <div class="stat-trend"><i class="fas fa-file-alt"></i> All time</div>
+          <div class="stat-trend"><i class="fas fa-arrow-right"></i> All time</div>
         </div>
-        <div class="stat-icon"><i class="fas fa-file-alt"></i></div>
       </div>
       <div class="stat-card">
+        <div class="stat-icon-top"><i class="fas fa-spinner"></i></div>
         <div class="stat-left">
           <h4>Active Applications</h4>
           <div class="stat-number empty">--</div>
-          <div class="stat-trend"><i class="fas fa-spinner"></i> In progress</div>
+          <div class="stat-trend"><i class="fas fa-arrow-right"></i> In progress</div>
         </div>
-        <div class="stat-icon"><i class="fas fa-spinner"></i></div>
       </div>
       <div class="stat-card">
+        <div class="stat-icon-top"><i class="fas fa-check-double"></i></div>
         <div class="stat-left">
           <h4>Pending QA Review</h4>
           <div class="stat-number empty">--</div>
-          <div class="stat-trend"><i class="fas fa-check-double"></i> Need approval</div>
+          <div class="stat-trend"><i class="fas fa-arrow-right"></i> Need approval</div>
         </div>
-        <div class="stat-icon"><i class="fas fa-check-double"></i></div>
       </div>
       <div class="stat-card">
+        <div class="stat-icon-top"><i class="fas fa-coin"></i></div>
         <div class="stat-left">
           <h4>Revenue (This Month)</h4>
           <div class="stat-number empty">--</div>
-          <div class="stat-trend"><i class="fas fa-coin"></i> Total income</div>
+          <div class="stat-trend"><i class="fas fa-arrow-right"></i> Total income</div>
         </div>
-        <div class="stat-icon"><i class="fas fa-coin"></i></div>
       </div>
     </div>
 
-    <!-- ACTION GRID - 8 Cards -->
+    <!-- ACTION GRID - 8 Square Cards -->
     <div class="action-grid">
       <a href="/workspaces/digital-services/new-application.html" class="action-card intake-card">
         <div class="action-icon"><i class="fas fa-plus-circle"></i></div>
@@ -443,45 +513,58 @@
       return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
     }
 
+    function getStatusClass(status) {
+      const map = {
+        'active': 'status-active',
+        'pending': 'status-pending',
+        'processing': 'status-processing',
+        'qa': 'status-qa',
+        'submitted': 'status-submitted',
+        'delivered': 'status-delivered',
+        'rejected': 'status-rejected'
+      };
+      return map[status] || 'status-pending';
+    }
+
     function updateDashboard(applications, staff, revenue) {
-      // Update Stats
       const totalApps = applications ? Object.keys(applications).length : 0;
       const activeApps = applications ? Object.values(applications).filter(a => a.status === 'processing' || a.status === 'qa').length : 0;
       const pendingQA = applications ? Object.values(applications).filter(a => a.status === 'qa').length : 0;
       const totalRevenue = revenue ? Object.values(revenue).reduce((sum, r) => sum + (r.revenue || 0), 0) : 0;
 
+      // Stats Grid - Square Cards
       document.getElementById('statsGrid').innerHTML = `
         <div class="stat-card">
+          <div class="stat-icon-top"><i class="fas fa-file-alt"></i></div>
           <div class="stat-left">
             <h4>Total Applications</h4>
             <div class="stat-number">${totalApps}</div>
-            <div class="stat-trend"><i class="fas fa-file-alt"></i> All time</div>
+            <div class="stat-trend"><i class="fas fa-arrow-right"></i> All time</div>
           </div>
-          <div class="stat-icon"><i class="fas fa-file-alt"></i></div>
         </div>
         <div class="stat-card">
+          <div class="stat-icon-top"><i class="fas fa-spinner"></i></div>
           <div class="stat-left">
             <h4>Active Applications</h4>
             <div class="stat-number">${activeApps}</div>
-            <div class="stat-trend"><i class="fas fa-spinner"></i> In progress</div>
+            <div class="stat-trend"><i class="fas fa-arrow-right"></i> In progress</div>
           </div>
-          <div class="stat-icon"><i class="fas fa-spinner"></i></div>
         </div>
         <div class="stat-card">
+          <div class="stat-icon-top"><i class="fas fa-check-double"></i></div>
           <div class="stat-left">
             <h4>Pending QA Review</h4>
             <div class="stat-number">${pendingQA}</div>
-            <div class="stat-trend"><i class="fas fa-check-double"></i> Need approval</div>
+            <div class="stat-trend"><i class="fas fa-arrow-right"></i> Need approval</div>
           </div>
-          <div class="stat-icon"><i class="fas fa-check-double"></i></div>
         </div>
         <div class="stat-card">
+          <div class="stat-icon-top"><i class="fas fa-coin"></i></div>
           <div class="stat-left">
             <h4>Revenue (This Month)</h4>
             <div class="stat-number">${totalRevenue > 0 ? 'Ksh ' + totalRevenue.toLocaleString() : '--'}</div>
-            <div class="stat-trend"><i class="fas fa-coin"></i> Total income</div>
+            <div class="stat-trend"><i class="fas fa-arrow-right"></i> Total income</div>
           </div>
-          <div class="stat-icon"><i class="fas fa-coin"></i></div>
         </div>
       `;
 
@@ -562,50 +645,13 @@
       document.getElementById('lastUpdated').innerHTML = `<i class="fas fa-circle" style="color:#10b981;"></i> Live · ${new Date().toLocaleTimeString()}`;
     }
 
-    function getStatusClass(status) {
-      const map = {
-        'active': 'status-active',
-        'pending': 'status-pending',
-        'processing': 'status-processing',
-        'qa': 'status-qa',
-        'submitted': 'status-submitted',
-        'delivered': 'status-delivered',
-        'rejected': 'status-rejected'
-      };
-      return map[status] || 'status-pending';
-    }
-
     // Firebase Real-time Listeners
     function setupListeners() {
-      // Applications
       onValue(ref(db, 'digital_services_applications'), (snap) => {
         const applications = snap.val();
-        // We need staff and revenue too for full update
-        // For now, just update with what we have
-        const staff = null; // Will be populated below
-        const revenue = null;
-        updateDashboard(applications, staff, revenue);
-      });
-
-      // Staff
-      onValue(ref(db, 'digital_services_staff'), (snap) => {
-        const staff = snap.val();
-        // Re-fetch applications to update everything
-        get(ref(db, 'digital_services_applications')).then((snap) => {
-          const applications = snap.val();
+        get(ref(db, 'digital_services_staff')).then((staffSnap) => {
           get(ref(db, 'digital_services_revenue')).then((revSnap) => {
-            updateDashboard(applications, staff, revSnap.val());
-          });
-        });
-      });
-
-      // Revenue
-      onValue(ref(db, 'digital_services_revenue'), (snap) => {
-        const revenue = snap.val();
-        get(ref(db, 'digital_services_applications')).then((snap) => {
-          const applications = snap.val();
-          get(ref(db, 'digital_services_staff')).then((staffSnap) => {
-            updateDashboard(applications, staffSnap.val(), revenue);
+            updateDashboard(applications, staffSnap.val(), revSnap.val());
           });
         });
       });
@@ -619,19 +665,12 @@
         if (userSnap.exists()) userName = userSnap.val().name || userName;
         document.getElementById('userName').textContent = userName;
         document.getElementById('userAvatar').textContent = getInitials(userName);
-        
-        // Setup listeners after auth
         setupListeners();
       } else {
-        // Show demo/empty state
         document.getElementById('userName').textContent = 'Not Signed In';
         document.getElementById('userAvatar').textContent = '--';
         document.getElementById('lastUpdated').innerHTML = `<i class="fas fa-circle" style="color:#f59e0b;"></i> Demo Mode`;
-        
-        // Show empty dashboard
         updateDashboard(null, null, null);
-        
-        // In production: window.location.href = 'https://kazinni.vercel.app';
       }
     });
 
