@@ -133,12 +133,6 @@
     .qa-card .action-link { color: #b45309; }
     .client-card .action-icon { color: #ec4899; border-color: rgba(236,72,153,0.2); background: linear-gradient(145deg, #fdf2f8, #ffffff); }
     .client-card .action-link { color: #db2777; }
-    .staff-card .action-icon { color: #8b5cf6; border-color: rgba(139,92,246,0.2); background: linear-gradient(145deg, #f5f0ff, #ffffff); }
-    .staff-card .action-link { color: #7c3aed; }
-    .payment-card .action-icon { color: #f59e0b; border-color: rgba(245,158,11,0.2); background: linear-gradient(145deg, #fffbeb, #ffffff); }
-    .payment-card .action-link { color: #d97706; }
-    .template-card .action-icon { color: #6366f1; border-color: rgba(99,102,241,0.2); background: linear-gradient(145deg, #eef2ff, #ffffff); }
-    .template-card .action-link { color: #4f46e5; }
 
     .quick-section {
       background: white; border-radius: 18px; padding: 1rem 1.2rem;
@@ -223,7 +217,7 @@
   <div class="container">
     <div class="page-header">
       <h1><i class="fas fa-file-signature"></i> Digital Services Dashboard <span class="last-updated" id="lastUpdated"><i class="fas fa-circle"></i> Live</span></h1>
-      <p>Manage government service applications, track staff performance, and monitor client requests.</p>
+      <p>Manage all online applications — from government services to digital forms and client requests.</p>
     </div>
 
     <div class="stats-grid">
@@ -240,8 +234,8 @@
         <div class="stat-icon"><i class="fas fa-check-double"></i></div>
       </div>
       <div class="stat-card">
-        <div class="stat-left"><h4>Revenue (This Month)</h4><div class="stat-number empty" id="revenueMonth">--</div><div class="stat-trend trend-up" id="revenueTrend">Total income</div></div>
-        <div class="stat-icon"><i class="fas fa-coin"></i></div>
+        <div class="stat-left"><h4>Completed</h4><div class="stat-number empty" id="completedApps">--</div><div class="stat-trend trend-up" id="completedTrend">Delivered</div></div>
+        <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
       </div>
     </div>
 
@@ -249,7 +243,7 @@
       <a href="/workspaces/digital-services/new-application.html" class="action-card app-card">
         <div class="action-icon"><i class="fas fa-plus-circle"></i></div>
         <h2>New Application</h2>
-        <p>Register a client for a government service.</p>
+        <p>Register a client for any online service.</p>
         <span class="action-link">Start →</span>
       </a>
       <a href="/workspaces/digital-services/my-tasks.html" class="action-card task-card">
@@ -276,24 +270,6 @@
         <p>View and manage client profiles.</p>
         <span class="action-link">Manage →</span>
       </a>
-      <a href="/workspaces/digital-services/staff.html" class="action-card staff-card">
-        <div class="action-icon"><i class="fas fa-user-tie"></i></div>
-        <h2>Staff Management</h2>
-        <p>Track team performance and workload.</p>
-        <span class="action-link">Manage →</span>
-      </a>
-      <a href="/workspaces/digital-services/payments.html" class="action-card payment-card">
-        <div class="action-icon"><i class="fas fa-money-bill-wave"></i></div>
-        <h2>Payments</h2>
-        <p>Invoices, receipts, and reconciliation.</p>
-        <span class="action-link">View →</span>
-      </a>
-      <a href="/workspaces/digital-services/templates.html" class="action-card template-card">
-        <div class="action-icon"><i class="fas fa-copy"></i></div>
-        <h2>Templates</h2>
-        <p>Form checklists and document guides.</p>
-        <span class="action-link">Open →</span>
-      </a>
     </div>
 
     <div class="quick-section">
@@ -316,26 +292,6 @@
       </div>
       <div class="recent-list" id="recentList">
         <div class="empty-state">Loading applications...</div>
-      </div>
-    </div>
-
-    <div class="recent-section">
-      <div class="recent-header">
-        <h3><i class="fas fa-users-cog" style="color:#7c3aed;"></i> Staff Performance</h3>
-        <a href="/workspaces/digital-services/staff.html" style="color:#7c3aed;font-weight:600;font-size:0.75rem;">View all</a>
-      </div>
-      <div class="recent-list" id="staffList">
-        <div class="empty-state">Loading staff data...</div>
-      </div>
-    </div>
-
-    <div class="recent-section">
-      <div class="recent-header">
-        <h3><i class="fas fa-chart-pie" style="color:#7c3aed;"></i> Revenue by Service</h3>
-        <a href="/workspaces/digital-services/finance.html" style="color:#7c3aed;font-weight:600;font-size:0.75rem;">View all</a>
-      </div>
-      <div class="recent-list" id="revenueList">
-        <div class="empty-state">Loading revenue data...</div>
       </div>
     </div>
   </div>
@@ -374,8 +330,6 @@
     const auth = getAuth(app);
 
     let allApplications = {};
-    let allStaff = {};
-    let allRevenue = {};
 
     const loadingOverlay = document.getElementById('loadingOverlay');
     const repNameEl = document.getElementById('repName');
@@ -433,61 +387,12 @@
       `).join('');
     }
 
-    function renderStaffPerformance() {
-      const list = document.getElementById('staffList');
-      const staff = Object.values(allStaff).filter(s => s && s.name);
-
-      if (!staff.length) {
-        list.innerHTML = `<div class="empty-state"><i class="fas fa-user-plus" style="font-size:1.5rem;display:block;margin-bottom:6px;"></i>No staff data yet</div>`;
-        return;
-      }
-
-      list.innerHTML = staff.map(s => `
-        <div class="recent-item">
-          <div style="display:flex;align-items:center;gap:10px;">
-            <div style="width:32px;height:32px;background:#f5f0ff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.65rem;">${getInitials(s.name)}</div>
-            <div>
-              <strong>${s.name}</strong>
-              <p style="font-size:0.65rem;color:#64748b;">⭐ ${s.rating || '--'} · ${s.applications || 0} apps · ${s.avgTime || '--'} avg</p>
-            </div>
-          </div>
-          <span style="font-size:0.75rem;font-weight:700;color:#10b981;">${s.successRate || 0}%</span>
-        </div>
-      `).join('');
-    }
-
-    function renderRevenueBreakdown() {
-      const list = document.getElementById('revenueList');
-      const revenue = Object.values(allRevenue).filter(r => r && r.service);
-
-      if (!revenue.length) {
-        list.innerHTML = `<div class="empty-state"><i class="fas fa-chart-simple" style="font-size:1.5rem;display:block;margin-bottom:6px;"></i>No revenue data yet</div>`;
-        return;
-      }
-
-      list.innerHTML = revenue.map(r => `
-        <div class="recent-item">
-          <div style="display:flex;align-items:center;gap:10px;">
-            <div style="width:32px;height:32px;background:#f5f0ff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.65rem;">${r.service.charAt(0)}</div>
-            <div>
-              <strong>${r.service}</strong>
-              <p style="font-size:0.65rem;color:#64748b;">${r.applications || 0} apps · Cost: KES ${(r.cost || 0).toLocaleString()}</p>
-            </div>
-          </div>
-          <div style="text-align:right;">
-            <span style="font-weight:700;color:#7c3aed;">KES ${(r.revenue || 0).toLocaleString()}</span>
-            <p style="font-size:0.6rem;color:${(r.profit || 0) > 0 ? '#10b981' : '#94a3b8'};">Profit: KES ${(r.profit || 0).toLocaleString()}</p>
-          </div>
-        </div>
-      `).join('');
-    }
-
     function updateDashboard() {
       const apps = Object.values(allApplications).filter(a => a && a.clientName);
       const totalApps = apps.length;
       const activeApps = apps.filter(a => a.status === 'processing' || a.status === 'qa').length;
       const pendingQA = apps.filter(a => a.status === 'qa').length;
-      const totalRevenue = Object.values(allRevenue).reduce((sum, r) => sum + (r.revenue || 0), 0);
+      const completedApps = apps.filter(a => a.status === 'delivered' || a.status === 'completed' || a.status === 'active').length;
 
       document.getElementById('totalApps').textContent = totalApps;
       document.getElementById('totalApps').className = 'stat-number';
@@ -495,20 +400,18 @@
       document.getElementById('activeApps').className = 'stat-number';
       document.getElementById('pendingQA').textContent = pendingQA;
       document.getElementById('pendingQA').className = 'stat-number';
-      document.getElementById('revenueMonth').textContent = totalRevenue > 0 ? `KES ${totalRevenue.toLocaleString()}` : '--';
-      document.getElementById('revenueMonth').className = totalRevenue > 0 ? 'stat-number' : 'stat-number empty';
+      document.getElementById('completedApps').textContent = completedApps;
+      document.getElementById('completedApps').className = 'stat-number';
 
       document.getElementById('totalTrend').innerHTML = '<i class="fas fa-arrow-right"></i> All time';
       document.getElementById('activeTrend').innerHTML = '<i class="fas fa-arrow-right"></i> In progress';
       document.getElementById('qaTrend').innerHTML = '<i class="fas fa-arrow-right"></i> Need approval';
-      document.getElementById('revenueTrend').innerHTML = '<i class="fas fa-arrow-right"></i> Total income';
+      document.getElementById('completedTrend').innerHTML = '<i class="fas fa-arrow-right"></i> Done';
 
       document.getElementById('lastUpdated').innerHTML = `<i class="fas fa-circle" style="color:#10b981;"></i> Live · ${new Date().toLocaleTimeString()}`;
-      footerStatsEl.textContent = `${totalApps} total · ${activeApps} active · ${pendingQA} QA · KES ${totalRevenue.toLocaleString()}`;
+      footerStatsEl.textContent = `${totalApps} total · ${activeApps} active · ${pendingQA} QA · ${completedApps} completed`;
 
       renderRecentApplications();
-      renderStaffPerformance();
-      renderRevenueBreakdown();
     }
 
     function setupListeners() {
@@ -516,16 +419,6 @@
         allApplications = snap.val() || {};
         updateDashboard();
         loadingOverlay.classList.add('hide');
-      });
-
-      onValue(ref(db, 'digital_services_staff'), (snap) => {
-        allStaff = snap.val() || {};
-        updateDashboard();
-      });
-
-      onValue(ref(db, 'digital_services_revenue'), (snap) => {
-        allRevenue = snap.val() || {};
-        updateDashboard();
       });
     }
 
