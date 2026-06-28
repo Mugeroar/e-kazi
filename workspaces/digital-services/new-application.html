@@ -6,9 +6,6 @@
   <title>New Application | Digital Services</title>
   
   <meta name="theme-color" content="#7c3aed">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  
   <link rel="icon" type="image/png" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
@@ -16,10 +13,33 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
+    :root {
+      --primary: #7c3aed;
+      --primary-dark: #5b21b6;
+      --primary-light: #a78bfa;
+      --primary-bg: #f5f0ff;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --info: #3b82f6;
+      --text-primary: #1e293b;
+      --text-muted: #64748b;
+      --border-light: #e9d5ff;
+      --gray-50: #f8fafc;
+      --gray-100: #f1f5f9;
+      --gray-200: #e2e8f0;
+      --gray-300: #cbd5e1;
+      --gray-400: #94a3b8;
+      --gray-500: #64748b;
+      --gray-600: #475569;
+      --gray-700: #334155;
+      --gray-800: #1e293b;
+    }
+
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       background: linear-gradient(145deg, #f8f6fc 0%, #ffffff 100%);
-      color: #1a1a2e;
+      color: var(--text-primary);
       line-height: 1.4;
       min-height: 100vh;
       display: flex;
@@ -146,6 +166,7 @@
     .alert-success { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
     .alert-error { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
     .alert-info { background: #dbeafe; color: #1e40af; border: 1px solid #93c5fd; }
+    .alert-warning { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
 
     .spinner-small {
       display: inline-block; width: 16px; height: 16px;
@@ -166,6 +187,17 @@
       width: 35px; height: 35px; border: 3px solid #f1eaff;
       border-top-color: #7c3aed; border-radius: 50%; animation: spin 0.8s linear infinite;
     }
+
+    /* Staff avatar in dropdown */
+    .staff-option {
+      display: flex; align-items: center; gap: 8px;
+    }
+    .staff-option .staff-dot {
+      width: 8px; height: 8px; border-radius: 50%; display: inline-block;
+    }
+    .staff-option .staff-dot.available { background: #10b981; }
+    .staff-option .staff-dot.busy { background: #f59e0b; }
+    .staff-option .staff-dot.offline { background: #94a3b8; }
 
     @media (max-width: 700px) {
       .form-row { grid-template-columns: 1fr; }
@@ -246,10 +278,11 @@
             </select>
           </div>
           <div class="form-group">
-            <label>Assigned Staff</label>
-            <select id="staffSelect">
-              <option value="">— Unassigned —</option>
+            <label>Assign To <span class="required">*</span></label>
+            <select id="staffSelect" required>
+              <option value="">— Select a staff member —</option>
             </select>
+            <div class="hint">Select the staff member who will handle this application</div>
           </div>
         </div>
 
@@ -327,7 +360,7 @@
       }, 5000);
     }
 
-    // Load services from Firebase
+    // ===== LOAD SERVICES FROM FIREBASE =====
     function loadServices() {
       const serviceSelect = document.getElementById('serviceSelect');
       serviceSelect.innerHTML = '<option value="">— Select a service —</option>';
@@ -350,24 +383,42 @@
       });
     }
 
-    // Load staff members from Firebase
+    // ===== LOAD STAFF FROM FIREBASE =====
     function loadStaff() {
       const staffSelect = document.getElementById('staffSelect');
-      staffSelect.innerHTML = '<option value="">— Unassigned —</option>';
+      staffSelect.innerHTML = '<option value="">— Select a staff member —</option>';
+
+      console.log('Loading staff into dropdown:', staffMembers.length);
 
       if (!staffMembers.length) {
+        staffSelect.innerHTML += '<option value="" disabled>No staff members available — add staff in the admin panel</option>';
         return;
       }
 
-      staffMembers.forEach(staff => {
+      // Sort staff by name
+      const sorted = [...staffMembers].sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+
+      sorted.forEach(staff => {
         const option = document.createElement('option');
         option.value = staff.name;
-        option.textContent = staff.name;
+        
+        // Get staff status if available
+        const status = staff.status || 'available';
+        const statusDot = status === 'available' ? '🟢' : status === 'busy' ? '🟡' : '⚪';
+        
+        option.textContent = `${staff.name} ${statusDot}`;
+        option.title = staff.email || staff.role || 'Staff member';
+        
+        // Add data attributes for styling
+        option.dataset.staffId = staff.id || '';
+        option.dataset.status = status;
+        option.dataset.email = staff.email || '';
+        
         staffSelect.appendChild(option);
       });
     }
 
-    // Check if client exists by name, email, or phone
+    // ===== CHECK IF CLIENT EXISTS =====
     async function findExistingClient(name, email, phone) {
       const clients = Object.values(allClients).filter(c => c && c.name);
       
@@ -379,7 +430,7 @@
       });
     }
 
-    // Handle form submission
+    // ===== HANDLE FORM SUBMISSION =====
     document.getElementById('applicationForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       
@@ -411,12 +462,18 @@
           return;
         }
 
+        if (!assignedStaff) {
+          showAlert('Please assign a staff member.', 'warning');
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Application';
+          return;
+        }
+
         // Check if client already exists
         const existingClient = await findExistingClient(clientName, clientEmail, clientPhone);
         let clientId;
 
         if (existingClient) {
-          // Use existing client
           const existingId = Object.keys(allClients).find(id => {
             const c = allClients[id];
             return c.name === existingClient.name;
@@ -440,6 +497,10 @@
           showAlert(`New client "${clientName}" created successfully!`, 'success');
         }
 
+        // Find the staff member's UID from the selected name
+        const selectedStaff = staffMembers.find(s => s.name === assignedStaff);
+        const staffUid = selectedStaff?.id || '';
+
         // Create the application
         const newAppRef = push(ref(db, 'digital_services_applications'));
         await set(newAppRef, {
@@ -449,7 +510,8 @@
           clientEmail: clientEmail || '',
           service: service,
           priority: priority || 'normal',
-          assignedStaff: assignedStaff || '',
+          assignedStaff: assignedStaff,
+          assignedStaffUid: staffUid,
           notes: notes || '',
           paymentStatus: 'pending',
           amount: 0,
@@ -461,7 +523,24 @@
         // Update client last activity
         await set(ref(db, `digital_services_clients/${clientId}/lastActivity`), new Date().toISOString());
 
-        showAlert(`Application for "${clientName}" (${service}) submitted successfully!`, 'success');
+        // Optional: Update staff workload (if you want to track assigned tasks count)
+        // This is a simple increment of tasks assigned
+        try {
+          const staffRef = ref(db, `digital_services_staff/${staffUid}`);
+          const staffSnap = await get(staffRef);
+          if (staffSnap.exists()) {
+            const currentTasks = staffSnap.val().assignedTasks || 0;
+            await set(staffRef, {
+              ...staffSnap.val(),
+              assignedTasks: currentTasks + 1,
+              lastAssignedAt: Date.now()
+            });
+          }
+        } catch (e) {
+          console.warn('Could not update staff workload:', e);
+        }
+
+        showAlert(`Application for "${clientName}" (${service}) assigned to ${assignedStaff}!`, 'success');
 
         // Reset form
         document.getElementById('applicationForm').reset();
@@ -480,7 +559,7 @@
       submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Application';
     });
 
-    // Setup Firebase listeners
+    // ===== SETUP FIREBASE LISTENERS =====
     function setupListeners() {
       // Load services from Firebase
       onValue(ref(db, 'digital_services_services'), (snap) => {
@@ -496,13 +575,21 @@
         loadingOverlay.classList.add('hide');
       });
 
-      // Load staff members
+      // ===== LOAD STAFF FROM DIGITAL_SERVICES_STAFF =====
       onValue(ref(db, 'digital_services_staff'), (snap) => {
         const data = snap.val() || {};
-        staffMembers = Object.entries(data).map(([id, value]) => ({
-          id: id,
-          name: value.name || id
-        }));
+        staffMembers = Object.entries(data)
+          .filter(([_, value]) => value && value.name) // Only staff with names
+          .map(([id, value]) => ({
+            id: id,
+            name: value.name || id,
+            email: value.email || '',
+            role: value.role || 'Staff',
+            status: value.status || 'available',
+            assignedTasks: value.assignedTasks || 0,
+            phone: value.phone || ''
+          }));
+        console.log('Staff loaded:', staffMembers.length);
         loadStaff();
       });
 
@@ -517,7 +604,7 @@
       });
     }
 
-    // Auth
+    // ===== AUTH =====
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         try {
