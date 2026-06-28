@@ -16,10 +16,33 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
+    :root {
+      --primary: #7c3aed;
+      --primary-dark: #5b21b6;
+      --primary-light: #a78bfa;
+      --primary-bg: #f5f0ff;
+      --text-primary: #1e293b;
+      --text-muted: #64748b;
+      --border-light: #e9d5ff;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --info: #3b82f6;
+      --gray-50: #f8fafc;
+      --gray-100: #f1f5f9;
+      --gray-200: #e2e8f0;
+      --gray-300: #cbd5e1;
+      --gray-400: #94a3b8;
+      --gray-500: #64748b;
+      --gray-600: #475569;
+      --gray-700: #334155;
+      --gray-800: #1e293b;
+    }
+
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       background: linear-gradient(145deg, #f8f6fc 0%, #ffffff 100%);
-      color: #1a1a2e;
+      color: var(--text-primary);
       line-height: 1.4;
       min-height: 100vh;
       display: flex;
@@ -90,7 +113,6 @@
     }
     .page-header p { color: #475569; font-size: 0.8rem; margin-top: 0.2rem; margin-left: 48px; }
 
-    /* Stats Grid */
     .stats-grid {
       display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 1.2rem;
     }
@@ -100,12 +122,12 @@
     }
     .stat-card .stat-left h4 { font-size: 0.6rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; color: #64748b; }
     .stat-card .stat-number { font-size: 1.4rem; font-weight: 800; color: #0f172a; }
+    .stat-card .stat-number.empty { color: #94a3b8; font-weight: 400; font-size: 1.2rem; }
     .stat-card .stat-icon {
       width: 36px; height: 36px; background: #f5f0ff; border-radius: 12px;
       display: flex; align-items: center; justify-content: center; color: #7c3aed; font-size: 1rem;
     }
 
-    /* Tabs */
     .tabs {
       display: flex; gap: 4px; background: white; border-radius: 16px;
       padding: 0.4rem; border: 1px solid #f1eaff; margin-bottom: 1.2rem;
@@ -125,7 +147,6 @@
     }
     .tab-btn.active .badge { background: rgba(255,255,255,0.2); color: white; }
 
-    /* Filter Bar */
     .filter-bar {
       background: white; border-radius: 16px; padding: 0.8rem 1.2rem;
       border: 1px solid #f1eaff; display: flex; flex-wrap: wrap;
@@ -157,7 +178,6 @@
     }
     .clear-btn:hover { background: #e2e8f0; }
 
-    /* Table */
     .table-container {
       background: white; border-radius: 16px; border: 1px solid #f1eaff;
       overflow: hidden; overflow-x: auto;
@@ -190,7 +210,6 @@
     .status-partial { background: #dbeafe; color: #1e40af; }
     .status-resolved { background: #d1fae5; color: #065f46; }
     .status-unresolved { background: #fee2e2; color: #991b1b; }
-    .status-in-progress { background: #fef3c7; color: #92400e; }
 
     .action-cell {
       display: flex; gap: 4px; flex-wrap: wrap;
@@ -208,9 +227,7 @@
     .action-cell .log-btn { background: #fef3c7; color: #92400e; }
     .action-cell .log-btn:hover { background: #fde68a; }
 
-    .empty-state {
-      text-align: center; padding: 3rem 1.5rem; color: #94a3b8; font-size: 0.85rem;
-    }
+    .empty-state { text-align: center; padding: 3rem 1.5rem; color: #94a3b8; font-size: 0.85rem; }
     .empty-state i { font-size: 2.5rem; display: block; margin-bottom: 0.8rem; opacity: 0.4; }
 
     .footer { text-align: center; padding: 1rem; color: #94a3b8; border-top: 1px solid #f1eaff; font-size: 0.7rem; margin-top: 1.5rem; }
@@ -236,7 +253,7 @@
     .alert-error { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
     .alert-info { background: #dbeafe; color: #1e40af; border: 1px solid #93c5fd; }
 
-    /* Modals */
+    /* ===== MODALS ===== */
     .modal-overlay {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(0,0,0,0.4); backdrop-filter: blur(4px);
@@ -244,13 +261,15 @@
     }
     .modal-overlay.active { display: flex; }
     .modal {
-      background: white; border-radius: 20px; padding: 2rem; max-width: 480px; width: 90%;
+      background: white; border-radius: 20px; padding: 2rem; max-width: 500px; width: 90%;
       box-shadow: 0 30px 60px rgba(0,0,0,0.2);
+      max-height: 90vh; overflow-y: auto;
     }
-    .modal h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px; }
+    .modal h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.3rem; display: flex; align-items: center; gap: 8px; }
     .modal p { color: #64748b; font-size: 0.85rem; margin-bottom: 1rem; }
     .modal .modal-group { margin-bottom: 1rem; }
     .modal .modal-group label { display: block; font-weight: 600; font-size: 0.75rem; color: #1e293b; margin-bottom: 0.2rem; }
+    .modal .modal-group label .required { color: #ef4444; }
     .modal .modal-group input, .modal .modal-group select, .modal .modal-group textarea {
       width: 100%; padding: 0.6rem 0.8rem; border: 1.5px solid #e2e8f0;
       border-radius: 12px; font-size: 0.85rem; font-family: 'Inter', sans-serif;
@@ -260,6 +279,12 @@
       border-color: #7c3aed; background: white;
     }
     .modal .modal-group textarea { resize: vertical; min-height: 60px; }
+    .modal .modal-group .detail-row {
+      display: flex; justify-content: space-between; padding: 0.3rem 0;
+      border-bottom: 1px solid #f1f5f9; font-size: 0.8rem;
+    }
+    .modal .modal-group .detail-row .label { color: #64748b; }
+    .modal .modal-group .detail-row .value { font-weight: 600; }
     .modal .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 0.5rem; }
     .modal .modal-actions button { padding: 0.5rem 1.5rem; border-radius: 30px; font-weight: 600; font-size: 0.8rem; cursor: pointer; transition: all 0.2s; border: none; }
     .modal .modal-actions .modal-cancel { background: #f1f5f9; color: #475569; }
@@ -268,6 +293,18 @@
     .modal .modal-actions .modal-save:hover { background: #6d28d9; }
     .modal .modal-actions .modal-confirm { background: #10b981; color: white; }
     .modal .modal-actions .modal-confirm:hover { background: #059669; }
+    .modal .modal-actions .modal-delete { background: #ef4444; color: white; }
+    .modal .modal-actions .modal-delete:hover { background: #dc2626; }
+
+    .payment-preview {
+      background: #f8fafc; border-radius: 12px; padding: 0.8rem; margin-bottom: 1rem;
+      border: 1px solid #f1eaff;
+    }
+    .payment-preview .preview-row {
+      display: flex; justify-content: space-between; padding: 0.2rem 0;
+      font-size: 0.8rem; border-bottom: 1px solid #f1f5f9;
+    }
+    .payment-preview .preview-row:last-child { border-bottom: none; }
 
     @media (max-width: 700px) {
       .stats-grid { grid-template-columns: repeat(2, 1fr); }
@@ -278,6 +315,7 @@
       .filter-bar input, .filter-bar select { width: 100%; }
       .tabs { flex-direction: column; }
       .tab-btn { justify-content: center; }
+      .modal { padding: 1.2rem; }
     }
   </style>
 </head>
@@ -310,27 +348,13 @@
 
     <div id="alertMessage" class="alert"></div>
 
-    <!-- Stats -->
     <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-left"><h4>Total Orders</h4><div class="stat-number" id="totalOrders">--</div></div>
-        <div class="stat-icon"><i class="fas fa-shopping-cart"></i></div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-left"><h4>Pending Payment</h4><div class="stat-number" id="pendingPayment">--</div></div>
-        <div class="stat-icon"><i class="fas fa-clock" style="color:#f59e0b;"></i></div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-left"><h4>Paid</h4><div class="stat-number" id="paidOrders">--</div></div>
-        <div class="stat-icon"><i class="fas fa-check-circle" style="color:#10b981;"></i></div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-left"><h4>Issues</h4><div class="stat-number" id="issueCount">--</div></div>
-        <div class="stat-icon"><i class="fas fa-exclamation-triangle" style="color:#ef4444;"></i></div>
-      </div>
+      <div class="stat-card"><div class="stat-left"><h4>Total Orders</h4><div class="stat-number empty" id="totalOrders">--</div></div><div class="stat-icon"><i class="fas fa-shopping-cart"></i></div></div>
+      <div class="stat-card"><div class="stat-left"><h4>Pending Payment</h4><div class="stat-number empty" id="pendingPayment">--</div></div><div class="stat-icon"><i class="fas fa-clock" style="color:#f59e0b;"></i></div></div>
+      <div class="stat-card"><div class="stat-left"><h4>Paid</h4><div class="stat-number empty" id="paidOrders">--</div></div><div class="stat-icon"><i class="fas fa-check-circle" style="color:#10b981;"></i></div></div>
+      <div class="stat-card"><div class="stat-left"><h4>Issues</h4><div class="stat-number empty" id="issueCount">--</div></div><div class="stat-icon"><i class="fas fa-exclamation-triangle" style="color:#ef4444;"></i></div></div>
     </div>
 
-    <!-- Tabs -->
     <div class="tabs">
       <button class="tab-btn active" data-tab="all"><i class="fas fa-list"></i> All <span class="badge" id="allBadge">0</span></button>
       <button class="tab-btn" data-tab="pending"><i class="fas fa-clock"></i> Pending <span class="badge" id="pendingBadge">0</span></button>
@@ -338,43 +362,45 @@
       <button class="tab-btn" data-tab="issues"><i class="fas fa-exclamation-triangle"></i> Issues <span class="badge" id="issuesBadge">0</span></button>
     </div>
 
-    <!-- Filter Bar -->
     <div class="filter-bar">
       <input type="text" id="searchInput" placeholder="Search by client or service..." />
-      <select id="statusFilter">
-        <option value="all">All Status</option>
-        <option value="pending">Pending</option>
-        <option value="paid">Paid</option>
-        <option value="overdue">Overdue</option>
-        <option value="partial">Partial</option>
-      </select>
+      <select id="statusFilter"><option value="all">All Status</option><option value="pending">Pending</option><option value="paid">Paid</option><option value="overdue">Overdue</option><option value="partial">Partial</option></select>
       <button class="filter-btn" id="filterBtn"><i class="fas fa-search"></i> Filter</button>
       <button class="clear-btn" id="clearBtn"><i class="fas fa-times"></i> Clear</button>
     </div>
 
-    <!-- Table -->
     <div class="table-container">
       <table>
-        <thead>
-          <tr>
-            <th>Client</th>
-            <th>Service</th>
-            <th>Amount</th>
-            <th>Payment Status</th>
-            <th>Issue Status</th>
-            <th>Date</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="tableBody">
-          <tr>
-            <td colspan="7" class="empty-state">
-              <i class="fas fa-inbox"></i>
-              Loading orders...
-            </td>
-          </tr>
-        </tbody>
+        <thead><tr><th>Client</th><th>Service</th><th>Amount</th><th>Payment Status</th><th>Issue Status</th><th>Date</th><th>Actions</th></tr></thead>
+        <tbody id="tableBody"><tr><td colspan="7" class="empty-state"><i class="fas fa-inbox"></i>Loading orders...</td></tr></tbody>
       </table>
+    </div>
+  </div>
+
+  <!-- ===== MODALS ===== -->
+
+  <!-- View Order Modal -->
+  <div class="modal-overlay" id="viewModal">
+    <div class="modal">
+      <h3><i class="fas fa-eye" style="color:#7c3aed;"></i> Order Details</h3>
+      <p>Full details of the selected order.</p>
+      <input type="hidden" id="viewOrderId">
+      <div class="modal-group" id="viewDetails">
+        <div class="detail-row"><span class="label">Client</span><span class="value" id="viewClient">—</span></div>
+        <div class="detail-row"><span class="label">Email</span><span class="value" id="viewEmail">—</span></div>
+        <div class="detail-row"><span class="label">Phone</span><span class="value" id="viewPhone">—</span></div>
+        <div class="detail-row"><span class="label">Service</span><span class="value" id="viewService">—</span></div>
+        <div class="detail-row"><span class="label">Amount</span><span class="value" id="viewAmount">—</span></div>
+        <div class="detail-row"><span class="label">Payment Status</span><span class="value" id="viewPaymentStatus">—</span></div>
+        <div class="detail-row"><span class="label">Priority</span><span class="value" id="viewPriority">—</span></div>
+        <div class="detail-row"><span class="label">Assigned Staff</span><span class="value" id="viewStaff">—</span></div>
+        <div class="detail-row"><span class="label">Status</span><span class="value" id="viewStatus">—</span></div>
+        <div class="detail-row"><span class="label">Created</span><span class="value" id="viewCreated">—</span></div>
+        <div class="detail-row" id="viewNotesRow"><span class="label">Notes</span><span class="value" id="viewNotes" style="font-weight:400;color:#64748b;">—</span></div>
+      </div>
+      <div class="modal-actions">
+        <button class="modal-cancel" onclick="closeModal('viewModal')">Close</button>
+      </div>
     </div>
   </div>
 
@@ -383,12 +409,18 @@
     <div class="modal">
       <h3><i class="fas fa-money-bill-wave" style="color:#10b981;"></i> Record Payment</h3>
       <p>Enter payment details for this order.</p>
-      <div class="modal-group">
-        <label>Amount Paid (KES)</label>
-        <input type="number" id="paymentAmount" placeholder="e.g. 1500" />
+      <input type="hidden" id="paymentOrderId">
+      <div id="paymentPreview" class="payment-preview">
+        <div class="preview-row"><span>Client</span><span id="paymentClient">—</span></div>
+        <div class="preview-row"><span>Service</span><span id="paymentService">—</span></div>
+        <div class="preview-row"><span>Amount Due</span><span id="paymentAmountDue">KES 0</span></div>
       </div>
       <div class="modal-group">
-        <label>Payment Method</label>
+        <label>Amount Paid (KES) <span class="required">*</span></label>
+        <input type="number" id="paymentAmount" placeholder="e.g. 1500" min="0" />
+      </div>
+      <div class="modal-group">
+        <label>Payment Method <span class="required">*</span></label>
         <select id="paymentMethod">
           <option value="mpesa">M-Pesa</option>
           <option value="bank">Bank Transfer</option>
@@ -417,8 +449,13 @@
     <div class="modal">
       <h3><i class="fas fa-tools" style="color:#f59e0b;"></i> Log Issue</h3>
       <p>Record an issue and track its resolution.</p>
+      <input type="hidden" id="issueOrderId">
+      <div id="issuePreview" class="payment-preview">
+        <div class="preview-row"><span>Client</span><span id="issueClient">—</span></div>
+        <div class="preview-row"><span>Service</span><span id="issueService">—</span></div>
+      </div>
       <div class="modal-group">
-        <label>Issue Type</label>
+        <label>Issue Type <span class="required">*</span></label>
         <select id="issueType">
           <option value="payment">Payment Issue</option>
           <option value="document">Document Issue</option>
@@ -428,8 +465,8 @@
         </select>
       </div>
       <div class="modal-group">
-        <label>Description</label>
-        <textarea id="issueDescription" placeholder="Describe the issue in detail..."></textarea>
+        <label>Description <span class="required">*</span></label>
+        <textarea id="issueDescription" rows="2" placeholder="Describe the issue in detail..."></textarea>
       </div>
       <div class="modal-group">
         <label>Priority</label>
@@ -452,9 +489,15 @@
     <div class="modal">
       <h3><i class="fas fa-check-circle" style="color:#10b981;"></i> Resolve Issue</h3>
       <p>Mark this issue as resolved.</p>
+      <input type="hidden" id="resolveOrderId">
+      <div id="resolvePreview" class="payment-preview">
+        <div class="preview-row"><span>Client</span><span id="resolveClient">—</span></div>
+        <div class="preview-row"><span>Issue Type</span><span id="resolveIssueType">—</span></div>
+        <div class="preview-row"><span>Description</span><span id="resolveDescription" style="font-weight:400;color:#64748b;">—</span></div>
+      </div>
       <div class="modal-group">
-        <label>Resolution Notes</label>
-        <textarea id="resolutionNotes" placeholder="Describe how this issue was resolved..."></textarea>
+        <label>Resolution Notes <span class="required">*</span></label>
+        <textarea id="resolutionNotes" rows="2" placeholder="Describe how this issue was resolved..."></textarea>
       </div>
       <div class="modal-actions">
         <button class="modal-cancel" id="resolveCancelBtn">Cancel</button>
@@ -498,9 +541,9 @@
 
     let allOrders = {};
     let allIssues = {};
+    let allPayments = {};
     let filteredOrders = [];
     let currentTab = 'all';
-    let actionTargetId = null;
 
     const loadingOverlay = document.getElementById('loadingOverlay');
     const repNameEl = document.getElementById('repName');
@@ -518,6 +561,16 @@
       setTimeout(() => alertEl.classList.remove('show'), 4000);
     }
 
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.remove('active');
+    }
+
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) overlay.classList.remove('active');
+      });
+    });
+
     function formatDate(timestamp) {
       if (!timestamp) return 'N/A';
       const d = new Date(timestamp);
@@ -525,21 +578,12 @@
     }
 
     function getPaymentStatusClass(status) {
-      const map = {
-        'paid': 'status-paid',
-        'pending': 'status-pending',
-        'overdue': 'status-overdue',
-        'partial': 'status-partial'
-      };
+      const map = { 'paid': 'status-paid', 'pending': 'status-pending', 'overdue': 'status-overdue', 'partial': 'status-partial' };
       return map[status] || 'status-pending';
     }
 
     function getIssueStatusClass(status) {
-      const map = {
-        'resolved': 'status-resolved',
-        'unresolved': 'status-unresolved',
-        'in-progress': 'status-in-progress'
-      };
+      const map = { 'resolved': 'status-resolved', 'unresolved': 'status-unresolved' };
       return map[status] || 'status-unresolved';
     }
 
@@ -547,82 +591,48 @@
       const tbody = document.getElementById('tableBody');
 
       if (!orders.length) {
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="7" class="empty-state">
-              <i class="fas fa-inbox"></i>
-              No orders found
-              <p style="font-size:0.7rem;color:#cbd5e1;margin-top:0.3rem;">Orders will appear here once applications are created</p>
-            </td>
-          </tr>
-        `;
+        tbody.innerHTML = `<tr><td colspan="7" class="empty-state"><i class="fas fa-inbox"></i>No orders found<p style="font-size:0.7rem;color:#cbd5e1;margin-top:0.3rem;">Orders will appear here once applications are created</p></td></tr>`;
         return;
       }
 
       tbody.innerHTML = orders.map(order => {
         const hasIssue = allIssues && Object.values(allIssues).some(i => i.orderId === order.id && i.status !== 'resolved');
-        return `
-          <tr>
-            <td>
-              <strong>${order.clientName || 'Unknown'}</strong>
-              <div style="font-size:0.65rem;color:#94a3b8;">${order.clientEmail || 'No email'}</div>
-            </td>
-            <td>${order.service || 'N/A'}</td>
-            <td><strong>KES ${(order.amount || 0).toLocaleString()}</strong></td>
-            <td><span class="status-tag ${getPaymentStatusClass(order.paymentStatus || 'pending')}">${(order.paymentStatus || 'pending').toUpperCase()}</span></td>
-            <td>
-              ${hasIssue ? `<span class="status-tag status-unresolved">⚠️ ISSUE</span>` : `<span class="status-tag status-resolved">✓ OK</span>`}
-            </td>
-            <td style="font-size:0.7rem;color:#94a3b8;">${formatDate(order.createdAt)}</td>
-            <td>
-              <div class="action-cell">
-                <button class="view-btn" data-id="${order.id}" title="View"><i class="fas fa-eye"></i></button>
-                ${order.paymentStatus !== 'paid' ? `<button class="pay-btn" data-id="${order.id}" title="Record Payment"><i class="fas fa-money-bill-wave"></i></button>` : ''}
-                <button class="log-btn" data-id="${order.id}" title="Log Issue"><i class="fas fa-exclamation-triangle"></i></button>
-                ${hasIssue ? `<button class="resolve-btn" data-id="${order.id}" title="Resolve Issue"><i class="fas fa-check-circle"></i></button>` : ''}
-              </div>
-            </td>
-          </tr>
-        `;
+        return `<tr>
+          <td><strong>${order.clientName || 'Unknown'}</strong><div style="font-size:0.65rem;color:#94a3b8;">${order.clientEmail || 'No email'}</div></td>
+          <td>${order.service || 'N/A'}</td>
+          <td><strong>KES ${(order.amount || 0).toLocaleString()}</strong></td>
+          <td><span class="status-tag ${getPaymentStatusClass(order.paymentStatus || 'pending')}">${(order.paymentStatus || 'pending').toUpperCase()}</span></td>
+          <td>${hasIssue ? `<span class="status-tag status-unresolved">⚠️ ISSUE</span>` : `<span class="status-tag status-resolved">✓ OK</span>`}</td>
+          <td style="font-size:0.7rem;color:#94a3b8;">${formatDate(order.createdAt)}</td>
+          <td>
+            <div class="action-cell">
+              <button class="view-btn" data-id="${order.id}" title="View"><i class="fas fa-eye"></i></button>
+              ${order.paymentStatus !== 'paid' ? `<button class="pay-btn" data-id="${order.id}" title="Record Payment"><i class="fas fa-money-bill-wave"></i></button>` : ''}
+              <button class="log-btn" data-id="${order.id}" title="Log Issue"><i class="fas fa-exclamation-triangle"></i></button>
+              ${hasIssue ? `<button class="resolve-btn" data-id="${order.id}" title="Resolve Issue"><i class="fas fa-check-circle"></i></button>` : ''}
+            </div>
+          </td>
+        </tr>`;
       }).join('');
 
       // View button
       tbody.querySelectorAll('.view-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          window.location.href = `/workspaces/digital-services/application-detail.html?id=${btn.dataset.id}`;
-        });
+        btn.addEventListener('click', () => openViewModal(btn.dataset.id));
       });
 
       // Payment button
       tbody.querySelectorAll('.pay-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          actionTargetId = btn.dataset.id;
-          document.getElementById('paymentAmount').value = '';
-          document.getElementById('paymentMethod').value = 'mpesa';
-          document.getElementById('paymentReference').value = '';
-          document.getElementById('paymentNotes').value = '';
-          document.getElementById('paymentModal').classList.add('active');
-        });
+        btn.addEventListener('click', () => openPaymentModal(btn.dataset.id));
       });
 
       // Log Issue button
       tbody.querySelectorAll('.log-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          actionTargetId = btn.dataset.id;
-          document.getElementById('issueType').value = 'other';
-          document.getElementById('issueDescription').value = '';
-          document.getElementById('issuePriority').value = 'medium';
-          document.getElementById('issueModal').classList.add('active');
-        });
+        btn.addEventListener('click', () => openIssueModal(btn.dataset.id));
       });
 
       // Resolve button
       tbody.querySelectorAll('.resolve-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          actionTargetId = btn.dataset.id;
-          document.getElementById('resolutionNotes').value = '';
-          document.getElementById('resolveModal').classList.add('active');
-        });
+        btn.addEventListener('click', () => openResolveModal(btn.dataset.id));
       });
     }
 
@@ -631,7 +641,6 @@
       const pending = orders.filter(o => o.paymentStatus === 'pending' || !o.paymentStatus).length;
       const paid = orders.filter(o => o.paymentStatus === 'paid').length;
       
-      // Count unresolved issues
       let issues = 0;
       orders.forEach(o => {
         const hasIssue = allIssues && Object.values(allIssues).some(i => i.orderId === o.id && i.status !== 'resolved');
@@ -643,7 +652,6 @@
       document.getElementById('paidOrders').textContent = paid;
       document.getElementById('issueCount').textContent = issues;
 
-      // Update badges
       document.getElementById('allBadge').textContent = total;
       document.getElementById('pendingBadge').textContent = pending;
       document.getElementById('paidBadge').textContent = paid;
@@ -658,7 +666,6 @@
         .filter(([_, o]) => o && o.clientName)
         .map(([id, data]) => ({ id, ...data }));
 
-      // Tab filtering
       if (currentTab === 'pending') {
         orders = orders.filter(o => o.paymentStatus === 'pending' || !o.paymentStatus);
       } else if (currentTab === 'paid') {
@@ -687,14 +694,59 @@
       updateStats(orders);
     }
 
-    // Payment Modal
+    // ===== VIEW MODAL =====
+    function openViewModal(id) {
+      const order = allOrders[id];
+      if (!order) { showAlert('Order not found.', 'error'); return; }
+
+      document.getElementById('viewClient').textContent = order.clientName || '—';
+      document.getElementById('viewEmail').textContent = order.clientEmail || '—';
+      document.getElementById('viewPhone').textContent = order.clientPhone || '—';
+      document.getElementById('viewService').textContent = order.service || '—';
+      document.getElementById('viewAmount').textContent = `KES ${(order.amount || 0).toLocaleString()}`;
+      document.getElementById('viewPaymentStatus').textContent = (order.paymentStatus || 'pending').toUpperCase();
+      document.getElementById('viewPriority').textContent = order.priority || 'normal';
+      document.getElementById('viewStaff').textContent = order.assignedStaff || 'Unassigned';
+      document.getElementById('viewStatus').textContent = (order.status || 'pending').toUpperCase();
+      document.getElementById('viewCreated').textContent = formatDate(order.createdAt);
+      
+      const notesRow = document.getElementById('viewNotesRow');
+      const notesEl = document.getElementById('viewNotes');
+      if (order.notes) {
+        notesEl.textContent = order.notes;
+        notesRow.style.display = 'flex';
+      } else {
+        notesRow.style.display = 'none';
+      }
+
+      document.getElementById('viewModal').classList.add('active');
+    }
+
+    // ===== PAYMENT MODAL =====
+    function openPaymentModal(id) {
+      const order = allOrders[id];
+      if (!order) { showAlert('Order not found.', 'error'); return; }
+
+      document.getElementById('paymentOrderId').value = id;
+      document.getElementById('paymentClient').textContent = order.clientName || '—';
+      document.getElementById('paymentService').textContent = order.service || '—';
+      document.getElementById('paymentAmountDue').textContent = `KES ${(order.amount || 0).toLocaleString()}`;
+      document.getElementById('paymentAmount').value = order.amount || 0;
+      document.getElementById('paymentMethod').value = 'mpesa';
+      document.getElementById('paymentReference').value = '';
+      document.getElementById('paymentNotes').value = '';
+
+      document.getElementById('paymentModal').classList.add('active');
+    }
+
     document.getElementById('paymentCancelBtn').addEventListener('click', () => {
-      document.getElementById('paymentModal').classList.remove('active');
-      actionTargetId = null;
+      closeModal('paymentModal');
     });
 
     document.getElementById('paymentSaveBtn').addEventListener('click', async () => {
-      if (!actionTargetId) return;
+      const id = document.getElementById('paymentOrderId').value;
+      if (!id) return;
+
       const amount = parseFloat(document.getElementById('paymentAmount').value);
       if (!amount || amount <= 0) {
         showAlert('Please enter a valid amount.', 'error');
@@ -704,7 +756,7 @@
       try {
         const paymentRef = push(ref(db, 'digital_services_payments'));
         await set(paymentRef, {
-          orderId: actionTargetId,
+          orderId: id,
           amount: amount,
           method: document.getElementById('paymentMethod').value,
           reference: document.getElementById('paymentReference').value.trim(),
@@ -714,29 +766,43 @@
           recordedBy: document.getElementById('repName').textContent || 'Admin'
         });
 
-        await update(ref(db, `digital_services_applications/${actionTargetId}`), {
+        await update(ref(db, `digital_services_applications/${id}`), {
           paymentStatus: 'paid',
           amount: amount,
           updatedAt: Date.now()
         });
 
         showAlert('Payment recorded successfully!', 'success');
-        document.getElementById('paymentModal').classList.remove('active');
-        actionTargetId = null;
+        closeModal('paymentModal');
       } catch (error) {
         console.error('Error recording payment:', error);
         showAlert('Failed to record payment.', 'error');
       }
     });
 
-    // Issue Modal
+    // ===== ISSUE MODAL =====
+    function openIssueModal(id) {
+      const order = allOrders[id];
+      if (!order) { showAlert('Order not found.', 'error'); return; }
+
+      document.getElementById('issueOrderId').value = id;
+      document.getElementById('issueClient').textContent = order.clientName || '—';
+      document.getElementById('issueService').textContent = order.service || '—';
+      document.getElementById('issueType').value = 'other';
+      document.getElementById('issueDescription').value = '';
+      document.getElementById('issuePriority').value = 'medium';
+
+      document.getElementById('issueModal').classList.add('active');
+    }
+
     document.getElementById('issueCancelBtn').addEventListener('click', () => {
-      document.getElementById('issueModal').classList.remove('active');
-      actionTargetId = null;
+      closeModal('issueModal');
     });
 
     document.getElementById('issueSaveBtn').addEventListener('click', async () => {
-      if (!actionTargetId) return;
+      const id = document.getElementById('issueOrderId').value;
+      if (!id) return;
+
       const description = document.getElementById('issueDescription').value.trim();
       if (!description) {
         showAlert('Please describe the issue.', 'error');
@@ -746,7 +812,7 @@
       try {
         const issueRef = push(ref(db, 'digital_services_issues'));
         await set(issueRef, {
-          orderId: actionTargetId,
+          orderId: id,
           type: document.getElementById('issueType').value,
           description: description,
           priority: document.getElementById('issuePriority').value,
@@ -756,64 +822,109 @@
           reportedBy: document.getElementById('repName').textContent || 'Admin'
         });
 
+        // Also update the application to show it has an issue
+        await update(ref(db, `digital_services_applications/${id}`), {
+          hasIssue: true,
+          updatedAt: Date.now()
+        });
+
         showAlert('Issue logged successfully!', 'success');
-        document.getElementById('issueModal').classList.remove('active');
-        actionTargetId = null;
+        closeModal('issueModal');
       } catch (error) {
         console.error('Error logging issue:', error);
         showAlert('Failed to log issue.', 'error');
       }
     });
 
-    // Resolve Modal
+    // ===== RESOLVE MODAL =====
+    function openResolveModal(id) {
+      const order = allOrders[id];
+      if (!order) { showAlert('Order not found.', 'error'); return; }
+
+      // Find the unresolved issue for this order
+      const unresolvedIssues = Object.entries(allIssues || {})
+        .filter(([_, i]) => i.orderId === id && i.status !== 'resolved');
+
+      if (!unresolvedIssues.length) {
+        showAlert('No unresolved issues found for this order.', 'error');
+        return;
+      }
+
+      const [issueId, issue] = unresolvedIssues[0];
+
+      document.getElementById('resolveOrderId').value = id;
+      document.getElementById('resolveClient').textContent = order.clientName || '—';
+      document.getElementById('resolveIssueType').textContent = issue.type || 'Unknown';
+      document.getElementById('resolveDescription').textContent = issue.description || '—';
+      document.getElementById('resolutionNotes').value = '';
+
+      document.getElementById('resolveModal').classList.add('active');
+    }
+
     document.getElementById('resolveCancelBtn').addEventListener('click', () => {
-      document.getElementById('resolveModal').classList.remove('active');
-      actionTargetId = null;
+      closeModal('resolveModal');
     });
 
     document.getElementById('resolveConfirmBtn').addEventListener('click', async () => {
-      if (!actionTargetId) return;
+      const id = document.getElementById('resolveOrderId').value;
+      if (!id) return;
+
+      const resolutionNotes = document.getElementById('resolutionNotes').value.trim();
+      if (!resolutionNotes) {
+        showAlert('Please provide resolution notes.', 'error');
+        return;
+      }
 
       try {
-        // Find and update the unresolved issue for this order
+        // Find and update the unresolved issue
         const issues = Object.entries(allIssues || {})
-          .filter(([_, i]) => i.orderId === actionTargetId && i.status !== 'resolved');
+          .filter(([_, i]) => i.orderId === id && i.status !== 'resolved');
 
         if (!issues.length) {
-          showAlert('No unresolved issues found for this order.', 'error');
-          document.getElementById('resolveModal').classList.remove('active');
-          actionTargetId = null;
+          showAlert('No unresolved issues found.', 'error');
+          closeModal('resolveModal');
           return;
         }
 
         const [issueId] = issues[0];
         await update(ref(db, `digital_services_issues/${issueId}`), {
           status: 'resolved',
-          resolutionNotes: document.getElementById('resolutionNotes').value.trim() || 'Resolved',
+          resolutionNotes: resolutionNotes,
           resolvedAt: Date.now(),
           updatedAt: Date.now(),
           resolvedBy: document.getElementById('repName').textContent || 'Admin'
         });
 
+        // Check if there are any other unresolved issues for this order
+        const remainingIssues = Object.entries(allIssues || {})
+          .filter(([_, i]) => i.orderId === id && i.status !== 'resolved' && i.id !== issueId);
+
+        if (remainingIssues.length === 0) {
+          await update(ref(db, `digital_services_applications/${id}`), {
+            hasIssue: false,
+            updatedAt: Date.now()
+          });
+        }
+
         showAlert('Issue resolved successfully!', 'success');
-        document.getElementById('resolveModal').classList.remove('active');
-        actionTargetId = null;
+        closeModal('resolveModal');
       } catch (error) {
         console.error('Error resolving issue:', error);
         showAlert('Failed to resolve issue.', 'error');
       }
     });
 
-    // Close modals on overlay click
-    document.querySelectorAll('.modal-overlay').forEach(overlay => {
-      overlay.addEventListener('click', (e) => {
-        if (e.target === overlay) {
-          overlay.classList.remove('active');
-          actionTargetId = null;
-        }
+    // ===== TABS =====
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentTab = btn.dataset.tab;
+        applyFilters();
       });
     });
 
+    // ===== LISTENERS =====
     function setupListeners() {
       onValue(ref(db, 'digital_services_applications'), (snap) => {
         allOrders = snap.val() || {};
@@ -825,19 +936,14 @@
         allIssues = snap.val() || {};
         applyFilters();
       });
-    }
 
-    // Tabs
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        currentTab = btn.dataset.tab;
+      onValue(ref(db, 'digital_services_payments'), (snap) => {
+        allPayments = snap.val() || {};
         applyFilters();
       });
-    });
+    }
 
-    // Auth
+    // ===== AUTH =====
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         try {
@@ -882,6 +988,9 @@
     });
 
     setTimeout(() => loadingOverlay.classList.add('hide'), 5000);
+
+    // Make closeModal globally accessible
+    window.closeModal = closeModal;
   </script>
 </body>
 </html>
