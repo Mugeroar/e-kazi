@@ -307,6 +307,7 @@
     let services = [];
     let staffMembers = [];
     let allClients = {};
+    let applications = {};
 
     const loadingOverlay = document.getElementById('loadingOverlay');
     const repNameEl = document.getElementById('repName');
@@ -331,15 +332,17 @@
       const serviceSelect = document.getElementById('serviceSelect');
       serviceSelect.innerHTML = '<option value="">— Select a service —</option>';
 
+      console.log('Loading services into dropdown:', services.length);
+
       if (!services.length) {
-        serviceSelect.innerHTML += '<option value="" disabled>No services available</option>';
+        serviceSelect.innerHTML += '<option value="" disabled>No services available — add one in Services Management</option>';
         return;
       }
 
       services.forEach(service => {
         const option = document.createElement('option');
-        option.value = service.id || service.name;
-        option.textContent = service.name;
+        option.value = service.name;
+        option.textContent = service.name + (service.fee ? ` (KES ${service.fee.toLocaleString()})` : '');
         if (service.description) {
           option.title = service.description;
         }
@@ -358,7 +361,7 @@
 
       staffMembers.forEach(staff => {
         const option = document.createElement('option');
-        option.value = staff.id || staff.name;
+        option.value = staff.name;
         option.textContent = staff.name;
         staffSelect.appendChild(option);
       });
@@ -448,6 +451,8 @@
           priority: priority || 'normal',
           assignedStaff: assignedStaff || '',
           notes: notes || '',
+          paymentStatus: 'pending',
+          amount: 0,
           status: 'pending',
           createdAt: Date.now(),
           updatedAt: Date.now()
@@ -483,8 +488,10 @@
         services = Object.entries(data).map(([id, value]) => ({
           id: id,
           name: value.name || value.serviceName || id,
+          fee: value.fee || 0,
           description: value.description || ''
         }));
+        console.log('Services loaded:', services.length);
         loadServices();
         loadingOverlay.classList.add('hide');
       });
@@ -502,6 +509,11 @@
       // Load clients for duplicate checking
       onValue(ref(db, 'digital_services_clients'), (snap) => {
         allClients = snap.val() || {};
+      });
+
+      // Load applications for reference
+      onValue(ref(db, 'digital_services_applications'), (snap) => {
+        applications = snap.val() || {};
       });
     }
 
