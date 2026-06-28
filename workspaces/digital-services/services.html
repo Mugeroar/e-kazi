@@ -12,6 +12,9 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
   
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -112,13 +115,17 @@
     }
     .page-header p { color: #475569; font-size: 0.8rem; margin-top: 0.2rem; margin-left: 48px; }
 
+    /* Stats Grid - Dashboard Style */
     .stats-grid {
       display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 1.2rem;
     }
     .stat-card {
       background: white; border-radius: 16px; padding: 0.8rem 1.2rem;
       border: 1px solid #f1eaff; display: flex; align-items: center; justify-content: space-between;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+      transition: all 0.2s;
     }
+    .stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-color: var(--primary-light); }
     .stat-card .stat-left h4 { font-size: 0.6rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; color: #64748b; }
     .stat-card .stat-number { font-size: 1.4rem; font-weight: 800; color: #0f172a; }
     .stat-card .stat-number.empty { color: #94a3b8; font-weight: 400; font-size: 1.2rem; }
@@ -127,9 +134,25 @@
       display: flex; align-items: center; justify-content: center; color: #7c3aed; font-size: 1rem;
     }
 
+    /* Charts Row */
+    .charts-row {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
+      margin-bottom: 1.2rem;
+    }
+    .chart-card {
+      background: white; border-radius: 16px; padding: 1.2rem;
+      border: 1px solid #f1eaff; box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+    }
+    .chart-card h4 {
+      font-size: 0.7rem; font-weight: 600; color: var(--gray-500);
+      margin-bottom: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .chart-container { height: 200px; position: relative; }
+
+    /* Service Section */
     .service-section {
       background: white; border-radius: 20px; padding: 1.5rem;
-      border: 1px solid #f1eaff;
+      border: 1px solid #f1eaff; box-shadow: 0 4px 12px rgba(0,0,0,0.02);
     }
     .service-header {
       display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;
@@ -145,38 +168,65 @@
     }
     .add-service-btn:hover { background: #6d28d9; transform: translateY(-2px); }
 
+    /* Service Cards - Dashboard Style */
     .service-list {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px;
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px;
       margin-top: 0.5rem;
     }
-    .service-item {
-      display: flex; align-items: center; justify-content: space-between;
-      background: #f8fafc; padding: 0.6rem 1rem; border-radius: 12px;
-      border: 1px solid #f1eaff; transition: all 0.2s;
+    .service-card {
+      background: #f8fafc; border: 1px solid #f1eaff; border-radius: 14px;
+      padding: 1.2rem; transition: all 0.25s; cursor: pointer;
+      position: relative; overflow: hidden;
     }
-    .service-item:hover { background: white; border-color: #e9d5ff; }
-    .service-item .service-info { display: flex; align-items: center; gap: 10px; flex: 1; }
-    .service-item .service-info .service-icon {
-      width: 28px; height: 28px; background: #f5f0ff; border-radius: 8px;
-      display: flex; align-items: center; justify-content: center; color: #7c3aed; font-size: 0.7rem;
+    .service-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0;
+      height: 3px; background: linear-gradient(90deg, #7c3aed, #a78bfa);
+      opacity: 0; transition: opacity 0.3s;
     }
-    .service-item .service-info .service-name { font-size: 0.8rem; font-weight: 500; }
-    .service-item .service-info .service-fee {
-      font-size: 0.65rem; color: #10b981; font-weight: 600;
-      background: #d1fae5; padding: 0.1rem 0.5rem; border-radius: 20px;
+    .service-card:hover { 
+      transform: translateY(-3px); 
+      box-shadow: 0 8px 25px -8px rgba(124,58,237,0.15); 
+      background: white;
+      border-color: #c9b3ff;
     }
-    .service-item .service-info .service-count {
-      font-size: 0.6rem; color: #94a3b8; background: #f1f5f9; padding: 0.1rem 0.5rem;
-      border-radius: 20px;
+    .service-card:hover::before { opacity: 1; }
+    
+    .service-card .card-top {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      margin-bottom: 0.5rem;
     }
-    .service-item .service-actions { display: flex; gap: 5px; }
-    .service-item .service-actions button {
-      background: transparent; border: none; padding: 0.2rem 0.4rem;
-      border-radius: 8px; cursor: pointer; font-size: 0.7rem; transition: all 0.2s;
+    .service-card .card-icon {
+      width: 40px; height: 40px; background: #f5f0ff; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center; color: #7c3aed; font-size: 1.1rem;
+    }
+    .service-card .card-badge {
+      font-size: 0.55rem; font-weight: 700; padding: 0.15rem 0.6rem;
+      border-radius: 20px; background: #d1fae5; color: #065f46;
+    }
+    .service-card .card-name {
+      font-size: 0.95rem; font-weight: 700; margin-bottom: 0.2rem;
+    }
+    .service-card .card-fee {
+      font-size: 0.7rem; color: #10b981; font-weight: 600;
+    }
+    .service-card .card-stats {
+      display: flex; gap: 1rem; margin: 0.6rem 0; font-size: 0.7rem; color: #64748b;
+    }
+    .service-card .card-stats span { display: flex; align-items: center; gap: 4px; }
+    .service-card .card-stats i { color: #7c3aed; width: 14px; }
+    .service-card .card-footer {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 0.6rem; padding-top: 0.6rem; border-top: 1px solid #f1f5f9;
+    }
+    .service-card .card-actions { display: flex; gap: 4px; }
+    .service-card .card-actions button {
+      background: transparent; border: none; padding: 0.2rem 0.5rem;
+      border-radius: 8px; cursor: pointer; font-size: 0.65rem; transition: all 0.2s;
       color: #94a3b8;
     }
-    .service-item .service-actions .edit-btn:hover { background: #dbeafe; color: #3b82f6; }
-    .service-item .service-actions .delete-btn:hover { background: #fee2e2; color: #ef4444; }
+    .service-card .card-actions .edit-btn:hover { background: #dbeafe; color: #3b82f6; }
+    .service-card .card-actions .delete-btn:hover { background: #fee2e2; color: #ef4444; }
+    .service-card .card-actions .history-btn:hover { background: #f5f0ff; color: #7c3aed; }
 
     .empty-state { text-align: center; padding: 2rem; color: #94a3b8; font-size: 0.85rem; grid-column: 1 / -1; }
     .empty-state i { font-size: 1.8rem; display: block; margin-bottom: 0.5rem; opacity: 0.4; }
@@ -204,7 +254,7 @@
     .alert-error { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
     .alert-info { background: #dbeafe; color: #1e40af; border: 1px solid #93c5fd; }
 
-    /* MODALS */
+    /* ===== MODALS ===== */
     .modal-overlay {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(0,0,0,0.4); backdrop-filter: blur(4px);
@@ -212,10 +262,11 @@
     }
     .modal-overlay.active { display: flex; }
     .modal {
-      background: white; border-radius: 20px; padding: 2rem; max-width: 480px; width: 90%;
+      background: white; border-radius: 20px; padding: 2rem; max-width: 650px; width: 90%;
       box-shadow: 0 30px 60px rgba(0,0,0,0.2);
       max-height: 90vh; overflow-y: auto;
     }
+    .modal-large { max-width: 800px; }
     .modal h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.3rem; display: flex; align-items: center; gap: 8px; }
     .modal p { color: #64748b; font-size: 0.85rem; margin-bottom: 1.2rem; }
     .modal .modal-group { margin-bottom: 1rem; }
@@ -244,6 +295,22 @@
     .modal .modal-actions .modal-save:hover { background: #6d28d9; }
     .modal .modal-actions .modal-delete { background: #ef4444; color: white; }
     .modal .modal-actions .modal-delete:hover { background: #dc2626; }
+    .modal .modal-actions .modal-info { background: #3b82f6; color: white; }
+    .modal .modal-actions .modal-info:hover { background: #2563eb; }
+
+    .history-list { max-height: 400px; overflow-y: auto; }
+    .history-item {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0.6rem 0.8rem; border-bottom: 1px solid #f1f5f9;
+      transition: background 0.2s; cursor: pointer;
+    }
+    .history-item:hover { background: #faf8ff; }
+    .history-item .h-left { display: flex; flex-direction: column; gap: 2px; }
+    .history-item .h-name { font-weight: 600; font-size: 0.85rem; }
+    .history-item .h-detail { font-size: 0.7rem; color: #64748b; }
+    .history-item .h-right { text-align: right; }
+    .history-item .h-status { font-size: 0.6rem; font-weight: 600; }
+    .history-item .h-date { font-size: 0.65rem; color: #94a3b8; }
 
     .fee-input-wrapper { position: relative; }
     .fee-input-wrapper .currency {
@@ -252,6 +319,16 @@
     }
     .fee-input-wrapper input { padding-left: 2.2rem; }
 
+    /* Status colors for history */
+    .status-completed { color: #10b981; }
+    .status-pending { color: #f59e0b; }
+    .status-processing { color: #3b82f6; }
+    .status-rejected { color: #ef4444; }
+    .status-delivered { color: #8b5cf6; }
+
+    @media (max-width: 1024px) {
+      .charts-row { grid-template-columns: 1fr; }
+    }
     @media (max-width: 700px) {
       .stats-grid { grid-template-columns: repeat(2, 1fr); }
       .container { padding: 0.8rem; }
@@ -259,6 +336,7 @@
       .page-header h1 { font-size: 1.1rem; }
       .modal { padding: 1.2rem; }
       .service-list { grid-template-columns: 1fr; }
+      .modal-large { max-width: 95%; }
     }
   </style>
 </head>
@@ -286,24 +364,52 @@
   <div class="container">
     <div class="page-header">
       <h1><i class="fas fa-cogs"></i> Services Management</h1>
-      <p>Manage available services, set fees, and track usage analytics.</p>
+      <p>Manage available services, track usage analytics, and view service history.</p>
     </div>
 
     <div id="alertMessage" class="alert"></div>
 
+    <!-- Stats Grid -->
     <div class="stats-grid">
-      <div class="stat-card"><div class="stat-left"><h4>Total Services</h4><div class="stat-number empty" id="totalServices">--</div></div><div class="stat-icon"><i class="fas fa-cog"></i></div></div>
-      <div class="stat-card"><div class="stat-left"><h4>Total Applications</h4><div class="stat-number empty" id="totalApps">--</div></div><div class="stat-icon"><i class="fas fa-file-alt"></i></div></div>
-      <div class="stat-card"><div class="stat-left"><h4>Most Used</h4><div class="stat-number empty" id="mostUsed" style="font-size:1rem;">--</div></div><div class="stat-icon"><i class="fas fa-trophy" style="color:#f59e0b;"></i></div></div>
-      <div class="stat-card"><div class="stat-left"><h4>Highest Fee</h4><div class="stat-number empty" id="highestFee" style="font-size:1rem;">--</div></div><div class="stat-icon"><i class="fas fa-arrow-up" style="color:#10b981;"></i></div></div>
+      <div class="stat-card">
+        <div class="stat-left"><h4>Total Services</h4><div class="stat-number empty" id="totalServices">--</div></div>
+        <div class="stat-icon"><i class="fas fa-cog"></i></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-left"><h4>Total Applications</h4><div class="stat-number empty" id="totalApps">--</div></div>
+        <div class="stat-icon"><i class="fas fa-file-alt"></i></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-left"><h4>Most Used</h4><div class="stat-number empty" id="mostUsed" style="font-size:1rem;">--</div></div>
+        <div class="stat-icon"><i class="fas fa-trophy" style="color:#f59e0b;"></i></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-left"><h4>Highest Fee</h4><div class="stat-number empty" id="highestFee" style="font-size:1rem;">--</div></div>
+        <div class="stat-icon"><i class="fas fa-arrow-up" style="color:#10b981;"></i></div>
+      </div>
     </div>
 
+    <!-- Charts Row -->
+    <div class="charts-row">
+      <div class="chart-card">
+        <h4><i class="fas fa-chart-pie"></i> Usage Distribution</h4>
+        <div class="chart-container"><canvas id="usageChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h4><i class="fas fa-chart-bar"></i> Applications by Service</h4>
+        <div class="chart-container"><canvas id="barChart"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Service Section -->
     <div class="service-section">
       <div class="service-header">
         <h2><i class="fas fa-list"></i> All Services</h2>
         <button class="add-service-btn" id="openAddModalBtn"><i class="fas fa-plus"></i> Add Service</button>
       </div>
-      <div class="service-list" id="serviceList"><div class="empty-state"><i class="fas fa-cog"></i>No services added yet<p style="font-size:0.7rem;color:#cbd5e1;margin-top:0.3rem;">Click "Add Service" to get started</p></div></div>
+      <div class="service-list" id="serviceList">
+        <div class="empty-state"><i class="fas fa-cog"></i>No services added yet<p style="font-size:0.7rem;color:#cbd5e1;margin-top:0.3rem;">Click "Add Service" to get started</p></div>
+      </div>
     </div>
   </div>
 
@@ -323,6 +429,20 @@
       <div class="modal-actions">
         <button class="modal-cancel" id="modalCancelBtn">Cancel</button>
         <button class="modal-save" id="modalSaveBtn"><i class="fas fa-check"></i> <span id="modalSaveText">Add Service</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Service History Modal -->
+  <div class="modal-overlay" id="serviceHistoryModal">
+    <div class="modal modal-large">
+      <h3><i class="fas fa-history" style="color:#3b82f6;"></i> Service History</h3>
+      <p id="serviceHistoryDesc">All applications using this service.</p>
+      <div class="history-list" id="serviceHistoryList">
+        <div class="empty-state" style="padding:1rem;">Loading history...</div>
+      </div>
+      <div class="modal-actions">
+        <button class="modal-cancel" onclick="closeModal('serviceHistoryModal')">Close</button>
       </div>
     </div>
   </div>
@@ -374,6 +494,8 @@
     let applications = {};
     let editingServiceId = null;
     let deletingServiceId = null;
+    let usageChartInstance = null;
+    let barChartInstance = null;
 
     const loadingOverlay = document.getElementById('loadingOverlay');
     const repNameEl = document.getElementById('repName');
@@ -394,40 +516,118 @@
       overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.classList.remove('active'); });
     });
 
+    window.closeModal = closeModal;
+
+    function getStatusClass(status) {
+      const map = {
+        'pending': 'status-pending',
+        'processing': 'status-processing',
+        'qa': 'status-pending',
+        'submitted': 'status-processing',
+        'delivered': 'status-delivered',
+        'rejected': 'status-rejected',
+        'completed': 'status-completed'
+      };
+      return map[status] || 'status-pending';
+    }
+
     function getServiceUsage() {
       const usage = {};
       const apps = Object.values(applications).filter(a => a && a.service);
-      apps.forEach(app => { usage[app.service] = (usage[app.service] || 0) + 1; });
+      apps.forEach(app => {
+        const serviceName = app.service;
+        usage[serviceName] = (usage[serviceName] || 0) + 1;
+      });
       return usage;
+    }
+
+    function updateCharts() {
+      const usage = getServiceUsage();
+      const sorted = Object.entries(usage).sort((a, b) => b[1] - a[1]);
+      const labels = sorted.slice(0, 8).map(([name]) => name.length > 20 ? name.substring(0, 18) + '...' : name);
+      const data = sorted.slice(0, 8).map(([_, count]) => count);
+      const colors = ['#7c3aed', '#8b5cf6', '#a78bfa', '#c084fc', '#e9d5ff', '#f5f0ff', '#6d28d9', '#5b21b6'];
+
+      // Pie Chart
+      const ctx = document.getElementById('usageChart').getContext('2d');
+      if (usageChartInstance) usageChartInstance.destroy();
+      usageChartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: labels.length ? labels : ['No Data'],
+          datasets: [{ data: data.length ? data : [1], backgroundColor: labels.length ? colors.slice(0, data.length) : ['#e2e8f0'], borderWidth: 0 }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: true,
+          plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 9 }, padding: 8 } } }
+        }
+      });
+
+      // Bar Chart
+      const ctx2 = document.getElementById('barChart').getContext('2d');
+      if (barChartInstance) barChartInstance.destroy();
+      barChartInstance = new Chart(ctx2, {
+        type: 'bar',
+        data: {
+          labels: labels.length ? labels : ['No Data'],
+          datasets: [{ label: 'Applications', data: data.length ? data : [0], backgroundColor: '#7c3aed', borderRadius: 4 }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: true,
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: true, grid: { color: '#f1f5f9' } }, x: { grid: { display: false } } }
+        }
+      });
     }
 
     function renderServiceList() {
       const list = document.getElementById('serviceList');
       const entries = Object.entries(services).filter(([_, s]) => s && s.name);
+
       if (!entries.length) {
         list.innerHTML = `<div class="empty-state"><i class="fas fa-cog"></i>No services added yet<p style="font-size:0.7rem;color:#cbd5e1;margin-top:0.3rem;">Click "Add Service" to get started</p></div>`;
         return;
       }
+
       const usage = getServiceUsage();
       const sorted = entries.sort((a, b) => (a[1].name || '').localeCompare(b[1].name || ''));
+
       list.innerHTML = sorted.map(([id, service]) => {
         const count = usage[service.name] || 0;
         const fee = service.fee || 0;
-        return `<div class="service-item">
-          <div class="service-info">
-            <div class="service-icon"><i class="fas fa-cog"></i></div>
-            <span class="service-name">${service.name}</span>
-            ${fee > 0 ? `<span class="service-fee">KES ${fee.toLocaleString()}</span>` : ''}
-            <span class="service-count">${count} apps</span>
+        const hasHistory = count > 0;
+        return `
+          <div class="service-card">
+            <div class="card-top">
+              <div class="card-icon"><i class="fas fa-cog"></i></div>
+              ${count > 5 ? '<span class="card-badge">🔥 Popular</span>' : count > 0 ? '<span class="card-badge" style="background:#dbeafe;color:#1e40af;">Active</span>' : '<span class="card-badge" style="background:#f1f5f9;color:#94a3b8;">Inactive</span>'}
+            </div>
+            <div class="card-name">${service.name}</div>
+            <div class="card-fee">${fee > 0 ? 'KES ' + fee.toLocaleString() : 'No fee set'}</div>
+            <div class="card-stats">
+              <span><i class="fas fa-file-alt"></i> ${count} applications</span>
+              ${service.description ? `<span><i class="fas fa-align-left"></i> ${service.description.length > 30 ? service.description.substring(0, 30) + '...' : service.description}</span>` : ''}
+            </div>
+            <div class="card-footer">
+              <span style="font-size:0.65rem;color:#94a3b8;">${service.createdAt ? new Date(service.createdAt).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) : 'N/A'}</span>
+              <div class="card-actions">
+                ${hasHistory ? `<button class="history-btn" data-id="${id}" title="View History"><i class="fas fa-history"></i></button>` : ''}
+                <button class="edit-btn" data-id="${id}" title="Edit"><i class="fas fa-edit"></i></button>
+                <button class="delete-btn" data-id="${id}" title="Delete"><i class="fas fa-trash"></i></button>
+              </div>
+            </div>
           </div>
-          <div class="service-actions">
-            <button class="edit-btn" data-id="${id}" title="Edit"><i class="fas fa-edit"></i></button>
-            <button class="delete-btn" data-id="${id}" title="Delete"><i class="fas fa-trash"></i></button>
-          </div>
-        </div>`;
+        `;
       }).join('');
-      document.querySelectorAll('.edit-btn').forEach(btn => btn.addEventListener('click', () => openEditModal(btn.dataset.id)));
-      document.querySelectorAll('.delete-btn').forEach(btn => btn.addEventListener('click', () => openDeleteModal(btn.dataset.id)));
+
+      // Edit buttons
+      document.querySelectorAll('.edit-btn').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); openEditModal(btn.dataset.id); }));
+      
+      // Delete buttons
+      document.querySelectorAll('.delete-btn').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); openDeleteModal(btn.dataset.id); }));
+      
+      // History buttons
+      document.querySelectorAll('.history-btn').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); openServiceHistory(btn.dataset.id); }));
     }
 
     function updateStats() {
@@ -440,6 +640,7 @@
       let highestFee = '--', highestFeeAmount = 0;
       serviceEntries.forEach(s => { if ((s.fee || 0) > highestFeeAmount) { highestFeeAmount = s.fee || 0; highestFee = s.name; } });
       if (highestFeeAmount > 0) highestFee = `${highestFee} (KES ${highestFeeAmount.toLocaleString()})`;
+      
       document.getElementById('totalServices').textContent = serviceCount;
       document.getElementById('totalServices').className = 'stat-number';
       document.getElementById('totalApps').textContent = appCount;
@@ -448,8 +649,44 @@
       document.getElementById('mostUsed').className = 'stat-number';
       document.getElementById('highestFee').textContent = highestFee;
       document.getElementById('highestFee').className = 'stat-number';
+      
+      updateCharts();
     }
 
+    // ===== SERVICE HISTORY =====
+    function openServiceHistory(serviceId) {
+      const service = services[serviceId];
+      if (!service) { showAlert('Service not found.', 'error'); return; }
+      
+      document.getElementById('serviceHistoryDesc').textContent = `All applications using "${service.name}"`;
+      
+      const apps = Object.entries(applications)
+        .filter(([_, a]) => a && a.service === service.name)
+        .map(([id, a]) => ({ id, ...a }))
+        .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+      const list = document.getElementById('serviceHistoryList');
+      if (!apps.length) {
+        list.innerHTML = `<div class="empty-state" style="padding:1rem;"><i class="fas fa-inbox"></i>No applications using this service yet</div>`;
+      } else {
+        list.innerHTML = apps.map(app => `
+          <div class="history-item" onclick="window.location.href='/workspaces/digital-services/application-detail.html?id=${app.id}'">
+            <div class="h-left">
+              <span class="h-name">${app.clientName || 'Unknown Client'}</span>
+              <span class="h-detail">${app.service} · ${app.assignedStaff || 'Unassigned'}</span>
+            </div>
+            <div class="h-right">
+              <div class="h-status ${getStatusClass(app.status)}">${(app.status || 'pending').toUpperCase()}</div>
+              <div class="h-date">${app.createdAt ? new Date(app.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A'}</div>
+            </div>
+          </div>
+        `).join('');
+      }
+      
+      document.getElementById('serviceHistoryModal').classList.add('active');
+    }
+
+    // ===== ADD/EDIT MODAL =====
     function openAddModal() {
       editingServiceId = null;
       document.getElementById('modalTitle').innerHTML = '<i class="fas fa-plus-circle" style="color:#7c3aed;"></i> Add New Service';
@@ -532,6 +769,10 @@
     document.getElementById('modalSaveBtn').addEventListener('click', saveService);
     document.getElementById('deleteCancelBtn').addEventListener('click', () => { closeModal('deleteModal'); deletingServiceId = null; });
     document.getElementById('deleteConfirmBtn').addEventListener('click', deleteService);
+
+    // Enter key support
+    document.getElementById('serviceNameInput').addEventListener('keyup', (e) => { if (e.key === 'Enter') { e.preventDefault(); document.getElementById('serviceFeeInput').focus(); } });
+    document.getElementById('serviceFeeInput').addEventListener('keyup', (e) => { if (e.key === 'Enter') { e.preventDefault(); saveService(); } });
 
     function setupListeners() {
       onValue(ref(db, 'digital_services_services'), (snap) => { services = snap.val() || {}; renderServiceList(); updateStats(); loadingOverlay.classList.add('hide'); });
