@@ -7,7 +7,6 @@
   
   <meta name="theme-color" content="#7c3aed">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   
   <link rel="icon" type="image/png" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
@@ -16,10 +15,33 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
+    :root {
+      --primary: #7c3aed;
+      --primary-dark: #5b21b6;
+      --primary-light: #a78bfa;
+      --primary-bg: #f5f0ff;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --info: #3b82f6;
+      --text-primary: #1e293b;
+      --text-muted: #64748b;
+      --border-light: #e9d5ff;
+      --gray-50: #f8fafc;
+      --gray-100: #f1f5f9;
+      --gray-200: #e2e8f0;
+      --gray-300: #cbd5e1;
+      --gray-400: #94a3b8;
+      --gray-500: #64748b;
+      --gray-600: #475569;
+      --gray-700: #334155;
+      --gray-800: #1e293b;
+    }
+
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       background: linear-gradient(145deg, #f8f6fc 0%, #ffffff 100%);
-      color: #1a1a2e;
+      color: var(--text-primary);
       line-height: 1.4;
       min-height: 100vh;
       display: flex;
@@ -90,7 +112,6 @@
     }
     .page-header p { color: #475569; font-size: 0.8rem; margin-top: 0.2rem; margin-left: 48px; }
 
-    /* Stats Grid */
     .stats-grid {
       display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 1.2rem;
     }
@@ -106,7 +127,6 @@
       display: flex; align-items: center; justify-content: center; color: #7c3aed; font-size: 1rem;
     }
 
-    /* Service Section */
     .service-section {
       background: white; border-radius: 20px; padding: 1.5rem;
       border: 1px solid #f1eaff;
@@ -158,10 +178,7 @@
     .service-item .service-actions .edit-btn:hover { background: #dbeafe; color: #3b82f6; }
     .service-item .service-actions .delete-btn:hover { background: #fee2e2; color: #ef4444; }
 
-    .empty-state {
-      text-align: center; padding: 2rem; color: #94a3b8; font-size: 0.85rem;
-      grid-column: 1 / -1;
-    }
+    .empty-state { text-align: center; padding: 2rem; color: #94a3b8; font-size: 0.85rem; grid-column: 1 / -1; }
     .empty-state i { font-size: 1.8rem; display: block; margin-bottom: 0.5rem; opacity: 0.4; }
 
     .footer { text-align: center; padding: 1rem; color: #94a3b8; border-top: 1px solid #f1eaff; font-size: 0.7rem; margin-top: 1.5rem; }
@@ -187,7 +204,7 @@
     .alert-error { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
     .alert-info { background: #dbeafe; color: #1e40af; border: 1px solid #93c5fd; }
 
-    /* ===== MODALS ===== */
+    /* MODALS */
     .modal-overlay {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(0,0,0,0.4); backdrop-filter: blur(4px);
@@ -213,6 +230,12 @@
       border-color: #7c3aed; background: white;
     }
     .modal .modal-group textarea { resize: vertical; min-height: 50px; }
+    .modal .modal-group .detail-row {
+      display: flex; justify-content: space-between; padding: 0.3rem 0;
+      border-bottom: 1px solid #f1f5f9; font-size: 0.8rem;
+    }
+    .modal .modal-group .detail-row .label { color: #64748b; }
+    .modal .modal-group .detail-row .value { font-weight: 600; }
     .modal .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 0.5rem; }
     .modal .modal-actions button { padding: 0.5rem 1.5rem; border-radius: 30px; font-weight: 600; font-size: 0.8rem; cursor: pointer; transition: all 0.2s; border: none; }
     .modal .modal-actions .modal-cancel { background: #f1f5f9; color: #475569; }
@@ -268,41 +291,19 @@
 
     <div id="alertMessage" class="alert"></div>
 
-    <!-- Stats Grid -->
     <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-left"><h4>Total Services</h4><div class="stat-number empty" id="totalServices">--</div></div>
-        <div class="stat-icon"><i class="fas fa-cog"></i></div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-left"><h4>Total Applications</h4><div class="stat-number empty" id="totalApps">--</div></div>
-        <div class="stat-icon"><i class="fas fa-file-alt"></i></div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-left"><h4>Most Used</h4><div class="stat-number empty" id="mostUsed" style="font-size:1rem;">--</div></div>
-        <div class="stat-icon"><i class="fas fa-trophy" style="color:#f59e0b;"></i></div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-left"><h4>Highest Fee</h4><div class="stat-number empty" id="highestFee" style="font-size:1rem;">--</div></div>
-        <div class="stat-icon"><i class="fas fa-arrow-up" style="color:#10b981;"></i></div>
-      </div>
+      <div class="stat-card"><div class="stat-left"><h4>Total Services</h4><div class="stat-number empty" id="totalServices">--</div></div><div class="stat-icon"><i class="fas fa-cog"></i></div></div>
+      <div class="stat-card"><div class="stat-left"><h4>Total Applications</h4><div class="stat-number empty" id="totalApps">--</div></div><div class="stat-icon"><i class="fas fa-file-alt"></i></div></div>
+      <div class="stat-card"><div class="stat-left"><h4>Most Used</h4><div class="stat-number empty" id="mostUsed" style="font-size:1rem;">--</div></div><div class="stat-icon"><i class="fas fa-trophy" style="color:#f59e0b;"></i></div></div>
+      <div class="stat-card"><div class="stat-left"><h4>Highest Fee</h4><div class="stat-number empty" id="highestFee" style="font-size:1rem;">--</div></div><div class="stat-icon"><i class="fas fa-arrow-up" style="color:#10b981;"></i></div></div>
     </div>
 
-    <!-- Service List -->
     <div class="service-section">
       <div class="service-header">
         <h2><i class="fas fa-list"></i> All Services</h2>
-        <button class="add-service-btn" id="openAddModalBtn">
-          <i class="fas fa-plus"></i> Add Service
-        </button>
+        <button class="add-service-btn" id="openAddModalBtn"><i class="fas fa-plus"></i> Add Service</button>
       </div>
-      <div class="service-list" id="serviceList">
-        <div class="empty-state">
-          <i class="fas fa-cog"></i>
-          No services added yet
-          <p style="font-size:0.7rem;color:#cbd5e1;margin-top:0.3rem;">Click "Add Service" to get started</p>
-        </div>
-      </div>
+      <div class="service-list" id="serviceList"><div class="empty-state"><i class="fas fa-cog"></i>No services added yet<p style="font-size:0.7rem;color:#cbd5e1;margin-top:0.3rem;">Click "Add Service" to get started</p></div></div>
     </div>
   </div>
 
@@ -311,30 +312,14 @@
     <div class="modal">
       <h3 id="modalTitle"><i class="fas fa-plus-circle" style="color:#7c3aed;"></i> Add New Service</h3>
       <p id="modalDescription">Enter the service details below.</p>
-      
-      <div class="modal-group">
-        <label>Service Name <span class="required">*</span></label>
-        <input type="text" id="serviceNameInput" placeholder="e.g. Passport Application" />
+      <div class="modal-group"><label>Service Name <span class="required">*</span></label><input type="text" id="serviceNameInput" placeholder="e.g. Passport Application" /></div>
+      <div class="modal-group"><label>Service Fee (KES) <span class="required">*</span></label>
+        <div class="fee-input-wrapper"><span class="currency">KES</span><input type="number" id="serviceFeeInput" placeholder="e.g. 1500" min="0" step="50" /></div>
       </div>
-      
-      <div class="modal-group">
-        <label>Service Fee (KES) <span class="required">*</span></label>
-        <div class="fee-input-wrapper">
-          <span class="currency">KES</span>
-          <input type="number" id="serviceFeeInput" placeholder="e.g. 1500" min="0" step="50" />
-        </div>
-      </div>
-      
-      <div class="modal-group">
-        <label>Description</label>
-        <textarea id="serviceDescInput" placeholder="Brief description of this service..."></textarea>
-      </div>
-      
+      <div class="modal-group"><label>Description</label><textarea id="serviceDescInput" placeholder="Brief description of this service..."></textarea></div>
       <div class="modal-group" id="serviceUsageGroup" style="display:none;">
-        <label>Usage Count</label>
-        <input type="text" id="serviceUsageInput" disabled style="background:#f1f5f9;color:#475569;" />
+        <label>Usage Count</label><input type="text" id="serviceUsageInput" disabled style="background:#f1f5f9;color:#475569;" />
       </div>
-      
       <div class="modal-actions">
         <button class="modal-cancel" id="modalCancelBtn">Cancel</button>
         <button class="modal-save" id="modalSaveBtn"><i class="fas fa-check"></i> <span id="modalSaveText">Add Service</span></button>
@@ -342,7 +327,7 @@
     </div>
   </div>
 
-  <!-- Delete Confirmation Modal -->
+  <!-- Delete Modal -->
   <div class="modal-overlay" id="deleteModal">
     <div class="modal">
       <h3><i class="fas fa-trash" style="color:#ef4444;"></i> Delete Service</h3>
@@ -354,9 +339,7 @@
     </div>
   </div>
 
-  <div class="footer">
-    <i class="far fa-copyright"></i> 2026 KazInni Workspaces • Digital Services • Services Management
-  </div>
+  <div class="footer"><i class="far fa-copyright"></i> 2026 KazInni Workspaces • Digital Services • Services Management</div>
 
   <script type="importmap">
     {
@@ -396,10 +379,7 @@
     const repNameEl = document.getElementById('repName');
     const repAvatarEl = document.getElementById('repAvatar');
 
-    function getInitials(name) {
-      if (!name) return 'DS';
-      return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
-    }
+    function getInitials(name) { if (!name) return 'DS'; return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2); }
 
     function showAlert(message, type = 'info') {
       const alertEl = document.getElementById('alertMessage');
@@ -408,62 +388,46 @@
       setTimeout(() => alertEl.classList.remove('show'), 4000);
     }
 
+    function closeModal(modalId) { document.getElementById(modalId).classList.remove('active'); }
+
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+      overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.classList.remove('active'); });
+    });
+
     function getServiceUsage() {
       const usage = {};
       const apps = Object.values(applications).filter(a => a && a.service);
-      apps.forEach(app => {
-        const serviceName = app.service;
-        usage[serviceName] = (usage[serviceName] || 0) + 1;
-      });
+      apps.forEach(app => { usage[app.service] = (usage[app.service] || 0) + 1; });
       return usage;
     }
 
     function renderServiceList() {
       const list = document.getElementById('serviceList');
       const entries = Object.entries(services).filter(([_, s]) => s && s.name);
-
-      console.log('Rendering services:', entries.length, 'services found');
-
       if (!entries.length) {
-        list.innerHTML = `<div class="empty-state">
-          <i class="fas fa-cog"></i>
-          No services added yet
-          <p style="font-size:0.7rem;color:#cbd5e1;margin-top:0.3rem;">Click "Add Service" to get started</p>
-        </div>`;
+        list.innerHTML = `<div class="empty-state"><i class="fas fa-cog"></i>No services added yet<p style="font-size:0.7rem;color:#cbd5e1;margin-top:0.3rem;">Click "Add Service" to get started</p></div>`;
         return;
       }
-
       const usage = getServiceUsage();
       const sorted = entries.sort((a, b) => (a[1].name || '').localeCompare(b[1].name || ''));
-
       list.innerHTML = sorted.map(([id, service]) => {
         const count = usage[service.name] || 0;
         const fee = service.fee || 0;
-        return `
-          <div class="service-item">
-            <div class="service-info">
-              <div class="service-icon"><i class="fas fa-cog"></i></div>
-              <span class="service-name">${service.name}</span>
-              ${fee > 0 ? `<span class="service-fee">KES ${fee.toLocaleString()}</span>` : ''}
-              <span class="service-count">${count} apps</span>
-            </div>
-            <div class="service-actions">
-              <button class="edit-btn" data-id="${id}" title="Edit"><i class="fas fa-edit"></i></button>
-              <button class="delete-btn" data-id="${id}" title="Delete"><i class="fas fa-trash"></i></button>
-            </div>
+        return `<div class="service-item">
+          <div class="service-info">
+            <div class="service-icon"><i class="fas fa-cog"></i></div>
+            <span class="service-name">${service.name}</span>
+            ${fee > 0 ? `<span class="service-fee">KES ${fee.toLocaleString()}</span>` : ''}
+            <span class="service-count">${count} apps</span>
           </div>
-        `;
+          <div class="service-actions">
+            <button class="edit-btn" data-id="${id}" title="Edit"><i class="fas fa-edit"></i></button>
+            <button class="delete-btn" data-id="${id}" title="Delete"><i class="fas fa-trash"></i></button>
+          </div>
+        </div>`;
       }).join('');
-
-      // Edit buttons
-      document.querySelectorAll('.edit-btn').forEach(btn => {
-        btn.addEventListener('click', () => openEditModal(btn.dataset.id));
-      });
-
-      // Delete buttons
-      document.querySelectorAll('.delete-btn').forEach(btn => {
-        btn.addEventListener('click', () => openDeleteModal(btn.dataset.id));
-      });
+      document.querySelectorAll('.edit-btn').forEach(btn => btn.addEventListener('click', () => openEditModal(btn.dataset.id)));
+      document.querySelectorAll('.delete-btn').forEach(btn => btn.addEventListener('click', () => openDeleteModal(btn.dataset.id)));
     }
 
     function updateStats() {
@@ -471,24 +435,11 @@
       const serviceCount = serviceEntries.length;
       const appCount = Object.values(applications).filter(a => a && a.service).length;
       const usage = getServiceUsage();
-      
-      // Most used
       const sorted = Object.entries(usage).sort((a, b) => b[1] - a[1]);
       const mostUsed = sorted.length ? sorted[0][0] : '--';
-      
-      // Highest fee
-      let highestFee = '--';
-      let highestFeeAmount = 0;
-      serviceEntries.forEach(s => {
-        if ((s.fee || 0) > highestFeeAmount) {
-          highestFeeAmount = s.fee || 0;
-          highestFee = s.name;
-        }
-      });
-      if (highestFeeAmount > 0) {
-        highestFee = `${highestFee} (KES ${highestFeeAmount.toLocaleString()})`;
-      }
-
+      let highestFee = '--', highestFeeAmount = 0;
+      serviceEntries.forEach(s => { if ((s.fee || 0) > highestFeeAmount) { highestFeeAmount = s.fee || 0; highestFee = s.name; } });
+      if (highestFeeAmount > 0) highestFee = `${highestFee} (KES ${highestFeeAmount.toLocaleString()})`;
       document.getElementById('totalServices').textContent = serviceCount;
       document.getElementById('totalServices').className = 'stat-number';
       document.getElementById('totalApps').textContent = appCount;
@@ -498,8 +449,6 @@
       document.getElementById('highestFee').textContent = highestFee;
       document.getElementById('highestFee').className = 'stat-number';
     }
-
-    // ===== MODAL FUNCTIONS =====
 
     function openAddModal() {
       editingServiceId = null;
@@ -516,10 +465,7 @@
 
     function openEditModal(id) {
       const service = services[id];
-      if (!service) {
-        showAlert('Service not found.', 'error');
-        return;
-      }
+      if (!service) { showAlert('Service not found.', 'error'); return; }
       editingServiceId = id;
       document.getElementById('modalTitle').innerHTML = '<i class="fas fa-edit" style="color:#3b82f6;"></i> Edit Service';
       document.getElementById('modalDescription').textContent = 'Update the service details below.';
@@ -527,14 +473,10 @@
       document.getElementById('serviceNameInput').value = service.name || '';
       document.getElementById('serviceFeeInput').value = service.fee || '';
       document.getElementById('serviceDescInput').value = service.description || '';
-      
       const usage = getServiceUsage();
-      const count = usage[service.name] || 0;
-      document.getElementById('serviceUsageInput').value = `${count} applications using this service`;
+      document.getElementById('serviceUsageInput').value = `${usage[service.name] || 0} applications using this service`;
       document.getElementById('serviceUsageGroup').style.display = 'block';
-      
       document.getElementById('serviceModal').classList.add('active');
-      setTimeout(() => document.getElementById('serviceNameInput').focus(), 100);
     }
 
     function openDeleteModal(id) {
@@ -545,179 +487,73 @@
       document.getElementById('deleteModal').classList.add('active');
     }
 
-    // ===== SAVE SERVICE =====
-
     async function saveService() {
       const name = document.getElementById('serviceNameInput').value.trim();
       const fee = parseFloat(document.getElementById('serviceFeeInput').value) || 0;
       const description = document.getElementById('serviceDescInput').value.trim();
-
-      if (!name) {
-        showAlert('Please enter a service name.', 'error');
-        document.getElementById('serviceNameInput').focus();
-        return;
-      }
-
-      // Check for duplicate (excluding current if editing)
+      if (!name) { showAlert('Please enter a service name.', 'error'); document.getElementById('serviceNameInput').focus(); return; }
       const exists = Object.entries(services).some(([id, s]) => {
         if (id === editingServiceId) return false;
         return s.name && s.name.toLowerCase() === name.toLowerCase();
       });
-
-      if (exists) {
-        showAlert(`Service "${name}" already exists.`, 'error');
-        document.getElementById('serviceNameInput').focus();
-        return;
-      }
-
+      if (exists) { showAlert(`Service "${name}" already exists.`, 'error'); document.getElementById('serviceNameInput').focus(); return; }
       try {
         const saveBtn = document.getElementById('modalSaveBtn');
         saveBtn.disabled = true;
         saveBtn.innerHTML = '<span class="spinner" style="width:16px;height:16px;border-width:2px;display:inline-block;"></span> Saving...';
-
-        const serviceData = {
-          name: name,
-          fee: fee,
-          description: description || '',
-          updatedAt: Date.now()
-        };
-
+        const serviceData = { name, fee, description: description || '', updatedAt: Date.now() };
         if (editingServiceId) {
-          // Update existing
           await set(ref(db, `digital_services_services/${editingServiceId}`), serviceData);
           showAlert(`Service "${name}" updated successfully!`, 'success');
         } else {
-          // Add new
           const newRef = push(ref(db, 'digital_services_services'));
-          await set(newRef, {
-            ...serviceData,
-            createdAt: Date.now()
-          });
+          await set(newRef, { ...serviceData, createdAt: Date.now() });
           showAlert(`Service "${name}" added successfully!`, 'success');
         }
-
-        document.getElementById('serviceModal').classList.remove('active');
+        closeModal('serviceModal');
         editingServiceId = null;
       } catch (error) {
         console.error('Error saving service:', error);
         showAlert('Failed to save service. Please try again.', 'error');
       }
-
       const saveBtn = document.getElementById('modalSaveBtn');
       saveBtn.disabled = false;
       saveBtn.innerHTML = '<i class="fas fa-check"></i> <span id="modalSaveText">' + (editingServiceId ? 'Update Service' : 'Add Service') + '</span>';
     }
 
-    // ===== DELETE SERVICE =====
-
     async function deleteService() {
       if (!deletingServiceId) return;
-      try {
-        const service = services[deletingServiceId];
-        await remove(ref(db, `digital_services_services/${deletingServiceId}`));
-        showAlert(`Service "${service.name}" deleted successfully.`, 'info');
-        document.getElementById('deleteModal').classList.remove('active');
-        deletingServiceId = null;
-      } catch (error) {
-        console.error('Error deleting service:', error);
-        showAlert('Failed to delete service.', 'error');
-      }
+      try { const service = services[deletingServiceId]; await remove(ref(db, `digital_services_services/${deletingServiceId}`)); showAlert(`Service "${service.name}" deleted successfully.`, 'info'); closeModal('deleteModal'); deletingServiceId = null; } 
+      catch (error) { console.error('Error deleting service:', error); showAlert('Failed to delete service.', 'error'); }
     }
 
-    // ===== EVENT LISTENERS =====
-
-    // Open add modal
     document.getElementById('openAddModalBtn').addEventListener('click', openAddModal);
-
-    // Modal cancel
-    document.getElementById('modalCancelBtn').addEventListener('click', () => {
-      document.getElementById('serviceModal').classList.remove('active');
-      editingServiceId = null;
-    });
-
-    // Modal save
+    document.getElementById('modalCancelBtn').addEventListener('click', () => { closeModal('serviceModal'); editingServiceId = null; });
     document.getElementById('modalSaveBtn').addEventListener('click', saveService);
-
-    // Enter key in modal
-    document.getElementById('serviceNameInput').addEventListener('keyup', (e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        document.getElementById('serviceFeeInput').focus();
-      }
-    });
-    document.getElementById('serviceFeeInput').addEventListener('keyup', (e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        saveService();
-      }
-    });
-
-    // Delete modal
-    document.getElementById('deleteCancelBtn').addEventListener('click', () => {
-      document.getElementById('deleteModal').classList.remove('active');
-      deletingServiceId = null;
-    });
+    document.getElementById('deleteCancelBtn').addEventListener('click', () => { closeModal('deleteModal'); deletingServiceId = null; });
     document.getElementById('deleteConfirmBtn').addEventListener('click', deleteService);
 
-    // Close modals on overlay click
-    document.querySelectorAll('.modal-overlay').forEach(overlay => {
-      overlay.addEventListener('click', (e) => {
-        if (e.target === overlay) {
-          overlay.classList.remove('active');
-          editingServiceId = null;
-          deletingServiceId = null;
-        }
-      });
-    });
-
-    // ===== FIREBASE LISTENERS =====
-
     function setupListeners() {
-      onValue(ref(db, 'digital_services_services'), (snap) => {
-        services = snap.val() || {};
-        console.log('Services loaded:', Object.keys(services).length);
-        renderServiceList();
-        updateStats();
-        loadingOverlay.classList.add('hide');
-      });
-
-      onValue(ref(db, 'digital_services_applications'), (snap) => {
-        applications = snap.val() || {};
-        renderServiceList();
-        updateStats();
-      });
+      onValue(ref(db, 'digital_services_services'), (snap) => { services = snap.val() || {}; renderServiceList(); updateStats(); loadingOverlay.classList.add('hide'); });
+      onValue(ref(db, 'digital_services_applications'), (snap) => { applications = snap.val() || {}; renderServiceList(); updateStats(); });
     }
-
-    // ===== AUTH =====
 
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         try {
           const userSnap = await get(ref(db, `brandinn_users/${user.uid}`));
           let userName = 'Digital Services Admin';
-          if (userSnap.exists()) {
-            userName = userSnap.val().name || user.displayName || user.email?.split('@')[0] || 'Digital Services Admin';
-          } else {
-            userName = user.displayName || user.email?.split('@')[0] || 'Digital Services Admin';
-          }
+          if (userSnap.exists()) userName = userSnap.val().name || user.displayName || user.email?.split('@')[0] || 'Digital Services Admin';
+          else userName = user.displayName || user.email?.split('@')[0] || 'Digital Services Admin';
           repNameEl.textContent = userName;
           repAvatarEl.textContent = getInitials(userName);
           setupListeners();
-        } catch (error) {
-          console.error('Error fetching user:', error);
-          repNameEl.textContent = 'Digital Services Admin';
-          repAvatarEl.textContent = 'DS';
-          setupListeners();
-        }
-      } else {
-        window.location.href = 'https://kazinni-staff.vercel.app';
-      }
+        } catch (error) { console.error('Error fetching user:', error); repNameEl.textContent = 'Digital Services Admin'; repAvatarEl.textContent = 'DS'; setupListeners(); }
+      } else { window.location.href = 'https://kazinni-staff.vercel.app'; }
     });
 
     document.getElementById('logoutBtn').addEventListener('click', async () => {
-      if (confirm('Log out of KazInni Workspaces?')) {
-        try { await signOut(auth); } catch (e) { alert('Logout failed.'); }
-      }
+      if (confirm('Log out of KazInni Workspaces?')) { try { await signOut(auth); } catch (e) { alert('Logout failed.'); } }
     });
 
     setTimeout(() => loadingOverlay.classList.add('hide'), 5000);
