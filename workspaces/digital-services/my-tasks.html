@@ -249,12 +249,10 @@
     .task-card .task-actions .start-btn:hover { background: #bfdbfe; }
     .task-card .task-actions .qa-btn { background: #fef3c7; color: #92400e; }
     .task-card .task-actions .qa-btn:hover { background: #fde68a; }
-    .task-card .task-actions .complete-btn { background: #d1fae5; color: #065f46; }
-    .task-card .task-actions .complete-btn:hover { background: #a7f3d0; }
-    .task-card .task-actions .reject-btn { background: #fee2e2; color: #991b1b; }
-    .task-card .task-actions .reject-btn:hover { background: #fca5a5; }
     .task-card .task-actions .view-btn { background: #f5f0ff; color: #7c3aed; }
     .task-card .task-actions .view-btn:hover { background: #ede9fe; }
+
+    /* ❌ REMOVED: Approve and Reject buttons for staff - only QA can do this */
 
     .priority-high { border-left: 4px solid #ef4444; }
     .priority-normal { border-left: 4px solid #3b82f6; }
@@ -327,6 +325,17 @@
     .modal .modal-actions .modal-save { background: #7c3aed; color: white; }
     .modal .modal-actions .modal-save:hover { background: #6d28d9; }
 
+    /* QA Badge */
+    .qa-badge {
+      display: inline-block;
+      padding: 0.15rem 0.6rem;
+      border-radius: 20px;
+      font-size: 0.55rem;
+      font-weight: 700;
+      background: #ede9fe;
+      color: #5b21b6;
+    }
+
     @media (max-width: 700px) {
       .stats-grid { grid-template-columns: repeat(2, 1fr); }
       .charts-row { grid-template-columns: 1fr; }
@@ -364,7 +373,7 @@
   <div class="container">
     <div class="page-header">
       <h1><i class="fas fa-tasks"></i> My Tasks</h1>
-      <p>View and manage all applications assigned to you.</p>
+      <p>View and manage applications assigned to you. <span class="qa-badge"><i class="fas fa-shield-alt"></i> Only QA can approve</span></p>
     </div>
 
     <div id="alertMessage" class="alert"></div>
@@ -465,11 +474,13 @@
           <option value="pending">Pending</option>
           <option value="processing">In Progress</option>
           <option value="qa">QA Review</option>
-          <option value="submitted">Submitted</option>
-          <option value="delivered">Delivered</option>
-          <option value="rejected">Rejected</option>
-          <option value="completed">Completed</option>
+          <!-- ❌ REMOVED: submitted, delivered, rejected, completed - only QA can do these -->
         </select>
+        <div class="hint" style="font-size:0.65rem;color:#94a3b8;margin-top:0.2rem;">
+          <i class="fas fa-info-circle"></i> 
+          Only QA reviewers can mark tasks as Submitted, Delivered, Completed, or Rejected.
+          <br>To request QA review, select <strong>"QA Review"</strong> above.
+        </div>
       </div>
       <div class="modal-group">
         <label>Notes (optional)</label>
@@ -595,7 +606,6 @@
       const completed = entries.filter(t => t.status === 'completed' || t.status === 'delivered').length;
       const rejected = entries.filter(t => t.status === 'rejected').length;
 
-      // Task Distribution Chart
       const ctx = document.getElementById('taskChart').getContext('2d');
       if (taskChartInstance) taskChartInstance.destroy();
       taskChartInstance = new Chart(ctx, {
@@ -610,7 +620,6 @@
         }
       });
 
-      // Activity Chart (last 7 days)
       const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
       const activityData = days.map(() => Math.floor(Math.random() * 3));
       const ctx2 = document.getElementById('activityChart').getContext('2d');
@@ -641,20 +650,25 @@
       grid.innerHTML = entries.map(([id, task]) => {
         const status = task.status || 'pending';
         const priority = task.priority || 'normal';
+        const isQA = status === 'qa';
+        
         let actionButtons = `
           <button class="view-btn" data-id="${id}"><i class="fas fa-eye"></i></button>
         `;
+        
+        // Staff can only: Start, Send to QA, or View
+        // ❌ Staff CANNOT Approve or Reject (only QA can)
         if (status === 'pending') {
           actionButtons += `<button class="start-btn" data-id="${id}"><i class="fas fa-play"></i> Start</button>`;
         } else if (status === 'processing') {
           actionButtons += `<button class="qa-btn" data-id="${id}"><i class="fas fa-clipboard-check"></i> QA</button>`;
         } else if (status === 'qa') {
-          actionButtons += `
-            <button class="complete-btn" data-id="${id}"><i class="fas fa-check"></i> Approve</button>
-            <button class="reject-btn" data-id="${id}"><i class="fas fa-times"></i> Reject</button>
-          `;
+          // ❌ REMOVED: Approve and Reject buttons for staff
+          // Staff can only view tasks in QA review
+          actionButtons += `<span class="qa-badge" style="font-size:0.6rem;padding:0.2rem 0.6rem;"><i class="fas fa-clock"></i> Awaiting QA</span>`;
         } else {
-          actionButtons += `<button class="view-btn" data-id="${id}"><i class="fas fa-eye"></i></button>`;
+          // Completed, Rejected, etc. - only view
+          actionButtons += `<span style="font-size:0.6rem;color:#94a3b8;">Completed</span>`;
         }
 
         return `<div class="task-card ${getPriorityClass(priority)}">
@@ -703,22 +717,6 @@
         btn.addEventListener('click', (e) => {
           e.stopPropagation();
           openStatusModal(btn.dataset.id, 'qa');
-        });
-      });
-
-      // Complete/Approve button
-      document.querySelectorAll('.complete-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          updateTaskStatus(btn.dataset.id, 'completed');
-        });
-      });
-
-      // Reject button
-      document.querySelectorAll('.reject-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          openStatusModal(btn.dataset.id, 'rejected');
         });
       });
     }
@@ -791,11 +789,20 @@
 
       document.getElementById('statusTaskId').value = id;
       const statusSelect = document.getElementById('statusSelect');
+      
+      // Reset dropdown to only staff-available statuses
+      statusSelect.innerHTML = `
+        <option value="pending">Pending</option>
+        <option value="processing">In Progress</option>
+        <option value="qa">QA Review</option>
+      `;
+      
       if (suggestedStatus) {
         statusSelect.value = suggestedStatus;
       } else {
         statusSelect.value = task.status || 'pending';
       }
+      
       document.getElementById('statusNotes').value = '';
       document.getElementById('statusModal').classList.add('active');
     }
@@ -811,6 +818,13 @@
       const newStatus = document.getElementById('statusSelect').value;
       const notes = document.getElementById('statusNotes').value.trim();
 
+      // ✅ Only allow staff to set: pending, processing, qa
+      const allowedStatuses = ['pending', 'processing', 'qa'];
+      if (!allowedStatuses.includes(newStatus)) {
+        showAlert('You are not authorized to set this status. Only QA reviewers can approve or reject tasks.', 'error');
+        return;
+      }
+
       await updateTaskStatus(id, newStatus, notes);
       closeModal('statusModal');
     });
@@ -823,18 +837,13 @@
 
       let filtered = { ...allApplications };
 
-      // ✅ FIX: Filter by assigned staff (using BOTH UID and name for compatibility)
+      // Filter by assigned staff (using BOTH UID and name)
       filtered = Object.fromEntries(
         Object.entries(filtered).filter(([_, t]) => {
           if (!t || !t.clientName) return false;
-          
-          // Check by UID first (preferred method from New Application page)
           const matchesUid = t.assignedStaffUid && t.assignedStaffUid === currentUserUid;
-          
-          // Fallback to name matching (for older applications)
           const matchesName = t.assignedStaff && 
             t.assignedStaff.toLowerCase() === currentUserName.toLowerCase();
-          
           return matchesUid || matchesName;
         })
       );
@@ -887,7 +896,6 @@
         currentUser = user;
         currentUserUid = user.uid;
         try {
-          // Get user name from brandinn_users
           const userSnap = await get(ref(db, `brandinn_users/${user.uid}`));
           let userName = 'Staff';
           if (userSnap.exists()) {
@@ -934,7 +942,7 @@
 
     setTimeout(() => loadingOverlay.classList.add('hide'), 5000);
 
-    // Expose openStatusModal globally for inline onclick
+    // Expose openStatusModal globally
     window.openStatusModal = openStatusModal;
   </script>
 </body>
