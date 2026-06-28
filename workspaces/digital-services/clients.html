@@ -6,111 +6,331 @@
   <title>Client Management | Digital Services</title>
   
   <meta name="theme-color" content="#7c3aed">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  
   <link rel="icon" type="image/png" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
   
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
-    :root { --primary: #7c3aed; --primary-dark: #5b21b6; --primary-light: #a78bfa; --primary-bg: #f5f0ff; --success: #10b981; --warning: #f59e0b; --danger: #ef4444; --info: #3b82f6; --text-primary: #1e293b; --text-muted: #64748b; --border-light: #e9d5ff; --gray-50: #f8fafc; --gray-100: #f1f5f9; --gray-200: #e2e8f0; --gray-300: #cbd5e1; --gray-400: #94a3b8; --gray-500: #64748b; --gray-600: #475569; --gray-700: #334155; --gray-800: #1e293b; }
+    :root {
+      --primary: #7c3aed;
+      --primary-dark: #5b21b6;
+      --primary-light: #a78bfa;
+      --primary-bg: #f5f0ff;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --info: #3b82f6;
+      --text-primary: #1e293b;
+      --text-muted: #64748b;
+      --border-light: #e9d5ff;
+      --gray-50: #f8fafc;
+      --gray-100: #f1f5f9;
+      --gray-200: #e2e8f0;
+      --gray-300: #cbd5e1;
+      --gray-400: #94a3b8;
+      --gray-500: #64748b;
+      --gray-600: #475569;
+      --gray-700: #334155;
+      --gray-800: #1e293b;
+    }
 
-    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: linear-gradient(145deg, #f8f6fc 0%, #ffffff 100%); color: var(--text-primary); line-height: 1.4; min-height: 100vh; display: flex; flex-direction: column; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(145deg, #f8f6fc 0%, #ffffff 100%);
+      color: var(--text-primary);
+      line-height: 1.4;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
 
-    .navbar { background: rgba(255,255,255,0.92); backdrop-filter: blur(12px); padding: 0.5rem 3%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(124,58,237,0.1); position: sticky; top: 0; z-index: 100; flex-wrap: wrap; gap: 0.5rem; }
+    .navbar {
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(12px);
+      padding: 0.5rem 3%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(124, 58, 237, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
     .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-    .logo-img { height: 34px; width: 34px; border-radius: 10px; object-fit: contain; background: white; box-shadow: 0 4px 12px rgba(124,58,237,0.15); }
-    .logo-text { font-weight: 800; font-size: 1.1rem; background: linear-gradient(145deg, #7c3aed, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .logo-img { height: 34px; width: 34px; border-radius: 10px; object-fit: contain; background: white; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.15); }
+    .logo-text {
+      font-weight: 800; font-size: 1.1rem;
+      background: linear-gradient(145deg, #7c3aed, #8b5cf6);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
     .logo-text span { font-weight: 600; font-size: 0.7rem; background: #f59e0b; -webkit-text-fill-color: #f59e0b; margin-left: 3px; }
+
     .nav-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
     .rep-profile { display: flex; align-items: center; gap: 8px; background: #f1f5f9; padding: 0.2rem 0.7rem 0.2rem 0.5rem; border-radius: 40px; }
-    .rep-avatar { width: 32px; height: 32px; background: linear-gradient(145deg, #7c3aed, #c084fc); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 0.8rem; }
+    .rep-avatar {
+      width: 32px; height: 32px; background: linear-gradient(145deg, #7c3aed, #c084fc);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      color: white; font-weight: 700; font-size: 0.8rem;
+    }
     .rep-info { line-height: 1.2; }
     .rep-name { font-weight: 700; color: #0f172a; font-size: 0.8rem; }
     .rep-role { font-size: 0.6rem; color: #7c3aed; font-weight: 700; text-transform: uppercase; }
-    .logout-btn { background: white; border: 1.5px solid #e2e8f0; padding: 0.4rem 0.9rem; border-radius: 30px; color: #475569; font-weight: 600; font-size: 0.75rem; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.2s; }
+
+    .logout-btn {
+      background: white; border: 1.5px solid #e2e8f0; padding: 0.4rem 0.9rem;
+      border-radius: 30px; color: #475569; font-weight: 600; font-size: 0.75rem;
+      cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.2s;
+    }
     .logout-btn:hover { background: #fee2e2; border-color: #ef4444; color: #ef4444; }
-    .back-btn { background: white; border: 1.5px solid #e2e8f0; padding: 0.4rem 0.9rem; border-radius: 30px; color: #475569; font-weight: 600; font-size: 0.75rem; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.2s; text-decoration: none; }
+
+    .back-btn {
+      background: white; border: 1.5px solid #e2e8f0; padding: 0.4rem 0.9rem;
+      border-radius: 30px; color: #475569; font-weight: 600; font-size: 0.75rem;
+      cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.2s;
+      text-decoration: none;
+    }
     .back-btn:hover { background: #f5f0ff; border-color: #7c3aed; color: #7c3aed; }
 
     .container { padding: 1.2rem 2%; flex: 1; max-width: 1400px; margin: 0 auto; width: 100%; }
+
     .page-header { margin-bottom: 1.2rem; }
-    .page-header h1 { font-size: 1.3rem; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-    .page-header h1 i { color: #7c3aed; background: white; padding: 8px; border-radius: 12px; box-shadow: 0 6px 14px rgba(124,58,237,0.06); font-size: 1rem; }
+    .page-header h1 {
+      font-size: 1.3rem; font-weight: 800; color: #0f172a;
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    }
+    .page-header h1 i {
+      color: #7c3aed; background: white; padding: 8px;
+      border-radius: 12px; box-shadow: 0 6px 14px rgba(124, 58, 237, 0.06);
+      font-size: 1rem;
+    }
     .page-header p { color: #475569; font-size: 0.8rem; margin-top: 0.2rem; margin-left: 48px; }
 
-    .search-bar { background: white; border-radius: 16px; padding: 0.8rem 1.2rem; border: 1px solid #f1eaff; display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-bottom: 1.2rem; }
-    .search-bar input { flex: 1; min-width: 180px; padding: 0.5rem 0.8rem; border: 1px solid #e2e8f0; border-radius: 30px; font-size: 0.8rem; font-family: 'Inter', sans-serif; outline: none; transition: all 0.2s; background: #fafafa; }
-    .search-bar input:focus { border-color: #7c3aed; box-shadow: 0 0 0 3px rgba(124,58,237,0.1); background: white; }
-    .search-bar select { padding: 0.5rem 0.8rem; border: 1px solid #e2e8f0; border-radius: 30px; font-size: 0.8rem; font-family: 'Inter', sans-serif; outline: none; background: white; color: #475569; cursor: pointer; }
-    .search-bar select:focus { border-color: #7c3aed; }
-    .search-btn { background: #7c3aed; color: white; border: none; padding: 0.5rem 1.2rem; border-radius: 30px; font-weight: 600; font-size: 0.75rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; }
-    .search-btn:hover { background: #6d28d9; transform: translateY(-1px); }
-
-    .client-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 1.2rem; }
-    .stat-card { background: white; border-radius: 16px; padding: 0.8rem 1.2rem; border: 1px solid #f1eaff; display: flex; align-items: center; justify-content: space-between; }
+    /* Stats Grid - Dashboard Style */
+    .stats-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 1.2rem;
+    }
+    .stat-card {
+      background: white; border-radius: 16px; padding: 0.8rem 1.2rem;
+      border: 1px solid #f1eaff; display: flex; align-items: center; justify-content: space-between;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+      transition: all 0.2s;
+    }
+    .stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-color: var(--primary-light); }
     .stat-card .stat-left h4 { font-size: 0.6rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; color: #64748b; }
     .stat-card .stat-number { font-size: 1.4rem; font-weight: 800; color: #0f172a; }
-    .stat-card .stat-icon { width: 36px; height: 36px; background: #f5f0ff; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #7c3aed; font-size: 1rem; }
+    .stat-card .stat-number.empty { color: #94a3b8; font-weight: 400; font-size: 1.2rem; }
+    .stat-card .stat-icon {
+      width: 36px; height: 36px; background: #f5f0ff; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center; color: #7c3aed; font-size: 1rem;
+    }
 
-    .client-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-    .client-card { background: white; border-radius: 16px; padding: 1.2rem; border: 1px solid #f1eaff; transition: all 0.25s; cursor: pointer; }
-    .client-card:hover { transform: translateY(-4px); box-shadow: 0 16px 30px -10px rgba(124,58,237,0.1); border-color: #c9b3ff; }
-    .client-card .client-header { display: flex; align-items: center; gap: 12px; margin-bottom: 0.6rem; }
-    .client-card .client-avatar { width: 48px; height: 48px; background: linear-gradient(145deg, #7c3aed, #c084fc); border-radius: 14px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 1.1rem; flex-shrink: 0; }
+    /* Charts Row */
+    .charts-row {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
+      margin-bottom: 1.2rem;
+    }
+    .chart-card {
+      background: white; border-radius: 16px; padding: 1.2rem;
+      border: 1px solid #f1eaff; box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+    }
+    .chart-card h4 {
+      font-size: 0.7rem; font-weight: 600; color: var(--gray-500);
+      margin-bottom: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .chart-container { height: 200px; position: relative; }
+
+    .search-bar {
+      background: white; border-radius: 16px; padding: 0.8rem 1.2rem;
+      border: 1px solid #f1eaff; display: flex; flex-wrap: wrap;
+      align-items: center; gap: 12px; margin-bottom: 1.2rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+    }
+    .search-bar input {
+      flex: 1; min-width: 180px; padding: 0.5rem 0.8rem;
+      border: 1px solid #e2e8f0; border-radius: 30px; font-size: 0.8rem;
+      font-family: 'Inter', sans-serif; outline: none; transition: all 0.2s;
+      background: #fafafa;
+    }
+    .search-bar input:focus { border-color: #7c3aed; box-shadow: 0 0 0 3px rgba(124,58,237,0.1); background: white; }
+    .search-bar select {
+      padding: 0.5rem 0.8rem; border: 1px solid #e2e8f0; border-radius: 30px;
+      font-size: 0.8rem; font-family: 'Inter', sans-serif; outline: none;
+      background: white; color: #475569; cursor: pointer;
+    }
+    .search-bar select:focus { border-color: #7c3aed; }
+    .search-btn {
+      background: #7c3aed; color: white; border: none; padding: 0.5rem 1.2rem;
+      border-radius: 30px; font-weight: 600; font-size: 0.75rem; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;
+    }
+    .search-btn:hover { background: #6d28d9; transform: translateY(-1px); }
+    .clear-btn {
+      background: #f1f5f9; color: #475569; border: none; padding: 0.4rem 1.2rem;
+      border-radius: 30px; font-weight: 600; font-size: 0.75rem; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;
+    }
+    .clear-btn:hover { background: #e2e8f0; }
+
+    /* Client Grid */
+    .client-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+    }
+    .client-card {
+      background: white; border-radius: 16px; padding: 1.2rem;
+      border: 1px solid #f1eaff; transition: all 0.25s; cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+    }
+    .client-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 30px -10px rgba(124,58,237,0.1);
+      border-color: #c9b3ff;
+    }
+    .client-card .client-header {
+      display: flex; align-items: center; gap: 12px; margin-bottom: 0.6rem;
+    }
+    .client-card .client-avatar {
+      width: 48px; height: 48px; background: linear-gradient(145deg, #7c3aed, #c084fc);
+      border-radius: 14px; display: flex; align-items: center; justify-content: center;
+      color: white; font-weight: 700; font-size: 1.1rem; flex-shrink: 0;
+    }
     .client-card .client-name { font-weight: 700; font-size: 0.95rem; }
     .client-card .client-email { font-size: 0.7rem; color: #64748b; }
-    .client-card .client-details { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 8px; margin: 0.6rem 0; font-size: 0.7rem; color: #475569; }
+    .client-card .client-details {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 4px 8px; margin: 0.6rem 0;
+      font-size: 0.7rem; color: #475569;
+    }
     .client-card .client-details span { display: flex; align-items: center; gap: 4px; }
     .client-card .client-details i { color: #7c3aed; width: 14px; font-size: 0.6rem; }
-    .client-card .client-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 0.6rem; padding-top: 0.6rem; border-top: 1px solid #f1f5f9; font-size: 0.65rem; color: #64748b; }
-    .client-card .client-status { padding: 0.15rem 0.5rem; border-radius: 20px; font-weight: 600; font-size: 0.6rem; }
+    .client-card .client-footer {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 0.6rem; padding-top: 0.6rem; border-top: 1px solid #f1f5f9;
+      font-size: 0.65rem; color: #64748b;
+    }
+    .client-card .client-status {
+      padding: 0.15rem 0.5rem; border-radius: 20px; font-weight: 600; font-size: 0.6rem;
+    }
     .status-active { background: #d1fae5; color: #065f46; }
     .status-inactive { background: #fee2e2; color: #991b1b; }
     .status-pending { background: #fef3c7; color: #92400e; }
 
-    .empty-state { text-align: center; padding: 3rem 1.5rem; color: #94a3b8; font-size: 0.85rem; grid-column: 1 / -1; }
+    .empty-state {
+      text-align: center; padding: 3rem 1.5rem; color: #94a3b8; font-size: 0.85rem;
+      grid-column: 1 / -1;
+    }
     .empty-state i { font-size: 2.5rem; display: block; margin-bottom: 0.8rem; opacity: 0.4; }
 
     .footer { text-align: center; padding: 1rem; color: #94a3b8; border-top: 1px solid #f1eaff; font-size: 0.7rem; margin-top: 1.5rem; }
 
-    .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); backdrop-filter: blur(4px); display: flex; justify-content: center; align-items: center; z-index: 999; }
+    .loading-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(255,255,255,0.8); backdrop-filter: blur(4px);
+      display: flex; justify-content: center; align-items: center; z-index: 999;
+    }
     .loading-overlay.hide { display: none; }
-    .spinner { width: 35px; height: 35px; border: 3px solid #f1eaff; border-top-color: #7c3aed; border-radius: 50%; animation: spin 0.8s linear infinite; }
+    .spinner {
+      width: 35px; height: 35px; border: 3px solid #f1eaff;
+      border-top-color: #7c3aed; border-radius: 50%; animation: spin 0.8s linear infinite;
+    }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    .alert { padding: 0.6rem 1rem; border-radius: 12px; font-size: 0.8rem; margin-bottom: 1rem; display: none; }
+    .alert {
+      padding: 0.6rem 1rem; border-radius: 12px; font-size: 0.8rem; margin-bottom: 1rem;
+      display: none;
+    }
     .alert.show { display: block; }
     .alert-success { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
     .alert-error { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
     .alert-info { background: #dbeafe; color: #1e40af; border: 1px solid #93c5fd; }
 
-    /* MODALS */
-    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 1000; }
+    /* ===== MODALS ===== */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.4); backdrop-filter: blur(4px);
+      display: none; justify-content: center; align-items: center; z-index: 1000;
+    }
     .modal-overlay.active { display: flex; }
-    .modal { background: white; border-radius: 20px; padding: 2rem; max-width: 480px; width: 90%; box-shadow: 0 30px 60px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
+    .modal {
+      background: white; border-radius: 20px; padding: 2rem; max-width: 650px; width: 90%;
+      box-shadow: 0 30px 60px rgba(0,0,0,0.2);
+      max-height: 90vh; overflow-y: auto;
+    }
+    .modal-large { max-width: 800px; }
     .modal h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.3rem; display: flex; align-items: center; gap: 8px; }
     .modal p { color: #64748b; font-size: 0.85rem; margin-bottom: 1.2rem; }
     .modal .modal-group { margin-bottom: 1rem; }
     .modal .modal-group label { display: block; font-weight: 600; font-size: 0.75rem; color: #1e293b; margin-bottom: 0.2rem; }
-    .modal .modal-group label .required { color: #ef4444; }
-    .modal .modal-group input, .modal .modal-group select, .modal .modal-group textarea { width: 100%; padding: 0.6rem 0.8rem; border: 1.5px solid #e2e8f0; border-radius: 12px; font-size: 0.85rem; font-family: 'Inter', sans-serif; outline: none; background: #fafafa; transition: all 0.2s; }
-    .modal .modal-group input:focus, .modal .modal-group select:focus, .modal .modal-group textarea:focus { border-color: #7c3aed; background: white; }
-    .modal .modal-group textarea { resize: vertical; min-height: 50px; }
-    .modal .modal-group .detail-row { display: flex; justify-content: space-between; padding: 0.3rem 0; border-bottom: 1px solid #f1f5f9; font-size: 0.8rem; }
+    .modal .modal-group .detail-row {
+      display: flex; justify-content: space-between; padding: 0.3rem 0;
+      border-bottom: 1px solid #f1f5f9; font-size: 0.8rem;
+    }
     .modal .modal-group .detail-row .label { color: #64748b; }
     .modal .modal-group .detail-row .value { font-weight: 600; }
     .modal .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 0.5rem; }
     .modal .modal-actions button { padding: 0.5rem 1.5rem; border-radius: 30px; font-weight: 600; font-size: 0.8rem; cursor: pointer; transition: all 0.2s; border: none; }
     .modal .modal-actions .modal-cancel { background: #f1f5f9; color: #475569; }
     .modal .modal-actions .modal-cancel:hover { background: #e2e8f0; }
-    .modal .modal-actions .modal-save { background: #7c3aed; color: white; }
-    .modal .modal-actions .modal-save:hover { background: #6d28d9; }
-    .modal .modal-actions .modal-delete { background: #ef4444; color: white; }
-    .modal .modal-actions .modal-delete:hover { background: #dc2626; }
+    .modal .modal-actions .modal-info { background: #3b82f6; color: white; }
+    .modal .modal-actions .modal-info:hover { background: #2563eb; }
 
-    @media (max-width: 1100px) { .client-grid { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 700px) { .client-grid { grid-template-columns: 1fr; } .client-stats { grid-template-columns: repeat(2, 1fr); } .container { padding: 0.8rem; } .search-bar { flex-direction: column; align-items: stretch; } .search-bar input, .search-bar select { width: 100%; } .page-header p { margin-left: 0; } .page-header h1 { font-size: 1.1rem; } .modal { padding: 1.2rem; } }
+    .history-list { max-height: 400px; overflow-y: auto; }
+    .history-item {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0.6rem 0.8rem; border-bottom: 1px solid #f1f5f9;
+      transition: background 0.2s;
+    }
+    .history-item:hover { background: #faf8ff; }
+    .history-item .h-left { display: flex; flex-direction: column; gap: 2px; }
+    .history-item .h-name { font-weight: 600; font-size: 0.85rem; }
+    .history-item .h-detail { font-size: 0.7rem; color: #64748b; }
+    .history-item .h-right { text-align: right; }
+    .history-item .h-status { font-size: 0.6rem; font-weight: 600; }
+    .history-item .h-date { font-size: 0.65rem; color: #94a3b8; }
+
+    .status-completed { color: #10b981; }
+    .status-pending { color: #f59e0b; }
+    .status-processing { color: #3b82f6; }
+    .status-rejected { color: #ef4444; }
+    .status-delivered { color: #8b5cf6; }
+
+    .client-history-item {
+      background: #f8fafc; border-radius: 10px; padding: 0.8rem; margin-bottom: 0.6rem;
+      border: 1px solid #f1eaff;
+    }
+    .client-history-item .chi-top {
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .client-history-item .chi-service { font-weight: 600; font-size: 0.85rem; }
+    .client-history-item .chi-status { font-size: 0.6rem; font-weight: 600; }
+    .client-history-item .chi-details {
+      display: flex; gap: 1rem; margin-top: 0.3rem; font-size: 0.7rem; color: #64748b;
+    }
+    .client-history-item .chi-details span { display: flex; align-items: center; gap: 4px; }
+
+    @media (max-width: 1024px) {
+      .charts-row { grid-template-columns: 1fr; }
+      .client-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 700px) {
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .client-grid { grid-template-columns: 1fr; }
+      .container { padding: 0.8rem; }
+      .page-header p { margin-left: 0; }
+      .page-header h1 { font-size: 1.1rem; }
+      .search-bar { flex-direction: column; align-items: stretch; }
+      .search-bar input, .search-bar select { width: 100%; }
+      .modal { padding: 1.2rem; }
+      .modal-large { max-width: 95%; }
+    }
   </style>
 </head>
 <body>
@@ -142,19 +362,52 @@
 
     <div id="alertMessage" class="alert"></div>
 
+    <!-- Stats Grid -->
+    <div class="stats-grid" id="clientStats">
+      <div class="stat-card">
+        <div class="stat-left"><h4>Total Clients</h4><div class="stat-number empty" id="totalClients">--</div></div>
+        <div class="stat-icon"><i class="fas fa-users"></i></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-left"><h4>Active</h4><div class="stat-number empty" id="activeClients">--</div></div>
+        <div class="stat-icon"><i class="fas fa-check-circle" style="color:#10b981;"></i></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-left"><h4>Pending</h4><div class="stat-number empty" id="pendingClients">--</div></div>
+        <div class="stat-icon"><i class="fas fa-clock" style="color:#f59e0b;"></i></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-left"><h4>Total Applications</h4><div class="stat-number empty" id="totalAppCount">--</div></div>
+        <div class="stat-icon"><i class="fas fa-file-alt"></i></div>
+      </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="charts-row">
+      <div class="chart-card">
+        <h4><i class="fas fa-chart-pie"></i> Client Status Distribution</h4>
+        <div class="chart-container"><canvas id="statusChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h4><i class="fas fa-chart-bar"></i> Top Clients by Applications</h4>
+        <div class="chart-container"><canvas id="topClientsChart"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Search Bar -->
     <div class="search-bar">
       <input type="text" id="searchInput" placeholder="Search by name, email, or phone..." />
-      <select id="statusFilter"><option value="all">All Status</option><option value="active">Active</option><option value="pending">Pending</option><option value="inactive">Inactive</option></select>
+      <select id="statusFilter">
+        <option value="all">All Status</option>
+        <option value="active">Active</option>
+        <option value="pending">Pending</option>
+        <option value="inactive">Inactive</option>
+      </select>
       <button class="search-btn" id="searchBtn"><i class="fas fa-search"></i> Search</button>
+      <button class="clear-btn" id="clearBtn"><i class="fas fa-times"></i> Clear</button>
     </div>
 
-    <div class="client-stats" id="clientStats">
-      <div class="stat-card"><div class="stat-left"><h4>Total Clients</h4><div class="stat-number" id="totalClients">--</div></div><div class="stat-icon"><i class="fas fa-users"></i></div></div>
-      <div class="stat-card"><div class="stat-left"><h4>Active</h4><div class="stat-number" id="activeClients">--</div></div><div class="stat-icon"><i class="fas fa-check-circle" style="color:#10b981;"></i></div></div>
-      <div class="stat-card"><div class="stat-left"><h4>Pending</h4><div class="stat-number" id="pendingClients">--</div></div><div class="stat-icon"><i class="fas fa-clock" style="color:#f59e0b;"></i></div></div>
-      <div class="stat-card"><div class="stat-left"><h4>Total Applications</h4><div class="stat-number" id="totalAppCount">--</div></div><div class="stat-icon"><i class="fas fa-file-alt"></i></div></div>
-    </div>
-
+    <!-- Client Grid -->
     <div class="client-grid" id="clientGrid">
       <div class="empty-state"><i class="fas fa-users-slash"></i>Loading clients...</div>
     </div>
@@ -162,10 +415,9 @@
 
   <!-- View Client Modal -->
   <div class="modal-overlay" id="viewModal">
-    <div class="modal">
-      <h3><i class="fas fa-user-circle" style="color:#7c3aed;"></i> Client Profile</h3>
+    <div class="modal modal-large">
+      <h3><i class="fas fa-user-circle" style="color:#8b5cf6;"></i> Client Profile</h3>
       <p>Full client details and application history.</p>
-      <input type="hidden" id="viewClientId">
       <div class="modal-group" id="viewDetails">
         <div class="detail-row"><span class="label">Name</span><span class="value" id="viewName">—</span></div>
         <div class="detail-row"><span class="label">Email</span><span class="value" id="viewEmail">—</span></div>
@@ -174,7 +426,11 @@
         <div class="detail-row"><span class="label">Type</span><span class="value" id="viewType">—</span></div>
         <div class="detail-row"><span class="label">Joined</span><span class="value" id="viewJoined">—</span></div>
         <div class="detail-row"><span class="label">Last Activity</span><span class="value" id="viewLastActivity">—</span></div>
-        <div class="detail-row"><span class="label">Applications</span><span class="value" id="viewAppCount">—</span></div>
+        <div class="detail-row"><span class="label">Total Applications</span><span class="value" id="viewAppCount">—</span></div>
+      </div>
+      <div style="margin:1rem 0 0.5rem;font-weight:600;font-size:0.85rem;"><i class="fas fa-history"></i> Application History</div>
+      <div id="viewClientHistory">
+        <div class="empty-state" style="padding:0.5rem;font-size:0.7rem;">No applications yet</div>
       </div>
       <div class="modal-actions">
         <button class="modal-cancel" onclick="closeModal('viewModal')">Close</button>
@@ -182,7 +438,9 @@
     </div>
   </div>
 
-  <div class="footer"><i class="far fa-copyright"></i> 2026 KazInni Workspaces • Digital Services • Client Management</div>
+  <div class="footer">
+    <i class="far fa-copyright"></i> 2026 KazInni Workspaces • Digital Services • Client Management
+  </div>
 
   <script type="importmap">
     {
@@ -199,7 +457,16 @@
     import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
     import { getDatabase, ref, onValue, get } from "firebase/database";
 
-    const firebaseConfig = { apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA", authDomain: "mugera-e51cc.firebaseapp.com", databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app", projectId: "mugera-e51cc", storageBucket: "mugera-e51cc.firebasestorage.app", messagingSenderId: "1024868637509", appId: "1:1024868637509:web:321faecddce8f11d9cfc2c" };
+    const firebaseConfig = {
+      apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+      authDomain: "mugera-e51cc.firebaseapp.com",
+      databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "mugera-e51cc",
+      storageBucket: "mugera-e51cc.firebasestorage.app",
+      messagingSenderId: "1024868637509",
+      appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
+    };
+
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
     const auth = getAuth(app);
@@ -207,6 +474,8 @@
     let allClients = {};
     let allApplications = {};
     let filteredClients = {};
+    let statusChartInstance = null;
+    let topClientsChartInstance = null;
 
     const loadingOverlay = document.getElementById('loadingOverlay');
     const repNameEl = document.getElementById('repName');
@@ -227,8 +496,23 @@
       overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.classList.remove('active'); });
     });
 
+    window.closeModal = closeModal;
+
     function getStatusClass(status) {
       const map = { 'active': 'status-active', 'inactive': 'status-inactive', 'pending': 'status-pending' };
+      return map[status] || 'status-pending';
+    }
+
+    function getAppStatusClass(status) {
+      const map = {
+        'pending': 'status-pending',
+        'processing': 'status-processing',
+        'qa': 'status-pending',
+        'submitted': 'status-processing',
+        'delivered': 'status-delivered',
+        'rejected': 'status-rejected',
+        'completed': 'status-completed'
+      };
       return map[status] || 'status-pending';
     }
 
@@ -237,19 +521,79 @@
       return Object.values(allApplications).filter(app => app.clientId === clientId).length;
     }
 
+    function getClientApplications(clientId) {
+      if (!allApplications) return [];
+      return Object.entries(allApplications)
+        .filter(([_, app]) => app && app.clientId === clientId)
+        .map(([id, app]) => ({ id, ...app }))
+        .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+    }
+
+    function updateCharts() {
+      const clients = Object.values(allClients).filter(c => c && c.name);
+      const active = clients.filter(c => c.status === 'active').length;
+      const pending = clients.filter(c => c.status === 'pending' || !c.status).length;
+      const inactive = clients.filter(c => c.status === 'inactive').length;
+
+      // Status Chart
+      const ctx = document.getElementById('statusChart').getContext('2d');
+      if (statusChartInstance) statusChartInstance.destroy();
+      const total = clients.length || 1;
+      statusChartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Active', 'Pending', 'Inactive'],
+          datasets: [{ data: [active, pending, inactive], backgroundColor: ['#10b981', '#f59e0b', '#94a3b8'], borderWidth: 0 }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: true,
+          plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 9 }, padding: 8 } } }
+        }
+      });
+
+      // Top Clients Chart
+      const clientAppCounts = clients.map(c => ({
+        name: c.name || 'Unknown',
+        count: getClientApplicationCount(Object.keys(allClients).find(id => allClients[id] === c))
+      })).sort((a, b) => b.count - a.count).slice(0, 8);
+
+      const ctx2 = document.getElementById('topClientsChart').getContext('2d');
+      if (topClientsChartInstance) topClientsChartInstance.destroy();
+      const labels = clientAppCounts.length ? clientAppCounts.map(c => c.name.length > 15 ? c.name.substring(0, 13) + '...' : c.name) : ['No Data'];
+      const data = clientAppCounts.length ? clientAppCounts.map(c => c.count) : [0];
+      topClientsChartInstance = new Chart(ctx2, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{ label: 'Applications', data: data, backgroundColor: '#7c3aed', borderRadius: 4 }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true, maintainAspectRatio: true,
+          plugins: { legend: { display: false } },
+          scales: { x: { beginAtZero: true, grid: { color: '#f1f5f9' } }, y: { grid: { display: false } } }
+        }
+      });
+    }
+
     function renderClients(clients) {
       const grid = document.getElementById('clientGrid');
       const entries = Object.entries(clients).filter(([_, c]) => c && c.name);
+
       if (!entries.length) {
         grid.innerHTML = `<div class="empty-state"><i class="fas fa-user-plus"></i>No clients found<p style="font-size:0.7rem;color:#cbd5e1;margin-top:0.3rem;">Add clients by creating applications</p></div>`;
         return;
       }
+
       grid.innerHTML = entries.map(([id, client]) => {
         const appCount = getClientApplicationCount(id);
         return `<div class="client-card" data-id="${id}">
           <div class="client-header">
             <div class="client-avatar">${getInitials(client.name)}</div>
-            <div><div class="client-name">${client.name}</div><div class="client-email">${client.email || 'No email'}</div></div>
+            <div>
+              <div class="client-name">${client.name}</div>
+              <div class="client-email">${client.email || 'No email'}</div>
+            </div>
           </div>
           <div class="client-details">
             <span><i class="fas fa-phone"></i> ${client.phone || 'N/A'}</span>
@@ -275,27 +619,51 @@
       const active = clients.filter(c => c.status === 'active').length;
       const pending = clients.filter(c => c.status === 'pending' || !c.status).length;
       const totalApps = Object.values(allApplications).filter(a => a && a.clientName).length;
+
       document.getElementById('totalClients').textContent = total;
+      document.getElementById('totalClients').className = 'stat-number';
       document.getElementById('activeClients').textContent = active;
+      document.getElementById('activeClients').className = 'stat-number';
       document.getElementById('pendingClients').textContent = pending;
+      document.getElementById('pendingClients').className = 'stat-number';
       document.getElementById('totalAppCount').textContent = totalApps;
+      document.getElementById('totalAppCount').className = 'stat-number';
+
+      updateCharts();
     }
 
     function filterClients() {
       const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
       const statusFilter = document.getElementById('statusFilter').value;
+
       let filtered = { ...allClients };
-      if (searchTerm) filtered = Object.fromEntries(Object.entries(filtered).filter(([_, c]) => { if (!c || !c.name) return false; return c.name.toLowerCase().includes(searchTerm) || (c.email && c.email.toLowerCase().includes(searchTerm)) || (c.phone && c.phone.includes(searchTerm)); }));
-      if (statusFilter !== 'all') filtered = Object.fromEntries(Object.entries(filtered).filter(([_, c]) => { const status = c.status || 'pending'; return status === statusFilter; }));
+      if (searchTerm) {
+        filtered = Object.fromEntries(Object.entries(filtered).filter(([_, c]) => {
+          if (!c || !c.name) return false;
+          return c.name.toLowerCase().includes(searchTerm) ||
+                 (c.email && c.email.toLowerCase().includes(searchTerm)) ||
+                 (c.phone && c.phone.includes(searchTerm));
+        }));
+      }
+      if (statusFilter !== 'all') {
+        filtered = Object.fromEntries(Object.entries(filtered).filter(([_, c]) => {
+          const status = c.status || 'pending';
+          return status === statusFilter;
+        }));
+      }
       filteredClients = filtered;
       renderClients(filtered);
       updateStats();
     }
 
+    // ===== VIEW CLIENT MODAL =====
     function openViewModal(id) {
       const client = allClients[id];
       if (!client) { showAlert('Client not found.', 'error'); return; }
+
       const appCount = getClientApplicationCount(id);
+      const apps = getClientApplications(id);
+
       document.getElementById('viewName').textContent = client.name || '—';
       document.getElementById('viewEmail').textContent = client.email || '—';
       document.getElementById('viewPhone').textContent = client.phone || '—';
@@ -304,12 +672,43 @@
       document.getElementById('viewJoined').textContent = client.joinedDate || 'N/A';
       document.getElementById('viewLastActivity').textContent = client.lastActivity ? new Date(client.lastActivity).toLocaleDateString('en-GB') : 'N/A';
       document.getElementById('viewAppCount').textContent = appCount;
+
+      // Client history
+      const historyContainer = document.getElementById('viewClientHistory');
+      if (!apps.length) {
+        historyContainer.innerHTML = `<div class="empty-state" style="padding:0.5rem;font-size:0.7rem;">No applications yet</div>`;
+      } else {
+        historyContainer.innerHTML = apps.map(app => `
+          <div class="client-history-item">
+            <div class="chi-top">
+              <span class="chi-service">${app.service || 'Service'}</span>
+              <span class="chi-status ${getAppStatusClass(app.status)}">${(app.status || 'pending').toUpperCase()}</span>
+            </div>
+            <div class="chi-details">
+              <span><i class="fas fa-user-tie"></i> ${app.assignedStaff || 'Unassigned'}</span>
+              <span><i class="fas fa-calendar"></i> ${app.createdAt ? new Date(app.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A'}</span>
+              ${app.priority ? `<span><i class="fas fa-flag"></i> ${app.priority}</span>` : ''}
+            </div>
+            ${app.notes ? `<div style="font-size:0.7rem;color:#64748b;margin-top:0.3rem;padding-top:0.3rem;border-top:1px solid #f1f5f9;"><i class="fas fa-comment"></i> ${app.notes}</div>` : ''}
+          </div>
+        `).join('');
+      }
+
       document.getElementById('viewModal').classList.add('active');
     }
 
+    // ===== SETUP =====
     function setupListeners() {
-      onValue(ref(db, 'digital_services_clients'), (snap) => { allClients = snap.val() || {}; filterClients(); loadingOverlay.classList.add('hide'); });
-      onValue(ref(db, 'digital_services_applications'), (snap) => { allApplications = snap.val() || {}; filterClients(); });
+      onValue(ref(db, 'digital_services_clients'), (snap) => {
+        allClients = snap.val() || {};
+        filterClients();
+        loadingOverlay.classList.add('hide');
+      });
+
+      onValue(ref(db, 'digital_services_applications'), (snap) => {
+        allApplications = snap.val() || {};
+        filterClients();
+      });
     }
 
     onAuthStateChanged(auth, async (user) => {
@@ -317,25 +716,41 @@
         try {
           const userSnap = await get(ref(db, `brandinn_users/${user.uid}`));
           let userName = 'Digital Services Admin';
-          if (userSnap.exists()) userName = userSnap.val().name || user.displayName || user.email?.split('@')[0] || 'Digital Services Admin';
-          else userName = user.displayName || user.email?.split('@')[0] || 'Digital Services Admin';
+          if (userSnap.exists()) {
+            userName = userSnap.val().name || user.displayName || user.email?.split('@')[0] || 'Digital Services Admin';
+          } else {
+            userName = user.displayName || user.email?.split('@')[0] || 'Digital Services Admin';
+          }
           repNameEl.textContent = userName;
           repAvatarEl.textContent = getInitials(userName);
           setupListeners();
-        } catch (error) { console.error('Error fetching user:', error); repNameEl.textContent = 'Digital Services Admin'; repAvatarEl.textContent = 'DS'; setupListeners(); }
-      } else { window.location.href = 'https://kazinni-staff.vercel.app'; }
+        } catch (error) {
+          console.error('Error fetching user:', error);
+          repNameEl.textContent = 'Digital Services Admin';
+          repAvatarEl.textContent = 'DS';
+          setupListeners();
+        }
+      } else {
+        window.location.href = 'https://kazinni-staff.vercel.app';
+      }
     });
 
     document.getElementById('logoutBtn').addEventListener('click', async () => {
-      if (confirm('Log out of KazInni Workspaces?')) { try { await signOut(auth); } catch (e) { alert('Logout failed.'); } }
+      if (confirm('Log out of KazInni Workspaces?')) {
+        try { await signOut(auth); } catch (e) { alert('Logout failed.'); }
+      }
     });
 
     document.getElementById('searchBtn').addEventListener('click', filterClients);
     document.getElementById('searchInput').addEventListener('keyup', (e) => { if (e.key === 'Enter') filterClients(); });
     document.getElementById('statusFilter').addEventListener('change', filterClients);
-    setTimeout(() => loadingOverlay.classList.add('hide'), 5000);
+    document.getElementById('clearBtn').addEventListener('click', () => {
+      document.getElementById('searchInput').value = '';
+      document.getElementById('statusFilter').value = 'all';
+      filterClients();
+    });
 
-    window.closeModal = closeModal;
+    setTimeout(() => loadingOverlay.classList.add('hide'), 5000);
   </script>
 </body>
 </html>
