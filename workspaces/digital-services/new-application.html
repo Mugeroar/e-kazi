@@ -188,17 +188,6 @@
       border-top-color: #7c3aed; border-radius: 50%; animation: spin 0.8s linear infinite;
     }
 
-    /* Staff avatar in dropdown */
-    .staff-option {
-      display: flex; align-items: center; gap: 8px;
-    }
-    .staff-option .staff-dot {
-      width: 8px; height: 8px; border-radius: 50%; display: inline-block;
-    }
-    .staff-option .staff-dot.available { background: #10b981; }
-    .staff-option .staff-dot.busy { background: #f59e0b; }
-    .staff-option .staff-dot.offline { background: #94a3b8; }
-
     @media (max-width: 700px) {
       .form-row { grid-template-columns: 1fr; }
       .container { padding: 0.8rem; }
@@ -280,9 +269,9 @@
           <div class="form-group">
             <label>Assign To <span class="required">*</span></label>
             <select id="staffSelect" required>
-              <option value="">— Select a staff member —</option>
+              <option value="">— Loading staff... —</option>
             </select>
-            <div class="hint">Select the staff member who will handle this application</div>
+            <div class="hint">Select a staff member with Digital Services access</div>
           </div>
         </div>
 
@@ -339,6 +328,8 @@
 
     let services = [];
     let staffMembers = [];
+    let workspacePermissionsData = {};
+    let brandinnUsersData = {};
     let allClients = {};
     let applications = {};
 
@@ -383,37 +374,59 @@
       });
     }
 
-    // ===== LOAD STAFF FROM FIREBASE =====
+    // ===== LOAD STAFF FROM WORKSPACEPERMISSIONS + BRANDINN_USERS =====
     function loadStaff() {
       const staffSelect = document.getElementById('staffSelect');
       staffSelect.innerHTML = '<option value="">— Select a staff member —</option>';
 
-      console.log('Loading staff into dropdown:', staffMembers.length);
+      console.log('Loading staff from workspacePermissions...');
 
-      if (!staffMembers.length) {
-        staffSelect.innerHTML += '<option value="" disabled>No staff members available — add staff in the admin panel</option>';
+      const staffList = [];
+
+      // Iterate through workspacePermissions
+      for (const [uid, perms] of Object.entries(workspacePermissionsData || {})) {
+        // Check if this user has digital-services permission
+        // Check both the correct ID and the random ID (for backwards compatibility)
+        const hasDigitalServices = 
+          perms['digital-services'] === true || 
+          perms['-Ow9NSVELH15DGxI5kJw'] === true;
+        
+        if (hasDigitalServices) {
+          // Get the user's profile from brandinn_users
+          const userProfile = brandinnUsersData[uid] || {};
+          
+          // Only include users with a name
+          if (userProfile.name) {
+            staffList.push({
+              uid: uid,
+              name: userProfile.name,
+              email: userProfile.email || '',
+              phone: userProfile.phone || '',
+              businessName: userProfile.businessName || '',
+              // Check if user is online via activeSessions
+              status: 'available'
+            });
+          }
+        }
+      }
+
+      console.log('Staff found with digital-services access:', staffList.length);
+
+      if (!staffList.length) {
+        staffSelect.innerHTML += '<option value="" disabled>No staff members with Digital Services access</option>';
         return;
       }
 
-      // Sort staff by name
-      const sorted = [...staffMembers].sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+      // Sort by name
+      const sorted = staffList.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
 
       sorted.forEach(staff => {
         const option = document.createElement('option');
-        option.value = staff.name;
-        
-        // Get staff status if available
-        const status = staff.status || 'available';
-        const statusDot = status === 'available' ? '🟢' : status === 'busy' ? '🟡' : '⚪';
-        
-        option.textContent = `${staff.name} ${statusDot}`;
-        option.title = staff.email || staff.role || 'Staff member';
-        
-        // Add data attributes for styling
-        option.dataset.staffId = staff.id || '';
-        option.dataset.status = status;
-        option.dataset.email = staff.email || '';
-        
+        option.value = staff.uid; // Use UID as the value
+        option.textContent = `${staff.name} ${staff.email ? '· ' + staff.email : ''}`;
+        option.title = staff.email || staff.businessName || 'Staff member';
+        option.dataset.staffUid = staff.uid;
+        option.dataset.staffEmail = staff.email || '';
         staffSelect.appendChild(option);
       });
     }
@@ -444,7 +457,7 @@
         const clientEmail = document.getElementById('clientEmail').value.trim();
         const service = document.getElementById('serviceSelect').value;
         const priority = document.getElementById('prioritySelect').value;
-        const assignedStaff = document.getElementById('staffSelect').value;
+        const assignedStaffUid = document.getElementById('staffSelect').value;
         const notes = document.getElementById('notes').value.trim();
 
         // Validate
@@ -462,12 +475,17 @@
           return;
         }
 
-        if (!assignedStaff) {
+        if (!assignedStaffUid) {
           showAlert('Please assign a staff member.', 'warning');
           submitBtn.disabled = false;
           submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Application';
           return;
         }
+
+        // Get the staff name from the selected option
+        const staffSelect = document.getElementById('staffSelect');
+        const selectedOption = staffSelect.options[staffSelect.selectedIndex];
+        const assignedStaffName = selectedOption ? selectedOption.textContent.split(' · ')[0] : '';
 
         // Check if client already exists
         const existingClient = await findExistingClient(clientName, clientEmail, clientPhone);
@@ -497,10 +515,6 @@
           showAlert(`New client "${clientName}" created successfully!`, 'success');
         }
 
-        // Find the staff member's UID from the selected name
-        const selectedStaff = staffMembers.find(s => s.name === assignedStaff);
-        const staffUid = selectedStaff?.id || '';
-
         // Create the application
         const newAppRef = push(ref(db, 'digital_services_applications'));
         await set(newAppRef, {
@@ -510,8 +524,8 @@
           clientEmail: clientEmail || '',
           service: service,
           priority: priority || 'normal',
-          assignedStaff: assignedStaff,
-          assignedStaffUid: staffUid,
+          assignedStaff: assignedStaffName,
+          assignedStaffUid: assignedStaffUid,
           notes: notes || '',
           paymentStatus: 'pending',
           amount: 0,
@@ -523,24 +537,7 @@
         // Update client last activity
         await set(ref(db, `digital_services_clients/${clientId}/lastActivity`), new Date().toISOString());
 
-        // Optional: Update staff workload (if you want to track assigned tasks count)
-        // This is a simple increment of tasks assigned
-        try {
-          const staffRef = ref(db, `digital_services_staff/${staffUid}`);
-          const staffSnap = await get(staffRef);
-          if (staffSnap.exists()) {
-            const currentTasks = staffSnap.val().assignedTasks || 0;
-            await set(staffRef, {
-              ...staffSnap.val(),
-              assignedTasks: currentTasks + 1,
-              lastAssignedAt: Date.now()
-            });
-          }
-        } catch (e) {
-          console.warn('Could not update staff workload:', e);
-        }
-
-        showAlert(`Application for "${clientName}" (${service}) assigned to ${assignedStaff}!`, 'success');
+        showAlert(`Application for "${clientName}" (${service}) assigned to ${assignedStaffName}!`, 'success');
 
         // Reset form
         document.getElementById('applicationForm').reset();
@@ -575,22 +572,18 @@
         loadingOverlay.classList.add('hide');
       });
 
-      // ===== LOAD STAFF FROM DIGITAL_SERVICES_STAFF =====
-      onValue(ref(db, 'digital_services_staff'), (snap) => {
-        const data = snap.val() || {};
-        staffMembers = Object.entries(data)
-          .filter(([_, value]) => value && value.name) // Only staff with names
-          .map(([id, value]) => ({
-            id: id,
-            name: value.name || id,
-            email: value.email || '',
-            role: value.role || 'Staff',
-            status: value.status || 'available',
-            assignedTasks: value.assignedTasks || 0,
-            phone: value.phone || ''
-          }));
-        console.log('Staff loaded:', staffMembers.length);
-        loadStaff();
+      // ===== LOAD WORKSPACE PERMISSIONS =====
+      onValue(ref(db, 'workspacePermissions'), (snap) => {
+        workspacePermissionsData = snap.val() || {};
+        console.log('Workspace permissions loaded:', Object.keys(workspacePermissionsData).length);
+        loadStaff(); // Re-populate staff dropdown
+      });
+
+      // ===== LOAD BRANDINN USERS =====
+      onValue(ref(db, 'brandinn_users'), (snap) => {
+        brandinnUsersData = snap.val() || {};
+        console.log('BrandInn users loaded:', Object.keys(brandinnUsersData).length);
+        loadStaff(); // Re-populate staff dropdown
       });
 
       // Load clients for duplicate checking
