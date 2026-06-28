@@ -326,10 +326,6 @@
     .modal .modal-actions .modal-cancel:hover { background: #e2e8f0; }
     .modal .modal-actions .modal-save { background: #7c3aed; color: white; }
     .modal .modal-actions .modal-save:hover { background: #6d28d9; }
-    .modal .modal-actions .modal-confirm { background: #10b981; color: white; }
-    .modal .modal-actions .modal-confirm:hover { background: #059669; }
-    .modal .modal-actions .modal-delete { background: #ef4444; color: white; }
-    .modal .modal-actions .modal-delete:hover { background: #dc2626; }
 
     @media (max-width: 700px) {
       .stats-grid { grid-template-columns: repeat(2, 1fr); }
@@ -602,7 +598,6 @@
       // Task Distribution Chart
       const ctx = document.getElementById('taskChart').getContext('2d');
       if (taskChartInstance) taskChartInstance.destroy();
-      const total = entries.length || 1;
       taskChartInstance = new Chart(ctx, {
         type: 'doughnut',
         data: {
@@ -820,6 +815,7 @@
       closeModal('statusModal');
     });
 
+    // ===== FILTER TASKS =====
     function filterTasks() {
       const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
       const statusFilter = document.getElementById('statusFilter').value;
@@ -827,13 +823,19 @@
 
       let filtered = { ...allApplications };
 
-      // Filter by assigned staff (current user's UID or name)
+      // ✅ FIX: Filter by assigned staff (using BOTH UID and name for compatibility)
       filtered = Object.fromEntries(
         Object.entries(filtered).filter(([_, t]) => {
           if (!t || !t.clientName) return false;
-          // Check by UID first, then by name
-          return (t.assignedStaffUid && t.assignedStaffUid === currentUserUid) ||
-                 (t.assignedStaff && t.assignedStaff.toLowerCase() === currentUserName.toLowerCase());
+          
+          // Check by UID first (preferred method from New Application page)
+          const matchesUid = t.assignedStaffUid && t.assignedStaffUid === currentUserUid;
+          
+          // Fallback to name matching (for older applications)
+          const matchesName = t.assignedStaff && 
+            t.assignedStaff.toLowerCase() === currentUserName.toLowerCase();
+          
+          return matchesUid || matchesName;
         })
       );
 
