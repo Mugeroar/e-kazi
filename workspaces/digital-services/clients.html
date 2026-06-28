@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Client Management | Digital Services</title>
+  
+  <meta name="theme-color" content="#7c3aed">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  
+  <link rel="icon" type="image/png" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(145deg, #f8f6fc 0%, #ffffff 100%);
+      color: #1a1a2e;
+      line-height: 1.4;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .navbar {
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(12px);
+      padding: 0.5rem 3%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(124, 58, 237, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .logo-img { height: 34px; width: 34px; border-radius: 10px; object-fit: contain; background: white; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.15); }
+    .logo-text {
+      font-weight: 800; font-size: 1.1rem;
+      background: linear-gradient(145deg, #7c3aed, #8b5cf6);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .logo-text span { font-weight: 600; font-size: 0.7rem; background: #f59e0b; -webkit-text-fill-color: #f59e0b; margin-left: 3px; }
+
+    .nav-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .rep-profile { display: flex; align-items: center; gap: 8px; background: #f1f5f9; padding: 0.2rem 0.7rem 0.2rem 0.5rem; border-radius: 40px; }
+    .rep-avatar {
+      width: 32px; height: 32px; background: linear-gradient(145deg, #7c3aed, #c084fc);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      color: white; font-weight: 700; font-size: 0.8rem;
+    }
+    .rep-info { line-height: 1.2; }
+    .rep-name { font-weight: 700; color: #0f172a; font-size: 0.8rem; }
+    .rep-role { font-size: 0.6rem; color: #7c3aed; font-weight: 700; text-transform: uppercase; }
+
+    .logout-btn {
+      background: white; border: 1.5px solid #e2e8f0; padding: 0.4rem 0.9rem;
+      border-radius: 30px; color: #475569; font-weight: 600; font-size: 0.75rem;
+      cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.2s;
+    }
+    .logout-btn:hover { background: #fee2e2; border-color: #ef4444; color: #ef4444; }
+
+    .back-btn {
+      background: white; border: 1.5px solid #e2e8f0; padding: 0.4rem 0.9rem;
+      border-radius: 30px; color: #475569; font-weight: 600; font-size: 0.75rem;
+      cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.2s;
+      text-decoration: none;
+    }
+    .back-btn:hover { background: #f5f0ff; border-color: #7c3aed; color: #7c3aed; }
+
+    .container { padding: 1.2rem 2%; flex: 1; }
+
+    .page-header { margin-bottom: 1.2rem; }
+    .page-header h1 {
+      font-size: 1.3rem; font-weight: 800; color: #0f172a;
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    }
+    .page-header h1 i {
+      color: #7c3aed; background: white; padding: 8px;
+      border-radius: 12px; box-shadow: 0 6px 14px rgba(124, 58, 237, 0.06);
+      font-size: 1rem;
+    }
+    .page-header p { color: #475569; font-size: 0.8rem; margin-top: 0.2rem; margin-left: 48px; }
+
+    /* Search & Filter Bar */
+    .search-bar {
+      background: white; border-radius: 16px; padding: 0.8rem 1.2rem;
+      border: 1px solid #f1eaff; display: flex; flex-wrap: wrap;
+      align-items: center; gap: 12px; margin-bottom: 1.2rem;
+    }
+    .search-bar input {
+      flex: 1; min-width: 180px; padding: 0.5rem 0.8rem;
+      border: 1px solid #e2e8f0; border-radius: 30px; font-size: 0.8rem;
+      font-family: 'Inter', sans-serif; outline: none; transition: all 0.2s;
+    }
+    .search-bar input:focus { border-color: #7c3aed; box-shadow: 0 0 0 3px rgba(124,58,237,0.1); }
+    .search-bar select {
+      padding: 0.5rem 0.8rem; border: 1px solid #e2e8f0; border-radius: 30px;
+      font-size: 0.8rem; font-family: 'Inter', sans-serif; outline: none;
+      background: white; color: #475569; cursor: pointer;
+    }
+    .search-bar select:focus { border-color: #7c3aed; }
+    .search-btn {
+      background: #7c3aed; color: white; border: none; padding: 0.5rem 1.2rem;
+      border-radius: 30px; font-weight: 600; font-size: 0.75rem; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;
+    }
+    .search-btn:hover { background: #6d28d9; transform: translateY(-1px); }
+    .add-client-btn {
+      background: #10b981; color: white; border: none; padding: 0.5rem 1.2rem;
+      border-radius: 30px; font-weight: 600; font-size: 0.75rem; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;
+    }
+    .add-client-btn:hover { background: #059669; transform: translateY(-1px); }
+
+    /* Client Stats */
+    .client-stats {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 1.2rem;
+    }
+    .stat-card {
+      background: white; border-radius: 16px; padding: 0.8rem 1.2rem;
+      border: 1px solid #f1eaff; display: flex; align-items: center; justify-content: space-between;
+    }
+    .stat-card .stat-left h4 { font-size: 0.6rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; color: #64748b; }
+    .stat-card .stat-number { font-size: 1.4rem; font-weight: 800; color: #0f172a; }
+    .stat-card .stat-icon {
+      width: 36px; height: 36px; background: #f5f0ff; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center; color: #7c3aed; font-size: 1rem;
+    }
+
+    /* Client Grid */
+    .client-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+    }
+    .client-card {
+      background: white; border-radius: 16px; padding: 1.2rem;
+      border: 1px solid #f1eaff; transition: all 0.25s; cursor: pointer;
+    }
+    .client-card:hover { transform: translateY(-4px); box-shadow: 0 16px 30px -10px rgba(124,58,237,0.1); border-color: #c9b3ff; }
+    .client-card .client-header {
+      display: flex; align-items: center; gap: 12px; margin-bottom: 0.6rem;
+    }
+    .client-card .client-avatar {
+      width: 48px; height: 48px; background: linear-gradient(145deg, #7c3aed, #c084fc);
+      border-radius: 14px; display: flex; align-items: center; justify-content: center;
+      color: white; font-weight: 700; font-size: 1.1rem; flex-shrink: 0;
+    }
+    .client-card .client-name { font-weight: 700; font-size: 0.95rem; }
+    .client-card .client-email { font-size: 0.7rem; color: #64748b; }
+    .client-card .client-details {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 4px 8px; margin: 0.6rem 0;
+      font-size: 0.7rem; color: #475569;
+    }
+    .client-card .client-details span { display: flex; align-items: center; gap: 4px; }
+    .client-card .client-details i { color: #7c3aed; width: 14px; font-size: 0.6rem; }
+    .client-card .client-footer {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 0.6rem; padding-top: 0.6rem; border-top: 1px solid #f1f5f9;
+      font-size: 0.65rem; color: #64748b;
+    }
+    .client-card .client-status {
+      padding: 0.15rem 0.5rem; border-radius: 20px; font-weight: 600; font-size: 0.6rem;
+    }
+    .status-active { background: #d1fae5; color: #065f46; }
+    .status-inactive { background: #fee2e2; color: #991b1b; }
+    .status-pending { background: #fef3c7; color: #92400e; }
+
+    .empty-state {
+      text-align: center; padding: 3rem 1.5rem; color: #94a3b8; font-size: 0.85rem;
+      grid-column: 1 / -1;
+    }
+    .empty-state i { font-size: 2.5rem; display: block; margin-bottom: 0.8rem; opacity: 0.4; }
+
+    .footer { text-align: center; padding: 1rem; color: #94a3b8; border-top: 1px solid #f1eaff; font-size: 0.7rem; margin-top: 1.5rem; }
+
+    .loading-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(255,255,255,0.8); backdrop-filter: blur(4px);
+      display: flex; justify-content: center; align-items: center; z-index: 999;
+    }
+    .loading-overlay.hide { display: none; }
+    .spinner {
+      width: 35px; height: 35px; border: 3px solid #f1eaff;
+      border-top-color: #7c3aed; border-radius: 50%; animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 1100px) { .client-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 700px) {
+      .client-grid { grid-template-columns: 1fr; }
+      .client-stats { grid-template-columns: repeat(2, 1fr); }
+      .container { padding: 0.8rem; }
+      .search-bar { flex-direction: column; align-items: stretch; }
+      .search-bar input, .search-bar select { width: 100%; }
+      .page-header p { margin-left: 0; }
+      .page-header h1 { font-size: 1.1rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div></div>
+
+  <nav class="navbar">
+    <a href="/workspaces/digital-services/index.html" class="logo">
+      <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png" alt="KazInni Logo" class="logo-img">
+      <span class="logo-text">KazInni <span>Digital Services</span></span>
+    </a>
+    <div class="nav-right">
+      <a href="/workspaces/digital-services/index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Dashboard</a>
+      <div class="rep-profile">
+        <div class="rep-avatar" id="repAvatar">DS</div>
+        <div class="rep-info">
+          <div class="rep-name" id="repName">Loading...</div>
+          <div class="rep-role"><i class="fas fa-badge-check"></i> Digital Services Admin</div>
+        </div>
+      </div>
+      <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="page-header">
+      <h1><i class="fas fa-user-friends"></i> Client Management</h1>
+      <p>View, search, and manage all client profiles and their application history.</p>
+    </div>
+
+    <!-- Search & Filter Bar -->
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="Search by name, email, or phone..." />
+      <select id="statusFilter">
+        <option value="all">All Status</option>
+        <option value="active">Active</option>
+        <option value="pending">Pending</option>
+        <option value="inactive">Inactive</option>
+      </select>
+      <button class="search-btn" id="searchBtn"><i class="fas fa-search"></i> Search</button>
+      <button class="add-client-btn" id="addClientBtn"><i class="fas fa-plus"></i> Add Client</button>
+    </div>
+
+    <!-- Client Stats -->
+    <div class="client-stats" id="clientStats">
+      <div class="stat-card">
+        <div class="stat-left"><h4>Total Clients</h4><div class="stat-number" id="totalClients">--</div></div>
+        <div class="stat-icon"><i class="fas fa-users"></i></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-left"><h4>Active</h4><div class="stat-number" id="activeClients">--</div></div>
+        <div class="stat-icon"><i class="fas fa-check-circle" style="color:#10b981;"></i></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-left"><h4>Pending</h4><div class="stat-number" id="pendingClients">--</div></div>
+        <div class="stat-icon"><i class="fas fa-clock" style="color:#f59e0b;"></i></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-left"><h4>Total Applications</h4><div class="stat-number" id="totalAppCount">--</div></div>
+        <div class="stat-icon"><i class="fas fa-file-alt"></i></div>
+      </div>
+    </div>
+
+    <!-- Client Grid -->
+    <div class="client-grid" id="clientGrid">
+      <div class="empty-state">
+        <i class="fas fa-users-slash"></i>
+        Loading clients...
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <i class="far fa-copyright"></i> 2026 KazInni Workspaces • Digital Services • <span id="footerStats">--</span>
+  </div>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "firebase/app": "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js",
+        "firebase/auth": "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js",
+        "firebase/database": "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js"
+      }
+    }
+  </script>
+
+  <script type="module">
+    import { initializeApp } from "firebase/app";
+    import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
+    import { getDatabase, ref, onValue, get } from "firebase/database";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+      authDomain: "mugera-e51cc.firebaseapp.com",
+      databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "mugera-e51cc",
+      storageBucket: "mugera-e51cc.firebasestorage.app",
+      messagingSenderId: "1024868637509",
+      appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const auth = getAuth(app);
+
+    let allClients = {};
+    let allApplications = {};
+    let filteredClients = {};
+
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const repNameEl = document.getElementById('repName');
+    const repAvatarEl = document.getElementById('repAvatar');
+
+    function getInitials(name) {
+      if (!name) return 'CL';
+      return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+    }
+
+    function getStatusClass(status) {
+      const map = { 'active': 'status-active', 'inactive': 'status-inactive', 'pending': 'status-pending' };
+      return map[status] || 'status-pending';
+    }
+
+    function getClientApplicationCount(clientId) {
+      if (!allApplications) return 0;
+      return Object.values(allApplications).filter(app => app.clientId === clientId).length;
+    }
+
+    function renderClients(clients) {
+      const grid = document.getElementById('clientGrid');
+      const entries = Object.entries(clients).filter(([_, c]) => c && c.name);
+
+      if (!entries.length) {
+        grid.innerHTML = `
+          <div class="empty-state">
+            <i class="fas fa-user-plus"></i>
+            No clients found
+            <p style="font-size:0.7rem;color:#cbd5e1;margin-top:0.3rem;">Click "Add Client" to get started</p>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = entries.map(([id, client]) => {
+        const appCount = getClientApplicationCount(id);
+        return `
+          <div class="client-card" onclick="window.location.href='/workspaces/digital-services/client-detail.html?id=${id}'">
+            <div class="client-header">
+              <div class="client-avatar">${getInitials(client.name)}</div>
+              <div>
+                <div class="client-name">${client.name}</div>
+                <div class="client-email">${client.email || 'No email'}</div>
+              </div>
+            </div>
+            <div class="client-details">
+              <span><i class="fas fa-phone"></i> ${client.phone || 'N/A'}</span>
+              <span><i class="fas fa-file-alt"></i> ${appCount} apps</span>
+              <span><i class="fas fa-calendar-alt"></i> Joined ${client.joinedDate || 'N/A'}</span>
+              <span><i class="fas fa-tag"></i> ${client.type || 'Individual'}</span>
+            </div>
+            <div class="client-footer">
+              <span>Last activity: ${client.lastActivity || 'N/A'}</span>
+              <span class="client-status ${getStatusClass(client.status)}">${(client.status || 'pending').toUpperCase()}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function updateStats() {
+      const clients = Object.values(allClients).filter(c => c && c.name);
+      const total = clients.length;
+      const active = clients.filter(c => c.status === 'active').length;
+      const pending = clients.filter(c => c.status === 'pending' || !c.status).length;
+      const totalApps = Object.values(allApplications).filter(a => a && a.clientName).length;
+
+      document.getElementById('totalClients').textContent = total;
+      document.getElementById('activeClients').textContent = active;
+      document.getElementById('pendingClients').textContent = pending;
+      document.getElementById('totalAppCount').textContent = totalApps;
+      document.getElementById('footerStats').textContent = `${total} clients · ${active} active · ${pending} pending · ${totalApps} applications`;
+    }
+
+    function filterClients() {
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+      const statusFilter = document.getElementById('statusFilter').value;
+
+      let filtered = { ...allClients };
+
+      if (searchTerm) {
+        filtered = Object.fromEntries(
+          Object.entries(filtered).filter(([_, c]) => {
+            if (!c || !c.name) return false;
+            return c.name.toLowerCase().includes(searchTerm) ||
+                   (c.email && c.email.toLowerCase().includes(searchTerm)) ||
+                   (c.phone && c.phone.includes(searchTerm));
+          })
+        );
+      }
+
+      if (statusFilter !== 'all') {
+        filtered = Object.fromEntries(
+          Object.entries(filtered).filter(([_, c]) => {
+            const status = c.status || 'pending';
+            return status === statusFilter;
+          })
+        );
+      }
+
+      filteredClients = filtered;
+      renderClients(filtered);
+      updateStats();
+    }
+
+    function setupListeners() {
+      onValue(ref(db, 'digital_services_clients'), (snap) => {
+        allClients = snap.val() || {};
+        filterClients();
+        loadingOverlay.classList.add('hide');
+      });
+
+      onValue(ref(db, 'digital_services_applications'), (snap) => {
+        allApplications = snap.val() || {};
+        filterClients();
+      });
+    }
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        try {
+          const userSnap = await get(ref(db, `brandinn_users/${user.uid}`));
+          let userName = 'Digital Services Admin';
+          if (userSnap.exists()) {
+            userName = userSnap.val().name || user.displayName || user.email?.split('@')[0] || 'Digital Services Admin';
+          } else {
+            userName = user.displayName || user.email?.split('@')[0] || 'Digital Services Admin';
+          }
+          repNameEl.textContent = userName;
+          repAvatarEl.textContent = getInitials(userName);
+          setupListeners();
+        } catch (error) {
+          console.error('Error fetching user:', error);
+          repNameEl.textContent = 'Digital Services Admin';
+          repAvatarEl.textContent = 'DS';
+          setupListeners();
+        }
+      } else {
+        window.location.href = 'https://kazinni-staff.vercel.app';
+      }
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      if (confirm('Log out of KazInni Workspaces?')) {
+        try { await signOut(auth); } catch (e) { alert('Logout failed.'); }
+      }
+    });
+
+    document.getElementById('searchBtn').addEventListener('click', filterClients);
+    document.getElementById('searchInput').addEventListener('keyup', (e) => {
+      if (e.key === 'Enter') filterClients();
+    });
+    document.getElementById('statusFilter').addEventListener('change', filterClients);
+
+    document.getElementById('addClientBtn').addEventListener('click', () => {
+      window.location.href = '/workspaces/digital-services/add-client.html';
+    });
+
+    setTimeout(() => loadingOverlay.classList.add('hide'), 5000);
+  </script>
+</body>
+</html>
