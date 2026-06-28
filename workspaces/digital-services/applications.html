@@ -16,10 +16,33 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
+    :root {
+      --primary: #7c3aed;
+      --primary-dark: #5b21b6;
+      --primary-light: #a78bfa;
+      --primary-bg: #f5f0ff;
+      --text-primary: #1e293b;
+      --text-muted: #64748b;
+      --border-light: #e9d5ff;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --info: #3b82f6;
+      --gray-50: #f8fafc;
+      --gray-100: #f1f5f9;
+      --gray-200: #e2e8f0;
+      --gray-300: #cbd5e1;
+      --gray-400: #94a3b8;
+      --gray-500: #64748b;
+      --gray-600: #475569;
+      --gray-700: #334155;
+      --gray-800: #1e293b;
+    }
+
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       background: linear-gradient(145deg, #f8f6fc 0%, #ffffff 100%);
-      color: #1a1a2e;
+      color: var(--text-primary);
       line-height: 1.4;
       min-height: 100vh;
       display: flex;
@@ -100,6 +123,7 @@
     }
     .stat-card .stat-left h4 { font-size: 0.6rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; color: #64748b; }
     .stat-card .stat-number { font-size: 1.4rem; font-weight: 800; color: #0f172a; }
+    .stat-card .stat-number.empty { color: #94a3b8; font-weight: 400; font-size: 1.2rem; }
     .stat-card .stat-icon {
       width: 36px; height: 36px; background: #f5f0ff; border-radius: 12px;
       display: flex; align-items: center; justify-content: center; color: #7c3aed; font-size: 1rem;
@@ -144,7 +168,7 @@
     }
     .export-btn:hover { background: #059669; }
 
-    /* Table View */
+    /* Table */
     .table-container {
       background: white; border-radius: 16px; border: 1px solid #f1eaff;
       overflow: hidden; overflow-x: auto;
@@ -187,7 +211,7 @@
     .priority-low { color: #94a3b8; }
 
     .action-cell {
-      display: flex; gap: 4px;
+      display: flex; gap: 4px; flex-wrap: wrap;
     }
     .action-cell button {
       padding: 0.2rem 0.5rem; border-radius: 8px; border: none;
@@ -199,6 +223,8 @@
     .action-cell .edit-btn:hover { background: #bfdbfe; }
     .action-cell .delete-btn { background: #fee2e2; color: #991b1b; }
     .action-cell .delete-btn:hover { background: #fca5a5; }
+    .action-cell .status-btn { background: #fef3c7; color: #92400e; }
+    .action-cell .status-btn:hover { background: #fde68a; }
 
     .empty-state {
       text-align: center; padding: 3rem 1.5rem; color: #94a3b8; font-size: 0.85rem;
@@ -241,6 +267,51 @@
     .alert-error { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
     .alert-info { background: #dbeafe; color: #1e40af; border: 1px solid #93c5fd; }
 
+    /* ===== MODALS ===== */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.4); backdrop-filter: blur(4px);
+      display: none; justify-content: center; align-items: center; z-index: 1000;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal {
+      background: white; border-radius: 20px; padding: 2rem; max-width: 550px; width: 90%;
+      box-shadow: 0 30px 60px rgba(0,0,0,0.2);
+      max-height: 90vh; overflow-y: auto;
+    }
+    .modal h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px; }
+    .modal p { color: #64748b; font-size: 0.85rem; margin-bottom: 1rem; }
+    .modal .modal-group { margin-bottom: 1rem; }
+    .modal .modal-group label { display: block; font-weight: 600; font-size: 0.75rem; color: #1e293b; margin-bottom: 0.2rem; }
+    .modal .modal-group label .required { color: #ef4444; }
+    .modal .modal-group input, .modal .modal-group select, .modal .modal-group textarea {
+      width: 100%; padding: 0.6rem 0.8rem; border: 1.5px solid #e2e8f0;
+      border-radius: 12px; font-size: 0.85rem; font-family: 'Inter', sans-serif;
+      outline: none; background: #fafafa; transition: all 0.2s;
+    }
+    .modal .modal-group input:focus, .modal .modal-group select:focus, .modal .modal-group textarea:focus {
+      border-color: #7c3aed; background: white;
+    }
+    .modal .modal-group textarea { resize: vertical; min-height: 60px; }
+    .modal .modal-group .detail-row {
+      display: flex; justify-content: space-between; padding: 0.3rem 0;
+      border-bottom: 1px solid #f1f5f9; font-size: 0.8rem;
+    }
+    .modal .modal-group .detail-row .label { color: #64748b; }
+    .modal .modal-group .detail-row .value { font-weight: 600; }
+    .modal .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 0.5rem; }
+    .modal .modal-actions button { padding: 0.5rem 1.5rem; border-radius: 30px; font-weight: 600; font-size: 0.8rem; cursor: pointer; transition: all 0.2s; border: none; }
+    .modal .modal-actions .modal-cancel { background: #f1f5f9; color: #475569; }
+    .modal .modal-actions .modal-cancel:hover { background: #e2e8f0; }
+    .modal .modal-actions .modal-save { background: #7c3aed; color: white; }
+    .modal .modal-actions .modal-save:hover { background: #6d28d9; }
+    .modal .modal-actions .modal-confirm { background: #10b981; color: white; }
+    .modal .modal-actions .modal-confirm:hover { background: #059669; }
+    .modal .modal-actions .modal-delete { background: #ef4444; color: white; }
+    .modal .modal-actions .modal-delete:hover { background: #dc2626; }
+    .modal .modal-actions .modal-warning { background: #f59e0b; color: white; }
+    .modal .modal-actions .modal-warning:hover { background: #d97706; }
+
     @media (max-width: 700px) {
       .stats-grid { grid-template-columns: repeat(2, 1fr); }
       .container { padding: 0.8rem; }
@@ -252,6 +323,7 @@
       table { font-size: 0.7rem; }
       th, td { padding: 0.4rem 0.6rem; }
       .action-cell { flex-wrap: wrap; }
+      .modal { padding: 1.2rem; }
     }
   </style>
 </head>
@@ -287,19 +359,19 @@
     <!-- Stats -->
     <div class="stats-grid">
       <div class="stat-card">
-        <div class="stat-left"><h4>Total Applications</h4><div class="stat-number" id="totalApps">--</div></div>
+        <div class="stat-left"><h4>Total Applications</h4><div class="stat-number empty" id="totalApps">--</div></div>
         <div class="stat-icon"><i class="fas fa-file-alt"></i></div>
       </div>
       <div class="stat-card">
-        <div class="stat-left"><h4>Pending</h4><div class="stat-number" id="pendingApps">--</div></div>
+        <div class="stat-left"><h4>Pending</h4><div class="stat-number empty" id="pendingApps">--</div></div>
         <div class="stat-icon"><i class="fas fa-clock" style="color:#f59e0b;"></i></div>
       </div>
       <div class="stat-card">
-        <div class="stat-left"><h4>In Progress</h4><div class="stat-number" id="progressApps">--</div></div>
+        <div class="stat-left"><h4>In Progress</h4><div class="stat-number empty" id="progressApps">--</div></div>
         <div class="stat-icon"><i class="fas fa-spinner" style="color:#3b82f6;"></i></div>
       </div>
       <div class="stat-card">
-        <div class="stat-left"><h4>Completed</h4><div class="stat-number" id="completedApps">--</div></div>
+        <div class="stat-left"><h4>Completed</h4><div class="stat-number empty" id="completedApps">--</div></div>
         <div class="stat-icon"><i class="fas fa-check-circle" style="color:#10b981;"></i></div>
       </div>
     </div>
@@ -364,6 +436,140 @@
     </div>
   </div>
 
+  <!-- ===== MODALS ===== -->
+
+  <!-- View Application Modal -->
+  <div class="modal-overlay" id="viewModal">
+    <div class="modal">
+      <h3><i class="fas fa-eye" style="color:#7c3aed;"></i> Application Details</h3>
+      <p>Full details of the selected application.</p>
+      <div class="modal-group" id="viewDetails">
+        <div class="detail-row"><span class="label">Client Name</span><span class="value" id="viewClientName">—</span></div>
+        <div class="detail-row"><span class="label">Email</span><span class="value" id="viewClientEmail">—</span></div>
+        <div class="detail-row"><span class="label">Phone</span><span class="value" id="viewClientPhone">—</span></div>
+        <div class="detail-row"><span class="label">Service</span><span class="value" id="viewService">—</span></div>
+        <div class="detail-row"><span class="label">Priority</span><span class="value" id="viewPriority">—</span></div>
+        <div class="detail-row"><span class="label">Assigned Staff</span><span class="value" id="viewStaff">—</span></div>
+        <div class="detail-row"><span class="label">Status</span><span class="value" id="viewStatus">—</span></div>
+        <div class="detail-row"><span class="label">Payment Status</span><span class="value" id="viewPayment">—</span></div>
+        <div class="detail-row"><span class="label">Amount</span><span class="value" id="viewAmount">—</span></div>
+        <div class="detail-row"><span class="label">Created</span><span class="value" id="viewCreated">—</span></div>
+        <div class="detail-row"><span class="label">Updated</span><span class="value" id="viewUpdated">—</span></div>
+        <div class="detail-row" id="viewNotesRow"><span class="label">Notes</span><span class="value" id="viewNotes" style="font-weight:400;color:#64748b;">—</span></div>
+      </div>
+      <div class="modal-actions">
+        <button class="modal-cancel" onclick="closeModal('viewModal')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Application Modal -->
+  <div class="modal-overlay" id="editModal">
+    <div class="modal">
+      <h3><i class="fas fa-edit" style="color:#3b82f6;"></i> Edit Application</h3>
+      <p>Update the application details below.</p>
+      <input type="hidden" id="editAppId">
+      <div class="modal-group">
+        <label>Client Name <span class="required">*</span></label>
+        <input type="text" id="editClientName" placeholder="Client name" />
+      </div>
+      <div class="modal-group">
+        <label>Email</label>
+        <input type="email" id="editClientEmail" placeholder="client@email.com" />
+      </div>
+      <div class="modal-group">
+        <label>Phone</label>
+        <input type="text" id="editClientPhone" placeholder="Phone number" />
+      </div>
+      <div class="modal-group">
+        <label>Service <span class="required">*</span></label>
+        <select id="editService"><option value="">— Select —</option></select>
+      </div>
+      <div class="modal-group">
+        <label>Priority</label>
+        <select id="editPriority">
+          <option value="low">Low ⏳</option>
+          <option value="normal">Normal ⏰</option>
+          <option value="high">High 🔥</option>
+        </select>
+      </div>
+      <div class="modal-group">
+        <label>Assigned Staff</label>
+        <select id="editStaff"><option value="">— Unassigned —</option></select>
+      </div>
+      <div class="modal-group">
+        <label>Status</label>
+        <select id="editStatus">
+          <option value="pending">Pending</option>
+          <option value="processing">In Progress</option>
+          <option value="qa">QA Review</option>
+          <option value="submitted">Submitted</option>
+          <option value="delivered">Delivered</option>
+          <option value="rejected">Rejected</option>
+          <option value="completed">Completed</option>
+        </select>
+      </div>
+      <div class="modal-group">
+        <label>Notes</label>
+        <textarea id="editNotes" rows="2" placeholder="Additional notes..."></textarea>
+      </div>
+      <div class="modal-actions">
+        <button class="modal-cancel" onclick="closeModal('editModal')">Cancel</button>
+        <button class="modal-save" id="editSaveBtn"><i class="fas fa-save"></i> Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Change Status Modal -->
+  <div class="modal-overlay" id="statusModal">
+    <div class="modal">
+      <h3><i class="fas fa-exchange-alt" style="color:#f59e0b;"></i> Update Status</h3>
+      <p>Change the status of this application.</p>
+      <input type="hidden" id="statusAppId">
+      <div class="modal-group">
+        <label>New Status <span class="required">*</span></label>
+        <select id="statusSelect">
+          <option value="pending">Pending</option>
+          <option value="processing">In Progress</option>
+          <option value="qa">QA Review</option>
+          <option value="submitted">Submitted</option>
+          <option value="delivered">Delivered</option>
+          <option value="rejected">Rejected</option>
+          <option value="completed">Completed</option>
+        </select>
+      </div>
+      <div class="modal-group">
+        <label>Notes (optional)</label>
+        <textarea id="statusNotes" rows="2" placeholder="Reason for status change..."></textarea>
+      </div>
+      <div class="modal-actions">
+        <button class="modal-cancel" onclick="closeModal('statusModal')">Cancel</button>
+        <button class="modal-save" id="statusSaveBtn"><i class="fas fa-check"></i> Update Status</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div class="modal-overlay" id="deleteModal">
+    <div class="modal">
+      <h3><i class="fas fa-trash" style="color:#ef4444;"></i> Delete Application</h3>
+      <p>Are you sure you want to delete this application? This action <strong>cannot be undone</strong>.</p>
+      <input type="hidden" id="deleteAppId">
+      <div class="modal-group">
+        <label>Client</label>
+        <div style="font-weight:600;font-size:0.9rem;" id="deleteClientName">—</div>
+      </div>
+      <div class="modal-group">
+        <label>Service</label>
+        <div style="font-size:0.85rem;color:#64748b;" id="deleteServiceName">—</div>
+      </div>
+      <div class="modal-actions">
+        <button class="modal-cancel" onclick="closeModal('deleteModal')">Cancel</button>
+        <button class="modal-delete" id="deleteConfirmBtn"><i class="fas fa-trash"></i> Delete</button>
+      </div>
+    </div>
+  </div>
+
   <div class="footer">
     <i class="far fa-copyright"></i> 2026 KazInni Workspaces • Digital Services • All Applications
   </div>
@@ -381,7 +587,7 @@
   <script type="module">
     import { initializeApp } from "firebase/app";
     import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
-    import { getDatabase, ref, onValue, get, remove } from "firebase/database";
+    import { getDatabase, ref, onValue, get, update, remove, set } from "firebase/database";
 
     const firebaseConfig = {
       apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
@@ -399,6 +605,7 @@
 
     let allApplications = {};
     let allStaff = {};
+    let allServices = {};
     let filteredApps = [];
     let currentPage = 1;
     const rowsPerPage = 15;
@@ -449,6 +656,25 @@
       return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
     }
 
+    function formatDateTime(timestamp) {
+      if (!timestamp) return 'N/A';
+      const d = new Date(timestamp);
+      return d.toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    }
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.remove('active');
+    }
+
+    // Open modal with overlay click close
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) {
+          overlay.classList.remove('active');
+        }
+      });
+    });
+
     function updateStaffFilter() {
       const select = document.getElementById('staffFilter');
       const staff = Object.values(allStaff).filter(s => s && s.name);
@@ -458,6 +684,42 @@
         option.value = s.name;
         option.textContent = s.name;
         select.appendChild(option);
+      });
+    }
+
+    function updateServiceDropdowns() {
+      const services = Object.values(allServices).filter(s => s && s.name);
+      const selects = ['editService'];
+      selects.forEach(id => {
+        const select = document.getElementById(id);
+        if (!select) return;
+        const currentValue = select.value;
+        select.innerHTML = '<option value="">— Select —</option>';
+        services.forEach(s => {
+          const option = document.createElement('option');
+          option.value = s.name;
+          option.textContent = s.name + (s.fee ? ` (KES ${s.fee.toLocaleString()})` : '');
+          if (option.value === currentValue) option.selected = true;
+          select.appendChild(option);
+        });
+      });
+    }
+
+    function updateStaffDropdowns() {
+      const staff = Object.values(allStaff).filter(s => s && s.name);
+      const selects = ['editStaff'];
+      selects.forEach(id => {
+        const select = document.getElementById(id);
+        if (!select) return;
+        const currentValue = select.value;
+        select.innerHTML = '<option value="">— Unassigned —</option>';
+        staff.forEach(s => {
+          const option = document.createElement('option');
+          option.value = s.name;
+          option.textContent = s.name;
+          if (option.value === currentValue) option.selected = true;
+          select.appendChild(option);
+        });
       });
     }
 
@@ -492,6 +754,7 @@
             <div class="action-cell">
               <button class="view-btn" data-id="${app.id}" title="View"><i class="fas fa-eye"></i></button>
               <button class="edit-btn" data-id="${app.id}" title="Edit"><i class="fas fa-edit"></i></button>
+              <button class="status-btn" data-id="${app.id}" title="Change Status"><i class="fas fa-exchange-alt"></i></button>
               <button class="delete-btn" data-id="${app.id}" title="Delete"><i class="fas fa-trash"></i></button>
             </div>
           </td>
@@ -500,33 +763,22 @@
 
       // View button
       tbody.querySelectorAll('.view-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          window.location.href = `/workspaces/digital-services/application-detail.html?id=${btn.dataset.id}`;
-        });
+        btn.addEventListener('click', () => openViewModal(btn.dataset.id));
       });
 
       // Edit button
       tbody.querySelectorAll('.edit-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          window.location.href = `/workspaces/digital-services/edit-application.html?id=${btn.dataset.id}`;
-        });
+        btn.addEventListener('click', () => openEditModal(btn.dataset.id));
+      });
+
+      // Status button
+      tbody.querySelectorAll('.status-btn').forEach(btn => {
+        btn.addEventListener('click', () => openStatusModal(btn.dataset.id));
       });
 
       // Delete button
       tbody.querySelectorAll('.delete-btn').forEach(btn => {
-        btn.addEventListener('click', async () => {
-          const id = btn.dataset.id;
-          const app = allApplications[id];
-          if (confirm(`Delete application for "${app.clientName}"? This action cannot be undone.`)) {
-            try {
-              await remove(ref(db, `digital_services_applications/${id}`));
-              showAlert(`Application for "${app.clientName}" deleted.`, 'info');
-            } catch (error) {
-              console.error('Error deleting application:', error);
-              showAlert('Failed to delete application.', 'error');
-            }
-          }
-        });
+        btn.addEventListener('click', () => openDeleteModal(btn.dataset.id));
       });
     }
 
@@ -567,7 +819,6 @@
         apps = apps.filter(a => a.assignedStaff === staffFilter);
       }
 
-      // Sort by createdAt descending
       apps.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
 
       filteredApps = apps;
@@ -588,26 +839,191 @@
       const completed = apps.filter(a => a.status === 'completed' || a.status === 'delivered').length;
 
       document.getElementById('totalApps').textContent = total;
+      document.getElementById('totalApps').className = 'stat-number';
       document.getElementById('pendingApps').textContent = pending;
+      document.getElementById('pendingApps').className = 'stat-number';
       document.getElementById('progressApps').textContent = progress;
+      document.getElementById('progressApps').className = 'stat-number';
       document.getElementById('completedApps').textContent = completed;
+      document.getElementById('completedApps').className = 'stat-number';
     }
 
-    function setupListeners() {
-      onValue(ref(db, 'digital_services_applications'), (snap) => {
-        allApplications = snap.val() || {};
-        applyFilters();
-        loadingOverlay.classList.add('hide');
-      });
+    // ===== MODAL FUNCTIONS =====
 
-      onValue(ref(db, 'digital_services_staff'), (snap) => {
-        allStaff = snap.val() || {};
-        updateStaffFilter();
-        applyFilters();
-      });
+    // View Modal
+    function openViewModal(id) {
+      const app = allApplications[id];
+      if (!app) { showAlert('Application not found.', 'error'); return; }
+
+      document.getElementById('viewClientName').textContent = app.clientName || '—';
+      document.getElementById('viewClientEmail').textContent = app.clientEmail || '—';
+      document.getElementById('viewClientPhone').textContent = app.clientPhone || '—';
+      document.getElementById('viewService').textContent = app.service || '—';
+      document.getElementById('viewPriority').textContent = (app.priority || 'normal') + ' ' + getPriorityIcon(app.priority);
+      document.getElementById('viewStaff').textContent = app.assignedStaff || 'Unassigned';
+      document.getElementById('viewStatus').textContent = (app.status || 'pending').toUpperCase();
+      document.getElementById('viewPayment').textContent = app.paymentStatus || 'pending';
+      document.getElementById('viewAmount').textContent = app.amount ? `KES ${app.amount.toLocaleString()}` : '—';
+      document.getElementById('viewCreated').textContent = formatDateTime(app.createdAt);
+      document.getElementById('viewUpdated').textContent = formatDateTime(app.updatedAt);
+      
+      const notesRow = document.getElementById('viewNotesRow');
+      const notesEl = document.getElementById('viewNotes');
+      if (app.notes) {
+        notesEl.textContent = app.notes;
+        notesRow.style.display = 'flex';
+      } else {
+        notesRow.style.display = 'none';
+      }
+
+      document.getElementById('viewModal').classList.add('active');
     }
 
-    // Pagination
+    // Edit Modal
+    async function openEditModal(id) {
+      const app = allApplications[id];
+      if (!app) { showAlert('Application not found.', 'error'); return; }
+
+      document.getElementById('editAppId').value = id;
+      document.getElementById('editClientName').value = app.clientName || '';
+      document.getElementById('editClientEmail').value = app.clientEmail || '';
+      document.getElementById('editClientPhone').value = app.clientPhone || '';
+      document.getElementById('editService').value = app.service || '';
+      document.getElementById('editPriority').value = app.priority || 'normal';
+      document.getElementById('editStaff').value = app.assignedStaff || '';
+      document.getElementById('editStatus').value = app.status || 'pending';
+      document.getElementById('editNotes').value = app.notes || '';
+
+      updateServiceDropdowns();
+      updateStaffDropdowns();
+      document.getElementById('editModal').classList.add('active');
+    }
+
+    document.getElementById('editSaveBtn').addEventListener('click', async () => {
+      const id = document.getElementById('editAppId').value;
+      if (!id) return;
+
+      const data = {
+        clientName: document.getElementById('editClientName').value.trim(),
+        clientEmail: document.getElementById('editClientEmail').value.trim(),
+        clientPhone: document.getElementById('editClientPhone').value.trim(),
+        service: document.getElementById('editService').value,
+        priority: document.getElementById('editPriority').value,
+        assignedStaff: document.getElementById('editStaff').value,
+        status: document.getElementById('editStatus').value,
+        notes: document.getElementById('editNotes').value.trim(),
+        updatedAt: Date.now()
+      };
+
+      if (!data.clientName) {
+        showAlert('Client name is required.', 'error');
+        return;
+      }
+
+      try {
+        await update(ref(db, `digital_services_applications/${id}`), data);
+        showAlert('Application updated successfully!', 'success');
+        closeModal('editModal');
+      } catch (error) {
+        console.error('Error updating application:', error);
+        showAlert('Failed to update application.', 'error');
+      }
+    });
+
+    // Status Modal
+    function openStatusModal(id) {
+      const app = allApplications[id];
+      if (!app) { showAlert('Application not found.', 'error'); return; }
+
+      document.getElementById('statusAppId').value = id;
+      document.getElementById('statusSelect').value = app.status || 'pending';
+      document.getElementById('statusNotes').value = '';
+      document.getElementById('statusModal').classList.add('active');
+    }
+
+    document.getElementById('statusSaveBtn').addEventListener('click', async () => {
+      const id = document.getElementById('statusAppId').value;
+      if (!id) return;
+
+      const newStatus = document.getElementById('statusSelect').value;
+      const notes = document.getElementById('statusNotes').value.trim();
+
+      try {
+        await update(ref(db, `digital_services_applications/${id}`), {
+          status: newStatus,
+          statusChangeNotes: notes || '',
+          updatedAt: Date.now()
+        });
+        showAlert(`Status updated to ${newStatus}!`, 'success');
+        closeModal('statusModal');
+      } catch (error) {
+        console.error('Error updating status:', error);
+        showAlert('Failed to update status.', 'error');
+      }
+    });
+
+    // Delete Modal
+    function openDeleteModal(id) {
+      const app = allApplications[id];
+      if (!app) { showAlert('Application not found.', 'error'); return; }
+
+      document.getElementById('deleteAppId').value = id;
+      document.getElementById('deleteClientName').textContent = app.clientName || 'Unknown';
+      document.getElementById('deleteServiceName').textContent = app.service || 'N/A';
+      document.getElementById('deleteModal').classList.add('active');
+    }
+
+    document.getElementById('deleteConfirmBtn').addEventListener('click', async () => {
+      const id = document.getElementById('deleteAppId').value;
+      if (!id) return;
+
+      try {
+        await remove(ref(db, `digital_services_applications/${id}`));
+        showAlert('Application deleted successfully.', 'info');
+        closeModal('deleteModal');
+      } catch (error) {
+        console.error('Error deleting application:', error);
+        showAlert('Failed to delete application.', 'error');
+      }
+    });
+
+    // ===== EXPORT CSV =====
+    document.getElementById('exportBtn').addEventListener('click', () => {
+      if (!filteredApps.length) {
+        showAlert('No data to export.', 'error');
+        return;
+      }
+
+      const headers = ['Client Name', 'Email', 'Phone', 'Service', 'Assigned Staff', 'Priority', 'Status', 'Payment Status', 'Amount', 'Created At'];
+      const rows = filteredApps.map(a => [
+        a.clientName || '',
+        a.clientEmail || '',
+        a.clientPhone || '',
+        a.service || '',
+        a.assignedStaff || '',
+        a.priority || 'normal',
+        a.status || 'pending',
+        a.paymentStatus || 'pending',
+        a.amount || 0,
+        new Date(a.createdAt).toLocaleDateString('en-GB')
+      ]);
+
+      let csv = headers.join(',') + '\n';
+      rows.forEach(row => {
+        csv += row.map(cell => `"${cell}"`).join(',') + '\n';
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `applications_${new Date().toISOString().split('T')[0]}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showAlert('Export successful!', 'success');
+    });
+
+    // ===== PAGINATION =====
     document.getElementById('prevPage').addEventListener('click', () => {
       if (currentPage > 1) {
         currentPage--;
@@ -629,41 +1045,28 @@
       }
     });
 
-    // Export CSV
-    document.getElementById('exportBtn').addEventListener('click', () => {
-      if (!filteredApps.length) {
-        showAlert('No data to export.', 'error');
-        return;
-      }
-
-      const headers = ['Client Name', 'Email', 'Phone', 'Service', 'Assigned Staff', 'Priority', 'Status', 'Created At'];
-      const rows = filteredApps.map(a => [
-        a.clientName || '',
-        a.clientEmail || '',
-        a.clientPhone || '',
-        a.service || '',
-        a.assignedStaff || '',
-        a.priority || 'normal',
-        a.status || 'pending',
-        new Date(a.createdAt).toLocaleDateString('en-GB')
-      ]);
-
-      let csv = headers.join(',') + '\n';
-      rows.forEach(row => {
-        csv += row.map(cell => `"${cell}"`).join(',') + '\n';
+    // ===== LISTENERS =====
+    function setupListeners() {
+      onValue(ref(db, 'digital_services_applications'), (snap) => {
+        allApplications = snap.val() || {};
+        applyFilters();
+        loadingOverlay.classList.add('hide');
       });
 
-      const blob = new Blob([csv], { type: 'text/csv' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `applications_${new Date().toISOString().split('T')[0]}.csv`;
-      a.click();
-      URL.revokeObjectURL(url);
-      showAlert('Export successful!', 'success');
-    });
+      onValue(ref(db, 'digital_services_staff'), (snap) => {
+        allStaff = snap.val() || {};
+        updateStaffFilter();
+        updateStaffDropdowns();
+        applyFilters();
+      });
 
-    // Auth
+      onValue(ref(db, 'digital_services_services'), (snap) => {
+        allServices = snap.val() || {};
+        updateServiceDropdowns();
+      });
+    }
+
+    // ===== AUTH =====
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         try {
@@ -712,6 +1115,9 @@
     });
 
     setTimeout(() => loadingOverlay.classList.add('hide'), 5000);
+
+    // Make closeModal globally accessible
+    window.closeModal = closeModal;
   </script>
 </body>
 </html>
