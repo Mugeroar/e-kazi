@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Services Management | Digital Services</title>
+  
+  <meta name="theme-color" content="#7c3aed">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  
+  <link rel="icon" type="image/png" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(145deg, #f8f6fc 0%, #ffffff 100%);
+      color: #1a1a2e;
+      line-height: 1.4;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .navbar {
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(12px);
+      padding: 0.5rem 3%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(124, 58, 237, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .logo-img { height: 34px; width: 34px; border-radius: 10px; object-fit: contain; background: white; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.15); }
+    .logo-text {
+      font-weight: 800; font-size: 1.1rem;
+      background: linear-gradient(145deg, #7c3aed, #8b5cf6);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .logo-text span { font-weight: 600; font-size: 0.7rem; background: #f59e0b; -webkit-text-fill-color: #f59e0b; margin-left: 3px; }
+
+    .nav-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .rep-profile { display: flex; align-items: center; gap: 8px; background: #f1f5f9; padding: 0.2rem 0.7rem 0.2rem 0.5rem; border-radius: 40px; }
+    .rep-avatar {
+      width: 32px; height: 32px; background: linear-gradient(145deg, #7c3aed, #c084fc);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      color: white; font-weight: 700; font-size: 0.8rem;
+    }
+    .rep-info { line-height: 1.2; }
+    .rep-name { font-weight: 700; color: #0f172a; font-size: 0.8rem; }
+    .rep-role { font-size: 0.6rem; color: #7c3aed; font-weight: 700; text-transform: uppercase; }
+
+    .logout-btn {
+      background: white; border: 1.5px solid #e2e8f0; padding: 0.4rem 0.9rem;
+      border-radius: 30px; color: #475569; font-weight: 600; font-size: 0.75rem;
+      cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.2s;
+    }
+    .logout-btn:hover { background: #fee2e2; border-color: #ef4444; color: #ef4444; }
+
+    .back-btn {
+      background: white; border: 1.5px solid #e2e8f0; padding: 0.4rem 0.9rem;
+      border-radius: 30px; color: #475569; font-weight: 600; font-size: 0.75rem;
+      cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.2s;
+      text-decoration: none;
+    }
+    .back-btn:hover { background: #f5f0ff; border-color: #7c3aed; color: #7c3aed; }
+
+    .container { padding: 1.2rem 2%; flex: 1; max-width: 1400px; margin: 0 auto; width: 100%; }
+
+    .page-header { margin-bottom: 1.5rem; }
+    .page-header h1 {
+      font-size: 1.3rem; font-weight: 800; color: #0f172a;
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    }
+    .page-header h1 i {
+      color: #7c3aed; background: white; padding: 8px;
+      border-radius: 12px; box-shadow: 0 6px 14px rgba(124, 58, 237, 0.06);
+      font-size: 1rem;
+    }
+    .page-header p { color: #475569; font-size: 0.8rem; margin-top: 0.2rem; margin-left: 48px; }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 1.5rem;
+    }
+    .stat-card {
+      background: white; border-radius: 16px; padding: 0.8rem 1.2rem;
+      border: 1px solid #f1eaff; display: flex; align-items: center; justify-content: space-between;
+    }
+    .stat-card .stat-left h4 { font-size: 0.6rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; color: #64748b; }
+    .stat-card .stat-number { font-size: 1.4rem; font-weight: 800; color: #0f172a; }
+    .stat-card .stat-icon {
+      width: 36px; height: 36px; background: #f5f0ff; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center; color: #7c3aed; font-size: 1rem;
+    }
+
+    /* Analytics Section */
+    .analytics-section {
+      background: white; border-radius: 20px; padding: 1.5rem;
+      border: 1px solid #f1eaff; margin-bottom: 1.5rem;
+    }
+    .analytics-header {
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;
+    }
+    .analytics-header h2 { font-size: 0.95rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+    .analytics-header h2 i { color: #7c3aed; }
+    .analytics-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;
+    }
+    .analytics-chart {
+      background: #f8fafc; border-radius: 14px; padding: 1.2rem;
+      border: 1px solid #f1eaff;
+    }
+    .analytics-chart h3 { font-size: 0.75rem; font-weight: 600; color: #64748b; margin-bottom: 0.8rem; }
+
+    .bar-item {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 0.5rem;
+    }
+    .bar-item .bar-label {
+      font-size: 0.7rem; font-weight: 500; min-width: 120px; color: #1e293b;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .bar-item .bar-track {
+      flex: 1; height: 20px; background: #e2e8f0; border-radius: 10px; overflow: hidden;
+      position: relative;
+    }
+    .bar-item .bar-fill {
+      height: 100%; border-radius: 10px; transition: width 0.6s ease;
+      background: linear-gradient(90deg, #7c3aed, #8b5cf6);
+      min-width: 4px;
+    }
+    .bar-item .bar-fill.top { background: linear-gradient(90deg, #10b981, #34d399); }
+    .bar-item .bar-fill.mid { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+    .bar-item .bar-count {
+      font-size: 0.7rem; font-weight: 600; min-width: 30px; text-align: right; color: #475569;
+    }
+
+    /* Service List */
+    .service-section {
+      background: white; border-radius: 20px; padding: 1.5rem;
+      border: 1px solid #f1eaff;
+    }
+    .service-header {
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;
+      flex-wrap: wrap; gap: 0.8rem;
+    }
+    .service-header h2 { font-size: 0.95rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+    .service-header h2 i { color: #7c3aed; }
+
+    .add-service-form {
+      display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+    }
+    .add-service-form input {
+      padding: 0.5rem 0.8rem; border: 1.5px solid #e2e8f0; border-radius: 30px;
+      font-size: 0.8rem; font-family: 'Inter', sans-serif; outline: none; min-width: 200px;
+      background: #fafafa; transition: all 0.2s;
+    }
+    .add-service-form input:focus { border-color: #7c3aed; box-shadow: 0 0 0 3px rgba(124,58,237,0.08); background: white; }
+    .add-service-btn {
+      background: #7c3aed; color: white; border: none; padding: 0.5rem 1.2rem;
+      border-radius: 30px; font-weight: 600; font-size: 0.75rem; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;
+    }
+    .add-service-btn:hover { background: #6d28d9; transform: translateY(-2px); }
+
+    .service-list {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px;
+      margin-top: 0.5rem;
+    }
+    .service-item {
+      display: flex; align-items: center; justify-content: space-between;
+      background: #f8fafc; padding: 0.6rem 1rem; border-radius: 12px;
+      border: 1px solid #f1eaff; transition: all 0.2s;
+    }
+    .service-item:hover { background: white; border-color: #e9d5ff; }
+    .service-item .service-info { display: flex; align-items: center; gap: 10px; }
+    .service-item .service-info .service-icon {
+      width: 28px; height: 28px; background: #f5f0ff; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center; color: #7c3aed; font-size: 0.7rem;
+    }
+    .service-item .service-info .service-name { font-size: 0.8rem; font-weight: 500; }
+    .service-item .service-info .service-count {
+      font-size: 0.6rem; color: #94a3b8; background: #f1f5f9; padding: 0.1rem 0.5rem;
+      border-radius: 20px;
+    }
+    .service-item .service-actions { display: flex; gap: 5px; }
+    .service-item .service-actions button {
+      background: transparent; border: none; padding: 0.2rem 0.4rem;
+      border-radius: 8px; cursor: pointer; font-size: 0.7rem; transition: all 0.2s;
+      color: #94a3b8;
+    }
+    .service-item .service-actions .edit-btn:hover { background: #dbeafe; color: #3b82f6; }
+    .service-item .service-actions .delete-btn:hover { background: #fee2e2; color: #ef4444; }
+
+    .empty-state {
+      text-align: center; padding: 2rem; color: #94a3b8; font-size: 0.85rem;
+      grid-column: 1 / -1;
+    }
+    .empty-state i { font-size: 1.8rem; display: block; margin-bottom: 0.5rem; opacity: 0.4; }
+
+    .footer { text-align: center; padding: 1rem; color: #94a3b8; border-top: 1px solid #f1eaff; font-size: 0.7rem; margin-top: 1.5rem; }
+
+    .loading-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(255,255,255,0.8); backdrop-filter: blur(4px);
+      display: flex; justify-content: center; align-items: center; z-index: 999;
+    }
+    .loading-overlay.hide { display: none; }
+    .spinner {
+      width: 35px; height: 35px; border: 3px solid #f1eaff;
+      border-top-color: #7c3aed; border-radius: 50%; animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.4); backdrop-filter: blur(4px);
+      display: none; justify-content: center; align-items: center; z-index: 1000;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal {
+      background: white; border-radius: 20px; padding: 2rem; max-width: 450px; width: 90%;
+      box-shadow: 0 30px 60px rgba(0,0,0,0.2);
+    }
+    .modal h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .modal p { color: #64748b; font-size: 0.85rem; margin-bottom: 1.2rem; }
+    .modal .modal-input {
+      width: 100%; padding: 0.6rem 0.8rem; border: 1.5px solid #e2e8f0;
+      border-radius: 12px; font-size: 0.85rem; font-family: 'Inter', sans-serif;
+      outline: none; margin-bottom: 1rem; background: #fafafa;
+    }
+    .modal .modal-input:focus { border-color: #7c3aed; background: white; }
+    .modal .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+    .modal .modal-actions button { padding: 0.5rem 1.5rem; border-radius: 30px; font-weight: 600; font-size: 0.8rem; cursor: pointer; transition: all 0.2s; border: none; }
+    .modal .modal-actions .modal-cancel { background: #f1f5f9; color: #475569; }
+    .modal .modal-actions .modal-cancel:hover { background: #e2e8f0; }
+    .modal .modal-actions .modal-save { background: #7c3aed; color: white; }
+    .modal .modal-actions .modal-save:hover { background: #6d28d9; }
+    .modal .modal-actions .modal-delete { background: #ef4444; color: white; }
+    .modal .modal-actions .modal-delete:hover { background: #dc2626; }
+
+    .alert {
+      padding: 0.6rem 1rem; border-radius: 12px; font-size: 0.8rem; margin-bottom: 1rem;
+      display: none;
+    }
+    .alert.show { display: block; }
+    .alert-success { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+    .alert-error { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+    .alert-info { background: #dbeafe; color: #1e40af; border: 1px solid #93c5fd; }
+
+    @media (max-width: 700px) {
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .analytics-grid { grid-template-columns: 1fr; }
+      .container { padding: 0.8rem; }
+      .page-header p { margin-left: 0; }
+      .page-header h1 { font-size: 1.1rem; }
+      .add-service-form { flex-direction: column; width: 100%; }
+      .add-service-form input { min-width: unset; width: 100%; }
+      .add-service-form button { width: 100%; justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+  <div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div></div>
+
+  <nav class="navbar">
+    <a href="/workspaces/digital-services/index.html" class="logo">
+      <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png" alt="KazInni Logo" class="logo-img">
+      <span class="logo-text">KazInni <span>Digital Services</span></span>
+    </a>
+    <div class="nav-right">
+      <a href="/workspaces/digital-services/index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Dashboard</a>
+      <div class="rep-profile">
+        <div class="rep-avatar" id="repAvatar">DS</div>
+        <div class="rep-info">
+          <div class="rep-name" id="repName">Loading...</div>
+          <div class="rep-role"><i class="fas fa-badge-check"></i> Digital Services Admin</div>
+        </div>
+      </div>
+      <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="page-header">
+      <h1><i class="fas fa-cogs"></i> Services Management</h1>
+      <p>Manage available services, track usage, and view analytics.</p>
+    </div>
+
+    <div id="alertMessage" class="alert"></div>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-left"><h4>Total Services</h4><div class="stat-number" id="totalServices">--</div></div>
+        <div class="stat-icon"><i class="fas fa-cog"></i></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-left"><h4>Total Applications</h4><div class="stat-number" id="totalApps">--</div></div>
+        <div class="stat-icon"><i class="fas fa-file-alt"></i></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-left"><h4>Most Used Service</h4><div class="stat-number" id="mostUsed" style="font-size:1rem;">--</div></div>
+        <div class="stat-icon"><i class="fas fa-trophy" style="color:#f59e0b;"></i></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-left"><h4>Least Used</h4><div class="stat-number" id="leastUsed" style="font-size:1rem;">--</div></div>
+        <div class="stat-icon"><i class="fas fa-arrow-down" style="color:#94a3b8;"></i></div>
+      </div>
+    </div>
+
+    <!-- Analytics -->
+    <div class="analytics-section">
+      <div class="analytics-header">
+        <h2><i class="fas fa-chart-bar"></i> Service Usage Analytics</h2>
+        <span style="font-size:0.7rem;color:#94a3b8;">Based on applications submitted</span>
+      </div>
+      <div class="analytics-grid">
+        <div class="analytics-chart">
+          <h3>Most Used Services</h3>
+          <div id="topServicesChart">
+            <div class="empty-state" style="padding:0.8rem;font-size:0.7rem;">
+              <i class="fas fa-chart-simple" style="font-size:1.2rem;"></i>
+              No data yet
+            </div>
+          </div>
+        </div>
+        <div class="analytics-chart">
+          <h3>Usage Distribution</h3>
+          <div id="usageDistribution">
+            <div class="empty-state" style="padding:0.8rem;font-size:0.7rem;">
+              <i class="fas fa-pie-chart" style="font-size:1.2rem;"></i>
+              No data yet
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Service List -->
+    <div class="service-section">
+      <div class="service-header">
+        <h2><i class="fas fa-list"></i> All Services</h2>
+        <div class="add-service-form">
+          <input type="text" id="newServiceInput" placeholder="Enter service name..." />
+          <button class="add-service-btn" id="addServiceBtn">
+            <i class="fas fa-plus"></i> Add Service
+          </button>
+        </div>
+      </div>
+      <div class="service-list" id="serviceList">
+        <div class="empty-state">
+          <i class="fas fa-cog"></i>
+          No services added yet
+          <p style="font-size:0.7rem;color:#cbd5e1;margin-top:0.3rem;">Add your first service above</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Modal -->
+  <div class="modal-overlay" id="editModal">
+    <div class="modal">
+      <h3>Edit Service</h3>
+      <p>Update the service name.</p>
+      <input type="text" class="modal-input" id="editServiceInput" placeholder="Service name..." />
+      <div class="modal-actions">
+        <button class="modal-cancel" id="editCancelBtn">Cancel</button>
+        <button class="modal-save" id="editSaveBtn">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Modal -->
+  <div class="modal-overlay" id="deleteModal">
+    <div class="modal">
+      <h3>Delete Service</h3>
+      <p>Are you sure you want to delete <strong id="deleteServiceName"></strong>? This action cannot be undone.</p>
+      <div class="modal-actions">
+        <button class="modal-cancel" id="deleteCancelBtn">Cancel</button>
+        <button class="modal-delete" id="deleteConfirmBtn"><i class="fas fa-trash"></i> Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <i class="far fa-copyright"></i> 2026 KazInni Workspaces • Digital Services • Services Management
+  </div>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "firebase/app": "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js",
+        "firebase/auth": "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js",
+        "firebase/database": "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js"
+      }
+    }
+  </script>
+
+  <script type="module">
+    import { initializeApp } from "firebase/app";
+    import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
+    import { getDatabase, ref, onValue, push, set, remove, get } from "firebase/database";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+      authDomain: "mugera-e51cc.firebaseapp.com",
+      databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "mugera-e51cc",
+      storageBucket: "mugera-e51cc.firebasestorage.app",
+      messagingSenderId: "1024868637509",
+      appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const auth = getAuth(app);
+
+    let services = {};
+    let applications = {};
+    let editingServiceId = null;
+    let deletingServiceId = null;
+
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const repNameEl = document.getElementById('repName');
+    const repAvatarEl = document.getElementById('repAvatar');
+
+    function getInitials(name) {
+      if (!name) return 'DS';
+      return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+    }
+
+    function showAlert(message, type = 'info') {
+      const alertEl = document.getElementById('alertMessage');
+      alertEl.className = `alert alert-${type} show`;
+      alertEl.textContent = message;
+      setTimeout(() => alertEl.classList.remove('show'), 4000);
+    }
+
+    function getServiceUsage() {
+      const usage = {};
+      const apps = Object.values(applications).filter(a => a && a.service);
+      apps.forEach(app => {
+        const serviceName = app.service;
+        usage[serviceName] = (usage[serviceName] || 0) + 1;
+      });
+      return usage;
+    }
+
+    function renderAnalytics() {
+      const usage = getServiceUsage();
+      const sorted = Object.entries(usage).sort((a, b) => b[1] - a[1]);
+      const top = sorted.slice(0, 5);
+      const total = sorted.reduce((sum, [_, count]) => sum + count, 0);
+
+      // Top Services Chart
+      const topChart = document.getElementById('topServicesChart');
+      if (!top.length) {
+        topChart.innerHTML = `<div class="empty-state" style="padding:0.8rem;font-size:0.7rem;">
+          <i class="fas fa-chart-simple" style="font-size:1.2rem;"></i>
+          No data yet — submit applications to see usage
+        </div>`;
+      } else {
+        const maxCount = top[0][1];
+        topChart.innerHTML = top.map(([name, count], index) => {
+          const percentage = maxCount > 0 ? (count / maxCount) * 100 : 0;
+          const isTop = index === 0;
+          const isMid = index === 1 || index === 2;
+          return `
+            <div class="bar-item">
+              <span class="bar-label">${index + 1}. ${name}</span>
+              <div class="bar-track">
+                <div class="bar-fill ${isTop ? 'top' : isMid ? 'mid' : ''}" style="width:${Math.max(percentage, 4)}%;"></div>
+              </div>
+              <span class="bar-count">${count}</span>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // Usage Distribution
+      const distChart = document.getElementById('usageDistribution');
+      if (!sorted.length) {
+        distChart.innerHTML = `<div class="empty-state" style="padding:0.8rem;font-size:0.7rem;">
+          <i class="fas fa-pie-chart" style="font-size:1.2rem;"></i>
+          No data yet
+        </div>`;
+      } else {
+        distChart.innerHTML = sorted.slice(0, 8).map(([name, count]) => {
+          const percentage = total > 0 ? Math.round((count / total) * 100) : 0;
+          return `
+            <div class="bar-item">
+              <span class="bar-label">${name}</span>
+              <div class="bar-track">
+                <div class="bar-fill" style="width:${Math.max(percentage, 4)}%;background:linear-gradient(90deg, #7c3aed, #a78bfa);"></div>
+              </div>
+              <span class="bar-count">${percentage}%</span>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // Update stats
+      const serviceNames = Object.values(services).filter(s => s && s.name).map(s => s.name);
+      const serviceCount = serviceNames.length;
+      const appCount = Object.values(applications).filter(a => a && a.service).length;
+      const mostUsed = sorted.length ? sorted[0][0] : '--';
+      const leastUsed = sorted.length ? sorted[sorted.length - 1][0] : '--';
+
+      document.getElementById('totalServices').textContent = serviceCount;
+      document.getElementById('totalApps').textContent = appCount;
+      document.getElementById('mostUsed').textContent = mostUsed;
+      document.getElementById('leastUsed').textContent = leastUsed;
+    }
+
+    function renderServiceList() {
+      const list = document.getElementById('serviceList');
+      const entries = Object.entries(services).filter(([_, s]) => s && s.name);
+
+      if (!entries.length) {
+        list.innerHTML = `<div class="empty-state">
+          <i class="fas fa-cog"></i>
+          No services added yet
+          <p style="font-size:0.7rem;color:#cbd5e1;margin-top:0.3rem;">Add your first service above</p>
+        </div>`;
+        return;
+      }
+
+      const usage = getServiceUsage();
+      const sorted = entries.sort((a, b) => (a[1].name || '').localeCompare(b[1].name || ''));
+
+      list.innerHTML = sorted.map(([id, service]) => {
+        const count = usage[service.name] || 0;
+        return `
+          <div class="service-item">
+            <div class="service-info">
+              <div class="service-icon"><i class="fas fa-cog"></i></div>
+              <span class="service-name">${service.name}</span>
+              <span class="service-count">${count} apps</span>
+            </div>
+            <div class="service-actions">
+              <button class="edit-btn" data-id="${id}" title="Edit"><i class="fas fa-edit"></i></button>
+              <button class="delete-btn" data-id="${id}" title="Delete"><i class="fas fa-trash"></i></button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Edit buttons
+      document.querySelectorAll('.edit-btn').forEach(btn => {
+        btn.addEventListener('click', () => openEditModal(btn.dataset.id));
+      });
+
+      // Delete buttons
+      document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', () => openDeleteModal(btn.dataset.id));
+      });
+    }
+
+    function updateDashboard() {
+      renderAnalytics();
+      renderServiceList();
+      loadingOverlay.classList.add('hide');
+    }
+
+    // ===== CRUD Operations =====
+
+    // Add Service
+    document.getElementById('addServiceBtn').addEventListener('click', async () => {
+      const input = document.getElementById('newServiceInput');
+      const name = input.value.trim();
+      if (!name) {
+        showAlert('Please enter a service name.', 'error');
+        return;
+      }
+
+      // Check for duplicate
+      const exists = Object.values(services).some(s => s.name && s.name.toLowerCase() === name.toLowerCase());
+      if (exists) {
+        showAlert(`Service "${name}" already exists.`, 'error');
+        input.value = '';
+        return;
+      }
+
+      try {
+        const newRef = push(ref(db, 'digital_services_services'));
+        await set(newRef, {
+          name: name,
+          createdAt: Date.now()
+        });
+        showAlert(`Service "${name}" added successfully!`, 'success');
+        input.value = '';
+      } catch (error) {
+        console.error('Error adding service:', error);
+        showAlert('Failed to add service.', 'error');
+      }
+    });
+
+    // Enter key for add
+    document.getElementById('newServiceInput').addEventListener('keyup', (e) => {
+      if (e.key === 'Enter') document.getElementById('addServiceBtn').click();
+    });
+
+    // ===== Edit Service =====
+    function openEditModal(id) {
+      editingServiceId = id;
+      const service = services[id];
+      if (!service) return;
+      document.getElementById('editServiceInput').value = service.name;
+      document.getElementById('editModal').classList.add('active');
+    }
+
+    document.getElementById('editCancelBtn').addEventListener('click', () => {
+      document.getElementById('editModal').classList.remove('active');
+      editingServiceId = null;
+    });
+
+    document.getElementById('editSaveBtn').addEventListener('click', async () => {
+      const newName = document.getElementById('editServiceInput').value.trim();
+      if (!newName) {
+        showAlert('Please enter a service name.', 'error');
+        return;
+      }
+
+      if (!editingServiceId) return;
+
+      // Check duplicate (excluding current)
+      const exists = Object.entries(services).some(([id, s]) => 
+        id !== editingServiceId && s.name && s.name.toLowerCase() === newName.toLowerCase()
+      );
+      if (exists) {
+        showAlert(`Service "${newName}" already exists.`, 'error');
+        return;
+      }
+
+      try {
+        await set(ref(db, `digital_services_services/${editingServiceId}/name`), newName);
+        showAlert('Service updated successfully!', 'success');
+        document.getElementById('editModal').classList.remove('active');
+        editingServiceId = null;
+      } catch (error) {
+        console.error('Error updating service:', error);
+        showAlert('Failed to update service.', 'error');
+      }
+    });
+
+    // Enter key for edit
+    document.getElementById('editServiceInput').addEventListener('keyup', (e) => {
+      if (e.key === 'Enter') document.getElementById('editSaveBtn').click();
+    });
+
+    // ===== Delete Service =====
+    function openDeleteModal(id) {
+      deletingServiceId = id;
+      const service = services[id];
+      if (!service) return;
+      document.getElementById('deleteServiceName').textContent = service.name;
+      document.getElementById('deleteModal').classList.add('active');
+    }
+
+    document.getElementById('deleteCancelBtn').addEventListener('click', () => {
+      document.getElementById('deleteModal').classList.remove('active');
+      deletingServiceId = null;
+    });
+
+    document.getElementById('deleteConfirmBtn').addEventListener('click', async () => {
+      if (!deletingServiceId) return;
+      try {
+        const service = services[deletingServiceId];
+        await remove(ref(db, `digital_services_services/${deletingServiceId}`));
+        showAlert(`Service "${service.name}" deleted successfully.`, 'info');
+        document.getElementById('deleteModal').classList.remove('active');
+        deletingServiceId = null;
+      } catch (error) {
+        console.error('Error deleting service:', error);
+        showAlert('Failed to delete service.', 'error');
+      }
+    });
+
+    // ===== Firebase Listeners =====
+    function setupListeners() {
+      onValue(ref(db, 'digital_services_services'), (snap) => {
+        services = snap.val() || {};
+        updateDashboard();
+      });
+
+      onValue(ref(db, 'digital_services_applications'), (snap) => {
+        applications = snap.val() || {};
+        updateDashboard();
+      });
+    }
+
+    // ===== Auth =====
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        try {
+          const userSnap = await get(ref(db, `brandinn_users/${user.uid}`));
+          let userName = 'Digital Services Admin';
+          if (userSnap.exists()) {
+            userName = userSnap.val().name || user.displayName || user.email?.split('@')[0] || 'Digital Services Admin';
+          } else {
+            userName = user.displayName || user.email?.split('@')[0] || 'Digital Services Admin';
+          }
+          repNameEl.textContent = userName;
+          repAvatarEl.textContent = getInitials(userName);
+          setupListeners();
+        } catch (error) {
+          console.error('Error fetching user:', error);
+          repNameEl.textContent = 'Digital Services Admin';
+          repAvatarEl.textContent = 'DS';
+          setupListeners();
+        }
+      } else {
+        window.location.href = 'https://kazinni-staff.vercel.app';
+      }
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      if (confirm('Log out of KazInni Workspaces?')) {
+        try { await signOut(auth); } catch (e) { alert('Logout failed.'); }
+      }
+    });
+
+    // Close modals on overlay click
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) {
+          overlay.classList.remove('active');
+          editingServiceId = null;
+          deletingServiceId = null;
+        }
+      });
+    });
+
+    setTimeout(() => loadingOverlay.classList.add('hide'), 5000);
+  </script>
+</body>
+</html>
