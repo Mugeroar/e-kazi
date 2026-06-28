@@ -115,7 +115,7 @@
     }
     .page-header p { color: #475569; font-size: 0.8rem; margin-top: 0.2rem; margin-left: 48px; }
 
-    /* Stats Grid - Dashboard Style */
+    /* Stats Grid */
     .stats-grid {
       display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 1.2rem;
     }
@@ -168,7 +168,7 @@
     }
     .add-service-btn:hover { background: #6d28d9; transform: translateY(-2px); }
 
-    /* Service Cards - Dashboard Style */
+    /* Service Cards */
     .service-list {
       display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px;
       margin-top: 0.5rem;
@@ -319,12 +319,26 @@
     }
     .fee-input-wrapper input { padding-left: 2.2rem; }
 
-    /* Status colors for history */
     .status-completed { color: #10b981; }
     .status-pending { color: #f59e0b; }
     .status-processing { color: #3b82f6; }
     .status-rejected { color: #ef4444; }
     .status-delivered { color: #8b5cf6; }
+
+    /* Client History in Modal */
+    .client-history-item {
+      background: #f8fafc; border-radius: 10px; padding: 0.8rem; margin-bottom: 0.6rem;
+      border: 1px solid #f1eaff;
+    }
+    .client-history-item .chi-top {
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .client-history-item .chi-service { font-weight: 600; font-size: 0.85rem; }
+    .client-history-item .chi-status { font-size: 0.6rem; font-weight: 600; }
+    .client-history-item .chi-details {
+      display: flex; gap: 1rem; margin-top: 0.3rem; font-size: 0.7rem; color: #64748b;
+    }
+    .client-history-item .chi-details span { display: flex; align-items: center; gap: 4px; }
 
     @media (max-width: 1024px) {
       .charts-row { grid-template-columns: 1fr; }
@@ -437,12 +451,26 @@
   <div class="modal-overlay" id="serviceHistoryModal">
     <div class="modal modal-large">
       <h3><i class="fas fa-history" style="color:#3b82f6;"></i> Service History</h3>
-      <p id="serviceHistoryDesc">All applications using this service.</p>
+      <p id="serviceHistoryDesc">All applications using this service. Click a client to view their full history.</p>
       <div class="history-list" id="serviceHistoryList">
         <div class="empty-state" style="padding:1rem;">Loading history...</div>
       </div>
       <div class="modal-actions">
         <button class="modal-cancel" onclick="closeModal('serviceHistoryModal')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Client History Modal -->
+  <div class="modal-overlay" id="clientHistoryModal">
+    <div class="modal modal-large">
+      <h3><i class="fas fa-user-circle" style="color:#8b5cf6;"></i> Client History</h3>
+      <p id="clientHistoryDesc">Complete application history for this client.</p>
+      <div id="clientHistoryList">
+        <div class="empty-state" style="padding:1rem;">Loading client history...</div>
+      </div>
+      <div class="modal-actions">
+        <button class="modal-cancel" onclick="closeModal('clientHistoryModal')">Close</button>
       </div>
     </div>
   </div>
@@ -548,7 +576,6 @@
       const data = sorted.slice(0, 8).map(([_, count]) => count);
       const colors = ['#7c3aed', '#8b5cf6', '#a78bfa', '#c084fc', '#e9d5ff', '#f5f0ff', '#6d28d9', '#5b21b6'];
 
-      // Pie Chart
       const ctx = document.getElementById('usageChart').getContext('2d');
       if (usageChartInstance) usageChartInstance.destroy();
       usageChartInstance = new Chart(ctx, {
@@ -563,7 +590,6 @@
         }
       });
 
-      // Bar Chart
       const ctx2 = document.getElementById('barChart').getContext('2d');
       if (barChartInstance) barChartInstance.destroy();
       barChartInstance = new Chart(ctx2, {
@@ -620,13 +646,8 @@
         `;
       }).join('');
 
-      // Edit buttons
       document.querySelectorAll('.edit-btn').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); openEditModal(btn.dataset.id); }));
-      
-      // Delete buttons
       document.querySelectorAll('.delete-btn').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); openDeleteModal(btn.dataset.id); }));
-      
-      // History buttons
       document.querySelectorAll('.history-btn').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); openServiceHistory(btn.dataset.id); }));
     }
 
@@ -658,7 +679,7 @@
       const service = services[serviceId];
       if (!service) { showAlert('Service not found.', 'error'); return; }
       
-      document.getElementById('serviceHistoryDesc').textContent = `All applications using "${service.name}"`;
+      document.getElementById('serviceHistoryDesc').textContent = `All applications using "${service.name}". Click a client to view their full history.`;
       
       const apps = Object.entries(applications)
         .filter(([_, a]) => a && a.service === service.name)
@@ -670,7 +691,7 @@
         list.innerHTML = `<div class="empty-state" style="padding:1rem;"><i class="fas fa-inbox"></i>No applications using this service yet</div>`;
       } else {
         list.innerHTML = apps.map(app => `
-          <div class="history-item" onclick="window.location.href='/workspaces/digital-services/application-detail.html?id=${app.id}'">
+          <div class="history-item" onclick="openClientHistory('${app.clientId || ''}', '${app.clientName || ''}')">
             <div class="h-left">
               <span class="h-name">${app.clientName || 'Unknown Client'}</span>
               <span class="h-detail">${app.service} · ${app.assignedStaff || 'Unassigned'}</span>
@@ -685,6 +706,46 @@
       
       document.getElementById('serviceHistoryModal').classList.add('active');
     }
+
+    // ===== CLIENT HISTORY =====
+    function openClientHistory(clientId, clientName) {
+      if (!clientId) {
+        showAlert('Client ID not available.', 'error');
+        return;
+      }
+
+      document.getElementById('clientHistoryDesc').textContent = `Complete application history for "${clientName || 'Client'}".`;
+      
+      const clientApps = Object.entries(applications)
+        .filter(([_, a]) => a && a.clientId === clientId)
+        .map(([id, a]) => ({ id, ...a }))
+        .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+      const list = document.getElementById('clientHistoryList');
+      if (!clientApps.length) {
+        list.innerHTML = `<div class="empty-state" style="padding:1rem;"><i class="fas fa-inbox"></i>No applications found for this client</div>`;
+      } else {
+        list.innerHTML = clientApps.map(app => `
+          <div class="client-history-item">
+            <div class="chi-top">
+              <span class="chi-service">${app.service || 'Service'}</span>
+              <span class="chi-status ${getStatusClass(app.status)}">${(app.status || 'pending').toUpperCase()}</span>
+            </div>
+            <div class="chi-details">
+              <span><i class="fas fa-user-tie"></i> ${app.assignedStaff || 'Unassigned'}</span>
+              <span><i class="fas fa-calendar"></i> ${app.createdAt ? new Date(app.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A'}</span>
+              ${app.priority ? `<span><i class="fas fa-flag"></i> ${app.priority}</span>` : ''}
+            </div>
+            ${app.notes ? `<div style="font-size:0.7rem;color:#64748b;margin-top:0.3rem;padding-top:0.3rem;border-top:1px solid #f1f5f9;"><i class="fas fa-comment"></i> ${app.notes}</div>` : ''}
+          </div>
+        `).join('');
+      }
+      
+      document.getElementById('clientHistoryModal').classList.add('active');
+    }
+
+    // Expose functions globally
+    window.openClientHistory = openClientHistory;
 
     // ===== ADD/EDIT MODAL =====
     function openAddModal() {
@@ -770,7 +831,6 @@
     document.getElementById('deleteCancelBtn').addEventListener('click', () => { closeModal('deleteModal'); deletingServiceId = null; });
     document.getElementById('deleteConfirmBtn').addEventListener('click', deleteService);
 
-    // Enter key support
     document.getElementById('serviceNameInput').addEventListener('keyup', (e) => { if (e.key === 'Enter') { e.preventDefault(); document.getElementById('serviceFeeInput').focus(); } });
     document.getElementById('serviceFeeInput').addEventListener('keyup', (e) => { if (e.key === 'Enter') { e.preventDefault(); saveService(); } });
 
