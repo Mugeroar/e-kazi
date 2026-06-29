@@ -28,7 +28,6 @@
             --gold-soft: #fef3c7;
             --gold-glow: rgba(202, 138, 4, 0.12);
             --gold-gradient: linear-gradient(135deg, #ca8a04 0%, #eab308 50%, #fbbf24 100%);
-            
             --success: #10b981;
             --warning: #f59e0b;
             --danger: #ef4444;
@@ -38,7 +37,6 @@
             --rose: #e11d48;
             --indigo: #4f46e5;
             --amber: #d97706;
-            
             --bg-primary: #ffffff;
             --bg-secondary: #faf9f7;
             --bg-card: #ffffff;
@@ -46,14 +44,11 @@
             --text-secondary: #4a5568;
             --text-muted: #718096;
             --border-light: #e9ecef;
-            
             --shadow-sm: 0 2px 4px rgba(0,0,0,0.02), 0 1px 2px rgba(0,0,0,0.03);
             --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
             --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -2px rgba(0,0,0,0.04);
-            
             --nav-bg: rgba(255,255,255,0.98);
             --header-height: 80px;
-            
             --font-display: 'Clash Display', 'Cabinet Grotesk', sans-serif;
             --font-heading: 'Satoshi', 'General Sans', sans-serif;
             --font-body: 'General Sans', 'Outfit', sans-serif;
@@ -289,25 +284,6 @@
             color: var(--text-muted);
             margin-top: 0.5rem;
         }
-
-        .debug-panel {
-            background: #1e293b;
-            color: #e2e8f0;
-            padding: 0.75rem 1rem;
-            border-radius: 8px;
-            font-family: monospace;
-            font-size: 0.7rem;
-            margin-bottom: 1rem;
-            max-height: 200px;
-            overflow-y: auto;
-            white-space: pre-wrap;
-            word-break: break-all;
-        }
-        .debug-panel .log-info { color: #4ade80; }
-        .debug-panel .log-error { color: #f87171; }
-        .debug-panel .log-warn { color: #fbbf24; }
-        .debug-panel .log-debug { color: #60a5fa; }
-        .debug-panel .log-success { color: #34d399; }
 
         .welcome-section {
             background: var(--bg-card);
@@ -833,6 +809,20 @@
             to { opacity: 1; transform: translateX(0); }
         }
 
+        .empty-data {
+            text-align: center;
+            padding: 2rem 1rem;
+            color: var(--text-muted);
+        }
+        .empty-data i {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            opacity: 0.3;
+        }
+        .empty-data p {
+            font-size: 0.85rem;
+        }
+
         @media (max-width:1200px) {
             .charts-grid { grid-template-columns: 1fr; }
             .bottom-grid { grid-template-columns: 1fr 1fr; }
@@ -890,11 +880,6 @@
 
     <main class="main-content">
         <div id="dashboardContent">
-            <!-- Debug Panel -->
-            <div class="debug-panel" id="debugPanel">
-                <div class="log-info">[System] Dashboard initializing...</div>
-            </div>
-
             <!-- Access Denied -->
             <div class="access-denied" id="accessDenied" style="display:none;">
                 <i class="fas fa-lock"></i>
@@ -947,17 +932,14 @@
                 <div class="activity-card" id="activityCard">
                     <h3><i class="fas fa-clock-rotate-left"></i> Recent Activity</h3>
                     <div id="activityList">
-                        <div style="padding:0.7rem 0;"><div class="skeleton skeleton-text" style="width:80%;"></div><div class="skeleton skeleton-text-sm" style="width:50%;"></div></div>
-                        <div style="padding:0.7rem 0;border-top:1px solid var(--border-light);"><div class="skeleton skeleton-text" style="width:70%;"></div><div class="skeleton skeleton-text-sm" style="width:60%;"></div></div>
-                        <div style="padding:0.7rem 0;border-top:1px solid var(--border-light);"><div class="skeleton skeleton-text" style="width:75%;"></div><div class="skeleton skeleton-text-sm" style="width:45%;"></div></div>
+                        <div class="empty-data"><i class="fas fa-clock"></i><p>No recent activity</p></div>
                     </div>
                 </div>
 
                 <div class="activity-card" id="workspaceCard">
                     <h3><i class="fas fa-cubes"></i> Your Workspaces</h3>
                     <div id="workspaceList">
-                        <div style="padding:0.7rem 0;"><div class="skeleton skeleton-text" style="width:80%;"></div><div class="skeleton skeleton-text-sm" style="width:90%;"></div></div>
-                        <div style="padding:0.7rem 0;border-top:1px solid var(--border-light);"><div class="skeleton skeleton-text" style="width:70%;"></div><div class="skeleton skeleton-text-sm" style="width:85%;"></div></div>
+                        <div class="empty-data"><i class="fas fa-cubes"></i><p>No workspaces accessible</p></div>
                     </div>
                 </div>
 
@@ -1022,21 +1004,6 @@
         let mapMarkers = [];
         let workspaceConfig = {};
 
-        // ===== DEBUG LOGGING =====
-        function debugLog(message, type = 'info') {
-            const timestamp = new Date().toLocaleTimeString();
-            const panel = document.getElementById('debugPanel');
-            if (panel) {
-                const entry = document.createElement('div');
-                entry.className = `log-${type}`;
-                entry.textContent = `[${timestamp}] ${message}`;
-                panel.appendChild(entry);
-                panel.scrollTop = panel.scrollHeight;
-            }
-            console.log(`[${type.toUpperCase()}]`, message);
-        }
-
-        // ===== DEFAULT WORKSPACE CONFIG =====
         const DEFAULT_WORKSPACES = {
             'brandinn': {
                 name: 'BrandInn Business',
@@ -1157,29 +1124,31 @@
             }
         };
 
-        // ===== LOAD WORKSPACES FROM FIREBASE =====
-        async function loadWorkspacesFromResources() {
+        // ===== AUTHENTICATION =====
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                currentUser = user;
+                await loadWorkspaces();
+                await initializeDashboard(user);
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+
+        // ===== LOAD WORKSPACES =====
+        async function loadWorkspaces() {
             try {
-                debugLog('Loading workspaces from resources/workspaces...', 'debug');
                 const snap = await database.ref('resources/workspaces').once('value');
                 const data = snap.val() || {};
                 
-                debugLog(`Found ${Object.keys(data).length} workspaces in resources`, 'info');
-                
                 if (Object.keys(data).length === 0) {
-                    debugLog('No workspaces in resources, using defaults', 'warn');
                     workspaceConfig = { ...DEFAULT_WORKSPACES };
-                    return workspaceConfig;
+                    return;
                 }
 
                 const config = {};
                 for (const [id, workspace] of Object.entries(data)) {
-                    debugLog(`Processing workspace: ${id}`, 'debug');
-                    
-                    // Try to get a readable name
                     let name = workspace.title || workspace.label || workspace.name || id;
-                    
-                    // If it's a push ID, try to use slug or title
                     if (id.startsWith('-') && workspace.slug) {
                         name = workspace.slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
                     }
@@ -1195,64 +1164,37 @@
                         bgColor: fallback.bgColor || `${workspace.color || '#7c3aed'}15`,
                         link: workspace.link || fallback.link || `/workspaces/${id}/index.html`,
                         paths: fallback.paths || [`${id}_data`],
-                        slug: workspace.slug || id,
-                        _firebase: workspace
+                        slug: workspace.slug || id
                     };
                 }
 
-                // Add any missing defaults that aren't in Firebase
                 for (const [id, fallback] of Object.entries(DEFAULT_WORKSPACES)) {
                     if (!config[id]) {
                         config[id] = { ...fallback, id: id };
-                        debugLog(`Added missing default workspace: ${id}`, 'debug');
                     }
                 }
 
                 workspaceConfig = config;
-                debugLog(`✅ Workspaces loaded: ${Object.keys(workspaceConfig).join(', ')}`, 'success');
-                return workspaceConfig;
-                
             } catch (e) {
-                debugLog(`❌ Error loading resources/workspaces: ${e.message}`, 'error');
+                console.error('Error loading workspaces:', e);
                 workspaceConfig = { ...DEFAULT_WORKSPACES };
-                return workspaceConfig;
             }
         }
-
-        // ===== AUTHENTICATION =====
-        auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                currentUser = user;
-                debugLog(`🔐 User authenticated: ${user.email}`, 'info');
-                await loadWorkspacesFromResources();
-                await initializeDashboard(user);
-            } else {
-                debugLog('No user authenticated, redirecting', 'warn');
-                window.location.href = 'index.html';
-            }
-        });
 
         // ===== DASHBOARD INITIALIZATION =====
         async function initializeDashboard(user) {
             try {
-                debugLog('🚀 Initializing dashboard...', 'info');
-                
-                // Check admin status
-                debugLog('Checking admin status...', 'debug');
+                // Check admin
                 const adminSnap = await database.ref(`admins/${user.uid}`).once('value');
                 isAdmin = adminSnap.val() === true;
-                debugLog(`Is Admin: ${isAdmin}`, 'info');
 
-                // Load workspace permissions
-                debugLog('Loading workspace permissions...', 'debug');
+                // Load permissions
                 const permSnap = await database.ref(`workspacePermissions/${user.uid}`).once('value');
                 userPermissions = permSnap.exists() ? permSnap.val() : {};
-                debugLog(`Current permissions: ${JSON.stringify(userPermissions)}`, 'debug');
 
                 const availableWorkspaceIds = Object.keys(workspaceConfig);
-                debugLog(`Available workspaces: ${availableWorkspaceIds.join(', ')}`, 'info');
 
-                // Auto-grant permissions if needed
+                // Auto-grant permissions
                 if (!isAdmin && availableWorkspaceIds.length > 0) {
                     let hasAnyPermission = false;
                     for (const wsId of availableWorkspaceIds) {
@@ -1263,34 +1205,26 @@
                     }
 
                     if (!hasAnyPermission) {
-                        debugLog('🔓 Auto-granting all workspace access...', 'info');
                         const newPermissions = {};
                         availableWorkspaceIds.forEach(wsId => {
                             newPermissions[wsId] = true;
                         });
                         userPermissions = newPermissions;
-                        
                         await database.ref(`workspacePermissions/${user.uid}`).set(newPermissions);
-                        debugLog(`✅ Auto-granted access to: ${availableWorkspaceIds.join(', ')}`, 'success');
                     }
                 }
 
                 // Load user data
-                debugLog('Loading user profile data...', 'debug');
                 const userSnap = await database.ref(`brandinn_users/${user.uid}`).once('value');
                 const userData = userSnap.exists() ? userSnap.val() : {};
                 const userName = userData.name || user.displayName || user.email?.split('@')[0] || 'User';
                 const businessName = userData.businessName || '';
 
-                debugLog(`User: ${userName}, Business: ${businessName}`, 'info');
-
                 updateUserInterface(userName, businessName);
 
                 const hasAccess = isAdmin || Object.keys(userPermissions).some(k => userPermissions[k] === true);
-                debugLog(`Has access: ${hasAccess}`, 'info');
 
                 if (!hasAccess) {
-                    debugLog('❌ No access - showing access denied', 'error');
                     document.getElementById('accessDenied').style.display = 'block';
                     document.getElementById('statsGrid').innerHTML = '';
                     document.getElementById('chartsGrid').style.display = 'none';
@@ -1302,23 +1236,18 @@
                 }
 
                 document.getElementById('accessDenied').style.display = 'none';
-                
-                debugLog('📊 Loading dashboard data...', 'info');
                 initOverviewMap();
                 await loadAllData();
                 await checkWorkspaceHealth();
                 setupLiveListeners();
                 
-                debugLog('✅ Dashboard ready!', 'success');
-                
             } catch (e) {
-                debugLog(`❌ ERROR: ${e.message}`, 'error');
-                console.error(e);
-                showToast('Error loading dashboard: ' + e.message, 'error');
+                console.error('Dashboard error:', e);
+                showToast('Error loading dashboard', 'error');
             }
         }
 
-        // ===== USER PERMISSION HELPERS =====
+        // ===== HELPERS =====
         function userHasWorkspaceAccess(workspaceId) {
             if (isAdmin) return true;
             return userPermissions[workspaceId] === true;
@@ -1334,7 +1263,6 @@
             return accessible;
         }
 
-        // ===== UI UPDATES =====
         function updateUserInterface(userName, businessName) {
             const hour = new Date().getHours();
             document.getElementById('greeting').textContent = hour < 12 ? 'Morning' : hour < 17 ? 'Afternoon' : 'Evening';
@@ -1418,7 +1346,6 @@
                                 });
                             });
                         } else if (path === 'brandinn_franchises' || path === 'brandinn_inquiries') {
-                            // Skip these due to permission errors
                             continue;
                         } else if (path.includes('orders') || path.includes('listings') || path.includes('shipments') || path.includes('rides')) {
                             orderCount += count;
@@ -1451,7 +1378,7 @@
                         }
                     } catch (e) {
                         if (!e.message.includes('permission_denied')) {
-                            debugLog(`⚠️ Error loading ${path}: ${e.message}`, 'warn');
+                            console.warn(`Error loading ${path}:`, e);
                         }
                     }
                 }
@@ -1542,14 +1469,14 @@
                     options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { padding: 12, usePointStyle: true, font: { size: 9 } } } } }
                 });
             } catch (e) {
-                debugLog(`⚠️ Chart error: ${e.message}`, 'warn');
+                console.warn('Chart error:', e);
             }
         }
 
         function renderActivities(activities) {
             const container = document.getElementById('activityList');
             if (!activities || activities.length === 0) {
-                container.innerHTML = '<div style="text-align:center;padding:1.5rem;color:var(--text-muted);"><i class="fas fa-clock"></i><p>No recent activity</p></div>';
+                container.innerHTML = '<div class="empty-data"><i class="fas fa-clock"></i><p>No recent activity</p></div>';
                 return;
             }
             container.innerHTML = activities.map(a => {
@@ -1571,7 +1498,7 @@
         function renderWorkspaces(workspaces) {
             const container = document.getElementById('workspaceList');
             if (!workspaces || workspaces.length === 0) {
-                container.innerHTML = '<div style="text-align:center;padding:1.5rem;color:var(--text-muted);"><i class="fas fa-cubes"></i><p>No workspaces accessible</p></div>';
+                container.innerHTML = '<div class="empty-data"><i class="fas fa-cubes"></i><p>No workspaces accessible</p></div>';
                 return;
             }
             container.innerHTML = workspaces.map(w => `
@@ -1723,13 +1650,13 @@
 
         window.refreshData = async () => {
             try {
-                await loadWorkspacesFromResources();
+                await loadWorkspaces();
                 initOverviewMap();
                 await loadAllData();
                 await checkWorkspaceHealth();
                 showToast('Dashboard refreshed!', 'success');
             } catch (e) {
-                showToast('Error refreshing dashboard: ' + e.message, 'error');
+                showToast('Error refreshing dashboard', 'error');
             }
         };
 
