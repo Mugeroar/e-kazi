@@ -95,7 +95,6 @@
             50% { box-shadow: 0 0 0 12px rgba(202,138,4,0); }
         }
 
-        /* ===== HEADER ===== */
         .site-header {
             position: fixed;
             top: 0;
@@ -267,7 +266,6 @@
             padding: 0 2.5rem;
         }
 
-        /* ===== ACCESS DENIED ===== */
         .access-denied {
             background: #fef2f2;
             border: 1px solid #fecaca;
@@ -292,7 +290,6 @@
             margin-top: 0.5rem;
         }
 
-        /* ===== WELCOME ===== */
         .welcome-section {
             background: var(--bg-card);
             border: 1px solid var(--border-light);
@@ -364,7 +361,6 @@
             color: #7c3aed;
         }
 
-        /* ===== STATS GRID ===== */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(4,1fr);
@@ -427,7 +423,6 @@
             font-family: var(--font-heading);
         }
 
-        /* ===== CHARTS ===== */
         .charts-grid {
             display: grid;
             grid-template-columns: 2fr 1fr;
@@ -463,7 +458,6 @@
             height: 260px;
         }
 
-        /* ===== BOTTOM GRID ===== */
         .bottom-grid {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
@@ -533,7 +527,6 @@
             white-space: nowrap;
         }
 
-        /* ===== WORKSPACE CARD ===== */
         .workspace-card {
             background: var(--bg-card);
             border: 1px solid var(--border-light);
@@ -591,7 +584,6 @@
             text-transform: uppercase;
         }
 
-        /* ===== MAP CARD ===== */
         .map-card {
             background: var(--bg-card);
             border: 1px solid var(--border-light);
@@ -635,7 +627,6 @@
             font-weight: 600;
         }
 
-        /* ===== FOOTER ===== */
         .dashboard-footer {
             background: var(--bg-card);
             border-top: 1px solid var(--border-light);
@@ -789,7 +780,6 @@
             box-shadow: 0 0 4px rgba(239, 68, 68, 0.4);
         }
 
-        /* ===== TOAST ===== */
         .toast-container {
             position: fixed;
             top: 20px;
@@ -824,7 +814,6 @@
             to { opacity: 1; transform: translateX(0); }
         }
 
-        /* ===== RESPONSIVE ===== */
         @media (max-width:1200px) {
             .charts-grid { grid-template-columns: 1fr; }
             .bottom-grid { grid-template-columns: 1fr 1fr; }
@@ -882,17 +871,6 @@
 
     <main class="main-content">
         <div id="dashboardContent">
-            <!-- Access Denied Banner -->
-            <div class="access-denied" id="accessDenied" style="display:none;">
-                <i class="fas fa-lock"></i>
-                <h2>No Workspace Access</h2>
-                <p>You don't have permission to view any workspace data. Contact your administrator to request access.</p>
-                <button onclick="window.location.href='workspaces.html'" style="margin-top:1rem; background:var(--gold-gradient); color:white; border:none; border-radius:50px; padding:0.7rem 2rem; font-weight:600; cursor:pointer; font-family:var(--font-heading);">
-                    <i class="fas fa-arrow-right"></i> View Workspaces
-                </button>
-            </div>
-
-            <!-- Welcome Section -->
             <div class="welcome-section">
                 <div class="welcome-text">
                     <h1>Good <span id="greeting">Morning</span>, <span id="userName">User</span> 👋</h1>
@@ -904,7 +882,6 @@
                 </div>
             </div>
 
-            <!-- Stats Grid -->
             <div class="stats-grid" id="statsGrid">
                 <div class="stat-card skeleton-card"><div class="skeleton skeleton-icon"></div><div><div class="skeleton skeleton-number"></div><div class="skeleton skeleton-text-sm"></div></div></div>
                 <div class="stat-card skeleton-card"><div class="skeleton skeleton-icon"></div><div><div class="skeleton skeleton-number"></div><div class="skeleton skeleton-text-sm"></div></div></div>
@@ -912,7 +889,6 @@
                 <div class="stat-card skeleton-card"><div class="skeleton skeleton-icon"></div><div><div class="skeleton skeleton-number"></div><div class="skeleton skeleton-text-sm"></div></div></div>
             </div>
 
-            <!-- Charts -->
             <div class="charts-grid" id="chartsGrid">
                 <div class="chart-card">
                     <div class="chart-header">
@@ -929,9 +905,7 @@
                 </div>
             </div>
 
-            <!-- Bottom Grid -->
             <div class="bottom-grid">
-                <!-- Recent Activity -->
                 <div class="activity-card" id="activityCard">
                     <h3><i class="fas fa-clock-rotate-left"></i> Recent Activity</h3>
                     <div id="activityList">
@@ -941,7 +915,6 @@
                     </div>
                 </div>
 
-                <!-- Your Workspaces -->
                 <div class="activity-card" id="workspaceCard">
                     <h3><i class="fas fa-cubes"></i> Your Workspaces</h3>
                     <div id="workspaceList">
@@ -950,7 +923,6 @@
                     </div>
                 </div>
 
-                <!-- BrandInn Overview -->
                 <div class="map-card" id="mapCard">
                     <h3 style="font-family:var(--font-heading);font-size:0.95rem;font-weight:700;margin-bottom:0.5rem;">
                         <i class="fas fa-building" style="color:var(--purple);"></i> BrandInn Overview
@@ -986,9 +958,7 @@
             </div>
             <div class="footer-workspace-health">
                 <span class="health-label">Workspaces:</span>
-                <div class="health-dots" id="healthDots">
-                    <!-- Will be populated by JavaScript -->
-                </div>
+                <div class="health-dots" id="healthDots"></div>
             </div>
         </div>
     </footer>
@@ -1012,9 +982,10 @@
         let distributionChart = null;
         let overviewMap = null;
         let mapMarkers = [];
+        let workspaceConfig = {};
 
-        // ===== FALLBACK WORKSPACE CONFIG (used if Firebase fails) =====
-        const FALLBACK_WORKSPACES = {
+        // ===== DEFAULT WORKSPACE CONFIG (fallback if resources/workspaces not found) =====
+        const DEFAULT_WORKSPACES = {
             'brandinn': {
                 name: 'BrandInn Business',
                 desc: 'Business Management',
@@ -1125,28 +1096,34 @@
             }
         };
 
-        // ===== DYNAMIC WORKSPACE CONFIG (loaded from Firebase) =====
-        let WORKSPACE_CONFIG = {};
+        // ===== AUTHENTICATION =====
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                currentUser = user;
+                console.log('🔐 User authenticated:', user.email);
+                await initializeDashboard(user);
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
 
-        // ===== LOAD WORKSPACES FROM FIREBASE =====
-        async function loadWorkspacesFromFirebase() {
+        // ===== LOAD WORKSPACES FROM FIREBASE resources/workspaces =====
+        async function loadWorkspacesFromResources() {
             try {
                 const snap = await database.ref('resources/workspaces').once('value');
                 const data = snap.val() || {};
                 
-                // If no workspaces in Firebase, use fallback
                 if (Object.keys(data).length === 0) {
-                    console.log('No workspaces in Firebase, using fallback');
-                    WORKSPACE_CONFIG = { ...FALLBACK_WORKSPACES };
-                    return WORKSPACE_CONFIG;
+                    console.log('📦 No workspaces in resources, using defaults');
+                    workspaceConfig = { ...DEFAULT_WORKSPACES };
+                    return workspaceConfig;
                 }
 
-                // Build workspace config from Firebase
+                console.log('📦 Loading workspaces from resources/workspaces...');
                 const config = {};
+                
                 for (const [id, workspace] of Object.entries(data)) {
-                    // Merge with fallback if exists (preserves paths)
-                    const fallback = FALLBACK_WORKSPACES[id] || {};
-                    
+                    const fallback = DEFAULT_WORKSPACES[id] || {};
                     config[id] = {
                         name: workspace.title || workspace.label || fallback.name || id,
                         desc: workspace.description || fallback.desc || '',
@@ -1155,69 +1132,69 @@
                         bgColor: fallback.bgColor || `${workspace.color || '#7c3aed'}15`,
                         link: workspace.link || fallback.link || `/workspaces/${id}/index.html`,
                         paths: fallback.paths || [`${id}_data`],
-                        // Store extra Firebase fields for future use
                         _firebase: workspace
                     };
                 }
 
-                // Add any fallback workspaces not in Firebase
-                for (const [id, fallback] of Object.entries(FALLBACK_WORKSPACES)) {
+                // Add any missing defaults
+                for (const [id, fallback] of Object.entries(DEFAULT_WORKSPACES)) {
                     if (!config[id]) {
                         config[id] = { ...fallback };
                     }
                 }
 
-                WORKSPACE_CONFIG = config;
-                console.log('Loaded workspaces from Firebase:', Object.keys(WORKSPACE_CONFIG).length);
-                return WORKSPACE_CONFIG;
+                workspaceConfig = config;
+                console.log('✅ Workspaces loaded:', Object.keys(workspaceConfig));
+                return workspaceConfig;
                 
             } catch (e) {
-                console.error('Error loading workspaces from Firebase:', e);
-                WORKSPACE_CONFIG = { ...FALLBACK_WORKSPACES };
-                return WORKSPACE_CONFIG;
+                console.warn('⚠️ Error loading resources/workspaces:', e);
+                workspaceConfig = { ...DEFAULT_WORKSPACES };
+                return workspaceConfig;
             }
         }
 
-        // ===== AUTHENTICATION =====
-        auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                currentUser = user;
-                // Load workspaces first, then initialize dashboard
-                await loadWorkspacesFromFirebase();
-                await initializeDashboard(user);
-            } else {
-                window.location.href = 'index.html';
-            }
-        });
-
-        // ===== DASHBOARD INITIALIZATION (FIXED PERMISSIONS) =====
+        // ===== DASHBOARD INITIALIZATION =====
         async function initializeDashboard(user) {
             try {
+                // Load workspaces from resources first
+                await loadWorkspacesFromResources();
+
                 // Check admin status
                 const adminSnap = await database.ref(`admins/${user.uid}`).once('value');
                 isAdmin = adminSnap.val() === true;
+                console.log('👑 Is Admin:', isAdmin);
 
                 // Load workspace permissions
                 const permSnap = await database.ref(`workspacePermissions/${user.uid}`).once('value');
                 userPermissions = permSnap.exists() ? permSnap.val() : {};
+                console.log('📋 Current permissions:', userPermissions);
 
-                // ===== FIX: If no permissions but workspaces exist in resources, grant access =====
-                const hasPermissions = Object.keys(userPermissions).some(k => userPermissions[k] === true);
-                const availableWorkspaces = Object.keys(WORKSPACE_CONFIG);
-                const hasWorkspaces = availableWorkspaces.length > 0;
+                const availableWorkspaceIds = Object.keys(workspaceConfig);
+                console.log('📋 Available workspaces:', availableWorkspaceIds);
 
-                // If user has NO permissions BUT workspaces exist in resources, auto-grant access
-                if (!hasPermissions && hasWorkspaces && !isAdmin) {
-                    console.log('🔓 Auto-granting workspace access based on resources');
-                    const newPermissions = {};
-                    availableWorkspaces.forEach(wsId => {
-                        newPermissions[wsId] = true;
-                    });
-                    userPermissions = newPermissions;
-                    
-                    // Save to Firebase so it persists
-                    await database.ref(`workspacePermissions/${user.uid}`).set(newPermissions);
-                    console.log('✅ Auto-granted access to:', availableWorkspaces);
+                // ===== FIX: Auto-grant permissions for any workspace in resources =====
+                if (!isAdmin && availableWorkspaceIds.length > 0) {
+                    let hasAnyPermission = false;
+                    for (const wsId of availableWorkspaceIds) {
+                        if (userPermissions[wsId] === true) {
+                            hasAnyPermission = true;
+                            break;
+                        }
+                    }
+
+                    if (!hasAnyPermission) {
+                        console.log('🔓 Auto-granting all workspace access for:', user.email);
+                        const newPermissions = {};
+                        availableWorkspaceIds.forEach(wsId => {
+                            newPermissions[wsId] = true;
+                        });
+                        userPermissions = newPermissions;
+                        
+                        // Save to Firebase so it persists
+                        await database.ref(`workspacePermissions/${user.uid}`).set(newPermissions);
+                        console.log('✅ Auto-granted access to:', availableWorkspaceIds);
+                    }
                 }
 
                 // Load user data
@@ -1228,8 +1205,9 @@
 
                 updateUserInterface(userName, businessName);
 
-                // Check if user has any workspace access (now should be true if workspaces exist)
+                // Check if user has any workspace access
                 const hasAccess = isAdmin || Object.keys(userPermissions).some(k => userPermissions[k] === true);
+                console.log('🔑 Has access:', hasAccess);
 
                 if (!hasAccess) {
                     document.getElementById('accessDenied').style.display = 'block';
@@ -1262,7 +1240,7 @@
 
         function getAccessibleWorkspaces() {
             const accessible = [];
-            for (const [id, config] of Object.entries(WORKSPACE_CONFIG)) {
+            for (const [id, config] of Object.entries(workspaceConfig)) {
                 if (userHasWorkspaceAccess(id)) {
                     accessible.push({ id, ...config });
                 }
@@ -1312,14 +1290,11 @@
                 return;
             }
 
-            let totalOrders = 0,
-                totalProducts = 0,
-                totalClients = 0;
+            let totalOrders = 0, totalProducts = 0, totalClients = 0;
             const activities = [];
             const workspaceStats = {};
             const businesses = [];
 
-            // Initialize health dots
             const healthDots = document.getElementById('healthDots');
             healthDots.innerHTML = accessibleWorkspaces.map(w => `
                 <div class="health-dot online" data-tooltip="${w.name}: Online"></div>
@@ -1336,21 +1311,14 @@
                         const data = snap.val() || {};
                         const count = Object.keys(data).length;
 
-                        // === CORRECTED: BrandInn Business vs BrandInn Print ===
                         if (path === 'brandinn_users') {
-                            // BrandInn Business - count businesses
                             clientCount += count;
                             totalClients += count;
-
-                            // Extract businesses with location for map
                             const bizData = Object.values(data).filter(b => b.lat && b.lng);
                             businesses.push(...bizData);
                         } else if (path === 'brandinn_print_orders') {
-                            // BrandInn Print - count print orders
                             orderCount += count;
                             totalOrders += count;
-
-                            // Get recent print orders
                             const entries = Object.entries(data).sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0)).slice(0, 2);
                             entries.forEach(([id, item]) => {
                                 activities.push({
@@ -1364,14 +1332,11 @@
                                 });
                             });
                         } else if (path === 'brandinn_franchises') {
-                            // BrandInn Business - count franchises
                             clientCount += count;
                             totalClients += count;
                         } else if (path.includes('orders') || path.includes('listings') || path.includes('shipments') || path.includes('rides')) {
                             orderCount += count;
                             totalOrders += count;
-
-                            // Get recent activities
                             const entries = Object.entries(data).sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0)).slice(0, 2);
                             entries.forEach(([id, item]) => {
                                 const name = item.restaurantName || item.customerName || item.businessName || item.passengerName || 'Customer';
@@ -1393,7 +1358,6 @@
                             clientCount += count;
                             totalClients += count;
                         } else if (path === 'iam_mugera_registrations') {
-                            // Legacy: Keep for backward compatibility
                             const bizData = Object.values(data).filter(b => b.operation === 'brandinn' && b.lat && b.lng);
                             businesses.push(...bizData);
                             clientCount += bizData.length;
@@ -1410,7 +1374,6 @@
                 }
             }
 
-            // Sort activities by time (newest first)
             activities.sort((a, b) => (b.time || 0) - (a.time || 0));
             const filteredActivities = activities.slice(0, 6);
 
@@ -1419,26 +1382,22 @@
             renderActivities(filteredActivities);
             renderWorkspaces(accessibleWorkspaces);
 
-            // === CORRECTED: BrandInn Stats ===
             if (userHasWorkspaceAccess('brandinn') || userHasWorkspaceAccess('brandinn-print')) {
                 let businessesCount = 0;
                 let printOrders = 0;
                 let franchises = 0;
 
                 try {
-                    // BrandInn Business - get businesses
                     const bizSnap = await database.ref('brandinn_users').once('value');
                     businessesCount = Object.keys(bizSnap.val() || {}).length;
                 } catch (e) { console.warn('Error loading BrandInn businesses:', e); }
 
                 try {
-                    // BrandInn Print - get print orders
                     const printSnap = await database.ref('brandinn_print_orders').once('value');
                     printOrders = Object.keys(printSnap.val() || {}).length;
                 } catch (e) { console.warn('Error loading BrandInn print orders:', e); }
 
                 try {
-                    // BrandInn Business - get franchises
                     const franchiseSnap = await database.ref('brandinn_franchises').once('value');
                     franchises = Object.keys(franchiseSnap.val() || {}).length;
                 } catch (e) { console.warn('Error loading BrandInn franchises:', e); }
@@ -1454,7 +1413,6 @@
             }
         }
 
-        // ===== RENDER FUNCTIONS =====
         function renderStats(orders, products, clients, workspacesCount) {
             document.getElementById('statsGrid').innerHTML = `
                 <div class="stat-card"><div class="stat-icon" style="background:#fef3c7;color:#ca8a04;"><i class="fas fa-shopping-cart"></i></div><div><div class="stat-value">${orders}</div><div class="stat-label">Total Orders</div></div></div>
@@ -1473,9 +1431,8 @@
                 const labels = entries.map(([name]) => name);
                 const data = entries.map(([_, val]) => val);
 
-                // Use colors from workspace config
                 const colors = {};
-                for (const [id, config] of Object.entries(WORKSPACE_CONFIG)) {
+                for (const [id, config] of Object.entries(workspaceConfig)) {
                     colors[config.name] = config.color || '#ca8a04';
                 }
 
@@ -1688,7 +1645,6 @@
             }
         }
 
-        // ===== LIVE LISTENERS =====
         function setupLiveListeners() {
             const accessibleWorkspaces = getAccessibleWorkspaces();
             const paths = [];
@@ -1708,7 +1664,6 @@
             setInterval(checkWorkspaceHealth, 60000);
         }
 
-        // ===== UTILITY FUNCTIONS =====
         function getTimeAgo(timestamp) {
             if (!timestamp) return '';
             const diff = Date.now() - new Date(timestamp).getTime();
@@ -1741,7 +1696,7 @@
 
         window.refreshData = async () => {
             try {
-                await loadWorkspacesFromFirebase();
+                await loadWorkspacesFromResources();
                 initOverviewMap();
                 await loadAllData();
                 await checkWorkspaceHealth();
