@@ -630,10 +630,10 @@
         let userPermissions = {};
         let isAdmin = false;
         let userRole = '';
-        let workspaceConfig = {};
 
-        // ===== FALLBACK WORKSPACE CONFIG (used if Firebase fails) =====
-        const FALLBACK_WORKSPACES = {
+        // ===== UPDATED HARDCODED WORKSPACE CONFIGURATION =====
+        const WORKSPACE_CONFIG = {
+            // === BRANDING & BUSINESS ===
             'brandinn': { 
                 name: 'BrandInn Business', 
                 desc: 'Business Management', 
@@ -652,6 +652,8 @@
                 link: '/workspaces/brandinn-print/index.html', 
                 paths: ['brandinn_print_orders'] 
             },
+            
+            // === LOGISTICS ===
             'pick-up': { 
                 name: 'Pick-Up Deliveries', 
                 desc: 'Delivery Management', 
@@ -670,6 +672,8 @@
                 link: '/workspaces/pick-me/index.html', 
                 paths: ['pickme_rides'] 
             },
+            
+            // === TASKS ===
             'ekazi': { 
                 name: 'E-Kazi Tasks', 
                 desc: 'Freelance Task Management', 
@@ -679,6 +683,8 @@
                 link: '/workspaces/ekazi/index.html', 
                 paths: ['ekazi_assigned_tasks'] 
             },
+            
+            // === COMMERCE ===
             'dsog': { 
                 name: 'DSOG Fashion', 
                 desc: 'Fashion & Apparel', 
@@ -697,6 +703,8 @@
                 link: '/workspaces/fusion-foods/index.html', 
                 paths: ['fusion_foods_orders', 'fusion_foods_inventory'] 
             },
+            
+            // === ADVERTISING ===
             'heritage': { 
                 name: 'Heritage Ads', 
                 desc: 'Outdoor Advertising', 
@@ -715,6 +723,8 @@
                 link: '/workspaces/heritage-marketplace/index.html', 
                 paths: ['heritage_orders'] 
             },
+            
+            // === HOSPITALITY ===
             'mugs-n-dines': { 
                 name: 'Mugs n Dines', 
                 desc: 'Restaurant Management', 
@@ -724,6 +734,8 @@
                 link: '/workspaces/mugs-n-dines/index.html', 
                 paths: ['mugs_n_dines_orders'] 
             },
+            
+            // === WELLNESS ===
             'workfit': { 
                 name: 'WorkFit Club', 
                 desc: 'Fitness Management', 
@@ -733,6 +745,8 @@
                 link: '/workspaces/workfit/index.html', 
                 paths: ['workfit_clubs'] 
             },
+            
+            // === REAL ESTATE ===
             'epitome': { 
                 name: 'Epitome Reviews', 
                 desc: 'Real Estate & Cars', 
@@ -741,66 +755,23 @@
                 bgColor: '#eff6ff', 
                 link: '/workspaces/epitome/index.html', 
                 paths: ['epitome_cars'] 
+            },
+            
+            // === DIGITAL SERVICES (E-Huduma) ===
+            '-Ow9NSVELH15DGxI5kJw': { 
+                name: 'Digital Services', 
+                desc: 'Digital Services & Solutions', 
+                icon: 'fa-globe', 
+                color: '#0ea5e9', 
+                bgColor: '#f0f9ff', 
+                link: '/workspaces/digital-services/index.html', 
+                paths: ['digital_services_applications', 'digital_services_clients'] 
             }
         };
-
-        // ===== LOAD WORKSPACES FROM FIREBASE =====
-        async function loadWorkspacesFromFirebase() {
-            try {
-                const snap = await database.ref('resources/workspaces').once('value');
-                const data = snap.val() || {};
-                
-                if (Object.keys(data).length === 0) {
-                    console.log('No workspaces in Firebase, using fallback');
-                    workspaceConfig = { ...FALLBACK_WORKSPACES };
-                    return workspaceConfig;
-                }
-
-                const config = {};
-                for (const [id, workspace] of Object.entries(data)) {
-                    const fallback = FALLBACK_WORKSPACES[id] || FALLBACK_WORKSPACES[workspace.slug] || {};
-                    
-                    let name = workspace.title || workspace.label || workspace.name || fallback.name || id;
-                    if (id.startsWith('-') && workspace.slug) {
-                        name = workspace.slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-                    }
-                    
-                    config[id] = {
-                        id: id,
-                        name: name,
-                        desc: workspace.description || fallback.desc || '',
-                        icon: workspace.icon || fallback.icon || 'fa-building',
-                        color: workspace.color || fallback.color || '#7c3aed',
-                        bgColor: fallback.bgColor || `${workspace.color || '#7c3aed'}15`,
-                        link: workspace.link || fallback.link || `/workspaces/${id}/index.html`,
-                        paths: fallback.paths || [`${id}_data`],
-                        slug: workspace.slug || id,
-                        _firebase: workspace
-                    };
-                }
-
-                // Add any missing fallback workspaces
-                for (const [id, fallback] of Object.entries(FALLBACK_WORKSPACES)) {
-                    if (!config[id]) {
-                        config[id] = { ...fallback, id: id };
-                    }
-                }
-
-                workspaceConfig = config;
-                console.log('Loaded workspaces:', Object.keys(workspaceConfig));
-                return workspaceConfig;
-                
-            } catch (e) {
-                console.error('Error loading workspaces:', e);
-                workspaceConfig = { ...FALLBACK_WORKSPACES };
-                return workspaceConfig;
-            }
-        }
 
         auth.onAuthStateChanged(async (user) => {
             if (user) {
                 currentUser = user;
-                await loadWorkspacesFromFirebase();
                 await loadProfile(user);
             } else {
                 window.location.href = 'index.html';
@@ -809,20 +780,31 @@
 
         function userHasWorkspaceAccess(workspaceId) {
             if (isAdmin) return true;
+            
+            // Check direct permission
             if (userPermissions[workspaceId] === true) return true;
             
-            // Check by slug
-            const config = workspaceConfig[workspaceId];
-            if (config && config.slug && userPermissions[config.slug] === true) return true;
+            // Check if user has permission for Digital Services via different ID
+            if (workspaceId === '-Ow9NSVELH15DGxI5kJw' || workspaceId === 'digital-services') {
+                // Check both the push ID and the slug
+                if (userPermissions['-Ow9NSVELH15DGxI5kJw'] === true || userPermissions['digital-services'] === true) {
+                    return true;
+                }
+            }
             
             return false;
         }
 
         function getAccessibleWorkspaces() {
             const accessible = [];
-            for (const [id, config] of Object.entries(workspaceConfig)) {
+            for (const [id, config] of Object.entries(WORKSPACE_CONFIG)) {
                 if (userHasWorkspaceAccess(id)) {
-                    accessible.push({ id, ...config });
+                    // For Digital Services, use a friendly display name
+                    const displayConfig = { ...config };
+                    if (id === '-Ow9NSVELH15DGxI5kJw') {
+                        displayConfig.name = 'Digital Services (E-Huduma)';
+                    }
+                    accessible.push({ id, ...displayConfig });
                 }
             }
             return accessible;
@@ -860,6 +842,9 @@
             }
             if (hasWorkspaces.includes('epitome')) {
                 return 'Real Estate Agent';
+            }
+            if (hasWorkspaces.includes('-Ow9NSVELH15DGxI5kJw') || hasWorkspaces.includes('digital-services')) {
+                return 'Digital Services Agent';
             }
             
             if (hasWorkspaces.length > 0) {
@@ -902,6 +887,9 @@
             if (userHasWorkspaceAccess('mugs-n-dines')) {
                 return 'Restaurant Owner';
             }
+            if (userHasWorkspaceAccess('-Ow9NSVELH15DGxI5kJw') || userHasWorkspaceAccess('digital-services')) {
+                return 'Digital Services';
+            }
             
             if (currentUser && currentUser.email) {
                 const domain = currentUser.email.split('@')[1];
@@ -925,7 +913,7 @@
                 userPermissions = permSnap.exists() ? permSnap.val() : {};
 
                 // ===== FIX: Auto-grant permissions if workspaces exist =====
-                const availableWorkspaceIds = Object.keys(workspaceConfig);
+                const availableWorkspaceIds = Object.keys(WORKSPACE_CONFIG);
                 if (!isAdmin && availableWorkspaceIds.length > 0) {
                     let hasAnyPermission = false;
                     for (const wsId of availableWorkspaceIds) {
@@ -1093,8 +1081,10 @@
 
                 // Only show workspaces that have data
                 if (orderCount > 0 || productCount > 0 || storeCount > 0 || supplierCount > 0) {
+                    const displayName = ws.id === '-Ow9NSVELH15DGxI5kJw' ? 'Digital Services' : ws.name;
                     workspaceItems.push({
                         ...ws,
+                        displayName: displayName,
                         orders: orderCount,
                         products: productCount,
                         stores: storeCount,
@@ -1123,7 +1113,7 @@
             wsList.innerHTML = workspaceItems.map(w => `
                 <a href="${w.link}" class="workspace-item">
                     <div class="ws-icon" style="background:${w.bgColor};color:${w.color};"><i class="fas ${w.icon}"></i></div>
-                    <div class="ws-info"><div class="ws-name">${w.name}</div><div class="ws-desc">${w.desc}</div></div>
+                    <div class="ws-info"><div class="ws-name">${w.displayName}</div><div class="ws-desc">${w.desc}</div></div>
                     <div class="ws-stat">${w.displayCount}</div>
                 </a>
             `).join('');
@@ -1136,19 +1126,20 @@
 
             for (const ws of accessibleWorkspaces) {
                 for (const path of ws.paths) {
-                    if (path.includes('orders') || path.includes('listings') || path.includes('shipments')) {
+                    if (path.includes('orders') || path.includes('listings') || path.includes('shipments') || path.includes('applications')) {
                         try {
                             const snap = await database.ref(path).once('value');
                             const data = snap.val() || {};
                             
                             Object.entries(data).forEach(([id, item]) => {
-                                const name = item.restaurantName || item.customerName || item.businessName || 'Order';
+                                const name = item.restaurantName || item.customerName || item.businessName || item.clientName || item.name || 'Order';
+                                const displayName = ws.id === '-Ow9NSVELH15DGxI5kJw' ? 'Digital Services' : ws.name;
                                 allActivities.push({
-                                    title: `${name} · ${path.replace(/_/g,' ')}`,
-                                    meta: `#${id.slice(-6)} · KES ${(item.total || 0).toLocaleString()}`,
+                                    title: `${name} · ${displayName}`,
+                                    meta: `#${id.slice(-6)} · KES ${(item.total || item.amount || 0).toLocaleString()}`,
                                     time: item.createdAt || 0,
                                     status: item.status || 'new',
-                                    wsName: ws.name,
+                                    wsName: displayName,
                                     wsColor: ws.color
                                 });
                             });
@@ -1169,7 +1160,7 @@
             const recent = allActivities.slice(0, 5);
             timeline.innerHTML = recent.map(a => {
                 const timeAgo = getTimeAgo(a.time);
-                const statusBadge = a.status === 'delivered' ? 'badge-success' : 
+                const statusBadge = a.status === 'delivered' || a.status === 'completed' ? 'badge-success' : 
                                    a.status === 'shipped' ? 'badge-purple' : 'badge-info';
                 return `
                 <div class="timeline-item">
@@ -1256,7 +1247,6 @@
 
         window.refreshData = async function() {
             showLoading(true);
-            await loadWorkspacesFromFirebase();
             await loadProfile(currentUser);
             showToast('Profile refreshed!', 'success');
             showLoading(false);
