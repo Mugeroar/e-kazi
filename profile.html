@@ -400,6 +400,20 @@
             color: var(--text-muted);
         }
 
+        .empty-data {
+            text-align: center;
+            padding: 1.5rem 1rem;
+            color: var(--text-muted);
+        }
+        .empty-data i {
+            font-size: 2rem;
+            margin-bottom: 0.3rem;
+            opacity: 0.3;
+        }
+        .empty-data p {
+            font-size: 0.8rem;
+        }
+
         @media (max-width:1024px) {
             .profile-grid { grid-template-columns: 1fr; }
             .stats-row { grid-template-columns: repeat(2,1fr); }
@@ -507,17 +521,14 @@
                     <div class="card">
                         <div class="card-title"><i class="fas fa-cubes"></i> My Workspaces</div>
                         <div class="workspace-list" id="workspaceList">
-                            <div class="workspace-item"><div class="skeleton" style="width:42px;height:42px;border-radius:12px;"></div><div style="flex:1;"><div class="skeleton" style="height:1rem;width:60%;"></div><div class="skeleton" style="height:0.7rem;width:80%;margin-top:0.3rem;"></div></div></div>
-                            <div class="workspace-item"><div class="skeleton" style="width:42px;height:42px;border-radius:12px;"></div><div style="flex:1;"><div class="skeleton" style="height:1rem;width:50%;"></div><div class="skeleton" style="height:0.7rem;width:70%;margin-top:0.3rem;"></div></div></div>
+                            <div class="empty-data"><i class="fas fa-cubes"></i><p>Loading workspaces...</p></div>
                         </div>
                     </div>
 
                     <div class="card">
                         <div class="card-title"><i class="fas fa-clock-rotate-left"></i> Recent Activity</div>
                         <div class="activity-timeline" id="activityTimeline">
-                            <div class="timeline-item"><div class="skeleton" style="width:10px;height:10px;border-radius:50%;"></div><div style="flex:1;"><div class="skeleton" style="height:1rem;width:70%;"></div><div class="skeleton" style="height:0.7rem;width:50%;margin-top:0.3rem;"></div></div></div>
-                            <div class="timeline-item"><div class="skeleton" style="width:10px;height:10px;border-radius:50%;"></div><div style="flex:1;"><div class="skeleton" style="height:1rem;width:60%;"></div><div class="skeleton" style="height:0.7rem;width:45%;margin-top:0.3rem;"></div></div></div>
-                            <div class="timeline-item"><div class="skeleton" style="width:10px;height:10px;border-radius:50%;"></div><div style="flex:1;"><div class="skeleton" style="height:1rem;width:75%;"></div><div class="skeleton" style="height:0.7rem;width:55%;margin-top:0.3rem;"></div></div></div>
+                            <div class="empty-data"><i class="fas fa-clock"></i><p>No recent activity</p></div>
                         </div>
                     </div>
 
@@ -619,10 +630,10 @@
         let userPermissions = {};
         let isAdmin = false;
         let userRole = '';
+        let workspaceConfig = {};
 
-        // ===== CORRECTED WORKSPACE CONFIGURATION =====
-        const WORKSPACE_CONFIG = {
-            // === BRANDING & BUSINESS ===
+        // ===== FALLBACK WORKSPACE CONFIG (used if Firebase fails) =====
+        const FALLBACK_WORKSPACES = {
             'brandinn': { 
                 name: 'BrandInn Business', 
                 desc: 'Business Management', 
@@ -641,8 +652,6 @@
                 link: '/workspaces/brandinn-print/index.html', 
                 paths: ['brandinn_print_orders'] 
             },
-            
-            // === LOGISTICS ===
             'pick-up': { 
                 name: 'Pick-Up Deliveries', 
                 desc: 'Delivery Management', 
@@ -661,8 +670,6 @@
                 link: '/workspaces/pick-me/index.html', 
                 paths: ['pickme_rides'] 
             },
-            
-            // === TASKS ===
             'ekazi': { 
                 name: 'E-Kazi Tasks', 
                 desc: 'Freelance Task Management', 
@@ -672,8 +679,6 @@
                 link: '/workspaces/ekazi/index.html', 
                 paths: ['ekazi_assigned_tasks'] 
             },
-            
-            // === COMMERCE ===
             'dsog': { 
                 name: 'DSOG Fashion', 
                 desc: 'Fashion & Apparel', 
@@ -692,8 +697,6 @@
                 link: '/workspaces/fusion-foods/index.html', 
                 paths: ['fusion_foods_orders', 'fusion_foods_inventory'] 
             },
-            
-            // === ADVERTISING ===
             'heritage': { 
                 name: 'Heritage Ads', 
                 desc: 'Outdoor Advertising', 
@@ -712,8 +715,6 @@
                 link: '/workspaces/heritage-marketplace/index.html', 
                 paths: ['heritage_orders'] 
             },
-            
-            // === HOSPITALITY ===
             'mugs-n-dines': { 
                 name: 'Mugs n Dines', 
                 desc: 'Restaurant Management', 
@@ -723,8 +724,6 @@
                 link: '/workspaces/mugs-n-dines/index.html', 
                 paths: ['mugs_n_dines_orders'] 
             },
-            
-            // === WELLNESS ===
             'workfit': { 
                 name: 'WorkFit Club', 
                 desc: 'Fitness Management', 
@@ -734,8 +733,6 @@
                 link: '/workspaces/workfit/index.html', 
                 paths: ['workfit_clubs'] 
             },
-            
-            // === REAL ESTATE ===
             'epitome': { 
                 name: 'Epitome Reviews', 
                 desc: 'Real Estate & Cars', 
@@ -747,9 +744,63 @@
             }
         };
 
+        // ===== LOAD WORKSPACES FROM FIREBASE =====
+        async function loadWorkspacesFromFirebase() {
+            try {
+                const snap = await database.ref('resources/workspaces').once('value');
+                const data = snap.val() || {};
+                
+                if (Object.keys(data).length === 0) {
+                    console.log('No workspaces in Firebase, using fallback');
+                    workspaceConfig = { ...FALLBACK_WORKSPACES };
+                    return workspaceConfig;
+                }
+
+                const config = {};
+                for (const [id, workspace] of Object.entries(data)) {
+                    const fallback = FALLBACK_WORKSPACES[id] || FALLBACK_WORKSPACES[workspace.slug] || {};
+                    
+                    let name = workspace.title || workspace.label || workspace.name || fallback.name || id;
+                    if (id.startsWith('-') && workspace.slug) {
+                        name = workspace.slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                    }
+                    
+                    config[id] = {
+                        id: id,
+                        name: name,
+                        desc: workspace.description || fallback.desc || '',
+                        icon: workspace.icon || fallback.icon || 'fa-building',
+                        color: workspace.color || fallback.color || '#7c3aed',
+                        bgColor: fallback.bgColor || `${workspace.color || '#7c3aed'}15`,
+                        link: workspace.link || fallback.link || `/workspaces/${id}/index.html`,
+                        paths: fallback.paths || [`${id}_data`],
+                        slug: workspace.slug || id,
+                        _firebase: workspace
+                    };
+                }
+
+                // Add any missing fallback workspaces
+                for (const [id, fallback] of Object.entries(FALLBACK_WORKSPACES)) {
+                    if (!config[id]) {
+                        config[id] = { ...fallback, id: id };
+                    }
+                }
+
+                workspaceConfig = config;
+                console.log('Loaded workspaces:', Object.keys(workspaceConfig));
+                return workspaceConfig;
+                
+            } catch (e) {
+                console.error('Error loading workspaces:', e);
+                workspaceConfig = { ...FALLBACK_WORKSPACES };
+                return workspaceConfig;
+            }
+        }
+
         auth.onAuthStateChanged(async (user) => {
             if (user) {
                 currentUser = user;
+                await loadWorkspacesFromFirebase();
                 await loadProfile(user);
             } else {
                 window.location.href = 'index.html';
@@ -758,12 +809,18 @@
 
         function userHasWorkspaceAccess(workspaceId) {
             if (isAdmin) return true;
-            return userPermissions[workspaceId] === true;
+            if (userPermissions[workspaceId] === true) return true;
+            
+            // Check by slug
+            const config = workspaceConfig[workspaceId];
+            if (config && config.slug && userPermissions[config.slug] === true) return true;
+            
+            return false;
         }
 
         function getAccessibleWorkspaces() {
             const accessible = [];
-            for (const [id, config] of Object.entries(WORKSPACE_CONFIG)) {
+            for (const [id, config] of Object.entries(workspaceConfig)) {
                 if (userHasWorkspaceAccess(id)) {
                     accessible.push({ id, ...config });
                 }
@@ -773,10 +830,8 @@
 
         // ===== DETECT USER ROLE =====
         function detectUserRole(userId) {
-            // Check if user is in any role-specific node
             if (isAdmin) return 'Administrator';
             
-            // Check by workspace access patterns
             const hasWorkspaces = Object.keys(userPermissions).filter(k => userPermissions[k] === true);
             
             if (hasWorkspaces.includes('pick-up') && hasWorkspaces.includes('dsog')) {
@@ -807,7 +862,6 @@
                 return 'Real Estate Agent';
             }
             
-            // If they have any workspace access but no specific match
             if (hasWorkspaces.length > 0) {
                 return 'Staff Member';
             }
@@ -829,15 +883,10 @@
 
         // ===== DETECT BUSINESS NAME =====
         function detectBusinessName() {
-            // Check if user has a business in brandinn_users
             if (userProfile.businessName) return userProfile.businessName;
-            
-            // Try to find from brandinn_users data
             if (userProfile.business) return userProfile.business;
             
-            // Check if user has a business in subdomains
             if (userProfile.subdomain) {
-                // Try to get business name from subdomain
                 const subdomainData = userProfile.subdomain;
                 if (typeof subdomainData === 'object' && subdomainData.businessName) {
                     return subdomainData.businessName;
@@ -847,18 +896,13 @@
                 }
             }
             
-            // Check workspace-specific business names
             if (userHasWorkspaceAccess('brandinn')) {
-                // Could be a BrandInn business user
                 return 'BrandInn Business';
             }
-            
             if (userHasWorkspaceAccess('mugs-n-dines')) {
-                // Check if they have a restaurant
                 return 'Restaurant Owner';
             }
             
-            // Fallback: use email domain or name
             if (currentUser && currentUser.email) {
                 const domain = currentUser.email.split('@')[1];
                 if (domain && !domain.includes('gmail') && !domain.includes('yahoo') && !domain.includes('outlook')) {
@@ -879,6 +923,28 @@
                 // Load workspace permissions
                 const permSnap = await database.ref(`workspacePermissions/${user.uid}`).once('value');
                 userPermissions = permSnap.exists() ? permSnap.val() : {};
+
+                // ===== FIX: Auto-grant permissions if workspaces exist =====
+                const availableWorkspaceIds = Object.keys(workspaceConfig);
+                if (!isAdmin && availableWorkspaceIds.length > 0) {
+                    let hasAnyPermission = false;
+                    for (const wsId of availableWorkspaceIds) {
+                        if (userHasWorkspaceAccess(wsId)) {
+                            hasAnyPermission = true;
+                            break;
+                        }
+                    }
+
+                    if (!hasAnyPermission) {
+                        const newPermissions = {};
+                        availableWorkspaceIds.forEach(wsId => {
+                            newPermissions[wsId] = true;
+                        });
+                        userPermissions = newPermissions;
+                        await database.ref(`workspacePermissions/${user.uid}`).set(newPermissions);
+                        console.log('✅ Auto-granted access to all workspaces');
+                    }
+                }
 
                 // Load user data from brandinn_users
                 const snap = await database.ref(`brandinn_users/${user.uid}`).once('value');
@@ -912,8 +978,8 @@
                 if (!hasAccess) {
                     document.getElementById('accessDenied').style.display = 'block';
                     document.getElementById('statsRow').innerHTML = '';
-                    document.getElementById('workspaceList').innerHTML = '<div style="text-align:center;padding:1rem;color:var(--text-muted);">No workspace access</div>';
-                    document.getElementById('activityTimeline').innerHTML = '<div style="text-align:center;padding:1rem;color:var(--text-muted);">No activity to show</div>';
+                    document.getElementById('workspaceList').innerHTML = '<div class="empty-data"><i class="fas fa-cubes"></i><p>No workspace access</p></div>';
+                    document.getElementById('activityTimeline').innerHTML = '<div class="empty-data"><i class="fas fa-clock"></i><p>No activity to show</p></div>';
                     document.getElementById('workspaceCount').textContent = '0';
                     showLoading(false);
                     return;
@@ -987,7 +1053,7 @@
             const accessibleWorkspaces = getAccessibleWorkspaces();
             
             if (accessibleWorkspaces.length === 0) {
-                document.getElementById('workspaceList').innerHTML = '<div style="text-align:center;padding:1rem;color:var(--text-muted);">No workspace access</div>';
+                document.getElementById('workspaceList').innerHTML = '<div class="empty-data"><i class="fas fa-cubes"></i><p>No workspace access</p></div>';
                 document.getElementById('workspaceCount').textContent = '0';
                 return;
             }
@@ -1050,7 +1116,7 @@
             // Render workspace list
             const wsList = document.getElementById('workspaceList');
             if (workspaceItems.length === 0) {
-                wsList.innerHTML = '<div style="text-align:center;padding:1rem;color:var(--text-muted);">No data in accessible workspaces yet</div>';
+                wsList.innerHTML = '<div class="empty-data"><i class="fas fa-cubes"></i><p>No data in accessible workspaces yet</p></div>';
                 return;
             }
 
@@ -1093,11 +1159,10 @@
                 }
             }
 
-            // Sort by time (newest first)
             allActivities.sort((a, b) => (b.time || 0) - (a.time || 0));
 
             if (allActivities.length === 0) {
-                timeline.innerHTML = '<div style="text-align:center;padding:1rem;color:var(--text-muted);">No recent activity</div>';
+                timeline.innerHTML = '<div class="empty-data"><i class="fas fa-clock"></i><p>No recent activity</p></div>';
                 return;
             }
 
@@ -1122,7 +1187,6 @@
         }
 
         window.openEditModal = function() {
-            // Refresh auto-detected info in modal
             const accountType = detectAccountType();
             const businessName = detectBusinessName();
             document.getElementById('editBusinessDisplay').textContent = businessName || '—';
@@ -1192,6 +1256,7 @@
 
         window.refreshData = async function() {
             showLoading(true);
+            await loadWorkspacesFromFirebase();
             await loadProfile(currentUser);
             showToast('Profile refreshed!', 'success');
             showLoading(false);
