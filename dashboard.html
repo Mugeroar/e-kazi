@@ -1190,7 +1190,7 @@
             }
         });
 
-        // ===== DASHBOARD INITIALIZATION =====
+        // ===== DASHBOARD INITIALIZATION (FIXED PERMISSIONS) =====
         async function initializeDashboard(user) {
             try {
                 // Check admin status
@@ -1201,6 +1201,25 @@
                 const permSnap = await database.ref(`workspacePermissions/${user.uid}`).once('value');
                 userPermissions = permSnap.exists() ? permSnap.val() : {};
 
+                // ===== FIX: If no permissions but workspaces exist in resources, grant access =====
+                const hasPermissions = Object.keys(userPermissions).some(k => userPermissions[k] === true);
+                const availableWorkspaces = Object.keys(WORKSPACE_CONFIG);
+                const hasWorkspaces = availableWorkspaces.length > 0;
+
+                // If user has NO permissions BUT workspaces exist in resources, auto-grant access
+                if (!hasPermissions && hasWorkspaces && !isAdmin) {
+                    console.log('🔓 Auto-granting workspace access based on resources');
+                    const newPermissions = {};
+                    availableWorkspaces.forEach(wsId => {
+                        newPermissions[wsId] = true;
+                    });
+                    userPermissions = newPermissions;
+                    
+                    // Save to Firebase so it persists
+                    await database.ref(`workspacePermissions/${user.uid}`).set(newPermissions);
+                    console.log('✅ Auto-granted access to:', availableWorkspaces);
+                }
+
                 // Load user data
                 const userSnap = await database.ref(`brandinn_users/${user.uid}`).once('value');
                 const userData = userSnap.exists() ? userSnap.val() : {};
@@ -1209,7 +1228,7 @@
 
                 updateUserInterface(userName, businessName);
 
-                // Check if user has any workspace access
+                // Check if user has any workspace access (now should be true if workspaces exist)
                 const hasAccess = isAdmin || Object.keys(userPermissions).some(k => userPermissions[k] === true);
 
                 if (!hasAccess) {
