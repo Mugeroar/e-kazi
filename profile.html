@@ -2,15 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#ca8a04">
     <meta name="color-scheme" content="light">
-    <title>KazInni · Professional Dashboard</title>
+    <title>KazInni · Profile Manager</title>
     <link rel="icon" type="image/x-icon" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview-1.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@400;500;600;700;800&family=Satoshi:wght@400;500;600;700;800;900&family=Clash+Display:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&family=General+Sans:wght@400;500;600;700&family=Chillax:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -20,7 +17,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
+        
         :root {
             --gold: #ca8a04;
             --gold-dark: #a16207;
@@ -37,7 +34,6 @@
             --emerald: #059669;
             --rose: #e11d48;
             --indigo: #4f46e5;
-            --amber: #d97706;
             
             --bg-primary: #ffffff;
             --bg-secondary: #faf9f7;
@@ -46,17 +42,24 @@
             --text-secondary: #4a5568;
             --text-muted: #718096;
             --border-light: #e9ecef;
+            --border-medium: #d1d5db;
             
             --shadow-sm: 0 2px 4px rgba(0,0,0,0.02), 0 1px 2px rgba(0,0,0,0.03);
             --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
             --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -2px rgba(0,0,0,0.04);
+            --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+            --shadow-gold: 0 8px 32px rgba(202,138,4,0.15);
             
             --nav-bg: rgba(255,255,255,0.98);
+            --card-bg: #ffffff;
+            --input-bg: #ffffff;
+            
             --header-height: 80px;
             
             --font-display: 'Clash Display', 'Cabinet Grotesk', sans-serif;
             --font-heading: 'Satoshi', 'General Sans', sans-serif;
             --font-body: 'General Sans', 'Outfit', sans-serif;
+            --font-accent: 'Chillax', 'Cabinet Grotesk', sans-serif;
         }
 
         body {
@@ -72,926 +75,543 @@
             0% { background-position: -200% 0; }
             100% { background-position: 200% 0; }
         }
+        
         .skeleton {
             background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
             background-size: 200% 100%;
             animation: shimmer 1.5s ease-in-out infinite;
             border-radius: 8px;
         }
-        .skeleton-text { height: 1rem; margin-bottom: 0.5rem; }
-        .skeleton-text-sm { height: 0.7rem; width: 60%; }
-        .skeleton-number { height: 2rem; width: 40%; margin-bottom: 0.3rem; }
-        .skeleton-icon { width: 50px; height: 50px; border-radius: 16px; }
-        .skeleton-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-light);
-            border-radius: 24px;
-            padding: 1.6rem;
-        }
-        .skeleton-map { height: 180px; border-radius: 16px; }
 
-        @keyframes pulse-glow {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(202,138,4,0.3); }
-            50% { box-shadow: 0 0 0 12px rgba(202,138,4,0); }
-        }
-
-        /* ===== HEADER ===== */
         .site-header {
-            position: fixed;
-            top: 0;
-            width: 100%;
-            height: var(--header-height);
-            background: var(--nav-bg);
-            backdrop-filter: blur(25px);
-            border-bottom: 1px solid rgba(202,138,4,0.08);
-            z-index: 1000;
-            padding: 0 2.5rem;
+            position: fixed; top: 0; width: 100%; height: var(--header-height);
+            background: var(--nav-bg); backdrop-filter: blur(25px);
+            border-bottom: 1px solid rgba(202,138,4,0.08); z-index: 1000; padding: 0 2.5rem;
         }
         .header-container {
-            max-width: 1400px;
-            height: 100%;
-            margin: 0 auto;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            max-width: 1400px; height: 100%; margin: 0 auto;
+            display: flex; align-items: center; justify-content: space-between;
         }
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 0.85rem;
-            text-decoration: none;
-        }
-        .logo img {
-            height: 46px;
-            width: auto;
-            filter: drop-shadow(0 4px 8px rgba(202,138,4,0.15));
-        }
+        .logo { display: flex; align-items: center; gap: 0.85rem; text-decoration: none; }
+        .logo img { height: 46px; width: auto; filter: drop-shadow(0 4px 8px rgba(202,138,4,0.15)); }
         .logo span {
-            font-size: 1.6rem;
-            font-weight: 800;
+            font-size: 1.6rem; font-weight: 800;
             background: var(--gold-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-family: var(--font-display);
-            letter-spacing: -0.5px;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text; font-family: var(--font-display); letter-spacing: -0.5px;
         }
-        .nav-links {
-            display: flex;
-            gap: 2.5rem;
-        }
+        .nav-links { display: flex; gap: 2.5rem; }
         .nav-link {
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-size: 0.95rem;
-            font-weight: 500;
-            font-family: var(--font-heading);
-            transition: all 0.3s ease;
-            position: relative;
+            color: var(--text-secondary); text-decoration: none;
+            font-size: 0.95rem; font-weight: 500; font-family: var(--font-heading);
+            transition: all 0.3s ease; position: relative;
         }
         .nav-link::after {
-            content: '';
-            position: absolute;
-            bottom: -4px;
-            left: 0;
-            width: 0;
-            height: 2.5px;
-            background: var(--gold-gradient);
-            border-radius: 2px;
+            content: ''; position: absolute; bottom: -4px; left: 0; width: 0; height: 2.5px;
+            background: var(--gold-gradient); border-radius: 2px;
             transition: width 0.3s cubic-bezier(0.4,0,0.2,1);
         }
-        .nav-link:hover::after,
-        .nav-link.active::after {
-            width: 100%;
-        }
-        .nav-link:hover,
-        .nav-link.active {
-            color: var(--gold);
-        }
-        .live-indicator {
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-            font-size: 0.7rem;
-            color: var(--success);
-            font-weight: 600;
-            font-family: var(--font-heading);
-        }
-        .live-dot {
-            width: 8px;
-            height: 8px;
-            background: var(--success);
-            border-radius: 50%;
-            animation: pulse-glow 2s infinite;
-        }
+        .nav-link:hover::after, .nav-link.active::after { width: 100%; }
+        .nav-link:hover, .nav-link.active { color: var(--gold); }
 
         .user-menu {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            background: var(--bg-card);
-            border: 1px solid var(--border-light);
-            border-radius: 60px;
-            padding: 0.3rem 0.5rem 0.3rem 1rem;
-            cursor: pointer;
-            position: relative;
-            transition: all 0.25s;
+            display: flex; align-items: center; gap: 0.5rem;
+            background: var(--bg-card); border: 1px solid var(--border-light);
+            border-radius: 60px; padding: 0.3rem 0.5rem 0.3rem 1rem;
+            cursor: pointer; position: relative; transition: all 0.25s;
         }
-        .user-menu:hover {
-            border-color: var(--gold);
-            box-shadow: var(--shadow-md);
-        }
+        .user-menu:hover { border-color: var(--gold); box-shadow: var(--shadow-md); }
         .user-name {
-            color: var(--text-primary);
-            font-weight: 600;
-            font-size: 0.9rem;
+            color: var(--text-primary); font-weight: 600; font-size: 0.9rem;
             font-family: var(--font-heading);
         }
         .user-avatar {
-            width: 38px;
-            height: 38px;
-            background: var(--gold-gradient);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-family: var(--font-heading);
+            width: 38px; height: 38px;
+            background: var(--gold-gradient); color: white;
+            border-radius: 50%; display: flex; align-items: center;
+            justify-content: center; font-weight: 700; font-family: var(--font-heading);
         }
         .user-dropdown {
-            position: absolute;
-            top: calc(100% + 10px);
-            right: 0;
-            background: var(--bg-card);
-            border: 1px solid var(--border-light);
-            border-radius: 16px;
-            padding: 0.5rem;
-            min-width: 180px;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-10px);
-            transition: all 0.2s ease;
-            z-index: 1001;
-            box-shadow: var(--shadow-lg);
+            position: absolute; top: calc(100% + 10px); right: 0;
+            background: var(--card-bg); border: 1px solid var(--border-light);
+            border-radius: 16px; padding: 0.5rem; min-width: 180px;
+            opacity: 0; visibility: hidden;
+            transform: translateY(-10px); transition: all 0.2s ease;
+            z-index: 1001; box-shadow: var(--shadow-lg);
         }
-        .user-menu:hover .user-dropdown {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-        }
+        .user-menu:hover .user-dropdown { opacity: 1; visibility: visible; transform: translateY(0); }
         .dropdown-item {
-            padding: 0.7rem 1rem;
-            color: var(--text-secondary);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            cursor: pointer;
-            font-size: 0.9rem;
-            font-family: var(--font-body);
-            transition: all 0.2s;
-            border: none;
-            background: none;
-            width: 100%;
+            padding: 0.7rem 1rem; color: var(--text-secondary);
+            border-radius: 12px; display: flex; align-items: center; gap: 0.5rem;
+            cursor: pointer; font-size: 0.9rem; font-family: var(--font-body);
+            transition: all 0.2s; border: none; background: none; width: 100%;
         }
-        .dropdown-item:hover {
-            background: var(--bg-secondary);
-        }
-        .dropdown-item.danger:hover {
-            color: var(--danger);
-        }
+        .dropdown-item:hover { background: var(--bg-secondary); }
+        .dropdown-item.danger:hover { color: var(--danger); }
 
         .main-content {
-            max-width: 1400px;
-            margin: calc(var(--header-height) + 1.5rem) auto 2rem;
+            max-width: 1200px; margin: calc(var(--header-height) + 2rem) auto 2rem;
             padding: 0 2.5rem;
         }
 
-        /* ===== ACCESS DENIED ===== */
+        .btn {
+            padding: 0.7rem 1.6rem; border: none; border-radius: 50px;
+            font-weight: 600; font-size: 0.85rem; cursor: pointer;
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+            font-family: var(--font-heading); letter-spacing: -0.2px;
+        }
+        .btn-primary {
+            background: var(--gold-gradient); color: white;
+            box-shadow: var(--shadow-gold);
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 36px rgba(202,138,4,0.3); }
+        .btn-outline {
+            background: transparent; border: 1.5px solid var(--border-medium); color: var(--text-muted);
+        }
+        .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+        .btn-sm { padding: 0.4rem 1rem; font-size: 0.75rem; }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        /* Access Denied Banner */
         .access-denied {
-            background: #fef2f2;
-            border: 1px solid #fecaca;
-            border-radius: 16px;
-            padding: 2rem;
-            text-align: center;
-            margin-bottom: 1.5rem;
+            background: #fef2f2; border: 1px solid #fecaca; border-radius: 16px;
+            padding: 2rem; text-align: center; margin-bottom: 1.5rem;
         }
-        .access-denied i {
-            font-size: 3rem;
-            color: var(--danger);
-            margin-bottom: 1rem;
-            display: block;
+        .access-denied i { font-size: 3rem; color: var(--danger); margin-bottom: 1rem; display: block; }
+        .access-denied h2 { font-size: 1.3rem; color: var(--danger); font-family: var(--font-display); }
+        .access-denied p { color: var(--text-muted); margin-top: 0.5rem; }
+        .access-denied .btn-request {
+            margin-top: 1rem;
+            background: var(--gold-gradient);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 0.7rem 2rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: var(--font-heading);
+            transition: all 0.2s;
         }
-        .access-denied h2 {
-            font-size: 1.3rem;
-            color: var(--danger);
-            font-family: var(--font-display);
-        }
-        .access-denied p {
-            color: var(--text-muted);
-            margin-top: 0.5rem;
+        .access-denied .btn-request:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-gold);
         }
 
-        /* ===== WELCOME ===== */
-        .welcome-section {
-            background: var(--bg-card);
-            border: 1px solid var(--border-light);
-            border-radius: 32px;
-            padding: 1.8rem 2.5rem;
-            margin-bottom: 1.5rem;
-            box-shadow: var(--shadow-sm);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 1rem;
+        .profile-header {
+            background: var(--card-bg); border: 1px solid var(--border-light);
+            border-radius: 32px; padding: 2rem 2.5rem; margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-sm); display: flex; align-items: center;
+            gap: 2rem; flex-wrap: wrap;
         }
-        .welcome-text h1 {
-            font-size: 1.8rem;
-            font-weight: 800;
-            color: var(--text-primary);
-            margin-bottom: 0.2rem;
-            font-family: var(--font-display);
+        .profile-avatar-large {
+            width: 100px; height: 100px;
+            background: var(--gold-gradient); border-radius: 50%;
+            border: 4px solid white; display: flex; align-items: center;
+            justify-content: center; font-size: 2.5rem; font-weight: 800;
+            color: white; box-shadow: var(--shadow-md);
+            font-family: var(--font-display); flex-shrink: 0;
+        }
+        .profile-info { flex: 1; }
+        .profile-info h1 {
+            font-size: 1.8rem; font-weight: 800; color: var(--text-primary);
+            margin-bottom: 0.2rem; font-family: var(--font-display);
             letter-spacing: -0.02em;
         }
-        .welcome-text p {
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+        .profile-info p {
+            color: var(--text-muted); font-size: 0.9rem;
+            display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;
         }
-        .date-display {
-            background: var(--bg-secondary);
-            padding: 0.6rem 1.2rem;
-            border-radius: 40px;
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-weight: 500;
+        .profile-meta {
+            display: flex; gap: 1.5rem; flex-wrap: wrap; margin-top: 0.8rem;
         }
-        .badge {
-            padding: 0.25rem 0.7rem;
-            border-radius: 40px;
-            font-size: 0.65rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            white-space: nowrap;
-            display: inline-block;
-            font-family: var(--font-heading);
-            letter-spacing: 0.3px;
+        .profile-meta span {
+            font-size: 0.8rem; color: var(--text-secondary);
+            display: flex; align-items: center; gap: 0.4rem;
         }
-        .badge-gold {
-            background: var(--gold-soft);
-            color: var(--gold-dark);
-        }
-        .badge-success {
-            background: rgba(16,185,129,0.1);
-            color: #059669;
-        }
-        .badge-warning {
-            background: rgba(245,158,11,0.1);
-            color: #d97706;
-        }
-        .badge-info {
-            background: rgba(59,130,246,0.1);
-            color: #2563eb;
-        }
-        .badge-purple {
-            background: rgba(139,92,246,0.1);
-            color: #7c3aed;
-        }
+        .profile-meta i { color: var(--gold); }
 
-        /* ===== STATS GRID ===== */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(4,1fr);
-            gap: 1rem;
-            margin-bottom: 1.5rem;
+        .stats-row {
+            display: grid; grid-template-columns: repeat(4,1fr); gap: 1rem; margin-bottom: 1.5rem;
         }
         .stat-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-light);
-            border-radius: 20px;
-            padding: 1.2rem 1.4rem;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            box-shadow: var(--shadow-sm);
-            transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
+            background: var(--card-bg); border: 1px solid var(--border-light);
+            border-radius: 20px; padding: 1.2rem; text-align: center;
+            box-shadow: var(--shadow-sm); transition: all 0.3s;
         }
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 4px;
-            height: 100%;
-            background: var(--gold-gradient);
-            transform: scaleY(0);
-            transition: transform 0.3s;
-            border-radius: 0 4px 4px 0;
-        }
-        .stat-card:hover::before {
-            transform: scaleY(1);
-        }
-        .stat-card:hover {
-            transform: translateY(-3px);
-            box-shadow: var(--shadow-md);
-        }
-        .stat-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.3rem;
-            flex-shrink: 0;
-        }
+        .stat-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); border-color: var(--gold); }
         .stat-value {
-            font-size: 1.8rem;
-            font-weight: 800;
-            color: var(--text-primary);
-            line-height: 1.2;
+            font-size: 1.8rem; font-weight: 800; color: var(--gold);
             font-family: var(--font-display);
         }
         .stat-label {
-            color: var(--text-muted);
-            font-size: 0.78rem;
-            font-weight: 500;
-            font-family: var(--font-heading);
+            color: var(--text-muted); font-size: 0.75rem;
+            text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;
         }
 
-        /* ===== CHARTS ===== */
-        .charts-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
+        .profile-grid {
+            display: grid; grid-template-columns: 1fr 2fr; gap: 1.5rem;
         }
-        .chart-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-light);
-            border-radius: 24px;
-            padding: 1.3rem;
-            box-shadow: var(--shadow-sm);
+        .card {
+            background: var(--card-bg); border: 1px solid var(--border-light);
+            border-radius: 24px; padding: 1.5rem; box-shadow: var(--shadow-sm);
+            margin-bottom: 1.5rem; transition: all 0.3s;
         }
-        .chart-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.8rem;
-        }
-        .chart-title {
+        .card:hover { border-color: var(--gold); box-shadow: var(--shadow-md); }
+        .card-title {
+            font-size: 1rem; font-weight: 700; color: var(--text-primary);
+            margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;
             font-family: var(--font-heading);
-            font-size: 0.95rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
         }
-        .chart-title i {
-            color: var(--gold);
-        }
-        .chart-container {
-            position: relative;
-            height: 260px;
-        }
+        .card-title i { color: var(--gold); }
 
-        /* ===== BOTTOM GRID ===== */
-        .bottom-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
+        .info-item { margin-bottom: 0.8rem; }
+        .info-label {
+            color: var(--text-muted); font-size: 0.7rem; margin-bottom: 0.15rem;
+            text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;
         }
-        .activity-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-light);
-            border-radius: 24px;
-            padding: 1.3rem;
-            box-shadow: var(--shadow-sm);
+        .info-value { color: var(--text-primary); font-size: 0.9rem; font-weight: 500; }
+
+        .workspace-list { display: flex; flex-direction: column; gap: 0.6rem; }
+        .workspace-item {
+            display: flex; align-items: center; gap: 0.8rem;
+            padding: 0.8rem; border: 1px solid var(--border-light);
+            border-radius: 14px; text-decoration: none; color: inherit;
+            transition: all 0.2s;
         }
-        .activity-card h3 {
-            font-family: var(--font-heading);
-            font-size: 0.95rem;
-            font-weight: 700;
-            margin-bottom: 0.8rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+        .workspace-item:hover { border-color: var(--gold); background: var(--gold-soft); }
+        .ws-icon {
+            width: 42px; height: 42px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem; flex-shrink: 0;
         }
-        .activity-card h3 i {
-            color: var(--gold);
-        }
-        .activity-item {
-            display: flex;
-            gap: 0.7rem;
-            padding: 0.7rem 0;
+        .ws-info { flex: 1; }
+        .ws-name { font-weight: 700; font-size: 0.85rem; font-family: var(--font-heading); }
+        .ws-desc { font-size: 0.7rem; color: var(--text-muted); }
+        .ws-stat { font-weight: 700; color: var(--gold); font-size: 0.85rem; }
+
+        .activity-timeline { display: flex; flex-direction: column; gap: 0.8rem; }
+        .timeline-item {
+            display: flex; gap: 0.8rem; padding-bottom: 0.8rem;
             border-bottom: 1px solid var(--border-light);
-            align-items: flex-start;
         }
-        .activity-item:last-child {
-            border-bottom: none;
+        .timeline-item:last-child { border-bottom: none; padding-bottom: 0; }
+        .timeline-dot {
+            width: 10px; height: 10px; border-radius: 50%;
+            background: var(--gold); margin-top: 0.3rem; flex-shrink: 0;
         }
-        .activity-icon {
-            width: 34px;
-            height: 34px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.8rem;
-            flex-shrink: 0;
-        }
-        .activity-content {
-            flex: 1;
-            min-width: 0;
-        }
-        .activity-title {
-            font-weight: 600;
-            font-size: 0.8rem;
-            color: var(--text-primary);
-            font-family: var(--font-heading);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .activity-meta {
-            font-size: 0.68rem;
-            color: var(--text-muted);
-            margin-top: 0.1rem;
-        }
-        .activity-time {
-            font-size: 0.65rem;
-            color: var(--text-muted);
-            white-space: nowrap;
-        }
+        .timeline-content { flex: 1; }
+        .timeline-title { font-weight: 600; font-size: 0.85rem; font-family: var(--font-heading); }
+        .timeline-meta { font-size: 0.7rem; color: var(--text-muted); }
 
-        /* ===== WORKSPACE CARD ===== */
-        .workspace-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-light);
-            border-radius: 16px;
-            padding: 1rem;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 0.8rem;
-            margin-bottom: 0.6rem;
-            text-decoration: none;
-            color: inherit;
+        .form-group { margin-bottom: 1rem; }
+        .form-group label {
+            display: block; color: var(--text-secondary); margin-bottom: 0.3rem;
+            font-size: 0.8rem; font-weight: 600; font-family: var(--font-heading);
         }
-        .workspace-card:hover {
-            border-color: var(--gold);
-            transform: translateX(4px);
-            box-shadow: var(--shadow-md);
+        .form-control {
+            width: 100%; padding: 0.75rem 1rem; background: var(--input-bg);
+            border: 1px solid var(--border-medium); border-radius: 14px;
+            color: var(--text-primary); font-size: 0.9rem;
+            font-family: var(--font-body); transition: all 0.2s;
         }
-        .workspace-icon {
-            width: 44px;
-            height: 44px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.1rem;
-            flex-shrink: 0;
+        .form-control:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-glow); }
+        .form-control:disabled, .form-control[readonly] { background: var(--bg-secondary); color: var(--text-muted); }
+        .form-control-auto {
+            background: #f0fdf4 !important;
+            border-color: #86efac !important;
         }
-        .workspace-info {
-            flex: 1;
-            min-width: 0;
-        }
-        .workspace-name {
-            font-weight: 700;
-            font-size: 0.85rem;
-            font-family: var(--font-heading);
-        }
-        .workspace-desc {
-            font-size: 0.7rem;
-            color: var(--text-muted);
-        }
-        .workspace-stat {
-            text-align: right;
-            font-family: var(--font-heading);
-        }
-        .workspace-stat .number {
-            font-size: 1.2rem;
-            font-weight: 800;
-            color: var(--gold);
-        }
-        .workspace-stat .label {
-            font-size: 0.6rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-        }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
 
-        /* ===== MAP CARD ===== */
-        .map-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-light);
-            border-radius: 24px;
-            padding: 1.3rem;
-            box-shadow: var(--shadow-sm);
+        .badge {
+            padding: 0.25rem 0.7rem; border-radius: 40px; font-size: 0.7rem;
+            font-weight: 700; text-transform: uppercase; white-space: nowrap;
+            display: inline-block; font-family: var(--font-heading);
         }
-        .map-container-leaflet {
-            border-radius: 16px;
-            height: 180px;
-            overflow: hidden;
-            margin-bottom: 0.5rem;
-        }
-        .map-container-leaflet .leaflet-control-zoom {
-            display: none;
-        }
-        .map-container-leaflet .leaflet-control-attribution {
-            font-size: 7px;
-        }
-        .brandinn-stats {
-            display: grid;
-            grid-template-columns: repeat(3,1fr);
-            gap: 0.5rem;
-        }
-        .brandinn-stat-item {
-            text-align: center;
-            background: rgba(139,92,246,0.04);
-            border-radius: 12px;
-            padding: 0.6rem;
-        }
-        .brandinn-stat-value {
-            font-size: 1.3rem;
-            font-weight: 800;
-            font-family: var(--font-display);
-        }
-        .brandinn-stat-label {
-            font-size: 0.6rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            font-weight: 600;
-        }
+        .badge-gold { background: var(--gold-soft); color: var(--gold-dark); }
+        .badge-success { background: rgba(16,185,129,0.1); color: #059669; }
+        .badge-info { background: rgba(59,130,246,0.1); color: #2563eb; }
+        .badge-purple { background: rgba(139,92,246,0.1); color: #7c3aed; }
+        .badge-warning { background: rgba(245,158,11,0.1); color: #d97706; }
+        .badge-rose { background: rgba(225,29,72,0.1); color: #e11d48; }
+        .badge-emerald { background: rgba(5,150,105,0.1); color: #059669; }
+        .badge-indigo { background: rgba(79,70,229,0.1); color: #4f46e5; }
 
-        /* ===== FOOTER ===== */
-        .dashboard-footer {
-            background: var(--bg-card);
-            border-top: 1px solid var(--border-light);
-            padding: 0.8rem 2.5rem;
-            margin-top: 0.5rem;
-        }
-        .footer-grid {
-            max-width: 1400px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: 280px 1fr 280px;
-            align-items: center;
-            gap: 1.5rem;
-        }
-        .footer-system-status {
-            display: flex;
-            align-items: center;
-            gap: 0.6rem;
-        }
-        .status-indicator-icon {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: rgba(16, 185, 129, 0.1);
-            border: 2px solid rgba(16, 185, 129, 0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-        .status-indicator-icon i {
-            color: var(--success);
-            font-size: 0.8rem;
-        }
-        .status-indicator-icon.all-systems {
-            animation: pulse-glow 3s infinite;
-        }
-        .status-indicator-icon.has-issues {
-            background: rgba(245, 158, 11, 0.1);
-            border-color: rgba(245, 158, 11, 0.3);
-        }
-        .status-indicator-icon.has-issues i {
-            color: var(--warning);
-        }
-        .status-text-group {
-            display: flex;
-            flex-direction: column;
-        }
-        .status-main-text {
-            font-size: 0.7rem;
-            font-weight: 700;
-            color: var(--success);
-            font-family: var(--font-heading);
-            letter-spacing: 0.3px;
-            text-transform: uppercase;
-        }
-        .status-main-text.has-issues {
-            color: var(--warning);
-        }
-        .status-sub-text {
-            font-size: 0.6rem;
-            color: var(--text-muted);
-            font-weight: 500;
-        }
-        .footer-center {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 1.5rem;
-        }
-        .footer-center-divider {
-            width: 1px;
-            height: 16px;
-            background: var(--border-light);
-        }
-        .footer-nav-link {
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-size: 0.78rem;
-            font-weight: 600;
-            font-family: var(--font-heading);
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-            white-space: nowrap;
-        }
-        .footer-nav-link i {
-            font-size: 0.7rem;
-            color: var(--gold);
-        }
-        .footer-nav-link:hover {
-            color: var(--gold);
-        }
-        .footer-workspace-health {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            justify-content: flex-end;
-        }
-        .health-label {
-            font-size: 0.6rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            font-weight: 600;
-            font-family: var(--font-heading);
-            white-space: nowrap;
-        }
-        .health-dots {
-            display: flex;
-            gap: 0.3rem;
-        }
-        .health-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            position: relative;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .health-dot:hover {
-            transform: scale(1.3);
-        }
-        .health-dot[data-tooltip]:hover::after {
-            content: attr(data-tooltip);
-            position: absolute;
-            bottom: 120%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--text-primary);
-            color: white;
-            padding: 0.3rem 0.6rem;
-            border-radius: 6px;
-            font-size: 0.6rem;
-            white-space: nowrap;
-            font-family: var(--font-body);
-            z-index: 10;
-            pointer-events: none;
-        }
-        .health-dot.online {
-            background: var(--success);
-            box-shadow: 0 0 4px rgba(16, 185, 129, 0.4);
-        }
-        .health-dot.degraded {
-            background: var(--warning);
-            box-shadow: 0 0 4px rgba(245, 158, 11, 0.4);
-        }
-        .health-dot.down {
-            background: var(--danger);
-            box-shadow: 0 0 4px rgba(239, 68, 68, 0.4);
-        }
-
-        /* ===== TOAST ===== */
-        .toast-container {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 4000;
-        }
+        .toast-container { position: fixed; top:20px; right:20px; z-index:4000; }
         .toast {
-            background: var(--bg-card);
-            border: 1px solid var(--border-light);
-            border-radius: 14px;
-            padding: 0.8rem 1.2rem;
-            margin-bottom: 0.5rem;
-            box-shadow: var(--shadow-lg);
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            min-width: 280px;
-            animation: slideIn 0.2s ease;
-            font-family: var(--font-body);
+            background: var(--card-bg); border: 1px solid var(--border-light);
+            border-radius: 14px; padding: 0.8rem 1.2rem; margin-bottom: 0.5rem;
+            box-shadow: var(--shadow-lg); display: flex; align-items: center;
+            gap: 0.75rem; min-width: 280px; animation: slideIn 0.2s ease;
         }
-        .toast.success {
-            border-left: 3px solid var(--success);
+        .toast.success { border-left: 3px solid var(--success); }
+        .toast.error { border-left: 3px solid var(--danger); }
+        .toast.info { border-left: 3px solid var(--gold); }
+        @keyframes slideIn { from{opacity:0;transform:translateX(20px)} to{opacity:1;transform:translateX(0)} }
+
+        .loading-overlay {
+            position: fixed; top:0;left:0;width:100%;height:100%;
+            background: rgba(255,255,255,0.9); backdrop-filter: blur(4px);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 3000; opacity: 0; visibility: hidden; transition: 0.2s;
         }
-        .toast.error {
-            border-left: 3px solid var(--danger);
+        .loading-overlay.active { opacity: 1; visibility: visible; }
+        .loading-spinner {
+            width: 40px; height: 40px; border: 3px solid var(--border-light);
+            border-top-color: var(--gold); border-radius: 50%;
+            animation: spin 0.6s linear infinite;
         }
-        .toast.info {
-            border-left: 3px solid var(--gold);
+        @keyframes spin { to{transform:rotate(360deg)} }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed; top:0; left:0; width:100%; height:100%;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(8px);
+            z-index: 2000; display: none;
         }
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateX(20px); }
-            to { opacity: 1; transform: translateX(0); }
+        .modal-overlay.active { display: block; }
+        .modal {
+            position: fixed; top:50%; left:50%; transform: translate(-50%,-50%);
+            background: var(--card-bg); border-radius: 24px; padding: 1.5rem;
+            max-width: 500px; width: 90%; z-index: 2001;
+            box-shadow: var(--shadow-xl); display: none;
+        }
+        .modal.active { display: block; animation: slideIn 0.2s; }
+        .modal-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 1rem;
+        }
+        .modal-header h3 {
+            font-family: var(--font-display); font-size: 1.2rem;
+        }
+        .modal-close {
+            background: none; border: none; font-size: 1.2rem;
+            cursor: pointer; color: var(--text-muted);
+        }
+        .modal-close:hover { color: var(--danger); }
+
+        .info-chip {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            background: var(--bg-secondary);
+            color: var(--text-muted);
         }
 
-        /* ===== RESPONSIVE ===== */
-        @media (max-width:1200px) {
-            .charts-grid { grid-template-columns: 1fr; }
-            .bottom-grid { grid-template-columns: 1fr 1fr; }
-            .footer-grid { grid-template-columns: 1fr; gap: 0.8rem; }
-            .footer-system-status { justify-content: center; }
-            .footer-center { justify-content: center; }
-            .footer-workspace-health { justify-content: center; }
+        .empty-data {
+            text-align: center;
+            padding: 1.5rem 1rem;
+            color: var(--text-muted);
+        }
+        .empty-data i {
+            font-size: 2rem;
+            margin-bottom: 0.3rem;
+            opacity: 0.3;
+        }
+        .empty-data p {
+            font-size: 0.8rem;
+        }
+
+        @media (max-width:1024px) {
+            .profile-grid { grid-template-columns: 1fr; }
+            .stats-row { grid-template-columns: repeat(2,1fr); }
         }
         @media (max-width:768px) {
-            .stats-grid { grid-template-columns: repeat(2,1fr); }
-            .bottom-grid { grid-template-columns: 1fr; }
-            .nav-links { display: none; }
-            .welcome-section { flex-direction: column; text-align: center; }
-            .main-content { padding: 0 1rem; }
-            .dashboard-footer { padding: 0.8rem 1rem; }
-            .footer-grid { grid-template-columns: 1fr; text-align: center; gap: 0.6rem; }
-            .brandinn-stats { grid-template-columns: repeat(2,1fr); }
-        }
-        @media (max-width:500px) {
-            .stats-grid { grid-template-columns: 1fr; }
+            .nav-links{display:none}
+            .stats-row{grid-template-columns:1fr}
+            .form-row{grid-template-columns:1fr}
+            .profile-header{flex-direction:column;text-align:center}
+            .profile-meta{justify-content:center}
+            .main-content{padding:0 1rem}
         }
     </style>
 </head>
 <body>
+    <div class="loading-overlay" id="loadingOverlay"><div class="loading-spinner"></div></div>
     <div class="toast-container" id="toastContainer"></div>
 
     <header class="site-header">
         <div class="header-container">
-            <a href="#" class="logo">
+            <a href="dashboard.html" class="logo">
                 <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview-1.png" alt="KazInni">
                 <span>KazInni</span>
             </a>
             <nav class="nav-links">
-                <a href="#" class="nav-link active">Dashboard</a>
-                <a href="profile.html" class="nav-link">Profile</a>
+                <a href="dashboard.html" class="nav-link">Dashboard</a>
+                <a href="profile.html" class="nav-link active">Profile</a>
                 <a href="workspaces.html" class="nav-link">Workspace</a>
                 <a href="resources.html" class="nav-link">Resources</a>
             </nav>
-            <div style="display:flex;align-items:center;gap:1.5rem;">
-                <div class="live-indicator">
-                    <div class="live-dot"></div> Live
-                </div>
-                <div class="user-menu" id="userMenu">
-                    <span class="user-name" id="userDisplayName">Loading...</span>
-                    <div class="user-avatar" id="userAvatar">K</div>
-                    <div class="user-dropdown">
-                        <a href="profile.html" class="dropdown-item"><i class="fas fa-user"></i> View Profile</a>
-                        <button class="dropdown-item" onclick="refreshData()"><i class="fas fa-sync-alt"></i> Refresh</button>
-                        <button class="dropdown-item danger" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
-                    </div>
+            <div class="user-menu">
+                <span class="user-name" id="userDisplayName">Loading...</span>
+                <div class="user-avatar" id="userAvatar">K</div>
+                <div class="user-dropdown">
+                    <button class="dropdown-item" onclick="refreshData()"><i class="fas fa-sync-alt"></i> Refresh</button>
+                    <button class="dropdown-item danger" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
                 </div>
             </div>
         </div>
     </header>
 
     <main class="main-content">
-        <div id="dashboardContent">
+        <div id="profileContent">
             <!-- Access Denied Banner -->
             <div class="access-denied" id="accessDenied" style="display:none;">
                 <i class="fas fa-lock"></i>
                 <h2>No Workspace Access</h2>
                 <p>You don't have permission to view any workspace data. Contact your administrator to request access.</p>
-                <button onclick="window.location.href='workspaces.html'" style="margin-top:1rem; background:var(--gold-gradient); color:white; border:none; border-radius:50px; padding:0.7rem 2rem; font-weight:600; cursor:pointer; font-family:var(--font-heading);">
+                <button class="btn-request" onclick="window.location.href='workspaces.html'">
                     <i class="fas fa-arrow-right"></i> View Workspaces
                 </button>
             </div>
 
-            <!-- Welcome Section -->
-            <div class="welcome-section">
-                <div class="welcome-text">
-                    <h1>Good <span id="greeting">Morning</span>, <span id="userName">User</span> 👋</h1>
-                    <p><i class="fas fa-chart-line"></i> Real-time operations overview across your workspaces</p>
+            <!-- Profile Header -->
+            <div class="profile-header">
+                <div class="profile-avatar-large" id="profileAvatar">K</div>
+                <div class="profile-info">
+                    <h1 id="profileName">Loading...</h1>
+                    <p>
+                        <i class="fas fa-envelope"></i> <span id="profileEmail">loading...</span>
+                        <span class="badge badge-success" id="profileStatus">ACTIVE</span>
+                        <span class="badge" id="accountTypeBadge" style="background:var(--gold-soft);color:var(--gold-dark);">PROFESSIONAL</span>
+                    </p>
+                    <div class="profile-meta">
+                        <span><i class="fas fa-phone"></i> <span id="profilePhone">—</span></span>
+                        <span><i class="fas fa-map-marker-alt"></i> <span id="profileLocation">Nairobi, Kenya</span></span>
+                        <span><i class="fas fa-calendar"></i> Joined <span id="profileJoined">—</span></span>
+                        <span><i class="fas fa-building"></i> <span id="profileBusiness">—</span></span>
+                        <span><i class="fas fa-user-tag"></i> <span id="profileRole">—</span></span>
+                    </div>
                 </div>
-                <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
-                    <span class="badge badge-gold" id="roleBadge">PRO</span>
-                    <div class="date-display" id="currentDate"></div>
-                </div>
+                <button class="btn btn-primary" onclick="openEditModal()"><i class="fas fa-edit"></i> Edit Profile</button>
             </div>
 
-            <!-- Stats Grid -->
-            <div class="stats-grid" id="statsGrid">
-                <div class="stat-card skeleton-card"><div class="skeleton skeleton-icon"></div><div><div class="skeleton skeleton-number"></div><div class="skeleton skeleton-text-sm"></div></div></div>
-                <div class="stat-card skeleton-card"><div class="skeleton skeleton-icon"></div><div><div class="skeleton skeleton-number"></div><div class="skeleton skeleton-text-sm"></div></div></div>
-                <div class="stat-card skeleton-card"><div class="skeleton skeleton-icon"></div><div><div class="skeleton skeleton-number"></div><div class="skeleton skeleton-text-sm"></div></div></div>
-                <div class="stat-card skeleton-card"><div class="skeleton skeleton-icon"></div><div><div class="skeleton skeleton-number"></div><div class="skeleton skeleton-text-sm"></div></div></div>
+            <!-- Stats Row -->
+            <div class="stats-row" id="statsRow">
+                <div class="stat-card skeleton-card"><div class="skeleton" style="height:2rem;width:50%;margin:0 auto 0.3rem;"></div><div class="skeleton" style="height:0.7rem;width:70%;margin:0 auto;"></div></div>
+                <div class="stat-card skeleton-card"><div class="skeleton" style="height:2rem;width:50%;margin:0 auto 0.3rem;"></div><div class="skeleton" style="height:0.7rem;width:70%;margin:0 auto;"></div></div>
+                <div class="stat-card skeleton-card"><div class="skeleton" style="height:2rem;width:50%;margin:0 auto 0.3rem;"></div><div class="skeleton" style="height:0.7rem;width:70%;margin:0 auto;"></div></div>
+                <div class="stat-card skeleton-card"><div class="skeleton" style="height:2rem;width:50%;margin:0 auto 0.3rem;"></div><div class="skeleton" style="height:0.7rem;width:70%;margin:0 auto;"></div></div>
             </div>
 
-            <!-- Charts -->
-            <div class="charts-grid" id="chartsGrid">
-                <div class="chart-card">
-                    <div class="chart-header">
-                        <div class="chart-title"><i class="fas fa-chart-bar"></i> Operations Overview</div>
-                        <span class="badge badge-gold">Real-time</span>
+            <!-- Profile Grid -->
+            <div class="profile-grid">
+                <div class="profile-sidebar">
+                    <div class="card">
+                        <div class="card-title"><i class="fas fa-address-card"></i> Contact Information</div>
+                        <div class="info-item"><div class="info-label">Email</div><div class="info-value" id="contactEmail">—</div></div>
+                        <div class="info-item"><div class="info-label">Phone</div><div class="info-value" id="contactPhone">—</div></div>
+                        <div class="info-item"><div class="info-label">Location</div><div class="info-value" id="contactLocation">Nairobi, Kenya</div></div>
+                        <div class="info-item"><div class="info-label">Business</div><div class="info-value" id="contactBusiness">—</div></div>
+                        <div class="info-item"><div class="info-label">Role / Title</div><div class="info-value" id="contactRole">—</div></div>
                     </div>
-                    <div class="chart-container"><canvas id="ordersChart"></canvas></div>
-                </div>
-                <div class="chart-card">
-                    <div class="chart-header">
-                        <div class="chart-title"><i class="fas fa-chart-pie"></i> Workspace Distribution</div>
-                    </div>
-                    <div class="chart-container"><canvas id="distributionChart"></canvas></div>
-                </div>
-            </div>
-
-            <!-- Bottom Grid -->
-            <div class="bottom-grid">
-                <!-- Recent Activity -->
-                <div class="activity-card" id="activityCard">
-                    <h3><i class="fas fa-clock-rotate-left"></i> Recent Activity</h3>
-                    <div id="activityList">
-                        <div style="padding:0.7rem 0;"><div class="skeleton skeleton-text" style="width:80%;"></div><div class="skeleton skeleton-text-sm" style="width:50%;"></div></div>
-                        <div style="padding:0.7rem 0;border-top:1px solid var(--border-light);"><div class="skeleton skeleton-text" style="width:70%;"></div><div class="skeleton skeleton-text-sm" style="width:60%;"></div></div>
-                        <div style="padding:0.7rem 0;border-top:1px solid var(--border-light);"><div class="skeleton skeleton-text" style="width:75%;"></div><div class="skeleton skeleton-text-sm" style="width:45%;"></div></div>
+                    <div class="card">
+                        <div class="card-title"><i class="fas fa-shield-alt"></i> Account Details</div>
+                        <div class="info-item"><div class="info-label">Member Since</div><div class="info-value" id="memberSince">—</div></div>
+                        <div class="info-item"><div class="info-label">Account Type</div><div class="info-value"><span class="badge badge-gold" id="accountTypeDisplay">PROFESSIONAL</span></div></div>
+                        <div class="info-item"><div class="info-label">Status</div><div class="info-value"><span class="badge badge-success">ACTIVE</span></div></div>
+                        <div class="info-item"><div class="info-label">Workspace Access</div><div class="info-value" id="workspaceCount">0</div></div>
+                        <div class="info-item"><div class="info-label">User ID</div><div class="info-value" style="font-size:0.7rem;font-family:monospace;color:var(--text-muted);" id="userIdDisplay">—</div></div>
                     </div>
                 </div>
 
-                <!-- Your Workspaces -->
-                <div class="activity-card" id="workspaceCard">
-                    <h3><i class="fas fa-cubes"></i> Your Workspaces</h3>
-                    <div id="workspaceList">
-                        <div style="padding:0.7rem 0;"><div class="skeleton skeleton-text" style="width:80%;"></div><div class="skeleton skeleton-text-sm" style="width:90%;"></div></div>
-                        <div style="padding:0.7rem 0;border-top:1px solid var(--border-light);"><div class="skeleton skeleton-text" style="width:70%;"></div><div class="skeleton skeleton-text-sm" style="width:85%;"></div></div>
+                <div class="profile-main">
+                    <div class="card">
+                        <div class="card-title"><i class="fas fa-cubes"></i> My Workspaces</div>
+                        <div class="workspace-list" id="workspaceList">
+                            <div class="empty-data"><i class="fas fa-cubes"></i><p>Loading workspaces...</p></div>
+                        </div>
                     </div>
-                </div>
 
-                <!-- BrandInn Overview -->
-                <div class="map-card" id="mapCard">
-                    <h3 style="font-family:var(--font-heading);font-size:0.95rem;font-weight:700;margin-bottom:0.5rem;">
-                        <i class="fas fa-building" style="color:var(--purple);"></i> BrandInn Overview
-                    </h3>
-                    <div class="map-container-leaflet" id="overviewMap"></div>
-                    <div class="brandinn-stats" id="brandinnStats">
-                        <div class="brandinn-stat-item"><div class="skeleton" style="height:1.5rem;width:50%;margin:0 auto 0.3rem;"></div><div class="skeleton" style="height:0.6rem;width:70%;margin:0 auto;"></div></div>
-                        <div class="brandinn-stat-item"><div class="skeleton" style="height:1.5rem;width:50%;margin:0 auto 0.3rem;"></div><div class="skeleton" style="height:0.6rem;width:70%;margin:0 auto;"></div></div>
-                        <div class="brandinn-stat-item"><div class="skeleton" style="height:1.5rem;width:50%;margin:0 auto 0.3rem;"></div><div class="skeleton" style="height:0.6rem;width:70%;margin:0 auto;"></div></div>
+                    <div class="card">
+                        <div class="card-title"><i class="fas fa-clock-rotate-left"></i> Recent Activity</div>
+                        <div class="activity-timeline" id="activityTimeline">
+                            <div class="empty-data"><i class="fas fa-clock"></i><p>No recent activity</p></div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title"><i class="fas fa-cog"></i> Quick Settings</div>
+                        <form id="settingsForm" onsubmit="updateSettings(event)">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Full Name</label>
+                                    <input type="text" class="form-control" id="settingsName" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label>Email</label>
+                                    <input type="email" class="form-control" id="settingsEmail" readonly>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Phone</label>
+                                    <input type="tel" class="form-control" id="settingsPhone">
+                                </div>
+                                <div class="form-group">
+                                    <label>Business Name <span class="info-chip">Auto-detected</span></label>
+                                    <input type="text" class="form-control form-control-auto" id="settingsBusiness" readonly>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Location</label>
+                                    <input type="text" class="form-control" id="settingsLocation">
+                                </div>
+                                <div class="form-group">
+                                    <label>Account Type <span class="info-chip">Auto-detected</span></label>
+                                    <input type="text" class="form-control form-control-auto" id="settingsAccountType" readonly>
+                                </div>
+                            </div>
+                            <div style="display:flex;justify-content:flex-end;gap:1rem;">
+                                <button type="button" class="btn btn-outline btn-sm" onclick="resetSettings()">Reset</button>
+                                <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-save"></i> Save Changes</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
     </main>
 
-    <footer class="dashboard-footer">
-        <div class="footer-grid">
-            <div class="footer-system-status">
-                <div class="status-indicator-icon all-systems" id="statusIndicatorIcon"><i class="fas fa-check"></i></div>
-                <div class="status-text-group">
-                    <span class="status-main-text" id="statusMainText">All Systems Operational</span>
-                    <span class="status-sub-text" id="statusSubText">Real-time monitoring active</span>
-                </div>
-            </div>
-            <div class="footer-center">
-                <a href="analytics.html" class="footer-nav-link"><i class="fas fa-chart-pie"></i> Analytics</a>
-                <span class="footer-center-divider"></span>
-                <a href="reports.html" class="footer-nav-link"><i class="fas fa-file-alt"></i> Reports</a>
-                <span class="footer-center-divider"></span>
-                <a href="blog.html" class="footer-nav-link"><i class="fas fa-newspaper"></i> Blog</a>
-                <span class="footer-center-divider"></span>
-                <span style="font-size:0.7rem;color:var(--text-muted);font-weight:500;">Teleio Savour</span>
-            </div>
-            <div class="footer-workspace-health">
-                <span class="health-label">Workspaces:</span>
-                <div class="health-dots" id="healthDots">
-                    <!-- Will be populated by JavaScript -->
-                </div>
-            </div>
+    <!-- Edit Profile Modal -->
+    <div class="modal-overlay" id="editModalOverlay"></div>
+    <div class="modal" id="editModal">
+        <div class="modal-header">
+            <h3><i class="fas fa-edit"></i> Edit Profile</h3>
+            <button class="modal-close" onclick="closeEditModal()"><i class="fas fa-times"></i></button>
         </div>
-    </footer>
+        <form id="editProfileForm" onsubmit="saveProfileChanges(event)">
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" class="form-control" id="editName" required>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Phone</label>
+                    <input type="tel" class="form-control" id="editPhone">
+                </div>
+                <div class="form-group">
+                    <label>Location</label>
+                    <input type="text" class="form-control" id="editLocation">
+                </div>
+            </div>
+            <div class="form-group" style="background:#f0fdf4;padding:0.8rem;border-radius:10px;border:1px solid #86efac;">
+                <label style="color:#059669;"><i class="fas fa-info-circle"></i> Auto-detected Information</label>
+                <div style="display:flex;gap:1rem;flex-wrap:wrap;font-size:0.85rem;">
+                    <span><strong>Business:</strong> <span id="editBusinessDisplay">—</span></span>
+                    <span><strong>Account Type:</strong> <span id="editAccountTypeDisplay">—</span></span>
+                    <span><strong>Role:</strong> <span id="editRoleDisplay">—</span></span>
+                </div>
+            </div>
+            <div style="display:flex;justify-content:flex-end;gap:1rem;margin-top:0.5rem;">
+                <button type="button" class="btn btn-outline btn-sm" onclick="closeEditModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-save"></i> Save</button>
+            </div>
+        </form>
+    </div>
 
     <script>
         const firebaseConfig = {
@@ -1006,163 +626,283 @@
         auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 
         let currentUser = null;
+        let userProfile = {};
         let userPermissions = {};
         let isAdmin = false;
-        let ordersChart = null;
-        let distributionChart = null;
-        let overviewMap = null;
-        let mapMarkers = [];
+        let userRole = '';
 
         // ===== UPDATED HARDCODED WORKSPACE CONFIGURATION =====
         const WORKSPACE_CONFIG = {
             // === BRANDING & BUSINESS ===
-            'brandinn': {
-                name: 'BrandInn Business',
-                desc: 'Business Management',
-                icon: 'fa-building',
-                color: '#4f46e5',
-                bgColor: '#eef2ff',
-                link: '/workspaces/brandinn/index.html',
-                paths: ['brandinn_users', 'brandinn_franchises', 'brandinn_inquiries', 'brandinn_subdomains']
+            'brandinn': { 
+                name: 'BrandInn Business', 
+                desc: 'Business Management', 
+                icon: 'fa-building', 
+                color: '#4f46e5', 
+                bgColor: '#eef2ff', 
+                link: '/workspaces/brandinn/index.html', 
+                paths: ['brandinn_users', 'brandinn_franchises'] 
             },
-            'brandinn-print': {
-                name: 'BrandInn Print',
-                desc: 'Print & Merchandise',
-                icon: 'fa-print',
-                color: '#db2777',
-                bgColor: '#fdf2f8',
-                link: '/workspaces/brandinn-print/index.html',
-                paths: ['brandinn_print_orders']
+            'brandinn-print': { 
+                name: 'BrandInn Print', 
+                desc: 'Print & Merchandise', 
+                icon: 'fa-print', 
+                color: '#db2777', 
+                bgColor: '#fdf2f8', 
+                link: '/workspaces/brandinn-print/index.html', 
+                paths: ['brandinn_print_orders'] 
             },
-
+            
             // === LOGISTICS ===
-            'pick-up': {
-                name: 'Pick-Up Deliveries',
-                desc: 'Delivery Management',
-                icon: 'fa-truck-fast',
-                color: '#f59e0b',
-                bgColor: '#fffbeb',
-                link: '/workspaces/pick-up/index.html',
-                paths: ['pickup_deliveries']
+            'pick-up': { 
+                name: 'Pick-Up Deliveries', 
+                desc: 'Delivery Management', 
+                icon: 'fa-truck-fast', 
+                color: '#f59e0b', 
+                bgColor: '#fffbeb', 
+                link: '/workspaces/pick-up/index.html', 
+                paths: ['pickup_deliveries'] 
             },
-            'pick-me': {
-                name: 'Pick-Me Rides',
-                desc: 'Ride-hailing',
-                icon: 'fa-taxi',
-                color: '#06b6d4',
-                bgColor: '#ecfeff',
-                link: '/workspaces/pick-me/index.html',
-                paths: ['pickme_rides']
+            'pick-me': { 
+                name: 'Pick-Me Rides', 
+                desc: 'Ride-hailing', 
+                icon: 'fa-taxi', 
+                color: '#06b6d4', 
+                bgColor: '#ecfeff', 
+                link: '/workspaces/pick-me/index.html', 
+                paths: ['pickme_rides'] 
             },
-
+            
             // === TASKS ===
-            'ekazi': {
-                name: 'E-Kazi Tasks',
-                desc: 'Freelance Task Management',
-                icon: 'fa-tasks',
-                color: '#059669',
-                bgColor: '#ecfdf5',
-                link: '/workspaces/ekazi/index.html',
-                paths: ['ekazi_assigned_tasks', 'taskers']
+            'ekazi': { 
+                name: 'E-Kazi Tasks', 
+                desc: 'Freelance Task Management', 
+                icon: 'fa-tasks', 
+                color: '#059669', 
+                bgColor: '#ecfdf5', 
+                link: '/workspaces/ekazi/index.html', 
+                paths: ['ekazi_assigned_tasks'] 
             },
-
+            
             // === COMMERCE ===
-            'dsog': {
-                name: 'DSOG Fashion',
-                desc: 'Fashion & Apparel',
-                icon: 'fa-tshirt',
-                color: '#ec4899',
-                bgColor: '#fdf2f8',
-                link: '/workspaces/dsog/index.html',
-                paths: ['dsog_fashion_orders', 'dsog_fashion_inventory', 'dsog_fashion_franchisees']
+            'dsog': { 
+                name: 'DSOG Fashion', 
+                desc: 'Fashion & Apparel', 
+                icon: 'fa-tshirt', 
+                color: '#ec4899', 
+                bgColor: '#fdf2f8', 
+                link: '/workspaces/dsog/index.html', 
+                paths: ['dsog_fashion_orders', 'dsog_fashion_inventory'] 
             },
-            'fusion-foods': {
-                name: 'Fusion Foods',
-                desc: 'Food & Grocery Supply',
-                icon: 'fa-utensils',
-                color: '#10b981',
-                bgColor: '#ecfdf5',
-                link: '/workspaces/fusion-foods/index.html',
-                paths: ['fusion_foods_orders', 'fusion_foods_inventory', 'fusion_foods_stores']
+            'fusion-foods': { 
+                name: 'Fusion Foods', 
+                desc: 'Food & Grocery Supply', 
+                icon: 'fa-utensils', 
+                color: '#10b981', 
+                bgColor: '#ecfdf5', 
+                link: '/workspaces/fusion-foods/index.html', 
+                paths: ['fusion_foods_orders', 'fusion_foods_inventory'] 
             },
-
+            
             // === ADVERTISING ===
-            'heritage': {
-                name: 'Heritage Ads',
-                desc: 'Outdoor Advertising',
-                icon: 'fa-bullhorn',
-                color: '#d946ef',
-                bgColor: '#faf5ff',
-                link: '/workspaces/heritage/index.html',
-                paths: ['heritage_listings', 'heritage_campaigns']
+            'heritage': { 
+                name: 'Heritage Ads', 
+                desc: 'Outdoor Advertising', 
+                icon: 'fa-bullhorn', 
+                color: '#d946ef', 
+                bgColor: '#faf5ff', 
+                link: '/workspaces/heritage/index.html', 
+                paths: ['heritage_listings', 'heritage_campaigns'] 
             },
-            'heritage-marketplace': {
-                name: 'Heritage Marketplace',
-                desc: 'WhatsApp Marketplace',
-                icon: 'fa-store',
-                color: '#d97706',
-                bgColor: '#fffbeb',
-                link: '/workspaces/heritage-marketplace/index.html',
-                paths: ['heritage_orders', 'heritage_products']
+            'heritage-marketplace': { 
+                name: 'Heritage Marketplace', 
+                desc: 'WhatsApp Marketplace', 
+                icon: 'fa-store', 
+                color: '#d97706', 
+                bgColor: '#fffbeb', 
+                link: '/workspaces/heritage-marketplace/index.html', 
+                paths: ['heritage_orders'] 
             },
-
+            
             // === HOSPITALITY ===
-            'mugs-n-dines': {
-                name: 'Mugs n Dines',
-                desc: 'Restaurant Management',
-                icon: 'fa-utensil-spoon',
-                color: '#ef4444',
-                bgColor: '#fef2f2',
-                link: '/workspaces/mugs-n-dines/index.html',
-                paths: ['mugs_n_dines_orders', 'mugs_n_dines_menu']
+            'mugs-n-dines': { 
+                name: 'Mugs n Dines', 
+                desc: 'Restaurant Management', 
+                icon: 'fa-utensil-spoon', 
+                color: '#ef4444', 
+                bgColor: '#fef2f2', 
+                link: '/workspaces/mugs-n-dines/index.html', 
+                paths: ['mugs_n_dines_orders'] 
             },
-
+            
             // === WELLNESS ===
-            'workfit': {
-                name: 'WorkFit Club',
-                desc: 'Fitness Management',
-                icon: 'fa-dumbbell',
-                color: '#22c55e',
-                bgColor: '#f0fdf4',
-                link: '/workspaces/workfit/index.html',
-                paths: ['workfit_clubs', 'workfit_members']
+            'workfit': { 
+                name: 'WorkFit Club', 
+                desc: 'Fitness Management', 
+                icon: 'fa-dumbbell', 
+                color: '#22c55e', 
+                bgColor: '#f0fdf4', 
+                link: '/workspaces/workfit/index.html', 
+                paths: ['workfit_clubs'] 
             },
-
+            
             // === REAL ESTATE ===
-            'epitome': {
-                name: 'Epitome Reviews',
-                desc: 'Real Estate & Cars',
-                icon: 'fa-home',
-                color: '#3b82f6',
-                bgColor: '#eff6ff',
-                link: '/workspaces/epitome/index.html',
-                paths: ['epitome_cars']
+            'epitome': { 
+                name: 'Epitome Reviews', 
+                desc: 'Real Estate & Cars', 
+                icon: 'fa-home', 
+                color: '#3b82f6', 
+                bgColor: '#eff6ff', 
+                link: '/workspaces/epitome/index.html', 
+                paths: ['epitome_cars'] 
             },
-
+            
             // === DIGITAL SERVICES (E-Huduma) ===
-            '-Ow9NSVELH15DGxI5kJw': {
-                name: 'Digital Services',
-                desc: 'Digital Services & Solutions',
-                icon: 'fa-globe',
-                color: '#0ea5e9',
-                bgColor: '#f0f9ff',
-                link: '/workspaces/digital-services/index.html',
-                paths: ['digital_services_applications', 'digital_services_clients', 'digital_services_payments']
+            '-Ow9NSVELH15DGxI5kJw': { 
+                name: 'Digital Services', 
+                desc: 'Digital Services & Solutions', 
+                icon: 'fa-globe', 
+                color: '#0ea5e9', 
+                bgColor: '#f0f9ff', 
+                link: '/workspaces/digital-services/index.html', 
+                paths: ['digital_services_applications', 'digital_services_clients'] 
             }
         };
 
-        // ===== AUTHENTICATION =====
         auth.onAuthStateChanged(async (user) => {
             if (user) {
                 currentUser = user;
-                await initializeDashboard(user);
+                await loadProfile(user);
             } else {
                 window.location.href = 'index.html';
             }
         });
 
-        // ===== DASHBOARD INITIALIZATION =====
-        async function initializeDashboard(user) {
+        function userHasWorkspaceAccess(workspaceId) {
+            if (isAdmin) return true;
+            
+            // Check direct permission
+            if (userPermissions[workspaceId] === true) return true;
+            
+            // Check if user has permission for Digital Services via different ID
+            if (workspaceId === '-Ow9NSVELH15DGxI5kJw' || workspaceId === 'digital-services') {
+                // Check both the push ID and the slug
+                if (userPermissions['-Ow9NSVELH15DGxI5kJw'] === true || userPermissions['digital-services'] === true) {
+                    return true;
+                }
+            }
+            
+            return false;
+        }
+
+        function getAccessibleWorkspaces() {
+            const accessible = [];
+            for (const [id, config] of Object.entries(WORKSPACE_CONFIG)) {
+                if (userHasWorkspaceAccess(id)) {
+                    // For Digital Services, use a friendly display name
+                    const displayConfig = { ...config };
+                    if (id === '-Ow9NSVELH15DGxI5kJw') {
+                        displayConfig.name = 'Digital Services (E-Huduma)';
+                    }
+                    accessible.push({ id, ...displayConfig });
+                }
+            }
+            return accessible;
+        }
+
+        // ===== DETECT USER ROLE =====
+        function detectUserRole(userId) {
+            if (isAdmin) return 'Administrator';
+            
+            const hasWorkspaces = Object.keys(userPermissions).filter(k => userPermissions[k] === true);
+            
+            if (hasWorkspaces.includes('pick-up') && hasWorkspaces.includes('dsog')) {
+                return 'Delivery Assistant';
+            }
+            if (hasWorkspaces.includes('pick-me')) {
+                return 'Driver';
+            }
+            if (hasWorkspaces.includes('ekazi')) {
+                return 'Tasker';
+            }
+            if (hasWorkspaces.includes('brandinn')) {
+                return 'Business Manager';
+            }
+            if (hasWorkspaces.includes('brandinn-print')) {
+                return 'Print Manager';
+            }
+            if (hasWorkspaces.includes('heritage')) {
+                return 'Advertising Manager';
+            }
+            if (hasWorkspaces.includes('workfit')) {
+                return 'Fitness Coach';
+            }
+            if (hasWorkspaces.includes('mugs-n-dines')) {
+                return 'Restaurant Manager';
+            }
+            if (hasWorkspaces.includes('epitome')) {
+                return 'Real Estate Agent';
+            }
+            if (hasWorkspaces.includes('-Ow9NSVELH15DGxI5kJw') || hasWorkspaces.includes('digital-services')) {
+                return 'Digital Services Agent';
+            }
+            
+            if (hasWorkspaces.length > 0) {
+                return 'Staff Member';
+            }
+            
+            return 'User';
+        }
+
+        // ===== DETECT ACCOUNT TYPE =====
+        function detectAccountType() {
+            const workspaces = getAccessibleWorkspaces();
+            const count = workspaces.length;
+            
+            if (isAdmin) return { type: 'Administrator', badge: 'badge-rose', icon: 'fa-crown' };
+            if (count >= 5) return { type: 'Enterprise', badge: 'badge-purple', icon: 'fa-building' };
+            if (count >= 3) return { type: 'Professional', badge: 'badge-gold', icon: 'fa-briefcase' };
+            if (count >= 1) return { type: 'Basic', badge: 'badge-info', icon: 'fa-user' };
+            return { type: 'Pending', badge: 'badge-warning', icon: 'fa-clock' };
+        }
+
+        // ===== DETECT BUSINESS NAME =====
+        function detectBusinessName() {
+            if (userProfile.businessName) return userProfile.businessName;
+            if (userProfile.business) return userProfile.business;
+            
+            if (userProfile.subdomain) {
+                const subdomainData = userProfile.subdomain;
+                if (typeof subdomainData === 'object' && subdomainData.businessName) {
+                    return subdomainData.businessName;
+                }
+                if (typeof subdomainData === 'string') {
+                    return subdomainData.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                }
+            }
+            
+            if (userHasWorkspaceAccess('brandinn')) {
+                return 'BrandInn Business';
+            }
+            if (userHasWorkspaceAccess('mugs-n-dines')) {
+                return 'Restaurant Owner';
+            }
+            if (userHasWorkspaceAccess('-Ow9NSVELH15DGxI5kJw') || userHasWorkspaceAccess('digital-services')) {
+                return 'Digital Services';
+            }
+            
+            if (currentUser && currentUser.email) {
+                const domain = currentUser.email.split('@')[1];
+                if (domain && !domain.includes('gmail') && !domain.includes('yahoo') && !domain.includes('outlook')) {
+                    return domain.split('.')[0].toUpperCase();
+                }
+            }
+            
+            return 'Freelancer';
+        }
+
+        async function loadProfile(user) {
+            showLoading(true);
             try {
                 // Check admin status
                 const adminSnap = await database.ref(`admins/${user.uid}`).once('value');
@@ -1171,14 +911,6 @@
                 // Load workspace permissions
                 const permSnap = await database.ref(`workspacePermissions/${user.uid}`).once('value');
                 userPermissions = permSnap.exists() ? permSnap.val() : {};
-
-                // Load user data
-                const userSnap = await database.ref(`brandinn_users/${user.uid}`).once('value');
-                const userData = userSnap.exists() ? userSnap.val() : {};
-                const userName = userData.name || user.displayName || user.email?.split('@')[0] || 'User';
-                const businessName = userData.businessName || '';
-
-                updateUserInterface(userName, businessName);
 
                 // ===== FIX: Auto-grant permissions if workspaces exist =====
                 const availableWorkspaceIds = Object.keys(WORKSPACE_CONFIG);
@@ -1202,570 +934,357 @@
                     }
                 }
 
+                // Load user data from brandinn_users
+                const snap = await database.ref(`brandinn_users/${user.uid}`).once('value');
+                userProfile = snap.exists() ? snap.val() : {
+                    name: user.displayName || user.email?.split('@')[0] || 'User',
+                    email: user.email,
+                    phone: '',
+                    location: 'Nairobi, Kenya',
+                    joinedAt: Date.now()
+                };
+                if (!snap.exists()) {
+                    await database.ref(`brandinn_users/${user.uid}`).set(userProfile);
+                }
+                
+                // Detect role and account type
+                userRole = detectUserRole(user.uid);
+                const accountType = detectAccountType();
+                const businessName = detectBusinessName();
+                
+                // Store business name in profile if not set
+                if (!userProfile.businessName && businessName && businessName !== 'Freelancer') {
+                    userProfile.businessName = businessName;
+                    await database.ref(`brandinn_users/${user.uid}/businessName`).set(businessName);
+                }
+                
+                updateProfileUI(userRole, accountType, businessName);
+
                 // Check if user has any workspace access
                 const hasAccess = isAdmin || Object.keys(userPermissions).some(k => userPermissions[k] === true);
-
+                
                 if (!hasAccess) {
                     document.getElementById('accessDenied').style.display = 'block';
-                    document.getElementById('statsGrid').innerHTML = '';
-                    document.getElementById('chartsGrid').style.display = 'none';
-                    document.getElementById('activityCard').style.display = 'none';
-                    document.getElementById('workspaceCard').style.display = 'none';
-                    document.getElementById('mapCard').style.display = 'none';
-                    document.getElementById('healthDots').innerHTML = '<span style="color:var(--text-muted);font-size:0.7rem;">No access</span>';
-                    showToast('No workspace access - please request permissions', 'info');
+                    document.getElementById('statsRow').innerHTML = '';
+                    document.getElementById('workspaceList').innerHTML = '<div class="empty-data"><i class="fas fa-cubes"></i><p>No workspace access</p></div>';
+                    document.getElementById('activityTimeline').innerHTML = '<div class="empty-data"><i class="fas fa-clock"></i><p>No activity to show</p></div>';
+                    document.getElementById('workspaceCount').textContent = '0';
+                    showLoading(false);
                     return;
                 }
 
                 document.getElementById('accessDenied').style.display = 'none';
-                initOverviewMap();
-                await loadAllData();
-                await checkWorkspaceHealth();
-                setupLiveListeners();
-            } catch (e) {
-                console.error('Dashboard error:', e);
-                showToast('Error loading dashboard: ' + e.message, 'error');
+                
+                await loadWorkspaceData();
+                await loadRecentActivity();
+                
+            } catch(e) {
+                console.error('Error loading profile:', e);
+                showToast('Error loading profile', 'error');
+            } finally {
+                showLoading(false);
             }
         }
 
-        // ===== USER PERMISSION HELPERS =====
-        function userHasWorkspaceAccess(workspaceId) {
-            if (isAdmin) return true;
+        function updateProfileUI(role, accountType, businessName) {
+            const name = userProfile.name || 'User';
             
-            // Check direct permission
-            if (userPermissions[workspaceId] === true) return true;
+            // Header
+            document.getElementById('profileName').textContent = name;
+            document.getElementById('profileEmail').textContent = currentUser?.email || '';
+            document.getElementById('profileAvatar').textContent = name.charAt(0).toUpperCase();
+            document.getElementById('userDisplayName').textContent = name;
+            document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
+            document.getElementById('profilePhone').textContent = userProfile.phone || '—';
+            document.getElementById('profileLocation').textContent = userProfile.location || 'Nairobi, Kenya';
+            document.getElementById('profileBusiness').textContent = businessName || '—';
+            document.getElementById('profileJoined').textContent = userProfile.joinedAt ? new Date(userProfile.joinedAt).toLocaleDateString('en-US',{month:'long',year:'numeric'}) : 'Recently';
+            document.getElementById('profileRole').textContent = role || '—';
             
-            // Check for Digital Services (supports both push ID and slug)
-            if (workspaceId === '-Ow9NSVELH15DGxI5kJw' || workspaceId === 'digital-services') {
-                if (userPermissions['-Ow9NSVELH15DGxI5kJw'] === true || userPermissions['digital-services'] === true) {
-                    return true;
-                }
+            // Account type badge
+            const badge = document.getElementById('accountTypeBadge');
+            if (accountType) {
+                badge.textContent = accountType.type.toUpperCase();
+                badge.className = `badge ${accountType.badge}`;
             }
             
-            return false;
+            // Contact section
+            document.getElementById('contactEmail').textContent = currentUser?.email || '—';
+            document.getElementById('contactPhone').textContent = userProfile.phone || '—';
+            document.getElementById('contactLocation').textContent = userProfile.location || 'Nairobi, Kenya';
+            document.getElementById('contactBusiness').textContent = businessName || '—';
+            document.getElementById('contactRole').textContent = role || '—';
+            document.getElementById('memberSince').textContent = userProfile.joinedAt ? new Date(userProfile.joinedAt).toLocaleDateString('en-US',{month:'long',year:'numeric'}) : 'Recently';
+            document.getElementById('accountTypeDisplay').textContent = accountType ? accountType.type.toUpperCase() : 'PROFESSIONAL';
+            document.getElementById('userIdDisplay').textContent = currentUser?.uid || '—';
+            
+            // Settings form
+            document.getElementById('settingsName').value = name;
+            document.getElementById('settingsEmail').value = currentUser?.email || '';
+            document.getElementById('settingsPhone').value = userProfile.phone || '';
+            document.getElementById('settingsBusiness').value = businessName || '—';
+            document.getElementById('settingsLocation').value = userProfile.location || '';
+            document.getElementById('settingsAccountType').value = accountType ? accountType.type.toUpperCase() : 'PROFESSIONAL';
+            
+            // Edit modal auto-detected info
+            document.getElementById('editBusinessDisplay').textContent = businessName || '—';
+            document.getElementById('editAccountTypeDisplay').textContent = accountType ? accountType.type.toUpperCase() : 'PROFESSIONAL';
+            document.getElementById('editRoleDisplay').textContent = role || '—';
+            
+            // Edit modal fields
+            document.getElementById('editName').value = name;
+            document.getElementById('editPhone').value = userProfile.phone || '';
+            document.getElementById('editLocation').value = userProfile.location || '';
         }
 
-        function getAccessibleWorkspaces() {
-            const accessible = [];
-            for (const [id, config] of Object.entries(WORKSPACE_CONFIG)) {
-                if (userHasWorkspaceAccess(id)) {
-                    const displayConfig = { ...config };
-                    if (id === '-Ow9NSVELH15DGxI5kJw') {
-                        displayConfig.name = 'Digital Services';
-                    }
-                    accessible.push({ id, ...displayConfig });
-                }
-            }
-            return accessible;
-        }
-
-        // ===== UI UPDATES =====
-        function updateUserInterface(userName, businessName) {
-            const hour = new Date().getHours();
-            document.getElementById('greeting').textContent = hour < 12 ? 'Morning' : hour < 17 ? 'Afternoon' : 'Evening';
-            document.getElementById('userName').textContent = userName;
-            document.getElementById('userDisplayName').textContent = userName;
-            document.getElementById('userAvatar').textContent = userName.charAt(0).toUpperCase();
-            document.getElementById('currentDate').innerHTML = `<i class="fas fa-calendar-alt"></i> ${new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`;
-            if (businessName) document.getElementById('roleBadge').textContent = businessName.substring(0, 15).toUpperCase();
-        }
-
-        // ===== MAP =====
-        function initOverviewMap() {
-            try {
-                if (overviewMap) {
-                    overviewMap.off();
-                    overviewMap.remove();
-                }
-            } catch (e) {}
-            mapMarkers = [];
-            overviewMap = L.map('overviewMap', {
-                center: [-1.2864, 36.8172],
-                zoom: 12,
-                zoomControl: false,
-                attributionControl: false,
-                dragging: false,
-                scrollWheelZoom: false,
-                doubleClickZoom: false,
-                touchZoom: false
-            });
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(overviewMap);
-        }
-
-        // ===== DATA LOADING =====
-        async function loadAllData() {
+        async function loadWorkspaceData() {
             const accessibleWorkspaces = getAccessibleWorkspaces();
-
+            
             if (accessibleWorkspaces.length === 0) {
-                document.getElementById('accessDenied').style.display = 'block';
+                document.getElementById('workspaceList').innerHTML = '<div class="empty-data"><i class="fas fa-cubes"></i><p>No workspace access</p></div>';
+                document.getElementById('workspaceCount').textContent = '0';
                 return;
             }
 
-            let totalOrders = 0,
-                totalProducts = 0,
-                totalClients = 0;
-            const activities = [];
-            const workspaceStats = {};
-            const businesses = [];
-
-            // Initialize health dots
-            const healthDots = document.getElementById('healthDots');
-            healthDots.innerHTML = accessibleWorkspaces.map(w => {
-                const displayName = w.id === '-Ow9NSVELH15DGxI5kJw' ? 'Digital Services' : w.name;
-                return `<div class="health-dot online" data-tooltip="${displayName}: Online"></div>`;
-            }).join('');
+            let totalOrders = 0, totalProducts = 0, totalStores = 0, totalSuppliers = 0;
+            const workspaceItems = [];
 
             for (const ws of accessibleWorkspaces) {
                 let orderCount = 0;
                 let productCount = 0;
-                let clientCount = 0;
+                let storeCount = 0;
+                let supplierCount = 0;
 
                 for (const path of ws.paths) {
                     try {
                         const snap = await database.ref(path).once('value');
                         const data = snap.val() || {};
                         const count = Object.keys(data).length;
-
-                        if (path === 'brandinn_users') {
-                            clientCount += count;
-                            totalClients += count;
-                            const bizData = Object.values(data).filter(b => b.lat && b.lng);
-                            businesses.push(...bizData);
-                        } else if (path === 'brandinn_print_orders') {
+                        
+                        if (path.includes('orders') || path.includes('listings') || path.includes('shipments')) {
                             orderCount += count;
                             totalOrders += count;
-                            const entries = Object.entries(data).sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0)).slice(0, 2);
-                            entries.forEach(([id, item]) => {
-                                activities.push({
-                                    icon: ws.icon,
-                                    iconBg: ws.bgColor,
-                                    iconColor: ws.color,
-                                    title: `Print Order: ${item.product || 'N/A'} · ${item.customerName || 'N/A'}`,
-                                    meta: `#${id.slice(-6)} · KES ${(item.total || 0).toLocaleString()}`,
-                                    time: getTimeAgo(item.createdAt || item.timestamp),
-                                    status: item.status || 'new'
-                                });
-                            });
-                        } else if (path === 'brandinn_franchises' || path === 'brandinn_inquiries') {
-                            // Skip due to permission errors
-                            continue;
-                        } else if (path.includes('orders') || path.includes('listings') || path.includes('shipments') || path.includes('rides')) {
-                            orderCount += count;
-                            totalOrders += count;
-                            const entries = Object.entries(data).sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0)).slice(0, 2);
-                            entries.forEach(([id, item]) => {
-                                const name = item.restaurantName || item.customerName || item.businessName || item.passengerName || 'Customer';
-                                const orderTotal = item.total || item.fare || 0;
-                                activities.push({
-                                    icon: ws.icon,
-                                    iconBg: ws.bgColor,
-                                    iconColor: ws.color,
-                                    title: `${ws.name}: ${name}`,
-                                    meta: `#${id.slice(-6)} · KES ${orderTotal.toLocaleString()}`,
-                                    time: getTimeAgo(item.createdAt || item.requestedAt || item.bookingDate),
-                                    status: item.status || 'new'
-                                });
-                            });
-                        } else if (path.includes('products') || path.includes('inventory') || path.includes('menu')) {
+                        } else if (path.includes('products') || path.includes('inventory')) {
                             productCount += count;
                             totalProducts += count;
-                        } else if (path.includes('franchisees') || path.includes('stores') || path.includes('partners') || path.includes('members')) {
-                            clientCount += count;
-                            totalClients += count;
-                        } else if (path.includes('applications') || path.includes('clients')) {
-                            // Digital Services
-                            clientCount += count;
-                            totalClients += count;
-                            const entries = Object.entries(data).sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0)).slice(0, 2);
-                            entries.forEach(([id, item]) => {
-                                const name = item.clientName || item.name || item.fullName || 'Client';
-                                activities.push({
-                                    icon: ws.icon,
-                                    iconBg: ws.bgColor,
-                                    iconColor: ws.color,
-                                    title: `Digital Services: ${name}`,
-                                    meta: `#${id.slice(-6)} · ${(item.status || 'pending').toUpperCase()}`,
-                                    time: getTimeAgo(item.createdAt || item.timestamp),
-                                    status: item.status || 'new'
-                                });
-                            });
-                        } else if (path === 'iam_mugera_registrations') {
-                            const bizData = Object.values(data).filter(b => b.operation === 'brandinn' && b.lat && b.lng);
-                            businesses.push(...bizData);
-                            clientCount += bizData.length;
-                            totalClients += bizData.length;
+                        } else if (path.includes('stores')) {
+                            storeCount += count;
+                            totalStores += count;
+                        } else if (path.includes('suppliers') || path.includes('partners') || path.includes('franchisees')) {
+                            supplierCount += count;
+                            totalSuppliers += count;
                         }
-                    } catch (e) {
-                        if (!e.message.includes('permission_denied')) {
-                            console.warn(`Error loading ${path}:`, e);
-                        }
+                    } catch(e) {
+                        console.warn(`Error loading ${path}:`, e);
                     }
                 }
 
-                const total = orderCount || productCount || clientCount;
-                if (total > 0) {
+                // Only show workspaces that have data
+                if (orderCount > 0 || productCount > 0 || storeCount > 0 || supplierCount > 0) {
                     const displayName = ws.id === '-Ow9NSVELH15DGxI5kJw' ? 'Digital Services' : ws.name;
-                    workspaceStats[displayName] = orderCount || productCount || clientCount;
+                    workspaceItems.push({
+                        ...ws,
+                        displayName: displayName,
+                        orders: orderCount,
+                        products: productCount,
+                        stores: storeCount,
+                        suppliers: supplierCount,
+                        displayCount: orderCount || productCount || storeCount || supplierCount
+                    });
                 }
             }
 
-            // Sort activities by time (newest first)
-            activities.sort((a, b) => (b.time || 0) - (a.time || 0));
-            const filteredActivities = activities.slice(0, 6);
-
-            renderStats(totalOrders, totalProducts, totalClients, accessibleWorkspaces.length);
-            renderCharts(workspaceStats);
-            renderActivities(filteredActivities);
-            renderWorkspaces(accessibleWorkspaces);
-
-            // BrandInn stats - only if user has access
-            if (userHasWorkspaceAccess('brandinn') || userHasWorkspaceAccess('brandinn-print')) {
-                let businessesCount = 0;
-                let printOrders = 0;
-                let franchises = 0;
-
-                try {
-                    const bizSnap = await database.ref('brandinn_users').once('value');
-                    businessesCount = Object.keys(bizSnap.val() || {}).length;
-                } catch (e) { }
-
-                try {
-                    const printSnap = await database.ref('brandinn_print_orders').once('value');
-                    printOrders = Object.keys(printSnap.val() || {}).length;
-                } catch (e) { }
-
-                try {
-                    const franchiseSnap = await database.ref('brandinn_franchises').once('value');
-                    franchises = Object.keys(franchiseSnap.val() || {}).length;
-                } catch (e) { }
-
-                renderBrandInnStats(businessesCount, printOrders, franchises);
-                updateMapMarkers(businesses);
-            }
-        }
-
-        function renderStats(orders, products, clients, workspacesCount) {
-            document.getElementById('statsGrid').innerHTML = `
-                <div class="stat-card"><div class="stat-icon" style="background:#fef3c7;color:#ca8a04;"><i class="fas fa-shopping-cart"></i></div><div><div class="stat-value">${orders}</div><div class="stat-label">Total Orders</div></div></div>
-                <div class="stat-card"><div class="stat-icon" style="background:#ecfdf5;color:#059669;"><i class="fas fa-boxes"></i></div><div><div class="stat-value">${products}</div><div class="stat-label">Products Listed</div></div></div>
-                <div class="stat-card"><div class="stat-icon" style="background:#eff6ff;color:#2563eb;"><i class="fas fa-users"></i></div><div><div class="stat-value">${clients}</div><div class="stat-label">Total Clients</div></div></div>
-                <div class="stat-card"><div class="stat-icon" style="background:#eef2ff;color:#4f46e5;"><i class="fas fa-cubes"></i></div><div><div class="stat-value">${workspacesCount}</div><div class="stat-label">Active Workspaces</div></div></div>
+            // Update stats
+            document.getElementById('statsRow').innerHTML = `
+                <div class="stat-card"><div class="stat-value">${accessibleWorkspaces.length}</div><div class="stat-label">Workspaces</div></div>
+                <div class="stat-card"><div class="stat-value">${totalOrders}</div><div class="stat-label">Total Orders</div></div>
+                <div class="stat-card"><div class="stat-value">${totalProducts}</div><div class="stat-label">Products</div></div>
+                <div class="stat-card"><div class="stat-value">${totalStores + totalSuppliers}</div><div class="stat-label">Partners</div></div>
             `;
-        }
+            document.getElementById('workspaceCount').textContent = accessibleWorkspaces.length;
 
-        function renderCharts(workspaceStats) {
-            try {
-                if (ordersChart) { ordersChart.destroy(); ordersChart = null; }
-                if (distributionChart) { distributionChart.destroy(); distributionChart = null; }
-
-                const entries = Object.entries(workspaceStats).filter(([_, val]) => val > 0);
-                const labels = entries.map(([name]) => name);
-                const data = entries.map(([_, val]) => val);
-
-                const colors = {
-                    'BrandInn Business': '#4f46e5',
-                    'BrandInn Print': '#db2777',
-                    'Pick-Up Deliveries': '#f59e0b',
-                    'Pick-Me Rides': '#06b6d4',
-                    'E-Kazi Tasks': '#059669',
-                    'DSOG Fashion': '#ec4899',
-                    'Fusion Foods': '#10b981',
-                    'Heritage Ads': '#d946ef',
-                    'Heritage Marketplace': '#d97706',
-                    'Mugs n Dines': '#ef4444',
-                    'WorkFit Club': '#22c55e',
-                    'Epitome Reviews': '#3b82f6',
-                    'Digital Services': '#0ea5e9'
-                };
-
-                const chartColors = labels.map(l => colors[l] || '#ca8a04');
-
-                if (labels.length === 0) {
-                    const ctx1 = document.getElementById('ordersChart').getContext('2d');
-                    ctx1.clearRect(0, 0, 100, 100);
-                    const ctx2 = document.getElementById('distributionChart').getContext('2d');
-                    ctx2.clearRect(0, 0, 100, 100);
-                    return;
-                }
-
-                const ctx1 = document.getElementById('ordersChart').getContext('2d');
-                ordersChart = new Chart(ctx1, {
-                    type: 'bar',
-                    data: {
-                        labels,
-                        datasets: [{
-                            data,
-                            backgroundColor: chartColors.map(c => c + '99'),
-                            borderColor: chartColors,
-                            borderWidth: 2,
-                            borderRadius: 8
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { display: false } },
-                        scales: {
-                            y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 10 } }, grid: { color: '#f3f4f6' } },
-                            x: { grid: { display: false }, ticks: { font: { size: 9 } } }
-                        }
-                    }
-                });
-
-                const ctx2 = document.getElementById('distributionChart').getContext('2d');
-                distributionChart = new Chart(ctx2, {
-                    type: 'doughnut',
-                    data: {
-                        labels,
-                        datasets: [{
-                            data,
-                            backgroundColor: chartColors,
-                            borderWidth: 2,
-                            borderColor: '#ffffff'
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                position: 'bottom',
-                                labels: { padding: 12, usePointStyle: true, font: { size: 9 } }
-                            }
-                        }
-                    }
-                });
-            } catch (e) {
-                console.warn('Error rendering charts:', e);
-            }
-        }
-
-        function renderActivities(activities) {
-            const container = document.getElementById('activityList');
-            if (!activities || activities.length === 0) {
-                container.innerHTML = '<div style="text-align:center;padding:1.5rem;color:var(--text-muted);"><i class="fas fa-clock"></i><p>No recent activity</p></div>';
+            // Render workspace list
+            const wsList = document.getElementById('workspaceList');
+            if (workspaceItems.length === 0) {
+                wsList.innerHTML = '<div class="empty-data"><i class="fas fa-cubes"></i><p>No data in accessible workspaces yet</p></div>';
                 return;
             }
-            container.innerHTML = activities.map(a => {
-                const sb = a.status === 'delivered' ? 'badge-success' :
-                    a.status === 'shipped' ? 'badge-purple' :
-                    a.status === 'processing' ? 'badge-info' : 'badge-warning';
-                return `<div class="activity-item">
-                    <div class="activity-icon" style="background:${a.iconBg};color:${a.iconColor};"><i class="fas ${a.icon}"></i></div>
-                    <div class="activity-content">
-                        <div class="activity-title">${escapeHtml(a.title)}</div>
-                        <div class="activity-meta">${escapeHtml(a.meta)}</div>
-                    </div>
-                    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:0.2rem;">
-                        <span class="badge ${sb}">${(a.status||'new').replace(/-/g,' ')}</span>
-                        <span class="activity-time">${a.time}</span>
+
+            wsList.innerHTML = workspaceItems.map(w => `
+                <a href="${w.link}" class="workspace-item">
+                    <div class="ws-icon" style="background:${w.bgColor};color:${w.color};"><i class="fas ${w.icon}"></i></div>
+                    <div class="ws-info"><div class="ws-name">${w.displayName}</div><div class="ws-desc">${w.desc}</div></div>
+                    <div class="ws-stat">${w.displayCount}</div>
+                </a>
+            `).join('');
+        }
+
+        async function loadRecentActivity() {
+            const accessibleWorkspaces = getAccessibleWorkspaces();
+            const timeline = document.getElementById('activityTimeline');
+            const allActivities = [];
+
+            for (const ws of accessibleWorkspaces) {
+                for (const path of ws.paths) {
+                    if (path.includes('orders') || path.includes('listings') || path.includes('shipments') || path.includes('applications')) {
+                        try {
+                            const snap = await database.ref(path).once('value');
+                            const data = snap.val() || {};
+                            
+                            Object.entries(data).forEach(([id, item]) => {
+                                const name = item.restaurantName || item.customerName || item.businessName || item.clientName || item.name || 'Order';
+                                const displayName = ws.id === '-Ow9NSVELH15DGxI5kJw' ? 'Digital Services' : ws.name;
+                                allActivities.push({
+                                    title: `${name} · ${displayName}`,
+                                    meta: `#${id.slice(-6)} · KES ${(item.total || item.amount || 0).toLocaleString()}`,
+                                    time: item.createdAt || 0,
+                                    status: item.status || 'new',
+                                    wsName: displayName,
+                                    wsColor: ws.color
+                                });
+                            });
+                        } catch(e) {
+                            console.warn(`Error loading activity from ${path}:`, e);
+                        }
+                    }
+                }
+            }
+
+            allActivities.sort((a, b) => (b.time || 0) - (a.time || 0));
+
+            if (allActivities.length === 0) {
+                timeline.innerHTML = '<div class="empty-data"><i class="fas fa-clock"></i><p>No recent activity</p></div>';
+                return;
+            }
+
+            const recent = allActivities.slice(0, 5);
+            timeline.innerHTML = recent.map(a => {
+                const timeAgo = getTimeAgo(a.time);
+                const statusBadge = a.status === 'delivered' || a.status === 'completed' ? 'badge-success' : 
+                                   a.status === 'shipped' ? 'badge-purple' : 'badge-info';
+                return `
+                <div class="timeline-item">
+                    <div class="timeline-dot" style="background:${a.wsColor};"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">${escapeHtml(a.title)}</div>
+                        <div class="timeline-meta">
+                            ${escapeHtml(a.meta)} · 
+                            <span class="badge ${statusBadge}">${(a.status || 'new').replace(/-/g,' ')}</span> · 
+                            <span style="color:${a.wsColor};">${escapeHtml(a.wsName)}</span> · ${timeAgo}
+                        </div>
                     </div>
                 </div>`;
             }).join('');
         }
 
-        function renderWorkspaces(workspaces) {
-            const container = document.getElementById('workspaceList');
-            if (!workspaces || workspaces.length === 0) {
-                container.innerHTML = '<div style="text-align:center;padding:1.5rem;color:var(--text-muted);"><i class="fas fa-cubes"></i><p>No workspaces accessible</p></div>';
-                return;
-            }
-            container.innerHTML = workspaces.map(w => {
-                const displayName = w.id === '-Ow9NSVELH15DGxI5kJw' ? 'Digital Services' : w.name;
-                return `
-                <a href="${w.link}" class="workspace-card">
-                    <div class="workspace-icon" style="background:${w.bgColor};color:${w.color};"><i class="fas ${w.icon}"></i></div>
-                    <div class="workspace-info">
-                        <div class="workspace-name">${displayName}</div>
-                        <div class="workspace-desc">${w.desc}</div>
-                    </div>
-                    <div class="workspace-stat"><span class="number">✓</span><div class="label">Access</div></div>
-                </a>
-            `}).join('');
-        }
+        window.openEditModal = function() {
+            const accountType = detectAccountType();
+            const businessName = detectBusinessName();
+            document.getElementById('editBusinessDisplay').textContent = businessName || '—';
+            document.getElementById('editAccountTypeDisplay').textContent = accountType ? accountType.type.toUpperCase() : 'PROFESSIONAL';
+            document.getElementById('editRoleDisplay').textContent = userRole || '—';
+            
+            document.getElementById('editModal').classList.add('active');
+            document.getElementById('editModalOverlay').classList.add('active');
+        };
 
-        function renderBrandInnStats(businesses, printOrders, franchises) {
-            document.getElementById('brandinnStats').innerHTML = `
-                <div class="brandinn-stat-item">
-                    <div class="brandinn-stat-value" style="color:#4f46e5;">${businesses}</div>
-                    <div class="brandinn-stat-label">🏢 Businesses</div>
-                </div>
-                <div class="brandinn-stat-item">
-                    <div class="brandinn-stat-value" style="color:#db2777;">${printOrders}</div>
-                    <div class="brandinn-stat-label">🖨️ Print Orders</div>
-                </div>
-                <div class="brandinn-stat-item">
-                    <div class="brandinn-stat-value" style="color:#7c3aed;">${franchises}</div>
-                    <div class="brandinn-stat-label">📋 Franchises</div>
-                </div>
-            `;
-        }
+        window.closeEditModal = function() {
+            document.getElementById('editModal').classList.remove('active');
+            document.getElementById('editModalOverlay').classList.remove('active');
+        };
 
-        function updateMapMarkers(businesses) {
+        window.saveProfileChanges = async function(e) {
+            e.preventDefault();
+            const updates = {
+                name: document.getElementById('editName').value.trim(),
+                phone: document.getElementById('editPhone').value.trim(),
+                location: document.getElementById('editLocation').value.trim(),
+                updatedAt: Date.now()
+            };
+            showLoading(true);
             try {
-                mapMarkers.forEach(m => { try { overviewMap.removeLayer(m); } catch (e) {} });
-                mapMarkers = [];
-                const bounds = [];
-
-                businesses.forEach(biz => {
-                    if (biz.lat && biz.lng) {
-                        const color = biz.operation === 'brandinn' ? '#4f46e5' : '#ca8a04';
-                        const marker = L.circleMarker([biz.lat, biz.lng], {
-                            radius: 5,
-                            fillColor: color,
-                            color: '#ffffff',
-                            weight: 1.5,
-                            fillOpacity: 0.8
-                        }).addTo(overviewMap);
-                        mapMarkers.push(marker);
-                        bounds.push([biz.lat, biz.lng]);
-                    }
-                });
-
-                if (bounds.length > 0) {
-                    overviewMap.fitBounds(bounds, { padding: [20, 20], maxZoom: 15 });
-                }
-            } catch (e) {
-                console.warn('Error updating map:', e);
-            }
-        }
-
-        // ===== WORKSPACE HEALTH =====
-        async function checkWorkspaceHealth() {
-            const accessibleWorkspaces = getAccessibleWorkspaces();
-            const dotElements = document.querySelectorAll('.health-dot');
-            const workspaceNames = accessibleWorkspaces.map(w => w.id === '-Ow9NSVELH15DGxI5kJw' ? 'Digital Services' : w.name);
-            let healthyCount = 0;
-
-            for (let i = 0; i < dotElements.length; i++) {
-                const dot = dotElements[i];
-                const wsName = dot.getAttribute('data-tooltip')?.split(':')[0]?.trim() || '';
-
-                if (workspaceNames.includes(wsName)) {
-                    dot.style.display = 'block';
-                    try {
-                        const config = accessibleWorkspaces.find(w => {
-                            const displayName = w.id === '-Ow9NSVELH15DGxI5kJw' ? 'Digital Services' : w.name;
-                            return displayName === wsName;
-                        });
-                        if (config && config.paths && config.paths.length > 0) {
-                            const snap = await database.ref(config.paths[0]).once('value');
-                            const isHealthy = snap.exists();
-                            dot.className = `health-dot ${isHealthy ? 'online' : 'degraded'}`;
-                            dot.style.background = isHealthy ? '#10b981' : '#f59e0b';
-                            dot.setAttribute('data-tooltip', `${wsName}: ${isHealthy ? 'Online' : 'Degraded'}`);
-                            if (isHealthy) healthyCount++;
-                        }
-                    } catch (e) {
-                        dot.className = 'health-dot down';
-                        dot.style.background = '#ef4444';
-                        dot.setAttribute('data-tooltip', `${wsName}: Down`);
-                    }
-                } else {
-                    dot.style.display = 'none';
-                }
-            }
-
-            const statusIcon = document.getElementById('statusIndicatorIcon');
-            const statusMain = document.getElementById('statusMainText');
-            const statusSub = document.getElementById('statusSubText');
-
-            const total = accessibleWorkspaces.length;
-            if (total === 0) {
-                statusIcon.className = 'status-indicator-icon has-issues';
-                statusIcon.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
-                statusMain.textContent = 'No Access';
-                statusMain.className = 'status-main-text has-issues';
-                statusSub.textContent = 'No workspaces accessible';
-            } else if (healthyCount === total) {
-                statusIcon.className = 'status-indicator-icon all-systems';
-                statusIcon.innerHTML = '<i class="fas fa-check"></i>';
-                statusMain.textContent = 'All Systems Operational';
-                statusMain.className = 'status-main-text';
-                statusSub.textContent = `${healthyCount}/${total} workspaces healthy`;
-            } else {
-                statusIcon.className = 'status-indicator-icon has-issues';
-                statusIcon.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
-                statusMain.textContent = healthyCount >= total - 1 ? 'Minor Degradation' : 'Service Disruption';
-                statusMain.className = 'status-main-text has-issues';
-                statusSub.textContent = `${healthyCount}/${total} workspaces healthy`;
-            }
-        }
-
-        // ===== LIVE LISTENERS =====
-        function setupLiveListeners() {
-            const accessibleWorkspaces = getAccessibleWorkspaces();
-            const paths = [];
-            for (const ws of accessibleWorkspaces) {
-                if (ws.paths) paths.push(...ws.paths);
-            }
-
-            paths.forEach(p => {
-                database.ref(p).on('child_added', () => {
-                    document.querySelector('.live-dot').style.animation = 'none';
-                    setTimeout(() => document.querySelector('.live-dot').style.animation = 'pulse-glow 2s infinite', 10);
-                    loadAllData();
-                    checkWorkspaceHealth();
-                });
-                database.ref(p).on('child_changed', () => loadAllData());
-            });
-            setInterval(checkWorkspaceHealth, 60000);
-        }
-
-        // ===== UTILITY FUNCTIONS =====
-        function getTimeAgo(timestamp) {
-            if (!timestamp) return '';
-            const diff = Date.now() - new Date(timestamp).getTime();
-            const mins = Math.floor(diff / 60000),
-                hrs = Math.floor(mins / 60),
-                days = Math.floor(hrs / 24);
-            if (days > 0) return `${days}d ago`;
-            if (hrs > 0) return `${hrs}h ago`;
-            if (mins > 0) return `${mins}m ago`;
-            return 'Just now';
-        }
-
-        function escapeHtml(t) {
-            const d = document.createElement('div');
-            d.textContent = t || '';
-            return d.innerHTML;
-        }
-
-        function showToast(m, type = 'info') {
-            const t = document.createElement('div');
-            t.className = `toast ${type}`;
-            t.innerHTML = `<i class="fas fa-${type === 'error' ? 'exclamation-circle' : 'check-circle'}"></i><span>${escapeHtml(m)}</span>`;
-            document.getElementById('toastContainer').appendChild(t);
-            setTimeout(() => {
-                t.style.opacity = '0';
-                t.style.transition = '0.3s';
-                setTimeout(() => t.remove(), 300);
-            }, 3000);
-        }
-
-        window.refreshData = async () => {
-            try {
-                initOverviewMap();
-                await loadAllData();
-                await checkWorkspaceHealth();
-                showToast('Dashboard refreshed!', 'success');
-            } catch (e) {
-                showToast('Error refreshing dashboard: ' + e.message, 'error');
+                await database.ref(`brandinn_users/${currentUser.uid}`).update(updates);
+                userProfile = {...userProfile, ...updates};
+                const accountType = detectAccountType();
+                const businessName = detectBusinessName();
+                updateProfileUI(userRole, accountType, businessName);
+                showToast('Profile updated successfully!', 'success');
+                closeEditModal();
+            } catch(e) {
+                showToast('Error updating profile', 'error');
+            } finally {
+                showLoading(false);
             }
         };
 
-        window.handleLogout = async () => {
-            if (confirm('Sign out?')) {
-                const accessibleWorkspaces = getAccessibleWorkspaces();
-                const paths = [];
-                for (const ws of accessibleWorkspaces) {
-                    if (ws.paths) paths.push(...ws.paths);
-                }
-                paths.forEach(p => database.ref(p).off());
+        window.updateSettings = async function(e) {
+            e.preventDefault();
+            const updates = {
+                phone: document.getElementById('settingsPhone').value.trim(),
+                location: document.getElementById('settingsLocation').value.trim(),
+                updatedAt: Date.now()
+            };
+            showLoading(true);
+            try {
+                await database.ref(`brandinn_users/${currentUser.uid}`).update(updates);
+                userProfile = {...userProfile, ...updates};
+                const accountType = detectAccountType();
+                const businessName = detectBusinessName();
+                updateProfileUI(userRole, accountType, businessName);
+                showToast('Settings saved!', 'success');
+            } catch(e) {
+                showToast('Error saving settings', 'error');
+            } finally {
+                showLoading(false);
+            }
+        };
+
+        window.resetSettings = function() {
+            document.getElementById('settingsPhone').value = userProfile.phone || '';
+            document.getElementById('settingsLocation').value = userProfile.location || '';
+            showToast('Settings reset', 'info');
+        };
+
+        window.refreshData = async function() {
+            showLoading(true);
+            await loadProfile(currentUser);
+            showToast('Profile refreshed!', 'success');
+            showLoading(false);
+        };
+
+        window.handleLogout = async function() {
+            if(confirm('Sign out?')) {
+                showLoading(true);
                 await auth.signOut();
                 window.location.href = 'index.html';
             }
         };
+
+        function getTimeAgo(timestamp) {
+            if (!timestamp) return '';
+            const diff = Date.now() - new Date(timestamp).getTime();
+            const mins = Math.floor(diff / 60000);
+            const hours = Math.floor(mins / 60);
+            const days = Math.floor(hours / 24);
+            if (days > 0) return `${days}d ago`;
+            if (hours > 0) return `${hours}h ago`;
+            if (mins > 0) return `${mins}m ago`;
+            return 'Just now';
+        }
+
+        function escapeHtml(t) { const d=document.createElement('div'); d.textContent=t||''; return d.innerHTML; }
+        function showLoading(s) { document.getElementById('loadingOverlay').classList.toggle('active',s); }
+        
+        function showToast(m, type='info') { 
+            const t=document.createElement('div'); 
+            t.className=`toast ${type}`; 
+            t.innerHTML=`<i class="fas fa-${type==='error'?'exclamation-circle':'check-circle'}"></i><span>${escapeHtml(m)}</span>`; 
+            document.getElementById('toastContainer').appendChild(t); 
+            setTimeout(()=>{t.style.opacity='0';t.style.transition='0.3s';setTimeout(()=>t.remove(),300);},3000); 
+        }
+
+        // Modal close handlers
+        document.getElementById('editModalOverlay').addEventListener('click', closeEditModal);
     </script>
 </body>
 </html>
