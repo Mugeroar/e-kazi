@@ -1013,10 +1013,8 @@
         let overviewMap = null;
         let mapMarkers = [];
 
-        // ===== CORRECTED WORKSPACE CONFIGURATION =====
-        // BrandInn Business and BrandInn Print are now clearly separated
-        const WORKSPACE_CONFIG = {
-            // === BRANDING & BUSINESS ===
+        // ===== FALLBACK WORKSPACE CONFIG (used if Firebase fails) =====
+        const FALLBACK_WORKSPACES = {
             'brandinn': {
                 name: 'BrandInn Business',
                 desc: 'Business Management',
@@ -1035,8 +1033,6 @@
                 link: '/workspaces/brandinn-print/index.html',
                 paths: ['brandinn_print_orders']
             },
-
-            // === LOGISTICS ===
             'pick-up': {
                 name: 'Pick-Up Deliveries',
                 desc: 'Delivery Management',
@@ -1055,8 +1051,6 @@
                 link: '/workspaces/pick-me/index.html',
                 paths: ['pickme_rides']
             },
-
-            // === TASKS ===
             'ekazi': {
                 name: 'E-Kazi Tasks',
                 desc: 'Freelance Task Management',
@@ -1066,8 +1060,6 @@
                 link: '/workspaces/ekazi/index.html',
                 paths: ['ekazi_assigned_tasks', 'taskers']
             },
-
-            // === COMMERCE ===
             'dsog': {
                 name: 'DSOG Fashion',
                 desc: 'Fashion & Apparel',
@@ -1086,8 +1078,6 @@
                 link: '/workspaces/fusion-foods/index.html',
                 paths: ['fusion_foods_orders', 'fusion_foods_inventory', 'fusion_foods_stores']
             },
-
-            // === ADVERTISING ===
             'heritage': {
                 name: 'Heritage Ads',
                 desc: 'Outdoor Advertising',
@@ -1106,8 +1096,6 @@
                 link: '/workspaces/heritage-marketplace/index.html',
                 paths: ['heritage_orders', 'heritage_products']
             },
-
-            // === HOSPITALITY ===
             'mugs-n-dines': {
                 name: 'Mugs n Dines',
                 desc: 'Restaurant Management',
@@ -1117,8 +1105,6 @@
                 link: '/workspaces/mugs-n-dines/index.html',
                 paths: ['mugs_n_dines_orders', 'mugs_n_dines_menu']
             },
-
-            // === WELLNESS ===
             'workfit': {
                 name: 'WorkFit Club',
                 desc: 'Fitness Management',
@@ -1128,8 +1114,6 @@
                 link: '/workspaces/workfit/index.html',
                 paths: ['workfit_clubs', 'workfit_members']
             },
-
-            // === REAL ESTATE ===
             'epitome': {
                 name: 'Epitome Reviews',
                 desc: 'Real Estate & Cars',
@@ -1141,10 +1125,65 @@
             }
         };
 
+        // ===== DYNAMIC WORKSPACE CONFIG (loaded from Firebase) =====
+        let WORKSPACE_CONFIG = {};
+
+        // ===== LOAD WORKSPACES FROM FIREBASE =====
+        async function loadWorkspacesFromFirebase() {
+            try {
+                const snap = await database.ref('resources/workspaces').once('value');
+                const data = snap.val() || {};
+                
+                // If no workspaces in Firebase, use fallback
+                if (Object.keys(data).length === 0) {
+                    console.log('No workspaces in Firebase, using fallback');
+                    WORKSPACE_CONFIG = { ...FALLBACK_WORKSPACES };
+                    return WORKSPACE_CONFIG;
+                }
+
+                // Build workspace config from Firebase
+                const config = {};
+                for (const [id, workspace] of Object.entries(data)) {
+                    // Merge with fallback if exists (preserves paths)
+                    const fallback = FALLBACK_WORKSPACES[id] || {};
+                    
+                    config[id] = {
+                        name: workspace.title || workspace.label || fallback.name || id,
+                        desc: workspace.description || fallback.desc || '',
+                        icon: workspace.icon || fallback.icon || 'fa-building',
+                        color: workspace.color || fallback.color || '#7c3aed',
+                        bgColor: fallback.bgColor || `${workspace.color || '#7c3aed'}15`,
+                        link: workspace.link || fallback.link || `/workspaces/${id}/index.html`,
+                        paths: fallback.paths || [`${id}_data`],
+                        // Store extra Firebase fields for future use
+                        _firebase: workspace
+                    };
+                }
+
+                // Add any fallback workspaces not in Firebase
+                for (const [id, fallback] of Object.entries(FALLBACK_WORKSPACES)) {
+                    if (!config[id]) {
+                        config[id] = { ...fallback };
+                    }
+                }
+
+                WORKSPACE_CONFIG = config;
+                console.log('Loaded workspaces from Firebase:', Object.keys(WORKSPACE_CONFIG).length);
+                return WORKSPACE_CONFIG;
+                
+            } catch (e) {
+                console.error('Error loading workspaces from Firebase:', e);
+                WORKSPACE_CONFIG = { ...FALLBACK_WORKSPACES };
+                return WORKSPACE_CONFIG;
+            }
+        }
+
         // ===== AUTHENTICATION =====
         auth.onAuthStateChanged(async (user) => {
             if (user) {
                 currentUser = user;
+                // Load workspaces first, then initialize dashboard
+                await loadWorkspacesFromFirebase();
                 await initializeDashboard(user);
             } else {
                 window.location.href = 'index.html';
@@ -1415,20 +1454,11 @@
                 const labels = entries.map(([name]) => name);
                 const data = entries.map(([_, val]) => val);
 
-                const colors = {
-                    'BrandInn Business': '#4f46e5',
-                    'BrandInn Print': '#db2777',
-                    'Pick-Up Deliveries': '#f59e0b',
-                    'Pick-Me Rides': '#06b6d4',
-                    'E-Kazi Tasks': '#059669',
-                    'DSOG Fashion': '#ec4899',
-                    'Fusion Foods': '#10b981',
-                    'Heritage Ads': '#d946ef',
-                    'Heritage Marketplace': '#d97706',
-                    'Mugs n Dines': '#ef4444',
-                    'WorkFit Club': '#22c55e',
-                    'Epitome Reviews': '#3b82f6'
-                };
+                // Use colors from workspace config
+                const colors = {};
+                for (const [id, config] of Object.entries(WORKSPACE_CONFIG)) {
+                    colors[config.name] = config.color || '#ca8a04';
+                }
 
                 const chartColors = labels.map(l => colors[l] || '#ca8a04');
 
@@ -1692,6 +1722,7 @@
 
         window.refreshData = async () => {
             try {
+                await loadWorkspacesFromFirebase();
                 initOverviewMap();
                 await loadAllData();
                 await checkWorkspaceHealth();
