@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Communications Manager | WorkFit</title>
+    <meta name="theme-color" content="#f97316">
+    <link rel="icon" type="image/png" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --orange: #f97316; --orange-dark: #c2410c; --orange-light: #fb923c;
+            --bg: #f8fafc; --surface: #ffffff; --text: #0f172a; --text-secondary: #64748b;
+            --border: #e2e8f0; --border-light: #f1f5f9;
+            --success: #10b981; --warning: #f59e0b; --danger: #ef4444; --info: #3b82f6; --purple: #8b5cf6;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05); --shadow: 0 1px 3px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.07); --shadow-lg: 0 10px 25px rgba(0,0,0,0.1);
+            --radius-sm: 8px; --radius: 12px; --radius-lg: 16px; --radius-xl: 20px;
+        }
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg); color: var(--text); min-height: 100vh;
+            -webkit-font-smoothing: antialiased; padding-bottom: 20px;
+        }
+
+        .topbar {
+            position: sticky; top: 0; z-index: 100;
+            background: rgba(255,255,255,0.95); backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-light); padding: 0 1.5rem; height: 56px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .topbar-left { display: flex; align-items: center; gap: 10px; }
+        .brand { display: flex; align-items: center; gap: 8px; text-decoration: none; }
+        .brand img { width: 28px; height: 28px; border-radius: 8px; }
+        .brand span { font-weight: 700; font-size: 0.85rem; color: var(--text); }
+        .topbar-right { display: flex; align-items: center; gap: 8px; }
+        .nav-btn {
+            display: inline-flex; align-items: center; gap: 5px; padding: 0.3rem 0.7rem;
+            border-radius: 8px; font-weight: 600; font-size: 0.65rem; cursor: pointer;
+            border: 1px solid var(--border); background: white; color: var(--text-secondary);
+            text-decoration: none; transition: all 0.2s;
+        }
+        .nav-btn:hover { background: #f8fafc; }
+        .nav-btn.primary { background: var(--orange); color: white; border-color: var(--orange); }
+        .nav-btn.primary:hover { background: var(--orange-dark); }
+
+        .main { padding: 1.5rem; max-width: 1100px; margin: 0 auto; }
+        .page-header { margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+        .page-title { font-size: 1.4rem; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+        .page-title i { color: var(--orange); }
+        .page-subtitle { font-size: 0.75rem; color: var(--text-secondary); }
+
+        .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 1.5rem; }
+        .stat-card {
+            background: var(--surface); border-radius: var(--radius-lg); padding: 1rem;
+            border: 1px solid var(--border-light); box-shadow: var(--shadow-sm);
+        }
+        .stat-card .stat-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 0.5rem; font-size: 0.9rem; }
+        .stat-icon.orange { background: #fff7ed; color: #f97316; }
+        .stat-icon.green { background: #ecfdf5; color: #10b981; }
+        .stat-icon.purple { background: #faf5ff; color: #8b5cf6; }
+        .stat-icon.blue { background: #eff6ff; color: #3b82f6; }
+        .stat-value { font-size: 1.5rem; font-weight: 800; line-height: 1; }
+        .stat-label { font-size: 0.6rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+
+        .filter-bar {
+            display: flex; gap: 10px; margin-bottom: 1.2rem; flex-wrap: wrap; align-items: center;
+            background: white; padding: 0.6rem 1rem; border-radius: var(--radius); border: 1px solid var(--border-light); box-shadow: var(--shadow-sm);
+        }
+        .filter-bar input, .filter-bar select {
+            padding: 0.5rem 0.8rem; border: 1px solid var(--border); border-radius: var(--radius-sm);
+            font-family: 'Inter', sans-serif; font-size: 0.78rem; background: #f8fafc; outline: none; color: #334155;
+        }
+        .filter-bar input:focus, .filter-bar select:focus { border-color: var(--orange); }
+        .filter-bar input { flex: 1; min-width: 180px; }
+
+        .communications-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 14px; }
+        .comm-card {
+            background: var(--surface); border-radius: var(--radius-lg); border: 1px solid var(--border-light);
+            box-shadow: var(--shadow-sm); transition: all 0.25s; overflow: hidden; display: flex; flex-direction: column;
+        }
+        .comm-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); border-color: #fed7aa; }
+        .comm-card-body { padding: 1.1rem; flex: 1; display: flex; flex-direction: column; gap: 8px; }
+        .comm-type-badge {
+            display: inline-block; padding: 0.15rem 0.5rem; border-radius: 20px; font-size: 0.55rem; font-weight: 600;
+        }
+        .comm-type-badge.announcement { background: #fef3c7; color: #92400e; }
+        .comm-type-badge.product { background: #faf5ff; color: #7c3aed; }
+        .comm-type-badge.promo { background: #ecfdf5; color: #065f46; }
+        .comm-type-badge.event { background: #eff6ff; color: #1e40af; }
+        .comm-type-badge.tip { background: #fce7f3; color: #9d174d; }
+        .comm-title { font-weight: 700; font-size: 0.9rem; }
+        .comm-content { font-size: 0.75rem; color: var(--text-secondary); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; flex: 1; }
+        .comm-meta { font-size: 0.6rem; color: var(--text-muted); }
+        .comm-actions { display: flex; gap: 6px; margin-top: 0.5rem; flex-wrap: wrap; }
+        .btn {
+            padding: 0.35rem 0.8rem; border-radius: var(--radius-sm); font-weight: 600; font-size: 0.68rem;
+            cursor: pointer; border: 1px solid transparent; transition: all 0.2s; display: inline-flex; align-items: center; gap: 4px;
+        }
+        .btn-primary { background: var(--orange); color: white; border-color: var(--orange); }
+        .btn-primary:hover { background: var(--orange-dark); }
+        .btn-success { background: var(--success); color: white; border-color: var(--success); }
+        .btn-success:hover { background: #059669; }
+        .btn-danger { background: var(--danger); color: white; border-color: var(--danger); }
+        .btn-danger:hover { background: #dc2626; }
+        .btn-outline { background: white; border-color: var(--border); color: var(--text-secondary); }
+        .btn-outline:hover { background: #f8fafc; }
+        .btn-sm { padding: 0.2rem 0.5rem; font-size: 0.6rem; }
+        .btn-success:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .empty-state { text-align: center; padding: 3rem; color: #94a3b8; background: white; border-radius: var(--radius-lg); border: 1px solid var(--border-light); grid-column: 1 / -1; }
+        .empty-state i { font-size: 3rem; display: block; margin-bottom: 1rem; color: #cbd5e1; }
+
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(15,23,42,0.4); backdrop-filter: blur(4px);
+            display: flex; align-items: flex-end; justify-content: center; z-index: 300;
+            opacity: 0; visibility: hidden; transition: all 0.25s;
+        }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+        .modal {
+            background: white; border-radius: 20px 20px 0 0; padding: 1.5rem; width: 100%; max-width: 550px;
+            max-height: 85vh; overflow-y: auto; box-shadow: 0 -4px 30px rgba(0,0,0,0.1);
+        }
+        .modal-handle { width: 36px; height: 4px; background: #e2e8f0; border-radius: 2px; margin: 0 auto 1rem; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem; }
+        .modal-header h3 { font-size: 1rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+        .modal-close { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border); background: white; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; transition: all 0.2s; }
+        .modal-close:hover { background: #fef2f2; color: #ef4444; }
+
+        .form-group { margin-bottom: 0.8rem; }
+        .form-group label { display: block; font-weight: 600; font-size: 0.7rem; color: var(--text-secondary); margin-bottom: 0.3rem; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%; padding: 0.55rem 0.8rem; border: 1px solid var(--border); border-radius: var(--radius-sm);
+            font-family: 'Inter', sans-serif; font-size: 0.8rem; background: #f8fafc; color: var(--text); outline: none; transition: all 0.2s;
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--orange); box-shadow: 0 0 0 3px rgba(249,115,22,0.06); background: white; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+
+        .toast {
+            position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 400;
+            padding: 0.6rem 1.2rem; border-radius: 10px; font-size: 0.75rem; font-weight: 600;
+            box-shadow: var(--shadow-lg); animation: toastIn 0.3s ease; background: #0f172a; color: white; display: none;
+        }
+        .toast.error { background: #991b1b; }
+        .toast.success { background: #065f46; }
+        @keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(15px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+
+        @media (max-width: 768px) {
+            .main { padding: 1rem; }
+            .stats-row { grid-template-columns: 1fr 1fr; }
+            .communications-grid { grid-template-columns: 1fr; }
+            .form-row { grid-template-columns: 1fr; }
+            .topbar { padding: 0 0.8rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <div class="topbar-left">
+            <a class="brand" href="/workspaces/workfit/index.html">
+                <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png" alt="Logo">
+                <span>WorkFit Communications</span>
+            </a>
+        </div>
+        <div class="topbar-right">
+            <a href="/workspaces/workfit/index.html" class="nav-btn"><i class="fas fa-arrow-left"></i> Dashboard</a>
+            <button class="nav-btn primary" onclick="openCreateComm()"><i class="fas fa-plus"></i> Create Communication</button>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="page-header">
+            <div>
+                <h1 class="page-title"><i class="fas fa-bullhorn"></i> Communications Manager</h1>
+                <p class="page-subtitle">Master control for all posts. Create communications that trainers can publish to their clubs.</p>
+            </div>
+        </div>
+
+        <div class="stats-row">
+            <div class="stat-card"><div class="stat-icon orange"><i class="fas fa-bullhorn"></i></div><div class="stat-value" id="statTotal">0</div><div class="stat-label">Total Communications</div></div>
+            <div class="stat-card"><div class="stat-icon green"><i class="fas fa-check-circle"></i></div><div class="stat-value" id="statPublished">0</div><div class="stat-label">Published</div></div>
+            <div class="stat-card"><div class="stat-icon purple"><i class="fas fa-clock"></i></div><div class="stat-value" id="statDraft">0</div><div class="stat-label">Drafts</div></div>
+            <div class="stat-card"><div class="stat-icon blue"><i class="fas fa-file-alt"></i></div><div class="stat-value" id="statTypes">0</div><div class="stat-label">Categories</div></div>
+        </div>
+
+        <div class="filter-bar">
+            <i class="fas fa-search" style="color:#94a3b8;"></i>
+            <input type="text" id="searchInput" placeholder="Search communications...">
+            <select id="typeFilter"><option value="all">All Types</option><option value="announcement">Announcement</option><option value="product">Product</option><option value="promo">Promotion</option><option value="event">Event</option><option value="tip">Tip</option></select>
+            <select id="statusFilter"><option value="all">All Status</option><option value="published">Published</option><option value="draft">Draft</option></select>
+        </div>
+
+        <div id="communicationsContainer" class="communications-grid"></div>
+    </div>
+
+    <!-- Create/Edit Communication Modal -->
+    <div class="modal-overlay" id="commModal">
+        <div class="modal" id="commModalContent"><div class="modal-handle"></div></div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
+    <script>
+        firebase.initializeApp({
+            apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+            authDomain: "mugera-e51cc.firebaseapp.com",
+            databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "mugera-e51cc"
+        });
+
+        const auth = firebase.auth();
+        const db = firebase.database();
+
+        let allCommunications = {};
+        let allProducts = {};
+        let allClubs = {};
+
+        function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+        function toast(msg, type) {
+            const t = document.getElementById('toast');
+            t.textContent = msg; t.className = 'toast ' + (type || '');
+            t.style.display = 'block'; clearTimeout(t._timeout);
+            t._timeout = setTimeout(() => t.style.display = 'none', 2800);
+        }
+        function formatCurrency(n) { return Number(n || 0).toLocaleString(); }
+
+        function getTypeBadge(type) {
+            const map = {
+                'announcement': 'announcement',
+                'product': 'product',
+                'promo': 'promo',
+                'event': 'event',
+                'tip': 'tip'
+            };
+            return map[type] || 'announcement';
+        }
+
+        function getTypeIcon(type) {
+            const map = {
+                'announcement': 'fa-bullhorn',
+                'product': 'fa-tag',
+                'promo': 'fa-fire',
+                'event': 'fa-calendar',
+                'tip': 'fa-lightbulb'
+            };
+            return map[type] || 'fa-bullhorn';
+        }
+
+        function renderCommunications() {
+            const searchTerm = (document.getElementById('searchInput').value || '').toLowerCase();
+            const typeVal = document.getElementById('typeFilter').value;
+            const statusVal = document.getElementById('statusFilter').value;
+
+            let comms = Object.entries(allCommunications).map(([id, data]) => ({ id, ...data })).filter(c => c && c.title);
+            
+            if (typeVal !== 'all') comms = comms.filter(c => c.type === typeVal);
+            if (statusVal !== 'all') comms = comms.filter(c => c.status === statusVal);
+            if (searchTerm) {
+                comms = comms.filter(c =>
+                    (c.title || '').toLowerCase().includes(searchTerm) ||
+                    (c.content || '').toLowerCase().includes(searchTerm) ||
+                    (c.type || '').toLowerCase().includes(searchTerm)
+                );
+            }
+
+            comms.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+            // Stats
+            const all = Object.values(allCommunications).filter(c => c && c.title);
+            const published = all.filter(c => c.status === 'published');
+            const drafts = all.filter(c => c.status === 'draft');
+            const types = new Set(all.map(c => c.type));
+
+            document.getElementById('statTotal').textContent = all.length;
+            document.getElementById('statPublished').textContent = published.length;
+            document.getElementById('statDraft').textContent = drafts.length;
+            document.getElementById('statTypes').textContent = types.size;
+
+            const container = document.getElementById('communicationsContainer');
+            if (!comms.length) {
+                container.innerHTML = `<div class="empty-state"><i class="fas fa-bullhorn"></i><p>No communications found</p><button class="btn btn-primary" style="margin-top:1rem;" onclick="openCreateComm()"><i class="fas fa-plus"></i> Create Communication</button></div>`;
+                return;
+            }
+
+            container.innerHTML = comms.map(c => {
+                const typeBadge = getTypeBadge(c.type);
+                const statusClass = c.status === 'published' ? 'badge-success' : 'badge-warning';
+                const statusLabel = c.status === 'published' ? 'Published' : 'Draft';
+                const canPublish = c.status === 'draft';
+
+                return `
+                <div class="comm-card">
+                    <div class="comm-card-body">
+                        <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+                            <span class="comm-type-badge ${typeBadge}"><i class="fas ${getTypeIcon(c.type)}"></i> ${c.type || 'General'}</span>
+                            <span class="badge ${statusClass}" style="font-size:0.55rem;padding:0.15rem 0.5rem;border-radius:6px;font-weight:600;">${statusLabel}</span>
+                        </div>
+                        <div class="comm-title">${esc(c.title)}</div>
+                        <div class="comm-content">${esc(c.content || '')}</div>
+                        ${c.productId && allProducts[c.productId] ? `
+                            <div style="font-size:0.65rem;color:var(--text-secondary);padding:0.3rem 0.5rem;background:#f8fafc;border-radius:6px;">
+                                <i class="fas fa-tag"></i> ${esc(allProducts[c.productId].name)} · KES ${formatCurrency(allProducts[c.productId].price)}
+                            </div>
+                        ` : ''}
+                        <div class="comm-meta">Created ${timeAgo(c.createdAt)} · ${c.assignedClubs ? Object.keys(c.assignedClubs).length : 0} clubs</div>
+                        <div class="comm-actions">
+                            <button class="btn btn-outline btn-sm" onclick="openEditComm('${c.id}')"><i class="fas fa-pen"></i> Edit</button>
+                            ${canPublish ? `<button class="btn btn-success btn-sm" onclick="publishComm('${c.id}')"><i class="fas fa-check"></i> Publish</button>` : ''}
+                            <button class="btn btn-danger btn-sm" onclick="deleteComm('${c.id}')"><i class="fas fa-trash"></i> Delete</button>
+                            <button class="btn btn-primary btn-sm" onclick="postToFeed('${c.id}')"><i class="fas fa-share"></i> Post to Feed</button>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function timeAgo(ts) {
+            if (!ts) return 'Just now';
+            const diff = Date.now() - new Date(ts).getTime();
+            const mins = Math.floor(diff / 60000);
+            if (mins < 1) return 'Just now';
+            if (mins < 60) return mins + 'm ago';
+            const hrs = Math.floor(mins / 60);
+            if (hrs < 24) return hrs + 'h ago';
+            return Math.floor(hrs / 24) + 'd ago';
+        }
+
+        // ============ CREATE COMMUNICATION ============
+        window.openCreateComm = function() {
+            // Load products for product type selection
+            db.ref('workfit_shop_products').once('value', snap => {
+                allProducts = snap.val() || {};
+                renderCommForm();
+            });
+        };
+
+        function renderCommForm(editData) {
+            const productOptions = Object.entries(allProducts)
+                .filter(([id, p]) => p && p.name)
+                .map(([id, p]) => `
+                    <option value="${id}" ${editData?.productId === id ? 'selected' : ''}>${esc(p.name)} (KES ${formatCurrency(p.price)})</option>
+                `).join('');
+
+            const clubOptions = Object.entries(allClubs)
+                .filter(([id, c]) => c && (c.businessName || c.name))
+                .map(([id, c]) => `
+                    <option value="${id}" ${editData?.assignedClubs && editData.assignedClubs[id] ? 'selected' : ''}>${esc(c.businessName || c.name)}</option>
+                `).join('');
+
+            document.getElementById('commModalContent').innerHTML = `
+                <div class="modal-handle"></div>
+                <div class="modal-header">
+                    <h3><i class="fas fa-bullhorn" style="color:var(--orange);"></i> ${editData ? 'Edit' : 'Create'} Communication</h3>
+                    <button class="modal-close" onclick="closeCommModal()"><i class="fas fa-times"></i></button>
+                </div>
+                <input type="hidden" id="editCommId" value="${editData?.id || ''}">
+                <div class="form-group">
+                    <label>Title *</label>
+                    <input id="commTitle" value="${esc(editData?.title || '')}" placeholder="e.g. New Product Launch!">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Type *</label>
+                        <select id="commType" onchange="toggleProductField()">
+                            <option value="announcement" ${editData?.type === 'announcement' ? 'selected' : ''}>📢 Announcement</option>
+                            <option value="product" ${editData?.type === 'product' ? 'selected' : ''}>🏷️ Product</option>
+                            <option value="promo" ${editData?.type === 'promo' ? 'selected' : ''}>🔥 Promotion</option>
+                            <option value="event" ${editData?.type === 'event' ? 'selected' : ''}>📅 Event</option>
+                            <option value="tip" ${editData?.type === 'tip' ? 'selected' : ''}>💡 Tip</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select id="commStatus">
+                            <option value="draft" ${editData?.status === 'draft' ? 'selected' : ''}>Draft</option>
+                            <option value="published" ${editData?.status === 'published' ? 'selected' : ''}>Published</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="productField" style="${editData?.type === 'product' ? 'display:block' : 'display:none'}">
+                    <div class="form-group">
+                        <label>Select Product</label>
+                        <select id="commProduct">
+                            <option value="">-- Select a product --</option>
+                            ${productOptions}
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Content *</label>
+                    <textarea id="commContent" rows="4" placeholder="Write the communication content...">${esc(editData?.content || '')}</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Assign to Clubs (select all that apply)</label>
+                    <div style="max-height:150px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--radius-sm);padding:0.5rem;">
+                        ${clubOptions || '<div style="color:var(--text-muted);font-size:0.7rem;">No clubs available</div>'}
+                    </div>
+                    <small class="hint" style="font-size:0.6rem;color:var(--text-muted);">Select the clubs that can post this communication.</small>
+                </div>
+                <div style="display:flex;gap:8px;">
+                    <button class="btn btn-outline" style="flex:1;" onclick="closeCommModal()">Cancel</button>
+                    <button class="btn btn-primary" style="flex:1;" onclick="saveCommunication()">${editData ? 'Update' : 'Save'} Communication</button>
+                </div>
+            `;
+            document.getElementById('commModal').classList.add('active');
+        }
+
+        window.toggleProductField = function() {
+            const type = document.getElementById('commType').value;
+            document.getElementById('productField').style.display = type === 'product' ? 'block' : 'none';
+        };
+
+        // ============ SAVE COMMUNICATION ============
+        window.saveCommunication = async function() {
+            const title = document.getElementById('commTitle').value.trim();
+            const type = document.getElementById('commType').value;
+            const content = document.getElementById('commContent').value.trim();
+            const status = document.getElementById('commStatus').value;
+            const productId = document.getElementById('commProduct')?.value || '';
+            const editId = document.getElementById('editCommId').value;
+
+            if (!title) return toast('Title is required', 'error');
+            if (!content) return toast('Content is required', 'error');
+
+            // Get selected clubs
+            const clubSelect = document.querySelector('#commModalContent select[multiple]') || 
+                              document.querySelector('#commModalContent select:last-of-type');
+            const selectedClubs = {};
+            if (clubSelect) {
+                Array.from(clubSelect.options).forEach(opt => {
+                    if (opt.selected) selectedClubs[opt.value] = true;
+                });
+            }
+
+            const data = {
+                title, type, content, status,
+                productId: productId || '',
+                assignedClubs: selectedClubs,
+                updatedAt: firebase.database.ServerValue.TIMESTAMP,
+                updatedBy: currentUser?.uid || ''
+            };
+
+            try {
+                if (editId) {
+                    await db.ref('workfit_communications/' + editId).update(data);
+                    toast('Communication updated!', 'success');
+                } else {
+                    data.createdAt = firebase.database.ServerValue.TIMESTAMP;
+                    data.createdBy = currentUser?.uid || '';
+                    await db.ref('workfit_communications').push(data);
+                    toast('Communication created!', 'success');
+                }
+                closeCommModal();
+            } catch(e) {
+                toast('Error saving', 'error');
+                console.error(e);
+            }
+        };
+
+        // ============ OPEN EDIT ============
+        window.openEditComm = function(commId) {
+            const comm = allCommunications[commId];
+            if (!comm) return;
+            
+            db.ref('workfit_shop_products').once('value', snap => {
+                allProducts = snap.val() || {};
+                renderCommForm({ id: commId, ...comm });
+            });
+        };
+
+        // ============ PUBLISH ============
+        window.publishComm = async function(commId) {
+            try {
+                await db.ref('workfit_communications/' + commId).update({
+                    status: 'published',
+                    publishedAt: firebase.database.ServerValue.TIMESTAMP
+                });
+                toast('Communication published!', 'success');
+            } catch(e) {
+                toast('Error publishing', 'error');
+            }
+        };
+
+        // ============ DELETE ============
+        window.deleteComm = async function(commId) {
+            if (!confirm('Delete this communication?')) return;
+            try {
+                await db.ref('workfit_communications/' + commId).remove();
+                toast('Communication deleted', 'success');
+            } catch(e) {
+                toast('Error deleting', 'error');
+            }
+        };
+
+        // ============ POST TO FEED ============
+        window.postToFeed = async function(commId) {
+            const comm = allCommunications[commId];
+            if (!comm) return toast('Communication not found', 'error');
+
+            // Get the clubs this comm is assigned to
+            const assignedClubs = comm.assignedClubs || {};
+            const clubIds = Object.keys(assignedClubs);
+            
+            if (!clubIds.length) {
+                toast('No clubs assigned to this communication', 'error');
+                return;
+            }
+
+            // Confirm posting
+            if (!confirm(`Post "${comm.title}" to ${clubIds.length} club(s)?`)) return;
+
+            try {
+                let postedCount = 0;
+                const product = comm.productId ? allProducts[comm.productId] : null;
+
+                // For each assigned club, create a post
+                for (const clubId of clubIds) {
+                    const clubName = allClubs[clubId]?.businessName || allClubs[clubId]?.name || 'Club';
+                    
+                    const postData = {
+                        clubId: clubId,
+                        clubName: clubName,
+                        communicationId: commId,
+                        title: comm.title,
+                        content: comm.content,
+                        type: comm.type,
+                        isAdvert: comm.type === 'product' || comm.type === 'promo',
+                        authorName: 'WorkFit Communications',
+                        authorEmail: 'communications@workfit.com',
+                        createdAt: firebase.database.ServerValue.TIMESTAMP,
+                        source: 'communications_manager'
+                    };
+
+                    // If it's a product type, include product details
+                    if (product) {
+                        postData.productId = product.id;
+                        postData.productName = product.name;
+                        postData.productPrice = product.price;
+                        postData.productImage = product.image || '';
+                        postData.isAdvert = true;
+                        postData.isNewProduct = false;
+                    }
+
+                    await db.ref('workfit_posts').push(postData);
+                    postedCount++;
+                }
+
+                toast(`Posted to ${postedCount} club(s)!`, 'success');
+            } catch(e) {
+                toast('Error posting to feed', 'error');
+                console.error(e);
+            }
+        };
+
+        // ============ CLOSE MODAL ============
+        function closeCommModal() { document.getElementById('commModal').classList.remove('active'); }
+        document.getElementById('commModal').addEventListener('click', function(e) { if (e.target === this) closeCommModal(); });
+
+        // ============ FILTERS ============
+        document.getElementById('searchInput').addEventListener('input', renderCommunications);
+        document.getElementById('typeFilter').addEventListener('change', renderCommunications);
+        document.getElementById('statusFilter').addEventListener('change', renderCommunications);
+
+        let currentUser = null;
+
+        // ============ AUTH ============
+        auth.onAuthStateChanged(user => {
+            if (!user) { window.location.href = '/'; return; }
+            currentUser = user;
+
+            // Load communications
+            db.ref('workfit_communications').on('value', snap => {
+                allCommunications = snap.val() || {};
+                renderCommunications();
+            });
+
+            // Load clubs
+            db.ref('workfit_clubs').on('value', snap => {
+                allClubs = snap.val() || {};
+                renderCommunications();
+            });
+
+            // Load products for reference
+            db.ref('workfit_shop_products').on('value', snap => {
+                allProducts = snap.val() || {};
+            });
+        });
+    </script>
+</body>
+</html>
