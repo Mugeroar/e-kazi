@@ -49,19 +49,72 @@
     .page-title i { color: var(--orange); }
     .page-subtitle { font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.2rem; }
 
-    .stats-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 1.5rem; }
-    .stat-card {
-      background: var(--surface); border-radius: var(--radius-lg); padding: 1rem;
-      border: 1px solid var(--border-light); box-shadow: var(--shadow-sm);
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      margin-bottom: 1.5rem;
     }
-    .stat-card .stat-icon { width: 36px; height: 36px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; margin-bottom: 0.6rem; font-size: 0.9rem; }
+    .stat-card {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      padding: 1rem 0.8rem;
+      border: 1px solid var(--border-light);
+      box-shadow: var(--shadow-sm);
+      min-height: 90px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      overflow: hidden;
+    }
+    .stat-card .stat-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 0.4rem;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
     .stat-icon.gold { background: #fffbeb; color: #d97706; }
     .stat-icon.green { background: #ecfdf5; color: #10b981; }
     .stat-icon.purple { background: #faf5ff; color: #8b5cf6; }
     .stat-icon.blue { background: #eff6ff; color: #3b82f6; }
     .stat-icon.orange { background: #fff7ed; color: #f97316; }
-    .stat-value { font-size: 1.6rem; font-weight: 800; color: var(--text); line-height: 1; }
-    .stat-label { font-size: 0.6rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 0.2rem; }
+    
+    .stat-value {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.2;
+      word-break: break-word;
+      max-width: 100%;
+    }
+    .stat-value.small {
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+    .stat-value .highlight {
+      color: var(--orange);
+      font-weight: 800;
+    }
+    .stat-label {
+      font-size: 0.6rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 0.2rem;
+      word-break: break-word;
+    }
+    .stat-sub {
+      font-size: 0.55rem;
+      color: var(--text-muted);
+      margin-top: 0.1rem;
+      word-break: break-word;
+    }
 
     .filter-bar {
       display: flex; gap: 10px; margin-bottom: 1.2rem; flex-wrap: wrap; align-items: center;
@@ -174,13 +227,55 @@
     .toast.success { background: #065f46; }
     @keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(15px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
 
+    @media (max-width: 992px) {
+      .stats-row {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
     @media (max-width: 768px) {
       .main { padding: 1rem; }
-      .stats-row { grid-template-columns: 1fr 1fr; }
-      .giving-row { grid-template-columns: 1fr 80px 70px; gap: 6px; }
+      .stats-row {
+        grid-template-columns: 1fr 1fr;
+      }
+      .stat-value {
+        font-size: 1.1rem;
+      }
+      .stat-value.small {
+        font-size: 0.75rem;
+      }
+      .giving-row {
+        grid-template-columns: 1fr 80px 70px;
+        gap: 6px;
+      }
       .giving-actions { display: none; }
       .form-row, .detail-grid { grid-template-columns: 1fr; }
       .detail-item.full { grid-column: span 1; }
+    }
+
+    @media (max-width: 480px) {
+      .stats-row {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+      .stat-card {
+        padding: 0.6rem 0.4rem;
+        min-height: 70px;
+      }
+      .stat-value {
+        font-size: 0.9rem;
+      }
+      .stat-value.small {
+        font-size: 0.65rem;
+      }
+      .stat-icon {
+        width: 28px;
+        height: 28px;
+        font-size: 0.7rem;
+      }
+      .stat-label {
+        font-size: 0.5rem;
+      }
     }
   </style>
 </head>
@@ -220,11 +315,32 @@
     </div>
 
     <div class="stats-row">
-      <div class="stat-card"><div class="stat-icon gold"><i class="fas fa-hand-holding-heart"></i></div><div class="stat-value" id="statTotalGiving">KES 0</div><div class="stat-label">Total Giving</div></div>
-      <div class="stat-card"><div class="stat-icon green"><i class="fas fa-check-circle"></i></div><div class="stat-value" id="statTotalRecords">0</div><div class="stat-label">Total Records</div></div>
-      <div class="stat-card"><div class="stat-icon purple"><i class="fas fa-users"></i></div><div class="stat-value" id="statUniqueGivers">0</div><div class="stat-label">Unique Givers</div></div>
-      <div class="stat-card"><div class="stat-icon blue"><i class="fas fa-calendar-week"></i></div><div class="stat-value" id="statThisWeek">KES 0</div><div class="stat-label">This Week</div></div>
-      <div class="stat-card"><div class="stat-icon orange"><i class="fas fa-trophy"></i></div><div class="stat-value" id="statTopReason">—</div><div class="stat-label">Top Reason</div></div>
+      <div class="stat-card">
+        <div class="stat-icon gold"><i class="fas fa-hand-holding-heart"></i></div>
+        <div class="stat-value" id="statTotalGiving">KES 0</div>
+        <div class="stat-label">Total Giving</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
+        <div class="stat-value" id="statTotalRecords">0</div>
+        <div class="stat-label">Total Records</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon purple"><i class="fas fa-users"></i></div>
+        <div class="stat-value" id="statUniqueGivers">0</div>
+        <div class="stat-label">Unique Givers</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon blue"><i class="fas fa-calendar-week"></i></div>
+        <div class="stat-value" id="statThisWeek">KES 0</div>
+        <div class="stat-label">This Week</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon orange"><i class="fas fa-trophy"></i></div>
+        <div class="stat-value small" id="statTopReason">—</div>
+        <div class="stat-label">Top Reason</div>
+        <div class="stat-sub" id="statTopAmount"></div>
+      </div>
     </div>
 
     <div class="filter-bar">
@@ -312,6 +428,12 @@
 
     function formatCurrency(amount) {
       return 'KES ' + Number(amount || 0).toLocaleString();
+    }
+
+    function shortenText(text, maxLength) {
+      if (!text) return '—';
+      if (text.length <= maxLength) return text;
+      return text.substring(0, maxLength) + '...';
     }
 
     function renderGiving() {
@@ -419,7 +541,17 @@
       document.getElementById('statTotalRecords').textContent = allGivingData.length;
       document.getElementById('statUniqueGivers').textContent = uniqueGivers;
       document.getElementById('statThisWeek').textContent = formatCurrency(thisWeek);
-      document.getElementById('statTopReason').textContent = topReason + (topReason !== '—' ? ` (${formatCurrency(topAmount)})` : '');
+      
+      // Top reason with better display
+      if (topReason !== '—') {
+        const shortReason = shortenText(topReason, 18);
+        document.getElementById('statTopReason').textContent = shortReason;
+        document.getElementById('statTopAmount').textContent = formatCurrency(topAmount);
+      } else {
+        document.getElementById('statTopReason').textContent = '—';
+        document.getElementById('statTopAmount').textContent = '';
+      }
+      
       document.getElementById('recordCount').textContent = filtered.length;
 
       const container = document.getElementById('givingList');
