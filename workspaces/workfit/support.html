@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Giving Manager | WorkFit Club</title>
+  <meta name="theme-color" content="#f97316">
+  <link rel="icon" type="image/png" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --orange: #f97316; --orange-dark: #c2410c; --orange-light: #fb923c;
+      --bg: #f8fafc; --surface: #ffffff; --text: #0f172a; --text-secondary: #64748b;
+      --border: #e2e8f0; --border-light: #f1f5f9;
+      --success: #10b981; --warning: #f59e0b; --danger: #ef4444; --info: #3b82f6; --purple: #8b5cf6;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05); --shadow: 0 1px 3px rgba(0,0,0,0.1);
+      --shadow-md: 0 4px 6px rgba(0,0,0,0.07); --shadow-lg: 0 10px 25px rgba(0,0,0,0.1);
+      --radius-sm: 8px; --radius: 12px; --radius-lg: 16px; --radius-xl: 20px;
+    }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg); color: var(--text); min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .topbar {
+      background: rgba(255,255,255,0.85); backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border-light); padding: 0 1.5rem; height: 56px;
+      display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 12px; }
+    .brand { display: flex; align-items: center; gap: 8px; text-decoration: none; }
+    .brand img { width: 30px; height: 30px; border-radius: 8px; }
+    .brand span { font-weight: 700; font-size: 0.9rem; color: var(--text); }
+    .nav-btn {
+      padding: 0.4rem 0.9rem; border-radius: var(--radius-sm); font-weight: 600; font-size: 0.72rem;
+      cursor: pointer; border: 1px solid var(--border); background: white; color: var(--text-secondary);
+      transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; text-decoration: none;
+    }
+    .nav-btn:hover { background: #f8fafc; }
+    .nav-btn.primary { background: var(--orange); color: white; border-color: var(--orange); }
+    .nav-btn.primary:hover { background: var(--orange-dark); }
+
+    .main { padding: 1.5rem; max-width: 1200px; margin: 0 auto; }
+    .page-header { margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+    .page-title { font-size: 1.4rem; font-weight: 800; }
+    .page-title i { color: var(--orange); }
+    .page-subtitle { font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.2rem; }
+
+    .stats-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 1.5rem; }
+    .stat-card {
+      background: var(--surface); border-radius: var(--radius-lg); padding: 1rem;
+      border: 1px solid var(--border-light); box-shadow: var(--shadow-sm);
+    }
+    .stat-card .stat-icon { width: 36px; height: 36px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; margin-bottom: 0.6rem; font-size: 0.9rem; }
+    .stat-icon.gold { background: #fffbeb; color: #d97706; }
+    .stat-icon.green { background: #ecfdf5; color: #10b981; }
+    .stat-icon.purple { background: #faf5ff; color: #8b5cf6; }
+    .stat-icon.blue { background: #eff6ff; color: #3b82f6; }
+    .stat-icon.orange { background: #fff7ed; color: #f97316; }
+    .stat-value { font-size: 1.6rem; font-weight: 800; color: var(--text); line-height: 1; }
+    .stat-label { font-size: 0.6rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 0.2rem; }
+
+    .filter-bar {
+      display: flex; gap: 10px; margin-bottom: 1.2rem; flex-wrap: wrap; align-items: center;
+      background: white; padding: 0.6rem 1rem; border-radius: var(--radius); border: 1px solid var(--border-light); box-shadow: var(--shadow-sm);
+    }
+    .filter-bar input, .filter-bar select {
+      padding: 0.5rem 0.8rem; border: 1px solid var(--border); border-radius: var(--radius-sm);
+      font-family: 'Inter', sans-serif; font-size: 0.78rem; background: #f8fafc; outline: none; color: #334155;
+    }
+    .filter-bar input:focus, .filter-bar select:focus { border-color: var(--orange); box-shadow: 0 0 0 3px rgba(249,115,22,0.06); }
+    .filter-bar input { flex: 1; min-width: 180px; }
+    .filter-bar .date-range { display: flex; align-items: center; gap: 6px; font-size: 0.7rem; color: var(--text-secondary); }
+
+    .section { background: var(--surface); border-radius: var(--radius-xl); border: 1px solid var(--border-light); box-shadow: var(--shadow-sm); overflow: hidden; margin-bottom: 1.5rem; }
+    .section-header { padding: 1rem 1.2rem; border-bottom: 1px solid var(--border-light); display: flex; justify-content: space-between; align-items: center; }
+    .section-header h3 { font-size: 0.85rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+    .section-body { padding: 0; }
+
+    .giving-row {
+      display: grid; grid-template-columns: 1fr 120px 100px 100px 60px;
+      align-items: center; padding: 0.75rem 1.2rem; border-bottom: 1px solid var(--border-light);
+      transition: background 0.15s; gap: 10px;
+    }
+    .giving-row:hover { background: #fafbfc; }
+    .giving-row:last-child { border-bottom: none; }
+    .giving-info { min-width: 0; }
+    .giving-member { font-weight: 600; font-size: 0.82rem; color: var(--text); }
+    .giving-details { font-size: 0.65rem; color: var(--text-secondary); margin-top: 2px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .giving-amount { font-weight: 700; font-size: 0.9rem; color: var(--text); text-align: right; }
+    .giving-date { font-size: 0.65rem; color: var(--text-secondary); }
+    .giving-actions { display: flex; gap: 4px; justify-content: flex-end; }
+
+    .badge {
+      padding: 0.18rem 0.5rem; border-radius: 6px; font-size: 0.6rem; font-weight: 600; text-transform: capitalize; display: inline-block;
+    }
+    .badge-success { background: #ecfdf5; color: #065f46; }
+    .badge-warning { background: #fffbeb; color: #92400e; }
+    .badge-danger { background: #fef2f2; color: #991b1b; }
+    .badge-info { background: #eff6ff; color: #1e40af; }
+    .badge-neutral { background: #f1f5f9; color: #475569; }
+    .badge-gold { background: #fffbeb; color: #92400e; }
+    
+    .reason-badge {
+      padding: 0.15rem 0.5rem; border-radius: 12px; font-size: 0.55rem; font-weight: 600; display: inline-block;
+    }
+    .reason-badge.Equipment { background: #faf5ff; color: #7c3aed; }
+    .reason-badge.Activity { background: #fffbeb; color: #d97706; }
+    .reason-badge.Maintenance { background: #fef2f2; color: #dc2626; }
+    .reason-badge.Community { background: #ecfdf5; color: #059669; }
+
+    .btn {
+      padding: 0.4rem 0.8rem; border-radius: var(--radius-sm); font-weight: 600; font-size: 0.68rem;
+      cursor: pointer; border: 1px solid transparent; transition: all 0.2s; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;
+    }
+    .btn-primary { background: var(--orange); color: white; border-color: var(--orange); }
+    .btn-primary:hover { background: var(--orange-dark); }
+    .btn-success { background: var(--success); color: white; border-color: var(--success); }
+    .btn-success:hover { background: #059669; }
+    .btn-outline { background: white; border-color: var(--border); color: var(--text-secondary); }
+    .btn-outline:hover { background: #f8fafc; }
+    .btn-danger { background: var(--danger); color: white; border-color: var(--danger); }
+    .btn-danger:hover { background: #dc2626; }
+    .btn-xs { padding: 0.2rem 0.4rem; font-size: 0.6rem; border-radius: 4px; }
+    .btn-sm { padding: 0.3rem 0.6rem; font-size: 0.65rem; }
+
+    .empty-state { text-align: center; padding: 2.5rem 1rem; }
+    .empty-state i { font-size: 2.5rem; color: #cbd5e1; display: block; margin-bottom: 0.8rem; }
+    .empty-state p { font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 1rem; }
+
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(15,23,42,0.4); backdrop-filter: blur(4px);
+      display: flex; align-items: flex-end; justify-content: center; z-index: 300;
+      opacity: 0; visibility: hidden; transition: all 0.25s;
+    }
+    .modal-overlay.active { opacity: 1; visibility: visible; }
+    .modal {
+      background: white; border-radius: 20px 20px 0 0; padding: 1.5rem; width: 100%; max-width: 520px;
+      max-height: 85vh; overflow-y: auto; box-shadow: 0 -4px 30px rgba(0,0,0,0.1);
+    }
+    .modal-handle { width: 36px; height: 4px; background: #e2e8f0; border-radius: 2px; margin: 0 auto 1rem; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem; }
+    .modal-header h3 { font-size: 1rem; font-weight: 700; }
+    .modal-close { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border); background: white; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; transition: all 0.2s; }
+    .modal-close:hover { background: #fef2f2; color: #ef4444; }
+
+    .form-group { margin-bottom: 0.8rem; }
+    .form-group label { display: block; font-weight: 600; font-size: 0.7rem; color: var(--text-secondary); margin-bottom: 0.3rem; }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%; padding: 0.55rem 0.8rem; border: 1px solid var(--border); border-radius: var(--radius-sm);
+      font-family: 'Inter', sans-serif; font-size: 0.8rem; background: #f8fafc; outline: none; transition: all 0.2s;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--orange); box-shadow: 0 0 0 3px rgba(249,115,22,0.06); background: white; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+
+    .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-bottom: 1rem; }
+    .detail-item {
+      background: #f8fafc; border-radius: var(--radius-sm); padding: 0.6rem 0.8rem; border: 1px solid var(--border-light);
+    }
+    .detail-item.full { grid-column: span 2; }
+    .detail-item strong { display: block; font-size: 0.6rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.2rem; }
+    .detail-item span { font-size: 0.8rem; font-weight: 600; color: var(--text); }
+
+    .toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 400;
+      padding: 0.6rem 1.2rem; border-radius: 10px; font-size: 0.75rem; font-weight: 600;
+      box-shadow: var(--shadow-lg); animation: toastIn 0.3s ease; white-space: nowrap;
+      background: #0f172a; color: white;
+    }
+    .toast.error { background: #991b1b; }
+    .toast.success { background: #065f46; }
+    @keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(15px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+
+    @media (max-width: 768px) {
+      .main { padding: 1rem; }
+      .stats-row { grid-template-columns: 1fr 1fr; }
+      .giving-row { grid-template-columns: 1fr 80px 70px; gap: 6px; }
+      .giving-actions { display: none; }
+      .form-row, .detail-grid { grid-template-columns: 1fr; }
+      .detail-item.full { grid-column: span 1; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Add Giving Modal -->
+  <div class="modal-overlay" id="givingModal">
+    <div class="modal" id="givingModalContent"><div class="modal-handle"></div></div>
+  </div>
+
+  <!-- Detail Modal -->
+  <div class="modal-overlay" id="detailModal">
+    <div class="modal" id="detailModalContent"><div class="modal-handle"></div></div>
+  </div>
+
+  <div class="topbar">
+    <div class="topbar-left">
+      <a class="brand" href="/workspaces/workfit/index.html">
+        <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png" alt="Logo">
+        <span>WorkFit Club</span>
+      </a>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <a href="/workspaces/workfit/members.html" class="nav-btn"><i class="fas fa-users"></i> Members</a>
+      <button class="nav-btn primary" onclick="openGivingForm()"><i class="fas fa-hand-holding-heart"></i> Record Giving</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title"><i class="fas fa-hand-holding-heart"></i> Giving Manager</h1>
+        <p class="page-subtitle">Track member contributions, support reasons, and giving analytics</p>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn btn-outline btn-sm" onclick="exportGiving()"><i class="fas fa-download"></i> Export</button>
+      </div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-icon gold"><i class="fas fa-hand-holding-heart"></i></div><div class="stat-value" id="statTotalGiving">KES 0</div><div class="stat-label">Total Giving</div></div>
+      <div class="stat-card"><div class="stat-icon green"><i class="fas fa-check-circle"></i></div><div class="stat-value" id="statTotalRecords">0</div><div class="stat-label">Total Records</div></div>
+      <div class="stat-card"><div class="stat-icon purple"><i class="fas fa-users"></i></div><div class="stat-value" id="statUniqueGivers">0</div><div class="stat-label">Unique Givers</div></div>
+      <div class="stat-card"><div class="stat-icon blue"><i class="fas fa-calendar-week"></i></div><div class="stat-value" id="statThisWeek">KES 0</div><div class="stat-label">This Week</div></div>
+      <div class="stat-card"><div class="stat-icon orange"><i class="fas fa-trophy"></i></div><div class="stat-value" id="statTopReason">—</div><div class="stat-label">Top Reason</div></div>
+    </div>
+
+    <div class="filter-bar">
+      <i class="fas fa-search" style="color:#94a3b8;"></i>
+      <input type="text" id="searchInput" placeholder="Search by member name, reason, or club...">
+      <select id="clubFilter"><option value="all">All Clubs</option></select>
+      <select id="reasonFilter"><option value="all">All Reasons</option><option value="Equipment Purchase">🛠 Equipment</option><option value="Activity Support">🏋 Activity</option><option value="Equipment Maintenance">🔧 Maintenance</option><option value="Community Support">🤝 Community</option></select>
+      <select id="dateFilter"><option value="all">All Time</option><option value="today">Today</option><option value="week">This Week</option><option value="month">This Month</option></select>
+    </div>
+
+    <div class="section">
+      <div class="section-header">
+        <h3><i class="fas fa-list"></i> Giving Records (<span id="recordCount">0</span>)</h3>
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-outline btn-xs" onclick="openGivingForm()"><i class="fas fa-plus"></i> Add</button>
+        </div>
+      </div>
+      <div class="section-body" id="givingList"></div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" style="display:none;"></div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
+  <script>
+    firebase.initializeApp({
+      apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+      authDomain: "mugera-e51cc.firebaseapp.com",
+      databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "mugera-e51cc"
+    });
+    const auth = firebase.auth();
+    const db = firebase.database();
+
+    let allGiving = {};
+    let allMembers = {};
+    let allClubs = {};
+    let allGivingData = [];
+
+    function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+    
+    function toast(msg, type) {
+      const t = document.getElementById('toast');
+      t.textContent = msg; t.className = 'toast ' + (type || '');
+      t.style.display = 'block'; clearTimeout(t._timeout);
+      t._timeout = setTimeout(() => t.style.display = 'none', 2800);
+    }
+
+    function openGivingModal(html) {
+      document.getElementById('givingModalContent').innerHTML = '<div class="modal-handle"></div>' + html;
+      document.getElementById('givingModal').classList.add('active');
+    }
+    function closeGivingModal() { document.getElementById('givingModal').classList.remove('active'); }
+    document.getElementById('givingModal').addEventListener('click', function(e) { if (e.target === this) closeGivingModal(); });
+
+    function openDetailModal(html) {
+      document.getElementById('detailModalContent').innerHTML = '<div class="modal-handle"></div>' + html;
+      document.getElementById('detailModal').classList.add('active');
+    }
+    function closeDetailModal() { document.getElementById('detailModal').classList.remove('active'); }
+    document.getElementById('detailModal').addEventListener('click', function(e) { if (e.target === this) closeDetailModal(); });
+
+    function populateClubFilter() {
+      const sel = document.getElementById('clubFilter');
+      sel.innerHTML = '<option value="all">All Clubs</option>';
+      Object.entries(allClubs).forEach(([id, club]) => {
+        if (club && (club.businessName || club.name)) {
+          sel.innerHTML += `<option value="${id}">${esc(club.businessName || club.name)}</option>`;
+        }
+      });
+    }
+
+    function getMemberName(memberId) {
+      const m = allMembers[memberId];
+      return m ? (m.name || m.fullName || 'Unknown') : 'Unknown';
+    }
+
+    function getClubName(clubId) {
+      const c = allClubs[clubId];
+      return c ? (c.businessName || c.name || 'Unknown Club') : 'Unknown Club';
+    }
+
+    function formatCurrency(amount) {
+      return 'KES ' + Number(amount || 0).toLocaleString();
+    }
+
+    function renderGiving() {
+      const searchTerm = (document.getElementById('searchInput').value || '').toLowerCase();
+      const clubVal = document.getElementById('clubFilter').value;
+      const reasonVal = document.getElementById('reasonFilter').value;
+      const dateVal = document.getElementById('dateFilter').value;
+
+      // Collect all giving records from members' giving sub-nodes
+      allGivingData = [];
+      Object.entries(allMembers).forEach(([memberId, member]) => {
+        if (member.giving) {
+          Object.entries(member.giving).forEach(([givingId, record]) => {
+            allGivingData.push({
+              id: givingId,
+              memberId: memberId,
+              ...record,
+              memberName: member.name || member.fullName || 'Unknown',
+              memberEmail: member.email || '',
+              memberPhone: member.phone || '',
+              clubId: member.clubId || '',
+              clubName: member.clubName || getClubName(member.clubId)
+            });
+          });
+        }
+      });
+
+      // Also check workfit_giving node (if some records were stored there)
+      Object.entries(allGiving).forEach(([id, record]) => {
+        if (!allGivingData.some(g => g.id === id && g.memberId === record.memberId)) {
+          const member = allMembers[record.memberId] || {};
+          allGivingData.push({
+            id: id,
+            ...record,
+            memberName: record.memberName || member.name || member.fullName || 'Unknown',
+            memberEmail: record.memberEmail || member.email || '',
+            memberPhone: record.memberPhone || member.phone || '',
+            clubId: record.clubId || member.clubId || '',
+            clubName: record.clubName || member.clubName || getClubName(record.clubId || member.clubId)
+          });
+        }
+      });
+
+      // Filter
+      let filtered = allGivingData;
+      
+      if (clubVal !== 'all') {
+        filtered = filtered.filter(g => g.clubId === clubVal);
+      }
+      
+      if (reasonVal !== 'all') {
+        filtered = filtered.filter(g => g.reason === reasonVal);
+      }
+      
+      if (dateVal === 'today') {
+        const today = new Date().toISOString().split('T')[0];
+        filtered = filtered.filter(g => {
+          const date = g.createdAt ? new Date(g.createdAt).toISOString().split('T')[0] : '';
+          return date === today;
+        });
+      } else if (dateVal === 'week') {
+        const weekAgo = new Date();
+        weekAgo.setDate(weekAgo.getDate() - 7);
+        filtered = filtered.filter(g => (g.createdAt || 0) >= weekAgo.getTime());
+      } else if (dateVal === 'month') {
+        const monthAgo = new Date();
+        monthAgo.setMonth(monthAgo.getMonth() - 1);
+        filtered = filtered.filter(g => (g.createdAt || 0) >= monthAgo.getTime());
+      }
+
+      if (searchTerm) {
+        filtered = filtered.filter(g =>
+          (g.memberName || '').toLowerCase().includes(searchTerm) ||
+          (g.reason || '').toLowerCase().includes(searchTerm) ||
+          (g.clubName || '').toLowerCase().includes(searchTerm) ||
+          (g.memberPhone || '').includes(searchTerm)
+        );
+      }
+
+      // Sort by date (newest first)
+      filtered.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+      // Stats
+      const totalAmount = allGivingData.reduce((sum, g) => sum + (g.amount || 0), 0);
+      const uniqueGivers = new Set(allGivingData.map(g => g.memberId)).size;
+      const thisWeek = allGivingData.filter(g => {
+        const weekAgo = new Date();
+        weekAgo.setDate(weekAgo.getDate() - 7);
+        return (g.createdAt || 0) >= weekAgo.getTime();
+      }).reduce((sum, g) => sum + (g.amount || 0), 0);
+      
+      // Top reason
+      const reasonCounts = {};
+      allGivingData.forEach(g => {
+        const r = g.reason || 'Other';
+        reasonCounts[r] = (reasonCounts[r] || 0) + (g.amount || 0);
+      });
+      let topReason = '—';
+      let topAmount = 0;
+      Object.entries(reasonCounts).forEach(([r, amt]) => {
+        if (amt > topAmount) { topReason = r; topAmount = amt; }
+      });
+
+      document.getElementById('statTotalGiving').textContent = formatCurrency(totalAmount);
+      document.getElementById('statTotalRecords').textContent = allGivingData.length;
+      document.getElementById('statUniqueGivers').textContent = uniqueGivers;
+      document.getElementById('statThisWeek').textContent = formatCurrency(thisWeek);
+      document.getElementById('statTopReason').textContent = topReason + (topReason !== '—' ? ` (${formatCurrency(topAmount)})` : '');
+      document.getElementById('recordCount').textContent = filtered.length;
+
+      const container = document.getElementById('givingList');
+      
+      if (!filtered.length) {
+        container.innerHTML = `<div class="empty-state"><i class="fas fa-hand-holding-heart"></i><p>No giving records found</p><button class="btn btn-primary" onclick="openGivingForm()"><i class="fas fa-plus"></i> Record Giving</button></div>`;
+        return;
+      }
+
+      container.innerHTML = filtered.map(g => {
+        const date = g.createdAt ? new Date(g.createdAt).toLocaleDateString('en-KE', { day: '2-digit', month: 'short', year: 'numeric' }) : 'Unknown';
+        const time = g.createdAt ? new Date(g.createdAt).toLocaleTimeString('en-KE', { hour: '2-digit', minute: '2-digit' }) : '';
+        const reason = g.reason || 'Support';
+        const reasonClass = reason.replace(/\s/g, '');
+        const memberName = esc(g.memberName || 'Unknown');
+        const clubName = esc(g.clubName || 'No Club');
+
+        return `
+          <div class="giving-row">
+            <div class="giving-info">
+              <div class="giving-member">${memberName}</div>
+              <div class="giving-details">
+                <span class="reason-badge ${reasonClass}">${esc(reason)}</span>
+                <span><i class="fas fa-building"></i> ${clubName}</span>
+                ${g.memberPhone ? `<span><i class="fas fa-phone"></i> ${esc(g.memberPhone)}</span>` : ''}
+              </div>
+            </div>
+            <div style="text-align:right;">
+              <div class="giving-amount">${formatCurrency(g.amount || 0)}</div>
+              <div class="giving-date">${date} ${time}</div>
+            </div>
+            <div style="text-align:center;">
+              <span class="badge ${g.status === 'confirmed' ? 'badge-success' : g.status === 'pending' ? 'badge-warning' : 'badge-danger'}">${g.status || 'confirmed'}</span>
+            </div>
+            <div style="text-align:center;font-size:0.65rem;color:var(--text-secondary);">
+              ${g.paymentMethod || 'M-PESA'}
+            </div>
+            <div class="giving-actions">
+              <button class="btn btn-outline btn-xs" onclick="viewGivingDetail('${g.id}')" title="View"><i class="fas fa-eye"></i></button>
+              <button class="btn btn-outline btn-xs" onclick="if(confirm('Delete this record?')) deleteGiving('${g.id}')" style="color:#ef4444;" title="Delete"><i class="fas fa-trash"></i></button>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    window.viewGivingDetail = function(givingId) {
+      const g = allGivingData.find(record => record.id === givingId);
+      if (!g) return;
+      
+      const date = g.createdAt ? new Date(g.createdAt).toLocaleString('en-KE') : 'Unknown';
+      
+      openDetailModal(`
+        <div class="modal-header"><h3>💝 Giving Record</h3><button class="modal-close" onclick="closeDetailModal()"><i class="fas fa-times"></i></button></div>
+        <div class="detail-grid">
+          <div class="detail-item full"><strong>Member</strong><span>${esc(g.memberName)}</span></div>
+          <div class="detail-item"><strong>Phone</strong><span>${esc(g.memberPhone || '—')}</span></div>
+          <div class="detail-item"><strong>Email</strong><span>${esc(g.memberEmail || '—')}</span></div>
+          <div class="detail-item"><strong>Club</strong><span>${esc(g.clubName || '—')}</span></div>
+          <div class="detail-item"><strong>Amount</strong><span style="color:var(--success);font-size:1rem;">${formatCurrency(g.amount)}</span></div>
+          <div class="detail-item"><strong>Reason</strong><span class="reason-badge ${(g.reason || 'Support').replace(/\s/g, '')}">${esc(g.reason || 'Support')}</span></div>
+          <div class="detail-item"><strong>Status</strong><span class="badge ${g.status === 'confirmed' ? 'badge-success' : g.status === 'pending' ? 'badge-warning' : 'badge-danger'}">${g.status || 'confirmed'}</span></div>
+          <div class="detail-item"><strong>Payment Method</strong><span>${esc(g.paymentMethod || 'M-PESA')}</span></div>
+          <div class="detail-item"><strong>Payment Number</strong><span>${esc(g.paymentNumber || '0727211191')}</span></div>
+          <div class="detail-item"><strong>Date</strong><span>${date}</span></div>
+          <div class="detail-item full"><strong>Notes</strong><span>${esc(g.notes || 'No notes')}</span></div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-outline" style="flex:1;" onclick="closeDetailModal()">Close</button>
+          <button class="btn btn-danger" style="flex:1;" onclick="if(confirm('Delete this record?')) { closeDetailModal(); deleteGiving('${givingId}'); }"><i class="fas fa-trash"></i> Delete</button>
+        </div>
+      `);
+    };
+
+    // Open Giving Form
+    window.openGivingForm = function(editId) {
+      const record = editId ? allGivingData.find(g => g.id === editId) : null;
+      
+      let memberOptions = '<option value="">Select member</option>';
+      Object.entries(allMembers).forEach(([id, m]) => {
+        if (m && (m.name || m.fullName)) {
+          const name = m.name || m.fullName;
+          memberOptions += `<option value="${id}" ${record?.memberId === id ? 'selected' : ''}>${esc(name)} ${m.phone ? ' ('+esc(m.phone)+')' : ''}</option>`;
+        }
+      });
+
+      let clubOptions = '<option value="">Select club</option>';
+      Object.entries(allClubs).forEach(([id, club]) => {
+        if (club && (club.businessName || club.name)) {
+          clubOptions += `<option value="${id}" ${record?.clubId === id ? 'selected' : ''}>${esc(club.businessName || club.name)}</option>`;
+        }
+      });
+
+      const reasonOptions = ['Equipment Purchase', 'Activity Support', 'Equipment Maintenance', 'Community Support'];
+      let reasonHTML = reasonOptions.map(r => 
+        `<option value="${r}" ${record?.reason === r ? 'selected' : ''}>${r}</option>`
+      ).join('');
+
+      openGivingModal(`
+        <div class="modal-header"><h3>${editId ? '✏️ Edit' : '📝 Record'} Giving</h3><button class="modal-close" onclick="closeGivingModal()"><i class="fas fa-times"></i></button></div>
+        <input type="hidden" id="editGivingId" value="${editId || ''}">
+        <div class="form-group">
+          <label>Member *</label>
+          <select id="givingMember">${memberOptions}</select>
+        </div>
+        <div class="form-group">
+          <label>Club *</label>
+          <select id="givingClub">${clubOptions}</select>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Amount (KES) *</label>
+            <input type="number" id="givingAmount" value="${record?.amount || ''}" placeholder="e.g. 500" min="1">
+          </div>
+          <div class="form-group">
+            <label>Reason *</label>
+            <select id="givingReason">${reasonHTML}</select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Status</label>
+            <select id="givingStatus">
+              <option value="confirmed" ${record?.status === 'confirmed' ? 'selected' : ''}>Confirmed</option>
+              <option value="pending" ${record?.status === 'pending' ? 'selected' : ''}>Pending</option>
+              <option value="cancelled" ${record?.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Payment Method</label>
+            <select id="givingPayment">
+              <option value="M-PESA" ${record?.paymentMethod === 'M-PESA' ? 'selected' : ''}>M-PESA</option>
+              <option value="Cash" ${record?.paymentMethod === 'Cash' ? 'selected' : ''}>Cash</option>
+              <option value="Bank Transfer" ${record?.paymentMethod === 'Bank Transfer' ? 'selected' : ''}>Bank Transfer</option>
+              <option value="Card" ${record?.paymentMethod === 'Card' ? 'selected' : ''}>Card</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Payment Number</label>
+          <input type="text" id="givingPaymentNumber" value="${record?.paymentNumber || '0727211191'}" placeholder="M-PESA number">
+        </div>
+        <div class="form-group">
+          <label>Date</label>
+          <input type="datetime-local" id="givingDate" value="${record?.createdAt ? new Date(record.createdAt).toISOString().slice(0,16) : new Date().toISOString().slice(0,16)}">
+        </div>
+        <div class="form-group">
+          <label>Notes</label>
+          <textarea id="givingNotes" rows="2" placeholder="Any notes...">${esc(record?.notes || '')}</textarea>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-outline" style="flex:1;" onclick="closeGivingModal()">Cancel</button>
+          <button class="btn btn-success" style="flex:1;" onclick="saveGiving()">${editId ? 'Update' : 'Save'} Record</button>
+        </div>
+      `);
+    };
+
+    window.saveGiving = async function() {
+      const memberId = document.getElementById('givingMember').value;
+      const clubId = document.getElementById('givingClub').value;
+      const amount = Number(document.getElementById('givingAmount').value);
+      const reason = document.getElementById('givingReason').value;
+      const status = document.getElementById('givingStatus').value;
+      const paymentMethod = document.getElementById('givingPayment').value;
+      const paymentNumber = document.getElementById('givingPaymentNumber').value.trim();
+      const dateStr = document.getElementById('givingDate').value;
+      const notes = document.getElementById('givingNotes').value.trim();
+      const editId = document.getElementById('editGivingId').value;
+
+      if (!memberId) return toast('Please select a member', 'error');
+      if (!clubId) return toast('Please select a club', 'error');
+      if (!amount || amount < 1) return toast('Please enter a valid amount (min 1 KES)', 'error');
+
+      const member = allMembers[memberId] || {};
+      const club = allClubs[clubId] || {};
+      const clubName = club.businessName || club.name || '';
+      const memberName = member.name || member.fullName || 'Unknown';
+
+      const data = {
+        memberId,
+        memberName,
+        memberEmail: member.email || '',
+        memberPhone: member.phone || '',
+        clubId,
+        clubName: clubName || member.clubName || '',
+        amount,
+        reason,
+        status,
+        paymentMethod,
+        paymentNumber: paymentNumber || '0727211191',
+        notes,
+        updatedAt: firebase.database.ServerValue.TIMESTAMP
+      };
+
+      if (dateStr) {
+        data.createdAt = new Date(dateStr).getTime();
+      }
+
+      try {
+        if (editId) {
+          // Find which member's giving node this belongs to
+          const record = allGivingData.find(g => g.id === editId);
+          if (record && record.memberId) {
+            await db.ref('workfit_members/' + record.memberId + '/giving/' + editId).update(data);
+          } else {
+            // Fallback: try the main giving node
+            await db.ref('workfit_giving/' + editId).update(data);
+          }
+        } else {
+          // Save to member's giving path
+          await db.ref('workfit_members/' + memberId + '/giving').push(data);
+        }
+        closeGivingModal();
+        toast(editId ? 'Giving record updated!' : 'Giving recorded!', 'success');
+      } catch(e) {
+        console.error(e);
+        toast('Error saving record', 'error');
+      }
+    };
+
+    window.deleteGiving = async function(givingId) {
+      try {
+        const record = allGivingData.find(g => g.id === givingId);
+        if (record && record.memberId) {
+          await db.ref('workfit_members/' + record.memberId + '/giving/' + givingId).remove();
+        } else {
+          await db.ref('workfit_giving/' + givingId).remove();
+        }
+        toast('Record deleted', 'success');
+      } catch(e) {
+        toast('Error deleting', 'error');
+      }
+    };
+
+    window.exportGiving = function() {
+      const data = allGivingData;
+      if (!data.length) return toast('No data to export', 'error');
+      
+      let csv = 'Member,Phone,Email,Club,Amount,Reason,Status,Payment Method,Date\n';
+      data.forEach(g => {
+        const date = g.createdAt ? new Date(g.createdAt).toLocaleString('en-KE') : 'Unknown';
+        csv += `"${g.memberName || ''}","${g.memberPhone || ''}","${g.memberEmail || ''}","${g.clubName || ''}",${g.amount || 0},"${g.reason || ''}","${g.status || ''}","${g.paymentMethod || ''}","${date}"\n`;
+      });
+      
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'workfit_giving_records.csv'; a.click();
+      URL.revokeObjectURL(url);
+      toast('CSV exported!', 'success');
+    };
+
+    // Filters
+    document.getElementById('searchInput').addEventListener('input', renderGiving);
+    document.getElementById('clubFilter').addEventListener('change', renderGiving);
+    document.getElementById('reasonFilter').addEventListener('change', renderGiving);
+    document.getElementById('dateFilter').addEventListener('change', renderGiving);
+
+    // Auth + Data
+    auth.onAuthStateChanged(user => {
+      if (!user) { window.location.href = '/'; return; }
+
+      // Load members
+      db.ref('workfit_members').on('value', snap => {
+        allMembers = snap.val() || {};
+        renderGiving();
+      });
+
+      // Load clubs
+      db.ref('workfit_clubs').on('value', snap => {
+        allClubs = snap.val() || {};
+        populateClubFilter();
+        renderGiving();
+      });
+
+      // Also listen to workfit_giving node (legacy)
+      db.ref('workfit_giving').on('value', snap => {
+        allGiving = snap.val() || {};
+        renderGiving();
+      });
+    });
+  </script>
+</body>
+</html>
