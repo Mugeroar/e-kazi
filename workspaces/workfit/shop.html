@@ -78,17 +78,19 @@
       box-shadow: var(--shadow-sm); transition: all 0.25s; overflow: hidden; display: flex; flex-direction: column;
     }
     .product-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); border-color: #fed7aa; }
+    
+    .product-image-preview {
+      width: 100%; height: 140px; background: var(--border-light); display: flex; align-items: center; justify-content: center;
+      overflow: hidden; position: relative;
+    }
+    .product-image-preview img { width: 100%; height: 100%; object-fit: cover; }
+    .product-image-preview .no-image {
+      color: var(--text-muted); font-size: 0.7rem; display: flex; flex-direction: column; align-items: center; gap: 4px;
+    }
+    .product-image-preview .no-image i { font-size: 2rem; }
+
     .product-card-body { padding: 1.1rem; flex: 1; display: flex; flex-direction: column; gap: 10px; }
     .product-top { display: flex; gap: 10px; align-items: flex-start; }
-    .product-icon {
-      width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center;
-      font-size: 1.3rem; flex-shrink: 0;
-    }
-    .product-icon.supplements { background: #ecfdf5; }
-    .product-icon.apparel { background: #f5f3ff; }
-    .product-icon.equipment { background: #fffbeb; }
-    .product-icon.accessories { background: #eff6ff; }
-    .product-icon.nutrition { background: #fef2f2; }
     .product-info { flex: 1; min-width: 0; }
     .product-name { font-weight: 700; font-size: 0.88rem; color: var(--text); }
     .product-brand { font-size: 0.65rem; color: var(--text-secondary); margin-top: 1px; }
@@ -144,6 +146,23 @@
     }
     .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--orange); box-shadow: 0 0 0 3px rgba(249,115,22,0.06); background: white; }
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+    
+    /* Image URL input with preview */
+    .image-url-input {
+      display: flex; gap: 8px; align-items: center;
+    }
+    .image-url-input input { flex: 1; }
+    .image-preview-thumb {
+      width: 48px; height: 48px; border-radius: 8px; border: 1px solid var(--border);
+      overflow: hidden; flex-shrink: 0; background: var(--border-light);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .image-preview-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .image-preview-thumb .placeholder { font-size: 1.2rem; color: var(--text-muted); }
+    .image-help-text { font-size: 0.6rem; color: var(--text-muted); margin-top: 4px; }
+    .image-help-text a { color: var(--orange); text-decoration: none; }
+    .image-help-text a:hover { text-decoration: underline; }
+
     .btn {
       padding: 0.5rem 1rem; border-radius: var(--radius-sm); font-weight: 600; font-size: 0.75rem;
       cursor: pointer; border: 1px solid transparent; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px;
@@ -168,6 +187,8 @@
       .products-grid { grid-template-columns: 1fr; }
       .stats-row { grid-template-columns: 1fr 1fr; }
       .form-row { grid-template-columns: 1fr; }
+      .image-url-input { flex-direction: column; align-items: stretch; }
+      .image-preview-thumb { width: 100%; height: 80px; }
     }
   </style>
 </head>
@@ -205,7 +226,7 @@
     <div class="filter-bar">
       <i class="fas fa-search" style="color:#94a3b8;"></i>
       <input type="text" id="searchInput" placeholder="Search products...">
-      <select id="categoryFilter"><option value="all">All Categories</option><option value="supplements">Supplements</option><option value="apparel">Apparel</option><option value="equipment">Equipment</option><option value="accessories">Accessories</option><option value="nutrition">Nutrition</option></select>
+      <select id="categoryFilter"><option value="all">All Categories</option><option value="Supplements">Supplements</option><option value="Apparel">Apparel</option><option value="Equipment">Equipment</option><option value="Accessories">Accessories</option><option value="Nutrition">Nutrition</option></select>
       <select id="statusFilter"><option value="all">All Status</option><option value="in_stock">In Stock</option><option value="low_stock">Low Stock</option><option value="out_of_stock">Out of Stock</option></select>
     </div>
 
@@ -239,17 +260,11 @@
     }
     function formatCurrency(n) { if (!n) return '0'; const num = Number(n); if (num >= 1e6) return (num/1e6).toFixed(1)+'M'; if (num >= 1e3) return (num/1e3).toFixed(1)+'K'; return num.toLocaleString(); }
 
-    function getProductIcon(cat) {
+    function getCategoryBadge(cat) {
       const c = (cat||'').toLowerCase();
-      if (c.includes('supplement')) return '🥤'; if (c.includes('apparel')) return '👕';
-      if (c.includes('equipment')) return '🏋️'; if (c.includes('accessor')) return '🎒';
-      if (c.includes('nutrition')) return '🍎'; return '📦';
-    }
-    function getIconClass(cat) {
-      const c = (cat||'').toLowerCase();
-      if (c.includes('supplement')) return 'supplements'; if (c.includes('apparel')) return 'apparel';
-      if (c.includes('equipment')) return 'equipment'; if (c.includes('accessor')) return 'accessories';
-      if (c.includes('nutrition')) return 'nutrition'; return 'supplements';
+      if (c.includes('supplement')) return 'badge-success'; if (c.includes('apparel')) return 'badge-purple';
+      if (c.includes('equipment')) return 'badge-warning'; if (c.includes('accessor')) return 'badge-info';
+      return 'badge-danger';
     }
     function getStatusBadge(s) {
       const st = (s||'in_stock').toLowerCase();
@@ -261,11 +276,16 @@
       if (st==='in_stock') return 'In Stock'; if (st==='low_stock') return 'Low Stock';
       return 'Out of Stock';
     }
-    function getCategoryBadge(cat) {
-      const c = (cat||'').toLowerCase();
-      if (c.includes('supplement')) return 'badge-success'; if (c.includes('apparel')) return 'badge-purple';
-      if (c.includes('equipment')) return 'badge-warning'; if (c.includes('accessor')) return 'badge-info';
-      return 'badge-danger';
+
+    // Update image preview when URL changes
+    function updateImagePreview() {
+      const url = document.getElementById('prodImage').value.trim();
+      const container = document.getElementById('imagePreviewContainer');
+      if (url) {
+        container.innerHTML = `<img src="${esc(url)}" alt="Product preview" onerror="this.parentElement.innerHTML='<span class=\\'placeholder\\'><i class=\\'fas fa-image\\'></i></span>'">`;
+      } else {
+        container.innerHTML = `<span class="placeholder"><i class="fas fa-image"></i></span>`;
+      }
     }
 
     function renderProducts() {
@@ -274,7 +294,7 @@
       const statVal = document.getElementById('statusFilter').value;
 
       let products = Object.entries(allProducts).map(([id, data]) => ({ id, ...data })).filter(p => p && p.name);
-      if (catVal !== 'all') products = products.filter(p => (p.category||'').toLowerCase().includes(catVal));
+      if (catVal !== 'all') products = products.filter(p => (p.category||'').toLowerCase().includes(catVal.toLowerCase()));
       if (statVal !== 'all') products = products.filter(p => (p.status||'in_stock').toLowerCase() === statVal);
       if (searchTerm) products = products.filter(p => (p.name||'').toLowerCase().includes(searchTerm) || (p.brand||'').toLowerCase().includes(searchTerm) || (p.sku||'').toLowerCase().includes(searchTerm));
 
@@ -300,12 +320,15 @@
         const sku = p.sku || '';
         const status = p.status || 'in_stock';
         const totalVal = Number(price) * Number(stock);
+        const image = p.image || '';
 
         return `
           <div class="product-card">
+            <div class="product-image-preview">
+              ${image ? `<img src="${esc(image)}" alt="${esc(name)}" onerror="this.style.display='none';this.parentElement.innerHTML='<div class=\\'no-image\\'><i class=\\'fas fa-image\\'></i>No Image</div>'">` : `<div class="no-image"><i class="fas fa-image"></i>No Image</div>`}
+            </div>
             <div class="product-card-body">
               <div class="product-top">
-                <div class="product-icon ${getIconClass(category)}">${getProductIcon(category)}</div>
                 <div class="product-info">
                   <div class="product-name">${name}</div>
                   ${brand ? `<div class="product-brand">${brand}</div>` : ''}
@@ -331,26 +354,82 @@
       }).join('');
     }
 
-    // Product Form Modal
+    // Product Form Modal with Image URL field
     window.openProductForm = function(productId) {
       const p = productId ? allProducts[productId] : null;
+      const imageUrl = p?.image || '';
+      
       document.getElementById('productModalContent').innerHTML = '<div class="modal-handle"></div>' + `
         <div class="modal-header"><h3>${productId ? '✏️ Edit' : '➕ Add'} Product</h3><button class="modal-close" onclick="closeProductModal()"><i class="fas fa-times"></i></button></div>
         <input type="hidden" id="editProductId" value="${productId || ''}">
-        <div class="form-group"><label>Product Name *</label><input id="prodName" value="${esc(p?.name || '')}" placeholder="e.g. Whey Protein 2kg"></div>
-        <div class="form-row">
-          <div class="form-group"><label>Category *</label><select id="prodCat"><option value="Supplements" ${p?.category=='Supplements'?'selected':''}>Supplements</option><option value="Apparel" ${p?.category=='Apparel'?'selected':''}>Apparel</option><option value="Equipment" ${p?.category=='Equipment'?'selected':''}>Equipment</option><option value="Accessories" ${p?.category=='Accessories'?'selected':''}>Accessories</option><option value="Nutrition" ${p?.category=='Nutrition'?'selected':''}>Nutrition</option></select></div>
-          <div class="form-group"><label>Brand</label><input id="prodBrand" value="${esc(p?.brand || '')}" placeholder="Brand name"></div>
+        
+        <div class="form-group">
+          <label>Product Name *</label>
+          <input id="prodName" value="${esc(p?.name || '')}" placeholder="e.g. Whey Protein 2kg">
         </div>
+        
         <div class="form-row">
-          <div class="form-group"><label>Price (KES) *</label><input id="prodPrice" type="number" value="${p?.price || ''}" placeholder="4500" min="0"></div>
-          <div class="form-group"><label>Stock Qty *</label><input id="prodStock" type="number" value="${p?.stock || ''}" placeholder="50" min="0"></div>
+          <div class="form-group">
+            <label>Category *</label>
+            <select id="prodCat">
+              <option value="Supplements" ${p?.category=='Supplements'?'selected':''}>Supplements</option>
+              <option value="Apparel" ${p?.category=='Apparel'?'selected':''}>Apparel</option>
+              <option value="Equipment" ${p?.category=='Equipment'?'selected':''}>Equipment</option>
+              <option value="Accessories" ${p?.category=='Accessories'?'selected':''}>Accessories</option>
+              <option value="Nutrition" ${p?.category=='Nutrition'?'selected':''}>Nutrition</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Brand</label>
+            <input id="prodBrand" value="${esc(p?.brand || '')}" placeholder="Brand name">
+          </div>
         </div>
+        
         <div class="form-row">
-          <div class="form-group"><label>SKU</label><input id="prodSku" value="${esc(p?.sku || '')}" placeholder="WF-SUP-001"></div>
-          <div class="form-group"><label>Status</label><select id="prodStatus"><option value="in_stock" ${p?.status=='in_stock'?'selected':''}>In Stock</option><option value="low_stock" ${p?.status=='low_stock'?'selected':''}>Low Stock</option><option value="out_of_stock" ${p?.status=='out_of_stock'?'selected':''}>Out of Stock</option></select></div>
+          <div class="form-group">
+            <label>Price (KES) *</label>
+            <input id="prodPrice" type="number" value="${p?.price || ''}" placeholder="4500" min="0">
+          </div>
+          <div class="form-group">
+            <label>Stock Qty *</label>
+            <input id="prodStock" type="number" value="${p?.stock || ''}" placeholder="50" min="0">
+          </div>
         </div>
-        <div class="form-group"><label>Description</label><textarea id="prodDesc" rows="2" placeholder="Product details...">${esc(p?.description || '')}</textarea></div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label>SKU</label>
+            <input id="prodSku" value="${esc(p?.sku || '')}" placeholder="WF-SUP-001">
+          </div>
+          <div class="form-group">
+            <label>Status</label>
+            <select id="prodStatus">
+              <option value="in_stock" ${p?.status=='in_stock'?'selected':''}>In Stock</option>
+              <option value="low_stock" ${p?.status=='low_stock'?'selected':''}>Low Stock</option>
+              <option value="out_of_stock" ${p?.status=='out_of_stock'?'selected':''}>Out of Stock</option>
+            </select>
+          </div>
+        </div>
+        
+        <!-- Product Image URL Field -->
+        <div class="form-group">
+          <label>Product Image URL</label>
+          <div class="image-url-input">
+            <input id="prodImage" value="${esc(imageUrl)}" placeholder="https://i.postimg.cc/.../image.jpg" oninput="updateImagePreview()">
+            <div class="image-preview-thumb" id="imagePreviewContainer">
+              ${imageUrl ? `<img src="${esc(imageUrl)}" alt="Preview" onerror="this.parentElement.innerHTML='<span class=\\'placeholder\\'><i class=\\'fas fa-image\\'></i></span>'">` : `<span class="placeholder"><i class="fas fa-image"></i></span>`}
+            </div>
+          </div>
+          <div class="image-help-text">
+            💡 Upload to <a href="https://postimages.org/" target="_blank">Postimages.org</a> (free) or <a href="https://imgbb.com/" target="_blank">ImgBB</a>, then paste the direct image URL here.
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>Description</label>
+          <textarea id="prodDesc" rows="2" placeholder="Product details...">${esc(p?.description || '')}</textarea>
+        </div>
+        
         <div style="display:flex;gap:8px;">
           <button class="btn btn-outline" style="flex:1;" onclick="closeProductModal()">Cancel</button>
           <button class="btn btn-primary" style="flex:1;" onclick="saveProduct()">${productId ? 'Update' : 'Save'} Product</button>
@@ -364,6 +443,8 @@
       const category = document.getElementById('prodCat').value;
       const price = document.getElementById('prodPrice').value;
       const stock = document.getElementById('prodStock').value;
+      const image = document.getElementById('prodImage').value.trim();
+      
       if (!name || !category || !price || !stock) return toast('Fill all required fields', true);
 
       const data = {
@@ -374,6 +455,7 @@
         sku: document.getElementById('prodSku').value.trim(),
         status: document.getElementById('prodStatus').value,
         description: document.getElementById('prodDesc').value.trim(),
+        image: image || '',
         updatedAt: firebase.database.ServerValue.TIMESTAMP
       };
 
@@ -385,8 +467,11 @@
           data.createdAt = firebase.database.ServerValue.TIMESTAMP;
           await db.ref('workfit_shop_products').push(data);
         }
-        closeProductModal(); toast(editId ? 'Product updated!' : 'Product added!');
-      } catch(e) { toast('Error saving', true); }
+        closeProductModal(); 
+        toast(editId ? 'Product updated!' : 'Product added!');
+      } catch(e) { 
+        toast('Error saving', true); 
+      }
     };
 
     window.restockProduct = function(productId) {
