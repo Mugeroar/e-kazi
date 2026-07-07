@@ -38,7 +38,7 @@
     .brand span { font-weight: 700; font-size: 0.9rem; color: var(--text); }
     .live-dot { font-size: 0.6rem; color: var(--text-secondary); display: flex; align-items: center; gap: 4px; }
     .live-dot i { color: #10b981; font-size: 0.4rem; }
-    .navbar-right { display: flex; align-items: center; gap: 8px; }
+    .navbar-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
     .nav-btn {
       padding: 0.4rem 0.9rem; border-radius: 8px; font-weight: 600; font-size: 0.7rem;
       cursor: pointer; border: 1px solid var(--border); background: white; color: var(--text-secondary);
@@ -137,6 +137,7 @@
     .badge-warning { background: #fffbeb; color: #92400e; }
     .badge-danger { background: #fef2f2; color: #991b1b; }
     .badge-info { background: #eff6ff; color: #1e40af; }
+    .badge-gold { background: #fffbeb; color: #92400e; }
     .empty-state { text-align: center; padding: 1.5rem; color: #94a3b8; font-size: 0.72rem; }
     .footer { text-align: center; padding: 1rem; color: #94a3b8; font-size: 0.65rem; border-top: 1px solid var(--border-light); margin-top: 1rem; }
 
@@ -173,8 +174,8 @@
       <a href="/workspaces/workfit/trainers.html" class="nav-btn"><i class="fas fa-users-gear"></i> Trainers</a>
       <a href="/workspaces/workfit/shop.html" class="nav-btn"><i class="fas fa-store"></i> Shop</a>
       <a href="/workspaces/workfit/equipment-inventory.html" class="nav-btn"><i class="fas fa-clipboard-list"></i> Inventory</a>
-      <a href="/workspaces/workfit/support.html" class="nav-btn"><i class="fas fa-hand-holding-dollar"></i> Support / Giving</a>
-      <a href="/workspaces/workfit/map-operations.html" class="nav-btn primary"><i class="fas fa-map-marked-alt"></i> Map</a>
+      <a href="/workspaces/workfit/giving.html" class="nav-btn primary"><i class="fas fa-hand-holding-dollar"></i> Giving</a>
+      <a href="/workspaces/workfit/map-operations.html" class="nav-btn"><i class="fas fa-map-marked-alt"></i> Map</a>
       <div class="user-pill"><div class="user-avatar" id="userAvatar">WF</div><span id="userName">Director</span></div>
     </div>
   </nav>
@@ -190,7 +191,7 @@
       <div class="stat-card"><div class="stat-icon orange"><i class="fas fa-building"></i></div><div><div class="stat-value skeleton skeleton-value" id="statClubs">—</div><div class="stat-label">Total Clubs</div></div></div>
       <div class="stat-card"><div class="stat-icon green"><i class="fas fa-users"></i></div><div><div class="stat-value skeleton skeleton-value" id="statMembers">—</div><div class="stat-label">Total Members</div></div></div>
       <div class="stat-card"><div class="stat-icon blue"><i class="fas fa-user-check"></i></div><div><div class="stat-value skeleton skeleton-value" id="statTrainers">—</div><div class="stat-label">Active Trainers</div></div></div>
-      <div class="stat-card"><div class="stat-icon purple"><i class="fas fa-chart-line"></i></div><div><div class="stat-value skeleton skeleton-value" id="statRevenue">—</div><div class="stat-label">Revenue (KES)</div></div></div>
+      <div class="stat-card"><div class="stat-icon purple"><i class="fas fa-hand-holding-heart"></i></div><div><div class="stat-value skeleton skeleton-value" id="statGiving">—</div><div class="stat-label">Total Giving (KES)</div></div></div>
     </div>
 
     <!-- Action Cards -->
@@ -220,9 +221,9 @@
         <h3>Equipment Inventory</h3><p>Track gym equipment, maintenance schedules, and asset values.</p>
         <span class="action-link">View Inventory <i class="fas fa-arrow-right"></i></span>
       </a>
-      <a href="/workspaces/workfit/support.html" class="action-card">
+      <a href="/workspaces/workfit/giving.html" class="action-card">
         <div class="action-icon"><i class="fas fa-hand-holding-dollar"></i></div>
-        <h3>Support/Giving</h3><p>Manage all funds received through club support.</p>
+        <h3>Support/Giving</h3><p>Manage all funds received through club support and giving.</p>
         <span class="action-link">Manage Giving <i class="fas fa-arrow-right"></i></span>
       </a>
       <a href="/workspaces/workfit/map-operations.html" class="action-card">
@@ -244,8 +245,8 @@
           <div class="chart-body"><div class="skeleton skeleton-chart" id="skeletonChart2"></div><canvas id="tierDistributionChart" style="display:none;"></canvas></div>
         </div>
         <div class="chart-card" id="chartCard3">
-          <div class="chart-header"><h3><i class="fas fa-chart-line" style="color:#10b981;"></i> Monthly Revenue</h3></div>
-          <div class="chart-body"><div class="skeleton skeleton-chart" id="skeletonChart3"></div><canvas id="revenueChart" style="display:none;"></canvas></div>
+          <div class="chart-header"><h3><i class="fas fa-chart-line" style="color:#10b981;"></i> Giving by Month</h3></div>
+          <div class="chart-body"><div class="skeleton skeleton-chart" id="skeletonChart3"></div><canvas id="givingChart" style="display:none;"></canvas></div>
         </div>
         <div class="chart-card full-width" id="chartCard4">
           <div class="chart-header"><h3><i class="fas fa-chart-area" style="color:#3b82f6;"></i> Trainer Distribution by Specialty</h3></div>
@@ -263,8 +264,8 @@
         </div>
       </div>
       <div class="recent-card">
-        <div class="recent-header"><h3><i class="fas fa-user"></i> Recent Members</h3><a href="/workspaces/workfit/memberships.html">View all →</a></div>
-        <div class="recent-list" id="recentMembers">
+        <div class="recent-header"><h3><i class="fas fa-hand-holding-heart"></i> Recent Giving</h3><a href="/workspaces/workfit/giving.html">View all →</a></div>
+        <div class="recent-list" id="recentGiving">
           <div class="empty-state"><div class="skeleton skeleton-text" style="margin:0 auto 8px;"></div><div class="skeleton skeleton-text short" style="margin:0 auto;"></div></div>
         </div>
       </div>
@@ -287,33 +288,77 @@
     const auth = firebase.auth();
     const db = firebase.database();
 
-    let allClubs = {}, allMembers = {}, allTrainers = {}, allRevenue = {};
+    let allClubs = {}, allMembers = {}, allTrainers = {}, allGiving = {};
+    let allGivingData = [];
     let charts = {};
-    let dataLoaded = false;
 
     function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-    function formatCurrency(n) { if (!n) return '0'; const num = Number(n); if (num >= 1e6) return (num/1e6).toFixed(1)+'M'; if (num >= 1e3) return (num/1e3).toFixed(1)+'K'; return num.toLocaleString(); }
+    function formatCurrency(n) { 
+      if (!n) return '0'; 
+      const num = Number(n); 
+      if (num >= 1e6) return (num/1e6).toFixed(1)+'M'; 
+      if (num >= 1e3) return (num/1e3).toFixed(1)+'K'; 
+      return num.toLocaleString(); 
+    }
 
     function removeSkeleton(valueEl) {
       if (valueEl) valueEl.classList.remove('skeleton', 'skeleton-value');
     }
 
+    function collectGivingData() {
+      allGivingData = [];
+      
+      // Collect from members' giving sub-nodes
+      Object.entries(allMembers).forEach(([memberId, member]) => {
+        if (member.giving) {
+          Object.entries(member.giving).forEach(([givingId, record]) => {
+            allGivingData.push({
+              id: givingId,
+              memberId: memberId,
+              ...record,
+              memberName: member.name || member.fullName || 'Unknown',
+              clubId: member.clubId || '',
+              clubName: member.clubName || ''
+            });
+          });
+        }
+      });
+
+      // Also check workfit_giving node (legacy)
+      Object.entries(allGiving).forEach(([id, record]) => {
+        if (!allGivingData.some(g => g.id === id && g.memberId === record.memberId)) {
+          const member = allMembers[record.memberId] || {};
+          allGivingData.push({
+            id: id,
+            ...record,
+            memberName: record.memberName || member.name || member.fullName || 'Unknown',
+            clubId: record.clubId || member.clubId || '',
+            clubName: record.clubName || member.clubName || ''
+          });
+        }
+      });
+    }
+
     function updateStats() {
+      collectGivingData();
+      
       const clubs = Object.values(allClubs).filter(c => c && (c.businessName || c.name));
       const members = Object.values(allMembers).filter(m => m && m.name);
       const trainers = Object.values(allTrainers).filter(t => t && t.name);
-      const revenueTotal = Object.values(allRevenue).reduce((s, r) => s + (Number(r.amount)||0), 0);
+      
+      // Calculate total giving
+      const totalGiving = allGivingData.reduce((sum, g) => sum + (Number(g.amount) || 0), 0);
       
       removeSkeleton(document.getElementById('statClubs'));
       removeSkeleton(document.getElementById('statMembers'));
       removeSkeleton(document.getElementById('statTrainers'));
-      removeSkeleton(document.getElementById('statRevenue'));
+      removeSkeleton(document.getElementById('statGiving'));
       
       document.getElementById('statClubs').textContent = clubs.length;
       document.getElementById('statMembers').textContent = members.length;
       document.getElementById('statTrainers').textContent = trainers.length;
-      document.getElementById('statRevenue').textContent = formatCurrency(revenueTotal);
-      document.getElementById('footerStats').textContent = `${clubs.length} clubs · ${members.length} members · ${trainers.length} trainers`;
+      document.getElementById('statGiving').textContent = formatCurrency(totalGiving);
+      document.getElementById('footerStats').textContent = `${clubs.length} clubs · ${members.length} members · ${trainers.length} trainers · KES ${formatCurrency(totalGiving)} giving`;
       document.getElementById('liveIndicator').innerHTML = `<i class="fas fa-circle"></i> Live · ${new Date().toLocaleTimeString()}`;
       
       renderRecent();
@@ -322,7 +367,9 @@
 
     function renderRecent() {
       const clubs = Object.entries(allClubs).map(([id, c]) => ({ id, ...c })).filter(c => c.businessName || c.name).sort((a,b) => (b.createdAt||b.timestamp||0) - (a.createdAt||a.timestamp||0)).slice(0,5);
-      const members = Object.entries(allMembers).map(([id, m]) => ({ id, ...m })).filter(m => m.name).sort((a,b) => (b.createdAt||b.joinedAt||0) - (a.createdAt||a.joinedAt||0)).slice(0,5);
+      
+      // Recent giving - newest first
+      const recentGiving = allGivingData.slice().sort((a,b) => (b.createdAt||0) - (a.createdAt||0)).slice(0,5);
       
       document.getElementById('recentClubs').innerHTML = clubs.length ? clubs.map(c => `
         <div class="recent-item" onclick="window.location.href='/workspaces/workfit/clubs.html'">
@@ -330,11 +377,21 @@
           <span class="badge ${c.status==='active'?'badge-success':'badge-danger'}">${c.status||'active'}</span>
         </div>`).join('') : '<div class="empty-state">No clubs yet</div>';
       
-      document.getElementById('recentMembers').innerHTML = members.length ? members.map(m => `
-        <div class="recent-item" onclick="window.location.href='/workspaces/workfit/memberships.html'">
-          <div><strong>${esc(m.name||m.fullName)}</strong><br><small>${esc(m.clubName||'Unassigned')} · ${m.phone||''}</small></div>
-          <span class="badge badge-success">${m.status||'active'}</span>
-        </div>`).join('') : '<div class="empty-state">No members yet</div>';
+      document.getElementById('recentGiving').innerHTML = recentGiving.length ? recentGiving.map(g => {
+        const reason = g.reason || 'Support';
+        const date = g.createdAt ? new Date(g.createdAt).toLocaleDateString('en-KE') : 'Unknown';
+        return `
+          <div class="recent-item" onclick="window.location.href='/workspaces/workfit/giving.html'">
+            <div>
+              <strong>${esc(g.memberName || 'Anonymous')}</strong>
+              <br><small>${esc(reason)} · ${esc(g.clubName || 'No Club')}</small>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-weight:700;color:#10b981;">KES ${Number(g.amount||0).toLocaleString()}</div>
+              <small style="color:#94a3b8;font-size:0.6rem;">${date}</small>
+            </div>
+          </div>`;
+      }).join('') : '<div class="empty-state">No giving records yet</div>';
     }
 
     function destroyChart(key) { if (charts[key]) { charts[key].destroy(); delete charts[key]; } }
@@ -350,7 +407,6 @@
       const clubs = Object.values(allClubs).filter(c => c && (c.businessName || c.name));
       const members = Object.values(allMembers).filter(m => m && m.name);
       const trainers = Object.values(allTrainers).filter(t => t && t.name);
-      const revenue = Object.values(allRevenue).filter(r => r && r.amount);
 
       if (!clubs.length && !members.length && !trainers.length) return;
 
@@ -380,8 +436,8 @@
         });
       }
 
-      // Monthly Revenue
-      destroyChart('revenue');
+      // Giving by Month (replacing revenue chart)
+      destroyChart('giving');
       const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
       const now = new Date();
       const last6 = [];
@@ -389,13 +445,34 @@
         const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
         last6.push({ label: months[d.getMonth()], month: d.getMonth(), year: d.getFullYear() });
       }
-      const revData = last6.map(l => revenue.filter(r => { const rd = new Date(r.date||r.createdAt); return rd.getMonth()===l.month && rd.getFullYear()===l.year; }).reduce((s,r) => s+(Number(r.amount)||0), 0));
-      const ctx3 = document.getElementById('revenueChart')?.getContext('2d');
+      const givingData = last6.map(l => allGivingData.filter(g => {
+        const d = g.createdAt ? new Date(g.createdAt) : null;
+        return d && d.getMonth() === l.month && d.getFullYear() === l.year;
+      }).reduce((s, g) => s + (Number(g.amount) || 0), 0));
+      
+      const ctx3 = document.getElementById('givingChart')?.getContext('2d');
       if (ctx3) {
-        showChartCanvas('revenueChart', 'skeletonChart3');
-        charts.revenue = new Chart(ctx3, {
-          type: 'line', data: { labels: last6.map(l=>l.label), datasets: [{ label: 'Revenue', data: revData, borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.1)', fill: true, tension: 0.4, pointRadius: 4, pointBackgroundColor: '#10b981' }] },
-          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { callback: v => formatCurrency(v) } } } }
+        showChartCanvas('givingChart', 'skeletonChart3');
+        charts.giving = new Chart(ctx3, {
+          type: 'line', 
+          data: { 
+            labels: last6.map(l=>l.label), 
+            datasets: [{ 
+              label: 'Giving', 
+              data: givingData, 
+              borderColor: '#f97316', 
+              backgroundColor: 'rgba(249,115,22,0.1)', 
+              fill: true, 
+              tension: 0.4, 
+              pointRadius: 4, 
+              pointBackgroundColor: '#f97316' 
+            }] 
+          },
+          options: { 
+            responsive: true, maintainAspectRatio: false, 
+            plugins: { legend: { display: false } }, 
+            scales: { y: { beginAtZero: true, ticks: { callback: v => formatCurrency(v) } } } 
+          }
         });
       }
 
@@ -421,7 +498,9 @@
       db.ref('workfit_clubs').on('value', s => { allClubs = s.val() || {}; updateStats(); });
       db.ref('workfit_members').on('value', s => { allMembers = s.val() || {}; updateStats(); });
       db.ref('workfit_trainers').on('value', s => { allTrainers = s.val() || {}; updateStats(); });
-      db.ref('workfit_revenue').on('value', s => { allRevenue = s.val() || {}; updateStats(); });
+      
+      // Listen to both giving locations
+      db.ref('workfit_giving').on('value', s => { allGiving = s.val() || {}; updateStats(); });
     });
   </script>
 </body>
