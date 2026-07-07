@@ -186,7 +186,7 @@
       <p class="page-subtitle">Central dashboard for managing gym franchises, trainers, members, and tracking growth across Kenya.</p>
     </div>
 
-    <!-- Stats Grid with Skeleton Loading -->
+    <!-- Stats Grid -->
     <div class="stats-grid" id="statsGrid">
       <div class="stat-card"><div class="stat-icon orange"><i class="fas fa-building"></i></div><div><div class="stat-value skeleton skeleton-value" id="statClubs">—</div><div class="stat-label">Total Clubs</div></div></div>
       <div class="stat-card"><div class="stat-icon green"><i class="fas fa-users"></i></div><div><div class="stat-value skeleton skeleton-value" id="statMembers">—</div><div class="stat-label">Total Members</div></div></div>
@@ -233,7 +233,7 @@
       </a>
     </div>
 
-    <!-- Analytics Section with Skeleton Loading -->
+    <!-- Analytics Section -->
     <div class="analytics-section">
       <div class="analytics-grid">
         <div class="chart-card wide" id="chartCard1">
@@ -255,7 +255,7 @@
       </div>
     </div>
 
-    <!-- Recent Activity with Skeleton Loading -->
+    <!-- Recent Activity -->
     <div class="recent-grid">
       <div class="recent-card">
         <div class="recent-header"><h3><i class="fas fa-building"></i> Recent Clubs</h3><a href="/workspaces/workfit/clubs.html">View all →</a></div>
@@ -291,8 +291,10 @@
     let allClubs = {}, allMembers = {}, allTrainers = {}, allGiving = {};
     let allGivingData = [];
     let charts = {};
+    let dataLoaded = false;
 
     function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+    
     function formatCurrency(n) { 
       if (!n) return '0'; 
       const num = Number(n); 
@@ -339,6 +341,32 @@
       });
     }
 
+    // DEBUG: Log club and member data to console
+    function debugData() {
+      const clubs = Object.values(allClubs).filter(c => c && (c.businessName || c.name));
+      const members = Object.values(allMembers).filter(m => m && m.name);
+      
+      console.log('=== WORKFIT DASHBOARD DEBUG ===');
+      console.log('Total Clubs:', clubs.length);
+      console.log('Total Members:', members.length);
+      
+      clubs.forEach(c => {
+        const count = members.filter(m => m.clubId === c.id).length;
+        console.log(`  ${c.businessName || c.name} (${c.id}): ${count} members`);
+        const clubMembers = members.filter(m => m.clubId === c.id);
+        clubMembers.forEach(m => {
+          console.log(`    - ${m.name} (${m.id})`);
+        });
+      });
+      
+      const unassigned = members.filter(m => !m.clubId);
+      if (unassigned.length > 0) {
+        console.log('⚠️ Unassigned members (no clubId):', unassigned.length);
+        unassigned.forEach(m => console.log(`    - ${m.name} (${m.id})`));
+      }
+      console.log('=== END DEBUG ===');
+    }
+
     function updateStats() {
       collectGivingData();
       
@@ -360,6 +388,9 @@
       document.getElementById('statGiving').textContent = formatCurrency(totalGiving);
       document.getElementById('footerStats').textContent = `${clubs.length} clubs · ${members.length} members · ${trainers.length} trainers · KES ${formatCurrency(totalGiving)} giving`;
       document.getElementById('liveIndicator').innerHTML = `<i class="fas fa-circle"></i> Live · ${new Date().toLocaleTimeString()}`;
+      
+      // Debug to console
+      debugData();
       
       renderRecent();
       renderCharts();
@@ -410,33 +441,153 @@
 
       if (!clubs.length && !members.length && !trainers.length) return;
 
-      // Members by Club
+      // ============================================
+      // FIXED: Members by Club - with better handling
+      // ============================================
       destroyChart('membersByClub');
-      const clubNames = clubs.map(c => (c.businessName||c.name||'').substring(0,15));
-      const clubMemberCounts = clubs.map(c => members.filter(m => m.clubId === c.id).length);
+      
+      // Build club data with member counts
+      const clubData = clubs.map(c => {
+        const count = members.filter(m => m.clubId === c.id).length;
+        return {
+          id: c.id,
+          name: c.businessName || c.name || 'Unknown',
+          count: count,
+          members: members.filter(m => m.clubId === c.id)
+        };
+      });
+      
+      // Sort by member count (descending)
+      clubData.sort((a, b) => b.count - a.count);
+      
+      // Check for unassigned members
+      const unassigned = members.filter(m => !m.clubId);
+      
+      // Only include clubs with members OR if there are unassigned members
+      let chartLabels = [];
+      let chartCounts = [];
+      let chartColors = [];
+      
+      const colorPalette = ['#f97316', '#fb923c', '#fdba74', '#fed7aa', '#ffedd5', '#f59e0b', '#d97706'];
+      
+      // Add clubs that have members OR if we're showing all clubs
+      const clubsWithMembers = clubData.filter(c => c.count > 0);
+      
+      if (clubsWithMembers.length > 0) {
+        clubsWithMembers.forEach((c, i) => {
+          chartLabels.push(c.name);
+          chartCounts.push(c.count);
+          chartColors.push(colorPalette[i % colorPalette.length]);
+        });
+      } else {
+        // If no clubs have members, show all clubs with 0
+        clubData.forEach((c, i) => {
+          chartLabels.push(c.name);
+          chartCounts.push(0);
+          chartColors.push(colorPalette[i % colorPalette.length]);
+        });
+      }
+      
+      // Add unassigned members if any
+      if (unassigned.length > 0) {
+        chartLabels.push('Unassigned');
+        chartCounts.push(unassigned.length);
+        chartColors.push('#94a3b8');
+      }
+      
+      // If no data at all, show empty state
+      if (chartLabels.length === 0) {
+        chartLabels = ['No Data'];
+        chartCounts = [0];
+        chartColors = ['#e2e8f0'];
+      }
+      
       const ctx1 = document.getElementById('membersByClubChart')?.getContext('2d');
-      if (ctx1 && clubNames.length) {
+      if (ctx1) {
         showChartCanvas('membersByClubChart', 'skeletonChart1');
         charts.membersByClub = new Chart(ctx1, {
-          type: 'bar', data: { labels: clubNames, datasets: [{ label: 'Members', data: clubMemberCounts, backgroundColor: ['#f97316','#fb923c','#fdba74','#fed7aa','#fff7ed','#ffedd5'], borderRadius: 8 }] },
-          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+          type: 'bar', 
+          data: { 
+            labels: chartLabels, 
+            datasets: [{ 
+              label: 'Members', 
+              data: chartCounts, 
+              backgroundColor: chartColors,
+              borderRadius: 8,
+              borderSkipped: false
+            }] 
+          },
+          options: { 
+            responsive: true, 
+            maintainAspectRatio: false, 
+            plugins: { 
+              legend: { display: false },
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    const idx = context.dataIndex;
+                    const club = clubData[idx];
+                    if (club && club.members && club.members.length > 0) {
+                      const names = club.members.map(m => m.name || m.fullName).join(', ');
+                      return `${context.raw} members: ${names}`;
+                    }
+                    return `${context.raw} members`;
+                  }
+                }
+              }
+            }, 
+            scales: { 
+              y: { 
+                beginAtZero: true, 
+                ticks: { stepSize: 1 },
+                title: { display: true, text: 'Members' }
+              },
+              x: {
+                ticks: {
+                  maxRotation: 45,
+                  minRotation: 30
+                }
+              }
+            } 
+          }
         });
       }
 
-      // Tier Distribution
+      // ============================================
+      // Tier Distribution (unchanged)
+      // ============================================
       destroyChart('tierDistribution');
-      const tiers = ['Basic','Standard','Premium'];
+      const tiers = ['Basic', 'Standard', 'Premium'];
       const tierCounts = tiers.map(t => members.filter(m => m.membershipTier === t).length);
       const ctx2 = document.getElementById('tierDistributionChart')?.getContext('2d');
       if (ctx2) {
         showChartCanvas('tierDistributionChart', 'skeletonChart2');
         charts.tierDistribution = new Chart(ctx2, {
-          type: 'doughnut', data: { labels: tiers, datasets: [{ data: tierCounts, backgroundColor: ['#94a3b8','#3b82f6','#f59e0b'], borderWidth: 0 }] },
-          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, padding: 12, font: { size: 10 } } } } }
+          type: 'doughnut', 
+          data: { 
+            labels: tiers, 
+            datasets: [{ 
+              data: tierCounts, 
+              backgroundColor: ['#94a3b8', '#3b82f6', '#f59e0b'], 
+              borderWidth: 0 
+            }] 
+          },
+          options: { 
+            responsive: true, 
+            maintainAspectRatio: false, 
+            plugins: { 
+              legend: { 
+                position: 'bottom', 
+                labels: { boxWidth: 12, padding: 12, font: { size: 10 } } 
+              } 
+            } 
+          }
         });
       }
 
-      // Giving by Month (replacing revenue chart)
+      // ============================================
+      // Giving by Month (unchanged)
+      // ============================================
       destroyChart('giving');
       const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
       const now = new Date();
@@ -469,14 +620,17 @@
             }] 
           },
           options: { 
-            responsive: true, maintainAspectRatio: false, 
+            responsive: true, 
+            maintainAspectRatio: false, 
             plugins: { legend: { display: false } }, 
             scales: { y: { beginAtZero: true, ticks: { callback: v => formatCurrency(v) } } } 
           }
         });
       }
 
-      // Trainer Specialty
+      // ============================================
+      // Trainer Specialty (unchanged)
+      // ============================================
       destroyChart('trainerSpecialty');
       const specialties = ['Yoga','Cardio','Strength Training','HIIT','Zumba','Pilates','CrossFit','Spin'];
       const specCounts = specialties.map(s => trainers.filter(t => (t.specialty||'').toLowerCase().includes(s.toLowerCase())).length);
@@ -484,8 +638,23 @@
       if (ctx4) {
         showChartCanvas('trainerSpecialtyChart', 'skeletonChart4');
         charts.trainerSpecialty = new Chart(ctx4, {
-          type: 'bar', data: { labels: specialties, datasets: [{ label: 'Trainers', data: specCounts, backgroundColor: '#3b82f6', borderRadius: 6 }] },
-          options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+          type: 'bar', 
+          data: { 
+            labels: specialties, 
+            datasets: [{ 
+              label: 'Trainers', 
+              data: specCounts, 
+              backgroundColor: '#3b82f6', 
+              borderRadius: 6 
+            }] 
+          },
+          options: { 
+            responsive: true, 
+            maintainAspectRatio: false, 
+            indexAxis: 'y', 
+            plugins: { legend: { display: false } }, 
+            scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } } } 
+          }
         });
       }
     }
@@ -495,11 +664,10 @@
       document.getElementById('userName').textContent = user.displayName?.split(' ')[0] || user.email?.split('@')[0] || 'Director';
       document.getElementById('userAvatar').textContent = (user.displayName || user.email?.[0] || 'W').substring(0,2).toUpperCase();
 
+      // Load data with realtime updates
       db.ref('workfit_clubs').on('value', s => { allClubs = s.val() || {}; updateStats(); });
       db.ref('workfit_members').on('value', s => { allMembers = s.val() || {}; updateStats(); });
       db.ref('workfit_trainers').on('value', s => { allTrainers = s.val() || {}; updateStats(); });
-      
-      // Listen to both giving locations
       db.ref('workfit_giving').on('value', s => { allGiving = s.val() || {}; updateStats(); });
     });
   </script>
