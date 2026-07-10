@@ -138,6 +138,7 @@
     .badge-danger { background: #fef2f2; color: #991b1b; }
     .badge-info { background: #eff6ff; color: #1e40af; }
     .badge-gold { background: #fffbeb; color: #92400e; }
+    .badge-purple { background: #faf5ff; color: #6d28d9; }
     .empty-state { text-align: center; padding: 1.5rem; color: #94a3b8; font-size: 0.72rem; }
     .footer { text-align: center; padding: 1rem; color: #94a3b8; font-size: 0.65rem; border-top: 1px solid var(--border-light); margin-top: 1rem; }
 
@@ -173,6 +174,7 @@
       <a href="/workspaces/workfit/memberships.html" class="nav-btn"><i class="fas fa-id-card"></i> Members</a>
       <a href="/workspaces/workfit/trainers.html" class="nav-btn"><i class="fas fa-users-gear"></i> Trainers</a>
       <a href="/workspaces/workfit/shop.html" class="nav-btn"><i class="fas fa-store"></i> Shop</a>
+      <a href="/workspaces/workfit/library.html" class="nav-btn"><i class="fas fa-book"></i> Library</a>
       <a href="/workspaces/workfit/equipment-inventory.html" class="nav-btn"><i class="fas fa-clipboard-list"></i> Inventory</a>
       <a href="/workspaces/workfit/giving.html" class="nav-btn primary"><i class="fas fa-hand-holding-dollar"></i> Giving</a>
       <a href="/workspaces/workfit/map-operations.html" class="nav-btn"><i class="fas fa-map-marked-alt"></i> Map</a>
@@ -216,6 +218,11 @@
         <h3>Shop</h3><p>Manage products, supplements, apparel, and merchandise.</p>
         <span class="action-link">Open Shop <i class="fas fa-arrow-right"></i></span>
       </a>
+      <a href="/workspaces/workfit/library.html" class="action-card">
+        <div class="action-icon" style="background:#faf5ff;color:#6d28d9;"><i class="fas fa-book"></i></div>
+        <h3>📚 Library</h3><p>Manage books, blogs, and borrowing activity for your club members.</p>
+        <span class="action-link">Open Library <i class="fas fa-arrow-right"></i></span>
+      </a>
       <a href="/workspaces/workfit/equipment-inventory.html" class="action-card">
         <div class="action-icon"><i class="fas fa-clipboard-list"></i></div>
         <h3>Equipment Inventory</h3><p>Track gym equipment, maintenance schedules, and asset values.</p>
@@ -228,7 +235,7 @@
       </a>
       <a href="/workspaces/workfit/communication.html" class="action-card">
         <div class="action-icon"><i class="fas fa-communication"></i></div>
-        <h3>Communications</h3><p>Manage all communications.</p>
+        <h3>Communications</h3><p>Manage all communications and announcements.</p>
         <span class="action-link">Manage Posts <i class="fas fa-arrow-right"></i></span>
       </a>
       <a href="/workspaces/workfit/map-operations.html" class="action-card">
@@ -447,11 +454,10 @@
       if (!clubs.length && !members.length && !trainers.length) return;
 
       // ============================================
-      // FIXED: Members by Club - with better handling
+      // Members by Club
       // ============================================
       destroyChart('membersByClub');
       
-      // Build club data with member counts
       const clubData = clubs.map(c => {
         const count = members.filter(m => m.clubId === c.id).length;
         return {
@@ -462,20 +468,16 @@
         };
       });
       
-      // Sort by member count (descending)
       clubData.sort((a, b) => b.count - a.count);
       
-      // Check for unassigned members
       const unassigned = members.filter(m => !m.clubId);
       
-      // Only include clubs with members OR if there are unassigned members
       let chartLabels = [];
       let chartCounts = [];
       let chartColors = [];
       
       const colorPalette = ['#f97316', '#fb923c', '#fdba74', '#fed7aa', '#ffedd5', '#f59e0b', '#d97706'];
       
-      // Add clubs that have members OR if we're showing all clubs
       const clubsWithMembers = clubData.filter(c => c.count > 0);
       
       if (clubsWithMembers.length > 0) {
@@ -485,7 +487,6 @@
           chartColors.push(colorPalette[i % colorPalette.length]);
         });
       } else {
-        // If no clubs have members, show all clubs with 0
         clubData.forEach((c, i) => {
           chartLabels.push(c.name);
           chartCounts.push(0);
@@ -493,14 +494,12 @@
         });
       }
       
-      // Add unassigned members if any
       if (unassigned.length > 0) {
         chartLabels.push('Unassigned');
         chartCounts.push(unassigned.length);
         chartColors.push('#94a3b8');
       }
       
-      // If no data at all, show empty state
       if (chartLabels.length === 0) {
         chartLabels = ['No Data'];
         chartCounts = [0];
@@ -559,7 +558,7 @@
       }
 
       // ============================================
-      // Tier Distribution (unchanged)
+      // Tier Distribution
       // ============================================
       destroyChart('tierDistribution');
       const tiers = ['Basic', 'Standard', 'Premium'];
@@ -591,7 +590,7 @@
       }
 
       // ============================================
-      // Giving by Month (unchanged)
+      // Giving by Month
       // ============================================
       destroyChart('giving');
       const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -634,7 +633,7 @@
       }
 
       // ============================================
-      // Trainer Specialty (unchanged)
+      // Trainer Specialty
       // ============================================
       destroyChart('trainerSpecialty');
       const specialties = ['Yoga','Cardio','Strength Training','HIIT','Zumba','Pilates','CrossFit','Spin'];
