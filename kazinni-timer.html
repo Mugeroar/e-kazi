@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KazInni · Workspace Timer</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+    }
+    body {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(145deg, #0b1a2e 0%, #1a2f44 100%);
+      padding: 1.5rem;
+    }
+    .timer-card {
+      background: rgba(22, 40, 62, 0.8);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      border-radius: 3.5rem 3.5rem 2.5rem 2.5rem;
+      box-shadow: 0 30px 50px rgba(0, 0, 0, 0.6), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+      padding: 2.8rem 2.8rem 3.2rem;
+      max-width: 600px;
+      width: 100%;
+      transition: all 0.2s ease;
+      border: 1px solid rgba(255, 215, 100, 0.15);
+    }
+    .brand {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 2rem;
+      color: #f5e7d9;
+      letter-spacing: 0.5px;
+    }
+    .brand h1 {
+      font-weight: 500;
+      font-size: 2.1rem;
+      background: linear-gradient(135deg, #f9d976, #f39c6d);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: -0.5px;
+    }
+    .brand .sub {
+      font-size: 0.9rem;
+      background: rgba(255, 215, 100, 0.15);
+      padding: 0.3rem 1rem;
+      border-radius: 40px;
+      color: #e6d5b8;
+      border: 1px solid rgba(255, 215, 100, 0.2);
+      backdrop-filter: blur(2px);
+    }
+    .display-panel {
+      background: #0f1f2f;
+      border-radius: 2.5rem;
+      padding: 1.8rem 1.8rem 1.8rem 2.2rem;
+      margin-bottom: 2.5rem;
+      box-shadow: inset 0 8px 12px rgba(0,0,0,0.5), 0 2px 0 rgba(255, 215, 100, 0.1);
+      border: 1px solid #2c4058;
+    }
+    .time-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.5rem 1rem;
+    }
+    .time-digits {
+      font-size: 3.8rem;
+      font-weight: 500;
+      letter-spacing: 4px;
+      color: #f0e3d4;
+      text-shadow: 0 0 12px rgba(243, 156, 109, 0.2);
+      background: #0a1724;
+      padding: 0.1rem 1.2rem 0.1rem 1.8rem;
+      border-radius: 60px;
+      border: 1px solid #3d5775;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.7);
+      font-variant-numeric: tabular-nums;
+      display: inline-flex;
+      align-items: center;
+    }
+    .time-digits span {
+      display: inline-block;
+      min-width: 5rem;
+    }
+    .cost-badge {
+      background: #1f3549;
+      padding: 0.2rem 1.8rem 0.2rem 1.8rem;
+      border-radius: 60px;
+      font-size: 2rem;
+      font-weight: 500;
+      color: #f7d98c;
+      border: 1px solid #e4b86b;
+      box-shadow: 0 0 12px rgba(228, 184, 107, 0.2);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .cost-badge small {
+      font-size: 1rem;
+      font-weight: 300;
+      color: #b6c9dd;
+      margin-right: 4px;
+    }
+    .meta-info {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 0.8rem;
+      color: #8aa3bd;
+      font-size: 0.9rem;
+      padding: 0 0.2rem;
+      border-top: 1px dashed #2d435c;
+      padding-top: 0.8rem;
+    }
+    .meta-info span {
+      background: #142433;
+      padding: 0.15rem 1rem;
+      border-radius: 40px;
+      border: 1px solid #2f4a66;
+    }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      margin: 2.5rem 0 1.2rem;
+    }
+    .btn {
+      border: none;
+      background: #1f344b;
+      padding: 0.9rem 2.2rem;
+      border-radius: 60px;
+      font-weight: 500;
+      font-size: 1.2rem;
+      color: #e2d4c2;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: 0.15s ease;
+      border: 1px solid #3f5b79;
+      box-shadow: 0 6px 0 #0a1520, 0 6px 12px rgba(0, 0, 0, 0.3);
+      flex: 1 1 auto;
+      justify-content: center;
+      min-width: 120px;
+      letter-spacing: 0.3px;
+    }
+    .btn:active {
+      transform: translateY(5px);
+      box-shadow: 0 1px 0 #0a1520, 0 6px 12px rgba(0, 0, 0, 0.3);
+    }
+    .btn-primary {
+      background: #d9a14b;
+      border-color: #f5c27b;
+      color: #1d2c3b;
+      font-weight: 600;
+      box-shadow: 0 6px 0 #7a571f, 0 6px 12px rgba(0, 0, 0, 0.4);
+    }
+    .btn-primary:active {
+      box-shadow: 0 1px 0 #7a571f, 0 6px 12px rgba(0, 0, 0, 0.4);
+    }
+    .btn-secondary {
+      background: #2f4a69;
+      border-color: #52718f;
+    }
+    .btn-danger {
+      background: #7a3e3e;
+      border-color: #b15858;
+      color: #f5dada;
+    }
+    .btn:disabled {
+      opacity: 0.4;
+      transform: translateY(3px);
+      box-shadow: 0 3px 0 #0a1520;
+      pointer-events: none;
+      filter: grayscale(0.4);
+    }
+    .rate-hint {
+      text-align: center;
+      color: #aec0d6;
+      background: #142433;
+      border-radius: 40px;
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem;
+      border: 1px solid #2e4b69;
+      display: inline-block;
+      margin: 0 auto;
+      backdrop-filter: blur(4px);
+      letter-spacing: 0.5px;
+    }
+    .footer-note {
+      display: flex;
+      justify-content: center;
+      margin-top: 1.8rem;
+    }
+    .currency-symbol {
+      font-weight: 300;
+      opacity: 0.8;
+    }
+    @media (max-width: 480px) {
+      .timer-card { padding: 1.8rem; }
+      .time-digits { font-size: 2.6rem; padding: 0.1rem 1rem; }
+      .time-digits span { min-width: 3.8rem; }
+      .cost-badge { font-size: 1.5rem; padding: 0.1rem 1.2rem; }
+      .btn { padding: 0.7rem 1.2rem; min-width: 90px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="timer-card">
+    <div class="brand">
+      <h1>⏳ KazInni</h1>
+      <span class="sub">workspace</span>
+    </div>
+
+    <div class="display-panel">
+      <div class="time-row">
+        <div class="time-digits">
+          <span id="minutesDisplay">00</span>
+        </div>
+        <div class="cost-badge">
+          <small>KSh</small> <span id="costDisplay">0.00</span>
+        </div>
+      </div>
+      <div class="meta-info">
+        <span id="statusLabel">⏸ paused</span>
+        <span id="sessionCount">⏱ 0 min</span>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="btn btn-primary" id="startBtn">▶ Start</button>
+      <button class="btn btn-secondary" id="pauseBtn">⏸ Pause</button>
+      <button class="btn btn-danger" id="resetBtn">⟲ Reset</button>
+    </div>
+
+    <div class="footer-note">
+      <div class="rate-hint">
+        ⚡ 50 cts / min · KSh
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      // ----- DOM refs -----
+      const minutesSpan = document.getElementById('minutesDisplay');
+      const costSpan = document.getElementById('costDisplay');
+      const statusLabel = document.getElementById('statusLabel');
+      const sessionCountSpan = document.getElementById('sessionCount');
+
+      const startBtn = document.getElementById('startBtn');
+      const pauseBtn = document.getElementById('pauseBtn');
+      const resetBtn = document.getElementById('resetBtn');
+
+      // ----- constants -----
+      const RATE_PER_MINUTE = 0.50;   // 50 cents = 0.50 KSh (since 1 KSh = 100 cts)
+      const MINUTE_IN_MS = 60000;
+
+      // ----- state -----
+      let timerInterval = null;
+      let isRunning = false;
+
+      // total elapsed minutes (floating, precise)
+      let totalMinutes = 0;
+
+      // for tracking last tick to avoid drift (not strictly needed but good)
+      let lastTimestamp = null;
+
+      // ----- helper: format minutes to mm (integer) -----
+      function formatMinutes(minutes) {
+        const mins = Math.floor(minutes);
+        return String(mins).padStart(2, '0');
+      }
+
+      // ----- helper: format cost (KSh) with 2 decimals -----
+      function formatCost(minutes) {
+        const cost = minutes * RATE_PER_MINUTE;
+        return cost.toFixed(2);
+      }
+
+      // ----- update UI (minutes & cost) -----
+      function updateDisplay() {
+        const mins = totalMinutes;
+        minutesSpan.textContent = formatMinutes(mins);
+        costSpan.textContent = formatCost(mins);
+        // update session count (shows total minutes so far)
+        sessionCountSpan.textContent = `⏱ ${Math.floor(mins)} min`;
+      }
+
+      // ----- stop timer (clear interval, update status) -----
+      function stopTimer() {
+        if (timerInterval) {
+          clearInterval(timerInterval);
+          timerInterval = null;
+        }
+        isRunning = false;
+        lastTimestamp = null;
+        statusLabel.textContent = '⏸ paused';
+        // reflect on buttons
+        startBtn.disabled = false;
+        pauseBtn.disabled = true;
+      }
+
+      // ----- start timer (if not already running) -----
+      function startTimer() {
+        if (isRunning) return;
+        if (timerInterval) {
+          // safety: clear any ghost interval
+          clearInterval(timerInterval);
+          timerInterval = null;
+        }
+
+        // set running flag and lastTimestamp
+        isRunning = true;
+        lastTimestamp = performance.now(); // high-res timestamp
+
+        // update status
+        statusLabel.textContent = '▶ running';
+        startBtn.disabled = true;
+        pauseBtn.disabled = false;
+
+        // start the interval (tick every 100ms for smoothness)
+        timerInterval = setInterval(() => {
+          const now = performance.now();
+          if (lastTimestamp === null) {
+            // if something weird happened, reset lastTimestamp
+            lastTimestamp = now;
+            return;
+          }
+
+          // delta in milliseconds
+          const deltaMs = now - lastTimestamp;
+          // update total minutes
+          const deltaMinutes = deltaMs / MINUTE_IN_MS;
+          totalMinutes += deltaMinutes;
+
+          // update lastTimestamp to current time
+          lastTimestamp = now;
+
+          // refresh UI
+          updateDisplay();
+        }, 100); // 100ms tick → smooth, accurate enough
+      }
+
+      // ----- pause timer -----
+      function pauseTimer() {
+        if (!isRunning) return;
+        // stop interval, keep totalMinutes as is
+        stopTimer(); // sets isRunning = false, updates status
+        // but we want to keep the label consistent
+        statusLabel.textContent = '⏸ paused';
+        startBtn.disabled = false;
+        pauseBtn.disabled = true;
+      }
+
+      // ----- reset timer -----
+      function resetTimer() {
+        // stop any running timer
+        if (isRunning) {
+          stopTimer(); // this clears interval, sets isRunning false
+        } else if (timerInterval) {
+          // defensive: clear interval if exists but isRunning false (edge case)
+          clearInterval(timerInterval);
+          timerInterval = null;
+        }
+
+        // reset minutes to zero
+        totalMinutes = 0;
+        lastTimestamp = null;
+        isRunning = false;
+
+        // update display
+        updateDisplay();
+        // status
+        statusLabel.textContent = '⏹ reset';
+        startBtn.disabled = false;
+        pauseBtn.disabled = true;
+        // session count shows 0 min
+        sessionCountSpan.textContent = '⏱ 0 min';
+      }
+
+      // ----- load / init state -----
+      function init() {
+        // set initial display
+        totalMinutes = 0;
+        updateDisplay();
+        statusLabel.textContent = '⏸ paused';
+        startBtn.disabled = false;
+        pauseBtn.disabled = true;
+        // ensure no interval
+        if (timerInterval) {
+          clearInterval(timerInterval);
+          timerInterval = null;
+        }
+        isRunning = false;
+        lastTimestamp = null;
+      }
+
+      // ----- attach event listeners -----
+      startBtn.addEventListener('click', startTimer);
+      pauseBtn.addEventListener('click', pauseTimer);
+      resetBtn.addEventListener('click', resetTimer);
+
+      // disable pause initially
+      pauseBtn.disabled = true;
+
+      // extra: if user leaves page, we might want to pause? but we keep it simple.
+      // optional: handle visibility change? not required for this demo
+
+      // init
+      init();
+
+      // expose for debugging (optional)
+      window.__timer = { totalMinutes, isRunning, startTimer, pauseTimer, resetTimer };
+    })();
+  </script>
+</body>
+</html>
