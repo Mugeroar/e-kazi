@@ -566,25 +566,50 @@
 
     auth.onAuthStateChanged(user => {
       if (user) {
-        // Show a prompt asking if the user wants to go to the dashboard
-        if (confirm('You have successfully signed in. Go to the dashboard now?')) {
-          window.location.href = 'dashboard.html';
-        } else {
-          // User stays on the current page
-          // Optionally update UI to show signed-in state
-          const signInBtn = document.querySelector('.header-container .btn-primary');
-          if (signInBtn) {
-            signInBtn.innerHTML = '<i class="fas fa-user-check"></i> Signed In';
-            signInBtn.disabled = true;
-            signInBtn.style.opacity = '0.7';
-            signInBtn.onclick = null;
-          }
-          showToast('You are signed in. Click "Staff Sign In" again to go to the dashboard.', 'success');
-          
-          // You could also add a "Go to Dashboard" button or update the UI
-        }
+        // Show a custom prompt/modal
+        showAuthSuccessModal();
       }
     });
+    
+    function showAuthSuccessModal() {
+      // You can create a simple overlay with a message and buttons
+      const overlay = document.createElement('div');
+      overlay.style.cssText = `
+        position: fixed; top:0; left:0; width:100%; height:100%;
+        background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
+        z-index: 5000; display: flex; align-items: center; justify-content: center;
+      `;
+      
+      const modal = document.createElement('div');
+      modal.style.cssText = `
+        background: white; border-radius: 28px; padding: 2.5rem;
+        max-width: 400px; width: 90%; text-align: center;
+        box-shadow: 0 30px 60px rgba(0,0,0,0.25);
+      `;
+      
+      modal.innerHTML = `
+        <i class="fas fa-check-circle" style="font-size:3rem;color:#10b981;display:block;margin-bottom:1rem;"></i>
+        <h3 style="font-weight:700;margin-bottom:0.5rem;font-family:var(--font-display);">Signed In!</h3>
+        <p style="color:var(--text-muted);margin-bottom:1.5rem;">You have successfully signed in. Would you like to go to the dashboard?</p>
+        <div style="display:flex;gap:0.8rem;justify-content:center;">
+          <button onclick="this.closest('div[style]').parentElement.remove();" 
+                  style="padding:0.6rem 1.5rem;border-radius:40px;border:1px solid var(--border-medium);
+                         background:transparent;font-weight:600;cursor:pointer;font-family:var(--font-heading);">
+            Stay Here
+          </button>
+          <button onclick="window.location.href='dashboard.html'" 
+                  style="padding:0.6rem 1.5rem;border-radius:40px;border:none;
+                         background:var(--gold-gradient);color:white;font-weight:600;
+                         cursor:pointer;font-family:var(--font-heading);
+                         box-shadow:var(--shadow-gold);">
+            Go to Dashboard
+          </button>
+        </div>
+      `;
+      
+      overlay.appendChild(modal);
+      document.body.appendChild(overlay);
+    }
 
     // ===== MAP FUNCTIONS =====
     function initOverviewMap() {
