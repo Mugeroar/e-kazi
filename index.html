@@ -161,7 +161,7 @@
       position: absolute;
       top: calc(100% + 8px);
       right: 0;
-      min-width: 200px;
+      min-width: 220px;
       background: white;
       border-radius: 16px;
       box-shadow: 0 20px 60px rgba(0,0,0,0.15);
@@ -343,6 +343,20 @@
     }
     .stat-value { font-size: 1.7rem; font-weight: 800; font-family: var(--font-display); margin-bottom: 0.15rem; }
     .stat-label { font-size: 0.75rem; color: var(--text-muted); font-weight: 500; font-family: var(--font-heading); }
+    .stat-badge {
+      display: inline-block;
+      padding: 0.15rem 0.6rem;
+      border-radius: 20px;
+      font-size: 0.55rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      margin-top: 0.15rem;
+    }
+    .stat-badge.online { background: #d1fae5; color: #065f46; }
+    .stat-badge.busy { background: #fee2e2; color: #991b1b; }
+    .stat-badge.away { background: #fef3c7; color: #92400e; }
+    .stat-badge.offline { background: #f3f4f6; color: #4b5563; }
 
     .section-header {
       display: flex; align-items: center; gap: 0.8rem;
@@ -708,6 +722,8 @@
         });
         updateStatusUI(status);
         showToast(`Status updated to ${status.charAt(0).toUpperCase() + status.slice(1)}`, 'success');
+        // Update active users count
+        loadActiveUsers();
       } catch (error) {
         console.error('Error updating status:', error);
         showToast('Failed to update status', 'error');
@@ -728,7 +744,6 @@
           <i class="fas fa-chevron-down"></i>
         `;
       }
-      // Update active state in dropdown
       document.querySelectorAll('.status-option').forEach(opt => {
         opt.classList.toggle('active', opt.dataset.status === status);
       });
@@ -743,7 +758,6 @@
       }
     }
 
-    // Close dropdown when clicking outside
     document.addEventListener('click', function(e) {
       const wrapper = document.querySelector('.user-status-wrapper');
       if (wrapper && !wrapper.contains(e.target)) {
@@ -754,25 +768,74 @@
       }
     });
 
+    // ===== ACTIVE USERS =====
+    async function loadActiveUsers() {
+      try {
+        const usersSnap = await database.ref('users').once('value');
+        const users = usersSnap.val() || {};
+        let activeCount = 0;
+        let statusCounts = { available: 0, busy: 0, away: 0, offline: 0 };
+        
+        Object.values(users).forEach(user => {
+          if (user.status) {
+            if (user.status === 'available' || user.status === 'busy' || user.status === 'away') {
+              activeCount++;
+            }
+            if (statusCounts[user.status] !== undefined) {
+              statusCounts[user.status]++;
+            }
+          }
+        });
+
+        // Update the stats card
+        const statsRow = document.getElementById('statsRow');
+        // We'll update just the active users stat
+        const statCards = statsRow.querySelectorAll('.stat-card');
+        if (statCards.length >= 3) {
+          const statusBadge = activeCount > 0 ? 
+            `<span class="stat-badge online">${activeCount} online</span>` : 
+            `<span class="stat-badge offline">0 online</span>`;
+          
+          // Update the third stat card (index 2) which is "Active Users"
+          statCards[2].innerHTML = `
+            <div class="stat-icon" style="background:#eff6ff;color:#2563eb;"><i class="fas fa-users"></i></div>
+            <div class="stat-value" style="color:#2563eb;">${activeCount}</div>
+            <div class="stat-label">Active Users</div>
+            ${statusBadge}
+          `;
+        }
+
+        return { activeCount, statusCounts };
+      } catch (error) {
+        console.error('Error loading active users:', error);
+        return { activeCount: 0, statusCounts: {} };
+      }
+    }
+
     // ===== AUTH FUNCTIONS =====
     auth.onAuthStateChanged(user => {
       if (user) {
         currentUser = user;
-        // Check if user has a saved status
         database.ref(`users/${user.uid}/status`).once('value').then(snap => {
           const data = snap.val();
           if (data && data.status) {
             currentStatus = data.status;
+          } else {
+            // Set initial status
+            updateUserStatus('available');
           }
           renderAuthenticatedUI(user);
           updateStatusUI(currentStatus);
+          loadActiveUsers();
         }).catch(() => {
           renderAuthenticatedUI(user);
           updateStatusUI('available');
+          loadActiveUsers();
         });
       } else {
         currentUser = null;
         renderUnauthenticatedUI();
+        loadActiveUsers();
       }
     });
 
@@ -822,7 +885,6 @@
           </div>
         </div>
       `;
-      // Update the status indicator
       updateStatusUI(currentStatus);
     }
 
@@ -837,7 +899,6 @@
 
     async function handleSignOut() {
       try {
-        // Update status to offline before signing out
         if (currentUser) {
           await database.ref(`users/${currentUser.uid}/status`).set({
             status: 'offline',
@@ -849,6 +910,7 @@
         await auth.signOut();
         showToast('Signed out successfully', 'info');
         renderUnauthenticatedUI();
+        loadActiveUsers();
       } catch (error) {
         console.error('Sign out error:', error);
         showToast('Error signing out', 'error');
@@ -942,7 +1004,7 @@
     // ===== STATS =====
     async function loadStats() {
       try {
-        let workspaceCount = 0, resourceCount = 0, registeredUsers = 0, mapLocations = 0;
+        let workspaceCount = 0, resourceCount = 0, mapLocations = 0;
 
         const knownPaths = ['fusion_foods_products', 'dsog_fashion_orders', 'heritage_listings', 'brandinn_print_orders'];
         for (const p of knownPaths) {
@@ -960,14 +1022,12 @@
         }
 
         try {
-          const usersSnap = await database.ref('brandinn_users').once('value');
-          registeredUsers = Object.keys(usersSnap.val() || {}).length;
-        } catch(e) {}
-
-        try {
           const mapSnap = await database.ref('iam_mugera_registrations').once('value');
           mapLocations = Object.values(mapSnap.val() || {}).filter(b => b.lat && b.lng).length;
         } catch(e) {}
+
+        // Get active users count
+        const activeUsers = await loadActiveUsers();
 
         document.getElementById('statsRow').innerHTML = `
           <div class="stat-card">
@@ -982,8 +1042,9 @@
           </div>
           <div class="stat-card">
             <div class="stat-icon" style="background:#eff6ff;color:#2563eb;"><i class="fas fa-users"></i></div>
-            <div class="stat-value" style="color:#2563eb;">${registeredUsers || '—'}</div>
-            <div class="stat-label">Staff Accounts</div>
+            <div class="stat-value" style="color:#2563eb;">${activeUsers.activeCount || 0}</div>
+            <div class="stat-label">Active Users</div>
+            ${activeUsers.activeCount > 0 ? `<span class="stat-badge online">${activeUsers.activeCount} online</span>` : `<span class="stat-badge offline">0 online</span>`}
           </div>
           <div class="stat-card">
             <div class="stat-icon" style="background:#fdf2f8;color:#ec4899;"><i class="fas fa-map-marker-alt"></i></div>
@@ -995,7 +1056,7 @@
         document.getElementById('statsRow').innerHTML = `
           <div class="stat-card"><div class="stat-icon" style="background:#fef3c7;color:#ca8a04;"><i class="fas fa-cubes"></i></div><div class="stat-value" style="color:#ca8a04;">4</div><div class="stat-label">Workspaces</div></div>
           <div class="stat-card"><div class="stat-icon" style="background:#ecfdf5;color:#059669;"><i class="fas fa-book-open"></i></div><div class="stat-value" style="color:#059669;">12+</div><div class="stat-label">Resources</div></div>
-          <div class="stat-card"><div class="stat-icon" style="background:#eff6ff;color:#2563eb;"><i class="fas fa-users"></i></div><div class="stat-value" style="color:#2563eb;">—</div><div class="stat-label">Staff Accounts</div></div>
+          <div class="stat-card"><div class="stat-icon" style="background:#eff6ff;color:#2563eb;"><i class="fas fa-users"></i></div><div class="stat-value" style="color:#2563eb;">0</div><div class="stat-label">Active Users</div><span class="stat-badge offline">0 online</span></div>
           <div class="stat-card"><div class="stat-icon" style="background:#fdf2f8;color:#ec4899;"><i class="fas fa-map-marker-alt"></i></div><div class="stat-value" style="color:#ec4899;">—</div><div class="stat-label">Field Locations</div></div>
         `;
       }
@@ -1084,6 +1145,8 @@
     window.addEventListener('load', () => {
       setTimeout(initOverviewMap, 500);
       setInterval(updateMapData, 30000);
+      // Refresh active users every 30 seconds
+      setInterval(loadActiveUsers, 30000);
     });
 
     loadStats();
