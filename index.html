@@ -562,8 +562,28 @@
     let overviewMap = null;
     let mapMarkers = [];
 
+    // Replace the onAuthStateChanged handler with this:
+
     auth.onAuthStateChanged(user => {
-      if (user) window.location.href = 'dashboard.html';
+      if (user) {
+        // Show a prompt asking if the user wants to go to the dashboard
+        if (confirm('You have successfully signed in. Go to the dashboard now?')) {
+          window.location.href = 'dashboard.html';
+        } else {
+          // User stays on the current page
+          // Optionally update UI to show signed-in state
+          const signInBtn = document.querySelector('.header-container .btn-primary');
+          if (signInBtn) {
+            signInBtn.innerHTML = '<i class="fas fa-user-check"></i> Signed In';
+            signInBtn.disabled = true;
+            signInBtn.style.opacity = '0.7';
+            signInBtn.onclick = null;
+          }
+          showToast('You are signed in. Click "Staff Sign In" again to go to the dashboard.', 'success');
+          
+          // You could also add a "Go to Dashboard" button or update the UI
+        }
+      }
     });
 
     // ===== MAP FUNCTIONS =====
