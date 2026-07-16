@@ -277,6 +277,33 @@
     }
     .selected-service-item .remove { color: var(--danger); cursor: pointer; }
 
+    .custom-service-row {
+      display: flex;
+      gap: 0.8rem;
+      margin-top: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .custom-service-row input {
+      flex: 1;
+      min-width: 100px;
+      padding: 0.6rem 0.8rem;
+      border-radius: 14px;
+      border: 1.5px solid var(--gray-200);
+      font-size: 0.8rem;
+      background: #fafbff;
+    }
+    .custom-service-row button {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      border-radius: 40px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .custom-service-row button:hover { background: var(--primary-dark); }
+
     .price-display {
       background: linear-gradient(135deg, var(--primary-bg), #ede7ff);
       border-radius: 18px;
@@ -416,6 +443,17 @@
         <label><i class="fas fa-cogs"></i> Select Services</label>
         <div class="service-checkboxes" id="servicesCheckboxes"></div>
       </div>
+
+      <!-- CUSTOM SERVICE ADD -->
+      <div class="services-section" style="margin-top: 0.2rem;">
+        <label><i class="fas fa-plus-circle"></i> Add Custom Service</label>
+        <div class="custom-service-row">
+          <input type="text" id="customServiceName" placeholder="Service name (e.g. Video Editing)">
+          <input type="number" id="customServicePrice" placeholder="Price (KES)" min="1">
+          <button id="addCustomServiceBtn">+ Add</button>
+        </div>
+      </div>
+
       <div class="selected-services-list" id="selectedServicesList"></div>
 
       <div class="form-row">
@@ -487,6 +525,7 @@
 
   let selectedServices = {};
   let allRequests = {};
+  let customServiceCounter = 0;
 
   function showToast(msg, isError = false) {
     const container = document.getElementById('toastContainer');
@@ -547,6 +586,25 @@
     calcTotal();
   };
 
+  // Add custom service
+  document.getElementById('addCustomServiceBtn').addEventListener('click', function() {
+    const nameInput = document.getElementById('customServiceName');
+    const priceInput = document.getElementById('customServicePrice');
+    const name = nameInput.value.trim();
+    const price = parseInt(priceInput.value);
+    if (!name) { showToast('Enter service name', true); return; }
+    if (!price || price <= 0) { showToast('Enter valid price', true); return; }
+    
+    const id = 'custom_' + (++customServiceCounter);
+    selectedServices[id] = { id, name, price, quantity: 1 };
+    nameInput.value = '';
+    priceInput.value = '';
+    renderServices();
+    renderSelected();
+    calcTotal();
+    showToast(`Added "${name}" (KES ${price.toLocaleString()})`);
+  });
+
   function renderSelected() {
     const container = document.getElementById('selectedServicesList');
     const items = Object.values(selectedServices);
@@ -574,7 +632,7 @@
     const name = document.getElementById('clientName').value.trim();
     const phone = document.getElementById('phone').value.trim();
     if (!name || !phone) { showToast('Name and phone required', true); return; }
-    if (!Object.keys(selectedServices).length) { showToast('Select a service', true); return; }
+    if (!Object.keys(selectedServices).length) { showToast('Select at least one service', true); return; }
     const { subtotal, total, fee } = calcTotal();
     const data = {
       clientName: name, phone, email: document.getElementById('email').value.trim(),
@@ -632,6 +690,11 @@
       req.services.forEach(svc => {
         const cat = servicesCatalog.find(c => c.name === svc.name);
         if (cat) newSel[cat.id] = { ...cat, quantity: svc.quantity || 1 };
+        else {
+          // It's a custom service
+          const id = 'custom_' + (++customServiceCounter);
+          newSel[id] = { id, name: svc.name, price: svc.price, quantity: svc.quantity || 1 };
+        }
       });
     }
     selectedServices = newSel;
@@ -756,10 +819,6 @@
       navLinks.classList.toggle('show');
     });
   }
-
-  // Fix redirects: keep nav buttons as hrefs (already set)
-  // Ensure the logo redirects correctly
-  // The auth check will redirect to kazinni.vercel.app if not logged in
 
   database.ref('brandinn_service_requests').on('value', snap => { allRequests = snap.val() || {}; renderRecent(); });
   document.getElementById('submitBtn').onclick = saveRequest;
