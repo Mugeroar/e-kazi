@@ -138,6 +138,69 @@
       display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
     }
 
+    /* Print Services Checkboxes */
+    .print-services-section {
+      background: #f8fafc;
+      border-radius: 14px;
+      padding: 1.2rem 1.2rem 0.8rem 1.2rem;
+      border: 1.5px solid #e2e8f0;
+      margin-bottom: 1.2rem;
+    }
+    .print-services-section .section-title {
+      font-weight: 700;
+      font-size: 0.8rem;
+      color: #1e293b;
+      margin-bottom: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .print-services-section .section-title i {
+      color: #7c3aed;
+    }
+    .print-services-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.8rem;
+    }
+    .print-service-check {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0.5rem 0.8rem;
+      background: white;
+      border-radius: 10px;
+      border: 1.5px solid #e2e8f0;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+    .print-service-check:hover {
+      border-color: #7c3aed;
+      background: #f5f0ff;
+    }
+    .print-service-check input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: #7c3aed;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .print-service-check .service-icon {
+      font-size: 0.9rem;
+    }
+    .print-service-check .service-icon.print { color: #ef4444; }
+    .print-service-check .service-icon.scan { color: #3b82f6; }
+    .print-service-check .service-icon.copy { color: #f59e0b; }
+    .print-service-check.checked {
+      border-color: #7c3aed;
+      background: #f5f0ff;
+    }
+    .print-service-check .service-label {
+      color: #1e293b;
+    }
+
     .form-actions {
       display: flex; gap: 12px; margin-top: 1.5rem; padding-top: 1.2rem;
       border-top: 1px solid #f1eaff; flex-wrap: wrap;
@@ -190,6 +253,7 @@
 
     @media (max-width: 700px) {
       .form-row { grid-template-columns: 1fr; }
+      .print-services-grid { grid-template-columns: 1fr; }
       .container { padding: 0.8rem; }
       .form-card { padding: 1.2rem; }
       .page-header p { margin-left: 0; }
@@ -223,7 +287,7 @@
   <div class="container">
     <div class="page-header">
       <h1><i class="fas fa-plus-circle"></i> New Application</h1>
-      <p>Register a new client application for any online service.</p>
+      <p>Register a new client application for any online or print service.</p>
     </div>
 
     <div class="form-card">
@@ -256,7 +320,34 @@
           <div class="hint" id="serviceHint">Select the service the client needs help with</div>
         </div>
 
-        <!-- Service Details -->
+        <!-- Print Services Section -->
+        <div class="print-services-section">
+          <div class="section-title">
+            <i class="fas fa-print"></i>
+            Print, Scan & Copy Services
+            <span style="font-weight:400;color:#94a3b8;font-size:0.7rem;">(Select all that apply)</span>
+          </div>
+          <div class="print-services-grid">
+            <label class="print-service-check" id="printCheckLabel">
+              <input type="checkbox" id="requiresPrint" value="print" />
+              <span class="service-icon print"><i class="fas fa-print"></i></span>
+              <span class="service-label">Printing</span>
+            </label>
+            <label class="print-service-check" id="scanCheckLabel">
+              <input type="checkbox" id="requiresScan" value="scan" />
+              <span class="service-icon scan"><i class="fas fa-scanner"></i></span>
+              <span class="service-label">Scanning</span>
+            </label>
+            <label class="print-service-check" id="copyCheckLabel">
+              <input type="checkbox" id="requiresCopy" value="copy" />
+              <span class="service-icon copy"><i class="fas fa-copy"></i></span>
+              <span class="service-label">Copying</span>
+            </label>
+          </div>
+          <div class="hint" style="margin-top:0.6rem;">Checking these will make the application appear in the Print Services workspace</div>
+        </div>
+
+        <!-- Staff Assignment -->
         <div class="form-row">
           <div class="form-group">
             <label>Priority</label>
@@ -337,6 +428,13 @@
     const repNameEl = document.getElementById('repName');
     const repAvatarEl = document.getElementById('repAvatar');
 
+    // Checkbox styling
+    document.querySelectorAll('.print-service-check input[type="checkbox"]').forEach(cb => {
+      cb.addEventListener('change', function() {
+        this.closest('.print-service-check').classList.toggle('checked', this.checked);
+      });
+    });
+
     function getInitials(name) {
       if (!name) return 'DS';
       return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
@@ -356,8 +454,6 @@
       const serviceSelect = document.getElementById('serviceSelect');
       serviceSelect.innerHTML = '<option value="">— Select a service —</option>';
 
-      console.log('Loading services into dropdown:', services.length);
-
       if (!services.length) {
         serviceSelect.innerHTML += '<option value="" disabled>No services available — add one in Services Management</option>';
         return;
@@ -374,28 +470,20 @@
       });
     }
 
-    // ===== LOAD STAFF FROM WORKSPACEPERMISSIONS + BRANDINN_USERS =====
+    // ===== LOAD STAFF =====
     function loadStaff() {
       const staffSelect = document.getElementById('staffSelect');
       staffSelect.innerHTML = '<option value="">— Select a staff member —</option>';
 
-      console.log('Loading staff from workspacePermissions...');
-
       const staffList = [];
 
-      // Iterate through workspacePermissions
       for (const [uid, perms] of Object.entries(workspacePermissionsData || {})) {
-        // Check if this user has digital-services permission
-        // Check both the correct ID and the random ID (for backwards compatibility)
         const hasDigitalServices = 
           perms['digital-services'] === true || 
           perms['-Ow9NSVELH15DGxI5kJw'] === true;
         
         if (hasDigitalServices) {
-          // Get the user's profile from brandinn_users
           const userProfile = brandinnUsersData[uid] || {};
-          
-          // Only include users with a name
           if (userProfile.name) {
             staffList.push({
               uid: uid,
@@ -403,28 +491,22 @@
               email: userProfile.email || '',
               phone: userProfile.phone || '',
               businessName: userProfile.businessName || '',
-              // Check if user is online via activeSessions
-              status: 'available'
             });
           }
         }
       }
-
-      console.log('Staff found with digital-services access:', staffList.length);
 
       if (!staffList.length) {
         staffSelect.innerHTML += '<option value="" disabled>No staff members with Digital Services access</option>';
         return;
       }
 
-      // Sort by name
       const sorted = staffList.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
 
       sorted.forEach(staff => {
         const option = document.createElement('option');
-        option.value = staff.uid; // Use UID as the value
+        option.value = staff.uid;
         option.textContent = `${staff.name} ${staff.email ? '· ' + staff.email : ''}`;
-        option.title = staff.email || staff.businessName || 'Staff member';
         option.dataset.staffUid = staff.uid;
         option.dataset.staffEmail = staff.email || '';
         staffSelect.appendChild(option);
@@ -459,6 +541,17 @@
         const priority = document.getElementById('prioritySelect').value;
         const assignedStaffUid = document.getElementById('staffSelect').value;
         const notes = document.getElementById('notes').value.trim();
+        
+        // Get print service selections
+        const requiresPrint = document.getElementById('requiresPrint').checked;
+        const requiresScan = document.getElementById('requiresScan').checked;
+        const requiresCopy = document.getElementById('requiresCopy').checked;
+
+        // Build printServices object
+        const printServices = {};
+        if (requiresPrint) printServices.print = true;
+        if (requiresScan) printServices.scan = true;
+        if (requiresCopy) printServices.copy = true;
 
         // Validate
         if (!clientName) {
@@ -482,12 +575,12 @@
           return;
         }
 
-        // Get the staff name from the selected option
+        // Get staff name
         const staffSelect = document.getElementById('staffSelect');
         const selectedOption = staffSelect.options[staffSelect.selectedIndex];
         const assignedStaffName = selectedOption ? selectedOption.textContent.split(' · ')[0] : '';
 
-        // Check if client already exists
+        // Check if client exists
         const existingClient = await findExistingClient(clientName, clientEmail, clientPhone);
         let clientId;
 
@@ -499,7 +592,6 @@
           clientId = existingId;
           showAlert(`Client "${clientName}" already exists. Adding application to existing profile.`, 'info');
         } else {
-          // Create new client
           const newClientRef = push(ref(db, 'digital_services_clients'));
           clientId = newClientRef.key;
           await set(newClientRef, {
@@ -515,7 +607,7 @@
           showAlert(`New client "${clientName}" created successfully!`, 'success');
         }
 
-        // Create the application
+        // Create the application with printServices
         const newAppRef = push(ref(db, 'digital_services_applications'));
         await set(newAppRef, {
           clientId: clientId,
@@ -530,6 +622,11 @@
           paymentStatus: 'pending',
           amount: 0,
           status: 'pending',
+          // Print services flags
+          printServices: printServices,
+          requiresPrint: requiresPrint,
+          requiresScan: requiresScan,
+          requiresCopy: requiresCopy,
           createdAt: Date.now(),
           updatedAt: Date.now()
         });
@@ -537,10 +634,20 @@
         // Update client last activity
         await set(ref(db, `digital_services_clients/${clientId}/lastActivity`), new Date().toISOString());
 
-        showAlert(`Application for "${clientName}" (${service}) assigned to ${assignedStaffName}!`, 'success');
+        let serviceMsg = service;
+        const printMsg = [];
+        if (requiresPrint) printMsg.push('Printing');
+        if (requiresScan) printMsg.push('Scanning');
+        if (requiresCopy) printMsg.push('Copying');
+        if (printMsg.length) {
+          serviceMsg += ` + ${printMsg.join(', ')}`;
+        }
+
+        showAlert(`Application for "${clientName}" (${serviceMsg}) assigned to ${assignedStaffName}!`, 'success');
 
         // Reset form
         document.getElementById('applicationForm').reset();
+        document.querySelectorAll('.print-service-check').forEach(el => el.classList.remove('checked'));
         document.getElementById('clientName').focus();
 
         // Reload services and staff selections
@@ -558,7 +665,6 @@
 
     // ===== SETUP FIREBASE LISTENERS =====
     function setupListeners() {
-      // Load services from Firebase
       onValue(ref(db, 'digital_services_services'), (snap) => {
         const data = snap.val() || {};
         services = Object.entries(data).map(([id, value]) => ({
@@ -567,31 +673,24 @@
           fee: value.fee || 0,
           description: value.description || ''
         }));
-        console.log('Services loaded:', services.length);
         loadServices();
         loadingOverlay.classList.add('hide');
       });
 
-      // ===== LOAD WORKSPACE PERMISSIONS =====
       onValue(ref(db, 'workspacePermissions'), (snap) => {
         workspacePermissionsData = snap.val() || {};
-        console.log('Workspace permissions loaded:', Object.keys(workspacePermissionsData).length);
-        loadStaff(); // Re-populate staff dropdown
+        loadStaff();
       });
 
-      // ===== LOAD BRANDINN USERS =====
       onValue(ref(db, 'brandinn_users'), (snap) => {
         brandinnUsersData = snap.val() || {};
-        console.log('BrandInn users loaded:', Object.keys(brandinnUsersData).length);
-        loadStaff(); // Re-populate staff dropdown
+        loadStaff();
       });
 
-      // Load clients for duplicate checking
       onValue(ref(db, 'digital_services_clients'), (snap) => {
         allClients = snap.val() || {};
       });
 
-      // Load applications for reference
       onValue(ref(db, 'digital_services_applications'), (snap) => {
         applications = snap.val() || {};
       });
