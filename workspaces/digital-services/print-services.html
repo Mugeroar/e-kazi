@@ -210,6 +210,18 @@
     .action-cell .print-task-btn { background: #dbeafe; color: #1e40af; }
     .action-cell .print-task-btn:hover { background: #bfdbfe; }
 
+    .service-badge {
+      display: inline-block;
+      padding: 0.1rem 0.5rem;
+      border-radius: 12px;
+      font-size: 0.6rem;
+      font-weight: 600;
+      margin-right: 3px;
+    }
+    .badge-print { background: #fef2f2; color: #dc2626; }
+    .badge-scan { background: #eff6ff; color: #2563eb; }
+    .badge-copy { background: #fffbeb; color: #d97706; }
+
     .empty-state {
       text-align: center; padding: 3rem 1.5rem; color: #94a3b8; font-size: 0.85rem;
     }
@@ -318,7 +330,7 @@
   <div class="container">
     <div class="page-header">
       <h1><i class="fas fa-print"></i> Print Services</h1>
-      <p>Manage printing, scanning, copying, and all printer-related tasks from client applications.</p>
+      <p>Manage printing, scanning, and copying services for client applications.</p>
     </div>
 
     <div id="alertMessage" class="alert"></div>
@@ -636,35 +648,77 @@
       setTimeout(() => alertEl.classList.remove('show'), 4000);
     }
 
-    // Check if a service is print-related
-    function isPrintService(service) {
-      if (!service) return false;
-      const printKeywords = ['print', 'printing', 'scan', 'scanning', 'copy', 'copying', 'photocopy', 'document', 'certificate', 'passport photo', 'id photo'];
-      return printKeywords.some(keyword => service.toLowerCase().includes(keyword));
-    }
-
-    // Get applications that have print-related services
+    // ===== FILTER APPLICATIONS WITH PRINT SERVICES =====
     function getPrintApplications() {
       return Object.entries(allApplications)
-        .filter(([_, app]) => app && app.clientName && isPrintService(app.service))
+        .filter(([_, app]) => {
+          if (!app || !app.clientName) return false;
+          
+          // Check if any print service is selected
+          // Using the printServices object or individual flags
+          const hasPrintServices = 
+            app.printServices && (app.printServices.print || app.printServices.scan || app.printServices.copy) ||
+            app.requiresPrint === true ||
+            app.requiresScan === true ||
+            app.requiresCopy === true;
+          
+          return hasPrintServices;
+        })
         .map(([id, app]) => ({ id, ...app }));
     }
 
-    // Populate application dropdowns
+    // Get applications that need a specific service type
+    function getApplicationsByServiceType(type) {
+      return Object.entries(allApplications)
+        .filter(([_, app]) => {
+          if (!app || !app.clientName) return false;
+          
+          if (type === 'print') {
+            return app.printServices?.print === true || app.requiresPrint === true;
+          } else if (type === 'scan') {
+            return app.printServices?.scan === true || app.requiresScan === true;
+          } else if (type === 'copy') {
+            return app.printServices?.copy === true || app.requiresCopy === true;
+          }
+          return false;
+        })
+        .map(([id, app]) => ({ id, ...app }));
+    }
+
+    // Populate application dropdowns with filtered apps
     function populateAppDropdowns() {
-      const apps = getPrintApplications();
-      const selects = ['printAppSelect', 'scanAppSelect', 'copyAppSelect'];
-      
-      selects.forEach(selectId => {
-        const select = document.getElementById(selectId);
-        if (!select) return;
-        select.innerHTML = '<option value="">— Select an application —</option>';
-        apps.forEach(app => {
-          const option = document.createElement('option');
-          option.value = app.id;
-          option.textContent = `${app.clientName} - ${app.service}`;
-          select.appendChild(option);
-        });
+      const printApps = getApplicationsByServiceType('print');
+      const scanApps = getApplicationsByServiceType('scan');
+      const copyApps = getApplicationsByServiceType('copy');
+
+      // Print dropdown
+      const printSelect = document.getElementById('printAppSelect');
+      printSelect.innerHTML = '<option value="">— Select an application —</option>';
+      printApps.forEach(app => {
+        const option = document.createElement('option');
+        option.value = app.id;
+        option.textContent = `${app.clientName} - ${app.service || 'Print Service'}`;
+        printSelect.appendChild(option);
+      });
+
+      // Scan dropdown
+      const scanSelect = document.getElementById('scanAppSelect');
+      scanSelect.innerHTML = '<option value="">— Select an application —</option>';
+      scanApps.forEach(app => {
+        const option = document.createElement('option');
+        option.value = app.id;
+        option.textContent = `${app.clientName} - ${app.service || 'Scan Service'}`;
+        scanSelect.appendChild(option);
+      });
+
+      // Copy dropdown
+      const copySelect = document.getElementById('copyAppSelect');
+      copySelect.innerHTML = '<option value="">— Select an application —</option>';
+      copyApps.forEach(app => {
+        const option = document.createElement('option');
+        option.value = app.id;
+        option.textContent = `${app.clientName} - ${app.service || 'Copy Service'}`;
+        copySelect.appendChild(option);
       });
     }
 
@@ -688,7 +742,7 @@
         .filter(([_, j]) => j && j.clientName)
         .map(([id, data]) => ({ id, ...data }))
         .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
-        .slice(0, 10);
+        .slice(0, 20);
 
       if (!jobs.length) {
         tbody.innerHTML = `
@@ -696,7 +750,7 @@
             <td colspan="7" class="empty-state">
               <i class="fas fa-print" style="font-size:2rem;"></i>
               No print jobs yet
-              <p style="font-size:0.7rem;color:#cbd5e1;margin-top:0.3rem;">Create a print job from an application with print-related services</p>
+              <p style="font-size:0.7rem;color:#cbd5e1;margin-top:0.3rem;">Create a print job from an application with print services selected</p>
             </td>
           </tr>
         `;
