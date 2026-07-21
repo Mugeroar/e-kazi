@@ -113,6 +113,10 @@
     .btn-outline { background: white; border-color: var(--border); color: var(--text-secondary); }
     .btn-outline:hover { background: #f8fafc; }
     .btn-xs { padding: 0.2rem 0.4rem; font-size: 0.6rem; border-radius: 4px; }
+    .btn-success { background: var(--success); color: white; border-color: var(--success); }
+    .btn-success:hover { background: #059669; }
+    .btn-warning { background: var(--warning); color: white; border-color: var(--warning); }
+    .btn-warning:hover { background: #d97706; }
 
     .subscription-bar {
       display: flex; align-items: center; gap: 6px; margin-top: 3px;
@@ -128,6 +132,22 @@
     .empty-state { text-align: center; padding: 2.5rem 1rem; }
     .empty-state i { font-size: 2.5rem; color: #cbd5e1; display: block; margin-bottom: 0.8rem; }
     .empty-state p { font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 1rem; }
+
+    /* Tier Info Cards */
+    .tier-info-row {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 1.5rem;
+    }
+    .tier-card {
+      background: var(--surface); border-radius: var(--radius-lg); padding: 1rem;
+      border: 1px solid var(--border-light); box-shadow: var(--shadow-sm); text-align: center;
+    }
+    .tier-card .tier-icon { font-size: 1.5rem; margin-bottom: 0.3rem; }
+    .tier-card .tier-name { font-weight: 700; font-size: 0.85rem; }
+    .tier-card .tier-price { font-size: 0.75rem; color: var(--text-secondary); margin: 0.2rem 0; }
+    .tier-card .tier-features { font-size: 0.6rem; color: var(--text-secondary); margin-top: 0.3rem; }
+    .tier-card.basic { border-top: 3px solid #94a3b8; }
+    .tier-card.standard { border-top: 3px solid #3b82f6; }
+    .tier-card.premium { border-top: 3px solid #8b5cf6; }
 
     /* Modal */
     .modal-overlay {
@@ -174,6 +194,7 @@
     @media (max-width: 768px) {
       .main { padding: 1rem; }
       .stats-row { grid-template-columns: 1fr 1fr; }
+      .tier-info-row { grid-template-columns: 1fr; }
       .member-row { grid-template-columns: 1fr 80px 70px; gap: 6px; }
       .member-club, .member-actions { display: none; }
       .form-row, .detail-grid { grid-template-columns: 1fr; }
@@ -190,6 +211,11 @@
   <!-- Member Detail Modal -->
   <div class="modal-overlay" id="detailModal">
     <div class="modal" id="detailModalContent"><div class="modal-handle"></div></div>
+  </div>
+
+  <!-- Upgrade/Confirm Modal -->
+  <div class="modal-overlay" id="upgradeModal">
+    <div class="modal" id="upgradeModalContent"><div class="modal-handle"></div></div>
   </div>
 
   <div class="topbar">
@@ -210,6 +236,28 @@
       <div>
         <h1 class="page-title">🎫 Membership Manager</h1>
         <p class="page-subtitle">Track members, subscriptions, and renewals across all clubs</p>
+      </div>
+    </div>
+
+    <!-- Tier Info Cards -->
+    <div class="tier-info-row">
+      <div class="tier-card basic">
+        <div class="tier-icon">🆓</div>
+        <div class="tier-name">Basic</div>
+        <div class="tier-price">KES 0 / month</div>
+        <div class="tier-features">Basic BMI · Limited App Access</div>
+      </div>
+      <div class="tier-card standard">
+        <div class="tier-icon">📚</div>
+        <div class="tier-name">Standard</div>
+        <div class="tier-price">KES 500 / month</div>
+        <div class="tier-features">Library Access · Borrow Books · Shop Access</div>
+      </div>
+      <div class="tier-card premium">
+        <div class="tier-icon">⭐</div>
+        <div class="tier-name">Premium</div>
+        <div class="tier-price">KES 800 / month</div>
+        <div class="tier-features">Advanced BMI Analytics · All Features</div>
       </div>
     </div>
 
@@ -258,6 +306,19 @@
     let allMembers = {};
     let allClubs = {};
 
+    // Tier pricing
+    const TIER_PRICES = {
+      basic: 0,
+      standard: 500,
+      premium: 800
+    };
+
+    const TIER_FEATURES = {
+      basic: ['Basic BMI Calculations', 'Limited App Access'],
+      standard: ['Library Access', 'Borrow Books', 'Shop Access', 'Standard BMI'],
+      premium: ['Advanced BMI Analytics', 'All Standard Features', 'Priority Support', 'Custom Workouts']
+    };
+
     function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
     function toast(msg, err) {
       const t = document.getElementById('toast');
@@ -280,6 +341,13 @@
     function closeDetailModal() { document.getElementById('detailModal').classList.remove('active'); }
     document.getElementById('detailModal').addEventListener('click', function(e) { if (e.target === this) closeDetailModal(); });
 
+    function openUpgradeModal(html) {
+      document.getElementById('upgradeModalContent').innerHTML = '<div class="modal-handle"></div>' + html;
+      document.getElementById('upgradeModal').classList.add('active');
+    }
+    function closeUpgradeModal() { document.getElementById('upgradeModal').classList.remove('active'); }
+    document.getElementById('upgradeModal').addEventListener('click', function(e) { if (e.target === this) closeUpgradeModal(); });
+
     function getSubscriptionStatus(m) {
       const start = m.subscriptionStart || m.joinedAt || m.createdAt;
       const duration = m.subscriptionDuration || 30; // days
@@ -294,6 +362,14 @@
       if (daysLeft <= 0) return { status: 'expired', daysLeft: 0, percentage: 0, endDate };
       if (daysLeft <= 7) return { status: 'expiring', daysLeft, percentage, endDate };
       return { status: 'active', daysLeft, percentage, endDate };
+    }
+
+    function getTierPrice(tier) {
+      return TIER_PRICES[tier.toLowerCase()] || 0;
+    }
+
+    function getTierFeatures(tier) {
+      return TIER_FEATURES[tier.toLowerCase()] || ['Basic Access'];
     }
 
     function populateClubFilter() {
@@ -315,7 +391,7 @@
       let members = Object.entries(allMembers).map(([id, m]) => ({ id, ...m })).filter(m => m && m.name);
       
       if (clubVal !== 'all') members = members.filter(m => m.clubId === clubVal);
-      if (tierVal !== 'all') members = members.filter(m => (m.membershipTier || 'Standard').toLowerCase() === tierVal);
+      if (tierVal !== 'all') members = members.filter(m => (m.membershipTier || 'Basic').toLowerCase() === tierVal);
       if (searchTerm) {
         members = members.filter(m =>
           (m.name || '').toLowerCase().includes(searchTerm) ||
@@ -343,7 +419,7 @@
       const all = Object.values(allMembers).filter(m => m && m.name);
       document.getElementById('statTotal').textContent = all.length;
       document.getElementById('statActive').textContent = all.filter(m => m.status === 'active').length;
-      document.getElementById('statPremium').textContent = all.filter(m => m.membershipTier === 'Premium').length;
+      document.getElementById('statPremium').textContent = all.filter(m => (m.membershipTier || 'Basic') === 'Premium').length;
       document.getElementById('statExpiring').textContent = all.filter(m => getSubscriptionStatus(m).status === 'expiring').length;
       document.getElementById('memberCount').textContent = members.length;
 
@@ -356,8 +432,9 @@
 
       container.innerHTML = members.map(m => {
         const clubName = esc(m.clubName || 'Unassigned');
-        const tier = m.membershipTier || 'Standard';
+        const tier = m.membershipTier || 'Basic';
         const sub = m.subStatus;
+        const tierPrice = getTierPrice(tier);
         let subLabel = '';
         let subColor = '';
         if (sub.status === 'active') { subLabel = `${sub.daysLeft}d left`; subColor = 'active'; }
@@ -372,6 +449,7 @@
               <div class="member-details">
                 ${m.phone ? `<span><i class="fas fa-phone"></i> ${esc(m.phone)}</span>` : ''}
                 ${m.email ? `<span><i class="fas fa-envelope"></i> ${esc(m.email)}</span>` : ''}
+                ${tierPrice > 0 ? `<span style="color:var(--orange);font-weight:600;">KES ${tierPrice}</span>` : '<span style="color:#94a3b8;">Free</span>'}
               </div>
               ${sub.status !== 'unknown' ? `
               <div class="subscription-bar">
@@ -385,6 +463,7 @@
             <div class="member-actions">
               <button class="btn btn-outline btn-xs" onclick="viewMemberDetail('${m.id}')" title="View"><i class="fas fa-eye"></i></button>
               <button class="btn btn-outline btn-xs" onclick="openMemberForm('${m.id}')" title="Edit"><i class="fas fa-pen"></i></button>
+              <button class="btn btn-outline btn-xs" onclick="openUpgradeForm('${m.id}')" title="Upgrade" style="color:var(--orange);"><i class="fas fa-arrow-up"></i></button>
               <button class="btn btn-outline btn-xs" style="color:#ef4444;" onclick="if(confirm('Remove this member?')) deleteMember('${m.id}')" title="Delete"><i class="fas fa-trash"></i></button>
             </div>
           </div>`;
@@ -397,6 +476,9 @@
       if (!m) return;
       const sub = getSubscriptionStatus(m);
       const clubName = esc(m.clubName || 'Unassigned');
+      const tier = m.membershipTier || 'Basic';
+      const tierPrice = getTierPrice(tier);
+      const features = getTierFeatures(tier);
       
       openDetailModal(`
         <div class="modal-header"><h3>👤 Member Details</h3><button class="modal-close" onclick="closeDetailModal()"><i class="fas fa-times"></i></button></div>
@@ -405,8 +487,8 @@
           <div class="detail-item"><strong>Phone</strong><span>${esc(m.phone || '—')}</span></div>
           <div class="detail-item"><strong>Email</strong><span>${esc(m.email || '—')}</span></div>
           <div class="detail-item"><strong>Club</strong><span>${clubName}</span></div>
-          <div class="detail-item"><strong>Tier</strong><span class="badge ${(m.membershipTier||'Standard').toLowerCase()}">${m.membershipTier||'Standard'}</span></div>
-          <div class="detail-item"><strong>Status</strong><span class="badge ${m.status==='active'?'badge-success':'badge-danger'}">${m.status||'active'}</span></div>
+          <div class="detail-item"><strong>Tier</strong><span class="badge ${tier.toLowerCase()}">${tier}</span></div>
+          <div class="detail-item"><strong>Price</strong><span>${tierPrice > 0 ? 'KES ' + tierPrice.toLocaleString() : 'Free'}</span></div>
           <div class="detail-item"><strong>Subscription</strong><span>${sub.status === 'expired' ? '🔴 Expired' : sub.status === 'expiring' ? '🟡 Expiring' : '🟢 Active'}</span></div>
           <div class="detail-item"><strong>Days Left</strong><span>${sub.daysLeft || 0} days</span></div>
           <div class="detail-item"><strong>Start Date</strong><span>${m.subscriptionStart ? new Date(m.subscriptionStart).toLocaleDateString() : '—'}</span></div>
@@ -414,13 +496,103 @@
           <div class="detail-item"><strong>Duration</strong><span>${m.subscriptionDuration || 30} days</span></div>
           <div class="detail-item"><strong>Amount Paid</strong><span>KES ${(m.subscriptionAmount || 0).toLocaleString()}</span></div>
           <div class="detail-item"><strong>Payment Method</strong><span>${esc(m.paymentMethod || '—')}</span></div>
+          <div class="detail-item full"><strong>Features</strong><span style="font-weight:400;font-size:0.75rem;">${features.join(' • ')}</span></div>
           <div class="detail-item full"><strong>Notes</strong><span>${esc(m.notes || 'No notes')}</span></div>
         </div>
-        <div style="display:flex;gap:8px;margin-top:0.5rem;">
+        <div style="display:flex;gap:8px;margin-top:0.5rem;flex-wrap:wrap;">
           <button class="btn btn-primary" style="flex:1;" onclick="closeDetailModal(); openMemberForm('${memberId}')"><i class="fas fa-pen"></i> Edit</button>
-          <button class="btn btn-outline" style="flex:1;" onclick="renewSubscription('${memberId}')"><i class="fas fa-sync"></i> Renew</button>
+          <button class="btn btn-warning" style="flex:1;" onclick="closeDetailModal(); openUpgradeForm('${memberId}')"><i class="fas fa-arrow-up"></i> Upgrade</button>
+          <button class="btn btn-outline" style="flex:1;" onclick="closeDetailModal(); renewSubscription('${memberId}')"><i class="fas fa-sync"></i> Renew</button>
         </div>
       `);
+    };
+
+    // Upgrade Form
+    window.openUpgradeForm = function(memberId) {
+      const m = allMembers[memberId];
+      if (!m) return;
+      const currentTier = m.membershipTier || 'Basic';
+      
+      const tierOptions = ['Basic', 'Standard', 'Premium'].map(tier => {
+        const price = getTierPrice(tier);
+        const selected = tier === currentTier ? 'selected' : '';
+        return `<option value="${tier}" ${selected}>${tier} ${price > 0 ? '(KES ' + price + ')' : '(Free)'}</option>`;
+      }).join('');
+
+      openUpgradeModal(`
+        <div class="modal-header"><h3>⬆ Upgrade Member</h3><button class="modal-close" onclick="closeUpgradeModal()"><i class="fas fa-times"></i></button></div>
+        <input type="hidden" id="upgradeMemberId" value="${memberId}">
+        <div class="form-group">
+          <label>Member</label>
+          <div style="font-weight:600;font-size:0.9rem;">${esc(m.name || m.fullName)}</div>
+        </div>
+        <div class="form-group">
+          <label>Current Tier</label>
+          <div><span class="badge ${currentTier.toLowerCase()}">${currentTier}</span></div>
+        </div>
+        <div class="form-group">
+          <label>New Tier *</label>
+          <select id="upgradeTier">${tierOptions}</select>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Amount Paid (KES)</label>
+            <input id="upgradeAmount" type="number" placeholder="Enter amount" value="0">
+          </div>
+          <div class="form-group">
+            <label>Payment Method</label>
+            <select id="upgradePayment">
+              <option value="M-Pesa">M-Pesa</option>
+              <option value="Cash">Cash</option>
+              <option value="Bank Transfer">Bank Transfer</option>
+              <option value="Card">Card</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>New Start Date</label>
+          <input id="upgradeStartDate" type="date" value="${new Date().toISOString().split('T')[0]}">
+        </div>
+        <div class="form-group">
+          <label>Notes</label>
+          <textarea id="upgradeNotes" rows="2" placeholder="Upgrade notes...">Upgraded from ${currentTier}</textarea>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-outline" style="flex:1;" onclick="closeUpgradeModal()">Cancel</button>
+          <button class="btn btn-primary" style="flex:1;" onclick="processUpgrade()"><i class="fas fa-check"></i> Confirm Upgrade</button>
+        </div>
+      `);
+    };
+
+    window.processUpgrade = async function() {
+      const memberId = document.getElementById('upgradeMemberId').value;
+      const newTier = document.getElementById('upgradeTier').value;
+      const amount = Number(document.getElementById('upgradeAmount').value) || getTierPrice(newTier);
+      const paymentMethod = document.getElementById('upgradePayment').value;
+      const startDate = document.getElementById('upgradeStartDate').value;
+      const notes = document.getElementById('upgradeNotes').value.trim();
+
+      if (!newTier) return toast('Please select a tier', true);
+
+      try {
+        const data = {
+          membershipTier: newTier,
+          subscriptionAmount: amount,
+          paymentMethod: paymentMethod,
+          subscriptionStart: startDate,
+          subscriptionDuration: 30,
+          status: 'active',
+          notes: notes || `Upgraded to ${newTier}`,
+          updatedAt: firebase.database.ServerValue.TIMESTAMP
+        };
+
+        await db.ref('workfit_members/' + memberId).update(data);
+        closeUpgradeModal();
+        toast(`✅ Member upgraded to ${newTier}!`, false);
+        renderMembers();
+      } catch(e) {
+        toast('Error upgrading member: ' + e.message, true);
+      }
     };
 
     // Add/Edit Member Form
@@ -443,14 +615,14 @@
         <div class="form-group"><label>Email</label><input id="memEmail" value="${esc(m?.email || '')}" placeholder="email@..."></div>
         <div class="form-row">
           <div class="form-group"><label>Club *</label><select id="memClub">${clubOptions}</select></div>
-          <div class="form-group"><label>Membership Tier</label><select id="memTier"><option value="Basic" ${(m?.membershipTier)=='Basic'?'selected':''}>Basic</option><option value="Standard" ${(m?.membershipTier)=='Standard'?'selected':''}>Standard</option><option value="Premium" ${(m?.membershipTier)=='Premium'?'selected':''}>Premium</option></select></div>
+          <div class="form-group"><label>Membership Tier</label><select id="memTier"><option value="Basic" ${(m?.membershipTier)=='Basic'?'selected':''}>Basic (Free)</option><option value="Standard" ${(m?.membershipTier)=='Standard'?'selected':''}>Standard (KES 500)</option><option value="Premium" ${(m?.membershipTier)=='Premium'?'selected':''}>Premium (KES 800)</option></select></div>
         </div>
         <div class="form-row">
           <div class="form-group"><label>Status</label><select id="memStatus"><option value="active" ${(m?.status)=='active'?'selected':''}>Active</option><option value="inactive" ${(m?.status)=='inactive'?'selected':''}>Inactive</option></select></div>
           <div class="form-group"><label>Subscription Duration</label><select id="memDuration"><option value="7" ${m?.subscriptionDuration==7?'selected':''}>7 days</option><option value="14" ${m?.subscriptionDuration==14?'selected':''}>14 days</option><option value="30" ${m?.subscriptionDuration==30?'selected':''}>30 days</option><option value="90" ${m?.subscriptionDuration==90?'selected':''}>90 days</option><option value="180" ${m?.subscriptionDuration==180?'selected':''}>180 days</option><option value="365" ${m?.subscriptionDuration==365?'selected':''}>365 days</option></select></div>
         </div>
         <div class="form-row">
-          <div class="form-group"><label>Amount Paid (KES)</label><input id="memAmount" type="number" value="${m?.subscriptionAmount || ''}" placeholder="e.g. 3000"></div>
+          <div class="form-group"><label>Amount Paid (KES)</label><input id="memAmount" type="number" value="${m?.subscriptionAmount || ''}" placeholder="e.g. 500"></div>
           <div class="form-group"><label>Payment Method</label><select id="memPayment"><option value="M-Pesa" ${m?.paymentMethod=='M-Pesa'?'selected':''}>M-Pesa</option><option value="Cash" ${m?.paymentMethod=='Cash'?'selected':''}>Cash</option><option value="Bank Transfer" ${m?.paymentMethod=='Bank Transfer'?'selected':''}>Bank Transfer</option><option value="Card" ${m?.paymentMethod=='Card'?'selected':''}>Card</option></select></div>
         </div>
         <div class="form-group"><label>Start Date</label><input id="memStartDate" type="date" value="${m?.subscriptionStart ? new Date(m.subscriptionStart).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]}"></div>
@@ -468,16 +640,19 @@
       if (!name) return toast('Name required', true);
       if (!clubId) return toast('Club required', true);
       
+      const tier = document.getElementById('memTier').value;
+      const amount = Number(document.getElementById('memAmount').value) || getTierPrice(tier);
+      
       const clubName = allClubs[clubId]?.businessName || allClubs[clubId]?.name || '';
       const data = {
         name, fullName: name,
         phone: document.getElementById('memPhone').value.trim(),
         email: document.getElementById('memEmail').value.trim(),
         clubId, clubName,
-        membershipTier: document.getElementById('memTier').value,
+        membershipTier: tier,
         status: document.getElementById('memStatus').value,
         subscriptionDuration: Number(document.getElementById('memDuration').value),
-        subscriptionAmount: Number(document.getElementById('memAmount').value) || 0,
+        subscriptionAmount: amount,
         paymentMethod: document.getElementById('memPayment').value,
         subscriptionStart: document.getElementById('memStartDate').value,
         notes: document.getElementById('memNotes').value.trim(),
@@ -502,6 +677,12 @@
       openMemberForm(memberId);
       setTimeout(() => {
         document.getElementById('memStartDate').value = new Date().toISOString().split('T')[0];
+        const m = allMembers[memberId];
+        if (m) {
+          const tier = m.membershipTier || 'Basic';
+          document.getElementById('memTier').value = tier;
+          document.getElementById('memAmount').value = getTierPrice(tier);
+        }
       }, 200);
     };
 
@@ -511,10 +692,12 @@
 
     window.exportMembers = function() {
       const members = Object.values(allMembers).filter(m => m && m.name);
-      let csv = 'Name,Phone,Email,Club,Tier,Status,Subscription End,Days Left\n';
+      let csv = 'Name,Phone,Email,Club,Tier,Price,Status,Subscription End,Days Left\n';
       members.forEach(m => {
         const sub = getSubscriptionStatus(m);
-        csv += `"${m.name || ''}","${m.phone || ''}","${m.email || ''}","${m.clubName || ''}","${m.membershipTier || ''}","${m.status || ''}","${sub.endDate ? sub.endDate.toLocaleDateString() : ''}","${sub.daysLeft || 0}"\n`;
+        const tier = m.membershipTier || 'Basic';
+        const price = getTierPrice(tier);
+        csv += `"${m.name || ''}","${m.phone || ''}","${m.email || ''}","${m.clubName || ''}","${tier}","${price}","${m.status || ''}","${sub.endDate ? sub.endDate.toLocaleDateString() : ''}","${sub.daysLeft || 0}"\n`;
       });
       const blob = new Blob([csv], { type: 'text/csv' });
       const url = URL.createObjectURL(blob);
