@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>BrandInn | Quote Manager</title>
+  <title>BrandInn · Quote Manager</title>
   <meta name="theme-color" content="#7c3aed">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <link rel="icon" type="image/png" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
@@ -310,10 +310,10 @@
     <span class="logo-text">BrandInn <span>Business</span></span>
   </div>
   <div class="nav-links">
-    <a href="#" class="nav-btn active"><i class="fas fa-file-invoice-dollar"></i> Quotes</a>
-    <a href="#" class="nav-btn"><i class="fas fa-ticket-alt"></i> Requests</a>
-    <a href="#" class="nav-btn"><i class="fas fa-project-diagram"></i> Projects</a>
-    <a href="#" class="nav-btn"><i class="fas fa-calendar-check"></i> Bookings</a>
+    <a href="quote-manager.html" class="nav-btn active"><i class="fas fa-file-invoice-dollar"></i> Quotes</a>
+    <a href="service-requests.html" class="nav-btn"><i class="fas fa-ticket-alt"></i> Requests</a>
+    <a href="projects.html" class="nav-btn"><i class="fas fa-project-diagram"></i> Projects</a>
+    <a href="bookings.html" class="nav-btn"><i class="fas fa-calendar-check"></i> Bookings</a>
   </div>
 </nav>
 
@@ -508,8 +508,6 @@
 
   window.closeModal = function() { document.getElementById('quoteModal').style.display = 'none'; currentQuoteId = null; };
   window.editQuote = (id) => { 
-    // For custom quotes: redirect to a dedicated edit page or open inline edit.
-    // We'll open a simple prompt to edit client name and total as a fallback.
     const q = allQuotes[id];
     if (!q) return;
     const newName = prompt('Edit client name:', q.clientName);
@@ -531,7 +529,7 @@
     }
   };
 
-  // PDF generator
+  // PDF generator — uses I AM MUGERA branding on the invoice
   window.generateQuotePDF = function(id) {
     const q = allQuotes[id];
     if (!q) return;
@@ -540,22 +538,24 @@
     const date = new Date().toLocaleDateString('en-GB', { day:'2-digit', month:'long', year:'numeric' });
     const servicesArray = q.services || [];
     const urgencyLabel = q.urgency === 'urgent' ? 'Urgent (+15%)' : q.urgency === 'express' ? 'Express (+30%)' : 'Standard';
-    const logoUrl = 'https://i.postimg.cc/W4LbBJ32/Brand-Inn-Business.webp';
+    // I AM MUGERA logo
+    const logoUrl = 'https://i.postimg.cc/HLQqRybx/mm.jpg';
     
     const printWindow = window.open('', '_blank');
     printWindow.document.write(`
       <!DOCTYPE html>
       <html>
-      <head><meta charset="UTF-8"><title>BrandInn_Quote_${name.replace(/\s/g, '_')}</title>
-      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+      <head><meta charset="UTF-8"><title>IAM_MUGERA_Quote_${name.replace(/\s/g, '_')}</title>
+      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Cinzel:wght@400;500;600;700&display=swap" rel="stylesheet">
       <style>
         *{margin:0;padding:0;box-sizing:border-box;}
         body{font-family:'Inter',sans-serif;padding:1.5rem;max-width:1000px;margin:0 auto;background:white;color:#1e293b;font-size:13px;}
         .print-btn{background:#7c3aed;color:white;border:none;padding:8px 20px;border-radius:40px;cursor:pointer;font-weight:500;margin-bottom:20px;display:inline-flex;align-items:center;gap:6px;font-size:12px;}
         .header{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #7c3aed;padding-bottom:0.8rem;margin-bottom:1.2rem;flex-wrap:wrap;gap:1rem;}
         .logo-area{display:flex;align-items:center;gap:10px;}
-        .logo-img{height:45px;width:45px;object-fit:contain;}
-        .brand h2{color:#5b21b6;font-size:1.3rem;font-weight:700;}
+        .logo-img{height:48px;width:48px;object-fit:cover;border-radius:14px;border:2px solid #7c3aed;}
+        .brand h2{color:#5b21b6;font-size:1.3rem;font-weight:700;font-family:'Cinzel',serif;}
+        .brand p{color:#64748b;font-size:0.6rem;letter-spacing:1px;text-transform:uppercase;}
         .quote-title{text-align:right;}
         .quote-title h3{color:#7c3aed;font-size:1rem;font-weight:700;}
         .client-section{background:#f8fafc;padding:0.8rem;border-radius:14px;margin:1rem 0;border-left:3px solid #7c3aed;}
@@ -572,8 +572,11 @@
       <body>
         <div class="no-print" style="text-align:center;margin-bottom:15px;"><button class="print-btn" onclick="window.print();"><i class="fas fa-print"></i> Save as PDF</button></div>
         <div class="header">
-          <div class="logo-area"><img src="${logoUrl}" class="logo-img" onerror="this.style.display='none'"><div class="brand"><h2>BRANDINN</h2></div></div>
-          <div class="quote-title"><h3>QUOTE</h3><p>#${quoteNum}</p><p>${date}</p></div>
+          <div class="logo-area">
+            <img src="${logoUrl}" class="logo-img" onerror="this.style.display='none'">
+            <div class="brand"><h2>IAM MUGERA</h2><p>Digital Services</p></div>
+          </div>
+          <div class="quote-title"><h3>PROFESSIONAL QUOTE</h3><p>#${quoteNum}</p><p>${date}</p></div>
         </div>
         <div class="client-section">
           <div class="client-details">
@@ -590,7 +593,10 @@
           </tbody>
         </table>
         <div class="total-box"><div class="total-amount">KES ${(q.total || 0).toLocaleString()}</div></div>
-        <div class="footer">BrandInn Business · business.brandinn@gmail.com · Valid 30 days</div>
+        <div class="footer">
+          <i class="fas fa-envelope"></i> info.iammugera@gmail.com | <i class="fas fa-phone"></i> +254 727 211191<br>
+          IAM MUGERA · Digital Services · Valid 30 days
+        </div>
       </body>
       </html>
     `);
@@ -608,7 +614,6 @@
 
   // --- "New Quote" with full custom details (inline modal) ---
   document.getElementById('newQuoteBtn').addEventListener('click', function() {
-    // Show a custom modal with all fields
     const modal = document.getElementById('quoteModal');
     document.getElementById('modalTitle').textContent = 'Create New Quote';
     document.getElementById('modalBody').innerHTML = `
@@ -657,7 +662,6 @@
         <textarea id="newInstructions" class="filter-select" style="width:100%; padding:0.5rem; min-height:60px;" placeholder="Any special requests?"></textarea>
       </div>
     `;
-    // Override modal actions to show Save/Cancel
     const actionsDiv = document.querySelector('.modal-actions');
     actionsDiv.innerHTML = `
       <button class="action-btn" style="background:#e2e8f0; color:#334155;" id="cancelNewQuote">Cancel</button>
@@ -684,7 +688,7 @@
       let urgencyFee = 0;
       if (urgency === 'urgent') urgencyFee = subtotal * 0.15;
       else if (urgency === 'express') urgencyFee = subtotal * 0.30;
-      const serviceFee = 0; // can be customized later
+      const serviceFee = 0;
       const total = subtotal + urgencyFee + serviceFee;
 
       const newQuote = {
@@ -708,18 +712,14 @@
         const ref = database.ref('brandinn_service_requests').push(newQuote);
         showToast('Quote created successfully!');
         closeModal();
-        // re-render will happen via firebase listener
       } catch(e) {
         showToast('Error saving quote', true);
       }
     };
 
-    // Restore standard modal actions after close
-    const origClose = closeModal;
     window.closeModal = function() {
       document.getElementById('quoteModal').style.display = 'none';
       currentQuoteId = null;
-      // Restore original action buttons
       const actionsDiv = document.querySelector('.modal-actions');
       actionsDiv.innerHTML = `
         <button class="action-btn pdf" id="modalPdfBtn"><i class="fas fa-file-pdf"></i> PDF</button>
@@ -733,7 +733,6 @@
   });
 
   // Restore modal close behaviour
-  const originalClose = closeModal;
   window.closeModal = function() {
     document.getElementById('quoteModal').style.display = 'none';
     currentQuoteId = null;
