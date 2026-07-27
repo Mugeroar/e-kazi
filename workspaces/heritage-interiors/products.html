@@ -115,8 +115,6 @@
     .btn-danger:hover { background: #dc2626; }
     .btn-success { background: var(--success); color: white; }
     .btn-success:hover { background: #059669; }
-    .btn-info { background: var(--info); color: white; }
-    .btn-info:hover { background: #2563eb; }
     .btn-sm { padding: 0.25rem 0.7rem; font-size: 0.65rem; }
 
     .filter-bar {
@@ -131,11 +129,16 @@
     }
     .filter-bar select:focus, .filter-bar input:focus { outline: none; border-color: var(--amber); }
 
+    .view-toggle { display: flex; gap: 4px; background: #f1f5f9; border-radius: 10px; padding: 3px; }
+    .view-toggle .btn { padding: 0.3rem 0.8rem; border-radius: 8px; font-size: 0.7rem; background: transparent; border: none; cursor: pointer; color: #64748b; }
+    .view-toggle .btn.active { background: white; color: var(--text-primary); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+
     /* Product Grid */
     .product-grid {
       display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
       gap: 1.2rem; margin-bottom: 1.5rem;
     }
+    .product-grid.hidden { display: none; }
 
     .product-card {
       background: white; border-radius: 16px; border: 1px solid #fde68a;
@@ -164,6 +167,7 @@
     .stock-badge.in-stock { background: #d1fae5; color: #065f46; }
     .stock-badge.low-stock { background: #fef3c7; color: #92400e; }
     .stock-badge.out-of-stock { background: #fee2e2; color: #991b1b; }
+    .stock-badge.discontinued { background: #e2e8f0; color: #475569; }
 
     .product-card .info {
       padding: 0.8rem 1rem;
@@ -188,10 +192,14 @@
     }
     .product-card .info .actions .btn { padding: 0.2rem 0.6rem; font-size: 0.6rem; }
 
-    .table-wrap {
+    /* Product List (Table View) */
+    .product-list-wrap {
       background: white; border-radius: 16px; border: 1px solid #fde68a;
       overflow-x: auto; box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+      display: none;
     }
+    .product-list-wrap.visible { display: block; }
+
     table { width: 100%; border-collapse: collapse; font-size: 0.75rem; min-width: 700px; }
     th {
       text-align: left; padding: 0.8rem 1rem; background: #fffbeb;
@@ -211,20 +219,6 @@
 
     .action-btns { display: flex; gap: 4px; flex-wrap: wrap; }
     .action-btns .btn { padding: 0.2rem 0.5rem; font-size: 0.6rem; }
-
-    .order-modal .modal { max-width: 500px; }
-
-    .empty-state { text-align: center; padding: 3rem; color: #94a3b8; }
-    .empty-state i { font-size: 2.5rem; display: block; margin-bottom: 1rem; opacity: 0.3; }
-
-    .toast {
-      position: fixed; bottom: 2rem; right: 2rem; background: #0f172a;
-      color: white; padding: 0.8rem 1.5rem; border-radius: 12px;
-      font-size: 0.8rem; box-shadow: 0 8px 30px rgba(0,0,0,0.2);
-      transform: translateY(100px); opacity: 0; transition: all 0.3s;
-      z-index: 2000; max-width: 350px;
-    }
-    .toast.show { transform: translateY(0); opacity: 1; }
 
     .modal-overlay {
       display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4);
@@ -265,11 +259,21 @@
     }
     .image-preview img { max-width: 100%; max-height: 150px; object-fit: contain; }
 
-    .footer { text-align: center; padding: 1rem; color: #94a3b8; font-size: 0.7rem; border-top: 1px solid #fde68a; margin-top: 1.5rem; }
+    .order-modal .modal { max-width: 500px; }
 
-    .view-toggle { display: flex; gap: 4px; background: #f1f5f9; border-radius: 10px; padding: 3px; }
-    .view-toggle .btn { padding: 0.3rem 0.8rem; border-radius: 8px; font-size: 0.7rem; background: transparent; border: none; cursor: pointer; color: #64748b; }
-    .view-toggle .btn.active { background: white; color: var(--text-primary); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .empty-state { text-align: center; padding: 3rem; color: #94a3b8; }
+    .empty-state i { font-size: 2.5rem; display: block; margin-bottom: 1rem; opacity: 0.3; }
+
+    .toast {
+      position: fixed; bottom: 2rem; right: 2rem; background: #0f172a;
+      color: white; padding: 0.8rem 1.5rem; border-radius: 12px;
+      font-size: 0.8rem; box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+      transform: translateY(100px); opacity: 0; transition: all 0.3s;
+      z-index: 2000; max-width: 350px;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+
+    .footer { text-align: center; padding: 1rem; color: #94a3b8; font-size: 0.7rem; border-top: 1px solid #fde68a; margin-top: 1.5rem; }
 
     @media (max-width: 768px) {
       .form-row { grid-template-columns: 1fr; }
@@ -312,8 +316,8 @@
       </div>
       <div class="header-actions">
         <div class="view-toggle">
-          <button class="btn active" onclick="setView('grid')"><i class="fas fa-th"></i></button>
-          <button class="btn" onclick="setView('list')"><i class="fas fa-list"></i></button>
+          <button class="btn active" data-view="grid" onclick="setView('grid')"><i class="fas fa-th"></i></button>
+          <button class="btn" data-view="list" onclick="setView('list')"><i class="fas fa-list"></i></button>
         </div>
         <button class="btn btn-primary" onclick="openModal()"><i class="fas fa-plus"></i> Add Product</button>
       </div>
@@ -348,8 +352,8 @@
     <!-- Product Grid -->
     <div class="product-grid" id="productGrid"></div>
 
-    <!-- Product List (hidden by default) -->
-    <div class="table-wrap" id="productList" style="display:none;">
+    <!-- Product List (Table View) -->
+    <div class="product-list-wrap" id="productListWrap">
       <table>
         <thead>
           <tr>
@@ -555,18 +559,13 @@
     let allProducts = {};
     let filteredProducts = {};
     let currentView = 'grid';
+    let currentUser = null;
     const PRODUCTS_PATH = 'heritage_interiors_products';
     const ORDERS_PATH = 'heritage_interiors_orders';
 
     function getInitials(name) {
       if (!name) return 'HI';
       return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
-    }
-
-    function formatDate(timestamp) {
-      if (!timestamp) return '';
-      const d = new Date(timestamp);
-      return d.toLocaleDateString('en-KE', { day: '2-digit', month: 'short', year: 'numeric' });
     }
 
     function escapeHtml(str) {
@@ -598,7 +597,7 @@
         'in-stock': 'in-stock',
         'low-stock': 'low-stock',
         'out-of-stock': 'out-of-stock',
-        'discontinued': 'out-of-stock'
+        'discontinued': 'discontinued'
       };
       return map[status] || 'in-stock';
     }
@@ -684,14 +683,21 @@
       }
 
       // Show/hide views
-      document.getElementById('productGrid').style.display = currentView === 'grid' ? 'grid' : 'none';
-      document.getElementById('productList').style.display = currentView === 'list' ? 'block' : 'none';
+      if (currentView === 'grid') {
+        document.getElementById('productGrid').style.display = 'grid';
+        document.getElementById('productListWrap').classList.remove('visible');
+        document.querySelectorAll('.view-toggle .btn').forEach(b => b.classList.remove('active'));
+        document.querySelector('.view-toggle .btn[data-view="grid"]').classList.add('active');
+      } else {
+        document.getElementById('productGrid').style.display = 'none';
+        document.getElementById('productListWrap').classList.add('visible');
+        document.querySelectorAll('.view-toggle .btn').forEach(b => b.classList.remove('active'));
+        document.querySelector('.view-toggle .btn[data-view="list"]').classList.add('active');
+      }
     }
 
     function setView(view) {
       currentView = view;
-      document.querySelectorAll('.view-toggle .btn').forEach(b => b.classList.remove('active'));
-      document.querySelector(`.view-toggle .btn:${view === 'grid' ? 'first-child' : 'last-child'}`).classList.add('active');
       renderProducts();
     }
     window.setView = setView;
@@ -799,20 +805,15 @@
         return;
       }
 
-      // Check stock
       if (data.quantity > (product.stock || 0)) {
         showToast('Not enough stock. Available: ' + product.stock, true);
         return;
       }
 
       try {
-        // Create order
         const orderRef = push(ref(db, ORDERS_PATH));
         await set(orderRef, { ...data, id: orderRef.key });
-        
-        // Update product stock
         await set(ref(db, `${PRODUCTS_PATH}/${productId}/stock`), (product.stock || 0) - data.quantity);
-        
         showToast('Order placed successfully!');
         closeOrderModal();
       } catch (err) {
@@ -884,6 +885,7 @@
 
     onAuthStateChanged(auth, async (user) => {
       if (user) {
+        currentUser = user;
         const userSnap = await get(ref(db, `brandinn_users/${user.uid}`));
         let userName = user.email?.split('@')[0] || 'Manager';
         if (userSnap.exists()) {
