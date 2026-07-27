@@ -106,7 +106,7 @@
     .btn-outline { background: transparent; border: 1.5px solid #e2e8f0; color: var(--text-primary); }
     .btn-outline:hover { border-color: var(--amber); color: var(--amber); }
 
-    .stats-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin-bottom: 1.2rem; }
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 1.2rem; }
     .stat-card {
       background: white; border-radius: 16px; padding: 1rem 1.2rem;
       border: 1px solid #fde68a; box-shadow: 0 4px 12px rgba(0,0,0,0.02);
@@ -119,8 +119,8 @@
     .stat-trend { font-size: 0.6rem; margin-top: 2px; display: flex; align-items: center; gap: 3px; color: #64748b; }
     .stat-icon { width: 42px; height: 42px; background: #fffbeb; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #78350f; font-size: 1.2rem; }
 
-    .action-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 1.2rem; }
-    @media (min-width: 1100px) { .action-grid { grid-template-columns: repeat(8, 1fr); } }
+    .action-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 1.2rem; }
+    @media (min-width: 1100px) { .action-grid { grid-template-columns: repeat(6, 1fr); } }
     .action-card {
       background: white; border-radius: 20px; padding: 1.2rem;
       border: 1px solid #fde68a; box-shadow: 0 8px 20px -6px rgba(180,83,9,0.04);
@@ -180,7 +180,6 @@
 
     .footer { text-align: center; padding: 1rem; color: #94a3b8; font-size: 0.7rem; border-top: 1px solid #fde68a; margin-top: 1.5rem; }
 
-    @media (max-width: 1100px) { .stats-grid { grid-template-columns: repeat(3, 1fr); } .action-grid { grid-template-columns: repeat(4, 1fr); } }
     @media (max-width: 768px) {
       .stats-grid { grid-template-columns: 1fr 1fr; }
       .action-grid { grid-template-columns: repeat(2, 1fr); }
@@ -223,7 +222,7 @@
       <p>Manage interior design bookings, custom orders, production tracking & client relationships.</p>
     </div>
 
-    <!-- Stats Grid -->
+    <!-- Stats Grid - 4 cards -->
     <div class="stats-grid" id="statsGrid">
       <div class="stat-card">
         <div class="stat-left">
@@ -235,19 +234,11 @@
       </div>
       <div class="stat-card">
         <div class="stat-left">
-          <h4>Orders</h4>
+          <h4>Orders & Products</h4>
           <div class="stat-number" id="statOrders">0</div>
-          <div class="stat-trend"><i class="fas fa-shopping-cart"></i> Active: <span id="statActiveOrders">0</span></div>
+          <div class="stat-trend"><i class="fas fa-tag"></i> Products: <span id="statProducts">0</span></div>
         </div>
         <div class="stat-icon"><i class="fas fa-shopping-cart"></i></div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-left">
-          <h4>Products</h4>
-          <div class="stat-number" id="statProducts">0</div>
-          <div class="stat-trend"><i class="fas fa-tag"></i> In Stock: <span id="statInStock">0</span></div>
-        </div>
-        <div class="stat-icon"><i class="fas fa-tag"></i></div>
       </div>
       <div class="stat-card">
         <div class="stat-left">
@@ -265,17 +256,9 @@
         </div>
         <div class="stat-icon"><i class="fas fa-users"></i></div>
       </div>
-      <div class="stat-card">
-        <div class="stat-left">
-          <h4>Gallery</h4>
-          <div class="stat-number" id="statGallery">0</div>
-          <div class="stat-trend"><i class="fas fa-images"></i> Portfolio items</div>
-        </div>
-        <div class="stat-icon"><i class="fas fa-images"></i></div>
-      </div>
     </div>
 
-    <!-- Action Grid -->
+    <!-- Action Grid - 6 tiles -->
     <div class="action-grid">
       <a href="bookings.html" class="action-card">
         <div class="action-icon"><i class="fas fa-calendar-plus"></i></div>
@@ -302,20 +285,10 @@
         <h2>Add Client</h2>
         <p>Customer</p>
       </a>
-      <a href="inventory.html" class="action-card">
-        <div class="action-icon"><i class="fas fa-warehouse"></i></div>
-        <h2>Inventory</h2>
-        <p>Materials</p>
-      </a>
       <a href="gallery.html" class="action-card">
         <div class="action-icon"><i class="fas fa-images"></i></div>
         <h2>Gallery</h2>
         <p>Portfolio</p>
-      </a>
-      <a href="products.html" class="action-card">
-        <div class="action-icon"><i class="fas fa-shopping-bag"></i></div>
-        <h2>Shop</h2>
-        <p>View products</p>
       </a>
     </div>
 
@@ -329,7 +302,6 @@
         <a href="production.html" class="quick-btn"><i class="fas fa-industry"></i> Production Status</a>
         <a href="customers.html" class="quick-btn"><i class="fas fa-users"></i> Clients</a>
         <a href="inventory.html" class="quick-btn"><i class="fas fa-cubes"></i> Materials</a>
-        <a href="gallery.html" class="quick-btn"><i class="fas fa-images"></i> Portfolio</a>
       </div>
     </div>
 
@@ -429,21 +401,16 @@
 
       const pendingBookings = bookings.filter(b => b.status === 'pending' || b.status === 'new').length;
       const pendingOrders = orders.filter(o => o.status === 'pending' || o.status === 'new').length;
-      const activeOrders = orders.filter(o => o.status !== 'completed' && o.status !== 'cancelled').length;
-      const inStock = products.filter(p => p.status === 'in-stock').length;
       const lowStock = products.filter(p => p.status === 'low-stock').length;
       const inProduction = production.filter(p => p.status === 'in-production' || p.status === 'in progress').length;
 
-      // Stats
+      // Stats - 4 cards
       document.getElementById('statBookings').textContent = bookings.length;
       document.getElementById('statPending').textContent = pendingBookings;
       document.getElementById('statOrders').textContent = orders.length;
-      document.getElementById('statActiveOrders').textContent = activeOrders;
       document.getElementById('statProducts').textContent = products.length;
-      document.getElementById('statInStock').textContent = inStock;
       document.getElementById('statProduction').textContent = inProduction;
       document.getElementById('statCustomers').textContent = customers.length;
-      document.getElementById('statGallery').textContent = gallery.length;
 
       // Quick actions
       document.getElementById('quickPending').textContent = pendingBookings;
@@ -531,37 +498,31 @@
     }
 
     function setupListeners() {
-      // Bookings
       onValue(ref(db, 'heritage_interiors_bookings'), (snapshot) => {
         allBookings = snapshot.val() || {};
         updateDashboard();
       });
 
-      // Orders (combined from both custom orders and product orders)
       onValue(ref(db, 'heritage_interiors_orders'), (snapshot) => {
         allOrders = snapshot.val() || {};
         updateDashboard();
       });
 
-      // Products
       onValue(ref(db, 'heritage_interiors_products'), (snapshot) => {
         allProducts = snapshot.val() || {};
         updateDashboard();
       });
 
-      // Production
       onValue(ref(db, 'heritage_interiors_production'), (snapshot) => {
         allProduction = snapshot.val() || {};
         updateDashboard();
       });
 
-      // Customers
       onValue(ref(db, 'heritage_interiors_customers'), (snapshot) => {
         allCustomers = snapshot.val() || {};
         updateDashboard();
       });
 
-      // Gallery
       onValue(ref(db, 'heritage_interiors_gallery'), (snapshot) => {
         allGallery = snapshot.val() || {};
         updateDashboard();
