@@ -247,6 +247,65 @@
       white-space: nowrap;
     }
 
+    /* Hero Greeting Styles */
+    .greeting-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: var(--bg-card);
+      padding: 0.5rem 1.5rem 0.5rem 0.8rem;
+      border-radius: 60px;
+      border: 1px solid var(--border-light);
+      box-shadow: var(--shadow-sm);
+      transition: all 0.3s ease;
+    }
+    .greeting-wrapper:hover {
+      border-color: var(--gold);
+      box-shadow: var(--shadow-md);
+    }
+    .greeting-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--gold-gradient);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+    .greeting-text {
+      display: flex;
+      flex-direction: column;
+    }
+    .greeting-time {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+    .greeting-name {
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: var(--text-primary);
+    }
+    .greeting-status {
+      font-size: 0.75rem;
+      color: var(--success);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .greeting-status .status-dot {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      background: var(--success);
+      border-radius: 50%;
+      animation: pulse-glow 2s infinite;
+    }
+
     .main-content {
       max-width: 1400px; margin: calc(var(--header-height) + 2rem) auto 2rem;
       padding: 0 2.5rem;
@@ -269,7 +328,12 @@
       font-size: 1.1rem; color: var(--text-secondary);
       margin-bottom: 2rem; max-width: 500px; line-height: 1.7;
     }
-    .hero-buttons { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .hero-buttons {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
 
     .map-widget {
       background: var(--bg-card);
@@ -503,6 +567,20 @@
       .hero-content h1 { font-size: 2.2rem; }
       .main-content{padding:0 1rem}
       .user-email { max-width: 100px; }
+      .greeting-wrapper {
+        padding: 0.3rem 1rem 0.3rem 0.5rem;
+      }
+      .greeting-avatar {
+        width: 34px !important;
+        height: 34px !important;
+        font-size: 0.9rem !important;
+      }
+      .greeting-time {
+        font-size: 0.7rem !important;
+      }
+      .greeting-name {
+        font-size: 0.85rem !important;
+      }
     }
   </style>
 </head>
@@ -586,9 +664,11 @@
       <div class="hero-content">
         <h1>Operations <span class="gold-text">Portal</span></h1>
         <p>Internal dashboard for managing workspaces, monitoring field operations, and accessing business resources.</p>
-        <div class="hero-buttons">
-          <button class="btn btn-primary btn-large" onclick="openAuthModal()"><i class="fas fa-sign-in-alt"></i> Sign in</button>
-          <a href="workspaces.html" class="btn btn-outline btn-large"><i class="fas fa-cubes"></i> Workspaces</a>
+        <div class="hero-buttons" id="heroActions">
+          <!-- This will be dynamically populated -->
+          <a href="workspaces.html" class="btn btn-outline btn-large">
+            <i class="fas fa-cubes"></i> Workspaces
+          </a>
         </div>
       </div>
       <div class="map-widget">
@@ -722,7 +802,6 @@
         });
         updateStatusUI(status);
         showToast(`Status updated to ${status.charAt(0).toUpperCase() + status.slice(1)}`, 'success');
-        // Update active users count
         loadActiveUsers();
       } catch (error) {
         console.error('Error updating status:', error);
@@ -787,16 +866,13 @@
           }
         });
 
-        // Update the stats card
         const statsRow = document.getElementById('statsRow');
-        // We'll update just the active users stat
         const statCards = statsRow.querySelectorAll('.stat-card');
         if (statCards.length >= 3) {
           const statusBadge = activeCount > 0 ? 
             `<span class="stat-badge online">${activeCount} online</span>` : 
             `<span class="stat-badge offline">0 online</span>`;
           
-          // Update the third stat card (index 2) which is "Active Users"
           statCards[2].innerHTML = `
             <div class="stat-icon" style="background:#eff6ff;color:#2563eb;"><i class="fas fa-users"></i></div>
             <div class="stat-value" style="color:#2563eb;">${activeCount}</div>
@@ -812,6 +888,50 @@
       }
     }
 
+    // ===== HERO GREETING FUNCTION =====
+    function updateHeroGreeting(user) {
+      const heroActions = document.getElementById('heroActions');
+      
+      if (user) {
+        const displayName = user.displayName || user.email?.split('@')[0] || 'Team Member';
+        const initials = (user.displayName || user.email || 'U').charAt(0).toUpperCase();
+        
+        const hour = new Date().getHours();
+        let timeGreeting = 'Good morning';
+        if (hour >= 12 && hour < 17) timeGreeting = 'Good afternoon';
+        else if (hour >= 17) timeGreeting = 'Good evening';
+        
+        heroActions.innerHTML = `
+          <div class="greeting-wrapper">
+            <div class="greeting-avatar">${initials}</div>
+            <div class="greeting-text">
+              <div class="greeting-time">${timeGreeting} 👋</div>
+              <div class="greeting-name">${displayName}</div>
+              <div class="greeting-status">
+                <span class="status-dot"></span>
+                Online
+              </div>
+            </div>
+          </div>
+          <a href="dashboard.html" class="btn btn-primary btn-large">
+            <i class="fas fa-tachometer-alt"></i> Dashboard
+          </a>
+          <a href="workspaces.html" class="btn btn-outline btn-large">
+            <i class="fas fa-cubes"></i> Workspaces
+          </a>
+        `;
+      } else {
+        heroActions.innerHTML = `
+          <button class="btn btn-primary btn-large" onclick="openAuthModal()">
+            <i class="fas fa-sign-in-alt"></i> Sign in
+          </button>
+          <a href="workspaces.html" class="btn btn-outline btn-large">
+            <i class="fas fa-cubes"></i> Workspaces
+          </a>
+        `;
+      }
+    }
+
     // ===== AUTH FUNCTIONS =====
     auth.onAuthStateChanged(user => {
       if (user) {
@@ -821,20 +941,22 @@
           if (data && data.status) {
             currentStatus = data.status;
           } else {
-            // Set initial status
             updateUserStatus('available');
           }
           renderAuthenticatedUI(user);
           updateStatusUI(currentStatus);
+          updateHeroGreeting(user);
           loadActiveUsers();
         }).catch(() => {
           renderAuthenticatedUI(user);
           updateStatusUI('available');
+          updateHeroGreeting(user);
           loadActiveUsers();
         });
       } else {
         currentUser = null;
         renderUnauthenticatedUI();
+        updateHeroGreeting(null);
         loadActiveUsers();
       }
     });
@@ -910,6 +1032,7 @@
         await auth.signOut();
         showToast('Signed out successfully', 'info');
         renderUnauthenticatedUI();
+        updateHeroGreeting(null);
         loadActiveUsers();
       } catch (error) {
         console.error('Sign out error:', error);
@@ -1026,7 +1149,6 @@
           mapLocations = Object.values(mapSnap.val() || {}).filter(b => b.lat && b.lng).length;
         } catch(e) {}
 
-        // Get active users count
         const activeUsers = await loadActiveUsers();
 
         document.getElementById('statsRow').innerHTML = `
@@ -1145,7 +1267,6 @@
     window.addEventListener('load', () => {
       setTimeout(initOverviewMap, 500);
       setInterval(updateMapData, 30000);
-      // Refresh active users every 30 seconds
       setInterval(loadActiveUsers, 30000);
     });
 
