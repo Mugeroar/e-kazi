@@ -112,56 +112,67 @@
     }
     .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
 
-    /* User Status Dropdown */
-    .user-status-wrapper {
+    /* Multi-Account Dropdown Styles */
+    .account-switcher-wrapper {
       position: relative;
       display: inline-flex;
       align-items: center;
-      gap: 0.5rem;
     }
-    .status-indicator {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      display: inline-block;
-      flex-shrink: 0;
+    .account-switcher-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      padding: 0.4rem 1rem 0.4rem 0.6rem;
+      border-radius: 50px;
+      cursor: pointer;
       transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-family: var(--font-body);
     }
-    .status-indicator.available { background: var(--success); box-shadow: 0 0 12px rgba(16, 185, 129, 0.4); }
-    .status-indicator.busy { background: var(--danger); box-shadow: 0 0 12px rgba(239, 68, 68, 0.4); }
-    .status-indicator.offline { background: var(--text-muted); box-shadow: 0 0 12px rgba(107, 114, 128, 0.2); }
-    .status-indicator.away { background: #f59e0b; box-shadow: 0 0 12px rgba(245, 158, 11, 0.4); }
-
-    .status-dropdown-btn {
+    .account-switcher-btn:hover {
+      border-color: var(--gold);
+      box-shadow: var(--shadow-md);
+    }
+    .account-switcher-btn .active-account {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .account-switcher-btn .active-account .avatar-mini {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
       background: var(--gold-gradient);
       color: white;
-      padding: 0.65rem 1.6rem;
-      border: none;
-      border-radius: 50px;
-      font-weight: 600;
-      font-size: 0.9rem;
-      cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
-      display: inline-flex;
+      display: flex;
       align-items: center;
-      gap: 0.5rem;
-      font-family: var(--font-heading);
-      box-shadow: var(--shadow-gold);
-    }
-    .status-dropdown-btn:hover { transform: translateY(-3px); box-shadow: 0 15px 45px rgba(202,138,4,0.35); }
-    .status-dropdown-btn .fa-chevron-down {
+      justify-content: center;
+      font-weight: 700;
       font-size: 0.7rem;
+    }
+    .account-switcher-btn .active-account .account-email {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      max-width: 120px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .account-switcher-btn .fa-chevron-down {
+      font-size: 0.6rem;
+      color: var(--text-muted);
       transition: transform 0.3s ease;
     }
-    .status-dropdown-btn.active .fa-chevron-down {
+    .account-switcher-btn.active .fa-chevron-down {
       transform: rotate(180deg);
     }
 
-    .status-dropdown-menu {
+    .account-dropdown-menu {
       position: absolute;
       top: calc(100% + 8px);
       right: 0;
-      min-width: 220px;
+      min-width: 280px;
       background: white;
       border-radius: 16px;
       box-shadow: 0 20px 60px rgba(0,0,0,0.15);
@@ -171,11 +182,11 @@
       z-index: 1001;
       padding: 0.5rem;
     }
-    .status-dropdown-menu.active {
+    .account-dropdown-menu.active {
       display: block;
       animation: fadeInUp 0.2s ease;
     }
-    .status-dropdown-menu .status-option {
+    .account-dropdown-menu .account-item {
       display: flex;
       align-items: center;
       gap: 0.75rem;
@@ -183,68 +194,76 @@
       border-radius: 10px;
       cursor: pointer;
       transition: all 0.2s ease;
-      font-size: 0.85rem;
-      font-weight: 500;
-      color: var(--text-secondary);
       border: none;
       background: none;
       width: 100%;
       font-family: var(--font-body);
+      text-align: left;
     }
-    .status-dropdown-menu .status-option:hover {
+    .account-dropdown-menu .account-item:hover {
       background: var(--bg-secondary);
-      color: var(--text-primary);
     }
-    .status-dropdown-menu .status-option.active {
+    .account-dropdown-menu .account-item.active-account-item {
       background: var(--gold-soft);
-      color: var(--gold-dark);
     }
-    .status-dropdown-menu .status-option .status-dot-small {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-    .status-dropdown-menu .status-option .status-dot-small.available { background: var(--success); }
-    .status-dropdown-menu .status-option .status-dot-small.busy { background: var(--danger); }
-    .status-dropdown-menu .status-option .status-dot-small.offline { background: var(--text-muted); }
-    .status-dropdown-menu .status-option .status-dot-small.away { background: #f59e0b; }
-
-    .status-dropdown-menu .divider {
-      border-top: 1px solid var(--border-light);
-      margin: 0.4rem 0.5rem;
-    }
-    .status-dropdown-menu .sign-out-option {
-      color: var(--danger);
-    }
-    .status-dropdown-menu .sign-out-option:hover {
-      background: #fef2f2;
-    }
-
-    .user-info {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-    .user-avatar {
-      width: 32px;
-      height: 32px;
+    .account-dropdown-menu .account-item .account-avatar {
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
       background: var(--gold-gradient);
+      color: white;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: white;
       font-weight: 700;
-      font-size: 0.8rem;
+      font-size: 0.85rem;
+      flex-shrink: 0;
     }
-    .user-email {
-      font-size: 0.8rem;
+    .account-dropdown-menu .account-item .account-details {
+      flex: 1;
+      min-width: 0;
+    }
+    .account-dropdown-menu .account-item .account-details .account-name {
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: var(--text-primary);
+    }
+    .account-dropdown-menu .account-item .account-details .account-email-display {
+      font-size: 0.75rem;
       color: var(--text-muted);
-      max-width: 150px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+    }
+    .account-dropdown-menu .account-item .account-status-badge {
+      font-size: 0.6rem;
+      padding: 0.1rem 0.5rem;
+      border-radius: 20px;
+      font-weight: 600;
+    }
+    .account-dropdown-menu .account-item .account-status-badge.active-badge {
+      background: var(--success);
+      color: white;
+    }
+    .account-dropdown-menu .account-item .account-status-badge.inactive-badge {
+      background: var(--bg-secondary);
+      color: var(--text-muted);
+    }
+    .account-dropdown-menu .divider {
+      border-top: 1px solid var(--border-light);
+      margin: 0.4rem 0.5rem;
+    }
+    .account-dropdown-menu .sign-out-option {
+      color: var(--danger);
+    }
+    .account-dropdown-menu .sign-out-option:hover {
+      background: #fef2f2;
+    }
+    .account-dropdown-menu .add-account-option {
+      color: var(--gold);
+    }
+    .account-dropdown-menu .add-account-option:hover {
+      background: var(--gold-soft);
     }
 
     /* Hero Greeting Styles */
@@ -566,7 +585,7 @@
       .footer-content{flex-direction:column;gap:0.8rem;text-align:center}
       .hero-content h1 { font-size: 2.2rem; }
       .main-content{padding:0 1rem}
-      .user-email { max-width: 100px; }
+      .account-switcher-btn .active-account .account-email { max-width: 80px; }
       .greeting-wrapper {
         padding: 0.3rem 1rem 0.3rem 0.5rem;
       }
@@ -786,51 +805,259 @@
 
     let overviewMap = null;
     let mapMarkers = [];
-    let currentUser = null;
-    let currentStatus = 'available';
+    
+    // ===== MULTI-ACCOUNT MANAGEMENT =====
+    let accounts = []; // Array of {user, status}
+    let activeAccountIndex = 0;
 
-    // ===== USER STATUS MANAGEMENT =====
-    async function updateUserStatus(status) {
-      if (!currentUser) return;
-      currentStatus = status;
+    // Load accounts from localStorage
+    function loadAccounts() {
       try {
-        await database.ref(`users/${currentUser.uid}/status`).set({
-          status: status,
-          lastUpdated: firebase.database.ServerValue.TIMESTAMP,
-          displayName: currentUser.displayName || currentUser.email || 'User',
-          email: currentUser.email
+        const saved = localStorage.getItem('kazinni_accounts');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          accounts = parsed.filter(acc => acc && acc.user && acc.user.uid);
+          if (accounts.length > 0) {
+            activeAccountIndex = 0;
+            return true;
+          }
+        }
+      } catch (e) {
+        console.error('Error loading accounts:', e);
+      }
+      return false;
+    }
+
+    // Save accounts to localStorage
+    function saveAccounts() {
+      try {
+        localStorage.setItem('kazinni_accounts', JSON.stringify(accounts));
+      } catch (e) {
+        console.error('Error saving accounts:', e);
+      }
+    }
+
+    // Add account to list
+    function addAccount(user) {
+      // Check if account already exists
+      const exists = accounts.some(acc => acc.user.uid === user.uid);
+      if (!exists) {
+        accounts.push({
+          user: {
+            uid: user.uid,
+            email: user.email,
+            displayName: user.displayName || user.email?.split('@')[0] || 'User'
+          },
+          status: 'available'
         });
-        updateStatusUI(status);
-        showToast(`Status updated to ${status.charAt(0).toUpperCase() + status.slice(1)}`, 'success');
+        saveAccounts();
+        return true;
+      }
+      return false;
+    }
+
+    // Remove account from list
+    function removeAccount(uid) {
+      accounts = accounts.filter(acc => acc.user.uid !== uid);
+      saveAccounts();
+      if (accounts.length === 0) {
+        activeAccountIndex = 0;
+        return true; // No accounts left
+      }
+      if (activeAccountIndex >= accounts.length) {
+        activeAccountIndex = accounts.length - 1;
+      }
+      return false; // Still has accounts
+    }
+
+    // Get current active account
+    function getActiveAccount() {
+      if (accounts.length === 0) return null;
+      return accounts[activeAccountIndex] || null;
+    }
+
+    // Switch to a different account
+    function switchAccount(index) {
+      if (index >= 0 && index < accounts.length) {
+        activeAccountIndex = index;
+        const account = accounts[index];
+        // Update UI to show this account as active
+        renderAccountSwitcher();
+        updateHeroGreeting(account.user);
+        showToast(`Switched to ${account.user.email}`, 'info');
+        return true;
+      }
+      return false;
+    }
+
+    // ===== AUTH FUNCTIONS =====
+    auth.onAuthStateChanged(async user => {
+      if (user) {
+        // Check if this is a new sign-in or existing account
+        const exists = accounts.some(acc => acc.user.uid === user.uid);
+        
+        if (!exists) {
+          // New sign-in - add to accounts
+          addAccount(user);
+          activeAccountIndex = accounts.length - 1;
+          
+          // Set initial status
+          try {
+            await database.ref(`users/${user.uid}/status`).set({
+              status: 'available',
+              lastUpdated: firebase.database.ServerValue.TIMESTAMP,
+              displayName: user.displayName || user.email || 'User',
+              email: user.email
+            });
+          } catch (e) {
+            console.error('Error setting initial status:', e);
+          }
+        } else {
+          // Existing account - find its index
+          const idx = accounts.findIndex(acc => acc.user.uid === user.uid);
+          if (idx !== -1) {
+            activeAccountIndex = idx;
+          }
+        }
+        
+        renderAccountSwitcher();
+        const active = getActiveAccount();
+        if (active) {
+          updateHeroGreeting(active.user);
+          // Update status from database
+          try {
+            const snap = await database.ref(`users/${active.user.uid}/status`).once('value');
+            const data = snap.val();
+            if (data && data.status) {
+              active.status = data.status;
+            }
+          } catch (e) {}
+        }
         loadActiveUsers();
-      } catch (error) {
-        console.error('Error updating status:', error);
-        showToast('Failed to update status', 'error');
+      } else {
+        // User signed out - but we might still have other accounts
+        if (accounts.length > 0) {
+          // Check if any accounts are still valid
+          const validAccounts = [];
+          for (const acc of accounts) {
+            try {
+              // Try to re-authenticate or check if session exists
+              // For simplicity, we'll keep the account if it has a user object
+              if (acc.user && acc.user.uid) {
+                validAccounts.push(acc);
+              }
+            } catch (e) {
+              console.error('Error validating account:', e);
+            }
+          }
+          accounts = validAccounts;
+          saveAccounts();
+          
+          if (accounts.length > 0) {
+            if (activeAccountIndex >= accounts.length) {
+              activeAccountIndex = accounts.length - 1;
+            }
+            renderAccountSwitcher();
+            const active = getActiveAccount();
+            if (active) {
+              updateHeroGreeting(active.user);
+            }
+            loadActiveUsers();
+            return;
+          }
+        }
+        
+        // No accounts left
+        accounts = [];
+        saveAccounts();
+        activeAccountIndex = 0;
+        renderUnauthenticatedUI();
+        updateHeroGreeting(null);
+        loadActiveUsers();
       }
-    }
+    });
 
-    function updateStatusUI(status) {
-      const indicator = document.querySelector('.status-indicator');
-      if (indicator) {
-        indicator.className = `status-indicator ${status}`;
+    // ===== ACCOUNT SWITCHER UI =====
+    function renderAccountSwitcher() {
+      const container = document.getElementById('headerAuthContainer');
+      
+      if (accounts.length === 0) {
+        renderUnauthenticatedUI();
+        return;
       }
-      const btn = document.querySelector('.status-dropdown-btn');
-      if (btn) {
-        const statusText = status.charAt(0).toUpperCase() + status.slice(1);
-        btn.innerHTML = `
-          <span class="status-indicator ${status}"></span>
-          ${statusText}
-          <i class="fas fa-chevron-down"></i>
+
+      const active = getActiveAccount();
+      if (!active) {
+        renderUnauthenticatedUI();
+        return;
+      }
+
+      const email = active.user.email || 'User';
+      const initials = email.charAt(0).toUpperCase();
+      const displayName = active.user.displayName || email.split('@')[0] || 'User';
+
+      let accountsHTML = '';
+      accounts.forEach((acc, index) => {
+        const accEmail = acc.user.email || 'User';
+        const accInitials = accEmail.charAt(0).toUpperCase();
+        const accName = acc.user.displayName || accEmail.split('@')[0] || 'User';
+        const isActive = index === activeAccountIndex;
+        const statusDot = acc.status === 'available' ? '🟢' : 
+                         acc.status === 'busy' ? '🔴' :
+                         acc.status === 'away' ? '🟡' : '⚪';
+        
+        accountsHTML += `
+          <button class="account-item ${isActive ? 'active-account-item' : ''}" onclick="switchAccount(${index})">
+            <div class="account-avatar">${accInitials}</div>
+            <div class="account-details">
+              <div class="account-name">${accName}</div>
+              <div class="account-email-display">${accEmail}</div>
+            </div>
+            <span class="account-status-badge ${isActive ? 'active-badge' : 'inactive-badge'}">
+              ${isActive ? 'Active' : statusDot}
+            </span>
+          </button>
         `;
-      }
-      document.querySelectorAll('.status-option').forEach(opt => {
-        opt.classList.toggle('active', opt.dataset.status === status);
       });
+
+      container.innerHTML = `
+        <div class="account-switcher-wrapper">
+          <button class="account-switcher-btn" id="accountSwitcherBtn" onclick="toggleAccountDropdown()">
+            <div class="active-account">
+              <div class="avatar-mini">${initials}</div>
+              <span class="account-email">${email}</span>
+            </div>
+            <i class="fas fa-chevron-down"></i>
+          </button>
+          <div class="account-dropdown-menu" id="accountDropdownMenu">
+            ${accountsHTML}
+            <div class="divider"></div>
+            <button class="account-item add-account-option" onclick="openAuthModal()">
+              <i class="fas fa-plus-circle" style="width:36px;text-align:center;font-size:1.2rem;color:var(--gold);"></i>
+              <span style="font-weight:600;">Add another account</span>
+            </button>
+            <div class="divider"></div>
+            <button class="account-item sign-out-option" onclick="signOutAccount()">
+              <i class="fas fa-sign-out-alt" style="width:36px;text-align:center;"></i>
+              <span style="font-weight:600;">Sign out of this account</span>
+            </button>
+          </div>
+        </div>
+      `;
     }
 
-    function toggleStatusDropdown() {
-      const menu = document.getElementById('statusDropdownMenu');
-      const btn = document.getElementById('statusDropdownBtn');
+    function renderUnauthenticatedUI() {
+      const container = document.getElementById('headerAuthContainer');
+      container.innerHTML = `
+        <button class="btn btn-primary" onclick="openAuthModal()">
+          <i class="fas fa-lock"></i> Staff Sign In
+        </button>
+      `;
+    }
+
+    function toggleAccountDropdown() {
+      const menu = document.getElementById('accountDropdownMenu');
+      const btn = document.getElementById('accountSwitcherBtn');
       if (menu) {
         menu.classList.toggle('active');
         if (btn) btn.classList.toggle('active');
@@ -838,14 +1065,99 @@
     }
 
     document.addEventListener('click', function(e) {
-      const wrapper = document.querySelector('.user-status-wrapper');
+      const wrapper = document.querySelector('.account-switcher-wrapper');
       if (wrapper && !wrapper.contains(e.target)) {
-        const menu = document.getElementById('statusDropdownMenu');
-        const btn = document.getElementById('statusDropdownBtn');
+        const menu = document.getElementById('accountDropdownMenu');
+        const btn = document.getElementById('accountSwitcherBtn');
         if (menu) menu.classList.remove('active');
         if (btn) btn.classList.remove('active');
       }
     });
+
+    // ===== SIGN OUT SPECIFIC ACCOUNT =====
+    async function signOutAccount() {
+      const active = getActiveAccount();
+      if (!active) return;
+      
+      try {
+        // Update status to offline
+        await database.ref(`users/${active.user.uid}/status`).set({
+          status: 'offline',
+          lastUpdated: firebase.database.ServerValue.TIMESTAMP,
+          displayName: active.user.displayName || active.user.email || 'User',
+          email: active.user.email
+        });
+        
+        // Remove from accounts list
+        const isEmpty = removeAccount(active.user.uid);
+        
+        if (isEmpty) {
+          // No accounts left - sign out completely
+          await auth.signOut();
+          renderUnauthenticatedUI();
+          updateHeroGreeting(null);
+          showToast('Signed out successfully', 'info');
+        } else {
+          // Switch to another account
+          const newActive = getActiveAccount();
+          if (newActive) {
+            renderAccountSwitcher();
+            updateHeroGreeting(newActive.user);
+            showToast(`Signed out of ${active.user.email}`, 'info');
+          }
+        }
+        
+        loadActiveUsers();
+      } catch (error) {
+        console.error('Sign out error:', error);
+        showToast('Error signing out', 'error');
+      }
+    }
+
+    // ===== HERO GREETING FUNCTION =====
+    function updateHeroGreeting(user) {
+      const heroActions = document.getElementById('heroActions');
+      
+      if (user && accounts.length > 0) {
+        const displayName = user.displayName || user.email?.split('@')[0] || 'Team Member';
+        const initials = (user.displayName || user.email || 'U').charAt(0).toUpperCase();
+        const accountCount = accounts.length;
+        
+        const hour = new Date().getHours();
+        let timeGreeting = 'Good morning';
+        if (hour >= 12 && hour < 17) timeGreeting = 'Good afternoon';
+        else if (hour >= 17) timeGreeting = 'Good evening';
+        
+        heroActions.innerHTML = `
+          <div class="greeting-wrapper">
+            <div class="greeting-avatar">${initials}</div>
+            <div class="greeting-text">
+              <div class="greeting-time">${timeGreeting} 👋</div>
+              <div class="greeting-name">${displayName}</div>
+              <div class="greeting-status">
+                <span class="status-dot"></span>
+                ${accountCount > 1 ? `${accountCount} accounts active` : 'Online'}
+              </div>
+            </div>
+          </div>
+          <a href="dashboard.html" class="btn btn-primary btn-large">
+            <i class="fas fa-tachometer-alt"></i> Dashboard
+          </a>
+          <a href="workspaces.html" class="btn btn-outline btn-large">
+            <i class="fas fa-cubes"></i> Workspaces
+          </a>
+        `;
+      } else {
+        heroActions.innerHTML = `
+          <button class="btn btn-primary btn-large" onclick="openAuthModal()">
+            <i class="fas fa-sign-in-alt"></i> Sign in
+          </button>
+          <a href="workspaces.html" class="btn btn-outline btn-large">
+            <i class="fas fa-cubes"></i> Workspaces
+          </a>
+        `;
+      }
+    }
 
     // ===== ACTIVE USERS =====
     async function loadActiveUsers() {
@@ -885,158 +1197,6 @@
       } catch (error) {
         console.error('Error loading active users:', error);
         return { activeCount: 0, statusCounts: {} };
-      }
-    }
-
-    // ===== HERO GREETING FUNCTION =====
-    function updateHeroGreeting(user) {
-      const heroActions = document.getElementById('heroActions');
-      
-      if (user) {
-        const displayName = user.displayName || user.email?.split('@')[0] || 'Team Member';
-        const initials = (user.displayName || user.email || 'U').charAt(0).toUpperCase();
-        
-        const hour = new Date().getHours();
-        let timeGreeting = 'Good morning';
-        if (hour >= 12 && hour < 17) timeGreeting = 'Good afternoon';
-        else if (hour >= 17) timeGreeting = 'Good evening';
-        
-        heroActions.innerHTML = `
-          <div class="greeting-wrapper">
-            <div class="greeting-avatar">${initials}</div>
-            <div class="greeting-text">
-              <div class="greeting-time">${timeGreeting} 👋</div>
-              <div class="greeting-name">${displayName}</div>
-              <div class="greeting-status">
-                <span class="status-dot"></span>
-                Online
-              </div>
-            </div>
-          </div>
-          <a href="dashboard.html" class="btn btn-primary btn-large">
-            <i class="fas fa-tachometer-alt"></i> Dashboard
-          </a>
-          <a href="workspaces.html" class="btn btn-outline btn-large">
-            <i class="fas fa-cubes"></i> Workspaces
-          </a>
-        `;
-      } else {
-        heroActions.innerHTML = `
-          <button class="btn btn-primary btn-large" onclick="openAuthModal()">
-            <i class="fas fa-sign-in-alt"></i> Sign in
-          </button>
-          <a href="workspaces.html" class="btn btn-outline btn-large">
-            <i class="fas fa-cubes"></i> Workspaces
-          </a>
-        `;
-      }
-    }
-
-    // ===== AUTH FUNCTIONS =====
-    auth.onAuthStateChanged(user => {
-      if (user) {
-        currentUser = user;
-        database.ref(`users/${user.uid}/status`).once('value').then(snap => {
-          const data = snap.val();
-          if (data && data.status) {
-            currentStatus = data.status;
-          } else {
-            updateUserStatus('available');
-          }
-          renderAuthenticatedUI(user);
-          updateStatusUI(currentStatus);
-          updateHeroGreeting(user);
-          loadActiveUsers();
-        }).catch(() => {
-          renderAuthenticatedUI(user);
-          updateStatusUI('available');
-          updateHeroGreeting(user);
-          loadActiveUsers();
-        });
-      } else {
-        currentUser = null;
-        renderUnauthenticatedUI();
-        updateHeroGreeting(null);
-        loadActiveUsers();
-      }
-    });
-
-    function renderAuthenticatedUI(user) {
-      const container = document.getElementById('headerAuthContainer');
-      const email = user.email || 'User';
-      const initials = email.charAt(0).toUpperCase();
-      
-      container.innerHTML = `
-        <div class="user-status-wrapper">
-          <button class="status-dropdown-btn" id="statusDropdownBtn" onclick="toggleStatusDropdown()">
-            <span class="status-indicator available"></span>
-            Available
-            <i class="fas fa-chevron-down"></i>
-          </button>
-          <div class="status-dropdown-menu" id="statusDropdownMenu">
-            <button class="status-option active" data-status="available" onclick="updateUserStatus('available')">
-              <span class="status-dot-small available"></span>
-              Available
-              <span style="margin-left:auto;font-size:0.7rem;color:var(--text-muted);">Online</span>
-            </button>
-            <button class="status-option" data-status="busy" onclick="updateUserStatus('busy')">
-              <span class="status-dot-small busy"></span>
-              Busy
-              <span style="margin-left:auto;font-size:0.7rem;color:var(--text-muted);">In a meeting</span>
-            </button>
-            <button class="status-option" data-status="away" onclick="updateUserStatus('away')">
-              <span class="status-dot-small away"></span>
-              Away
-              <span style="margin-left:auto;font-size:0.7rem;color:var(--text-muted);">Be right back</span>
-            </button>
-            <button class="status-option" data-status="offline" onclick="updateUserStatus('offline')">
-              <span class="status-dot-small offline"></span>
-              Offline
-              <span style="margin-left:auto;font-size:0.7rem;color:var(--text-muted);">Signed out</span>
-            </button>
-            <div class="divider"></div>
-            <div class="user-info" style="padding:0.5rem 1rem;">
-              <div class="user-avatar">${initials}</div>
-              <span class="user-email">${email}</span>
-            </div>
-            <div class="divider"></div>
-            <button class="status-option sign-out-option" onclick="handleSignOut()">
-              <i class="fas fa-sign-out-alt" style="width:16px;"></i>
-              Sign Out
-            </button>
-          </div>
-        </div>
-      `;
-      updateStatusUI(currentStatus);
-    }
-
-    function renderUnauthenticatedUI() {
-      const container = document.getElementById('headerAuthContainer');
-      container.innerHTML = `
-        <button class="btn btn-primary" onclick="openAuthModal()">
-          <i class="fas fa-lock"></i> Staff Sign In
-        </button>
-      `;
-    }
-
-    async function handleSignOut() {
-      try {
-        if (currentUser) {
-          await database.ref(`users/${currentUser.uid}/status`).set({
-            status: 'offline',
-            lastUpdated: firebase.database.ServerValue.TIMESTAMP,
-            displayName: currentUser.displayName || currentUser.email || 'User',
-            email: currentUser.email
-          });
-        }
-        await auth.signOut();
-        showToast('Signed out successfully', 'info');
-        renderUnauthenticatedUI();
-        updateHeroGreeting(null);
-        loadActiveUsers();
-      } catch (error) {
-        console.error('Sign out error:', error);
-        showToast('Error signing out', 'error');
       }
     }
 
@@ -1216,9 +1376,13 @@
       btn.disabled = true;
       btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
       try {
-        await auth.signInWithEmailAndPassword(email, password);
+        const cred = await auth.signInWithEmailAndPassword(email, password);
+        // The auth state change will handle adding to accounts
         showToast('Welcome back!', 'success');
         closeAuthModal();
+        // Reset form
+        document.getElementById('loginEmail').value = '';
+        document.getElementById('loginPassword').value = '';
       } catch(e) {
         let msg = e.message.replace('Firebase: ', '').replace(/\(auth\/.*\)\.?/, '').trim();
         if (e.code === 'auth/user-not-found') msg = 'No account found';
@@ -1263,6 +1427,16 @@
 
     // ===== INIT =====
     document.getElementById('authModalOverlay').addEventListener('click', closeAuthModal);
+    
+    // Load saved accounts on startup
+    const hasAccounts = loadAccounts();
+    if (hasAccounts) {
+      const active = getActiveAccount();
+      if (active) {
+        renderAccountSwitcher();
+        updateHeroGreeting(active.user);
+      }
+    }
 
     window.addEventListener('load', () => {
       setTimeout(initOverviewMap, 500);
