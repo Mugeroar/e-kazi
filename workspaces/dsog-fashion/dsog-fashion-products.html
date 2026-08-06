@@ -234,7 +234,8 @@
     </div>
   </div>
 
-  <div class="modal-overlay" id="modal"><div class="modal" id="modalContent"></div></div>
+  <!-- 🔥 FIXED: Changed modal ID to #productModal -->
+  <div class="modal-overlay" id="productModal"><div class="modal" id="modalContent"></div></div>
   <div id="toastContainer"></div>
 
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -302,6 +303,7 @@
         const collection = p.collection || 'standard';
         const price = p.price || p.unitPrice || 0;
         const salePrice = p.salePrice || 0;
+        const stock = p.stock || p.quantity || 0;
         
         return `
           <div class="product-card">
@@ -316,8 +318,10 @@
               <div><strong>Colors</strong>${p.colors || 'N/A'}</div>
               <div><strong>Price</strong>KES ${price.toLocaleString()}</div>
               <div><strong>Sale Price</strong>${salePrice ? 'KES ' + salePrice.toLocaleString() : '—'}</div>
-              <div><strong>Stock</strong>${p.stock || p.quantity || 0} units</div>
+              <div><strong>Stock</strong>${stock} units</div>
               <div><strong>Fabric</strong>${p.fabric || p.material || 'N/A'}</div>
+              <div><strong>Supplier</strong>${p.supplier || 'N/A'}</div>
+              <div><strong>Status</strong>${p.status || 'active'}</div>
             </div>
             <div class="product-actions">
               <button class="btn-sm btn-edit" onclick="editProduct('${p.id}')"><i class="fas fa-edit"></i> Edit</button>
@@ -372,7 +376,13 @@
         </div>
         <div class="form-row">
           <div class="form-group"><label>Stock Quantity</label><input type="number" id="pStock" value="0" min="0"></div>
+          <div class="form-group"><label>Supplier</label><input type="text" id="pSupplier" placeholder="Supplier name"></div>
+        </div>
+        <div class="form-row">
           <div class="form-group"><label>Fabric / Material</label><input type="text" id="pFabric" placeholder="e.g., Ankara, Cotton, Silk"></div>
+          <div class="form-group"><label>Status</label><select id="pStatus">
+            <option value="active">Active</option><option value="draft">Draft</option><option value="archived">Archived</option>
+          </select></div>
         </div>
         <div class="form-group"><label>Description</label><textarea id="pDesc" rows="2" placeholder="Product description..."></textarea></div>
         <div class="btn-row">
@@ -380,7 +390,8 @@
           <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
         </div>
       `;
-      document.getElementById('modal').classList.add('show');
+      // 🔥 FIXED: Using #productModal instead of #modal
+      document.getElementById('productModal').classList.add('show');
     }
 
     async function saveProduct() {
@@ -390,21 +401,28 @@
 
       try {
         await database.ref('dsog_fashion_products').push().set({
-          name, sku: document.getElementById('pSku').value.trim(),
+          name: name,
+          sku: document.getElementById('pSku').value.trim(),
           category: document.getElementById('pCategory').value,
           collection: document.getElementById('pCollection').value,
           sizes: document.getElementById('pSizes').value.trim(),
           colors: document.getElementById('pColors').value.trim(),
-          price, salePrice: parseInt(document.getElementById('pSalePrice').value) || 0,
+          price: price,
+          salePrice: parseInt(document.getElementById('pSalePrice').value) || 0,
           stock: parseInt(document.getElementById('pStock').value) || 0,
+          supplier: document.getElementById('pSupplier').value.trim(),
           fabric: document.getElementById('pFabric').value.trim(),
           description: document.getElementById('pDesc').value.trim(),
-          status: 'active',
-          createdAt: firebase.database.ServerValue.TIMESTAMP
+          status: document.getElementById('pStatus').value,
+          createdAt: firebase.database.ServerValue.TIMESTAMP,
+          updatedAt: firebase.database.ServerValue.TIMESTAMP
         });
         showToast('✅ Product added!');
         closeModal();
-      } catch (e) { showToast('Failed to save', true); }
+      } catch (e) { 
+        console.error(e);
+        showToast('Failed to save', true); 
+      }
     }
 
     function editProduct(productId) {
@@ -434,7 +452,13 @@
         </div>
         <div class="form-row">
           <div class="form-group"><label>Stock</label><input type="number" id="epStock" value="${p.stock || p.quantity || 0}"></div>
+          <div class="form-group"><label>Supplier</label><input type="text" id="epSupplier" value="${p.supplier || ''}"></div>
+        </div>
+        <div class="form-row">
           <div class="form-group"><label>Fabric</label><input type="text" id="epFabric" value="${p.fabric || p.material || ''}"></div>
+          <div class="form-group"><label>Status</label><select id="epStatus">
+            ${['active','draft','archived'].map(s => `<option value="${s}" ${(p.status || 'active') === s ? 'selected' : ''}>${s}</option>`).join('')}
+          </select></div>
         </div>
         <div class="form-group"><label>Description</label><textarea id="epDesc" rows="2">${p.description || ''}</textarea></div>
         <div class="btn-row">
@@ -442,7 +466,8 @@
           <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
         </div>
       `;
-      document.getElementById('modal').classList.add('show');
+      // 🔥 FIXED: Using #productModal instead of #modal
+      document.getElementById('productModal').classList.add('show');
     }
 
     async function updateProduct(productId) {
@@ -457,24 +482,35 @@
           price: parseInt(document.getElementById('epPrice').value) || 0,
           salePrice: parseInt(document.getElementById('epSalePrice').value) || 0,
           stock: parseInt(document.getElementById('epStock').value) || 0,
+          supplier: document.getElementById('epSupplier').value.trim(),
           fabric: document.getElementById('epFabric').value.trim(),
           description: document.getElementById('epDesc').value.trim(),
+          status: document.getElementById('epStatus').value,
           updatedAt: firebase.database.ServerValue.TIMESTAMP
         });
-        showToast('✅ Updated!');
+        showToast('✅ Product updated!');
         closeModal();
-      } catch (e) { showToast('Failed to update', true); }
+      } catch (e) { 
+        console.error(e);
+        showToast('Failed to update', true); 
+      }
     }
 
     async function deleteProduct(productId) {
       if (!confirm('Delete this product?')) return;
       try {
         await database.ref(`dsog_fashion_products/${productId}`).remove();
-        showToast('✅ Deleted');
-      } catch (e) { showToast('Failed to delete', true); }
+        showToast('✅ Product deleted');
+      } catch (e) { 
+        console.error(e);
+        showToast('Failed to delete', true); 
+      }
     }
 
-    function closeModal() { document.getElementById('modal').classList.remove('show'); }
+    function closeModal() { 
+      // 🔥 FIXED: Using #productModal instead of #modal
+      document.getElementById('productModal').classList.remove('show'); 
+    }
 
     // Filters
     document.querySelectorAll('.filter-btn').forEach(btn => {
@@ -491,8 +527,9 @@
       renderProducts();
     });
 
-    document.getElementById('modal').addEventListener('click', (e) => {
-      if (e.target === document.getElementById('modal')) closeModal();
+    // 🔥 FIXED: Using #productModal instead of #modal
+    document.getElementById('productModal').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('productModal')) closeModal();
     });
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
 
@@ -502,7 +539,11 @@
       renderProducts();
     });
 
-    auth.onAuthStateChanged((user) => { if (!user) window.location.href = '/'; });
+    auth.onAuthStateChanged((user) => { 
+      if (!user) window.location.href = '/'; 
+    });
+
+    // Expose functions globally
     window.showAddModal = showAddModal;
     window.editProduct = editProduct;
     window.deleteProduct = deleteProduct;
