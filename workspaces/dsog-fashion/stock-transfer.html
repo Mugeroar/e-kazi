@@ -24,6 +24,8 @@
       --green: #10b981;
       --red: #ef4444;
       --blue: #3b82f6;
+      --orange: #f59e0b;
+      --teal: #14b8a6;
     }
 
     body {
@@ -131,6 +133,7 @@
       background: white;
       box-shadow: 0 0 0 3px rgba(236,72,153,0.06);
     }
+    .form-group input:disabled { background: #f1f5f9; color: #94a3b8; cursor: not-allowed; }
 
     .product-transfer-row {
       display: flex;
@@ -141,7 +144,11 @@
       padding: 0.6rem;
       border-radius: 10px;
       position: relative;
+      border: 1px solid transparent;
+      transition: all 0.2s;
     }
+    .product-transfer-row.out-of-stock { background: #fef2f2; border-color: #fecaca; }
+    .product-transfer-row.has-stock { background: #f0fdf4; border-color: #bbf7d0; }
     .product-transfer-row .form-group { margin-bottom: 0; flex: 1; }
     .product-transfer-row .btn-remove {
       background: #fee2e2;
@@ -151,6 +158,7 @@
       border-radius: 8px;
       cursor: pointer;
       font-size: 0.7rem;
+      flex-shrink: 0;
     }
 
     .btn-add-item {
@@ -170,11 +178,29 @@
 
     .stock-info {
       font-size: 0.6rem;
-      color: var(--text-muted);
       margin-top: 0.15rem;
+      padding: 0.15rem 0.4rem;
+      border-radius: 6px;
+      background: #f8fafc;
     }
-    .stock-info.low { color: #ef4444; }
-    .stock-info.good { color: #10b981; }
+    .stock-info.low { color: #ef4444; background: #fef2f2; }
+    .stock-info.good { color: #065f46; background: #d1fae5; }
+    .stock-info.no-stock { color: #64748b; background: #f1f5f9; }
+    .stock-info .from-qty { font-weight: 700; color: var(--text-primary); }
+    .stock-info .to-qty { font-weight: 700; color: var(--teal); }
+
+    .stock-badge {
+      display: inline-block;
+      padding: 0.1rem 0.4rem;
+      border-radius: 10px;
+      font-size: 0.55rem;
+      font-weight: 700;
+      margin-left: 4px;
+    }
+    .stock-badge.available { background: #d1fae5; color: #065f46; }
+    .stock-badge.limited { background: #fef3c7; color: #92400e; }
+    .stock-badge.none { background: #fee2e2; color: #991b1b; }
+    .stock-badge.zero { background: #f1f5f9; color: #64748b; }
 
     .transfer-summary {
       background: linear-gradient(135deg, #fdf2f8, #fce7f3);
@@ -194,6 +220,13 @@
       font-size: 0.65rem;
       color: var(--text-muted);
       margin-top: 0.1rem;
+    }
+    .transfer-summary .stock-impact {
+      font-size: 0.6rem;
+      color: var(--text-muted);
+      margin-top: 0.2rem;
+      padding-top: 0.2rem;
+      border-top: 1px solid #fbcfe8;
     }
 
     .btn {
@@ -230,9 +263,11 @@
       border-radius: 8px;
       font-size: 0.65rem;
       text-align: center;
+      border: 1px solid #e2e8f0;
     }
     .location-stock-item .loc-name { font-weight: 600; color: var(--text-muted); }
     .location-stock-item .loc-qty { font-weight: 800; color: var(--pink-dark); }
+    .location-stock-item .loc-qty.zero { color: #94a3b8; }
 
     .toast {
       position: fixed;
@@ -277,8 +312,8 @@
   <div class="container">
     <div class="page-header">
       <div>
-        <h1><i class="fas fa-arrows-alt-h"></i> Stock Transfer (Internal)</h1>
-        <p>Move stock between your main shop and franchise stores</p>
+        <h1><i class="fas fa-arrows-alt-h"></i> Stock Transfer</h1>
+        <p>Move stock between main shop and franchise stores — <strong>current stock shown for each location</strong></p>
       </div>
     </div>
 
@@ -297,7 +332,7 @@
 
         <div class="form-group">
           <label>To Location <i class="fas fa-arrow-right" style="color:var(--pink);"></i></label>
-          <select id="toLocation">
+          <select id="toLocation" onchange="onLocationChange(document.getElementById('fromLocation').value)">
             <option value="">— Loading franchises —</option>
           </select>
         </div>
@@ -312,15 +347,16 @@
           <textarea id="transferNotes" rows="2" placeholder="Reason for transfer..."></textarea>
         </div>
 
-        <div style="margin-top:0.5rem;font-size:0.65rem;color:var(--text-muted);">
-          <i class="fas fa-info-circle"></i> Stock will be deducted from "From" and added to "To"
+        <div style="margin-top:0.5rem;font-size:0.65rem;color:var(--text-muted);background:#f8fafc;padding:0.5rem;border-radius:8px;">
+          <i class="fas fa-info-circle" style="color:var(--pink);"></i>
+          Stock shown: <strong id="locationDisplay">Select locations first</strong>
         </div>
       </div>
 
       <!-- Column 2: Products to Transfer -->
       <div class="form-card">
         <h3><i class="fas fa-boxes"></i> Products to Transfer</h3>
-        <div style="flex:1;overflow-y:auto;max-height:400px;">
+        <div style="flex:1;overflow-y:auto;max-height:450px;">
           <div id="transferRows">
             <div class="product-transfer-row" data-index="0">
               <div class="form-group" style="flex:2;">
@@ -328,11 +364,11 @@
                 <select class="product-select" onchange="onProductSelect(this)">
                   <option value="">— Select Product —</option>
                 </select>
-                <div class="stock-info" id="stockInfo0">Select a location first</div>
+                <div class="stock-info" id="stockInfo0">Select locations and product</div>
               </div>
               <div class="form-group" style="flex:0.8;">
                 <label>Qty</label>
-                <input type="number" class="transfer-qty" value="1" min="1" onchange="updateSummary()" oninput="updateSummary()">
+                <input type="number" class="transfer-qty" value="1" min="1" onchange="onQtyChange(this)" oninput="onQtyChange(this)">
               </div>
               <button class="btn-remove" onclick="removeRow(this)" title="Remove">✕</button>
             </div>
@@ -346,7 +382,7 @@
         <h3><i class="fas fa-check-circle"></i> Confirm Transfer</h3>
         
         <div id="locationStockPreview" style="margin-bottom:0.8rem;">
-          <div style="font-size:0.65rem;font-weight:600;color:var(--text-muted);margin-bottom:0.3rem;">Current Stock Preview:</div>
+          <div style="font-size:0.65rem;font-weight:600;color:var(--text-muted);margin-bottom:0.3rem;">📊 All Locations Stock:</div>
           <div class="location-stock-grid" id="locationStockGrid">
             <div style="font-size:0.6rem;color:var(--text-muted);grid-column:1/-1;text-align:center;">Loading stock data...</div>
           </div>
@@ -355,6 +391,7 @@
         <div class="transfer-summary">
           <div class="total-items" id="transferTotal">0 items</div>
           <div class="breakdown" id="transferBreakdown">Select products to transfer</div>
+          <div class="stock-impact" id="stockImpact">📍 After transfer: <span id="impactText">Select locations and products</span></div>
         </div>
 
         <div class="btn-row">
@@ -459,7 +496,25 @@
     // GET LOCATION NAME
     // ============================================================
     function getLocationName(locationId) {
+      if (locationId === 'main_shop') return 'Main Shop';
       return allFranchisees[locationId]?.businessName || locationId;
+    }
+
+    // ============================================================
+    // GET STOCK AT A SPECIFIC LOCATION
+    // ============================================================
+    function getStockAtLocation(productId, locationId) {
+      const product = allProducts[productId];
+      if (!product) return 0;
+      // Check if product has locations object
+      if (product.locations && product.locations[locationId] !== undefined) {
+        return product.locations[locationId];
+      }
+      // If location is main_shop and no location tracking, use total stock
+      if (locationId === 'main_shop' && !product.locations) {
+        return product.stock || product.quantity || 0;
+      }
+      return 0;
     }
 
     // ============================================================
@@ -467,28 +522,36 @@
     // ============================================================
     function setDefaultLocations() {
       const franchiseIds = Object.keys(allFranchisees);
-      if (franchiseIds.length === 0) {
-        document.getElementById('fromLocation').innerHTML = '<option value="">— No franchisees found —</option>';
-        document.getElementById('toLocation').innerHTML = '<option value="">— No franchisees found —</option>';
+      
+      // Always include main_shop
+      const allLocationIds = ['main_shop', ...franchiseIds];
+      
+      if (allLocationIds.length === 0) {
+        document.getElementById('fromLocation').innerHTML = '<option value="">— No locations found —</option>';
+        document.getElementById('toLocation').innerHTML = '<option value="">— No locations found —</option>';
         return;
       }
 
       const fromSelect = document.getElementById('fromLocation');
       const toSelect = document.getElementById('toLocation');
 
-      // First franchise for "From", second for "To" if exists
-      const firstId = franchiseIds[0];
-      const secondId = franchiseIds.length > 1 ? franchiseIds[1] : franchiseIds[0];
+      // Main shop for "From", first franchise for "To"
+      const fromId = 'main_shop';
+      const toId = franchiseIds.length > 0 ? franchiseIds[0] : 'main_shop';
 
-      if (firstId && fromSelect.value !== firstId) {
-        fromSelect.value = firstId;
-        onLocationChange(firstId);
+      if (fromId && fromSelect.value !== fromId) {
+        fromSelect.value = fromId;
+        onLocationChange(fromId);
       }
-      if (secondId && toSelect.value !== secondId) {
-        toSelect.value = secondId;
+      if (toId && toSelect.value !== toId) {
+        toSelect.value = toId;
       }
 
       updateLocationStockPreview();
+      // Update all product rows
+      document.querySelectorAll('.product-select').forEach(select => {
+        if (select.value) onProductSelect(select);
+      });
     }
 
     // ============================================================
@@ -496,17 +559,18 @@
     // ============================================================
     function populateFranchiseeDropdowns() {
       const franchiseIds = Object.keys(allFranchisees);
+      const allLocationIds = ['main_shop', ...franchiseIds];
       
-      if (franchiseIds.length === 0) {
-        document.getElementById('fromLocation').innerHTML = '<option value="">— No franchisees found —</option>';
-        document.getElementById('toLocation').innerHTML = '<option value="">— No franchisees found —</option>';
+      if (allLocationIds.length === 0) {
+        document.getElementById('fromLocation').innerHTML = '<option value="">— No locations found —</option>';
+        document.getElementById('toLocation').innerHTML = '<option value="">— No locations found —</option>';
         return;
       }
 
-      const options = franchiseIds.map(id => {
-        const franchise = allFranchisees[id];
-        const tierIcon = franchise?.tier === 'standard' ? '⭐' : '📍';
-        return `<option value="${id}">${tierIcon} ${franchise?.businessName || id}${franchise?.location ? ' — ' + franchise.location : ''}</option>`;
+      const options = allLocationIds.map(id => {
+        const isMain = id === 'main_shop';
+        const name = isMain ? '🏪 Main Shop' : `📍 ${allFranchisees[id]?.businessName || id}`;
+        return `<option value="${id}">${name}</option>`;
       }).join('');
 
       const fromSelect = document.getElementById('fromLocation');
@@ -519,19 +583,6 @@
       if (toSelect.options.length <= 1 || toSelect.options[0].value === '') {
         toSelect.innerHTML = options;
       }
-    }
-
-    // ============================================================
-    // GET STOCK AT A SPECIFIC LOCATION
-    // ============================================================
-    function getStockAtLocation(productId, locationId) {
-      const product = allProducts[productId];
-      if (!product) return 0;
-      if (product.locations && product.locations[locationId] !== undefined) {
-        return product.locations[locationId];
-      }
-      // If no location tracking, return total stock
-      return product.stock || product.quantity || 0;
     }
 
     // ============================================================
@@ -552,7 +603,9 @@
       const options = products.map(p => {
         const stock = p.stock || p.quantity || 0;
         const price = p.price || 0;
-        return `<option value="${p.id}" data-stock="${stock}" data-price="${price}">${p.name} (${p.sku || 'No SKU'}) — ${stock} in stock</option>`;
+        const hasLocations = p.locations && Object.keys(p.locations).length > 0;
+        const locationInfo = hasLocations ? '📍 Tracked' : '📦 Total';
+        return `<option value="${p.id}" data-stock="${stock}" data-price="${price}" data-has-locations="${hasLocations}">${p.name} (${p.sku || 'No SKU'}) — ${stock} total ${locationInfo}</option>`;
       }).join('');
 
       document.querySelectorAll('.product-select').forEach(select => {
@@ -566,6 +619,14 @@
     // LOCATION CHANGE HANDLER
     // ============================================================
     function onLocationChange(locationId) {
+      const fromLocation = document.getElementById('fromLocation').value;
+      const toLocation = document.getElementById('toLocation').value;
+      
+      // Update location display
+      document.getElementById('locationDisplay').textContent = 
+        `${getLocationName(fromLocation)} → ${getLocationName(toLocation)}`;
+      
+      // Update all product rows
       document.querySelectorAll('.product-select').forEach(select => {
         if (select.value) {
           updateStockInfo(select);
@@ -574,12 +635,13 @@
           const index = row.dataset.index;
           const stockInfo = document.getElementById('stockInfo' + index);
           if (stockInfo) {
-            stockInfo.textContent = `📍 ${getLocationName(locationId)}: Select a product`;
+            stockInfo.innerHTML = `📍 ${getLocationName(fromLocation)} → ${getLocationName(toLocation)}: Select a product`;
             stockInfo.className = 'stock-info';
           }
         }
       });
       updateLocationStockPreview();
+      updateSummary();
     }
 
     // ============================================================
@@ -590,15 +652,22 @@
       updateSummary();
     }
 
+    // ============================================================
+    // UPDATE STOCK INFO - SHOWS BOTH LOCATIONS
+    // ============================================================
     function updateStockInfo(select) {
       const row = select.closest('.product-transfer-row');
       const index = row.dataset.index;
       const stockInfo = document.getElementById('stockInfo' + index);
       const fromLocation = document.getElementById('fromLocation').value;
+      const toLocation = document.getElementById('toLocation').value;
       
-      if (!fromLocation) {
+      // Reset row styling
+      row.classList.remove('out-of-stock', 'has-stock');
+      
+      if (!fromLocation || !toLocation) {
         if (stockInfo) {
-          stockInfo.textContent = 'Select a location first';
+          stockInfo.textContent = '📍 Select both "From" and "To" locations first';
           stockInfo.className = 'stock-info';
         }
         return;
@@ -606,22 +675,98 @@
 
       if (select.value) {
         const product = allProducts[select.value];
-        const locationStock = getStockAtLocation(select.value, fromLocation);
-        const locationName = getLocationName(fromLocation);
+        const fromStock = getStockAtLocation(select.value, fromLocation);
+        const toStock = getStockAtLocation(select.value, toLocation);
+        const fromName = getLocationName(fromLocation);
+        const toName = getLocationName(toLocation);
+        const qtyInput = row.querySelector('.transfer-qty');
+        const qty = parseInt(qtyInput?.value) || 0;
         
-        if (stockInfo) {
-          stockInfo.textContent = `📍 ${locationName}: ${locationStock} units`;
-          stockInfo.className = locationStock <= 10 ? 'stock-info low' : 'stock-info good';
+        // Calculate after-transfer values
+        const afterFrom = Math.max(0, fromStock - qty);
+        const afterTo = toStock + qty;
+        
+        // Determine stock status
+        let statusClass = 'stock-info';
+        let statusHtml = '';
+        
+        if (fromStock === 0) {
+          statusClass = 'stock-info no-stock';
+          row.classList.add('out-of-stock');
+          statusHtml = `
+            <span style="color:#ef4444;">❌ No stock at ${fromName}</span>
+            <span class="stock-badge none">OUT</span>
+          `;
+        } else if (qty > fromStock) {
+          statusClass = 'stock-info low';
+          row.classList.add('out-of-stock');
+          statusHtml = `
+            <span style="color:#ef4444;">⚠️ Only ${fromStock} available</span>
+            <span class="stock-badge limited">LIMITED</span>
+          `;
+        } else if (qty > 0 && qty <= fromStock) {
+          statusClass = 'stock-info good';
+          row.classList.add('has-stock');
+          statusHtml = `
+            <span style="color:#065f46;">✅ ${qty} units → After: ${fromName} ${afterFrom} | ${toName} ${afterTo}</span>
+            <span class="stock-badge available">OK</span>
+          `;
+        } else {
+          statusHtml = `
+            <span>Select quantity to transfer</span>
+          `;
         }
         
-        const qtyInput = row.querySelector('.transfer-qty');
-        if (qtyInput) qtyInput.max = locationStock;
+        // Build the stock display
+        const fromDisplay = fromStock === 0 ? 
+          `<span style="color:#94a3b8;">${fromStock}</span>` : 
+          `<span class="from-qty">${fromStock}</span>`;
+        
+        const toDisplay = toStock === 0 ? 
+          `<span style="color:#94a3b8;">${toStock} (no stock yet)</span>` : 
+          `<span class="to-qty">${toStock}</span>`;
+        
+        if (stockInfo) {
+          stockInfo.innerHTML = `
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px;">
+              <span>
+                📦 <strong>${fromName}:</strong> ${fromDisplay} 
+                <span style="color:#64748b;">→</span> 
+                <strong>${toName}:</strong> ${toDisplay}
+              </span>
+              ${statusHtml}
+            </div>
+          `;
+          stockInfo.className = statusClass;
+        }
+        
+        if (qtyInput) {
+          qtyInput.max = fromStock;
+          qtyInput.placeholder = fromStock > 0 ? `Max: ${fromStock}` : 'No stock';
+          qtyInput.disabled = fromStock === 0;
+        }
+        
+        // Update the summary with impact
+        updateSummary();
+        
       } else {
         if (stockInfo) {
-          stockInfo.textContent = `📍 ${getLocationName(fromLocation)}: Select a product`;
+          stockInfo.innerHTML = `🔍 Select a product to see stock at both locations`;
           stockInfo.className = 'stock-info';
         }
       }
+    }
+
+    // ============================================================
+    // QUANTITY CHANGE HANDLER
+    // ============================================================
+    function onQtyChange(input) {
+      const row = input.closest('.product-transfer-row');
+      const select = row.querySelector('.product-select');
+      if (select && select.value) {
+        updateStockInfo(select);
+      }
+      updateSummary();
     }
 
     // ============================================================
@@ -629,6 +774,11 @@
     // ============================================================
     function addRow() {
       rowCount++;
+      const fromLocation = document.getElementById('fromLocation').value;
+      const toLocation = document.getElementById('toLocation').value;
+      const fromName = getLocationName(fromLocation);
+      const toName = getLocationName(toLocation);
+      
       const row = document.createElement('div');
       row.className = 'product-transfer-row';
       row.dataset.index = rowCount;
@@ -638,25 +788,16 @@
           <select class="product-select" onchange="onProductSelect(this)">
             <option value="">— Select Product —</option>
           </select>
-          <div class="stock-info" id="stockInfo${rowCount}">Select a location first</div>
+          <div class="stock-info" id="stockInfo${rowCount}">${fromLocation && toLocation ? `📍 ${fromName} → ${toName}: Select a product` : 'Select locations first'}</div>
         </div>
         <div class="form-group" style="flex:0.8;">
           <label>Qty</label>
-          <input type="number" class="transfer-qty" value="1" min="1" onchange="updateSummary()" oninput="updateSummary()">
+          <input type="number" class="transfer-qty" value="1" min="1" onchange="onQtyChange(this)" oninput="onQtyChange(this)">
         </div>
         <button class="btn-remove" onclick="removeRow(this)" title="Remove">✕</button>
       `;
       document.getElementById('transferRows').appendChild(row);
       populateProductDropdowns();
-      
-      const fromLocation = document.getElementById('fromLocation').value;
-      if (fromLocation) {
-        const select = row.querySelector('.product-select');
-        const stockInfo = document.getElementById('stockInfo' + rowCount);
-        if (stockInfo) {
-          stockInfo.textContent = `📍 ${getLocationName(fromLocation)}: Select a product`;
-        }
-      }
     }
 
     function removeRow(btn) {
@@ -672,17 +813,51 @@
     function updateSummary() {
       let totalItems = 0;
       let itemCount = 0;
+      let transferDetails = [];
+      
+      const fromLocation = document.getElementById('fromLocation').value;
+      const toLocation = document.getElementById('toLocation').value;
+      
       document.querySelectorAll('.product-transfer-row').forEach(row => {
         const select = row.querySelector('.product-select');
         const qtyInput = row.querySelector('.transfer-qty');
         if (select && select.value && qtyInput) {
           const qty = parseInt(qtyInput.value) || 0;
-          totalItems += qty;
-          itemCount++;
+          const product = allProducts[select.value];
+          const fromStock = getStockAtLocation(select.value, fromLocation);
+          const toStock = getStockAtLocation(select.value, toLocation);
+          
+          if (qty > 0 && qty <= fromStock) {
+            totalItems += qty;
+            itemCount++;
+            transferDetails.push({
+              name: product?.name || 'Unknown',
+              qty: qty,
+              fromStock: fromStock,
+              toStock: toStock,
+              afterFrom: fromStock - qty,
+              afterTo: toStock + qty
+            });
+          }
         }
       });
+      
       document.getElementById('transferTotal').textContent = `${totalItems} item${totalItems !== 1 ? 's' : ''}`;
       document.getElementById('transferBreakdown').textContent = `${itemCount} product${itemCount !== 1 ? 's' : ''} selected`;
+      
+      // Update impact text
+      const impactText = document.getElementById('impactText');
+      if (transferDetails.length === 0) {
+        impactText.textContent = 'Select products and quantities to see impact';
+        impactText.style.color = '#94a3b8';
+      } else {
+        const fromName = getLocationName(fromLocation);
+        const toName = getLocationName(toLocation);
+        impactText.innerHTML = transferDetails.map(d => 
+          `${d.name}: ${fromName} ${d.fromStock} → ${d.afterFrom} | ${toName} ${d.toStock} → ${d.afterTo}`
+        ).join(' | ');
+        impactText.style.color = '#1e293b';
+      }
     }
 
     // ============================================================
@@ -691,14 +866,16 @@
     function updateLocationStockPreview() {
       const grid = document.getElementById('locationStockGrid');
       const franchiseIds = Object.keys(allFranchisees);
+      const allLocationIds = ['main_shop', ...franchiseIds];
       
-      if (franchiseIds.length === 0) {
-        grid.innerHTML = '<div style="font-size:0.6rem;color:var(--text-muted);grid-column:1/-1;text-align:center;">No franchisees found. Add franchisees first.</div>';
+      if (allLocationIds.length === 0) {
+        grid.innerHTML = '<div style="font-size:0.6rem;color:var(--text-muted);grid-column:1/-1;text-align:center;">No locations found.</div>';
         return;
       }
 
+      // Calculate total stock per location across all products
       const locationStock = {};
-      franchiseIds.forEach(id => locationStock[id] = 0);
+      allLocationIds.forEach(id => locationStock[id] = 0);
       
       Object.values(allProducts).forEach(p => {
         if (p.locations) {
@@ -707,15 +884,22 @@
               locationStock[locId] += qty || 0;
             }
           });
+        } else {
+          // If no location tracking, add all stock to main_shop
+          if (locationStock['main_shop'] !== undefined) {
+            locationStock['main_shop'] += p.stock || p.quantity || 0;
+          }
         }
       });
 
-      grid.innerHTML = franchiseIds.map(id => {
-        const franchise = allFranchisees[id];
-        const tierIcon = franchise?.tier === 'standard' ? '⭐' : '📍';
+      grid.innerHTML = allLocationIds.map(id => {
+        const isMain = id === 'main_shop';
+        const name = isMain ? '🏪 Main Shop' : `📍 ${allFranchisees[id]?.businessName || id}`;
+        const qty = locationStock[id] || 0;
+        const qtyClass = qty === 0 ? 'zero' : '';
         return `<div class="location-stock-item">
-          <span class="loc-name">${tierIcon} ${franchise?.businessName || id}:</span> 
-          <span class="loc-qty">${locationStock[id] || 0}</span>
+          <span class="loc-name">${name}:</span> 
+          <span class="loc-qty ${qtyClass}">${qty}</span>
         </div>`;
       }).join('');
     }
@@ -765,7 +949,8 @@
             sku: product.sku || '',
             quantity: qty,
             price: product.price || 0,
-            availableStock: availableStock
+            availableStock: availableStock,
+            toStock: getStockAtLocation(productId, toLocation)
           });
         }
       });
@@ -784,15 +969,20 @@
         for (const t of transfers) {
           const product = allProducts[t.productId];
           const currentFromStock = t.availableStock;
-          const currentToStock = getStockAtLocation(t.productId, toLocation);
+          const currentToStock = t.toStock;
           
+          // Initialize locations if they don't exist
           if (!product.locations) {
             updates[`dsog_fashion_products/${t.productId}/locations`] = {};
           }
           
+          // Update from location (deduct)
           updates[`dsog_fashion_products/${t.productId}/locations/${fromLocation}`] = Math.max(0, currentFromStock - t.quantity);
+          
+          // Update to location (add)
           updates[`dsog_fashion_products/${t.productId}/locations/${toLocation}`] = (currentToStock || 0) + t.quantity;
           
+          // Calculate new total stock (sum of all locations)
           const newLocations = { ...(product.locations || {}) };
           newLocations[fromLocation] = Math.max(0, currentFromStock - t.quantity);
           newLocations[toLocation] = (currentToStock || 0) + t.quantity;
@@ -803,6 +993,7 @@
           updates[`dsog_fashion_products/${t.productId}/updatedAt`] = firebase.database.ServerValue.TIMESTAMP;
         }
 
+        // Log the transfer
         const transferLog = {
           from: fromLocation,
           fromName: getLocationName(fromLocation),
@@ -814,7 +1005,9 @@
             name: t.name,
             sku: t.sku,
             quantity: t.quantity,
-            price: t.price
+            price: t.price,
+            stockBeforeFrom: t.availableStock,
+            stockBeforeTo: t.toStock
           })),
           totalItems: transfers.reduce((s, t) => s + t.quantity, 0),
           notes: document.getElementById('transferNotes').value.trim(),
@@ -848,11 +1041,11 @@
             <select class="product-select" onchange="onProductSelect(this)">
               <option value="">— Select Product —</option>
             </select>
-            <div class="stock-info" id="stockInfo0">Select a location first</div>
+            <div class="stock-info" id="stockInfo0">Select locations and product</div>
           </div>
           <div class="form-group" style="flex:0.8;">
             <label>Qty</label>
-            <input type="number" class="transfer-qty" value="1" min="1" onchange="updateSummary()" oninput="updateSummary()">
+            <input type="number" class="transfer-qty" value="1" min="1" onchange="onQtyChange(this)" oninput="onQtyChange(this)">
           </div>
           <button class="btn-remove" onclick="removeRow(this)" title="Remove">✕</button>
         </div>
@@ -881,6 +1074,7 @@
     window.addRow = addRow;
     window.removeRow = removeRow;
     window.onProductSelect = onProductSelect;
+    window.onQtyChange = onQtyChange;
     window.confirmTransfer = confirmTransfer;
     window.resetForm = resetForm;
     window.onLocationChange = onLocationChange;
