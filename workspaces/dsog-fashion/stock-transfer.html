@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Stock Transfer | DSOG Fashion</title>
+  
+  <meta name="theme-color" content="#ec4899">
+  <link rel="icon" type="image/png" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    :root {
+      --pink: #ec4899;
+      --pink-dark: #be185d;
+      --text-primary: #1e293b;
+      --text-muted: #64748b;
+      --green: #10b981;
+      --red: #ef4444;
+      --blue: #3b82f6;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: linear-gradient(145deg, #fdf2f8 0%, #ffffff 100%);
+      color: var(--text-primary);
+      min-height: 100vh;
+    }
+
+    .navbar {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(16px);
+      padding: 0.5rem 2%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(236, 72, 153, 0.2);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .logo-img { height: 34px; width: 34px; border-radius: 10px; object-fit: contain; background: white; box-shadow: 0 4px 12px rgba(236, 72, 153, 0.2); }
+    .logo-text {
+      font-weight: 800; font-size: 1.1rem;
+      background: linear-gradient(145deg, #f472b6, #be185d);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .logo-text span { font-weight: 600; font-size: 0.7rem; background: #ec4899; -webkit-text-fill-color: #ec4899; margin-left: 3px; }
+
+    .nav-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .nav-btn {
+      background: rgba(236, 72, 153, 0.08);
+      border: 1px solid rgba(236, 72, 153, 0.2);
+      padding: 0.4rem 0.8rem;
+      border-radius: 25px;
+      color: var(--pink-dark);
+      font-weight: 600;
+      font-size: 0.7rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .nav-btn:hover { background: var(--pink); color: white; }
+
+    .container { padding: 1rem 2%; max-width: 1400px; margin: 0 auto; }
+
+    .page-header { margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.8rem; }
+    .page-header h1 { font-size: 1.3rem; font-weight: 800; color: #0f172a; }
+    .page-header h1 i { color: var(--pink-dark); margin-right: 6px; }
+    .page-header p { color: var(--text-muted); font-size: 0.75rem; }
+
+    .form-layout { display: grid; grid-template-columns: 1fr 1.5fr 1fr; gap: 1rem; }
+
+    .form-card {
+      background: white;
+      border-radius: 16px;
+      padding: 1.2rem;
+      border: 1px solid #fbcfe8;
+      box-shadow: 0 3px 12px rgba(190,24,93,0.03);
+      display: flex;
+      flex-direction: column;
+    }
+    .form-card h3 {
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-bottom: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--pink-dark);
+      flex-shrink: 0;
+    }
+    .form-card h3 i { color: var(--pink); font-size: 0.7rem; }
+
+    .form-group { margin-bottom: 0.6rem; }
+    .form-group label {
+      display: block;
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      margin-bottom: 0.15rem;
+    }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%;
+      padding: 0.5rem 0.7rem;
+      border-radius: 10px;
+      border: 1.5px solid #e2e8f0;
+      font-size: 0.8rem;
+      font-family: 'Inter', sans-serif;
+      background: #f8fafc;
+      transition: all 0.15s;
+    }
+    .form-group input:focus, .form-group select:focus {
+      border-color: var(--pink);
+      outline: none;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(236,72,153,0.06);
+    }
+
+    .location-badge {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      border-radius: 12px;
+      font-size: 0.6rem;
+      font-weight: 700;
+      background: #fdf2f8;
+      color: #be185d;
+    }
+    .location-badge.main { background: #dbeafe; color: #1e40af; }
+    .location-badge.franchisee { background: #fef3c7; color: #92400e; }
+
+    .product-transfer-row {
+      display: flex;
+      gap: 8px;
+      align-items: flex-end;
+      margin-bottom: 0.5rem;
+      background: #fdf2f8;
+      padding: 0.6rem;
+      border-radius: 10px;
+      position: relative;
+    }
+    .product-transfer-row .form-group { margin-bottom: 0; flex: 1; }
+    .product-transfer-row .btn-remove {
+      background: #fee2e2;
+      color: #991b1b;
+      border: none;
+      padding: 0.4rem 0.6rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.7rem;
+    }
+
+    .btn-add-item {
+      background: #fdf2f8;
+      color: #be185d;
+      border: 2px dashed #fbcfe8;
+      padding: 0.4rem;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 0.7rem;
+      font-weight: 600;
+      width: 100%;
+      font-family: inherit;
+      transition: all 0.15s;
+    }
+    .btn-add-item:hover { background: #fce7f3; }
+
+    .stock-info {
+      font-size: 0.6rem;
+      color: var(--text-muted);
+      margin-top: 0.15rem;
+    }
+    .stock-info.low { color: #ef4444; }
+    .stock-info.good { color: #10b981; }
+
+    .transfer-summary {
+      background: linear-gradient(135deg, #fdf2f8, #fce7f3);
+      border-radius: 12px;
+      padding: 0.8rem;
+      text-align: center;
+      flex-shrink: 0;
+      margin-top: 0.5rem;
+    }
+    .transfer-summary .total-items {
+      font-size: 1.4rem;
+      font-weight: 900;
+      color: var(--pink-dark);
+      line-height: 1.2;
+    }
+    .transfer-summary .breakdown {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      margin-top: 0.1rem;
+    }
+
+    .btn {
+      padding: 0.6rem 1rem;
+      border-radius: 10px;
+      border: none;
+      font-weight: 700;
+      font-size: 0.8rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.15s;
+      font-family: inherit;
+      justify-content: center;
+    }
+    .btn-primary { background: var(--pink); color: white; flex: 2; }
+    .btn-primary:hover { background: var(--pink-dark); }
+    .btn-secondary { background: #f1f5f9; color: #475569; flex: 1; }
+    .btn-secondary:hover { background: #e2e8f0; }
+    .btn-success { background: var(--green); color: white; }
+    .btn-success:hover { background: #059669; }
+
+    .btn-row { display: flex; gap: 6px; flex-shrink: 0; margin-top: 0.5rem; }
+
+    .location-stock-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      margin-top: 0.5rem;
+    }
+    .location-stock-item {
+      background: #f8fafc;
+      padding: 0.4rem;
+      border-radius: 8px;
+      font-size: 0.65rem;
+      text-align: center;
+    }
+    .location-stock-item .loc-name { font-weight: 600; color: var(--text-muted); }
+    .location-stock-item .loc-qty { font-weight: 800; color: var(--pink-dark); }
+
+    .toast {
+      position: fixed;
+      bottom: 25px;
+      right: 25px;
+      background: var(--green);
+      color: white;
+      padding: 0.7rem 1.2rem;
+      border-radius: 20px;
+      font-weight: 600;
+      z-index: 4000;
+      animation: slideIn 0.3s ease;
+      box-shadow: 0 8px 20px rgba(16,185,129,0.25);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+    }
+    .toast.error { background: var(--red); }
+    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+    @media (max-width: 900px) { .form-layout { grid-template-columns: 1fr; } }
+    @media (max-width: 600px) { .container { padding: 0.8rem; } }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <a href="index.html" class="logo">
+      <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png" alt="DSOG Fashion" class="logo-img">
+      <span class="logo-text">DSOG <span>Fashion</span></span>
+    </a>
+    <div class="nav-right">
+      <a href="index.html" class="nav-btn"><i class="fas fa-arrow-left"></i> Dashboard</a>
+      <a href="dsog-fashion-orders.html" class="nav-btn"><i class="fas fa-shopping-bag"></i> Orders</a>
+      <a href="dsog-fashion-inventory.html" class="nav-btn"><i class="fas fa-boxes"></i> Inventory</a>
+      <a href="dsog-fashion-products.html" class="nav-btn"><i class="fas fa-tags"></i> Products</a>
+      <a href="dsog-fashion-franchisees.html" class="nav-btn"><i class="fas fa-store"></i> Locations</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="page-header">
+      <div>
+        <h1><i class="fas fa-arrows-alt-h"></i> Stock Transfer (Internal)</h1>
+        <p>Move stock between your locations — main shop &amp; franchise stores</p>
+      </div>
+    </div>
+
+    <div class="form-layout">
+      
+      <!-- Column 1: Source & Destination -->
+      <div class="form-card">
+        <h3><i class="fas fa-route"></i> Transfer Details</h3>
+        
+        <div class="form-group">
+          <label>From Location <i class="fas fa-arrow-right" style="color:var(--pink);"></i></label>
+          <select id="fromLocation" onchange="loadLocationStock(this.value)">
+            <option value="main_shop">🏪 Main Shop (Warehouse)</option>
+            <option value="franchisee_001">📍 Westlands</option>
+            <option value="franchisee_002">📍 Mombasa</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>To Location <i class="fas fa-arrow-right" style="color:var(--pink);"></i></label>
+          <select id="toLocation">
+            <option value="franchisee_001">📍 Westlands</option>
+            <option value="franchisee_002">📍 Mombasa</option>
+            <option value="main_shop">🏪 Main Shop (Warehouse)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Transfer Reference</label>
+          <input type="text" id="transferRef" placeholder="e.g., Weekly restock - Westlands">
+        </div>
+
+        <div class="form-group">
+          <label>Notes</label>
+          <textarea id="transferNotes" rows="2" placeholder="Reason for transfer..."></textarea>
+        </div>
+
+        <div style="margin-top:0.5rem;font-size:0.65rem;color:var(--text-muted);">
+          <i class="fas fa-info-circle"></i> Stock will be deducted from "From" and added to "To"
+        </div>
+      </div>
+
+      <!-- Column 2: Products to Transfer -->
+      <div class="form-card">
+        <h3><i class="fas fa-boxes"></i> Products to Transfer</h3>
+        <div style="flex:1;overflow-y:auto;max-height:400px;">
+          <div id="transferRows">
+            <div class="product-transfer-row" data-index="0">
+              <div class="form-group" style="flex:2;">
+                <label>Product</label>
+                <select class="product-select" onchange="onProductSelect(this)">
+                  <option value="">— Select Product —</option>
+                </select>
+                <div class="stock-info" id="stockInfo0">Loading stock...</div>
+              </div>
+              <div class="form-group" style="flex:0.8;">
+                <label>Qty</label>
+                <input type="number" class="transfer-qty" value="1" min="1" onchange="updateSummary()" oninput="updateSummary()">
+              </div>
+              <button class="btn-remove" onclick="removeRow(this)" title="Remove">✕</button>
+            </div>
+          </div>
+          <button class="btn-add-item" onclick="addRow()"><i class="fas fa-plus"></i> Add Another Product</button>
+        </div>
+      </div>
+
+      <!-- Column 3: Summary & Confirm -->
+      <div class="form-card">
+        <h3><i class="fas fa-check-circle"></i> Confirm Transfer</h3>
+        
+        <div id="locationStockPreview" style="margin-bottom:0.8rem;">
+          <div style="font-size:0.65rem;font-weight:600;color:var(--text-muted);margin-bottom:0.3rem;">Current Stock Preview:</div>
+          <div class="location-stock-grid" id="locationStockGrid">
+            <div class="location-stock-item"><span class="loc-name">Main Shop:</span> <span class="loc-qty" id="previewMain">-</span></div>
+            <div class="location-stock-item"><span class="loc-name">Westlands:</span> <span class="loc-qty" id="previewWestlands">-</span></div>
+            <div class="location-stock-item"><span class="loc-name">Mombasa:</span> <span class="loc-qty" id="previewMombasa">-</span></div>
+          </div>
+        </div>
+
+        <div class="transfer-summary">
+          <div class="total-items" id="transferTotal">0 items</div>
+          <div class="breakdown" id="transferBreakdown">Select products to transfer</div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="confirmTransfer()">
+            <i class="fas fa-arrow-right"></i> Confirm Transfer
+          </button>
+          <button class="btn btn-secondary" onclick="resetForm()">
+            <i class="fas fa-undo"></i> Reset
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="toastContainer"></div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+      authDomain: "mugera-e51cc.firebaseapp.com",
+      databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "mugera-e51cc",
+      storageBucket: "mugera-e51cc.firebasestorage.app",
+      messagingSenderId: "1024868637509",
+      appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    const auth = firebase.auth();
+
+    let allProducts = {};
+    let locationStock = {};
+    let rowCount = 1;
+
+    // Location names for display
+    const locationNames = {
+      'main_shop': 'Main Shop',
+      'franchisee_001': 'Westlands',
+      'franchisee_002': 'Mombasa'
+    };
+
+    function showToast(msg, isError = false) {
+      const container = document.getElementById('toastContainer');
+      const existing = container.querySelector('.toast');
+      if (existing) existing.remove();
+      const toast = document.createElement('div');
+      toast.className = `toast ${isError ? 'error' : ''}`;
+      toast.innerHTML = `<i class="fas fa-${isError ? 'exclamation-circle' : 'check-circle'}"></i> ${msg}`;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 3500);
+    }
+
+    // Load all products
+    database.ref('dsog_fashion_products').on('value', (snapshot) => {
+      allProducts = snapshot.val() || {};
+      Object.entries(allProducts).forEach(([id, p]) => { if (p) p.id = id; });
+      populateProductDropdowns();
+      updateLocationStockPreview();
+    });
+
+    // Load location stock (if you have separate location tracking)
+    // For now, we'll use the product's location stock if available, or just total stock
+    function getProductStockAtLocation(productId, location) {
+      const product = allProducts[productId];
+      if (!product) return 0;
+      // If you have location-specific stock tracking
+      if (product.locations && product.locations[location] !== undefined) {
+        return product.locations[location];
+      }
+      // Fallback: use total stock
+      return product.stock || product.quantity || 0;
+    }
+
+    function populateProductDropdowns() {
+      const products = Object.values(allProducts)
+        .filter(p => p && p.name && (p.stock || p.quantity || 0) > 0)
+        .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+      
+      const options = products.map(p => {
+        const stock = p.stock || p.quantity || 0;
+        const price = p.price || 0;
+        return `<option value="${p.id}" data-stock="${stock}" data-price="${price}">${p.name} (${p.sku || 'No SKU'}) — ${stock} in stock</option>`;
+      }).join('');
+
+      document.querySelectorAll('.product-select').forEach(select => {
+        const currentVal = select.value;
+        select.innerHTML = '<option value="">— Select Product —</option>' + options;
+        if (currentVal) select.value = currentVal;
+      });
+    }
+
+    function onProductSelect(select) {
+      const row = select.closest('.product-transfer-row');
+      const index = row.dataset.index;
+      const stockInfo = document.getElementById('stockInfo' + index);
+      const fromLocation = document.getElementById('fromLocation').value;
+      
+      if (select.value) {
+        const product = allProducts[select.value];
+        const stock = product ? (product.stock || product.quantity || 0) : 0;
+        const locationStock = product?.locations?.[fromLocation] || stock;
+        if (stockInfo) {
+          stockInfo.textContent = `📍 ${locationNames[fromLocation] || fromLocation}: ${locationStock} units`;
+          stockInfo.className = locationStock <= 10 ? 'stock-info low' : 'stock-info good';
+        }
+      } else {
+        if (stockInfo) { stockInfo.textContent = 'Select a product'; stockInfo.className = 'stock-info'; }
+      }
+      updateSummary();
+      updateLocationStockPreview();
+    }
+
+    function addRow() {
+      rowCount++;
+      const row = document.createElement('div');
+      row.className = 'product-transfer-row';
+      row.dataset.index = rowCount;
+      row.innerHTML = `
+        <div class="form-group" style="flex:2;">
+          <label>Product</label>
+          <select class="product-select" onchange="onProductSelect(this)">
+            <option value="">— Select Product —</option>
+          </select>
+          <div class="stock-info" id="stockInfo${rowCount}">Select a product</div>
+        </div>
+        <div class="form-group" style="flex:0.8;">
+          <label>Qty</label>
+          <input type="number" class="transfer-qty" value="1" min="1" onchange="updateSummary()" oninput="updateSummary()">
+        </div>
+        <button class="btn-remove" onclick="removeRow(this)" title="Remove">✕</button>
+      `;
+      document.getElementById('transferRows').appendChild(row);
+      populateProductDropdowns();
+    }
+
+    function removeRow(btn) {
+      const rows = document.querySelectorAll('.product-transfer-row');
+      if (rows.length <= 1) { showToast('Need at least one product row', true); return; }
+      btn.closest('.product-transfer-row').remove();
+      updateSummary();
+    }
+
+    function updateSummary() {
+      let totalItems = 0;
+      let itemCount = 0;
+      document.querySelectorAll('.product-transfer-row').forEach(row => {
+        const select = row.querySelector('.product-select');
+        const qtyInput = row.querySelector('.transfer-qty');
+        if (select && select.value && qtyInput) {
+          const qty = parseInt(qtyInput.value) || 0;
+          totalItems += qty;
+          itemCount++;
+        }
+      });
+      document.getElementById('transferTotal').textContent = `${totalItems} item${totalItems !== 1 ? 's' : ''}`;
+      document.getElementById('transferBreakdown').textContent = `${itemCount} product${itemCount !== 1 ? 's' : ''} selected`;
+    }
+
+    function updateLocationStockPreview() {
+      // Show total stock for each location (simplified)
+      let mainStock = 0, westlandsStock = 0, mombasaStock = 0;
+      
+      Object.values(allProducts).forEach(p => {
+        mainStock += p.stock || p.quantity || 0;
+        westlandsStock += p.locations?.franchisee_001 || 0;
+        mombasaStock += p.locations?.franchisee_002 || 0;
+      });
+
+      document.getElementById('previewMain').textContent = mainStock;
+      document.getElementById('previewWestlands').textContent = westlandsStock || '0';
+      document.getElementById('previewMombasa').textContent = mombasaStock || '0';
+    }
+
+    function loadLocationStock(location) {
+      // Update stock info for all rows
+      document.querySelectorAll('.product-select').forEach(select => {
+        if (select.value) onProductSelect(select);
+      });
+    }
+
+    async function confirmTransfer() {
+      const fromLocation = document.getElementById('fromLocation').value;
+      const toLocation = document.getElementById('toLocation').value;
+
+      if (fromLocation === toLocation) {
+        showToast('❌ From and To locations must be different!', true);
+        return;
+      }
+
+      const transfers = [];
+      let hasError = false;
+
+      document.querySelectorAll('.product-transfer-row').forEach(row => {
+        const select = row.querySelector('.product-select');
+        const qtyInput = row.querySelector('.transfer-qty');
+        
+        if (select && select.value && qtyInput) {
+          const productId = select.value;
+          const product = allProducts[productId];
+          const qty = parseInt(qtyInput.value) || 0;
+          const availableStock = product?.locations?.[fromLocation] || product?.stock || product?.quantity || 0;
+          
+          if (qty > availableStock) {
+            showToast(`❌ Not enough stock for ${product.name}. Available: ${availableStock}`, true);
+            hasError = true;
+            return;
+          }
+          
+          transfers.push({
+            productId: productId,
+            name: product.name,
+            sku: product.sku || '',
+            quantity: qty,
+            price: product.price || 0
+          });
+        }
+      });
+
+      if (hasError) return;
+      if (transfers.length === 0) { showToast('Select at least one product', true); return; }
+
+      // Process transfer
+      try {
+        const updates = {};
+        const transferRef = document.getElementById('transferRef').value.trim() || `Transfer ${new Date().toLocaleDateString()}`;
+        
+        for (const t of transfers) {
+          const product = allProducts[t.productId];
+          const currentFromStock = product?.locations?.[fromLocation] || product?.stock || product?.quantity || 0;
+          const currentToStock = product?.locations?.[toLocation] || 0;
+          
+          // Update locations if using location-based tracking
+          if (!product.locations) {
+            // Initialize locations if they don't exist
+            updates[`dsog_fashion_products/${t.productId}/locations`] = {
+              main_shop: fromLocation === 'main_shop' ? currentFromStock - t.quantity : currentFromStock,
+              franchisee_001: fromLocation === 'franchisee_001' ? currentFromStock - t.quantity : 
+                             toLocation === 'franchisee_001' ? currentToStock + t.quantity : (product?.locations?.franchisee_001 || 0),
+              franchisee_002: fromLocation === 'franchisee_002' ? currentFromStock - t.quantity :
+                             toLocation === 'franchisee_002' ? currentToStock + t.quantity : (product?.locations?.franchisee_002 || 0)
+            };
+          } else {
+            // Update existing locations
+            updates[`dsog_fashion_products/${t.productId}/locations/${fromLocation}`] = Math.max(0, currentFromStock - t.quantity);
+            updates[`dsog_fashion_products/${t.productId}/locations/${toLocation}`] = (currentToStock || 0) + t.quantity;
+          }
+          
+          // Also update total stock (sum of all locations)
+          const newTotal = Object.values(updates[`dsog_fashion_products/${t.productId}/locations`] || {})
+            .reduce((sum, val) => sum + (val || 0), 0);
+          updates[`dsog_fashion_products/${t.productId}/stock`] = newTotal;
+          updates[`dsog_fashion_products/${t.productId}/quantity`] = newTotal;
+          updates[`dsog_fashion_products/${t.productId}/updatedAt`] = firebase.database.ServerValue.TIMESTAMP;
+        }
+
+        // Log the transfer
+        const transferLog = {
+          from: fromLocation,
+          fromName: locationNames[fromLocation] || fromLocation,
+          to: toLocation,
+          toName: locationNames[toLocation] || toLocation,
+          reference: transferRef,
+          products: transfers,
+          totalItems: transfers.reduce((s, t) => s + t.quantity, 0),
+          notes: document.getElementById('transferNotes').value.trim(),
+          status: 'completed',
+          timestamp: firebase.database.ServerValue.TIMESTAMP,
+          processedBy: auth.currentUser?.email || 'staff'
+        };
+        
+        updates['dsog_fashion_transfers/' + database.ref().push().key] = transferLog;
+
+        // Execute all updates
+        await database.ref().update(updates);
+        
+        showToast(`✅ Transfer complete! ${transferLog.totalItems} items moved from ${locationNames[fromLocation]} to ${locationNames[toLocation]}`);
+        resetForm();
+      } catch (e) {
+        console.error(e);
+        showToast('❌ Failed to complete transfer', true);
+      }
+    }
+
+    function resetForm() {
+      document.getElementById('fromLocation').value = 'main_shop';
+      document.getElementById('toLocation').value = 'franchisee_001';
+      document.getElementById('transferRef').value = '';
+      document.getElementById('transferNotes').value = '';
+      
+      document.getElementById('transferRows').innerHTML = `
+        <div class="product-transfer-row" data-index="0">
+          <div class="form-group" style="flex:2;">
+            <label>Product</label>
+            <select class="product-select" onchange="onProductSelect(this)">
+              <option value="">— Select Product —</option>
+            </select>
+            <div class="stock-info" id="stockInfo0">Select a product</div>
+          </div>
+          <div class="form-group" style="flex:0.8;">
+            <label>Qty</label>
+            <input type="number" class="transfer-qty" value="1" min="1" onchange="updateSummary()" oninput="updateSummary()">
+          </div>
+          <button class="btn-remove" onclick="removeRow(this)" title="Remove">✕</button>
+        </div>
+      `;
+      rowCount = 1;
+      populateProductDropdowns();
+      updateSummary();
+      updateLocationStockPreview();
+    }
+
+    // Event listeners
+    document.getElementById('fromLocation').addEventListener('change', () => {
+      loadLocationStock(document.getElementById('fromLocation').value);
+    });
+
+    // Auth check
+    auth.onAuthStateChanged((user) => {
+      if (!user) window.location.href = '/';
+    });
+
+    // Initialize
+    updateSummary();
+    updateLocationStockPreview();
+
+    // Expose functions
+    window.addRow = addRow;
+    window.removeRow = removeRow;
+    window.onProductSelect = onProductSelect;
+    window.confirmTransfer = confirmTransfer;
+    window.resetForm = resetForm;
+    window.loadLocationStock = loadLocationStock;
+  </script>
+</body>
+</html>
