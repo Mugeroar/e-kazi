@@ -175,7 +175,6 @@
     }
     .stock-info.low { color: #ef4444; }
     .stock-info.good { color: #10b981; }
-    .stock-info.loading { color: #94a3b8; font-style: italic; }
 
     .transfer-summary {
       background: linear-gradient(135deg, #fdf2f8, #fce7f3);
@@ -255,9 +254,6 @@
     .toast.error { background: var(--red); }
     @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
-    .loading-spinner { display: inline-block; animation: spin 1s linear infinite; margin-right: 4px; }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
     @media (max-width: 900px) { .form-layout { grid-template-columns: 1fr; } }
     @media (max-width: 600px) { .container { padding: 0.8rem; } }
   </style>
@@ -274,7 +270,7 @@
       <a href="dsog-fashion-orders.html" class="nav-btn"><i class="fas fa-shopping-bag"></i> Orders</a>
       <a href="dsog-fashion-inventory.html" class="nav-btn"><i class="fas fa-boxes"></i> Inventory</a>
       <a href="dsog-fashion-products.html" class="nav-btn"><i class="fas fa-tags"></i> Products</a>
-      <a href="dsog-fashion-locations.html" class="nav-btn"><i class="fas fa-store"></i> Locations</a>
+      <a href="dsog-fashion-franchisees.html" class="nav-btn"><i class="fas fa-store"></i> Franchises</a>
     </div>
   </nav>
 
@@ -282,7 +278,7 @@
     <div class="page-header">
       <div>
         <h1><i class="fas fa-arrows-alt-h"></i> Stock Transfer (Internal)</h1>
-        <p>Move stock between your locations — main shop &amp; franchise stores</p>
+        <p>Move stock between your main shop and franchise stores</p>
       </div>
     </div>
 
@@ -295,14 +291,14 @@
         <div class="form-group">
           <label>From Location <i class="fas fa-arrow-right" style="color:var(--pink);"></i></label>
           <select id="fromLocation" onchange="onLocationChange(this.value)">
-            <option value="">— Loading locations —</option>
+            <option value="">— Loading franchises —</option>
           </select>
         </div>
 
         <div class="form-group">
           <label>To Location <i class="fas fa-arrow-right" style="color:var(--pink);"></i></label>
           <select id="toLocation">
-            <option value="">— Loading locations —</option>
+            <option value="">— Loading franchises —</option>
           </select>
         </div>
 
@@ -399,9 +395,9 @@
     // DATA STORES
     // ============================================================
     let allProducts = {};
-    let allLocations = {};
+    let allFranchisees = {};
     let productsLoaded = false;
-    let locationsLoaded = false;
+    let franchisesLoaded = false;
     let rowCount = 1;
 
     // ============================================================
@@ -419,21 +415,20 @@
     }
 
     // ============================================================
-    // 🔥 LOAD LOCATIONS FROM dsog_fashion_locations
+    // 🔥 LOAD FRANCHISEES FROM dsog_fashion_franchisees
     // ============================================================
-    database.ref('dsog_fashion_locations').on('value', (snapshot) => {
+    database.ref('dsog_fashion_franchisees').on('value', (snapshot) => {
       const data = snapshot.val();
       if (data) {
-        allLocations = data;
-        locationsLoaded = true;
+        allFranchisees = data;
+        franchisesLoaded = true;
       } else {
-        allLocations = {};
-        locationsLoaded = true;
+        allFranchisees = {};
+        franchisesLoaded = true;
       }
-      populateLocationDropdowns();
+      populateFranchiseeDropdowns();
       updateLocationStockPreview();
       
-      // If products are already loaded, set default selections
       if (productsLoaded) {
         setDefaultLocations();
       }
@@ -455,68 +450,65 @@
       populateProductDropdowns();
       updateLocationStockPreview();
       
-      // If locations are already loaded, set default selections
-      if (locationsLoaded) {
+      if (franchisesLoaded) {
         setDefaultLocations();
       }
     });
 
     // ============================================================
+    // GET LOCATION NAME
+    // ============================================================
+    function getLocationName(locationId) {
+      return allFranchisees[locationId]?.businessName || locationId;
+    }
+
+    // ============================================================
     // SET DEFAULT LOCATIONS
     // ============================================================
     function setDefaultLocations() {
-      const locationIds = Object.keys(allLocations);
-      if (locationIds.length === 0) {
-        document.getElementById('fromLocation').innerHTML = '<option value="">— No locations found —</option>';
-        document.getElementById('toLocation').innerHTML = '<option value="">— No locations found —</option>';
+      const franchiseIds = Object.keys(allFranchisees);
+      if (franchiseIds.length === 0) {
+        document.getElementById('fromLocation').innerHTML = '<option value="">— No franchisees found —</option>';
+        document.getElementById('toLocation').innerHTML = '<option value="">— No franchisees found —</option>';
         return;
       }
 
       const fromSelect = document.getElementById('fromLocation');
       const toSelect = document.getElementById('toLocation');
 
-      // Find main shop, otherwise use first location
-      let mainId = locationIds.find(id => allLocations[id]?.type === 'main');
-      let otherId = locationIds.find(id => id !== mainId);
+      // First franchise for "From", second for "To" if exists
+      const firstId = franchiseIds[0];
+      const secondId = franchiseIds.length > 1 ? franchiseIds[1] : franchiseIds[0];
 
-      if (!mainId) mainId = locationIds[0];
-      if (!otherId && locationIds.length > 1) {
-        otherId = locationIds[1];
-      } else if (!otherId) {
-        otherId = locationIds[0];
+      if (firstId && fromSelect.value !== firstId) {
+        fromSelect.value = firstId;
+        onLocationChange(firstId);
       }
-
-      // Set values if they exist
-      if (mainId && fromSelect.value !== mainId) {
-        fromSelect.value = mainId;
-        onLocationChange(mainId);
-      }
-      if (otherId && toSelect.value !== otherId) {
-        toSelect.value = otherId;
+      if (secondId && toSelect.value !== secondId) {
+        toSelect.value = secondId;
       }
 
       updateLocationStockPreview();
     }
 
     // ============================================================
-    // POPULATE LOCATION DROPDOWNS
+    // POPULATE FRANCHISEE DROPDOWNS
     // ============================================================
-    function populateLocationDropdowns() {
-      const locationIds = Object.keys(allLocations);
+    function populateFranchiseeDropdowns() {
+      const franchiseIds = Object.keys(allFranchisees);
       
-      if (locationIds.length === 0) {
-        document.getElementById('fromLocation').innerHTML = '<option value="">— No locations found —</option>';
-        document.getElementById('toLocation').innerHTML = '<option value="">— No locations found —</option>';
+      if (franchiseIds.length === 0) {
+        document.getElementById('fromLocation').innerHTML = '<option value="">— No franchisees found —</option>';
+        document.getElementById('toLocation').innerHTML = '<option value="">— No franchisees found —</option>';
         return;
       }
 
-      const options = locationIds.map(id => {
-        const loc = allLocations[id];
-        const typeIcon = loc?.type === 'main' ? '🏪' : '📍';
-        return `<option value="${id}">${typeIcon} ${loc?.name || id}</option>`;
+      const options = franchiseIds.map(id => {
+        const franchise = allFranchisees[id];
+        const tierIcon = franchise?.tier === 'standard' ? '⭐' : '📍';
+        return `<option value="${id}">${tierIcon} ${franchise?.businessName || id}${franchise?.location ? ' — ' + franchise.location : ''}</option>`;
       }).join('');
 
-      // Only update if dropdown is empty or has placeholder
       const fromSelect = document.getElementById('fromLocation');
       const toSelect = document.getElementById('toLocation');
       
@@ -574,7 +566,6 @@
     // LOCATION CHANGE HANDLER
     // ============================================================
     function onLocationChange(locationId) {
-      // Update all product rows to show stock at this location
       document.querySelectorAll('.product-select').forEach(select => {
         if (select.value) {
           updateStockInfo(select);
@@ -589,13 +580,6 @@
         }
       });
       updateLocationStockPreview();
-    }
-
-    // ============================================================
-    // GET LOCATION NAME
-    // ============================================================
-    function getLocationName(locationId) {
-      return allLocations[locationId]?.name || locationId;
     }
 
     // ============================================================
@@ -630,7 +614,6 @@
           stockInfo.className = locationStock <= 10 ? 'stock-info low' : 'stock-info good';
         }
         
-        // Set max on qty input
         const qtyInput = row.querySelector('.transfer-qty');
         if (qtyInput) qtyInput.max = locationStock;
       } else {
@@ -666,7 +649,6 @@
       document.getElementById('transferRows').appendChild(row);
       populateProductDropdowns();
       
-      // If location is selected, update stock info
       const fromLocation = document.getElementById('fromLocation').value;
       if (fromLocation) {
         const select = row.querySelector('.product-select');
@@ -708,16 +690,15 @@
     // ============================================================
     function updateLocationStockPreview() {
       const grid = document.getElementById('locationStockGrid');
-      const locationIds = Object.keys(allLocations);
+      const franchiseIds = Object.keys(allFranchisees);
       
-      if (locationIds.length === 0) {
-        grid.innerHTML = '<div style="font-size:0.6rem;color:var(--text-muted);grid-column:1/-1;text-align:center;">No locations found. Add locations first.</div>';
+      if (franchiseIds.length === 0) {
+        grid.innerHTML = '<div style="font-size:0.6rem;color:var(--text-muted);grid-column:1/-1;text-align:center;">No franchisees found. Add franchisees first.</div>';
         return;
       }
 
-      // Calculate total stock per location
       const locationStock = {};
-      locationIds.forEach(id => locationStock[id] = 0);
+      franchiseIds.forEach(id => locationStock[id] = 0);
       
       Object.values(allProducts).forEach(p => {
         if (p.locations) {
@@ -729,11 +710,11 @@
         }
       });
 
-      grid.innerHTML = locationIds.map(id => {
-        const loc = allLocations[id];
-        const typeIcon = loc?.type === 'main' ? '🏪' : '📍';
+      grid.innerHTML = franchiseIds.map(id => {
+        const franchise = allFranchisees[id];
+        const tierIcon = franchise?.tier === 'standard' ? '⭐' : '📍';
         return `<div class="location-stock-item">
-          <span class="loc-name">${typeIcon} ${loc?.name || id}:</span> 
+          <span class="loc-name">${tierIcon} ${franchise?.businessName || id}:</span> 
           <span class="loc-qty">${locationStock[id] || 0}</span>
         </div>`;
       }).join('');
@@ -753,7 +734,6 @@
         return;
       }
 
-      // Get selected products
       const transfers = [];
       let hasError = false;
 
@@ -793,7 +773,6 @@
       if (hasError) return;
       if (transfers.length === 0) { showToast('Select at least one product', true); return; }
 
-      // Disable button during processing
       const confirmBtn = document.getElementById('confirmBtn');
       confirmBtn.disabled = true;
       confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
@@ -807,18 +786,13 @@
           const currentFromStock = t.availableStock;
           const currentToStock = getStockAtLocation(t.productId, toLocation);
           
-          // Initialize locations if they don't exist
           if (!product.locations) {
             updates[`dsog_fashion_products/${t.productId}/locations`] = {};
           }
           
-          // Update from location (deduct)
           updates[`dsog_fashion_products/${t.productId}/locations/${fromLocation}`] = Math.max(0, currentFromStock - t.quantity);
-          
-          // Update to location (add)
           updates[`dsog_fashion_products/${t.productId}/locations/${toLocation}`] = (currentToStock || 0) + t.quantity;
           
-          // Calculate new total stock (sum of all locations)
           const newLocations = { ...(product.locations || {}) };
           newLocations[fromLocation] = Math.max(0, currentFromStock - t.quantity);
           newLocations[toLocation] = (currentToStock || 0) + t.quantity;
@@ -829,7 +803,6 @@
           updates[`dsog_fashion_products/${t.productId}/updatedAt`] = firebase.database.ServerValue.TIMESTAMP;
         }
 
-        // Log the transfer
         const transferLog = {
           from: fromLocation,
           fromName: getLocationName(fromLocation),
@@ -851,8 +824,6 @@
         };
         
         updates['dsog_fashion_transfers/' + database.ref().push().key] = transferLog;
-
-        // Execute all updates
         await database.ref().update(updates);
         
         showToast(`✅ Transfer complete! ${transferLog.totalItems} items moved from ${getLocationName(fromLocation)} to ${getLocationName(toLocation)}`);
@@ -870,7 +841,6 @@
     // RESET FORM
     // ============================================================
     function resetForm() {
-      // Reset product rows
       document.getElementById('transferRows').innerHTML = `
         <div class="product-transfer-row" data-index="0">
           <div class="form-group" style="flex:2;">
@@ -895,8 +865,6 @@
       populateProductDropdowns();
       updateSummary();
       updateLocationStockPreview();
-      
-      // Re-set default locations
       setDefaultLocations();
     }
 
