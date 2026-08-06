@@ -170,14 +170,15 @@
 <body>
 
   <nav class="navbar">
-    <a href="/workspaces/dsog-fashion/index.html" class="logo">
+    <a href="index.html" class="logo">
       <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png" alt="DSOG Fashion" class="logo-img">
       <span class="logo-text">DSOG <span>Fashion</span></span>
     </a>
     <div class="nav-right">
-      <a href="/workspaces/dsog-fashion/index.html" class="nav-btn"><i class="fas fa-arrow-left"></i> Dashboard</a>
-      <a href="/workspaces/dsog-fashion/dsog-fashion-orders.html" class="nav-btn"><i class="fas fa-shopping-bag"></i> Orders</a>
-      <a href="/workspaces/dsog-fashion/dsog-fashion-inventory.html" class="nav-btn"><i class="fas fa-boxes"></i> Inventory</a>
+      <a href="index.html" class="nav-btn"><i class="fas fa-arrow-left"></i> Dashboard</a>
+      <a href="dsog-fashion-orders.html" class="nav-btn"><i class="fas fa-shopping-bag"></i> Orders</a>
+      <a href="dsog-fashion-inventory.html" class="nav-btn"><i class="fas fa-boxes"></i> Inventory</a>
+      <a href="dsog-fashion-products.html" class="nav-btn"><i class="fas fa-tags"></i> Products</a>
     </div>
   </nav>
 
@@ -266,7 +267,8 @@
     const database = firebase.database();
     const auth = firebase.auth();
 
-    let allInventory = {};
+    // 🔥 FIXED: Now storing products from dsog_fashion_products
+    let allProducts = {};
     let allFranchisees = {};
     let rowCount = 1;
 
@@ -281,13 +283,23 @@
       setTimeout(() => toast.remove(), 3500);
     }
 
-    function getInventoryProduct(name) {
-      return Object.values(allInventory).find(p => p && p.name === name);
+    function getProductById(productId) {
+      return allProducts[productId] || null;
     }
 
-    function populateInventoryDropdowns() {
-      const products = Object.values(allInventory).filter(p => p && p.name && (p.quantity || 0) > 0);
-      const options = products.map(p => `<option value="${p.name}" data-price="${p.unitPrice || 0}" data-unit="${p.unit || 'pcs'}" data-stock="${p.quantity || 0}" data-id="${p.id || ''}" data-size="${p.size || ''}">${p.name} — KES ${(p.unitPrice || 0).toLocaleString()} (${p.quantity || 0} in stock)</option>`).join('');
+    function populateProductDropdowns() {
+      // 🔥 FIXED: Reading from dsog_fashion_products
+      const products = Object.values(allProducts)
+        .filter(p => p && p.name && (p.stock || p.quantity || 0) > 0 && p.status !== 'archived')
+        .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+      
+      const options = products.map(p => {
+        const stock = p.stock || p.quantity || 0;
+        const price = p.price || p.unitPrice || 0;
+        const sizes = p.sizes || '';
+        return `<option value="${p.id}" data-name="${p.name}" data-price="${price}" data-unit="${p.unit || 'pcs'}" data-stock="${stock}" data-size="${sizes}" data-sku="${p.sku || ''}">${p.name} ${sizes ? '(' + sizes + ')' : ''} — KES ${price.toLocaleString()} (${stock} in stock)</option>`;
+      }).join('');
+      
       document.querySelectorAll('.product-select').forEach(select => {
         const currentVal = select.value;
         select.innerHTML = '<option value="">— Select from inventory —</option>' + options;
@@ -311,7 +323,7 @@
         <div class="form-group" style="flex:1;"><label>Qty</label><input type="number" class="product-qty" value="1" min="1" onchange="validateQty(this)" oninput="validateQty(this)"></div>
         <button class="btn-remove" onclick="removeProductRow(this)" title="Remove">✕</button>`;
       document.getElementById('productRows').appendChild(row);
-      populateInventoryDropdowns();
+      populateProductDropdowns();
     }
 
     function removeProductRow(btn) {
@@ -326,10 +338,20 @@
       const index = row.dataset.index;
       const stockInfo = document.getElementById('stockInfo' + index);
       const qtyInput = row.querySelector('.product-qty');
+      
       if (select.value) {
         const stock = parseInt(select.selectedOptions[0]?.dataset?.stock) || 0;
-        if (stockInfo) { stockInfo.textContent = `${stock} in stock`; stockInfo.className = stock <= 10 ? 'stock-info low' : 'stock-info good'; }
+        const productName = select.selectedOptions[0]?.dataset?.name || '';
+        if (stockInfo) { 
+          stockInfo.textContent = `${stock} in stock`; 
+          stockInfo.className = stock <= 10 ? 'stock-info low' : 'stock-info good'; 
+        }
         if (qtyInput) qtyInput.max = stock;
+        // Show size info if available
+        const size = select.selectedOptions[0]?.dataset?.size || '';
+        if (size) {
+          stockInfo.textContent += ` | Size: ${size}`;
+        }
       } else {
         if (stockInfo) { stockInfo.textContent = ''; stockInfo.className = 'stock-info'; }
         if (qtyInput) qtyInput.max = 999;
@@ -407,10 +429,17 @@
         if (select && select.value && qtyInput) {
           const stock = parseInt(select.selectedOptions[0]?.dataset?.stock) || 0;
           const qty = Math.min(parseInt(qtyInput.value) || 1, stock);
+          const productId = select.value;
+          const product = allProducts[productId] || {};
           products.push({
-            name: select.value, price: parseInt(select.selectedOptions[0]?.dataset?.price) || 0,
-            unit: select.selectedOptions[0]?.dataset?.unit || 'pcs', size: select.selectedOptions[0]?.dataset?.size || '',
-            productId: select.selectedOptions[0]?.dataset?.id || '', quantity: qty, stockBefore: stock
+            productId: productId,
+            name: select.selectedOptions[0]?.dataset?.name || product.name || 'Unknown',
+            sku: product.sku || select.selectedOptions[0]?.dataset?.sku || '',
+            price: parseInt(select.selectedOptions[0]?.dataset?.price) || 0,
+            unit: select.selectedOptions[0]?.dataset?.unit || 'pcs',
+            size: select.selectedOptions[0]?.dataset?.size || '',
+            quantity: qty,
+            stockBefore: stock
           });
         }
       });
@@ -435,22 +464,25 @@
       document.getElementById('saveBtn').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
       try {
         await database.ref('dsog_fashion_orders').push().set(orderData);
+        
+        // 🔥 FIXED: Update stock in dsog_fashion_products
         const updates = {};
         for (const product of orderData.products) {
-          if (product.productId) {
-            updates[`dsog_fashion_inventory/${product.productId}/quantity`] = Math.max(0, product.stockBefore - product.quantity);
-          } else {
-            const invProduct = getInventoryProduct(product.name);
-            if (invProduct) {
-              const invId = Object.keys(allInventory).find(k => allInventory[k] === invProduct);
-              if (invId) updates[`dsog_fashion_inventory/${invId}/quantity`] = Math.max(0, (invProduct.quantity || 0) - product.quantity);
-            }
+          if (product.productId && allProducts[product.productId]) {
+            const currentStock = allProducts[product.productId].stock || allProducts[product.productId].quantity || 0;
+            updates[`dsog_fashion_products/${product.productId}/stock`] = Math.max(0, currentStock - product.quantity);
+            updates[`dsog_fashion_products/${product.productId}/quantity`] = Math.max(0, currentStock - product.quantity);
+            updates[`dsog_fashion_products/${product.productId}/updatedAt`] = firebase.database.ServerValue.TIMESTAMP;
           }
         }
         if (Object.keys(updates).length > 0) await database.ref().update(updates);
+        
         showToast('✅ Order saved & stock updated!');
         resetForm();
-      } catch (e) { console.error(e); showToast('Failed to save', true); }
+      } catch (e) { 
+        console.error(e); 
+        showToast('Failed to save order', true); 
+      }
       document.getElementById('saveBtn').disabled = false;
       document.getElementById('saveBtn').innerHTML = '<i class="fas fa-check-circle"></i> Confirm & Save Order';
     }
@@ -464,14 +496,23 @@
       document.getElementById('notes').value = '';
       document.getElementById('productRows').innerHTML = `<div class="product-row" data-index="0"><div class="form-group" style="flex:2;"><label>Product</label><select class="product-select" onchange="onProductChange(this)" style="width:100%;"><option value="">— Select from inventory —</option></select><div class="stock-info" id="stockInfo0"></div></div><div class="form-group" style="flex:1;"><label>Qty</label><input type="number" class="product-qty" value="1" min="1" onchange="validateQty(this)" oninput="validateQty(this)"></div><button class="btn-remove" onclick="removeProductRow(this)" title="Remove">✕</button></div>`;
       rowCount = 1;
-      populateInventoryDropdowns();
+      populateProductDropdowns();
       updatePrice();
     }
 
-    database.ref('dsog_fashion_inventory').on('value', (snapshot) => {
-      allInventory = snapshot.val() || {};
-      Object.entries(allInventory).forEach(([id, product]) => { if (product) product.id = id; });
-      populateInventoryDropdowns();
+    // 🔥 FIXED: Reading from dsog_fashion_products
+    database.ref('dsog_fashion_products').on('value', (snapshot) => {
+      allProducts = snapshot.val() || {};
+      // Add the ID to each product object for easy lookup
+      Object.entries(allProducts).forEach(([id, product]) => { 
+        if (product) {
+          product.id = id; 
+          // Ensure both stock and quantity fields exist
+          if (product.stock === undefined && product.quantity !== undefined) product.stock = product.quantity;
+          if (product.quantity === undefined && product.stock !== undefined) product.quantity = product.stock;
+        }
+      });
+      populateProductDropdowns();
     });
 
     database.ref('dsog_fashion_franchisees').on('value', (snapshot) => {
@@ -479,12 +520,20 @@
       populateFranchiseDropdown();
     });
 
-    auth.onAuthStateChanged((user) => { if (!user) window.location.href = '/'; });
+    auth.onAuthStateChanged((user) => { 
+      if (!user) window.location.href = '/'; 
+    });
+    
+    // Initial setup
     updatePrice();
+    
+    // Expose functions globally
     window.addProductRow = addProductRow;
     window.removeProductRow = removeProductRow;
     window.onProductChange = onProductChange;
     window.validateQty = validateQty;
+    window.saveOrder = saveOrder;
+    window.resetForm = resetForm;
   </script>
 </body>
 </html>
