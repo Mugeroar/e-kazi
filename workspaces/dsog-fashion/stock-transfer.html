@@ -25,7 +25,6 @@
       --red: #ef4444;
       --blue: #3b82f6;
       --orange: #f59e0b;
-      --teal: #14b8a6;
     }
 
     body {
@@ -76,15 +75,14 @@
       transition: all 0.2s;
     }
     .nav-btn:hover { background: var(--pink); color: white; }
+    .nav-btn.active { background: var(--pink); color: white; }
 
-    .container { padding: 1rem 2%; max-width: 1400px; margin: 0 auto; }
+    .container { padding: 1rem 2%; max-width: 1200px; margin: 0 auto; }
 
     .page-header { margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.8rem; }
     .page-header h1 { font-size: 1.3rem; font-weight: 800; color: #0f172a; }
     .page-header h1 i { color: var(--pink-dark); margin-right: 6px; }
     .page-header p { color: var(--text-muted); font-size: 0.75rem; }
-
-    .form-layout { display: grid; grid-template-columns: 1fr 1.5fr 1fr; gap: 1rem; }
 
     .form-card {
       background: white;
@@ -92,8 +90,8 @@
       padding: 1.2rem;
       border: 1px solid #fbcfe8;
       box-shadow: 0 3px 12px rgba(190,24,93,0.03);
-      display: flex;
-      flex-direction: column;
+      max-width: 800px;
+      margin: 0 auto;
     }
     .form-card h3 {
       font-size: 0.85rem;
@@ -103,7 +101,6 @@
       align-items: center;
       gap: 6px;
       color: var(--pink-dark);
-      flex-shrink: 0;
     }
     .form-card h3 i { color: var(--pink); font-size: 0.7rem; }
 
@@ -133,23 +130,24 @@
       background: white;
       box-shadow: 0 0 0 3px rgba(236,72,153,0.06);
     }
-    .form-group input:disabled { background: #f1f5f9; color: #94a3b8; cursor: not-allowed; }
 
     .product-transfer-row {
       display: flex;
-      gap: 8px;
-      align-items: flex-end;
+      gap: 10px;
+      align-items: center;
       margin-bottom: 0.5rem;
       background: #fdf2f8;
       padding: 0.6rem;
       border-radius: 10px;
-      position: relative;
-      border: 1px solid transparent;
+      border: 1px solid #fbcfe8;
       transition: all 0.2s;
+      flex-wrap: wrap;
     }
-    .product-transfer-row.out-of-stock { background: #fef2f2; border-color: #fecaca; }
-    .product-transfer-row.has-stock { background: #f0fdf4; border-color: #bbf7d0; }
-    .product-transfer-row .form-group { margin-bottom: 0; flex: 1; }
+    .product-transfer-row.confirmed {
+      background: #f0fdf4;
+      border-color: #bbf7d0;
+    }
+    .product-transfer-row .form-group { margin-bottom: 0; flex: 1; min-width: 120px; }
     .product-transfer-row .btn-remove {
       background: #fee2e2;
       color: #991b1b;
@@ -176,61 +174,38 @@
     }
     .btn-add-item:hover { background: #fce7f3; }
 
-    .stock-info {
-      font-size: 0.6rem;
-      margin-top: 0.15rem;
-      padding: 0.15rem 0.4rem;
-      border-radius: 6px;
-      background: #f8fafc;
-    }
-    .stock-info.low { color: #ef4444; background: #fef2f2; }
-    .stock-info.good { color: #065f46; background: #d1fae5; }
-    .stock-info.no-stock { color: #64748b; background: #f1f5f9; }
-    .stock-info .from-qty { font-weight: 700; color: var(--text-primary); }
-    .stock-info .to-qty { font-weight: 700; color: var(--teal); }
-
-    .stock-badge {
-      display: inline-block;
-      padding: 0.1rem 0.4rem;
-      border-radius: 10px;
-      font-size: 0.55rem;
-      font-weight: 700;
-      margin-left: 4px;
-    }
-    .stock-badge.available { background: #d1fae5; color: #065f46; }
-    .stock-badge.limited { background: #fef3c7; color: #92400e; }
-    .stock-badge.none { background: #fee2e2; color: #991b1b; }
-    .stock-badge.zero { background: #f1f5f9; color: #64748b; }
-
-    .transfer-summary {
-      background: linear-gradient(135deg, #fdf2f8, #fce7f3);
-      border-radius: 12px;
-      padding: 0.8rem;
-      text-align: center;
+    .confirm-checkbox {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      padding: 0.3rem 0.6rem;
+      background: white;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      cursor: pointer;
+      transition: all 0.2s;
       flex-shrink: 0;
-      margin-top: 0.5rem;
     }
-    .transfer-summary .total-items {
-      font-size: 1.4rem;
-      font-weight: 900;
-      color: var(--pink-dark);
-      line-height: 1.2;
+    .confirm-checkbox input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--green);
+      cursor: pointer;
     }
-    .transfer-summary .breakdown {
-      font-size: 0.65rem;
-      color: var(--text-muted);
-      margin-top: 0.1rem;
+    .confirm-checkbox.confirmed {
+      background: #d1fae5;
+      border-color: #6ee7b7;
+      color: #065f46;
     }
-    .transfer-summary .stock-impact {
-      font-size: 0.6rem;
-      color: var(--text-muted);
-      margin-top: 0.2rem;
-      padding-top: 0.2rem;
-      border-top: 1px solid #fbcfe8;
+    .confirm-checkbox.confirmed input[type="checkbox"] {
+      accent-color: var(--green);
     }
 
     .btn {
-      padding: 0.6rem 1rem;
+      padding: 0.6rem 1.2rem;
       border-radius: 10px;
       border: none;
       font-weight: 700;
@@ -243,31 +218,49 @@
       font-family: inherit;
       justify-content: center;
     }
-    .btn-primary { background: var(--pink); color: white; flex: 2; }
+    .btn-primary { background: var(--pink); color: white; }
     .btn-primary:hover { background: var(--pink-dark); }
     .btn-primary:disabled { background: #94a3b8; cursor: not-allowed; }
-    .btn-secondary { background: #f1f5f9; color: #475569; flex: 1; }
+    .btn-secondary { background: #f1f5f9; color: #475569; }
     .btn-secondary:hover { background: #e2e8f0; }
+    .btn-success { background: var(--green); color: white; }
+    .btn-success:hover { background: #059669; }
 
-    .btn-row { display: flex; gap: 6px; flex-shrink: 0; margin-top: 0.5rem; }
+    .btn-row { display: flex; gap: 10px; margin-top: 1rem; justify-content: flex-end; flex-wrap: wrap; }
 
-    .location-stock-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 6px;
-      margin-top: 0.5rem;
-    }
-    .location-stock-item {
-      background: #f8fafc;
-      padding: 0.4rem;
-      border-radius: 8px;
-      font-size: 0.65rem;
+    .transfer-summary {
+      background: linear-gradient(135deg, #fdf2f8, #fce7f3);
+      border-radius: 12px;
+      padding: 0.8rem 1.2rem;
       text-align: center;
-      border: 1px solid #e2e8f0;
+      margin-top: 0.8rem;
+      border: 1px solid #fbcfe8;
     }
-    .location-stock-item .loc-name { font-weight: 600; color: var(--text-muted); }
-    .location-stock-item .loc-qty { font-weight: 800; color: var(--pink-dark); }
-    .location-stock-item .loc-qty.zero { color: #94a3b8; }
+    .transfer-summary .total-items {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--pink-dark);
+    }
+    .transfer-summary .breakdown {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      margin-top: 0.2rem;
+    }
+    .transfer-summary .status-message {
+      font-size: 0.65rem;
+      margin-top: 0.3rem;
+      padding: 0.3rem 0.8rem;
+      border-radius: 8px;
+      display: inline-block;
+    }
+    .transfer-summary .status-message.ready {
+      background: #d1fae5;
+      color: #065f46;
+    }
+    .transfer-summary .status-message.waiting {
+      background: #fef3c7;
+      color: #92400e;
+    }
 
     .toast {
       position: fixed;
@@ -289,8 +282,25 @@
     .toast.error { background: var(--red); }
     @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
-    @media (max-width: 900px) { .form-layout { grid-template-columns: 1fr; } }
-    @media (max-width: 600px) { .container { padding: 0.8rem; } }
+    .product-label {
+      font-weight: 600;
+      font-size: 0.75rem;
+      color: var(--text-primary);
+      padding: 0.2rem 0.4rem;
+    }
+
+    .row-actions {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    @media (max-width: 700px) {
+      .product-transfer-row { flex-direction: column; align-items: stretch; }
+      .row-actions { justify-content: flex-end; }
+      .container { padding: 0.8rem; }
+    }
   </style>
 </head>
 <body>
@@ -306,104 +316,94 @@
       <a href="dsog-fashion-inventory.html" class="nav-btn"><i class="fas fa-boxes"></i> Inventory</a>
       <a href="dsog-fashion-products.html" class="nav-btn"><i class="fas fa-tags"></i> Products</a>
       <a href="dsog-fashion-franchisees.html" class="nav-btn"><i class="fas fa-store"></i> Franchises</a>
+      <a href="dsog-fashion-transfer-logs.html" class="nav-btn"><i class="fas fa-history"></i> Transfer Logs</a>
     </div>
   </nav>
 
   <div class="container">
     <div class="page-header">
       <div>
-        <h1><i class="fas fa-arrows-alt-h"></i> Stock Transfer</h1>
-        <p>Move stock between main shop and franchise stores — <strong>current stock shown for each location</strong></p>
+        <h1><i class="fas fa-arrows-alt-h"></i> New Stock Transfer</h1>
+        <p>Transfer products between stores — <strong>confirm stock availability</strong> to complete transfer</p>
       </div>
     </div>
 
-    <div class="form-layout">
+    <div class="form-card">
+      <h3><i class="fas fa-route"></i> Transfer Details</h3>
       
-      <!-- Column 1: Source & Destination -->
-      <div class="form-card">
-        <h3><i class="fas fa-route"></i> Transfer Details</h3>
-        
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.8rem;">
         <div class="form-group">
-          <label>From Location <i class="fas fa-arrow-right" style="color:var(--pink);"></i></label>
-          <select id="fromLocation" onchange="onLocationChange(this.value)">
-            <option value="">— Loading franchises —</option>
+          <label>From Store <i class="fas fa-arrow-right" style="color:var(--pink);"></i></label>
+          <select id="fromLocation">
+            <option value="">— Select Store —</option>
           </select>
         </div>
 
         <div class="form-group">
-          <label>To Location <i class="fas fa-arrow-right" style="color:var(--pink);"></i></label>
-          <select id="toLocation" onchange="onLocationChange(document.getElementById('fromLocation').value)">
-            <option value="">— Loading franchises —</option>
+          <label>To Store <i class="fas fa-arrow-right" style="color:var(--pink);"></i></label>
+          <select id="toLocation">
+            <option value="">— Select Store —</option>
           </select>
         </div>
+      </div>
 
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.8rem;">
         <div class="form-group">
           <label>Transfer Reference</label>
           <input type="text" id="transferRef" placeholder="e.g., Weekly restock - Westlands">
         </div>
 
         <div class="form-group">
-          <label>Notes</label>
-          <textarea id="transferNotes" rows="2" placeholder="Reason for transfer..."></textarea>
-        </div>
-
-        <div style="margin-top:0.5rem;font-size:0.65rem;color:var(--text-muted);background:#f8fafc;padding:0.5rem;border-radius:8px;">
-          <i class="fas fa-info-circle" style="color:var(--pink);"></i>
-          Stock shown: <strong id="locationDisplay">Select locations first</strong>
+          <label>Transfer Date</label>
+          <input type="date" id="transferDate">
         </div>
       </div>
 
-      <!-- Column 2: Products to Transfer -->
-      <div class="form-card">
-        <h3><i class="fas fa-boxes"></i> Products to Transfer</h3>
-        <div style="flex:1;overflow-y:auto;max-height:450px;">
-          <div id="transferRows">
-            <div class="product-transfer-row" data-index="0">
-              <div class="form-group" style="flex:2;">
-                <label>Product</label>
-                <select class="product-select" onchange="onProductSelect(this)">
-                  <option value="">— Select Product —</option>
-                </select>
-                <div class="stock-info" id="stockInfo0">Select locations and product</div>
-              </div>
-              <div class="form-group" style="flex:0.8;">
-                <label>Qty</label>
-                <input type="number" class="transfer-qty" value="1" min="1" onchange="onQtyChange(this)" oninput="onQtyChange(this)">
-              </div>
-              <button class="btn-remove" onclick="removeRow(this)" title="Remove">✕</button>
-            </div>
+      <div class="form-group">
+        <label>Notes</label>
+        <textarea id="transferNotes" rows="2" placeholder="Reason for transfer, special instructions..."></textarea>
+      </div>
+
+      <hr style="border: none; border-top: 1px solid #fbcfe8; margin: 0.8rem 0;">
+
+      <h3 style="font-size:0.8rem; font-weight:700; color:var(--text-muted); margin-bottom:0.6rem;">
+        <i class="fas fa-boxes"></i> Products to Transfer
+      </h3>
+      
+      <div id="transferRows">
+        <div class="product-transfer-row" data-index="0">
+          <div class="form-group" style="flex:2;">
+            <label>Product</label>
+            <select class="product-select" onchange="onProductSelect(this)">
+              <option value="">— Select Product —</option>
+            </select>
           </div>
-          <button class="btn-add-item" onclick="addRow()"><i class="fas fa-plus"></i> Add Another Product</button>
-        </div>
-      </div>
-
-      <!-- Column 3: Summary & Confirm -->
-      <div class="form-card">
-        <h3><i class="fas fa-check-circle"></i> Confirm Transfer</h3>
-        
-        <div id="locationStockPreview" style="margin-bottom:0.8rem;">
-          <div style="font-size:0.65rem;font-weight:600;color:var(--text-muted);margin-bottom:0.3rem;">📊 All Locations Stock:</div>
-          <div class="location-stock-grid" id="locationStockGrid">
-            <div style="font-size:0.6rem;color:var(--text-muted);grid-column:1/-1;text-align:center;">Loading stock data...</div>
+          <div class="row-actions">
+            <label class="confirm-checkbox" id="confirmLabel0">
+              <input type="checkbox" class="confirm-check" onchange="onConfirmChange(this)">
+              <span>Has Stock</span>
+            </label>
+            <button class="btn-remove" onclick="removeRow(this)" title="Remove">✕</button>
           </div>
         </div>
+      </div>
 
-        <div class="transfer-summary">
-          <div class="total-items" id="transferTotal">0 items</div>
-          <div class="breakdown" id="transferBreakdown">Select products to transfer</div>
-          <div class="stock-impact" id="stockImpact">📍 After transfer: <span id="impactText">Select locations and products</span></div>
-        </div>
+      <button class="btn-add-item" onclick="addRow()"><i class="fas fa-plus"></i> Add Another Product</button>
 
-        <div class="btn-row">
-          <button class="btn btn-primary" id="confirmBtn" onclick="confirmTransfer()">
-            <i class="fas fa-arrow-right"></i> Confirm Transfer
-          </button>
-          <button class="btn btn-secondary" onclick="resetForm()">
-            <i class="fas fa-undo"></i> Reset
-          </button>
+      <div class="transfer-summary" id="transferSummary">
+        <div class="total-items" id="transferTotal">0 products selected</div>
+        <div class="breakdown" id="transferBreakdown">Add products to transfer</div>
+        <div>
+          <span class="status-message waiting" id="statusMessage">⚠️ Confirm stock for each product</span>
         </div>
       </div>
 
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="resetForm()"><i class="fas fa-undo"></i> Reset</button>
+        <button class="btn btn-primary" id="confirmBtn" onclick="confirmTransfer()" disabled>
+          <i class="fas fa-check-circle"></i> Complete Transfer
+        </button>
+      </div>
     </div>
   </div>
 
@@ -428,18 +428,10 @@
     const database = firebase.database();
     const auth = firebase.auth();
 
-    // ============================================================
-    // DATA STORES
-    // ============================================================
     let allProducts = {};
     let allFranchisees = {};
-    let productsLoaded = false;
-    let franchisesLoaded = false;
     let rowCount = 1;
 
-    // ============================================================
-    // TOAST NOTIFICATIONS
-    // ============================================================
     function showToast(msg, isError = false) {
       const container = document.getElementById('toastContainer');
       const existing = container.querySelector('.toast');
@@ -451,113 +443,35 @@
       setTimeout(() => toast.remove(), 3500);
     }
 
-    // ============================================================
-    // 🔥 LOAD FRANCHISEES FROM dsog_fashion_franchisees
-    // ============================================================
+    // Load franchisees
     database.ref('dsog_fashion_franchisees').on('value', (snapshot) => {
       const data = snapshot.val();
       if (data) {
         allFranchisees = data;
-        franchisesLoaded = true;
       } else {
         allFranchisees = {};
-        franchisesLoaded = true;
       }
-      populateFranchiseeDropdowns();
-      updateLocationStockPreview();
-      
-      if (productsLoaded) {
-        setDefaultLocations();
-      }
+      populateLocationDropdowns();
     });
 
-    // ============================================================
-    // 🔥 LOAD PRODUCTS FROM dsog_fashion_products
-    // ============================================================
+    // Load products
     database.ref('dsog_fashion_products').on('value', (snapshot) => {
       const data = snapshot.val();
       if (data) {
         allProducts = data;
         Object.entries(allProducts).forEach(([id, p]) => { if (p) p.id = id; });
-        productsLoaded = true;
       } else {
         allProducts = {};
-        productsLoaded = true;
       }
       populateProductDropdowns();
-      updateLocationStockPreview();
-      
-      if (franchisesLoaded) {
-        setDefaultLocations();
-      }
     });
 
-    // ============================================================
-    // GET LOCATION NAME
-    // ============================================================
     function getLocationName(locationId) {
       if (locationId === 'main_shop') return 'Main Shop';
       return allFranchisees[locationId]?.businessName || locationId;
     }
 
-    // ============================================================
-    // GET STOCK AT A SPECIFIC LOCATION
-    // ============================================================
-    function getStockAtLocation(productId, locationId) {
-      const product = allProducts[productId];
-      if (!product) return 0;
-      // Check if product has locations object
-      if (product.locations && product.locations[locationId] !== undefined) {
-        return product.locations[locationId];
-      }
-      // If location is main_shop and no location tracking, use total stock
-      if (locationId === 'main_shop' && !product.locations) {
-        return product.stock || product.quantity || 0;
-      }
-      return 0;
-    }
-
-    // ============================================================
-    // SET DEFAULT LOCATIONS
-    // ============================================================
-    function setDefaultLocations() {
-      const franchiseIds = Object.keys(allFranchisees);
-      
-      // Always include main_shop
-      const allLocationIds = ['main_shop', ...franchiseIds];
-      
-      if (allLocationIds.length === 0) {
-        document.getElementById('fromLocation').innerHTML = '<option value="">— No locations found —</option>';
-        document.getElementById('toLocation').innerHTML = '<option value="">— No locations found —</option>';
-        return;
-      }
-
-      const fromSelect = document.getElementById('fromLocation');
-      const toSelect = document.getElementById('toLocation');
-
-      // Main shop for "From", first franchise for "To"
-      const fromId = 'main_shop';
-      const toId = franchiseIds.length > 0 ? franchiseIds[0] : 'main_shop';
-
-      if (fromId && fromSelect.value !== fromId) {
-        fromSelect.value = fromId;
-        onLocationChange(fromId);
-      }
-      if (toId && toSelect.value !== toId) {
-        toSelect.value = toId;
-      }
-
-      updateLocationStockPreview();
-      // Update all product rows
-      document.querySelectorAll('.product-select').forEach(select => {
-        if (select.value) onProductSelect(select);
-      });
-    }
-
-    // ============================================================
-    // POPULATE FRANCHISEE DROPDOWNS
-    // ============================================================
-    function populateFranchiseeDropdowns() {
+    function populateLocationDropdowns() {
       const franchiseIds = Object.keys(allFranchisees);
       const allLocationIds = ['main_shop', ...franchiseIds];
       
@@ -573,39 +487,28 @@
         return `<option value="${id}">${name}</option>`;
       }).join('');
 
+      ['fromLocation', 'toLocation'].forEach(id => {
+        const select = document.getElementById(id);
+        if (select.options.length <= 1 || select.options[0].value === '') {
+          select.innerHTML = options;
+        }
+      });
+
+      // Set default: From = Main Shop, To = first franchise
       const fromSelect = document.getElementById('fromLocation');
       const toSelect = document.getElementById('toLocation');
-      
-      if (fromSelect.options.length <= 1 || fromSelect.options[0].value === '') {
-        fromSelect.innerHTML = options;
-      }
-      
-      if (toSelect.options.length <= 1 || toSelect.options[0].value === '') {
-        toSelect.innerHTML = options;
-      }
+      if (fromSelect.value === '') fromSelect.value = 'main_shop';
+      if (toSelect.value === '' && franchiseIds.length > 0) toSelect.value = franchiseIds[0];
     }
 
-    // ============================================================
-    // POPULATE PRODUCT DROPDOWNS
-    // ============================================================
     function populateProductDropdowns() {
       const products = Object.values(allProducts)
         .filter(p => p && p.name)
         .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
 
-      if (products.length === 0) {
-        document.querySelectorAll('.product-select').forEach(select => {
-          select.innerHTML = '<option value="">— No products found —</option>';
-        });
-        return;
-      }
-
       const options = products.map(p => {
         const stock = p.stock || p.quantity || 0;
-        const price = p.price || 0;
-        const hasLocations = p.locations && Object.keys(p.locations).length > 0;
-        const locationInfo = hasLocations ? '📍 Tracked' : '📦 Total';
-        return `<option value="${p.id}" data-stock="${stock}" data-price="${price}" data-has-locations="${hasLocations}">${p.name} (${p.sku || 'No SKU'}) — ${stock} total ${locationInfo}</option>`;
+        return `<option value="${p.id}" data-stock="${stock}">${p.name} (${p.sku || 'No SKU'}) — ${stock} in stock</option>`;
       }).join('');
 
       document.querySelectorAll('.product-select').forEach(select => {
@@ -615,170 +518,8 @@
       });
     }
 
-    // ============================================================
-    // LOCATION CHANGE HANDLER
-    // ============================================================
-    function onLocationChange(locationId) {
-      const fromLocation = document.getElementById('fromLocation').value;
-      const toLocation = document.getElementById('toLocation').value;
-      
-      // Update location display
-      document.getElementById('locationDisplay').textContent = 
-        `${getLocationName(fromLocation)} → ${getLocationName(toLocation)}`;
-      
-      // Update all product rows
-      document.querySelectorAll('.product-select').forEach(select => {
-        if (select.value) {
-          updateStockInfo(select);
-        } else {
-          const row = select.closest('.product-transfer-row');
-          const index = row.dataset.index;
-          const stockInfo = document.getElementById('stockInfo' + index);
-          if (stockInfo) {
-            stockInfo.innerHTML = `📍 ${getLocationName(fromLocation)} → ${getLocationName(toLocation)}: Select a product`;
-            stockInfo.className = 'stock-info';
-          }
-        }
-      });
-      updateLocationStockPreview();
-      updateSummary();
-    }
-
-    // ============================================================
-    // PRODUCT SELECT CHANGE
-    // ============================================================
-    function onProductSelect(select) {
-      updateStockInfo(select);
-      updateSummary();
-    }
-
-    // ============================================================
-    // UPDATE STOCK INFO - SHOWS BOTH LOCATIONS
-    // ============================================================
-    function updateStockInfo(select) {
-      const row = select.closest('.product-transfer-row');
-      const index = row.dataset.index;
-      const stockInfo = document.getElementById('stockInfo' + index);
-      const fromLocation = document.getElementById('fromLocation').value;
-      const toLocation = document.getElementById('toLocation').value;
-      
-      // Reset row styling
-      row.classList.remove('out-of-stock', 'has-stock');
-      
-      if (!fromLocation || !toLocation) {
-        if (stockInfo) {
-          stockInfo.textContent = '📍 Select both "From" and "To" locations first';
-          stockInfo.className = 'stock-info';
-        }
-        return;
-      }
-
-      if (select.value) {
-        const product = allProducts[select.value];
-        const fromStock = getStockAtLocation(select.value, fromLocation);
-        const toStock = getStockAtLocation(select.value, toLocation);
-        const fromName = getLocationName(fromLocation);
-        const toName = getLocationName(toLocation);
-        const qtyInput = row.querySelector('.transfer-qty');
-        const qty = parseInt(qtyInput?.value) || 0;
-        
-        // Calculate after-transfer values
-        const afterFrom = Math.max(0, fromStock - qty);
-        const afterTo = toStock + qty;
-        
-        // Determine stock status
-        let statusClass = 'stock-info';
-        let statusHtml = '';
-        
-        if (fromStock === 0) {
-          statusClass = 'stock-info no-stock';
-          row.classList.add('out-of-stock');
-          statusHtml = `
-            <span style="color:#ef4444;">❌ No stock at ${fromName}</span>
-            <span class="stock-badge none">OUT</span>
-          `;
-        } else if (qty > fromStock) {
-          statusClass = 'stock-info low';
-          row.classList.add('out-of-stock');
-          statusHtml = `
-            <span style="color:#ef4444;">⚠️ Only ${fromStock} available</span>
-            <span class="stock-badge limited">LIMITED</span>
-          `;
-        } else if (qty > 0 && qty <= fromStock) {
-          statusClass = 'stock-info good';
-          row.classList.add('has-stock');
-          statusHtml = `
-            <span style="color:#065f46;">✅ ${qty} units → After: ${fromName} ${afterFrom} | ${toName} ${afterTo}</span>
-            <span class="stock-badge available">OK</span>
-          `;
-        } else {
-          statusHtml = `
-            <span>Select quantity to transfer</span>
-          `;
-        }
-        
-        // Build the stock display
-        const fromDisplay = fromStock === 0 ? 
-          `<span style="color:#94a3b8;">${fromStock}</span>` : 
-          `<span class="from-qty">${fromStock}</span>`;
-        
-        const toDisplay = toStock === 0 ? 
-          `<span style="color:#94a3b8;">${toStock} (no stock yet)</span>` : 
-          `<span class="to-qty">${toStock}</span>`;
-        
-        if (stockInfo) {
-          stockInfo.innerHTML = `
-            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px;">
-              <span>
-                📦 <strong>${fromName}:</strong> ${fromDisplay} 
-                <span style="color:#64748b;">→</span> 
-                <strong>${toName}:</strong> ${toDisplay}
-              </span>
-              ${statusHtml}
-            </div>
-          `;
-          stockInfo.className = statusClass;
-        }
-        
-        if (qtyInput) {
-          qtyInput.max = fromStock;
-          qtyInput.placeholder = fromStock > 0 ? `Max: ${fromStock}` : 'No stock';
-          qtyInput.disabled = fromStock === 0;
-        }
-        
-        // Update the summary with impact
-        updateSummary();
-        
-      } else {
-        if (stockInfo) {
-          stockInfo.innerHTML = `🔍 Select a product to see stock at both locations`;
-          stockInfo.className = 'stock-info';
-        }
-      }
-    }
-
-    // ============================================================
-    // QUANTITY CHANGE HANDLER
-    // ============================================================
-    function onQtyChange(input) {
-      const row = input.closest('.product-transfer-row');
-      const select = row.querySelector('.product-select');
-      if (select && select.value) {
-        updateStockInfo(select);
-      }
-      updateSummary();
-    }
-
-    // ============================================================
-    // ADD / REMOVE ROWS
-    // ============================================================
     function addRow() {
       rowCount++;
-      const fromLocation = document.getElementById('fromLocation').value;
-      const toLocation = document.getElementById('toLocation').value;
-      const fromName = getLocationName(fromLocation);
-      const toName = getLocationName(toLocation);
-      
       const row = document.createElement('div');
       row.className = 'product-transfer-row';
       row.dataset.index = rowCount;
@@ -788,16 +529,18 @@
           <select class="product-select" onchange="onProductSelect(this)">
             <option value="">— Select Product —</option>
           </select>
-          <div class="stock-info" id="stockInfo${rowCount}">${fromLocation && toLocation ? `📍 ${fromName} → ${toName}: Select a product` : 'Select locations first'}</div>
         </div>
-        <div class="form-group" style="flex:0.8;">
-          <label>Qty</label>
-          <input type="number" class="transfer-qty" value="1" min="1" onchange="onQtyChange(this)" oninput="onQtyChange(this)">
+        <div class="row-actions">
+          <label class="confirm-checkbox" id="confirmLabel${rowCount}">
+            <input type="checkbox" class="confirm-check" onchange="onConfirmChange(this)">
+            <span>Has Stock</span>
+          </label>
+          <button class="btn-remove" onclick="removeRow(this)" title="Remove">✕</button>
         </div>
-        <button class="btn-remove" onclick="removeRow(this)" title="Remove">✕</button>
       `;
       document.getElementById('transferRows').appendChild(row);
       populateProductDropdowns();
+      updateSummary();
     }
 
     function removeRow(btn) {
@@ -807,233 +550,141 @@
       updateSummary();
     }
 
-    // ============================================================
-    // UPDATE SUMMARY
-    // ============================================================
-    function updateSummary() {
-      let totalItems = 0;
-      let itemCount = 0;
-      let transferDetails = [];
-      
-      const fromLocation = document.getElementById('fromLocation').value;
-      const toLocation = document.getElementById('toLocation').value;
-      
-      document.querySelectorAll('.product-transfer-row').forEach(row => {
-        const select = row.querySelector('.product-select');
-        const qtyInput = row.querySelector('.transfer-qty');
-        if (select && select.value && qtyInput) {
-          const qty = parseInt(qtyInput.value) || 0;
-          const product = allProducts[select.value];
-          const fromStock = getStockAtLocation(select.value, fromLocation);
-          const toStock = getStockAtLocation(select.value, toLocation);
-          
-          if (qty > 0 && qty <= fromStock) {
-            totalItems += qty;
-            itemCount++;
-            transferDetails.push({
-              name: product?.name || 'Unknown',
-              qty: qty,
-              fromStock: fromStock,
-              toStock: toStock,
-              afterFrom: fromStock - qty,
-              afterTo: toStock + qty
-            });
-          }
-        }
-      });
-      
-      document.getElementById('transferTotal').textContent = `${totalItems} item${totalItems !== 1 ? 's' : ''}`;
-      document.getElementById('transferBreakdown').textContent = `${itemCount} product${itemCount !== 1 ? 's' : ''} selected`;
-      
-      // Update impact text
-      const impactText = document.getElementById('impactText');
-      if (transferDetails.length === 0) {
-        impactText.textContent = 'Select products and quantities to see impact';
-        impactText.style.color = '#94a3b8';
+    function onProductSelect(select) {
+      updateSummary();
+    }
+
+    function onConfirmChange(checkbox) {
+      const row = checkbox.closest('.product-transfer-row');
+      const label = row.querySelector('.confirm-checkbox');
+      if (checkbox.checked) {
+        label.classList.add('confirmed');
+        row.classList.add('confirmed');
       } else {
-        const fromName = getLocationName(fromLocation);
-        const toName = getLocationName(toLocation);
-        impactText.innerHTML = transferDetails.map(d => 
-          `${d.name}: ${fromName} ${d.fromStock} → ${d.afterFrom} | ${toName} ${d.toStock} → ${d.afterTo}`
-        ).join(' | ');
-        impactText.style.color = '#1e293b';
+        label.classList.remove('confirmed');
+        row.classList.remove('confirmed');
       }
+      updateSummary();
     }
 
-    // ============================================================
-    // UPDATE LOCATION STOCK PREVIEW
-    // ============================================================
-    function updateLocationStockPreview() {
-      const grid = document.getElementById('locationStockGrid');
-      const franchiseIds = Object.keys(allFranchisees);
-      const allLocationIds = ['main_shop', ...franchiseIds];
-      
-      if (allLocationIds.length === 0) {
-        grid.innerHTML = '<div style="font-size:0.6rem;color:var(--text-muted);grid-column:1/-1;text-align:center;">No locations found.</div>';
-        return;
-      }
-
-      // Calculate total stock per location across all products
-      const locationStock = {};
-      allLocationIds.forEach(id => locationStock[id] = 0);
-      
-      Object.values(allProducts).forEach(p => {
-        if (p.locations) {
-          Object.entries(p.locations).forEach(([locId, qty]) => {
-            if (locationStock[locId] !== undefined) {
-              locationStock[locId] += qty || 0;
-            }
-          });
-        } else {
-          // If no location tracking, add all stock to main_shop
-          if (locationStock['main_shop'] !== undefined) {
-            locationStock['main_shop'] += p.stock || p.quantity || 0;
-          }
-        }
-      });
-
-      grid.innerHTML = allLocationIds.map(id => {
-        const isMain = id === 'main_shop';
-        const name = isMain ? '🏪 Main Shop' : `📍 ${allFranchisees[id]?.businessName || id}`;
-        const qty = locationStock[id] || 0;
-        const qtyClass = qty === 0 ? 'zero' : '';
-        return `<div class="location-stock-item">
-          <span class="loc-name">${name}:</span> 
-          <span class="loc-qty ${qtyClass}">${qty}</span>
-        </div>`;
-      }).join('');
-    }
-
-    // ============================================================
-    // CONFIRM TRANSFER
-    // ============================================================
-    async function confirmTransfer() {
-      const fromLocation = document.getElementById('fromLocation').value;
-      const toLocation = document.getElementById('toLocation').value;
-
-      if (!fromLocation) { showToast('❌ Select a "From" location', true); return; }
-      if (!toLocation) { showToast('❌ Select a "To" location', true); return; }
-      if (fromLocation === toLocation) {
-        showToast('❌ From and To locations must be different!', true);
-        return;
-      }
-
-      const transfers = [];
-      let hasError = false;
+    function updateSummary() {
+      let totalProducts = 0;
+      let confirmedCount = 0;
+      let productNames = [];
 
       document.querySelectorAll('.product-transfer-row').forEach(row => {
         const select = row.querySelector('.product-select');
-        const qtyInput = row.querySelector('.transfer-qty');
-        
-        if (select && select.value && qtyInput) {
-          const productId = select.value;
-          const product = allProducts[productId];
-          const qty = parseInt(qtyInput.value) || 0;
-          
-          if (qty <= 0) {
-            showToast('❌ Quantity must be greater than 0', true);
-            hasError = true;
-            return;
+        const checkbox = row.querySelector('.confirm-check');
+        if (select && select.value) {
+          totalProducts++;
+          const product = allProducts[select.value];
+          productNames.push(product?.name || 'Unknown');
+          if (checkbox && checkbox.checked) {
+            confirmedCount++;
           }
-          
-          const availableStock = getStockAtLocation(productId, fromLocation);
-          if (qty > availableStock) {
-            showToast(`❌ Not enough stock for ${product.name}. Available at ${getLocationName(fromLocation)}: ${availableStock}`, true);
-            hasError = true;
-            return;
-          }
-          
-          transfers.push({
-            productId: productId,
-            name: product.name,
-            sku: product.sku || '',
-            quantity: qty,
-            price: product.price || 0,
-            availableStock: availableStock,
-            toStock: getStockAtLocation(productId, toLocation)
+        }
+      });
+
+      document.getElementById('transferTotal').textContent = `${totalProducts} product${totalProducts !== 1 ? 's' : ''} selected`;
+      document.getElementById('transferBreakdown').textContent = productNames.length > 0 ? productNames.join(', ') : 'Add products to transfer';
+
+      const statusMsg = document.getElementById('statusMessage');
+      const confirmBtn = document.getElementById('confirmBtn');
+
+      if (totalProducts === 0) {
+        statusMsg.textContent = '⚠️ Add at least one product';
+        statusMsg.className = 'status-message waiting';
+        confirmBtn.disabled = true;
+      } else if (confirmedCount === totalProducts && totalProducts > 0) {
+        statusMsg.textContent = '✅ All products confirmed! Ready to transfer';
+        statusMsg.className = 'status-message ready';
+        confirmBtn.disabled = false;
+      } else {
+        statusMsg.textContent = `⚠️ Confirm stock for ${totalProducts - confirmedCount} more product${totalProducts - confirmedCount !== 1 ? 's' : ''}`;
+        statusMsg.className = 'status-message waiting';
+        confirmBtn.disabled = true;
+      }
+    }
+
+    function getTransferData() {
+      const fromLocation = document.getElementById('fromLocation').value;
+      const toLocation = document.getElementById('toLocation').value;
+      const transferRef = document.getElementById('transferRef').value.trim() || `Transfer ${new Date().toLocaleDateString()}`;
+      const transferDate = document.getElementById('transferDate').value || new Date().toISOString().split('T')[0];
+      const notes = document.getElementById('transferNotes').value.trim();
+
+      if (!fromLocation) { showToast('❌ Select a "From" store', true); return null; }
+      if (!toLocation) { showToast('❌ Select a "To" store', true); return null; }
+      if (fromLocation === toLocation) { showToast('❌ From and To stores must be different!', true); return null; }
+
+      const products = [];
+      let allConfirmed = true;
+
+      document.querySelectorAll('.product-transfer-row').forEach(row => {
+        const select = row.querySelector('.product-select');
+        const checkbox = row.querySelector('.confirm-check');
+        if (select && select.value) {
+          const product = allProducts[select.value];
+          const isConfirmed = checkbox && checkbox.checked;
+          if (!isConfirmed) allConfirmed = false;
+          products.push({
+            productId: select.value,
+            name: product?.name || 'Unknown',
+            sku: product?.sku || '',
+            price: product?.price || 0,
+            confirmed: isConfirmed
           });
         }
       });
 
-      if (hasError) return;
-      if (transfers.length === 0) { showToast('Select at least one product', true); return; }
+      if (products.length === 0) { showToast('❌ Add at least one product', true); return null; }
+      if (!allConfirmed) { showToast('❌ Confirm stock for all products before transferring', true); return null; }
+
+      return {
+        from: fromLocation,
+        fromName: getLocationName(fromLocation),
+        to: toLocation,
+        toName: getLocationName(toLocation),
+        reference: transferRef,
+        date: transferDate,
+        notes: notes,
+        products: products,
+        totalItems: products.length,
+        status: 'completed',
+        timestamp: firebase.database.ServerValue.TIMESTAMP,
+        processedBy: auth.currentUser?.email || 'staff'
+      };
+    }
+
+    async function confirmTransfer() {
+      const transferData = getTransferData();
+      if (!transferData) return;
 
       const confirmBtn = document.getElementById('confirmBtn');
       confirmBtn.disabled = true;
-      confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+      confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
 
       try {
-        const updates = {};
-        const transferRef = document.getElementById('transferRef').value.trim() || `Transfer ${new Date().toLocaleDateString()}`;
+        // Save the transfer log
+        await database.ref('dsog_fashion_transfers').push().set(transferData);
         
-        for (const t of transfers) {
-          const product = allProducts[t.productId];
-          const currentFromStock = t.availableStock;
-          const currentToStock = t.toStock;
-          
-          // Initialize locations if they don't exist
-          if (!product.locations) {
-            updates[`dsog_fashion_products/${t.productId}/locations`] = {};
-          }
-          
-          // Update from location (deduct)
-          updates[`dsog_fashion_products/${t.productId}/locations/${fromLocation}`] = Math.max(0, currentFromStock - t.quantity);
-          
-          // Update to location (add)
-          updates[`dsog_fashion_products/${t.productId}/locations/${toLocation}`] = (currentToStock || 0) + t.quantity;
-          
-          // Calculate new total stock (sum of all locations)
-          const newLocations = { ...(product.locations || {}) };
-          newLocations[fromLocation] = Math.max(0, currentFromStock - t.quantity);
-          newLocations[toLocation] = (currentToStock || 0) + t.quantity;
-          
-          const newTotal = Object.values(newLocations).reduce((sum, val) => sum + (val || 0), 0);
-          updates[`dsog_fashion_products/${t.productId}/stock`] = newTotal;
-          updates[`dsog_fashion_products/${t.productId}/quantity`] = newTotal;
-          updates[`dsog_fashion_products/${t.productId}/updatedAt`] = firebase.database.ServerValue.TIMESTAMP;
-        }
-
-        // Log the transfer
-        const transferLog = {
-          from: fromLocation,
-          fromName: getLocationName(fromLocation),
-          to: toLocation,
-          toName: getLocationName(toLocation),
-          reference: transferRef,
-          products: transfers.map(t => ({
-            productId: t.productId,
-            name: t.name,
-            sku: t.sku,
-            quantity: t.quantity,
-            price: t.price,
-            stockBeforeFrom: t.availableStock,
-            stockBeforeTo: t.toStock
-          })),
-          totalItems: transfers.reduce((s, t) => s + t.quantity, 0),
-          notes: document.getElementById('transferNotes').value.trim(),
-          status: 'completed',
-          timestamp: firebase.database.ServerValue.TIMESTAMP,
-          processedBy: auth.currentUser?.email || 'staff'
-        };
-        
-        updates['dsog_fashion_transfers/' + database.ref().push().key] = transferLog;
-        await database.ref().update(updates);
-        
-        showToast(`✅ Transfer complete! ${transferLog.totalItems} items moved from ${getLocationName(fromLocation)} to ${getLocationName(toLocation)}`);
+        showToast(`✅ Transfer complete! ${transferData.totalItems} items moved from ${transferData.fromName} to ${transferData.toName}`);
         resetForm();
       } catch (e) {
         console.error(e);
         showToast('❌ Failed to complete transfer: ' + e.message, true);
       } finally {
         confirmBtn.disabled = false;
-        confirmBtn.innerHTML = '<i class="fas fa-arrow-right"></i> Confirm Transfer';
+        confirmBtn.innerHTML = '<i class="fas fa-check-circle"></i> Complete Transfer';
       }
     }
 
-    // ============================================================
-    // RESET FORM
-    // ============================================================
     function resetForm() {
+      document.getElementById('transferRef').value = '';
+      document.getElementById('transferDate').value = '';
+      document.getElementById('transferNotes').value = '';
+      
+      // Reset product rows
       document.getElementById('transferRows').innerHTML = `
         <div class="product-transfer-row" data-index="0">
           <div class="form-group" style="flex:2;">
@@ -1041,48 +692,42 @@
             <select class="product-select" onchange="onProductSelect(this)">
               <option value="">— Select Product —</option>
             </select>
-            <div class="stock-info" id="stockInfo0">Select locations and product</div>
           </div>
-          <div class="form-group" style="flex:0.8;">
-            <label>Qty</label>
-            <input type="number" class="transfer-qty" value="1" min="1" onchange="onQtyChange(this)" oninput="onQtyChange(this)">
+          <div class="row-actions">
+            <label class="confirm-checkbox" id="confirmLabel0">
+              <input type="checkbox" class="confirm-check" onchange="onConfirmChange(this)">
+              <span>Has Stock</span>
+            </label>
+            <button class="btn-remove" onclick="removeRow(this)" title="Remove">✕</button>
           </div>
-          <button class="btn-remove" onclick="removeRow(this)" title="Remove">✕</button>
         </div>
       `;
       rowCount = 1;
-      
-      document.getElementById('transferRef').value = '';
-      document.getElementById('transferNotes').value = '';
-      
       populateProductDropdowns();
       updateSummary();
-      updateLocationStockPreview();
-      setDefaultLocations();
+      
+      // Reset location dropdowns
+      const franchiseIds = Object.keys(allFranchisees);
+      document.getElementById('fromLocation').value = 'main_shop';
+      if (franchiseIds.length > 0) document.getElementById('toLocation').value = franchiseIds[0];
     }
 
-    // ============================================================
-    // AUTH CHECK
-    // ============================================================
+    // Set default date
+    document.getElementById('transferDate').value = new Date().toISOString().split('T')[0];
+
     auth.onAuthStateChanged((user) => {
       if (!user) window.location.href = '/';
     });
 
-    // ============================================================
-    // EXPOSE FUNCTIONS TO WINDOW
-    // ============================================================
+    // Expose functions
     window.addRow = addRow;
     window.removeRow = removeRow;
     window.onProductSelect = onProductSelect;
-    window.onQtyChange = onQtyChange;
+    window.onConfirmChange = onConfirmChange;
     window.confirmTransfer = confirmTransfer;
     window.resetForm = resetForm;
-    window.onLocationChange = onLocationChange;
     window.updateSummary = updateSummary;
-    
-    // ============================================================
-    // INITIALIZATION
-    // ============================================================
+
     updateSummary();
   </script>
 </body>
