@@ -112,7 +112,7 @@
     }
     .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
 
-    /* Multi-Account Dropdown Styles */
+    /* Account Switcher Styles */
     .account-switcher-wrapper {
       position: relative;
       display: inline-flex;
@@ -121,13 +121,13 @@
     .account-switcher-btn {
       background: var(--bg-card);
       border: 1px solid var(--border-light);
-      padding: 0.4rem 1rem 0.4rem 0.6rem;
+      padding: 0.3rem 0.8rem 0.3rem 0.5rem;
       border-radius: 50px;
       cursor: pointer;
       transition: all 0.3s ease;
       display: flex;
       align-items: center;
-      gap: 0.6rem;
+      gap: 0.5rem;
       font-family: var(--font-body);
     }
     .account-switcher-btn:hover {
@@ -137,11 +137,11 @@
     .account-switcher-btn .active-account {
       display: flex;
       align-items: center;
-      gap: 0.6rem;
+      gap: 0.5rem;
     }
     .account-switcher-btn .active-account .avatar-mini {
-      width: 28px;
-      height: 28px;
+      width: 32px;
+      height: 32px;
       border-radius: 50%;
       background: var(--gold-gradient);
       color: white;
@@ -149,7 +149,7 @@
       align-items: center;
       justify-content: center;
       font-weight: 700;
-      font-size: 0.7rem;
+      font-size: 0.8rem;
     }
     .account-switcher-btn .active-account .account-email {
       font-size: 0.8rem;
@@ -585,7 +585,6 @@
       .footer-content{flex-direction:column;gap:0.8rem;text-align:center}
       .hero-content h1 { font-size: 2.2rem; }
       .main-content{padding:0 1rem}
-      .account-switcher-btn .active-account .account-email { max-width: 80px; }
       .greeting-wrapper {
         padding: 0.3rem 1rem 0.3rem 0.5rem;
       }
@@ -600,6 +599,7 @@
       .greeting-name {
         font-size: 0.85rem !important;
       }
+      .account-switcher-btn .active-account .account-email { max-width: 80px; }
     }
   </style>
 </head>
@@ -805,50 +805,51 @@
 
     let overviewMap = null;
     let mapMarkers = [];
-    
-    // ===== MULTI-ACCOUNT MANAGEMENT =====
-    let accounts = []; // Array of {user, status}
+    let currentUser = null;
+
+    // ===== MULTI-ACCOUNT MANAGEMENT (Simplified) =====
+    let accounts = [];
     let activeAccountIndex = 0;
 
-    // Load accounts from localStorage
     function loadAccounts() {
       try {
         const saved = localStorage.getItem('kazinni_accounts');
         if (saved) {
           const parsed = JSON.parse(saved);
-          accounts = parsed.filter(acc => acc && acc.user && acc.user.uid);
+          // Only keep accounts that have valid user data
+          accounts = parsed.filter(acc => acc && acc.user && acc.user.uid && acc.user.email);
           if (accounts.length > 0) {
             activeAccountIndex = 0;
             return true;
           }
         }
-      } catch (e) {
-        console.error('Error loading accounts:', e);
-      }
+      } catch (e) { console.error('Error loading accounts:', e); }
       return false;
     }
 
-    // Save accounts to localStorage
     function saveAccounts() {
       try {
-        localStorage.setItem('kazinni_accounts', JSON.stringify(accounts));
-      } catch (e) {
-        console.error('Error saving accounts:', e);
-      }
+        // Only save essential data, not full user objects that might cause issues
+        const cleanAccounts = accounts.map(acc => ({
+          user: {
+            uid: acc.user.uid,
+            email: acc.user.email,
+            displayName: acc.user.displayName || acc.user.email?.split('@')[0] || 'User'
+          }
+        }));
+        localStorage.setItem('kazinni_accounts', JSON.stringify(cleanAccounts));
+      } catch (e) { console.error('Error saving accounts:', e); }
     }
 
-    // Add account to list
     function addAccount(user) {
-      // Check if account already exists
       const exists = accounts.some(acc => acc.user.uid === user.uid);
-      if (!exists) {
+      if (!exists && user && user.uid) {
         accounts.push({
           user: {
             uid: user.uid,
             email: user.email,
             displayName: user.displayName || user.email?.split('@')[0] || 'User'
-          },
-          status: 'available'
+          }
         });
         saveAccounts();
         return true;
@@ -856,139 +857,57 @@
       return false;
     }
 
-    // Remove account from list
     function removeAccount(uid) {
       accounts = accounts.filter(acc => acc.user.uid !== uid);
       saveAccounts();
       if (accounts.length === 0) {
         activeAccountIndex = 0;
-        return true; // No accounts left
+        return true;
       }
       if (activeAccountIndex >= accounts.length) {
         activeAccountIndex = accounts.length - 1;
       }
-      return false; // Still has accounts
+      return false;
     }
 
-    // Get current active account
     function getActiveAccount() {
       if (accounts.length === 0) return null;
       return accounts[activeAccountIndex] || null;
     }
 
-    // Switch to a different account
     function switchAccount(index) {
       if (index >= 0 && index < accounts.length) {
         activeAccountIndex = index;
         const account = accounts[index];
-        // Update UI to show this account as active
         renderAccountSwitcher();
         updateHeroGreeting(account.user);
+        // Update the UI to show the active account
         showToast(`Switched to ${account.user.email}`, 'info');
         return true;
       }
       return false;
     }
 
-    // ===== AUTH FUNCTIONS =====
-    auth.onAuthStateChanged(async user => {
-      if (user) {
-        // Check if this is a new sign-in or existing account
-        const exists = accounts.some(acc => acc.user.uid === user.uid);
-        
-        if (!exists) {
-          // New sign-in - add to accounts
-          addAccount(user);
-          activeAccountIndex = accounts.length - 1;
-          
-          // Set initial status
-          try {
-            await database.ref(`users/${user.uid}/status`).set({
-              status: 'available',
-              lastUpdated: firebase.database.ServerValue.TIMESTAMP,
-              displayName: user.displayName || user.email || 'User',
-              email: user.email
-            });
-          } catch (e) {
-            console.error('Error setting initial status:', e);
-          }
-        } else {
-          // Existing account - find its index
-          const idx = accounts.findIndex(acc => acc.user.uid === user.uid);
-          if (idx !== -1) {
-            activeAccountIndex = idx;
-          }
-        }
-        
-        renderAccountSwitcher();
-        const active = getActiveAccount();
-        if (active) {
-          updateHeroGreeting(active.user);
-          // Update status from database
-          try {
-            const snap = await database.ref(`users/${active.user.uid}/status`).once('value');
-            const data = snap.val();
-            if (data && data.status) {
-              active.status = data.status;
-            }
-          } catch (e) {}
-        }
-        loadActiveUsers();
-      } else {
-        // User signed out - but we might still have other accounts
-        if (accounts.length > 0) {
-          // Check if any accounts are still valid
-          const validAccounts = [];
-          for (const acc of accounts) {
-            try {
-              // Try to re-authenticate or check if session exists
-              // For simplicity, we'll keep the account if it has a user object
-              if (acc.user && acc.user.uid) {
-                validAccounts.push(acc);
-              }
-            } catch (e) {
-              console.error('Error validating account:', e);
-            }
-          }
-          accounts = validAccounts;
-          saveAccounts();
-          
-          if (accounts.length > 0) {
-            if (activeAccountIndex >= accounts.length) {
-              activeAccountIndex = accounts.length - 1;
-            }
-            renderAccountSwitcher();
-            const active = getActiveAccount();
-            if (active) {
-              updateHeroGreeting(active.user);
-            }
-            loadActiveUsers();
-            return;
-          }
-        }
-        
-        // No accounts left
-        accounts = [];
-        saveAccounts();
-        activeAccountIndex = 0;
-        renderUnauthenticatedUI();
-        updateHeroGreeting(null);
-        loadActiveUsers();
-      }
-    });
-
     // ===== ACCOUNT SWITCHER UI =====
     function renderAccountSwitcher() {
       const container = document.getElementById('headerAuthContainer');
       
       if (accounts.length === 0) {
-        renderUnauthenticatedUI();
+        container.innerHTML = `
+          <button class="btn btn-primary" onclick="openAuthModal()">
+            <i class="fas fa-lock"></i> Staff Sign In
+          </button>
+        `;
         return;
       }
 
       const active = getActiveAccount();
       if (!active) {
-        renderUnauthenticatedUI();
+        container.innerHTML = `
+          <button class="btn btn-primary" onclick="openAuthModal()">
+            <i class="fas fa-lock"></i> Staff Sign In
+          </button>
+        `;
         return;
       }
 
@@ -1002,9 +921,6 @@
         const accInitials = accEmail.charAt(0).toUpperCase();
         const accName = acc.user.displayName || accEmail.split('@')[0] || 'User';
         const isActive = index === activeAccountIndex;
-        const statusDot = acc.status === 'available' ? '🟢' : 
-                         acc.status === 'busy' ? '🔴' :
-                         acc.status === 'away' ? '🟡' : '⚪';
         
         accountsHTML += `
           <button class="account-item ${isActive ? 'active-account-item' : ''}" onclick="switchAccount(${index})">
@@ -1014,7 +930,7 @@
               <div class="account-email-display">${accEmail}</div>
             </div>
             <span class="account-status-badge ${isActive ? 'active-badge' : 'inactive-badge'}">
-              ${isActive ? 'Active' : statusDot}
+              ${isActive ? 'Active' : ''}
             </span>
           </button>
         `;
@@ -1037,21 +953,12 @@
               <span style="font-weight:600;">Add another account</span>
             </button>
             <div class="divider"></div>
-            <button class="account-item sign-out-option" onclick="signOutAccount()">
+            <button class="account-item sign-out-option" onclick="signOutCurrentAccount()">
               <i class="fas fa-sign-out-alt" style="width:36px;text-align:center;"></i>
               <span style="font-weight:600;">Sign out of this account</span>
             </button>
           </div>
         </div>
-      `;
-    }
-
-    function renderUnauthenticatedUI() {
-      const container = document.getElementById('headerAuthContainer');
-      container.innerHTML = `
-        <button class="btn btn-primary" onclick="openAuthModal()">
-          <i class="fas fa-lock"></i> Staff Sign In
-        </button>
       `;
     }
 
@@ -1074,13 +981,13 @@
       }
     });
 
-    // ===== SIGN OUT SPECIFIC ACCOUNT =====
-    async function signOutAccount() {
+    // ===== SIGN OUT CURRENT ACCOUNT =====
+    async function signOutCurrentAccount() {
       const active = getActiveAccount();
       if (!active) return;
       
       try {
-        // Update status to offline
+        // Update status to offline in database
         await database.ref(`users/${active.user.uid}/status`).set({
           status: 'offline',
           lastUpdated: firebase.database.ServerValue.TIMESTAMP,
@@ -1094,9 +1001,11 @@
         if (isEmpty) {
           // No accounts left - sign out completely
           await auth.signOut();
-          renderUnauthenticatedUI();
+          renderAccountSwitcher();
           updateHeroGreeting(null);
           showToast('Signed out successfully', 'info');
+          // Reload to show sign in button
+          location.reload();
         } else {
           // Switch to another account
           const newActive = getActiveAccount();
@@ -1106,11 +1015,9 @@
             showToast(`Signed out of ${active.user.email}`, 'info');
           }
         }
-        
-        loadActiveUsers();
       } catch (error) {
         console.error('Sign out error:', error);
-        showToast('Error signing out', 'error');
+        showToast('Error signing out: ' + error.message, 'error');
       }
     }
 
@@ -1199,6 +1106,52 @@
         return { activeCount: 0, statusCounts: {} };
       }
     }
+
+    // ===== AUTH FUNCTIONS =====
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        currentUser = user;
+        
+        // Check if this account is already in our list
+        const exists = accounts.some(acc => acc.user.uid === user.uid);
+        if (!exists) {
+          addAccount(user);
+          activeAccountIndex = accounts.length - 1;
+        } else {
+          const idx = accounts.findIndex(acc => acc.user.uid === user.uid);
+          if (idx !== -1) activeAccountIndex = idx;
+        }
+        
+        renderAccountSwitcher();
+        const active = getActiveAccount();
+        if (active) updateHeroGreeting(active.user);
+        
+        // Load stats and map data
+        loadActiveUsers();
+        loadStats();
+        updateMapData();
+        
+        showToast(`Welcome back, ${user.displayName || user.email}`, 'success');
+      } else {
+        currentUser = null;
+        // Check if we have accounts saved
+        const hasAccounts = loadAccounts();
+        if (hasAccounts) {
+          const active = getActiveAccount();
+          if (active) {
+            renderAccountSwitcher();
+            updateHeroGreeting(active.user);
+            showToast('Please sign in again', 'info');
+            // Open login modal
+            setTimeout(() => openAuthModal(), 500);
+            return;
+          }
+        }
+        renderAccountSwitcher();
+        updateHeroGreeting(null);
+        loadActiveUsers();
+      }
+    });
 
     // ===== MAP FUNCTIONS =====
     function initOverviewMap() {
