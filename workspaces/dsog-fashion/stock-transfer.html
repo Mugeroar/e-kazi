@@ -6,6 +6,9 @@
   <title>Stock Transfer | DSOG Fashion</title>
   
   <meta name="theme-color" content="#ec4899">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  
   <link rel="icon" type="image/png" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -221,10 +224,9 @@
     }
     .btn-primary { background: var(--pink); color: white; flex: 2; }
     .btn-primary:hover { background: var(--pink-dark); }
+    .btn-primary:disabled { background: #94a3b8; cursor: not-allowed; }
     .btn-secondary { background: #f1f5f9; color: #475569; flex: 1; }
     .btn-secondary:hover { background: #e2e8f0; }
-    .btn-success { background: var(--green); color: white; }
-    .btn-success:hover { background: #059669; }
 
     .btn-row { display: flex; gap: 6px; flex-shrink: 0; margin-top: 0.5rem; }
 
@@ -280,7 +282,7 @@
       <a href="dsog-fashion-orders.html" class="nav-btn"><i class="fas fa-shopping-bag"></i> Orders</a>
       <a href="dsog-fashion-inventory.html" class="nav-btn"><i class="fas fa-boxes"></i> Inventory</a>
       <a href="dsog-fashion-products.html" class="nav-btn"><i class="fas fa-tags"></i> Products</a>
-      <a href="dsog-fashion-franchisees.html" class="nav-btn"><i class="fas fa-store"></i> Locations</a>
+      <a href="dsog-fashion-locations.html" class="nav-btn"><i class="fas fa-store"></i> Locations</a>
     </div>
   </nav>
 
@@ -301,18 +303,14 @@
         <div class="form-group">
           <label>From Location <i class="fas fa-arrow-right" style="color:var(--pink);"></i></label>
           <select id="fromLocation" onchange="loadLocationStock(this.value)">
-            <option value="main_shop">🏪 Main Shop (Warehouse)</option>
-            <option value="franchisee_001">📍 Westlands</option>
-            <option value="franchisee_002">📍 Mombasa</option>
+            <option value="">Loading locations...</option>
           </select>
         </div>
 
         <div class="form-group">
           <label>To Location <i class="fas fa-arrow-right" style="color:var(--pink);"></i></label>
           <select id="toLocation">
-            <option value="franchisee_001">📍 Westlands</option>
-            <option value="franchisee_002">📍 Mombasa</option>
-            <option value="main_shop">🏪 Main Shop (Warehouse)</option>
+            <option value="">Loading locations...</option>
           </select>
         </div>
 
@@ -342,7 +340,7 @@
                 <select class="product-select" onchange="onProductSelect(this)">
                   <option value="">— Select Product —</option>
                 </select>
-                <div class="stock-info" id="stockInfo0">Loading stock...</div>
+                <div class="stock-info" id="stockInfo0">Select a product</div>
               </div>
               <div class="form-group" style="flex:0.8;">
                 <label>Qty</label>
@@ -362,9 +360,7 @@
         <div id="locationStockPreview" style="margin-bottom:0.8rem;">
           <div style="font-size:0.65rem;font-weight:600;color:var(--text-muted);margin-bottom:0.3rem;">Current Stock Preview:</div>
           <div class="location-stock-grid" id="locationStockGrid">
-            <div class="location-stock-item"><span class="loc-name">Main Shop:</span> <span class="loc-qty" id="previewMain">-</span></div>
-            <div class="location-stock-item"><span class="loc-name">Westlands:</span> <span class="loc-qty" id="previewWestlands">-</span></div>
-            <div class="location-stock-item"><span class="loc-name">Mombasa:</span> <span class="loc-qty" id="previewMombasa">-</span></div>
+            <div style="font-size:0.6rem;color:var(--text-muted);grid-column:1/-1;text-align:center;">Select locations to see stock</div>
           </div>
         </div>
 
@@ -374,7 +370,7 @@
         </div>
 
         <div class="btn-row">
-          <button class="btn btn-primary" onclick="confirmTransfer()">
+          <button class="btn btn-primary" id="confirmBtn" onclick="confirmTransfer()">
             <i class="fas fa-arrow-right"></i> Confirm Transfer
           </button>
           <button class="btn btn-secondary" onclick="resetForm()">
@@ -407,17 +403,14 @@
     const database = firebase.database();
     const auth = firebase.auth();
 
+    // 🔥 Data stores
     let allProducts = {};
-    let locationStock = {};
+    let allLocations = {};
     let rowCount = 1;
 
-    // Location names for display
-    const locationNames = {
-      'main_shop': 'Main Shop',
-      'franchisee_001': 'Westlands',
-      'franchisee_002': 'Mombasa'
-    };
-
+    // ============================================================
+    // TOAST NOTIFICATIONS
+    // ============================================================
     function showToast(msg, isError = false) {
       const container = document.getElementById('toastContainer');
       const existing = container.querySelector('.toast');
@@ -429,7 +422,18 @@
       setTimeout(() => toast.remove(), 3500);
     }
 
-    // Load all products
+    // ============================================================
+    // 🔥 LOAD LOCATIONS FROM dsog_fashion_locations
+    // ============================================================
+    database.ref('dsog_fashion_locations').on('value', (snapshot) => {
+      allLocations = snapshot.val() || {};
+      populateLocationDropdowns();
+      updateLocationStockPreview();
+    });
+
+    // ============================================================
+    // 🔥 LOAD PRODUCTS FROM dsog_fashion_products
+    // ============================================================
     database.ref('dsog_fashion_products').on('value', (snapshot) => {
       allProducts = snapshot.val() || {};
       Object.entries(allProducts).forEach(([id, p]) => { if (p) p.id = id; });
@@ -437,24 +441,69 @@
       updateLocationStockPreview();
     });
 
-    // Load location stock (if you have separate location tracking)
-    // For now, we'll use the product's location stock if available, or just total stock
-    function getProductStockAtLocation(productId, location) {
+    // ============================================================
+    // POPULATE LOCATION DROPDOWNS FROM dsog_fashion_locations
+    // ============================================================
+    function populateLocationDropdowns() {
+      const locations = Object.entries(allLocations)
+        .filter(([id, loc]) => loc && loc.name && loc.status !== 'archived')
+        .sort((a, b) => (a[1].name || '').localeCompare(b[1].name || ''));
+
+      const options = locations.map(([id, loc]) => {
+        const typeIcon = loc.type === 'main' ? '🏪' : '📍';
+        return `<option value="${id}" data-type="${loc.type || 'franchisee'}">${typeIcon} ${loc.name}</option>`;
+      }).join('');
+
+      const emptyOption = '<option value="">— Select Location —</option>';
+
+      // Populate "From" dropdown
+      const fromSelect = document.getElementById('fromLocation');
+      const fromValue = fromSelect.value;
+      fromSelect.innerHTML = emptyOption + options;
+      if (fromValue && allLocations[fromValue]) fromSelect.value = fromValue;
+
+      // Populate "To" dropdown
+      const toSelect = document.getElementById('toLocation');
+      const toValue = toSelect.value;
+      toSelect.innerHTML = emptyOption + options;
+      if (toValue && allLocations[toValue]) toSelect.value = toValue;
+
+      // Update stock preview
+      updateLocationStockPreview();
+    }
+
+    // ============================================================
+    // GET LOCATION NAME BY ID
+    // ============================================================
+    function getLocationName(locationId) {
+      return allLocations[locationId]?.name || locationId;
+    }
+
+    function getLocationType(locationId) {
+      return allLocations[locationId]?.type || 'franchisee';
+    }
+
+    // ============================================================
+    // GET STOCK AT A SPECIFIC LOCATION
+    // ============================================================
+    function getStockAtLocation(productId, locationId) {
       const product = allProducts[productId];
       if (!product) return 0;
-      // If you have location-specific stock tracking
-      if (product.locations && product.locations[location] !== undefined) {
-        return product.locations[location];
+      if (product.locations && product.locations[locationId] !== undefined) {
+        return product.locations[locationId];
       }
-      // Fallback: use total stock
+      // Fallback: if no location tracking, return total stock
       return product.stock || product.quantity || 0;
     }
 
+    // ============================================================
+    // POPULATE PRODUCT DROPDOWNS
+    // ============================================================
     function populateProductDropdowns() {
       const products = Object.values(allProducts)
         .filter(p => p && p.name && (p.stock || p.quantity || 0) > 0)
         .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
-      
+
       const options = products.map(p => {
         const stock = p.stock || p.quantity || 0;
         const price = p.price || 0;
@@ -468,27 +517,39 @@
       });
     }
 
+    // ============================================================
+    // PRODUCT SELECT CHANGE
+    // ============================================================
     function onProductSelect(select) {
       const row = select.closest('.product-transfer-row');
       const index = row.dataset.index;
       const stockInfo = document.getElementById('stockInfo' + index);
       const fromLocation = document.getElementById('fromLocation').value;
       
-      if (select.value) {
+      if (select.value && fromLocation) {
         const product = allProducts[select.value];
-        const stock = product ? (product.stock || product.quantity || 0) : 0;
-        const locationStock = product?.locations?.[fromLocation] || stock;
+        const locationStock = getStockAtLocation(select.value, fromLocation);
         if (stockInfo) {
-          stockInfo.textContent = `📍 ${locationNames[fromLocation] || fromLocation}: ${locationStock} units`;
+          const locationName = getLocationName(fromLocation);
+          stockInfo.textContent = `📍 ${locationName}: ${locationStock} units`;
           stockInfo.className = locationStock <= 10 ? 'stock-info low' : 'stock-info good';
         }
+        // Set max on qty input
+        const qtyInput = row.querySelector('.transfer-qty');
+        if (qtyInput) qtyInput.max = locationStock;
       } else {
-        if (stockInfo) { stockInfo.textContent = 'Select a product'; stockInfo.className = 'stock-info'; }
+        if (stockInfo) { 
+          stockInfo.textContent = fromLocation ? 'Select a product' : 'Select a location first';
+          stockInfo.className = 'stock-info'; 
+        }
       }
       updateSummary();
       updateLocationStockPreview();
     }
 
+    // ============================================================
+    // ADD / REMOVE ROWS
+    // ============================================================
     function addRow() {
       rowCount++;
       const row = document.createElement('div');
@@ -519,6 +580,9 @@
       updateSummary();
     }
 
+    // ============================================================
+    // UPDATE SUMMARY
+    // ============================================================
     function updateSummary() {
       let totalItems = 0;
       let itemCount = 0;
@@ -535,32 +599,67 @@
       document.getElementById('transferBreakdown').textContent = `${itemCount} product${itemCount !== 1 ? 's' : ''} selected`;
     }
 
+    // ============================================================
+    // UPDATE LOCATION STOCK PREVIEW
+    // ============================================================
     function updateLocationStockPreview() {
-      // Show total stock for each location (simplified)
-      let mainStock = 0, westlandsStock = 0, mombasaStock = 0;
+      const grid = document.getElementById('locationStockGrid');
+      const locationIds = Object.keys(allLocations);
+      
+      if (locationIds.length === 0) {
+        grid.innerHTML = '<div style="font-size:0.6rem;color:var(--text-muted);grid-column:1/-1;text-align:center;">No locations found. Add locations first.</div>';
+        return;
+      }
+
+      // Calculate total stock per location
+      const locationStock = {};
+      locationIds.forEach(id => locationStock[id] = 0);
       
       Object.values(allProducts).forEach(p => {
-        mainStock += p.stock || p.quantity || 0;
-        westlandsStock += p.locations?.franchisee_001 || 0;
-        mombasaStock += p.locations?.franchisee_002 || 0;
+        if (p.locations) {
+          Object.entries(p.locations).forEach(([locId, qty]) => {
+            if (locationStock[locId] !== undefined) {
+              locationStock[locId] += qty || 0;
+            }
+          });
+        } else {
+          // If no location tracking, add all stock to main_shop
+          if (locationStock['main_shop'] !== undefined) {
+            locationStock['main_shop'] += p.stock || p.quantity || 0;
+          }
+        }
       });
 
-      document.getElementById('previewMain').textContent = mainStock;
-      document.getElementById('previewWestlands').textContent = westlandsStock || '0';
-      document.getElementById('previewMombasa').textContent = mombasaStock || '0';
+      grid.innerHTML = locationIds.map(id => {
+        const loc = allLocations[id];
+        const typeIcon = loc?.type === 'main' ? '🏪' : '📍';
+        return `<div class="location-stock-item">
+          <span class="loc-name">${typeIcon} ${loc?.name || id}:</span> 
+          <span class="loc-qty">${locationStock[id] || 0}</span>
+        </div>`;
+      }).join('');
     }
 
+    // ============================================================
+    // LOAD LOCATION STOCK (when from location changes)
+    // ============================================================
     function loadLocationStock(location) {
-      // Update stock info for all rows
+      // Update all product rows to show stock at this location
       document.querySelectorAll('.product-select').forEach(select => {
         if (select.value) onProductSelect(select);
       });
+      updateLocationStockPreview();
     }
 
+    // ============================================================
+    // CONFIRM TRANSFER
+    // ============================================================
     async function confirmTransfer() {
       const fromLocation = document.getElementById('fromLocation').value;
       const toLocation = document.getElementById('toLocation').value;
 
+      if (!fromLocation) { showToast('❌ Select a "From" location', true); return; }
+      if (!toLocation) { showToast('❌ Select a "To" location', true); return; }
       if (fromLocation === toLocation) {
         showToast('❌ From and To locations must be different!', true);
         return;
@@ -577,10 +676,10 @@
           const productId = select.value;
           const product = allProducts[productId];
           const qty = parseInt(qtyInput.value) || 0;
-          const availableStock = product?.locations?.[fromLocation] || product?.stock || product?.quantity || 0;
+          const availableStock = getStockAtLocation(productId, fromLocation);
           
           if (qty > availableStock) {
-            showToast(`❌ Not enough stock for ${product.name}. Available: ${availableStock}`, true);
+            showToast(`❌ Not enough stock for ${product.name}. Available at ${getLocationName(fromLocation)}: ${availableStock}`, true);
             hasError = true;
             return;
           }
@@ -598,35 +697,37 @@
       if (hasError) return;
       if (transfers.length === 0) { showToast('Select at least one product', true); return; }
 
-      // Process transfer
+      // Disable button during processing
+      const confirmBtn = document.getElementById('confirmBtn');
+      confirmBtn.disabled = true;
+      confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+
       try {
         const updates = {};
         const transferRef = document.getElementById('transferRef').value.trim() || `Transfer ${new Date().toLocaleDateString()}`;
         
         for (const t of transfers) {
           const product = allProducts[t.productId];
-          const currentFromStock = product?.locations?.[fromLocation] || product?.stock || product?.quantity || 0;
-          const currentToStock = product?.locations?.[toLocation] || 0;
+          const currentFromStock = getStockAtLocation(t.productId, fromLocation);
+          const currentToStock = getStockAtLocation(t.productId, toLocation);
           
-          // Update locations if using location-based tracking
+          // Initialize locations if they don't exist
           if (!product.locations) {
-            // Initialize locations if they don't exist
-            updates[`dsog_fashion_products/${t.productId}/locations`] = {
-              main_shop: fromLocation === 'main_shop' ? currentFromStock - t.quantity : currentFromStock,
-              franchisee_001: fromLocation === 'franchisee_001' ? currentFromStock - t.quantity : 
-                             toLocation === 'franchisee_001' ? currentToStock + t.quantity : (product?.locations?.franchisee_001 || 0),
-              franchisee_002: fromLocation === 'franchisee_002' ? currentFromStock - t.quantity :
-                             toLocation === 'franchisee_002' ? currentToStock + t.quantity : (product?.locations?.franchisee_002 || 0)
-            };
-          } else {
-            // Update existing locations
-            updates[`dsog_fashion_products/${t.productId}/locations/${fromLocation}`] = Math.max(0, currentFromStock - t.quantity);
-            updates[`dsog_fashion_products/${t.productId}/locations/${toLocation}`] = (currentToStock || 0) + t.quantity;
+            updates[`dsog_fashion_products/${t.productId}/locations`] = {};
           }
           
-          // Also update total stock (sum of all locations)
-          const newTotal = Object.values(updates[`dsog_fashion_products/${t.productId}/locations`] || {})
-            .reduce((sum, val) => sum + (val || 0), 0);
+          // Update from location (deduct)
+          updates[`dsog_fashion_products/${t.productId}/locations/${fromLocation}`] = Math.max(0, currentFromStock - t.quantity);
+          
+          // Update to location (add)
+          updates[`dsog_fashion_products/${t.productId}/locations/${toLocation}`] = (currentToStock || 0) + t.quantity;
+          
+          // Calculate new total stock (sum of all locations)
+          const newLocations = { ...(product.locations || {}) };
+          newLocations[fromLocation] = Math.max(0, currentFromStock - t.quantity);
+          newLocations[toLocation] = (currentToStock || 0) + t.quantity;
+          
+          const newTotal = Object.values(newLocations).reduce((sum, val) => sum + (val || 0), 0);
           updates[`dsog_fashion_products/${t.productId}/stock`] = newTotal;
           updates[`dsog_fashion_products/${t.productId}/quantity`] = newTotal;
           updates[`dsog_fashion_products/${t.productId}/updatedAt`] = firebase.database.ServerValue.TIMESTAMP;
@@ -635,9 +736,11 @@
         // Log the transfer
         const transferLog = {
           from: fromLocation,
-          fromName: locationNames[fromLocation] || fromLocation,
+          fromName: getLocationName(fromLocation),
+          fromType: getLocationType(fromLocation),
           to: toLocation,
-          toName: locationNames[toLocation] || toLocation,
+          toName: getLocationName(toLocation),
+          toType: getLocationType(toLocation),
           reference: transferRef,
           products: transfers,
           totalItems: transfers.reduce((s, t) => s + t.quantity, 0),
@@ -652,20 +755,37 @@
         // Execute all updates
         await database.ref().update(updates);
         
-        showToast(`✅ Transfer complete! ${transferLog.totalItems} items moved from ${locationNames[fromLocation]} to ${locationNames[toLocation]}`);
+        showToast(`✅ Transfer complete! ${transferLog.totalItems} items moved from ${getLocationName(fromLocation)} to ${getLocationName(toLocation)}`);
         resetForm();
       } catch (e) {
         console.error(e);
         showToast('❌ Failed to complete transfer', true);
+      } finally {
+        confirmBtn.disabled = false;
+        confirmBtn.innerHTML = '<i class="fas fa-arrow-right"></i> Confirm Transfer';
       }
     }
 
+    // ============================================================
+    // RESET FORM
+    // ============================================================
     function resetForm() {
-      document.getElementById('fromLocation').value = 'main_shop';
-      document.getElementById('toLocation').value = 'franchisee_001';
+      // Reset location dropdowns to first options
+      const fromSelect = document.getElementById('fromLocation');
+      const toSelect = document.getElementById('toLocation');
+      
+      // Find main shop if exists, otherwise first location
+      const locationIds = Object.keys(allLocations);
+      const mainId = locationIds.find(id => allLocations[id]?.type === 'main') || locationIds[0] || '';
+      const otherId = locationIds.find(id => id !== mainId) || '';
+      
+      if (mainId) fromSelect.value = mainId;
+      if (otherId) toSelect.value = otherId;
+      
       document.getElementById('transferRef').value = '';
       document.getElementById('transferNotes').value = '';
       
+      // Reset product rows
       document.getElementById('transferRows').innerHTML = `
         <div class="product-transfer-row" data-index="0">
           <div class="form-group" style="flex:2;">
@@ -686,29 +806,52 @@
       populateProductDropdowns();
       updateSummary();
       updateLocationStockPreview();
+      
+      // Load stock for the selected from location
+      if (mainId) loadLocationStock(mainId);
     }
 
-    // Event listeners
-    document.getElementById('fromLocation').addEventListener('change', () => {
-      loadLocationStock(document.getElementById('fromLocation').value);
+    // ============================================================
+    // EVENT LISTENERS
+    // ============================================================
+    document.getElementById('fromLocation').addEventListener('change', function() {
+      loadLocationStock(this.value);
     });
 
-    // Auth check
+    // ============================================================
+    // AUTH CHECK
+    // ============================================================
     auth.onAuthStateChanged((user) => {
       if (!user) window.location.href = '/';
     });
 
-    // Initialize
-    updateSummary();
-    updateLocationStockPreview();
+    // ============================================================
+    // INITIALIZATION
+    // ============================================================
+    // Wait for data to load, then set default locations
+    setTimeout(() => {
+      const locationIds = Object.keys(allLocations);
+      if (locationIds.length > 0) {
+        const mainId = locationIds.find(id => allLocations[id]?.type === 'main') || locationIds[0];
+        const otherId = locationIds.find(id => id !== mainId) || locationIds[0];
+        if (mainId) document.getElementById('fromLocation').value = mainId;
+        if (otherId) document.getElementById('toLocation').value = otherId;
+        if (mainId) loadLocationStock(mainId);
+      }
+    }, 1000);
 
-    // Expose functions
+    updateSummary();
+
+    // ============================================================
+    // EXPOSE FUNCTIONS TO WINDOW
+    // ============================================================
     window.addRow = addRow;
     window.removeRow = removeRow;
     window.onProductSelect = onProductSelect;
     window.confirmTransfer = confirmTransfer;
     window.resetForm = resetForm;
     window.loadLocationStock = loadLocationStock;
+    window.updateSummary = updateSummary;
   </script>
 </body>
 </html>
