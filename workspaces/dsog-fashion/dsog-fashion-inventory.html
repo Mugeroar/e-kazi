@@ -100,15 +100,15 @@
     }
     .search-box i { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 0.7rem; }
 
-    .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px; }
+    .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
 
     .product-card {
-      background: white; border-radius: 16px; padding: 1rem;
+      background: white; border-radius: 16px; padding: 1.2rem;
       border: 1px solid #fbcfe8; box-shadow: 0 3px 12px rgba(190,24,93,0.03);
       transition: all 0.2s;
     }
     .product-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(190,24,93,0.08); }
-    .product-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.6rem; }
+    .product-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.8rem; }
     .product-card-header h3 { font-size: 0.9rem; font-weight: 700; }
     .stock-badge {
       padding: 0.15rem 0.5rem; border-radius: 12px; font-size: 0.6rem; font-weight: 700;
@@ -118,15 +118,23 @@
     .stock-low { background: #fee2e2; color: #991b1b; }
     .stock-out { background: #f1f5f9; color: #64748b; }
 
-    .product-info { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; font-size: 0.7rem; margin-bottom: 0.6rem; }
+    .collection-badge {
+      padding: 0.15rem 0.5rem; border-radius: 12px; font-size: 0.6rem; font-weight: 700;
+      background: #fdf2f8; color: #be185d;
+    }
+    .collection-badge.new { background: #fce7f3; color: #9d174d; }
+    .collection-badge.bestseller { background: #fef3c7; color: #92400e; }
+    .collection-badge.sale { background: #fee2e2; color: #991b1b; }
+
+    .product-info { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 0.7rem; margin-bottom: 0.8rem; }
     .product-info div { color: var(--text-muted); }
     .product-info strong { color: var(--text-primary); display: block; font-size: 0.6rem; text-transform: uppercase; }
 
-    .product-actions { display: flex; gap: 4px; flex-wrap: wrap; }
+    .product-actions { display: flex; gap: 6px; flex-wrap: wrap; }
     .btn-sm {
-      padding: 0.25rem 0.6rem; border-radius: 8px; border: none; font-weight: 600;
-      font-size: 0.6rem; cursor: pointer; display: inline-flex; align-items: center;
-      gap: 3px; transition: all 0.15s; font-family: inherit;
+      padding: 0.3rem 0.7rem; border-radius: 8px; border: none; font-weight: 600;
+      font-size: 0.65rem; cursor: pointer; display: inline-flex; align-items: center;
+      gap: 4px; transition: all 0.15s; font-family: inherit;
     }
     .btn-edit { background: #fdf2f8; color: #be185d; }
     .btn-edit:hover { background: #ec4899; color: white; }
@@ -143,7 +151,7 @@
     }
     .modal-overlay.show { display: flex; }
     .modal {
-      background: white; border-radius: 20px; padding: 1.5rem; max-width: 500px;
+      background: white; border-radius: 20px; padding: 1.5rem; max-width: 550px;
       width: 95%; max-height: 85vh; overflow-y: auto; box-shadow: 0 25px 50px rgba(0,0,0,0.2);
     }
     .modal h3 { font-size: 0.95rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px; color: var(--pink-dark); }
@@ -221,6 +229,7 @@
       <button class="filter-btn" data-filter="shoes">👟 Shoes</button>
       <button class="filter-btn" data-filter="accessories">👜 Accessories</button>
       <button class="filter-btn" data-filter="outerwear">🧥 Outerwear</button>
+      <button class="filter-btn" data-filter="traditional">🥻 Traditional</button>
       <div class="search-box">
         <i class="fas fa-search"></i>
         <input type="text" id="searchInput" placeholder="Search items...">
@@ -232,7 +241,7 @@
     </div>
   </div>
 
-  <div class="modal-overlay" id="modal"><div class="modal" id="modalContent"></div></div>
+  <div class="modal-overlay" id="inventoryModal"><div class="modal" id="modalContent"></div></div>
   <div id="toastContainer"></div>
 
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -254,7 +263,8 @@
     const database = firebase.database();
     const auth = firebase.auth();
 
-    let allInventory = {};
+    // 🔥 FIXED: Now reading from the SAME node as Products page
+    let allProducts = {};
     let currentFilter = 'all';
     let searchQuery = '';
 
@@ -283,42 +293,59 @@
       return 'Well Stocked';
     }
 
-    function renderInventory() {
+    function getCollectionBadge(collection) {
+      const map = { new:'collection-badge new', bestseller:'collection-badge bestseller', sale:'collection-badge sale' };
+      return map[collection] || 'collection-badge';
+    }
+
+    function renderProducts() {
       const grid = document.getElementById('productsGrid');
-      let items = Object.entries(allInventory).map(([id, data]) => ({ id, ...data }));
+      let products = Object.entries(allProducts).map(([id, data]) => ({ id, ...data }));
 
       if (currentFilter !== 'all') {
-        items = items.filter(p => (p.category || '').toLowerCase() === currentFilter);
+        products = products.filter(p => (p.category || '').toLowerCase() === currentFilter);
       }
 
       if (searchQuery) {
         const q = searchQuery.toLowerCase();
-        items = items.filter(p => (p.name || '').toLowerCase().includes(q) || (p.sku || '').toLowerCase().includes(q));
+        products = products.filter(p => 
+          (p.name || '').toLowerCase().includes(q) ||
+          (p.sku || '').toLowerCase().includes(q) ||
+          (p.supplier || '').toLowerCase().includes(q)
+        );
       }
 
-      if (!items.length) {
+      if (!products.length) {
         grid.innerHTML = '<div class="empty-state"><i class="fas fa-box-open" style="font-size:2rem;display:block;margin-bottom:8px;"></i>No items found</div>';
         return;
       }
 
-      grid.innerHTML = items.map(p => {
-        const qty = p.quantity || 0;
-        const value = qty * (p.unitPrice || 0);
+      grid.innerHTML = products.map(p => {
+        const qty = p.stock || p.quantity || 0;
+        const price = p.price || p.unitPrice || 0;
+        const value = qty * price;
+        const collection = p.collection || 'standard';
+        
         return `
           <div class="product-card">
             <div class="product-card-header">
               <h3>${p.name || 'Unnamed'}</h3>
-              <span class="stock-badge ${getStockClass(qty)}">${getStockLabel(qty)}</span>
+              <div style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;">
+                <span class="${getCollectionBadge(collection)}">${collection.toUpperCase()}</span>
+                <span class="stock-badge ${getStockClass(qty)}">${getStockLabel(qty)}</span>
+              </div>
             </div>
             <div class="product-info">
-              <div><strong>Category</strong>${p.category || 'N/A'}</div>
               <div><strong>SKU</strong>${p.sku || 'N/A'}</div>
-              <div><strong>Size</strong>${p.size || 'N/A'}</div>
-              <div><strong>Color</strong>${p.color || 'N/A'}</div>
-              <div><strong>Quantity</strong>${qty} ${p.unit || 'pcs'}</div>
-              <div><strong>Unit Price</strong>KES ${(p.unitPrice || 0).toLocaleString()}</div>
-              <div><strong>Value</strong>KES ${value.toLocaleString()}</div>
+              <div><strong>Category</strong>${p.category || 'N/A'}</div>
+              <div><strong>Sizes</strong>${p.sizes || 'N/A'}</div>
+              <div><strong>Colors</strong>${p.colors || 'N/A'}</div>
+              <div><strong>Fabric</strong>${p.fabric || p.material || 'N/A'}</div>
               <div><strong>Supplier</strong>${p.supplier || 'N/A'}</div>
+              <div><strong>Stock</strong>${qty} units</div>
+              <div><strong>Unit Price</strong>KES ${price.toLocaleString()}</div>
+              <div><strong>Total Value</strong>KES ${value.toLocaleString()}</div>
+              <div><strong>Sale Price</strong>${p.salePrice ? 'KES ' + p.salePrice.toLocaleString() : '—'}</div>
             </div>
             <div class="product-actions">
               <button class="btn-sm btn-edit" onclick="editItem('${p.id}')"><i class="fas fa-edit"></i> Edit</button>
@@ -331,11 +358,11 @@
     }
 
     function updateStats() {
-      const items = Object.values(allInventory);
-      const total = items.length;
-      const inStock = items.filter(p => (p.quantity || 0) > 10).length;
-      const low = items.filter(p => (p.quantity || 0) > 0 && (p.quantity || 0) <= 10).length;
-      const value = items.reduce((s, p) => s + ((p.quantity || 0) * (p.unitPrice || 0)), 0);
+      const products = Object.values(allProducts);
+      const total = products.length;
+      const inStock = products.filter(p => (p.stock || p.quantity || 0) > 10).length;
+      const low = products.filter(p => (p.stock || p.quantity || 0) > 0 && (p.stock || p.quantity || 0) <= 10).length;
+      const value = products.reduce((s, p) => s + ((p.stock || p.quantity || 0) * (p.price || p.unitPrice || 0)), 0);
 
       document.getElementById('statTotal').textContent = total;
       document.getElementById('statInStock').textContent = inStock;
@@ -346,7 +373,10 @@
     function showAddModal() {
       document.getElementById('modalContent').innerHTML = `
         <h3><i class="fas fa-plus-circle"></i> Add Inventory Item</h3>
-        <div class="form-group"><label>Item Name *</label><input type="text" id="pName" placeholder="e.g., Ankara Maxi Dress"></div>
+        <div class="form-row">
+          <div class="form-group"><label>Product Name *</label><input type="text" id="pName" placeholder="e.g., Ankara Maxi Dress"></div>
+          <div class="form-group"><label>SKU</label><input type="text" id="pSku" placeholder="e.g., DSOG-DR-001"></div>
+        </div>
         <div class="form-row">
           <div class="form-group"><label>Category</label><select id="pCategory">
             <option value="dresses">👗 Dresses</option><option value="tops">👚 Tops</option>
@@ -354,108 +384,153 @@
             <option value="accessories">👜 Accessories</option><option value="outerwear">🧥 Outerwear</option>
             <option value="traditional">🥻 Traditional</option><option value="other">📦 Other</option>
           </select></div>
-          <div class="form-group"><label>SKU</label><input type="text" id="pSku" placeholder="e.g., DSOG-001"></div>
-        </div>
-        <div class="form-row">
-          <div class="form-group"><label>Size</label><select id="pSize">
-            <option value="XS">XS</option><option value="S">S</option><option value="M" selected>M</option>
-            <option value="L">L</option><option value="XL">XL</option><option value="2XL">2XL</option>
-            <option value="Free Size">Free Size</option>
+          <div class="form-group"><label>Collection</label><select id="pCollection">
+            <option value="standard">Standard</option><option value="new">New Arrival</option>
+            <option value="bestseller">Best Seller</option><option value="sale">On Sale</option>
           </select></div>
-          <div class="form-group"><label>Color</label><input type="text" id="pColor" placeholder="e.g., Red, Blue"></div>
         </div>
         <div class="form-row">
-          <div class="form-group"><label>Quantity *</label><input type="number" id="pQty" value="1" min="0"></div>
-          <div class="form-group"><label>Unit Price (KES) *</label><input type="number" id="pPrice" value="0" min="0"></div>
+          <div class="form-group"><label>Sizes (comma separated)</label><input type="text" id="pSizes" placeholder="S, M, L, XL"></div>
+          <div class="form-group"><label>Colors (comma separated)</label><input type="text" id="pColors" placeholder="Red, Blue, Black"></div>
         </div>
-        <div class="form-group"><label>Supplier</label><input type="text" id="pSupplier" placeholder="Supplier name"></div>
+        <div class="form-row">
+          <div class="form-group"><label>Price (KES) *</label><input type="number" id="pPrice" value="0" min="0"></div>
+          <div class="form-group"><label>Sale Price (KES)</label><input type="number" id="pSalePrice" value="0" min="0"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Stock Quantity</label><input type="number" id="pStock" value="0" min="0"></div>
+          <div class="form-group"><label>Supplier</label><input type="text" id="pSupplier" placeholder="Supplier name"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Fabric / Material</label><input type="text" id="pFabric" placeholder="e.g., Ankara, Cotton, Silk"></div>
+          <div class="form-group"><label>Status</label><select id="pStatus">
+            <option value="active">Active</option><option value="draft">Draft</option><option value="archived">Archived</option>
+          </select></div>
+        </div>
+        <div class="form-group"><label>Description</label><textarea id="pDesc" rows="2" placeholder="Product description..."></textarea></div>
         <div class="btn-row">
-          <button class="btn btn-primary" onclick="saveItem()"><i class="fas fa-save"></i> Save</button>
+          <button class="btn btn-primary" onclick="saveItem()"><i class="fas fa-save"></i> Save Item</button>
           <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
         </div>
       `;
-      document.getElementById('modal').classList.add('show');
+      document.getElementById('inventoryModal').classList.add('show');
     }
 
     async function saveItem() {
       const name = document.getElementById('pName').value.trim();
-      const qty = parseInt(document.getElementById('pQty').value) || 0;
       const price = parseInt(document.getElementById('pPrice').value) || 0;
-      if (!name) { showToast('Enter item name', true); return; }
+      if (!name) { showToast('Enter product name', true); return; }
 
       try {
-        await database.ref('dsog_fashion_inventory').push().set({
-          name, category: document.getElementById('pCategory').value,
+        // 🔥 FIXED: Now saving to the SAME node as Products page
+        await database.ref('dsog_fashion_products').push().set({
+          name: name,
           sku: document.getElementById('pSku').value.trim(),
-          size: document.getElementById('pSize').value,
-          color: document.getElementById('pColor').value.trim(),
-          quantity: qty, unitPrice: price,
+          category: document.getElementById('pCategory').value,
+          collection: document.getElementById('pCollection').value,
+          sizes: document.getElementById('pSizes').value.trim(),
+          colors: document.getElementById('pColors').value.trim(),
+          price: price,
+          salePrice: parseInt(document.getElementById('pSalePrice').value) || 0,
+          stock: parseInt(document.getElementById('pStock').value) || 0,
           supplier: document.getElementById('pSupplier').value.trim(),
+          fabric: document.getElementById('pFabric').value.trim(),
+          description: document.getElementById('pDesc').value.trim(),
+          status: document.getElementById('pStatus').value,
+          createdAt: firebase.database.ServerValue.TIMESTAMP,
           updatedAt: firebase.database.ServerValue.TIMESTAMP
         });
-        showToast('✅ Item added!');
+        showToast('✅ Item added to inventory!');
         closeModal();
-      } catch (e) { showToast('Failed to save', true); }
+      } catch (e) { 
+        console.error(e);
+        showToast('Failed to save', true); 
+      }
     }
 
     function editItem(itemId) {
-      const p = allInventory[itemId];
+      const p = allProducts[itemId];
       if (!p) return;
       document.getElementById('modalContent').innerHTML = `
-        <h3><i class="fas fa-edit"></i> Edit Item</h3>
-        <div class="form-group"><label>Item Name</label><input type="text" id="epName" value="${p.name || ''}"></div>
+        <h3><i class="fas fa-edit"></i> Edit Inventory Item</h3>
+        <div class="form-row">
+          <div class="form-group"><label>Product Name</label><input type="text" id="epName" value="${p.name || ''}"></div>
+          <div class="form-group"><label>SKU</label><input type="text" id="epSku" value="${p.sku || ''}"></div>
+        </div>
         <div class="form-row">
           <div class="form-group"><label>Category</label><select id="epCategory">
             ${['dresses','tops','bottoms','shoes','accessories','outerwear','traditional','other'].map(c => `<option value="${c}" ${p.category === c ? 'selected' : ''}>${c}</option>`).join('')}
           </select></div>
-          <div class="form-group"><label>SKU</label><input type="text" id="epSku" value="${p.sku || ''}"></div>
-        </div>
-        <div class="form-row">
-          <div class="form-group"><label>Size</label><select id="epSize">
-            ${['XS','S','M','L','XL','2XL','Free Size'].map(s => `<option value="${s}" ${p.size === s ? 'selected' : ''}>${s}</option>`).join('')}
+          <div class="form-group"><label>Collection</label><select id="epCollection">
+            ${['standard','new','bestseller','sale'].map(c => `<option value="${c}" ${(p.collection || 'standard') === c ? 'selected' : ''}>${c}</option>`).join('')}
           </select></div>
-          <div class="form-group"><label>Color</label><input type="text" id="epColor" value="${p.color || ''}"></div>
         </div>
         <div class="form-row">
-          <div class="form-group"><label>Quantity</label><input type="number" id="epQty" value="${p.quantity || 0}"></div>
-          <div class="form-group"><label>Unit Price (KES)</label><input type="number" id="epPrice" value="${p.unitPrice || 0}"></div>
+          <div class="form-group"><label>Sizes</label><input type="text" id="epSizes" value="${p.sizes || ''}"></div>
+          <div class="form-group"><label>Colors</label><input type="text" id="epColors" value="${p.colors || ''}"></div>
         </div>
-        <div class="form-group"><label>Supplier</label><input type="text" id="epSupplier" value="${p.supplier || ''}"></div>
+        <div class="form-row">
+          <div class="form-group"><label>Price (KES)</label><input type="number" id="epPrice" value="${p.price || p.unitPrice || 0}"></div>
+          <div class="form-group"><label>Sale Price (KES)</label><input type="number" id="epSalePrice" value="${p.salePrice || 0}"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Stock</label><input type="number" id="epStock" value="${p.stock || p.quantity || 0}"></div>
+          <div class="form-group"><label>Supplier</label><input type="text" id="epSupplier" value="${p.supplier || ''}"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Fabric</label><input type="text" id="epFabric" value="${p.fabric || p.material || ''}"></div>
+          <div class="form-group"><label>Status</label><select id="epStatus">
+            ${['active','draft','archived'].map(s => `<option value="${s}" ${(p.status || 'active') === s ? 'selected' : ''}>${s}</option>`).join('')}
+          </select></div>
+        </div>
+        <div class="form-group"><label>Description</label><textarea id="epDesc" rows="2">${p.description || ''}</textarea></div>
         <div class="btn-row">
           <button class="btn btn-primary" onclick="updateItem('${itemId}')"><i class="fas fa-save"></i> Update</button>
           <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
         </div>
       `;
-      document.getElementById('modal').classList.add('show');
+      document.getElementById('inventoryModal').classList.add('show');
     }
 
     async function updateItem(itemId) {
       try {
-        await database.ref(`dsog_fashion_inventory/${itemId}`).update({
+        // 🔥 FIXED: Now updating the SAME node as Products page
+        await database.ref(`dsog_fashion_products/${itemId}`).update({
           name: document.getElementById('epName').value.trim(),
-          category: document.getElementById('epCategory').value,
           sku: document.getElementById('epSku').value.trim(),
-          size: document.getElementById('epSize').value,
-          color: document.getElementById('epColor').value.trim(),
-          quantity: parseInt(document.getElementById('epQty').value) || 0,
-          unitPrice: parseInt(document.getElementById('epPrice').value) || 0,
+          category: document.getElementById('epCategory').value,
+          collection: document.getElementById('epCollection').value,
+          sizes: document.getElementById('epSizes').value.trim(),
+          colors: document.getElementById('epColors').value.trim(),
+          price: parseInt(document.getElementById('epPrice').value) || 0,
+          salePrice: parseInt(document.getElementById('epSalePrice').value) || 0,
+          stock: parseInt(document.getElementById('epStock').value) || 0,
           supplier: document.getElementById('epSupplier').value.trim(),
+          fabric: document.getElementById('epFabric').value.trim(),
+          description: document.getElementById('epDesc').value.trim(),
+          status: document.getElementById('epStatus').value,
           updatedAt: firebase.database.ServerValue.TIMESTAMP
         });
-        showToast('✅ Updated!');
+        showToast('✅ Inventory updated!');
         closeModal();
-      } catch (e) { showToast('Failed to update', true); }
+      } catch (e) { 
+        console.error(e);
+        showToast('Failed to update', true); 
+      }
     }
 
     async function deleteItem(itemId) {
-      if (!confirm('Delete this item?')) return;
+      if (!confirm('Delete this item from inventory?')) return;
       try {
-        await database.ref(`dsog_fashion_inventory/${itemId}`).remove();
-        showToast('✅ Deleted');
-      } catch (e) { showToast('Failed to delete', true); }
+        await database.ref(`dsog_fashion_products/${itemId}`).remove();
+        showToast('✅ Item deleted');
+      } catch (e) { 
+        console.error(e);
+        showToast('Failed to delete', true); 
+      }
     }
 
-    function closeModal() { document.getElementById('modal').classList.remove('show'); }
+    function closeModal() { document.getElementById('inventoryModal').classList.remove('show'); }
 
     // Filters
     document.querySelectorAll('.filter-btn').forEach(btn => {
@@ -463,27 +538,31 @@
         document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         currentFilter = btn.dataset.filter;
-        renderInventory();
+        renderProducts();
       });
     });
 
     document.getElementById('searchInput').addEventListener('input', (e) => {
       searchQuery = e.target.value;
-      renderInventory();
+      renderProducts();
     });
 
-    document.getElementById('modal').addEventListener('click', (e) => {
-      if (e.target === document.getElementById('modal')) closeModal();
+    document.getElementById('inventoryModal').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('inventoryModal')) closeModal();
     });
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
 
-    // Firebase listener
-    database.ref('dsog_fashion_inventory').on('value', (snapshot) => {
-      allInventory = snapshot.val() || {};
-      renderInventory();
+    // 🔥 FIXED: Now listening to the SAME node as Products page
+    database.ref('dsog_fashion_products').on('value', (snapshot) => {
+      allProducts = snapshot.val() || {};
+      renderProducts();
     });
 
-    auth.onAuthStateChanged((user) => { if (!user) window.location.href = '/'; });
+    auth.onAuthStateChanged((user) => { 
+      if (!user) window.location.href = '/'; 
+    });
+
+    // Expose functions globally
     window.showAddModal = showAddModal;
     window.editItem = editItem;
     window.deleteItem = deleteItem;
