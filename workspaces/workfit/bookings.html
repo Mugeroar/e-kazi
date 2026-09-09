@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>WorkFit · Booking Management</title>
+  <meta name="theme-color" content="#f97316" />
+  <link rel="icon" type="image/png" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --orange: #f97316; --orange-dark: #c2410c; --orange-light: #fb923c;
+      --bg: #f8fafc; --surface: #ffffff; --text: #0f172a; --text-secondary: #64748b;
+      --border: #e2e8f0; --border-light: #f1f5f9;
+      --success: #10b981; --warning: #f59e0b; --danger: #ef4444; --info: #3b82f6;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05); --shadow-md: 0 4px 6px rgba(0,0,0,0.07);
+      --shadow-lg: 0 10px 25px rgba(0,0,0,0.1); --radius: 12px; --radius-lg: 16px;
+    }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg); color: var(--text); min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+    /* navbar (reuse same style) */
+    .navbar {
+      background: rgba(255,255,255,0.9); backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border-light); padding: 0 1.5rem; height: 60px;
+      display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; gap: 1rem;
+    }
+    .navbar-left { display: flex; align-items: center; gap: 16px; }
+    .brand { display: flex; align-items: center; gap: 8px; text-decoration: none; cursor: pointer; }
+    .brand img { width: 34px; height: 34px; border-radius: 8px; }
+    .brand span { font-weight: 700; font-size: 0.9rem; color: var(--text); }
+    .live-dot { font-size: 0.6rem; color: var(--text-secondary); display: flex; align-items: center; gap: 4px; }
+    .live-dot i { color: #10b981; font-size: 0.4rem; }
+    .navbar-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .nav-btn {
+      padding: 0.4rem 0.9rem; border-radius: 8px; font-weight: 600; font-size: 0.7rem;
+      cursor: pointer; border: 1px solid var(--border); background: white; color: var(--text-secondary);
+      transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; white-space: nowrap;
+    }
+    .nav-btn:hover { background: #f8fafc; border-color: #cbd5e1; }
+    .nav-btn.primary { background: var(--orange); color: white; border-color: var(--orange); }
+    .nav-btn.primary:hover { background: var(--orange-dark); }
+    .user-pill {
+      display: flex; align-items: center; gap: 6px; background: white; border: 1px solid var(--border);
+      padding: 0.25rem 0.7rem 0.25rem 0.35rem; border-radius: 30px; font-size: 0.7rem; color: var(--text-secondary);
+    }
+    .user-avatar { width: 26px; height: 26px; border-radius: 50%; background: linear-gradient(135deg, #f97316, #ea580c); display: flex; align-items: center; justify-content: center; font-size: 0.6rem; font-weight: 700; color: white; }
+
+    /* main layout */
+    .main { padding: 1.5rem; max-width: 1400px; margin: 0 auto; }
+    .page-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 1.5rem; gap: 1rem; }
+    .page-title { font-size: 1.5rem; font-weight: 800; display: flex; align-items: center; gap: 10px; }
+    .page-subtitle { font-size: 0.78rem; color: var(--text-secondary); margin-top: 0.2rem; }
+    .header-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn {
+      padding: 0.5rem 1.2rem; border-radius: 8px; font-weight: 600; font-size: 0.8rem;
+      border: 1px solid var(--border); background: white; color: var(--text-secondary);
+      cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px;
+      text-decoration: none;
+    }
+    .btn:hover { background: #f8fafc; border-color: #cbd5e1; }
+    .btn-primary { background: var(--orange); color: white; border-color: var(--orange); }
+    .btn-primary:hover { background: var(--orange-dark); border-color: var(--orange-dark); }
+    .btn-success { background: var(--success); color: white; border-color: var(--success); }
+    .btn-success:hover { background: #059669; border-color: #059669; }
+    .btn-danger { background: var(--danger); color: white; border-color: var(--danger); }
+    .btn-danger:hover { background: #dc2626; border-color: #dc2626; }
+    .btn-sm { padding: 0.25rem 0.8rem; font-size: 0.7rem; }
+
+    /* filter bar */
+    .filter-bar {
+      background: var(--surface); border-radius: var(--radius); padding: 0.8rem 1.2rem;
+      border: 1px solid var(--border-light); box-shadow: var(--shadow-sm);
+      display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-bottom: 1.5rem;
+    }
+    .filter-bar label { font-size: 0.7rem; font-weight: 600; color: var(--text-secondary); display: flex; align-items: center; gap: 6px; }
+    .filter-bar select, .filter-bar input {
+      padding: 0.3rem 0.7rem; border-radius: 6px; border: 1px solid var(--border);
+      font-size: 0.75rem; background: white; color: var(--text); font-family: inherit;
+    }
+    .filter-bar .search-wrap { display: flex; align-items: center; gap: 4px; flex: 1; min-width: 180px; }
+    .filter-bar .search-wrap i { color: var(--text-secondary); font-size: 0.8rem; }
+    .filter-bar .search-wrap input { flex: 1; min-width: 120px; }
+
+    /* stats mini */
+    .stats-mini { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 1.5rem; }
+    .stat-mini {
+      background: var(--surface); border-radius: var(--radius); padding: 0.8rem 1.2rem;
+      border: 1px solid var(--border-light); box-shadow: var(--shadow-sm);
+      display: flex; align-items: center; gap: 12px;
+    }
+    .stat-mini-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; }
+    .stat-mini-icon.pink { background: #fdf2f8; color: #db2777; }
+    .stat-mini-icon.green { background: #ecfdf5; color: #10b981; }
+    .stat-mini-icon.yellow { background: #fffbeb; color: #d97706; }
+    .stat-mini-icon.red { background: #fef2f2; color: #dc2626; }
+    .stat-mini-value { font-size: 1.2rem; font-weight: 700; line-height: 1; }
+    .stat-mini-label { font-size: 0.6rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.3px; }
+
+    /* table / card grid */
+    .booking-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+    .booking-card {
+      background: var(--surface); border-radius: var(--radius); padding: 1rem 1.2rem;
+      border: 1px solid var(--border-light); box-shadow: var(--shadow-sm);
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+      transition: all 0.2s;
+    }
+    .booking-card:hover { border-color: #fed7aa; box-shadow: var(--shadow-md); }
+    .booking-info { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; flex: 2; min-width: 200px; }
+    .booking-client { font-weight: 700; font-size: 0.9rem; }
+    .booking-client small { font-weight: 400; color: var(--text-secondary); font-size: 0.7rem; display: block; }
+    .booking-meta { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 0.75rem; color: var(--text-secondary); }
+    .booking-meta i { width: 16px; color: var(--text-secondary); }
+    .booking-actions { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+    .badge {
+      padding: 0.15rem 0.6rem; border-radius: 6px; font-size: 0.6rem; font-weight: 600; display: inline-block;
+    }
+    .badge-success { background: #ecfdf5; color: #065f46; }
+    .badge-warning { background: #fffbeb; color: #92400e; }
+    .badge-danger { background: #fef2f2; color: #991b1b; }
+    .badge-info { background: #eff6ff; color: #1e40af; }
+
+    /* modal */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(15,23,42,0.5); backdrop-filter: blur(4px);
+      display: none; align-items: center; justify-content: center; z-index: 200; padding: 1rem;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal {
+      background: white; border-radius: var(--radius-lg); max-width: 600px; width: 100%;
+      padding: 1.8rem 2rem; box-shadow: var(--shadow-lg); max-height: 90vh; overflow-y: auto;
+    }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem; }
+    .modal-header h2 { font-size: 1.2rem; font-weight: 700; }
+    .modal-close { background: none; border: none; font-size: 1.4rem; cursor: pointer; color: var(--text-secondary); padding: 0 0.5rem; }
+    .modal-close:hover { color: var(--text); }
+    .form-group { margin-bottom: 1rem; }
+    .form-group label { display: block; font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 0.2rem; }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%; padding: 0.5rem 0.8rem; border-radius: 8px; border: 1px solid var(--border);
+      font-size: 0.85rem; font-family: inherit; background: white; color: var(--text);
+    }
+    .form-group textarea { resize: vertical; min-height: 60px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .form-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 1.2rem; }
+
+    .empty-state { text-align: center; padding: 2.5rem 1rem; color: #94a3b8; }
+    .empty-state i { font-size: 2.5rem; margin-bottom: 0.5rem; color: #d1d5db; }
+
+    @media (max-width: 768px) {
+      .main { padding: 1rem; }
+      .stats-mini { grid-template-columns: 1fr 1fr; }
+      .form-row { grid-template-columns: 1fr; }
+      .modal { padding: 1.2rem; }
+      .navbar { padding: 0 0.8rem; }
+      .navbar-right { gap: 4px; }
+      .nav-btn { padding: 0.35rem 0.6rem; font-size: 0.65rem; }
+      .page-header { flex-direction: column; align-items: stretch; }
+      .header-actions { justify-content: stretch; }
+      .header-actions .btn { flex: 1; justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+  <!-- navbar -->
+  <nav class="navbar">
+    <div class="navbar-left">
+      <a class="brand" href="dashboard.html">
+        <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png" alt="Logo">
+        <span>WorkFit Wellness</span>
+      </a>
+      <span class="live-dot" id="liveIndicator"><i class="fas fa-circle"></i> Live</span>
+    </div>
+    <div class="navbar-right">
+      <a href="/workspaces/workfit/clubs.html" class="nav-btn"><i class="fas fa-building"></i> Clubs</a>
+      <a href="/workspaces/workfit/memberships.html" class="nav-btn"><i class="fas fa-id-card"></i> Members</a>
+      <a href="/workspaces/workfit/trainers.html" class="nav-btn"><i class="fas fa-users-gear"></i> Trainers</a>
+      <a href="/workspaces/workfit/shop.html" class="nav-btn"><i class="fas fa-store"></i> Shop</a>
+      <a href="/workspaces/workfit/bookings.html" class="nav-btn primary"><i class="fas fa-calendar-check"></i> Bookings</a>
+      <a href="/workspaces/workfit/giving.html" class="nav-btn"><i class="fas fa-hand-holding-dollar"></i> Giving</a>
+      <div class="user-pill"><div class="user-avatar" id="userAvatar">WF</div><span id="userName">Director</span></div>
+    </div>
+  </nav>
+
+  <div class="main">
+    <!-- header -->
+    <div class="page-header">
+      <div>
+        <h1 class="page-title"><i class="fas fa-calendar-check" style="color:var(--orange);"></i> Booking Management</h1>
+        <p class="page-subtitle">Manage all client appointments, class bookings, and trainer schedules across all clubs.</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-primary" onclick="openModal()"><i class="fas fa-plus"></i> New Booking</button>
+        <button class="btn" onclick="exportBookings()"><i class="fas fa-download"></i> Export</button>
+      </div>
+    </div>
+
+    <!-- mini stats -->
+    <div class="stats-mini" id="statsMini">
+      <div class="stat-mini"><div class="stat-mini-icon pink"><i class="fas fa-calendar"></i></div><div><div class="stat-mini-value" id="totalBookings">0</div><div class="stat-mini-label">Total</div></div></div>
+      <div class="stat-mini"><div class="stat-mini-icon green"><i class="fas fa-check-circle"></i></div><div><div class="stat-mini-value" id="confirmedBookings">0</div><div class="stat-mini-label">Confirmed</div></div></div>
+      <div class="stat-mini"><div class="stat-mini-icon yellow"><i class="fas fa-clock"></i></div><div><div class="stat-mini-value" id="pendingBookings">0</div><div class="stat-mini-label">Pending</div></div></div>
+      <div class="stat-mini"><div class="stat-mini-icon red"><i class="fas fa-times-circle"></i></div><div><div class="stat-mini-value" id="cancelledBookings">0</div><div class="stat-mini-label">Cancelled</div></div></div>
+    </div>
+
+    <!-- filter bar -->
+    <div class="filter-bar">
+      <div class="search-wrap"><i class="fas fa-search"></i><input type="text" id="searchInput" placeholder="Search client, club, service..." oninput="applyFilters()"></div>
+      <label><i class="fas fa-building"></i> Club <select id="clubFilter" onchange="applyFilters()"><option value="">All Clubs</option></select></label>
+      <label><i class="fas fa-tag"></i> Status <select id="statusFilter" onchange="applyFilters()"><option value="">All Status</option><option value="pending">Pending</option><option value="confirmed">Confirmed</option><option value="cancelled">Cancelled</option></select></label>
+      <label><i class="fas fa-calendar"></i> From <input type="date" id="dateFrom" onchange="applyFilters()"></label>
+      <label><i class="fas fa-calendar"></i> To <input type="date" id="dateTo" onchange="applyFilters()"></label>
+    </div>
+
+    <!-- booking list -->
+    <div class="booking-grid" id="bookingList">
+      <div class="empty-state"><i class="fas fa-calendar-plus"></i><p>No bookings found. Create your first booking!</p></div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal-overlay" id="bookingModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="modalTitle">New Booking</h2>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <form id="bookingForm" onsubmit="saveBooking(event)">
+        <input type="hidden" id="editId" value="">
+        <div class="form-row">
+          <div class="form-group"><label>Client Name *</label><input type="text" id="clientName" required placeholder="e.g. Jane Doe"></div>
+          <div class="form-group"><label>Club *</label><select id="clubSelect" required><option value="">Select Club</option></select></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Service / Class *</label><input type="text" id="serviceName" required placeholder="e.g. Personal Training"></div>
+          <div class="form-group"><label>Trainer</label><select id="trainerSelect"><option value="">Unassigned</option></select></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Date *</label><input type="date" id="bookingDate" required></div>
+          <div class="form-group"><label>Time *</label><input type="time" id="bookingTime" required></div>
+        </div>
+        <div class="form-group"><label>Status</label><select id="bookingStatus"><option value="pending">Pending</option><option value="confirmed">Confirmed</option><option value="cancelled">Cancelled</option></select></div>
+        <div class="form-group"><label>Notes</label><textarea id="bookingNotes" placeholder="Any special requests or notes..."></textarea></div>
+        <div class="form-actions">
+          <button type="button" class="btn" onclick="closeModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="saveBtn"><i class="fas fa-save"></i> Save Booking</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
+  <script>
+    // Firebase config
+    firebase.initializeApp({
+      apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+      authDomain: "mugera-e51cc.firebaseapp.com",
+      databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "mugera-e51cc"
+    });
+    const auth = firebase.auth();
+    const db = firebase.database();
+
+    // global state
+    let allBookings = {};
+    let allClubs = {};
+    let allTrainers = {};
+    let filteredBookings = [];
+
+    // helpers
+    function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+    function formatDate(ts) { if (!ts) return '—'; const d = new Date(ts); return d.toLocaleDateString('en-KE') + ' ' + d.toLocaleTimeString('en-KE', {hour:'2-digit',minute:'2-digit'}); }
+    function formatDateInput(ts) { if (!ts) return ''; const d = new Date(ts); return d.toISOString().split('T')[0]; }
+
+    // render booking list
+    function renderBookings(list) {
+      const container = document.getElementById('bookingList');
+      if (!list || list.length === 0) {
+        container.innerHTML = `<div class="empty-state"><i class="fas fa-calendar-plus"></i><p>No bookings match your filters.</p></div>`;
+        return;
+      }
+      container.innerHTML = list.map(b => {
+        const status = b.status || 'pending';
+        const statusBadge = status === 'confirmed' ? 'badge-success' : status === 'cancelled' ? 'badge-danger' : 'badge-warning';
+        const clubName = b.clubName || (allClubs[b.clubId] ? allClubs[b.clubId].businessName || allClubs[b.clubId].name : '—');
+        return `
+          <div class="booking-card" data-id="${b.id}">
+            <div class="booking-info">
+              <div>
+                <div class="booking-client">${esc(b.clientName || 'Guest')} <span class="badge ${statusBadge}">${esc(status)}</span></div>
+                <div class="booking-meta">
+                  <span><i class="fas fa-building"></i> ${esc(clubName)}</span>
+                  <span><i class="fas fa-dumbbell"></i> ${esc(b.service || 'Class')}</span>
+                  ${b.trainerName ? `<span><i class="fas fa-user-tie"></i> ${esc(b.trainerName)}</span>` : ''}
+                  <span><i class="fas fa-calendar-alt"></i> ${formatDate(b.createdAt)}</span>
+                </div>
+                ${b.notes ? `<small style="color:var(--text-secondary);font-size:0.65rem;display:block;margin-top:4px;"><i class="fas fa-comment"></i> ${esc(b.notes)}</small>` : ''}
+              </div>
+            </div>
+            <div class="booking-actions">
+              <button class="btn btn-sm btn-success" onclick="updateStatus('${b.id}','confirmed')"><i class="fas fa-check"></i> Confirm</button>
+              <button class="btn btn-sm" onclick="editBooking('${b.id}')"><i class="fas fa-edit"></i></button>
+              <button class="btn btn-sm btn-danger" onclick="deleteBooking('${b.id}')"><i class="fas fa-trash"></i></button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // filter logic
+    function applyFilters() {
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      const club = document.getElementById('clubFilter').value;
+      const status = document.getElementById('statusFilter').value;
+      const from = document.getElementById('dateFrom').value;
+      const to = document.getElementById('dateTo').value;
+
+      const list = Object.values(allBookings).filter(b => b && b.clientName);
+      filteredBookings = list.filter(b => {
+        if (search && !(b.clientName.toLowerCase().includes(search) || (b.service||'').toLowerCase().includes(search) || (b.clubName||'').toLowerCase().includes(search))) return false;
+        if (club && b.clubId !== club && b.clubName !== club) return false;
+        if (status && b.status !== status) return false;
+        if (from) { const d = new Date(b.createdAt); if (d < new Date(from)) return false; }
+        if (to) { const d = new Date(b.createdAt); if (d > new Date(to + 'T23:59:59')) return false; }
+        return true;
+      });
+      renderBookings(filteredBookings);
+    }
+
+    // stats
+    function updateStats() {
+      const list = Object.values(allBookings).filter(b => b && b.clientName);
+      const total = list.length;
+      const confirmed = list.filter(b => b.status === 'confirmed').length;
+      const pending = list.filter(b => b.status === 'pending').length;
+      const cancelled = list.filter(b => b.status === 'cancelled').length;
+      document.getElementById('totalBookings').textContent = total;
+      document.getElementById('confirmedBookings').textContent = confirmed;
+      document.getElementById('pendingBookings').textContent = pending;
+      document.getElementById('cancelledBookings').textContent = cancelled;
+      document.getElementById('liveIndicator').innerHTML = `<i class="fas fa-circle"></i> Live · ${new Date().toLocaleTimeString()}`;
+    }
+
+    // populate selects
+    function populateSelects() {
+      const clubSelect = document.getElementById('clubSelect');
+      const clubFilter = document.getElementById('clubFilter');
+      const trainerSelect = document.getElementById('trainerSelect');
+      
+      // clubs
+      const clubs = Object.values(allClubs).filter(c => c && (c.businessName || c.name));
+      const options = clubs.map(c => `<option value="${c.id}">${esc(c.businessName || c.name)}</option>`).join('');
+      clubSelect.innerHTML = `<option value="">Select Club</option>${options}`;
+      clubFilter.innerHTML = `<option value="">All Clubs</option>${options}`;
+      
+      // trainers
+      const trainers = Object.values(allTrainers).filter(t => t && t.name);
+      trainerSelect.innerHTML = `<option value="">Unassigned</option>` + trainers.map(t => `<option value="${t.id}">${esc(t.name)}</option>`).join('');
+    }
+
+    // modal
+    function openModal(data) {
+      document.getElementById('bookingModal').classList.add('active');
+      if (data) {
+        document.getElementById('modalTitle').textContent = 'Edit Booking';
+        document.getElementById('editId').value = data.id;
+        document.getElementById('clientName').value = data.clientName || '';
+        document.getElementById('clubSelect').value = data.clubId || '';
+        document.getElementById('serviceName').value = data.service || '';
+        document.getElementById('trainerSelect').value = data.trainerId || '';
+        document.getElementById('bookingDate').value = formatDateInput(data.createdAt);
+        document.getElementById('bookingTime').value = data.createdAt ? new Date(data.createdAt).toTimeString().slice(0,5) : '';
+        document.getElementById('bookingStatus').value = data.status || 'pending';
+        document.getElementById('bookingNotes').value = data.notes || '';
+        document.getElementById('saveBtn').innerHTML = '<i class="fas fa-save"></i> Update Booking';
+      } else {
+        document.getElementById('modalTitle').textContent = 'New Booking';
+        document.getElementById('editId').value = '';
+        document.getElementById('bookingForm').reset();
+        document.getElementById('bookingDate').value = new Date().toISOString().split('T')[0];
+        document.getElementById('bookingTime').value = '09:00';
+        document.getElementById('bookingStatus').value = 'pending';
+        document.getElementById('saveBtn').innerHTML = '<i class="fas fa-save"></i> Save Booking';
+      }
+    }
+    function closeModal() { document.getElementById('bookingModal').classList.remove('active'); }
+
+    // save booking
+    function saveBooking(e) {
+      e.preventDefault();
+      const id = document.getElementById('editId').value;
+      const data = {
+        clientName: document.getElementById('clientName').value.trim(),
+        clubId: document.getElementById('clubSelect').value,
+        clubName: document.getElementById('clubSelect').selectedOptions[0]?.text || '',
+        service: document.getElementById('serviceName').value.trim(),
+        trainerId: document.getElementById('trainerSelect').value,
+        trainerName: document.getElementById('trainerSelect').selectedOptions[0]?.text || '',
+        status: document.getElementById('bookingStatus').value,
+        notes: document.getElementById('bookingNotes').value.trim(),
+        updatedAt: Date.now()
+      };
+      if (!data.clientName || !data.clubId || !data.service) { alert('Please fill in all required fields.'); return; }
+      const date = document.getElementById('bookingDate').value;
+      const time = document.getElementById('bookingTime').value;
+      if (date && time) data.createdAt = new Date(date + 'T' + time + ':00').getTime();
+      else data.createdAt = Date.now();
+
+      const ref = id ? db.ref('workfit_bookings/' + id) : db.ref('workfit_bookings').push();
+      ref.update(data).then(() => { closeModal(); }).catch(alert);
+    }
+
+    // edit
+    function editBooking(id) {
+      const b = allBookings[id];
+      if (b) openModal({ id, ...b });
+    }
+
+    // delete
+    function deleteBooking(id) {
+      if (!confirm('Delete this booking?')) return;
+      db.ref('workfit_bookings/' + id).remove().catch(alert);
+    }
+
+    // update status
+    function updateStatus(id, status) {
+      db.ref('workfit_bookings/' + id).update({ status, updatedAt: Date.now() }).catch(alert);
+    }
+
+    // export
+    function exportBookings() {
+      const list = filteredBookings.length ? filteredBookings : Object.values(allBookings).filter(b => b && b.clientName);
+      if (!list.length) { alert('No bookings to export.'); return; }
+      let csv = 'Client,Club,Service,Trainer,Status,Date,Notes\n';
+      list.forEach(b => {
+        const club = b.clubName || (allClubs[b.clubId] ? allClubs[b.clubId].businessName || allClubs[b.clubId].name : '');
+        csv += `"${b.clientName}","${club}","${b.service||''}","${b.trainerName||''}","${b.status||'pending'}","${formatDate(b.createdAt)}","${(b.notes||'').replace(/"/g,'""')}"\n`;
+      });
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `bookings_${new Date().toISOString().slice(0,10)}.csv`;
+      a.click();
+    }
+
+    // Firebase listeners
+    auth.onAuthStateChanged(user => {
+      if (!user) { window.location.href = '/'; return; }
+      document.getElementById('userName').textContent = user.displayName?.split(' ')[0] || user.email?.split('@')[0] || 'Director';
+      document.getElementById('userAvatar').textContent = (user.displayName || user.email?.[0] || 'W').substring(0,2).toUpperCase();
+
+      db.ref('workfit_clubs').on('value', s => { allClubs = s.val() || {}; populateSelects(); });
+      db.ref('workfit_trainers').on('value', s => { allTrainers = s.val() || {}; populateSelects(); });
+      db.ref('workfit_bookings').on('value', s => {
+        allBookings = s.val() || {};
+        updateStats();
+        applyFilters();
+      });
+    });
+
+    // initial render
+    document.addEventListener('DOMContentLoaded', () => {
+      applyFilters();
+    });
+  </script>
+</body>
+</html>
