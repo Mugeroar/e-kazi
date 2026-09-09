@@ -18,7 +18,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
   <style>
-    /* ===== ALL EXISTING STYLES + NEW ENGAGEMENT STYLES ===== */
+    /* ===== BASE STYLES ===== */
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     :root {
@@ -105,6 +105,16 @@
       from { opacity: 0; transform: scale(0.5); }
       to { opacity: 1; transform: scale(1); }
     }
+    @keyframes goldMorph {
+      0%, 100% { background: radial-gradient(circle at 0% 0%, #fffbeb 0%, #ffffff 50%, #faf9f7 100%); }
+      33% { background: radial-gradient(circle at 100% 0%, #fef3c7 0%, #ffffff 50%, #faf9f7 100%); }
+      66% { background: radial-gradient(circle at 100% 100%, #fffbeb 0%, #ffffff 50%, #faf9f7 100%); }
+    }
+
+    body {
+      animation: goldMorph 24s ease-in-out infinite;
+      background-attachment: fixed;
+    }
 
     .gold-reveal {
       animation: goldReveal 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
@@ -117,6 +127,10 @@
     .gold-reveal-stagger:nth-child(2) { animation-delay: 0.10s; }
     .gold-reveal-stagger:nth-child(3) { animation-delay: 0.15s; }
     .gold-reveal-stagger:nth-child(4) { animation-delay: 0.20s; }
+    .gold-reveal-stagger:nth-child(5) { animation-delay: 0.25s; }
+    .gold-reveal-stagger:nth-child(6) { animation-delay: 0.30s; }
+    .gold-reveal-stagger:nth-child(7) { animation-delay: 0.35s; }
+    .gold-reveal-stagger:nth-child(8) { animation-delay: 0.40s; }
 
     /* ===== HEADER ===== */
     .site-header {
@@ -186,7 +200,7 @@
       max-height: 400px;
       overflow: hidden;
     }
-    .notification-dropdown.active { display: block; }
+    .notification-dropdown.active { display: block; animation: fadeInUp 0.2s ease; }
     .notif-header {
       display: flex;
       justify-content: space-between;
@@ -208,6 +222,9 @@
       max-height: 320px;
       overflow-y: auto;
     }
+    #notifList::-webkit-scrollbar { width: 4px; }
+    #notifList::-webkit-scrollbar-track { background: var(--bg-secondary); border-radius: 4px; }
+    #notifList::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 4px; }
     .notif-item {
       padding: 0.8rem 1rem;
       border-bottom: 1px solid var(--border-light);
@@ -222,6 +239,7 @@
       padding: 2rem;
       text-align: center;
       color: var(--text-muted);
+      font-size: 0.85rem;
     }
 
     /* ===== BUTTONS ===== */
@@ -386,6 +404,14 @@
       border-radius: 50%;
       animation: pulse-glow 2s infinite;
     }
+    .greeting-streak {
+      font-size: 0.7rem;
+      background: #fef3c7;
+      padding: 0.1rem 0.6rem;
+      border-radius: 20px;
+      color: #92400e;
+      font-weight: 600;
+    }
 
     /* ===== WEATHER WIDGET ===== */
     .weather-widget {
@@ -393,15 +419,16 @@
       align-items: center;
       gap: 0.5rem;
       background: rgba(255,255,255,0.8);
-      padding: 0.4rem 1rem;
+      padding: 0.3rem 1rem;
       border-radius: 50px;
       font-size: 0.8rem;
       backdrop-filter: blur(10px);
       border: 1px solid var(--border-light);
     }
-    .weather-widget i { color: var(--gold); font-size: 1.2rem; }
-    .weather-widget span { color: var(--text-secondary); }
-    .weather-widget span:last-child { font-weight: 500; }
+    .weather-widget i { color: var(--gold); font-size: 1rem; }
+    .weather-widget .weather-temp { font-weight: 600; color: var(--text-primary); }
+    .weather-widget .weather-condition { color: var(--text-secondary); }
+    .weather-widget .weather-location { color: var(--text-muted); font-size: 0.7rem; }
 
     /* ===== MAIN CONTENT ===== */
     .main-content {
@@ -432,6 +459,28 @@
       align-items: center;
       gap: 1rem;
       flex-wrap: wrap;
+    }
+
+    /* ===== DAILY PROGRESS ===== */
+    .daily-progress {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0.25rem;
+    }
+    .daily-progress svg {
+      width: 60px;
+      height: 60px;
+      transform: rotate(-90deg);
+    }
+    #progressCircle {
+      transition: stroke-dashoffset 1.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .progress-label {
+      font-size: 0.6rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-top: 0.1rem;
     }
 
     /* ===== MAP ===== */
@@ -522,18 +571,19 @@
       margin-bottom: 0.5rem;
     }
     .perf-value {
-      font-size: 1.8rem;
+      font-size: 1.6rem;
       font-weight: 800;
       font-family: var(--font-display);
       color: var(--text-primary);
     }
     .perf-change {
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       font-weight: 600;
       margin-top: 0.3rem;
     }
     .perf-change.positive { color: var(--success); }
     .perf-change.negative { color: var(--danger); }
+    .perf-change.neutral { color: var(--text-muted); }
 
     /* ===== STATS ROW ===== */
     .stats-row {
@@ -591,8 +641,9 @@
       border-color: var(--gold);
       box-shadow: var(--shadow-gold);
     }
+    .quick-action:active { transform: scale(0.95); }
     .quick-action i {
-      font-size: 1.8rem;
+      font-size: 1.6rem;
       color: var(--gold);
       display: block;
       margin-bottom: 0.5rem;
@@ -668,17 +719,33 @@
     .portal-card {
       background: var(--bg-card); border: 1px solid var(--border-light);
       border-radius: 20px; padding: 1.5rem 1.3rem; text-align: center;
-      transition: all 0.3s; box-shadow: var(--shadow-sm); text-decoration: none; color: inherit;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); 
+      box-shadow: var(--shadow-sm); text-decoration: none; color: inherit;
       display: block;
+      animation: cardFloat 4s ease-in-out infinite;
+      animation-delay: calc(var(--card-index, 0) * 0.2s);
     }
-    .portal-card:hover { border-color: var(--gold); box-shadow: var(--shadow-md); transform: translateY(-3px); }
+    .portal-card:hover { 
+      border-color: var(--gold); 
+      box-shadow: var(--shadow-gold); 
+      transform: translateY(-6px) scale(1.02); 
+    }
+    .portal-card:hover .portal-icon {
+      transform: scale(1.15) rotate(3deg);
+    }
     .portal-icon {
       width: 48px; height: 48px; border-radius: 14px;
       display: flex; align-items: center; justify-content: center;
       font-size: 1.4rem; color: var(--gold); margin: 0 auto 0.8rem;
+      transition: transform 0.3s ease;
     }
     .portal-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.2rem; font-family: var(--font-heading); }
     .portal-card p { color: var(--text-muted); font-size: 0.8rem; }
+
+    @keyframes cardFloat {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-4px); }
+    }
 
     /* ===== STATUS GRID ===== */
     .status-grid {
@@ -697,28 +764,6 @@
     .status-info { flex: 1; }
     .status-name { font-weight: 600; font-size: 0.85rem; font-family: var(--font-heading); }
     .status-desc { font-size: 0.7rem; color: var(--text-muted); }
-
-    /* ===== DAILY PROGRESS ===== */
-    .daily-progress {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 0.5rem;
-    }
-    .daily-progress svg {
-      width: 80px;
-      height: 80px;
-      transform: rotate(-90deg);
-    }
-    #progressCircle {
-      transition: stroke-dashoffset 1.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-    .progress-label {
-      font-size: 0.7rem;
-      color: var(--text-muted);
-      font-weight: 600;
-      margin-top: 0.2rem;
-    }
 
     /* ===== SHORTCUTS HINT ===== */
     .shortcuts-hint {
@@ -744,17 +789,30 @@
       display: flex;
       justify-content: space-between;
       padding: 0.2rem 0;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       color: var(--text-secondary);
     }
     .shortcuts-hint kbd {
       background: var(--bg-secondary);
       padding: 0.1rem 0.4rem;
       border-radius: 4px;
-      font-size: 0.7rem;
+      font-size: 0.65rem;
       font-family: monospace;
       border: 1px solid var(--border-light);
     }
+    .shortcuts-hint .dismiss-hint {
+      margin-top: 0.5rem;
+      background: var(--gold);
+      color: white;
+      border: none;
+      padding: 0.2rem 0.8rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.7rem;
+      font-weight: 600;
+      width: 100%;
+    }
+    .shortcuts-hint .dismiss-hint:hover { background: var(--gold-dark); }
 
     /* ===== MODAL ===== */
     .modal-overlay {
@@ -814,6 +872,7 @@
       margin-bottom: 0.5rem; box-shadow: var(--shadow-lg);
       display: flex; align-items: center; gap:0.6rem; font-family: var(--font-body);
       animation: slideIn 0.2s ease;
+      max-width: 380px;
     }
     .toast.success { border-left: 3px solid var(--success); }
     .toast.success i { color: var(--success); }
@@ -854,24 +913,24 @@
       .quick-actions{grid-template-columns:1fr}
       .status-grid{grid-template-columns:1fr}
       .footer-content{flex-direction:column;gap:0.8rem;text-align:center}
-      .hero-content h1 { font-size: 2.2rem; }
+      .hero-content h1 { font-size: 2rem; }
       .main-content{padding:0 1rem}
+      .weather-widget { display: none; }
       .greeting-wrapper {
         padding: 0.3rem 1rem 0.3rem 0.5rem;
+        flex-wrap: wrap;
+        justify-content: center;
       }
       .greeting-avatar {
         width: 34px !important;
         height: 34px !important;
         font-size: 0.9rem !important;
       }
-      .greeting-time {
-        font-size: 0.7rem !important;
-      }
-      .greeting-name {
-        font-size: 0.85rem !important;
-      }
+      .greeting-time { font-size: 0.7rem !important; }
+      .greeting-name { font-size: 0.85rem !important; }
       .user-menu-btn .user-info .user-email { max-width: 80px; }
       .notification-dropdown { width: 300px; right: -60px; }
+      .daily-progress svg { width: 50px; height: 50px; }
     }
   </style>
 </head>
@@ -944,13 +1003,13 @@
         <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview-1.png" alt="KazInni">
         <span>KazInni</span>
       </a>
-      <div style="display:flex;align-items:center;gap:1rem;">
+      <div style="display:flex;align-items:center;gap:0.8rem;">
         <!-- Weather Widget -->
         <div class="weather-widget" id="weatherWidget">
           <i class="fas fa-cloud-sun"></i>
-          <span id="weatherTemp">--°C</span>
-          <span id="weatherCondition">--</span>
-          <span id="weatherLocation">Nairobi</span>
+          <span class="weather-temp" id="weatherTemp">--°C</span>
+          <span class="weather-condition" id="weatherCondition">--</span>
+          <span class="weather-location" id="weatherLocation">Nairobi</span>
         </div>
         
         <!-- Notification Bell -->
@@ -985,7 +1044,7 @@
     <!-- Hero Section -->
     <section class="hero-section">
       <div class="hero-content">
-        <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;">
           <h1>Operations <span class="gold-text">Portal</span></h1>
           <!-- Daily Progress -->
           <div class="daily-progress">
@@ -1000,9 +1059,9 @@
               <circle cx="50" cy="50" r="40" fill="none" stroke="url(#goldGrad)" stroke-width="8"
                       stroke-dasharray="251.2" stroke-dashoffset="251.2"
                       id="progressCircle"/>
-              <text x="50" y="55" text-anchor="middle" font-size="20" font-weight="800" fill="var(--text-primary)" id="progressText">0%</text>
+              <text x="50" y="55" text-anchor="middle" font-size="18" font-weight="800" fill="var(--text-primary)" id="progressText">0%</text>
             </svg>
-            <div class="progress-label">Daily Progress</div>
+            <div class="progress-label">Day Progress</div>
           </div>
         </div>
         <p>Internal dashboard for managing workspaces, monitoring field operations, and accessing business resources.</p>
@@ -1061,11 +1120,11 @@
       </div>
       <div class="perf-card gold-reveal-stagger">
         <div class="perf-header">
-          <span>Completion Rate</span>
-          <i class="fas fa-check-circle" style="color:var(--gold);"></i>
+          <span>Field Locations</span>
+          <i class="fas fa-map-pin" style="color:var(--gold);"></i>
         </div>
-        <div class="perf-value" id="completionRate">0%</div>
-        <div class="perf-change" id="rateChange">Loading...</div>
+        <div class="perf-value" id="fieldLocations">0</div>
+        <div class="perf-change" id="fieldChange">Loading...</div>
       </div>
     </div>
 
@@ -1091,13 +1150,13 @@
         <i class="fas fa-truck"></i>
         <span>Track Delivery</span>
       </button>
-      <button class="quick-action gold-reveal-stagger" onclick="quickAction('view-reports')">
-        <i class="fas fa-chart-line"></i>
-        <span>View Reports</span>
+      <button class="quick-action gold-reveal-stagger" onclick="quickAction('field-registration')">
+        <i class="fas fa-map-marker-alt"></i>
+        <span>Field Registration</span>
       </button>
-      <button class="quick-action gold-reveal-stagger" onclick="quickAction('add-client')">
-        <i class="fas fa-user-plus"></i>
-        <span>Add Client</span>
+      <button class="quick-action gold-reveal-stagger" onclick="quickAction('view-reports')">
+        <i class="fas fa-chart-bar"></i>
+        <span>View Reports</span>
       </button>
     </div>
 
@@ -1108,7 +1167,7 @@
       <span class="live-badge" style="margin-left:0.5rem;"><div class="live-dot"></div> Live</span>
     </div>
     <div class="activity-feed" id="activityFeed">
-      <div class="notif-empty">Waiting for activity...</div>
+      <div class="notif-empty">⏳ Waiting for activity...</div>
     </div>
 
     <!-- System Status -->
@@ -1153,22 +1212,22 @@
       <h2>Quick Access</h2>
     </div>
     <div class="portal-grid">
-      <a href="dashboard.html" class="portal-card gold-reveal-stagger">
+      <a href="dashboard.html" class="portal-card gold-reveal-stagger" style="--card-index:0">
         <div class="portal-icon" style="background:#fef3c7;"><i class="fas fa-tachometer-alt"></i></div>
         <h3>Dashboard</h3>
         <p>Operations overview & analytics</p>
       </a>
-      <a href="profile.html" class="portal-card gold-reveal-stagger">
+      <a href="profile.html" class="portal-card gold-reveal-stagger" style="--card-index:1">
         <div class="portal-icon" style="background:#ecfdf5;"><i class="fas fa-user-circle"></i></div>
         <h3>Profile</h3>
         <p>Manage your account</p>
       </a>
-      <a href="workspaces.html" class="portal-card gold-reveal-stagger">
+      <a href="workspaces.html" class="portal-card gold-reveal-stagger" style="--card-index:2">
         <div class="portal-icon" style="background:#eff6ff;"><i class="fas fa-cubes"></i></div>
         <h3>Workspaces</h3>
         <p>Fusion, DSOG, Heritage, BrandInn</p>
       </a>
-      <a href="resources.html" class="portal-card gold-reveal-stagger">
+      <a href="resources.html" class="portal-card gold-reveal-stagger" style="--card-index:3">
         <div class="portal-icon" style="background:#fdf2f8;"><i class="fas fa-book-open"></i></div>
         <h3>Resources</h3>
         <p>Guides, tools & training</p>
@@ -1209,6 +1268,8 @@
     let notifListeners = [];
     let activityListeners = [];
     let perfInterval = null;
+    let statsInterval = null;
+    let mapUpdateInterval = null;
 
     // ============================================================
     // TOAST SYSTEM
@@ -1219,7 +1280,11 @@
       toast.className = `toast ${type}`;
       toast.innerHTML = `<i class="fas ${icons[type]}"></i> ${msg}`;
       document.getElementById('toastContainer').appendChild(toast);
-      setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = '0.3s'; setTimeout(() => toast.remove(), 300); }, 3000);
+      setTimeout(() => { 
+        toast.style.opacity = '0'; 
+        toast.style.transition = '0.3s'; 
+        setTimeout(() => toast.remove(), 300); 
+      }, 3500);
     }
 
     // ============================================================
@@ -1257,7 +1322,7 @@
           <button class="user-menu-btn" id="userMenuBtn" onclick="toggleUserDropdown()">
             <div class="user-info">
               <div class="avatar-mini">${initials}</div>
-              <span class="user-email">${email}</span>
+              <span class="user-email">${escapeHtml(email)}</span>
             </div>
             <i class="fas fa-chevron-down"></i>
           </button>
@@ -1267,6 +1332,9 @@
             </a>
             <a href="profile.html" class="dropdown-item">
               <i class="fas fa-user" style="width:20px;"></i> Profile
+            </a>
+            <a href="workspaces.html" class="dropdown-item">
+              <i class="fas fa-cubes" style="width:20px;"></i> Workspaces
             </a>
             <div class="divider"></div>
             <button class="dropdown-item danger" onclick="handleSignOut()">
@@ -1329,6 +1397,8 @@
 
     function clearListeners() {
       if (perfInterval) { clearInterval(perfInterval); perfInterval = null; }
+      if (statsInterval) { clearInterval(statsInterval); statsInterval = null; }
+      if (mapUpdateInterval) { clearInterval(mapUpdateInterval); mapUpdateInterval = null; }
       notifListeners.forEach(l => l());
       notifListeners = [];
       activityListeners.forEach(l => l());
@@ -1350,7 +1420,7 @@
         if (hour >= 12 && hour < 17) timeGreeting = 'Good afternoon';
         else if (hour >= 17) timeGreeting = 'Good evening';
         
-        // Get streak from localStorage (persist between sessions)
+        // Streak tracking
         let streak = parseInt(localStorage.getItem('kazinni_streak') || '0');
         const today = new Date().toDateString();
         const lastLogin = localStorage.getItem('kazinni_last_login');
@@ -1376,10 +1446,13 @@
             <div class="greeting-avatar">${initials}</div>
             <div class="greeting-text">
               <div class="greeting-time">${timeGreeting} 👋</div>
-              <div class="greeting-name">${displayName}</div>
-              <div class="greeting-status">
-                <span class="status-dot"></span>
-                Online · 🔥 ${streak} day streak
+              <div class="greeting-name">${escapeHtml(displayName)}</div>
+              <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+                <div class="greeting-status">
+                  <span class="status-dot"></span>
+                  Online
+                </div>
+                <span class="greeting-streak">🔥 ${streak} day streak</span>
               </div>
             </div>
           </div>
@@ -1403,11 +1476,11 @@
     }
 
     // ============================================================
-    // WEATHER WIDGET
+    // WEATHER WIDGET (Realistic - uses actual Nairobi data)
     // ============================================================
     async function updateWeather() {
       try {
-        // Free API - no key needed for basic weather
+        // Using free Open-Meteo API - accurate for Nairobi
         const response = await fetch('https://api.open-meteo.com/v1/forecast?latitude=-1.2864&longitude=36.8172&current=temperature_2m,weathercode&timezone=Africa/Nairobi');
         const data = await response.json();
         
@@ -1421,6 +1494,7 @@
           else if (code >= 71 && code <= 77) { condition = 'Snowy'; icon = 'fa-snowflake'; }
           else if (code >= 80 && code <= 99) { condition = 'Stormy'; icon = 'fa-bolt'; }
           else if (code >= 1 && code <= 3) { condition = 'Cloudy'; icon = 'fa-cloud'; }
+          else if (code >= 0 && code <= 0) { condition = 'Clear'; icon = 'fa-sun'; }
           
           document.getElementById('weatherTemp').textContent = `${temp}°C`;
           document.getElementById('weatherCondition').textContent = condition;
@@ -1428,6 +1502,7 @@
         }
       } catch (e) {
         // Silently fail - weather is a nice-to-have
+        console.debug('Weather API unavailable');
       }
     }
 
@@ -1456,7 +1531,7 @@
     }
 
     // ============================================================
-    // PERFORMANCE DASHBOARD
+    // PERFORMANCE DASHBOARD (Based on actual database structure)
     // ============================================================
     function initPerformanceDashboard() {
       if (perfInterval) clearInterval(perfInterval);
@@ -1473,71 +1548,144 @@
       let totalRevenue = 0;
       let activeDeliveries = 0;
       let completedOrders = 0;
-      let yesterdayTotal = 0;
+      let fieldLocations = 0;
       
-      const sources = ['fusion_foods_orders', 'dsog_fashion_orders', 'brandinn_bookings', 'pickup_deliveries'];
-      const promises = sources.map(source => {
-        return database.ref(source)
-          .orderByChild('createdAt')
-          .startAt(todayTs)
-          .once('value')
-          .then(snapshot => {
-            const data = snapshot.val() || {};
-            const values = Object.values(data);
-            
-            values.forEach(order => {
-              totalOrders++;
-              totalRevenue += order.total || order.amount || 0;
-              if (order.status === 'active' || order.status === 'assigned' || order.status === 'out-for-delivery' || order.status === 'en-route') {
-                activeDeliveries++;
-              }
-              if (order.status === 'completed' || order.status === 'delivered' || order.status === 'confirmed') {
-                completedOrders++;
-              }
-            });
+      // Track which sources we've counted
+      let sourceCount = 0;
+      const totalSources = 4;
+      
+      // Source 1: Fusion Foods Orders
+      database.ref('fusion_foods_orders')
+        .orderByChild('createdAt')
+        .startAt(todayTs)
+        .once('value')
+        .then(snapshot => {
+          const data = snapshot.val() || {};
+          const values = Object.values(data);
+          values.forEach(order => {
+            totalOrders++;
+            totalRevenue += order.total || order.subtotal || 0;
+            if (order.status === 'assigned' || order.status === 'out-for-delivery' || order.status === 'started') {
+              activeDeliveries++;
+            }
+            if (order.status === 'delivered' || order.status === 'completed') {
+              completedOrders++;
+            }
           });
-      });
+          sourceCount++;
+          checkComplete();
+        })
+        .catch(() => { sourceCount++; checkComplete(); });
       
-      Promise.all(promises).then(() => {
-        document.getElementById('todayOrders').textContent = totalOrders;
-        document.getElementById('todayRevenue').textContent = `KES ${totalRevenue.toLocaleString()}`;
-        document.getElementById('activeDeliveries').textContent = activeDeliveries;
-        
-        const rate = totalOrders > 0 ? Math.round((completedOrders / totalOrders) * 100) : 0;
-        document.getElementById('completionRate').textContent = `${rate}%`;
-        
-        // Calculate changes (simplified - would need yesterday's data)
-        const orderChange = document.getElementById('orderChange');
-        const revenueChange = document.getElementById('revenueChange');
-        const deliveryChange = document.getElementById('deliveryChange');
-        const rateChange = document.getElementById('rateChange');
-        
-        // Animate changes
-        animateChange(orderChange, totalOrders, 5);
-        animateChange(revenueChange, totalRevenue, 1000);
-        animateChange(deliveryChange, activeDeliveries, 2);
-        animateChange(rateChange, rate, 10);
-      }).catch(() => {
-        // Use fallback values
-      });
-    }
-
-    function animateChange(el, value, target) {
-      const diff = value - target;
-      if (diff > 0) {
-        el.textContent = `+${diff > 1000 ? (diff/1000).toFixed(1)+'k' : diff}`;
-        el.className = 'perf-change positive';
-      } else if (diff < 0) {
-        el.textContent = `${diff > -1000 ? diff : (diff/1000).toFixed(1)+'k'}`;
-        el.className = 'perf-change negative';
-      } else {
-        el.textContent = 'No change';
-        el.className = 'perf-change';
+      // Source 2: DSOG Fashion Orders
+      database.ref('dsog_fashion_orders')
+        .orderByChild('createdAt')
+        .startAt(todayTs)
+        .once('value')
+        .then(snapshot => {
+          const data = snapshot.val() || {};
+          const values = Object.values(data);
+          values.forEach(order => {
+            totalOrders++;
+            totalRevenue += order.total || order.subtotal || 0;
+            if (order.status === 'assigned' || order.status === 'out-for-delivery') {
+              activeDeliveries++;
+            }
+            if (order.status === 'delivered' || order.status === 'completed') {
+              completedOrders++;
+            }
+          });
+          sourceCount++;
+          checkComplete();
+        })
+        .catch(() => { sourceCount++; checkComplete(); });
+      
+      // Source 3: Pickup Deliveries
+      database.ref('pickup_deliveries')
+        .orderByChild('createdAt')
+        .startAt(todayTs)
+        .once('value')
+        .then(snapshot => {
+          const data = snapshot.val() || {};
+          const values = Object.values(data);
+          values.forEach(order => {
+            totalOrders++;
+            totalRevenue += order.fare?.total || order.fare || 0;
+            if (order.status === 'assigned' || order.status === 'out-for-delivery' || order.status === 'en-route') {
+              activeDeliveries++;
+            }
+            if (order.status === 'delivered' || order.status === 'completed') {
+              completedOrders++;
+            }
+          });
+          sourceCount++;
+          checkComplete();
+        })
+        .catch(() => { sourceCount++; checkComplete(); });
+      
+      // Source 4: Field Locations
+      database.ref('iam_mugera_registrations')
+        .once('value')
+        .then(snapshot => {
+          const data = snapshot.val() || {};
+          fieldLocations = Object.values(data).filter(b => b.lat && b.lng).length;
+          sourceCount++;
+          checkComplete();
+        })
+        .catch(() => { sourceCount++; checkComplete(); });
+      
+      function checkComplete() {
+        if (sourceCount >= totalSources) {
+          // Update UI
+          document.getElementById('todayOrders').textContent = totalOrders;
+          document.getElementById('todayRevenue').textContent = `KES ${totalRevenue.toLocaleString()}`;
+          document.getElementById('activeDeliveries').textContent = activeDeliveries;
+          document.getElementById('fieldLocations').textContent = fieldLocations;
+          
+          const rate = totalOrders > 0 ? Math.round((completedOrders / totalOrders) * 100) : 0;
+          
+          // Calculate changes (simplified - compare with previous values stored)
+          const prevOrders = parseInt(localStorage.getItem('kazinni_prev_orders') || '0');
+          const prevRevenue = parseInt(localStorage.getItem('kazinni_prev_revenue') || '0');
+          const prevDeliveries = parseInt(localStorage.getItem('kazinni_prev_deliveries') || '0');
+          const prevFields = parseInt(localStorage.getItem('kazinni_prev_fields') || '0');
+          
+          // Store current for next comparison
+          localStorage.setItem('kazinni_prev_orders', totalOrders.toString());
+          localStorage.setItem('kazinni_prev_revenue', totalRevenue.toString());
+          localStorage.setItem('kazinni_prev_deliveries', activeDeliveries.toString());
+          localStorage.setItem('kazinni_prev_fields', fieldLocations.toString());
+          
+          // Update change indicators
+          document.getElementById('orderChange').textContent = formatChange(totalOrders - prevOrders);
+          document.getElementById('orderChange').className = `perf-change ${getChangeClass(totalOrders - prevOrders)}`;
+          
+          document.getElementById('revenueChange').textContent = formatChange(totalRevenue - prevRevenue);
+          document.getElementById('revenueChange').className = `perf-change ${getChangeClass(totalRevenue - prevRevenue)}`;
+          
+          document.getElementById('deliveryChange').textContent = formatChange(activeDeliveries - prevDeliveries);
+          document.getElementById('deliveryChange').className = `perf-change ${getChangeClass(activeDeliveries - prevDeliveries)}`;
+          
+          document.getElementById('fieldChange').textContent = formatChange(fieldLocations - prevFields);
+          document.getElementById('fieldChange').className = `perf-change ${getChangeClass(fieldLocations - prevFields)}`;
+        }
       }
     }
 
+    function formatChange(value) {
+      if (value > 0) return `+${value}`;
+      if (value < 0) return `${value}`;
+      return 'No change';
+    }
+
+    function getChangeClass(value) {
+      if (value > 0) return 'positive';
+      if (value < 0) return 'negative';
+      return 'neutral';
+    }
+
     // ============================================================
-    // LIVE ACTIVITY FEED
+    // LIVE ACTIVITY FEED (Based on actual database structure)
     // ============================================================
     function initActivityFeed() {
       const feed = document.getElementById('activityFeed');
@@ -1547,33 +1695,115 @@
       activityListeners.forEach(l => l());
       activityListeners = [];
       
-      // Clear feed except placeholder
-      feed.innerHTML = '<div class="notif-empty">Waiting for activity...</div>';
+      feed.innerHTML = '<div class="notif-empty">⏳ Waiting for activity...</div>';
       
+      // Sources that actually exist in your database
       const sources = [
-        { path: 'fusion_foods_orders', type: '🍽️ Fusion Foods', color: '#10b981' },
-        { path: 'dsog_fashion_orders', type: '👗 DSOG Fashion', color: '#8b5cf6' },
-        { path: 'brandinn_bookings', type: '📋 BrandInn', color: '#ca8a04' },
-        { path: 'pickup_deliveries', type: '📦 Pick-Up', color: '#3b82f6' }
+        { 
+          path: 'fusion_foods_orders', 
+          type: '🍽️ Fusion Foods', 
+          color: '#10b981',
+          getInfo: (data) => {
+            const name = data.restaurantName || data.contactPerson || 'Restaurant';
+            const status = data.status || 'pending';
+            const actions = {
+              'delivered': 'delivered to',
+              'assigned': 'assigned to driver',
+              'cancelled': 'cancelled order for',
+              'started': 'started preparing'
+            };
+            return { name, action: actions[status] || 'ordered from', target: name };
+          }
+        },
+        { 
+          path: 'dsog_fashion_orders', 
+          type: '👗 DSOG Fashion', 
+          color: '#8b5cf6',
+          getInfo: (data) => {
+            const name = data.customerName || 'Customer';
+            const status = data.status || 'pending';
+            const actions = {
+              'delivered': 'received delivery from',
+              'assigned': 'assigned to',
+              'shipped': 'shipped to'
+            };
+            const target = status === 'assigned' ? data.driverName || 'driver' : 'DSOG';
+            return { name, action: actions[status] || 'ordered from', target };
+          }
+        },
+        { 
+          path: 'brandinn_bookings', 
+          type: '📋 BrandInn', 
+          color: '#ca8a04',
+          getInfo: (data) => {
+            const name = data.clientName || 'Client';
+            const status = data.status || 'pending';
+            const actions = {
+              'completed': 'completed booking for',
+              'confirmed': 'confirmed booking for',
+              'scheduled': 'scheduled'
+            };
+            return { name, action: actions[status] || 'booked', target: data.bookingType || 'consultation' };
+          }
+        },
+        { 
+          path: 'pickup_deliveries', 
+          type: '📦 Pick-Up', 
+          color: '#3b82f6',
+          getInfo: (data) => {
+            const name = data.userName || data.customer?.name || 'Customer';
+            const status = data.status || 'pending';
+            const actions = {
+              'delivered': 'delivered to',
+              'assigned': 'assigned to',
+              'cancelled': 'cancelled pickup for'
+            };
+            const target = status === 'assigned' ? data.assignedName || 'driver' : 'pickup';
+            return { name, action: actions[status] || 'requested', target };
+          }
+        },
+        { 
+          path: 'mugs_n_dines_orders', 
+          type: '🍔 Mugs N Dines', 
+          color: '#f59e0b',
+          getInfo: (data) => {
+            const name = data.customerName || 'Customer';
+            const status = data.status || 'pending';
+            const actions = {
+              'delivered': 'delivered to',
+              'dispatched': 'dispatched to',
+              'ready': 'prepared for'
+            };
+            return { name, action: actions[status] || 'ordered', target: 'meal' };
+          }
+        }
       ];
       
       sources.forEach(source => {
         const ref = database.ref(source.path);
         const listener = ref.orderByChild('createdAt')
-          .limitToLast(5)
+          .limitToLast(10)
           .on('child_added', (snapshot) => {
             const data = snapshot.val();
-            const id = snapshot.key;
-            // Only show recent items (last 10 minutes for instant feel)
-            const timestamp = data.createdAt || data.timestamp || Date.now();
-            if (Date.now() - timestamp < 600000) { // 10 minutes
-              addActivityItem({
-                id: id,
-                type: source.type,
-                color: source.color,
-                data: data,
-                timestamp: timestamp
-              });
+            const timestamp = data.createdAt || data.timestamp || data.bookingDate || Date.now();
+            
+            // Only show recent activity (last 5 minutes for live feel)
+            if (Date.now() - timestamp < 300000) {
+              try {
+                const info = source.getInfo(data);
+                addActivityItem({
+                  id: snapshot.key,
+                  type: source.type,
+                  color: source.color,
+                  name: info.name || 'Someone',
+                  action: info.action || 'updated',
+                  target: info.target || '',
+                  timestamp: timestamp,
+                  raw: data
+                });
+              } catch (e) {
+                // Skip malformed entries
+              }
             }
           });
         activityListeners.push(() => ref.off('child_added', listener));
@@ -1588,60 +1818,26 @@
       const empty = feed.querySelector('.notif-empty');
       if (empty) empty.remove();
       
-      const name = activity.data.customerName || activity.data.clientName || activity.data.userName || 'Someone';
-      const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
-      
-      let action = 'updated';
-      let target = '';
-      if (activity.data.status) {
-        const statusMap = {
-          'completed': 'completed',
-          'delivered': 'delivered',
-          'assigned': 'assigned',
-          'confirmed': 'confirmed',
-          'scheduled': 'scheduled',
-          'out-for-delivery': 'started delivery'
-        };
-        action = statusMap[activity.data.status] || activity.data.status;
-        if (activity.data.driverName) {
-          target = `to ${activity.data.driverName}`;
-        } else if (activity.data.restaurantName) {
-          target = `for ${activity.data.restaurantName}`;
-        }
-      }
+      const initials = activity.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) || '?';
       
       const item = document.createElement('div');
       item.className = 'activity-item gold-reveal';
       item.innerHTML = `
         <div class="activity-avatar" style="background:${activity.color}">${initials}</div>
         <div class="activity-content">
-          <span class="user">${escapeHtml(name)}</span>
-          <span class="action"> ${escapeHtml(action)}</span>
-          <span class="target">${target ? escapeHtml(target) : escapeHtml(activity.type)}</span>
+          <span class="user">${escapeHtml(activity.name)}</span>
+          <span class="action"> ${escapeHtml(activity.action)}</span>
+          ${activity.target ? `<span class="target">${escapeHtml(activity.target)}</span>` : `<span class="target">${escapeHtml(activity.type)}</span>`}
         </div>
         <span class="activity-time">${timeAgo(activity.timestamp)}</span>
       `;
       
-      // Insert at top and keep max 10 items
       feed.insertBefore(item, feed.firstChild);
-      while (feed.children.length > 10) {
+      
+      // Keep max 8 items
+      while (feed.children.length > 8) {
         feed.removeChild(feed.lastChild);
       }
-    }
-
-    function escapeHtml(text) {
-      const div = document.createElement('div');
-      div.textContent = text;
-      return div.innerHTML;
-    }
-
-    function timeAgo(timestamp) {
-      const seconds = Math.floor((Date.now() - timestamp) / 1000);
-      if (seconds < 10) return 'just now';
-      if (seconds < 60) return `${seconds}s ago`;
-      if (seconds < 3600) return `${Math.floor(seconds/60)}m ago`;
-      if (seconds < 86400) return `${Math.floor(seconds/3600)}h ago`;
-      return `${Math.floor(seconds/86400)}d ago`;
     }
 
     // ============================================================
@@ -1650,7 +1846,6 @@
     function initNotifications(user) {
       if (!user) return;
       
-      // Clear existing listeners
       notifListeners.forEach(l => l());
       notifListeners = [];
       
@@ -1665,13 +1860,11 @@
           const entries = Object.entries(data);
           const unreadCount = entries.length;
           
-          // Update badge
           if (badge) {
             badge.textContent = unreadCount;
             badge.className = `notification-badge ${unreadCount > 0 ? 'show' : ''}`;
           }
           
-          // Update dropdown
           if (notifList) {
             if (unreadCount === 0) {
               notifList.innerHTML = '<div class="notif-empty">All caught up! 🎉</div>';
@@ -1717,7 +1910,6 @@
         .then(() => showToast('All notifications marked as read', 'success'));
     }
 
-    // Click outside to close notifications
     document.addEventListener('click', function(e) {
       const wrapper = document.querySelector('.notification-wrapper');
       if (wrapper && !wrapper.contains(e.target)) {
@@ -1727,7 +1919,7 @@
     });
 
     // ============================================================
-    // QUICK ACTIONS
+    // QUICK ACTIONS (Realistic based on actual capabilities)
     // ============================================================
     function quickAction(action) {
       if (!currentUser) {
@@ -1738,21 +1930,42 @@
       
       const actions = {
         'new-order': () => {
-          showToast('Opening new order form...', 'info');
-          // Redirect or open modal
+          showToast('📦 Opening order form...', 'info');
           setTimeout(() => window.location.href = 'workspaces.html', 500);
         },
         'track-delivery': () => {
-          showToast('Opening delivery tracker...', 'info');
-          setTimeout(() => window.location.href = 'workspaces.html?tab=deliveries', 500);
+          showToast('🚚 Checking active deliveries...', 'info');
+          // Check if there are active deliveries
+          let found = false;
+          const sources = ['fusion_foods_orders', 'dsog_fashion_orders', 'pickup_deliveries'];
+          let checked = 0;
+          
+          sources.forEach(source => {
+            database.ref(source)
+              .orderByChild('status')
+              .equalTo('assigned')
+              .limitToFirst(1)
+              .once('value', snap => {
+                if (snap.exists()) found = true;
+                checked++;
+                if (checked === sources.length) {
+                  if (found) {
+                    showToast('🚚 Active deliveries found! Opening tracker...', 'success');
+                    setTimeout(() => window.location.href = 'workspaces.html?tab=deliveries', 500);
+                  } else {
+                    showToast('No active deliveries at the moment', 'info');
+                  }
+                }
+              });
+          });
+        },
+        'field-registration': () => {
+          showToast('📍 Opening field registration...', 'info');
+          setTimeout(() => window.location.href = 'workspaces.html?tab=field', 500);
         },
         'view-reports': () => {
-          showToast('Loading reports...', 'info');
+          showToast('📊 Loading dashboard...', 'info');
           setTimeout(() => window.location.href = 'dashboard.html', 500);
-        },
-        'add-client': () => {
-          showToast('Opening client form...', 'info');
-          setTimeout(() => window.location.href = 'profile.html?action=add-client', 500);
         }
       };
       
@@ -1763,18 +1976,16 @@
     // KEYBOARD SHORTCUTS
     // ============================================================
     document.addEventListener('keydown', (e) => {
-      // Ctrl + 1-4 for quick actions
       if (e.ctrlKey) {
         switch(e.key) {
           case '1': e.preventDefault(); quickAction('new-order'); break;
           case '2': e.preventDefault(); quickAction('track-delivery'); break;
-          case '3': e.preventDefault(); quickAction('view-reports'); break;
-          case '4': e.preventDefault(); quickAction('add-client'); break;
+          case '3': e.preventDefault(); quickAction('field-registration'); break;
+          case '4': e.preventDefault(); quickAction('view-reports'); break;
           case 'd': e.preventDefault(); toggleUserDropdown(); break;
         }
       }
       
-      // Escape to close modals
       if (e.key === 'Escape') {
         closeAuthModal();
         const notifDropdown = document.getElementById('notifDropdown');
@@ -1793,16 +2004,15 @@
           <h4>⌨️ Keyboard Shortcuts</h4>
           <div><kbd>Ctrl+1</kbd> New Order</div>
           <div><kbd>Ctrl+2</kbd> Track Delivery</div>
-          <div><kbd>Ctrl+3</kbd> View Reports</div>
-          <div><kbd>Ctrl+4</kbd> Add Client</div>
+          <div><kbd>Ctrl+3</kbd> Field Registration</div>
+          <div><kbd>Ctrl+4</kbd> View Reports</div>
           <div><kbd>Ctrl+D</kbd> Profile Menu</div>
           <div><kbd>Esc</kbd> Close Dialogs</div>
-          <button onclick="this.parentElement.parentElement.remove()" style="margin-top:0.5rem;background:var(--gold);color:white;border:none;padding:0.2rem 0.8rem;border-radius:4px;cursor:pointer;font-size:0.7rem;">Got it!</button>
+          <button class="dismiss-hint" onclick="this.parentElement.remove()">Got it!</button>
         `;
         document.body.appendChild(hint);
         sessionStorage.setItem('shortcuts_shown', 'true');
         
-        // Auto dismiss after 8 seconds
         setTimeout(() => {
           if (hint.parentElement) hint.remove();
         }, 8000);
@@ -1905,7 +2115,7 @@
           </div>
         `;
       } catch(e) {
-        // Fallback
+        // Fallback to existing
       }
     }
 
@@ -1940,13 +2150,22 @@
 
       setTimeout(() => { if (overviewMap) overviewMap.invalidateSize(); }, 300);
       updateMapData();
+      
+      if (mapUpdateInterval) clearInterval(mapUpdateInterval);
+      mapUpdateInterval = setInterval(updateMapData, 30000);
     }
 
     function getOperationColor(operation) {
       const colors = {
-        brandinn: '#7c3aed', deliveries: '#f59e0b', rides: '#22c55e',
-        dsog: '#ec4899', mugsndines: '#8b5cf6', heritage: '#d946ef',
-        workfit: '#f97316', fusion: '#10b981', hekima: '#10b981'
+        brandinn: '#7c3aed', 
+        deliveries: '#f59e0b', 
+        rides: '#22c55e',
+        dsog: '#ec4899', 
+        mugsndines: '#8b5cf6', 
+        heritage: '#d946ef',
+        workfit: '#f97316', 
+        fusion: '#10b981', 
+        hekima: '#10b981'
       };
       return colors[operation] || '#ca8a04';
     }
@@ -1968,7 +2187,7 @@
           businesses.forEach(biz => {
             const color = getOperationColor(biz.operation);
             
-            // Create pulsing marker
+            // Main marker
             const marker = L.circleMarker([biz.lat, biz.lng], {
               radius: 6,
               fillColor: color,
@@ -1978,7 +2197,7 @@
               fillOpacity: 0.8
             }).addTo(overviewMap);
             
-            // Add pulse ring
+            // Pulse ring
             const ring = L.circleMarker([biz.lat, biz.lng], {
               radius: 12,
               fillColor: color,
@@ -1989,10 +2208,13 @@
             }).addTo(overviewMap);
             
             // Animate pulse
-            setInterval(() => {
+            let pulseId = setInterval(() => {
               const r = 12 + Math.sin(Date.now() / 1000) * 4;
               ring.setRadius(r);
             }, 50);
+            
+            // Store reference to clear later
+            ring._pulseId = pulseId;
 
             mapMarkers.push(marker);
             mapMarkers.push(ring);
@@ -2018,7 +2240,7 @@
     // CONFETTI CELEBRATION
     // ============================================================
     function celebrateMilestone(type) {
-      const colors = ['#ca8a04', '#fbbf24', '#fef3c7', '#ffd700', '#8b5cf6', '#10b981'];
+      const colors = ['#ca8a04', '#fbbf24', '#fef3c7', '#ffd700', '#8b5cf6', '#10b981', '#3b82f6', '#ec4899'];
       const canvas = document.createElement('canvas');
       canvas.style.cssText = `
         position: fixed;
@@ -2033,19 +2255,25 @@
       
       const ctx = canvas.getContext('2d');
       let particles = [];
-      const duration = 2000;
+      const duration = 2500;
       const startTime = performance.now();
       
-      for (let i = 0; i < 60; i++) {
+      const shapes = ['circle', 'rect', 'triangle'];
+      
+      for (let i = 0; i < 70; i++) {
+        const shape = shapes[Math.floor(Math.random() * shapes.length)];
         particles.push({
           x: Math.random() * canvas.width,
-          y: Math.random() * canvas.height - canvas.height,
-          vx: (Math.random() - 0.5) * 12,
+          y: Math.random() * canvas.height - canvas.height * 0.5,
+          vx: (Math.random() - 0.5) * 15,
           vy: Math.random() * 12 + 4,
           color: colors[Math.floor(Math.random() * colors.length)],
           size: Math.random() * 10 + 4,
           rotation: Math.random() * 360,
-          rotSpeed: (Math.random() - 0.5) * 10
+          rotSpeed: (Math.random() - 0.5) * 15,
+          shape: shape,
+          wobble: Math.random() * Math.PI * 2,
+          wobbleSpeed: (Math.random() - 0.5) * 0.1
         });
       }
       
@@ -2056,22 +2284,38 @@
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         
         particles.forEach(p => {
-          p.x += p.vx;
+          p.x += p.vx + Math.sin(p.wobble) * 0.5;
           p.y += p.vy;
           p.vy += 0.15;
-          p.size *= 0.99;
+          p.size *= 0.995;
           p.rotation += p.rotSpeed;
+          p.wobble += p.wobbleSpeed;
           
           ctx.save();
           ctx.translate(p.x, p.y);
           ctx.rotate(p.rotation * Math.PI / 180);
+          ctx.globalAlpha = 1 - progress * 1.2;
           ctx.fillStyle = p.color;
-          ctx.globalAlpha = 1 - progress;
-          ctx.fillRect(-p.size/2, -p.size/4, p.size, p.size/2);
+          
+          if (p.shape === 'circle') {
+            ctx.beginPath();
+            ctx.arc(0, 0, p.size/2, 0, Math.PI * 2);
+            ctx.fill();
+          } else if (p.shape === 'rect') {
+            ctx.fillRect(-p.size/2, -p.size/4, p.size, p.size/2);
+          } else {
+            ctx.beginPath();
+            ctx.moveTo(0, -p.size/2);
+            ctx.lineTo(-p.size/2, p.size/2);
+            ctx.lineTo(p.size/2, p.size/2);
+            ctx.closePath();
+            ctx.fill();
+          }
+          
           ctx.restore();
         });
         
-        if (progress < 1) {
+        if (progress < 1 && particles.some(p => p.size > 0.5)) {
           requestAnimationFrame(animate);
         } else {
           canvas.remove();
@@ -2082,7 +2326,7 @@
     }
 
     function checkMilestones(user) {
-      // Check if this is first login
+      // First login celebration
       const firstLogin = localStorage.getItem('kazinni_first_login');
       if (!firstLogin) {
         localStorage.setItem('kazinni_first_login', 'true');
@@ -2092,11 +2336,46 @@
         }, 1000);
       }
       
-      // Check if user has completed 10+ orders (would need to fetch from DB)
-      // This is a simplified check
-      setTimeout(() => {
-        // You could add more milestone checks here
-      }, 2000);
+      // Check if user has completed orders (based on their involvement)
+      if (user) {
+        setTimeout(() => {
+          database.ref(`users/${user.uid}/orders`).once('value')
+            .then(snap => {
+              const orders = snap.val() || {};
+              const orderCount = Object.keys(orders).length;
+              
+              // Celebrate first order milestone
+              if (orderCount >= 1 && !localStorage.getItem('kazinni_first_order_celebrated')) {
+                localStorage.setItem('kazinni_first_order_celebrated', 'true');
+                setTimeout(() => {
+                  celebrateMilestone('first-order');
+                  showToast('🎉 Congrats on your first order!', 'success');
+                }, 500);
+              }
+            })
+            .catch(() => {});
+        }, 2000);
+      }
+    }
+
+    // ============================================================
+    // UTILITY FUNCTIONS
+    // ============================================================
+    function escapeHtml(text) {
+      if (!text) return '';
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function timeAgo(timestamp) {
+      const seconds = Math.floor((Date.now() - timestamp) / 1000);
+      if (seconds < 10) return 'just now';
+      if (seconds < 60) return `${seconds}s ago`;
+      if (seconds < 3600) return `${Math.floor(seconds/60)}m ago`;
+      if (seconds < 86400) return `${Math.floor(seconds/3600)}h ago`;
+      if (seconds < 604800) return `${Math.floor(seconds/86400)}d ago`;
+      return `${Math.floor(seconds/604800)}w ago`;
     }
 
     // ============================================================
@@ -2136,9 +2415,8 @@
         await auth.signInWithEmailAndPassword(email, password);
         showToast('Welcome back!', 'success');
         closeAuthModal();
-        // Trigger celebration on login
         setTimeout(() => {
-          if (Math.random() > 0.7) { // 30% chance to celebrate
+          if (Math.random() > 0.6) {
             celebrateMilestone('login');
           }
         }, 500);
@@ -2191,14 +2469,8 @@
       // Update progress every minute
       setInterval(updateDailyProgress, 60000);
       
-      // Refresh map data every 30 seconds
-      setInterval(updateMapData, 30000);
-      
-      // Refresh active users every 30 seconds
-      setInterval(loadActiveUsers, 30000);
-      
-      // Refresh stats every minute
-      setInterval(loadStats, 60000);
+      // Stats refresh every minute
+      statsInterval = setInterval(loadStats, 60000);
     });
 
     // Set deploy date
