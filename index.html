@@ -110,6 +110,10 @@
       33% { background: radial-gradient(circle at 100% 0%, #fef3c7 0%, #ffffff 50%, #faf9f7 100%); }
       66% { background: radial-gradient(circle at 100% 100%, #fffbeb 0%, #ffffff 50%, #faf9f7 100%); }
     }
+    @keyframes cardFloat {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-4px); }
+    }
 
     body {
       animation: goldMorph 24s ease-in-out infinite;
@@ -152,114 +156,62 @@
       font-family: var(--font-display); letter-spacing: -0.5px;
     }
 
-    /* ===== NOTIFICATION BELL ===== */
-    .notification-wrapper {
-      position: relative;
-      display: inline-block;
-    }
-    .notification-btn {
-      background: none;
-      border: none;
-      font-size: 1.2rem;
-      color: var(--text-secondary);
-      cursor: pointer;
-      position: relative;
-      padding: 0.5rem;
-      transition: color 0.3s;
-    }
-    .notification-btn:hover { color: var(--gold); }
-    .notification-badge {
-      position: absolute;
-      top: 0;
-      right: 0;
-      background: var(--danger);
-      color: white;
-      font-size: 0.6rem;
-      padding: 0.1rem 0.4rem;
-      border-radius: 50%;
-      font-weight: 700;
-      min-width: 18px;
-      height: 18px;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      animation: pulse-glow 2s infinite;
-    }
-    .notification-badge.show { display: flex; }
-    .notification-dropdown {
-      position: absolute;
-      right: 0;
-      top: calc(100% + 8px);
-      width: 340px;
-      background: white;
-      border-radius: 16px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.15);
-      border: 1px solid var(--border-light);
-      display: none;
-      z-index: 1000;
-      max-height: 400px;
-      overflow: hidden;
-    }
-    .notification-dropdown.active { display: block; animation: fadeInUp 0.2s ease; }
-    .notif-header {
+    /* ===== NAV LINKS (Quick Access) ===== */
+    .nav-links {
       display: flex;
-      justify-content: space-between;
+      gap: 2rem;
       align-items: center;
-      padding: 0.8rem 1rem;
-      border-bottom: 1px solid var(--border-light);
-      font-weight: 600;
+    }
+    .nav-link {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
       font-family: var(--font-heading);
+      transition: all 0.3s ease;
+      position: relative;
+      padding: 0.3rem 0;
     }
-    .notif-header button {
-      background: none;
-      border: none;
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 0;
+      height: 2.5px;
+      background: var(--gold-gradient);
+      border-radius: 2px;
+      transition: width 0.3s cubic-bezier(0.4,0,0.2,1);
+    }
+    .nav-link:hover::after,
+    .nav-link.active::after {
+      width: 100%;
+    }
+    .nav-link:hover,
+    .nav-link.active {
       color: var(--gold);
-      font-size: 0.7rem;
-      cursor: pointer;
-      font-weight: 600;
     }
-    #notifList {
-      max-height: 320px;
-      overflow-y: auto;
-    }
-    #notifList::-webkit-scrollbar { width: 4px; }
-    #notifList::-webkit-scrollbar-track { background: var(--bg-secondary); border-radius: 4px; }
-    #notifList::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 4px; }
-    .notif-item {
-      padding: 0.8rem 1rem;
-      border-bottom: 1px solid var(--border-light);
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    .notif-item:hover { background: var(--bg-secondary); }
-    .notif-item.unread { border-left: 3px solid var(--gold); }
-    .notif-item .notif-title { font-weight: 600; font-size: 0.85rem; }
-    .notif-item .notif-time { font-size: 0.7rem; color: var(--text-muted); }
-    .notif-empty {
-      padding: 2rem;
-      text-align: center;
-      color: var(--text-muted);
-      font-size: 0.85rem;
+    .nav-link i {
+      margin-right: 0.4rem;
+      font-size: 0.8rem;
     }
 
-    /* ===== BUTTONS ===== */
-    .btn {
-      padding: 0.65rem 1.6rem; border: none; border-radius: 50px;
-      font-weight: 600; font-size: 0.9rem; cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.4,0,0.2,1); text-decoration: none;
-      display: inline-flex; align-items: center; gap: 0.5rem;
+    .live-indicator {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.7rem;
+      color: var(--success);
+      font-weight: 600;
       font-family: var(--font-heading);
     }
-    .btn-primary {
-      background: var(--gold-gradient); color: white; box-shadow: var(--shadow-gold);
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--success);
+      border-radius: 50%;
+      animation: pulse-glow 2s infinite;
     }
-    .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 15px 45px rgba(202,138,4,0.35); }
-    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-    .btn-large { padding: 0.9rem 2.4rem; font-size: 1rem; }
-    .btn-outline {
-      background: transparent; border: 1.5px solid var(--border-medium); color: var(--text-secondary);
-    }
-    .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
 
     /* ===== USER MENU ===== */
     .user-menu-wrapper {
@@ -356,6 +308,25 @@
       border-top: 1px solid var(--border-light);
       margin: 0.4rem 0.5rem;
     }
+
+    /* ===== BUTTONS ===== */
+    .btn {
+      padding: 0.65rem 1.6rem; border: none; border-radius: 50px;
+      font-weight: 600; font-size: 0.9rem; cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4,0,0.2,1); text-decoration: none;
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      font-family: var(--font-heading);
+    }
+    .btn-primary {
+      background: var(--gold-gradient); color: white; box-shadow: var(--shadow-gold);
+    }
+    .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 15px 45px rgba(202,138,4,0.35); }
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .btn-large { padding: 0.9rem 2.4rem; font-size: 1rem; }
+    .btn-outline {
+      background: transparent; border: 1.5px solid var(--border-medium); color: var(--text-secondary);
+    }
+    .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
 
     /* ===== GREETING ===== */
     .greeting-wrapper {
@@ -541,50 +512,6 @@
       margin-top: 0.1rem;
     }
 
-    /* ===== PERFORMANCE DASHBOARD ===== */
-    .performance-dashboard {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 1rem;
-      margin-bottom: 2rem;
-    }
-    .perf-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-light);
-      border-radius: 16px;
-      padding: 1.2rem;
-      transition: all 0.3s ease;
-      animation: countUp 0.5s ease;
-    }
-    .perf-card:hover {
-      border-color: var(--gold);
-      box-shadow: var(--shadow-sm);
-      transform: translateY(-2px);
-    }
-    .perf-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      font-weight: 600;
-      margin-bottom: 0.5rem;
-    }
-    .perf-value {
-      font-size: 1.6rem;
-      font-weight: 800;
-      font-family: var(--font-display);
-      color: var(--text-primary);
-    }
-    .perf-change {
-      font-size: 0.7rem;
-      font-weight: 600;
-      margin-top: 0.3rem;
-    }
-    .perf-change.positive { color: var(--success); }
-    .perf-change.negative { color: var(--danger); }
-    .perf-change.neutral { color: var(--text-muted); }
-
     /* ===== STATS ROW ===== */
     .stats-row {
       display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2.5rem;
@@ -593,7 +520,12 @@
       background: var(--bg-card); border: 1px solid var(--border-light);
       border-radius: 20px; padding: 1.3rem; text-align: center;
       transition: all 0.3s; box-shadow: var(--shadow-sm);
+      animation: cardFloat 4s ease-in-out infinite;
     }
+    .stat-card:nth-child(1) { animation-delay: 0s; }
+    .stat-card:nth-child(2) { animation-delay: 0.1s; }
+    .stat-card:nth-child(3) { animation-delay: 0.2s; }
+    .stat-card:nth-child(4) { animation-delay: 0.3s; }
     .stat-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); border-color: var(--gold); }
     .stat-icon {
       width: 44px; height: 44px; border-radius: 14px;
@@ -613,48 +545,8 @@
       margin-top: 0.15rem;
     }
     .stat-badge.online { background: #d1fae5; color: #065f46; }
-    .stat-badge.busy { background: #fee2e2; color: #991b1b; }
-    .stat-badge.away { background: #fef3c7; color: #92400e; }
-    .stat-badge.offline { background: #f3f4f6; color: #4b5563; }
 
-    /* ===== QUICK ACTIONS ===== */
-    .quick-actions {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 1rem;
-      margin-bottom: 2rem;
-    }
-    .quick-action {
-      background: var(--bg-card);
-      border: 1px solid var(--border-light);
-      border-radius: 16px;
-      padding: 1.2rem;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      font-family: var(--font-body);
-      text-decoration: none;
-      color: var(--text-primary);
-    }
-    .quick-action:hover {
-      transform: translateY(-4px);
-      border-color: var(--gold);
-      box-shadow: var(--shadow-gold);
-    }
-    .quick-action:active { transform: scale(0.95); }
-    .quick-action i {
-      font-size: 1.6rem;
-      color: var(--gold);
-      display: block;
-      margin-bottom: 0.5rem;
-    }
-    .quick-action span {
-      font-size: 0.8rem;
-      font-weight: 600;
-      color: var(--text-secondary);
-    }
-
-    /* ===== ACTIVITY FEED ===== */
+    /* ===== RECENT ACTIVITY ===== */
     .section-header {
       display: flex; align-items: center; gap: 0.8rem;
       margin-bottom: 1.2rem;
@@ -669,7 +561,7 @@
       border: 1px solid var(--border-light);
       border-radius: 20px;
       padding: 0.5rem;
-      max-height: 200px;
+      max-height: 280px;
       overflow-y: auto;
       margin-bottom: 2rem;
       scroll-behavior: smooth;
@@ -702,19 +594,56 @@
     .activity-content {
       flex: 1;
       font-size: 0.85rem;
+      min-width: 0;
     }
-    .activity-content .user { font-weight: 600; }
+    .activity-content .actor { font-weight: 700; }
     .activity-content .action { color: var(--text-secondary); }
-    .activity-content .target { color: var(--gold); font-weight: 600; }
+    .activity-content .workspace { color: var(--gold); font-weight: 600; }
+    .activity-meta {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      margin-top: 0.05rem;
+    }
     .activity-time {
       font-size: 0.7rem;
       color: var(--text-muted);
       flex-shrink: 0;
     }
+    .activity-badge {
+      padding: 0.1rem 0.5rem;
+      border-radius: 20px;
+      font-size: 0.6rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .activity-badge.delivered,
+    .activity-badge.completed,
+    .activity-badge.approved { background: #d1fae5; color: #065f46; }
+    .activity-badge.assigned,
+    .activity-badge.shipped { background: #ede9fe; color: #5b21b6; }
+    .activity-badge.confirmed,
+    .activity-badge.processing,
+    .activity-badge.en-route { background: #dbeafe; color: #1e40af; }
+    .activity-badge.scheduled { background: #fef3c7; color: #92400e; }
+    .activity-badge.cancelled,
+    .activity-badge.revision { background: #fee2e2; color: #991b1b; }
+    .activity-badge.new { background: #f3f4f6; color: #4b5563; }
 
-    /* ===== PORTAL GRID ===== */
+    .activity-empty {
+      text-align: center;
+      padding: 1.5rem;
+      color: var(--text-muted);
+    }
+    .activity-empty i {
+      font-size: 1.5rem;
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    /* ===== QUICK ACCESS GRID ===== */
     .portal-grid {
-      display: grid; grid-template-columns: repeat(4,1fr); gap: 1rem; margin-bottom: 2.5rem;
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2.5rem;
     }
     .portal-card {
       background: var(--bg-card); border: 1px solid var(--border-light);
@@ -723,8 +652,12 @@
       box-shadow: var(--shadow-sm); text-decoration: none; color: inherit;
       display: block;
       animation: cardFloat 4s ease-in-out infinite;
-      animation-delay: calc(var(--card-index, 0) * 0.2s);
     }
+    .portal-card:nth-child(1) { animation-delay: 0s; }
+    .portal-card:nth-child(2) { animation-delay: 0.1s; }
+    .portal-card:nth-child(3) { animation-delay: 0.2s; }
+    .portal-card:nth-child(4) { animation-delay: 0.3s; }
+    
     .portal-card:hover { 
       border-color: var(--gold); 
       box-shadow: var(--shadow-gold); 
@@ -741,11 +674,6 @@
     }
     .portal-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.2rem; font-family: var(--font-heading); }
     .portal-card p { color: var(--text-muted); font-size: 0.8rem; }
-
-    @keyframes cardFloat {
-      0%, 100% { transform: translateY(0px); }
-      50% { transform: translateY(-4px); }
-    }
 
     /* ===== STATUS GRID ===== */
     .status-grid {
@@ -902,20 +830,19 @@
       .map-widget { max-width: 500px; margin: 0 auto; }
       .portal-grid{grid-template-columns:repeat(2,1fr)}
       .stats-row{grid-template-columns:repeat(2,1fr)}
-      .performance-dashboard{grid-template-columns:repeat(2,1fr)}
-      .quick-actions{grid-template-columns:repeat(2,1fr)}
       .status-grid{grid-template-columns:repeat(2,1fr)}
+      .nav-links { gap: 1rem; }
+      .nav-link { font-size: 0.8rem; }
     }
     @media (max-width:768px) {
       .portal-grid{grid-template-columns:1fr}
       .stats-row{grid-template-columns:1fr}
-      .performance-dashboard{grid-template-columns:1fr}
-      .quick-actions{grid-template-columns:1fr}
       .status-grid{grid-template-columns:1fr}
       .footer-content{flex-direction:column;gap:0.8rem;text-align:center}
       .hero-content h1 { font-size: 2rem; }
       .main-content{padding:0 1rem}
       .weather-widget { display: none; }
+      .nav-links { display: none; }
       .greeting-wrapper {
         padding: 0.3rem 1rem 0.3rem 0.5rem;
         flex-wrap: wrap;
@@ -929,8 +856,8 @@
       .greeting-time { font-size: 0.7rem !important; }
       .greeting-name { font-size: 0.85rem !important; }
       .user-menu-btn .user-info .user-email { max-width: 80px; }
-      .notification-dropdown { width: 300px; right: -60px; }
       .daily-progress svg { width: 50px; height: 50px; }
+      .activity-feed { max-height: 200px; }
     }
   </style>
 </head>
@@ -1003,6 +930,15 @@
         <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview-1.png" alt="KazInni">
         <span>KazInni</span>
       </a>
+      
+      <!-- Quick Access Navigation -->
+      <nav class="nav-links">
+        <a href="dashboard.html" class="nav-link active"><i class="fas fa-chart-pie"></i>Dashboard</a>
+        <a href="profile.html" class="nav-link"><i class="fas fa-user"></i>Profile</a>
+        <a href="workspaces.html" class="nav-link"><i class="fas fa-cubes"></i>Workspace</a>
+        <a href="resources.html" class="nav-link"><i class="fas fa-book"></i>Resources</a>
+      </nav>
+      
       <div style="display:flex;align-items:center;gap:0.8rem;">
         <!-- Weather Widget -->
         <div class="weather-widget" id="weatherWidget">
@@ -1010,23 +946,6 @@
           <span class="weather-temp" id="weatherTemp">--°C</span>
           <span class="weather-condition" id="weatherCondition">--</span>
           <span class="weather-location" id="weatherLocation">Nairobi</span>
-        </div>
-        
-        <!-- Notification Bell -->
-        <div class="notification-wrapper">
-          <button class="notification-btn" onclick="toggleNotifications()" title="Notifications">
-            <i class="fas fa-bell"></i>
-            <span class="notification-badge" id="notifBadge">0</span>
-          </button>
-          <div class="notification-dropdown" id="notifDropdown">
-            <div class="notif-header">
-              <span>Notifications</span>
-              <button onclick="markAllRead()">Mark all read</button>
-            </div>
-            <div id="notifList">
-              <div class="notif-empty">No notifications yet</div>
-            </div>
-          </div>
         </div>
         
         <!-- Auth -->
@@ -1092,42 +1011,6 @@
       </div>
     </section>
 
-    <!-- Performance Dashboard -->
-    <div class="performance-dashboard" id="perfDashboard">
-      <div class="perf-card gold-reveal-stagger">
-        <div class="perf-header">
-          <span>Today's Orders</span>
-          <i class="fas fa-shopping-cart" style="color:var(--gold);"></i>
-        </div>
-        <div class="perf-value" id="todayOrders">0</div>
-        <div class="perf-change" id="orderChange">Loading...</div>
-      </div>
-      <div class="perf-card gold-reveal-stagger">
-        <div class="perf-header">
-          <span>Revenue Today</span>
-          <i class="fas fa-coins" style="color:var(--gold);"></i>
-        </div>
-        <div class="perf-value" id="todayRevenue">KES 0</div>
-        <div class="perf-change" id="revenueChange">Loading...</div>
-      </div>
-      <div class="perf-card gold-reveal-stagger">
-        <div class="perf-header">
-          <span>Active Deliveries</span>
-          <i class="fas fa-route" style="color:var(--gold);"></i>
-        </div>
-        <div class="perf-value" id="activeDeliveries">0</div>
-        <div class="perf-change" id="deliveryChange">Loading...</div>
-      </div>
-      <div class="perf-card gold-reveal-stagger">
-        <div class="perf-header">
-          <span>Field Locations</span>
-          <i class="fas fa-map-pin" style="color:var(--gold);"></i>
-        </div>
-        <div class="perf-value" id="fieldLocations">0</div>
-        <div class="perf-change" id="fieldChange">Loading...</div>
-      </div>
-    </div>
-
     <!-- Stats Row -->
     <div class="stats-row" id="statsRow">
       <div class="stat-card gold-reveal-stagger"><div class="skeleton" style="height:44px;width:44px;border-radius:14px;margin:0 auto 0.7rem;"></div><div class="skeleton" style="height:1.7rem;width:50%;margin:0 auto 0.15rem;"></div><div class="skeleton" style="height:0.75rem;width:60%;margin:0 auto;"></div></div>
@@ -1136,38 +1019,17 @@
       <div class="stat-card gold-reveal-stagger"><div class="skeleton" style="height:44px;width:44px;border-radius:14px;margin:0 auto 0.7rem;"></div><div class="skeleton" style="height:1.7rem;width:50%;margin:0 auto 0.15rem;"></div><div class="skeleton" style="height:0.75rem;width:60%;margin:0 auto;"></div></div>
     </div>
 
-    <!-- Quick Actions -->
+    <!-- Recent Activity -->
     <div class="section-header">
-      <i class="fas fa-bolt" style="color:var(--gold);"></i>
-      <h2>Quick Actions</h2>
-    </div>
-    <div class="quick-actions">
-      <button class="quick-action gold-reveal-stagger" onclick="quickAction('new-order')">
-        <i class="fas fa-plus-circle"></i>
-        <span>New Order</span>
-      </button>
-      <button class="quick-action gold-reveal-stagger" onclick="quickAction('track-delivery')">
-        <i class="fas fa-truck"></i>
-        <span>Track Delivery</span>
-      </button>
-      <button class="quick-action gold-reveal-stagger" onclick="quickAction('field-registration')">
-        <i class="fas fa-map-marker-alt"></i>
-        <span>Field Registration</span>
-      </button>
-      <button class="quick-action gold-reveal-stagger" onclick="quickAction('view-reports')">
-        <i class="fas fa-chart-bar"></i>
-        <span>View Reports</span>
-      </button>
-    </div>
-
-    <!-- Live Activity Feed -->
-    <div class="section-header">
-      <i class="fas fa-bolt" style="color:var(--gold);"></i>
-      <h2>Live Activity</h2>
-      <span class="live-badge" style="margin-left:0.5rem;"><div class="live-dot"></div> Live</span>
+      <i class="fas fa-clock-rotate-left" style="color:var(--gold);"></i>
+      <h2>Recent Activity</h2>
+      <span class="live-badge" style="margin-left:0.5rem;"><div class="live-dot"></div> Updated</span>
     </div>
     <div class="activity-feed" id="activityFeed">
-      <div class="notif-empty">⏳ Waiting for activity...</div>
+      <div class="activity-empty">
+        <i class="fas fa-spinner fa-spin"></i>
+        <p>Loading recent activity...</p>
+      </div>
     </div>
 
     <!-- System Status -->
@@ -1206,28 +1068,28 @@
       </div>
     </div>
 
-    <!-- Quick Access -->
+    <!-- Quick Access Cards -->
     <div class="section-header">
       <i class="fas fa-th-large"></i>
       <h2>Quick Access</h2>
     </div>
     <div class="portal-grid">
-      <a href="dashboard.html" class="portal-card gold-reveal-stagger" style="--card-index:0">
-        <div class="portal-icon" style="background:#fef3c7;"><i class="fas fa-tachometer-alt"></i></div>
+      <a href="dashboard.html" class="portal-card gold-reveal-stagger">
+        <div class="portal-icon" style="background:#fef3c7;"><i class="fas fa-chart-pie"></i></div>
         <h3>Dashboard</h3>
         <p>Operations overview & analytics</p>
       </a>
-      <a href="profile.html" class="portal-card gold-reveal-stagger" style="--card-index:1">
+      <a href="profile.html" class="portal-card gold-reveal-stagger">
         <div class="portal-icon" style="background:#ecfdf5;"><i class="fas fa-user-circle"></i></div>
         <h3>Profile</h3>
         <p>Manage your account</p>
       </a>
-      <a href="workspaces.html" class="portal-card gold-reveal-stagger" style="--card-index:2">
+      <a href="workspaces.html" class="portal-card gold-reveal-stagger">
         <div class="portal-icon" style="background:#eff6ff;"><i class="fas fa-cubes"></i></div>
-        <h3>Workspaces</h3>
-        <p>Fusion, DSOG, Heritage, BrandInn</p>
+        <h3>Workspace</h3>
+        <p>Access your workspaces</p>
       </a>
-      <a href="resources.html" class="portal-card gold-reveal-stagger" style="--card-index:3">
+      <a href="resources.html" class="portal-card gold-reveal-stagger">
         <div class="portal-icon" style="background:#fdf2f8;"><i class="fas fa-book-open"></i></div>
         <h3>Resources</h3>
         <p>Guides, tools & training</p>
@@ -1265,11 +1127,7 @@
     let overviewMap = null;
     let mapMarkers = [];
     let currentUser = null;
-    let notifListeners = [];
-    let activityListeners = [];
-    let perfInterval = null;
-    let statsInterval = null;
-    let mapUpdateInterval = null;
+    let activityInterval = null;
 
     // ============================================================
     // TOAST SYSTEM
@@ -1295,20 +1153,17 @@
         currentUser = user;
         renderAuthenticatedUI(user);
         updateHeroGreeting(user);
-        initNotifications(user);
-        initPerformanceDashboard();
-        initActivityFeed();
-        loadActiveUsers();
         loadStats();
+        loadRecentActivity();
         updateMapData();
         updateDailyProgress();
-        checkMilestones(user);
+        updateWeather();
       } else {
         currentUser = null;
         renderUnauthenticatedUI();
         updateHeroGreeting(null);
-        loadActiveUsers();
-        clearListeners();
+        loadStats();
+        loadRecentActivity();
       }
     });
 
@@ -1328,13 +1183,16 @@
           </button>
           <div class="user-dropdown-menu" id="userDropdownMenu">
             <a href="dashboard.html" class="dropdown-item">
-              <i class="fas fa-tachometer-alt" style="width:20px;"></i> Dashboard
+              <i class="fas fa-chart-pie" style="width:20px;"></i> Dashboard
             </a>
             <a href="profile.html" class="dropdown-item">
               <i class="fas fa-user" style="width:20px;"></i> Profile
             </a>
             <a href="workspaces.html" class="dropdown-item">
-              <i class="fas fa-cubes" style="width:20px;"></i> Workspaces
+              <i class="fas fa-cubes" style="width:20px;"></i> Workspace
+            </a>
+            <a href="resources.html" class="dropdown-item">
+              <i class="fas fa-book" style="width:20px;"></i> Resources
             </a>
             <div class="divider"></div>
             <button class="dropdown-item danger" onclick="handleSignOut()">
@@ -1387,22 +1245,10 @@
         showToast('Signed out successfully', 'info');
         renderUnauthenticatedUI();
         updateHeroGreeting(null);
-        loadActiveUsers();
-        clearListeners();
       } catch (error) {
         console.error('Sign out error:', error);
         showToast('Error signing out', 'error');
       }
-    }
-
-    function clearListeners() {
-      if (perfInterval) { clearInterval(perfInterval); perfInterval = null; }
-      if (statsInterval) { clearInterval(statsInterval); statsInterval = null; }
-      if (mapUpdateInterval) { clearInterval(mapUpdateInterval); mapUpdateInterval = null; }
-      notifListeners.forEach(l => l());
-      notifListeners = [];
-      activityListeners.forEach(l => l());
-      activityListeners = [];
     }
 
     // ============================================================
@@ -1457,7 +1303,7 @@
             </div>
           </div>
           <a href="dashboard.html" class="btn btn-primary btn-large">
-            <i class="fas fa-tachometer-alt"></i> Dashboard
+            <i class="fas fa-chart-pie"></i> Dashboard
           </a>
           <a href="workspaces.html" class="btn btn-outline btn-large">
             <i class="fas fa-cubes"></i> Workspaces
@@ -1476,11 +1322,10 @@
     }
 
     // ============================================================
-    // WEATHER WIDGET (Realistic - uses actual Nairobi data)
+    // WEATHER WIDGET
     // ============================================================
     async function updateWeather() {
       try {
-        // Using free Open-Meteo API - accurate for Nairobi
         const response = await fetch('https://api.open-meteo.com/v1/forecast?latitude=-1.2864&longitude=36.8172&current=temperature_2m,weathercode&timezone=Africa/Nairobi');
         const data = await response.json();
         
@@ -1494,15 +1339,13 @@
           else if (code >= 71 && code <= 77) { condition = 'Snowy'; icon = 'fa-snowflake'; }
           else if (code >= 80 && code <= 99) { condition = 'Stormy'; icon = 'fa-bolt'; }
           else if (code >= 1 && code <= 3) { condition = 'Cloudy'; icon = 'fa-cloud'; }
-          else if (code >= 0 && code <= 0) { condition = 'Clear'; icon = 'fa-sun'; }
           
           document.getElementById('weatherTemp').textContent = `${temp}°C`;
           document.getElementById('weatherCondition').textContent = condition;
           document.getElementById('weatherWidget').querySelector('i').className = `fas ${icon}`;
         }
       } catch (e) {
-        // Silently fail - weather is a nice-to-have
-        console.debug('Weather API unavailable');
+        // Silently fail
       }
     }
 
@@ -1527,538 +1370,6 @@
       }
       if (text) {
         text.textContent = `${Math.round(progress)}%`;
-      }
-    }
-
-    // ============================================================
-    // PERFORMANCE DASHBOARD (Based on actual database structure)
-    // ============================================================
-    function initPerformanceDashboard() {
-      if (perfInterval) clearInterval(perfInterval);
-      updatePerformanceData();
-      perfInterval = setInterval(updatePerformanceData, 30000);
-    }
-
-    function updatePerformanceData() {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const todayTs = today.getTime();
-      
-      let totalOrders = 0;
-      let totalRevenue = 0;
-      let activeDeliveries = 0;
-      let completedOrders = 0;
-      let fieldLocations = 0;
-      
-      // Track which sources we've counted
-      let sourceCount = 0;
-      const totalSources = 4;
-      
-      // Source 1: Fusion Foods Orders
-      database.ref('fusion_foods_orders')
-        .orderByChild('createdAt')
-        .startAt(todayTs)
-        .once('value')
-        .then(snapshot => {
-          const data = snapshot.val() || {};
-          const values = Object.values(data);
-          values.forEach(order => {
-            totalOrders++;
-            totalRevenue += order.total || order.subtotal || 0;
-            if (order.status === 'assigned' || order.status === 'out-for-delivery' || order.status === 'started') {
-              activeDeliveries++;
-            }
-            if (order.status === 'delivered' || order.status === 'completed') {
-              completedOrders++;
-            }
-          });
-          sourceCount++;
-          checkComplete();
-        })
-        .catch(() => { sourceCount++; checkComplete(); });
-      
-      // Source 2: DSOG Fashion Orders
-      database.ref('dsog_fashion_orders')
-        .orderByChild('createdAt')
-        .startAt(todayTs)
-        .once('value')
-        .then(snapshot => {
-          const data = snapshot.val() || {};
-          const values = Object.values(data);
-          values.forEach(order => {
-            totalOrders++;
-            totalRevenue += order.total || order.subtotal || 0;
-            if (order.status === 'assigned' || order.status === 'out-for-delivery') {
-              activeDeliveries++;
-            }
-            if (order.status === 'delivered' || order.status === 'completed') {
-              completedOrders++;
-            }
-          });
-          sourceCount++;
-          checkComplete();
-        })
-        .catch(() => { sourceCount++; checkComplete(); });
-      
-      // Source 3: Pickup Deliveries
-      database.ref('pickup_deliveries')
-        .orderByChild('createdAt')
-        .startAt(todayTs)
-        .once('value')
-        .then(snapshot => {
-          const data = snapshot.val() || {};
-          const values = Object.values(data);
-          values.forEach(order => {
-            totalOrders++;
-            totalRevenue += order.fare?.total || order.fare || 0;
-            if (order.status === 'assigned' || order.status === 'out-for-delivery' || order.status === 'en-route') {
-              activeDeliveries++;
-            }
-            if (order.status === 'delivered' || order.status === 'completed') {
-              completedOrders++;
-            }
-          });
-          sourceCount++;
-          checkComplete();
-        })
-        .catch(() => { sourceCount++; checkComplete(); });
-      
-      // Source 4: Field Locations
-      database.ref('iam_mugera_registrations')
-        .once('value')
-        .then(snapshot => {
-          const data = snapshot.val() || {};
-          fieldLocations = Object.values(data).filter(b => b.lat && b.lng).length;
-          sourceCount++;
-          checkComplete();
-        })
-        .catch(() => { sourceCount++; checkComplete(); });
-      
-      function checkComplete() {
-        if (sourceCount >= totalSources) {
-          // Update UI
-          document.getElementById('todayOrders').textContent = totalOrders;
-          document.getElementById('todayRevenue').textContent = `KES ${totalRevenue.toLocaleString()}`;
-          document.getElementById('activeDeliveries').textContent = activeDeliveries;
-          document.getElementById('fieldLocations').textContent = fieldLocations;
-          
-          const rate = totalOrders > 0 ? Math.round((completedOrders / totalOrders) * 100) : 0;
-          
-          // Calculate changes (simplified - compare with previous values stored)
-          const prevOrders = parseInt(localStorage.getItem('kazinni_prev_orders') || '0');
-          const prevRevenue = parseInt(localStorage.getItem('kazinni_prev_revenue') || '0');
-          const prevDeliveries = parseInt(localStorage.getItem('kazinni_prev_deliveries') || '0');
-          const prevFields = parseInt(localStorage.getItem('kazinni_prev_fields') || '0');
-          
-          // Store current for next comparison
-          localStorage.setItem('kazinni_prev_orders', totalOrders.toString());
-          localStorage.setItem('kazinni_prev_revenue', totalRevenue.toString());
-          localStorage.setItem('kazinni_prev_deliveries', activeDeliveries.toString());
-          localStorage.setItem('kazinni_prev_fields', fieldLocations.toString());
-          
-          // Update change indicators
-          document.getElementById('orderChange').textContent = formatChange(totalOrders - prevOrders);
-          document.getElementById('orderChange').className = `perf-change ${getChangeClass(totalOrders - prevOrders)}`;
-          
-          document.getElementById('revenueChange').textContent = formatChange(totalRevenue - prevRevenue);
-          document.getElementById('revenueChange').className = `perf-change ${getChangeClass(totalRevenue - prevRevenue)}`;
-          
-          document.getElementById('deliveryChange').textContent = formatChange(activeDeliveries - prevDeliveries);
-          document.getElementById('deliveryChange').className = `perf-change ${getChangeClass(activeDeliveries - prevDeliveries)}`;
-          
-          document.getElementById('fieldChange').textContent = formatChange(fieldLocations - prevFields);
-          document.getElementById('fieldChange').className = `perf-change ${getChangeClass(fieldLocations - prevFields)}`;
-        }
-      }
-    }
-
-    function formatChange(value) {
-      if (value > 0) return `+${value}`;
-      if (value < 0) return `${value}`;
-      return 'No change';
-    }
-
-    function getChangeClass(value) {
-      if (value > 0) return 'positive';
-      if (value < 0) return 'negative';
-      return 'neutral';
-    }
-
-    // ============================================================
-    // LIVE ACTIVITY FEED (Based on actual database structure)
-    // ============================================================
-    function initActivityFeed() {
-      const feed = document.getElementById('activityFeed');
-      if (!feed) return;
-      
-      // Clear existing listeners
-      activityListeners.forEach(l => l());
-      activityListeners = [];
-      
-      feed.innerHTML = '<div class="notif-empty">⏳ Waiting for activity...</div>';
-      
-      // Sources that actually exist in your database
-      const sources = [
-        { 
-          path: 'fusion_foods_orders', 
-          type: '🍽️ Fusion Foods', 
-          color: '#10b981',
-          getInfo: (data) => {
-            const name = data.restaurantName || data.contactPerson || 'Restaurant';
-            const status = data.status || 'pending';
-            const actions = {
-              'delivered': 'delivered to',
-              'assigned': 'assigned to driver',
-              'cancelled': 'cancelled order for',
-              'started': 'started preparing'
-            };
-            return { name, action: actions[status] || 'ordered from', target: name };
-          }
-        },
-        { 
-          path: 'dsog_fashion_orders', 
-          type: '👗 DSOG Fashion', 
-          color: '#8b5cf6',
-          getInfo: (data) => {
-            const name = data.customerName || 'Customer';
-            const status = data.status || 'pending';
-            const actions = {
-              'delivered': 'received delivery from',
-              'assigned': 'assigned to',
-              'shipped': 'shipped to'
-            };
-            const target = status === 'assigned' ? data.driverName || 'driver' : 'DSOG';
-            return { name, action: actions[status] || 'ordered from', target };
-          }
-        },
-        { 
-          path: 'brandinn_bookings', 
-          type: '📋 BrandInn', 
-          color: '#ca8a04',
-          getInfo: (data) => {
-            const name = data.clientName || 'Client';
-            const status = data.status || 'pending';
-            const actions = {
-              'completed': 'completed booking for',
-              'confirmed': 'confirmed booking for',
-              'scheduled': 'scheduled'
-            };
-            return { name, action: actions[status] || 'booked', target: data.bookingType || 'consultation' };
-          }
-        },
-        { 
-          path: 'pickup_deliveries', 
-          type: '📦 Pick-Up', 
-          color: '#3b82f6',
-          getInfo: (data) => {
-            const name = data.userName || data.customer?.name || 'Customer';
-            const status = data.status || 'pending';
-            const actions = {
-              'delivered': 'delivered to',
-              'assigned': 'assigned to',
-              'cancelled': 'cancelled pickup for'
-            };
-            const target = status === 'assigned' ? data.assignedName || 'driver' : 'pickup';
-            return { name, action: actions[status] || 'requested', target };
-          }
-        },
-        { 
-          path: 'mugs_n_dines_orders', 
-          type: '🍔 Mugs N Dines', 
-          color: '#f59e0b',
-          getInfo: (data) => {
-            const name = data.customerName || 'Customer';
-            const status = data.status || 'pending';
-            const actions = {
-              'delivered': 'delivered to',
-              'dispatched': 'dispatched to',
-              'ready': 'prepared for'
-            };
-            return { name, action: actions[status] || 'ordered', target: 'meal' };
-          }
-        }
-      ];
-      
-      sources.forEach(source => {
-        const ref = database.ref(source.path);
-        const listener = ref.orderByChild('createdAt')
-          .limitToLast(10)
-          .on('child_added', (snapshot) => {
-            const data = snapshot.val();
-            const timestamp = data.createdAt || data.timestamp || data.bookingDate || Date.now();
-            
-            // Only show recent activity (last 5 minutes for live feel)
-            if (Date.now() - timestamp < 300000) {
-              try {
-                const info = source.getInfo(data);
-                addActivityItem({
-                  id: snapshot.key,
-                  type: source.type,
-                  color: source.color,
-                  name: info.name || 'Someone',
-                  action: info.action || 'updated',
-                  target: info.target || '',
-                  timestamp: timestamp,
-                  raw: data
-                });
-              } catch (e) {
-                // Skip malformed entries
-              }
-            }
-          });
-        activityListeners.push(() => ref.off('child_added', listener));
-      });
-    }
-
-    function addActivityItem(activity) {
-      const feed = document.getElementById('activityFeed');
-      if (!feed) return;
-      
-      // Remove empty state
-      const empty = feed.querySelector('.notif-empty');
-      if (empty) empty.remove();
-      
-      const initials = activity.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) || '?';
-      
-      const item = document.createElement('div');
-      item.className = 'activity-item gold-reveal';
-      item.innerHTML = `
-        <div class="activity-avatar" style="background:${activity.color}">${initials}</div>
-        <div class="activity-content">
-          <span class="user">${escapeHtml(activity.name)}</span>
-          <span class="action"> ${escapeHtml(activity.action)}</span>
-          ${activity.target ? `<span class="target">${escapeHtml(activity.target)}</span>` : `<span class="target">${escapeHtml(activity.type)}</span>`}
-        </div>
-        <span class="activity-time">${timeAgo(activity.timestamp)}</span>
-      `;
-      
-      feed.insertBefore(item, feed.firstChild);
-      
-      // Keep max 8 items
-      while (feed.children.length > 8) {
-        feed.removeChild(feed.lastChild);
-      }
-    }
-
-    // ============================================================
-    // NOTIFICATIONS SYSTEM
-    // ============================================================
-    function initNotifications(user) {
-      if (!user) return;
-      
-      notifListeners.forEach(l => l());
-      notifListeners = [];
-      
-      const notifList = document.getElementById('notifList');
-      const badge = document.getElementById('notifBadge');
-      
-      const ref = database.ref(`notifications/${user.uid}`);
-      const listener = ref.orderByChild('read')
-        .equalTo(false)
-        .on('value', snapshot => {
-          const data = snapshot.val() || {};
-          const entries = Object.entries(data);
-          const unreadCount = entries.length;
-          
-          if (badge) {
-            badge.textContent = unreadCount;
-            badge.className = `notification-badge ${unreadCount > 0 ? 'show' : ''}`;
-          }
-          
-          if (notifList) {
-            if (unreadCount === 0) {
-              notifList.innerHTML = '<div class="notif-empty">All caught up! 🎉</div>';
-              return;
-            }
-            
-            notifList.innerHTML = entries.slice(0, 10).map(([id, notif]) => `
-              <div class="notif-item unread" onclick="markNotificationRead('${id}')">
-                <div class="notif-title">${escapeHtml(notif.fromName || 'System')}</div>
-                <div style="font-size:0.8rem;color:var(--text-secondary);">${escapeHtml(notif.message || notif.type || 'Update')}</div>
-                <div class="notif-time">${timeAgo(notif.timestamp || Date.now())}</div>
-              </div>
-            `).join('');
-          }
-        });
-      
-      notifListeners.push(() => ref.off('value', listener));
-    }
-
-    function toggleNotifications() {
-      const dropdown = document.getElementById('notifDropdown');
-      if (dropdown) dropdown.classList.toggle('active');
-    }
-
-    function markNotificationRead(id) {
-      if (!currentUser) return;
-      database.ref(`notifications/${currentUser.uid}/${id}/read`).set(true);
-    }
-
-    function markAllRead() {
-      if (!currentUser) return;
-      database.ref(`notifications/${currentUser.uid}`)
-        .orderByChild('read')
-        .equalTo(false)
-        .once('value')
-        .then(snapshot => {
-          const updates = {};
-          snapshot.forEach(child => {
-            updates[child.key + '/read'] = true;
-          });
-          return database.ref(`notifications/${currentUser.uid}`).update(updates);
-        })
-        .then(() => showToast('All notifications marked as read', 'success'));
-    }
-
-    document.addEventListener('click', function(e) {
-      const wrapper = document.querySelector('.notification-wrapper');
-      if (wrapper && !wrapper.contains(e.target)) {
-        const dropdown = document.getElementById('notifDropdown');
-        if (dropdown) dropdown.classList.remove('active');
-      }
-    });
-
-    // ============================================================
-    // QUICK ACTIONS (Realistic based on actual capabilities)
-    // ============================================================
-    function quickAction(action) {
-      if (!currentUser) {
-        showToast('Please sign in first', 'error');
-        openAuthModal();
-        return;
-      }
-      
-      const actions = {
-        'new-order': () => {
-          showToast('📦 Opening order form...', 'info');
-          setTimeout(() => window.location.href = 'workspaces.html', 500);
-        },
-        'track-delivery': () => {
-          showToast('🚚 Checking active deliveries...', 'info');
-          // Check if there are active deliveries
-          let found = false;
-          const sources = ['fusion_foods_orders', 'dsog_fashion_orders', 'pickup_deliveries'];
-          let checked = 0;
-          
-          sources.forEach(source => {
-            database.ref(source)
-              .orderByChild('status')
-              .equalTo('assigned')
-              .limitToFirst(1)
-              .once('value', snap => {
-                if (snap.exists()) found = true;
-                checked++;
-                if (checked === sources.length) {
-                  if (found) {
-                    showToast('🚚 Active deliveries found! Opening tracker...', 'success');
-                    setTimeout(() => window.location.href = 'workspaces.html?tab=deliveries', 500);
-                  } else {
-                    showToast('No active deliveries at the moment', 'info');
-                  }
-                }
-              });
-          });
-        },
-        'field-registration': () => {
-          showToast('📍 Opening field registration...', 'info');
-          setTimeout(() => window.location.href = 'workspaces.html?tab=field', 500);
-        },
-        'view-reports': () => {
-          showToast('📊 Loading dashboard...', 'info');
-          setTimeout(() => window.location.href = 'dashboard.html', 500);
-        }
-      };
-      
-      if (actions[action]) actions[action]();
-    }
-
-    // ============================================================
-    // KEYBOARD SHORTCUTS
-    // ============================================================
-    document.addEventListener('keydown', (e) => {
-      if (e.ctrlKey) {
-        switch(e.key) {
-          case '1': e.preventDefault(); quickAction('new-order'); break;
-          case '2': e.preventDefault(); quickAction('track-delivery'); break;
-          case '3': e.preventDefault(); quickAction('field-registration'); break;
-          case '4': e.preventDefault(); quickAction('view-reports'); break;
-          case 'd': e.preventDefault(); toggleUserDropdown(); break;
-        }
-      }
-      
-      if (e.key === 'Escape') {
-        closeAuthModal();
-        const notifDropdown = document.getElementById('notifDropdown');
-        if (notifDropdown) notifDropdown.classList.remove('active');
-        const userDropdown = document.getElementById('userDropdownMenu');
-        if (userDropdown) userDropdown.classList.remove('active');
-      }
-    });
-
-    // Show shortcuts hint once per session
-    if (!sessionStorage.getItem('shortcuts_shown')) {
-      setTimeout(() => {
-        const hint = document.createElement('div');
-        hint.className = 'shortcuts-hint';
-        hint.innerHTML = `
-          <h4>⌨️ Keyboard Shortcuts</h4>
-          <div><kbd>Ctrl+1</kbd> New Order</div>
-          <div><kbd>Ctrl+2</kbd> Track Delivery</div>
-          <div><kbd>Ctrl+3</kbd> Field Registration</div>
-          <div><kbd>Ctrl+4</kbd> View Reports</div>
-          <div><kbd>Ctrl+D</kbd> Profile Menu</div>
-          <div><kbd>Esc</kbd> Close Dialogs</div>
-          <button class="dismiss-hint" onclick="this.parentElement.remove()">Got it!</button>
-        `;
-        document.body.appendChild(hint);
-        sessionStorage.setItem('shortcuts_shown', 'true');
-        
-        setTimeout(() => {
-          if (hint.parentElement) hint.remove();
-        }, 8000);
-      }, 3000);
-    }
-
-    // ============================================================
-    // ACTIVE USERS
-    // ============================================================
-    async function loadActiveUsers() {
-      try {
-        const usersSnap = await database.ref('users').once('value');
-        const users = usersSnap.val() || {};
-        let activeCount = 0;
-        let statusCounts = { available: 0, busy: 0, away: 0, offline: 0 };
-        
-        Object.values(users).forEach(user => {
-          if (user.status) {
-            if (user.status === 'available' || user.status === 'busy' || user.status === 'away') {
-              activeCount++;
-            }
-            if (statusCounts[user.status] !== undefined) {
-              statusCounts[user.status]++;
-            }
-          }
-        });
-
-        const statsRow = document.getElementById('statsRow');
-        const statCards = statsRow.querySelectorAll('.stat-card');
-        if (statCards.length >= 3) {
-          const statusBadge = activeCount > 0 ? 
-            `<span class="stat-badge online">${activeCount} online</span>` : 
-            `<span class="stat-badge offline">0 online</span>`;
-          
-          statCards[2].innerHTML = `
-            <div class="stat-icon" style="background:#eff6ff;color:#2563eb;"><i class="fas fa-users"></i></div>
-            <div class="stat-value" style="color:#2563eb;">${activeCount}</div>
-            <div class="stat-label">Active Users</div>
-            ${statusBadge}
-          `;
-        }
-
-        return { activeCount, statusCounts };
-      } catch (error) {
-        console.error('Error loading active users:', error);
-        return { activeCount: 0, statusCounts: {} };
       }
     }
 
@@ -2089,7 +1400,17 @@
           mapLocations = Object.values(mapSnap.val() || {}).filter(b => b.lat && b.lng).length;
         } catch(e) {}
 
-        const activeUsers = await loadActiveUsers();
+        // Get active users count
+        let activeCount = 0;
+        try {
+          const usersSnap = await database.ref('users').once('value');
+          const users = usersSnap.val() || {};
+          Object.values(users).forEach(user => {
+            if (user.status === 'available' || user.status === 'busy' || user.status === 'away') {
+              activeCount++;
+            }
+          });
+        } catch(e) {}
 
         document.getElementById('statsRow').innerHTML = `
           <div class="stat-card gold-reveal-stagger">
@@ -2104,9 +1425,9 @@
           </div>
           <div class="stat-card gold-reveal-stagger">
             <div class="stat-icon" style="background:#eff6ff;color:#2563eb;"><i class="fas fa-users"></i></div>
-            <div class="stat-value" style="color:#2563eb;">${activeUsers.activeCount || 0}</div>
+            <div class="stat-value" style="color:#2563eb;">${activeCount || 0}</div>
             <div class="stat-label">Active Users</div>
-            ${activeUsers.activeCount > 0 ? `<span class="stat-badge online">${activeUsers.activeCount} online</span>` : `<span class="stat-badge offline">0 online</span>`}
+            ${activeCount > 0 ? `<span class="stat-badge online">${activeCount} online</span>` : `<span class="stat-badge" style="background:#f3f4f6;color:#4b5563;">0 online</span>`}
           </div>
           <div class="stat-card gold-reveal-stagger">
             <div class="stat-icon" style="background:#fdf2f8;color:#ec4899;"><i class="fas fa-map-marker-alt"></i></div>
@@ -2115,8 +1436,226 @@
           </div>
         `;
       } catch(e) {
-        // Fallback to existing
+        console.error('Error loading stats:', e);
       }
+    }
+
+    // ============================================================
+    // RECENT ACTIVITY (with user attribution)
+    // ============================================================
+    async function loadRecentActivity() {
+      const feed = document.getElementById('activityFeed');
+      if (!feed) return;
+      
+      feed.innerHTML = `
+        <div class="activity-empty">
+          <i class="fas fa-spinner fa-spin"></i>
+          <p>Loading recent activity...</p>
+        </div>
+      `;
+
+      try {
+        const allActivities = [];
+        const workspaces = [
+          { name: 'Fusion Foods', icon: 'fa-utensils', color: '#10b981', bgColor: '#ecfdf5', path: 'fusion_foods_orders' },
+          { name: 'DSOG Fashion', icon: 'fa-tshirt', color: '#ec4899', bgColor: '#fdf2f8', path: 'dsog_fashion_orders' },
+          { name: 'BrandInn', icon: 'fa-building', color: '#4f46e5', bgColor: '#eef2ff', path: 'brandinn_bookings' },
+          { name: 'Pick-Up', icon: 'fa-truck-fast', color: '#f59e0b', bgColor: '#fffbeb', path: 'pickup_deliveries' },
+          { name: 'Mugs n Dines', icon: 'fa-utensil-spoon', color: '#ef4444', bgColor: '#fef2f2', path: 'mugs_n_dines_orders' },
+          { name: 'BrandInn Print', icon: 'fa-print', color: '#db2777', bgColor: '#fdf2f8', path: 'brandinn_print_orders' },
+          { name: 'Digital Services', icon: 'fa-globe', color: '#0ea5e9', bgColor: '#f0f9ff', path: 'digital_services_applications' }
+        ];
+
+        for (const ws of workspaces) {
+          try {
+            const snap = await database.ref(ws.path)
+              .orderByChild('createdAt')
+              .limitToLast(10)
+              .once('value');
+            const data = snap.val() || {};
+
+            for (const [id, item] of Object.entries(data)) {
+              // Extract who performed the action
+              let actor = null;
+              let actorEmail = null;
+              let actorRole = 'user';
+
+              // Priority order for finding actor
+              if (item.userName) {
+                actor = item.userName;
+                actorEmail = item.userEmail || item.email;
+              } else if (item.createdBy) {
+                actor = item.createdBy.split('@')[0] || 'Staff';
+                actorEmail = item.createdBy;
+                actorRole = 'staff';
+              } else if (item.recordedBy) {
+                actor = item.recordedBy.split('@')[0] || 'Staff';
+                actorEmail = item.recordedBy;
+                actorRole = 'staff';
+              } else if (item.assignedBy) {
+                actor = item.assignedBy.split('@')[0] || 'Admin';
+                actorEmail = item.assignedBy;
+                actorRole = 'admin';
+              } else if (item.driverName) {
+                actor = item.driverName;
+                actorRole = 'driver';
+              } else if (item.assignedName) {
+                actor = item.assignedName;
+                actorRole = 'driver';
+              } else if (item.customerName) {
+                actor = item.customerName;
+              } else if (item.clientName) {
+                actor = item.clientName;
+              } else if (item.restaurantName) {
+                actor = item.restaurantName;
+              } else if (item.passengerName) {
+                actor = item.passengerName;
+              } else {
+                actor = 'System';
+              }
+
+              const timestamp = item.createdAt || item.timestamp || item.requestedAt || item.bookingDate || item.submittedAt || Date.now();
+              
+              // Determine action description
+              let actionDesc = '';
+              let status = item.status || 'new';
+              
+              if (ws.path.includes('orders') || ws.path.includes('shipments')) {
+                if (status === 'delivered') actionDesc = 'delivered order';
+                else if (status === 'assigned') actionDesc = 'assigned order';
+                else if (status === 'shipped') actionDesc = 'shipped order';
+                else if (status === 'completed') actionDesc = 'completed order';
+                else if (status === 'cancelled') actionDesc = 'cancelled order';
+                else if (status === 'processing') actionDesc = 'is processing order';
+                else actionDesc = `updated order (${status})`;
+              } else if (ws.path.includes('bookings')) {
+                if (status === 'completed') actionDesc = 'completed booking';
+                else if (status === 'confirmed') actionDesc = 'confirmed booking';
+                else if (status === 'scheduled') actionDesc = 'scheduled booking';
+                else actionDesc = `updated booking (${status})`;
+              } else if (ws.path.includes('deliveries')) {
+                if (status === 'delivered') actionDesc = 'completed delivery';
+                else if (status === 'assigned') actionDesc = 'assigned delivery';
+                else if (status === 'en-route') actionDesc = 'started delivery';
+                else if (status === 'cancelled') actionDesc = 'cancelled delivery';
+                else actionDesc = `updated delivery (${status})`;
+              } else if (ws.path.includes('applications')) {
+                if (status === 'completed') actionDesc = 'completed application';
+                else if (status === 'processing') actionDesc = 'is processing application';
+                else if (status === 'rejected') actionDesc = 'rejected application';
+                else actionDesc = `updated application (${status})`;
+              } else if (ws.path.includes('print_orders')) {
+                if (status === 'completed') actionDesc = 'completed print job';
+                else if (status === 'processing') actionDesc = 'started print job';
+                else actionDesc = `updated print job (${status})`;
+              } else {
+                actionDesc = `updated ${ws.path.split('_').pop()}`;
+              }
+
+              allActivities.push({
+                id: id,
+                actor: actor,
+                actorEmail: actorEmail,
+                actorRole: actorRole,
+                action: actionDesc,
+                workspace: ws.name,
+                icon: ws.icon,
+                iconBg: ws.bgColor,
+                iconColor: ws.color,
+                status: status,
+                timestamp: timestamp,
+                timeAgo: getTimeAgo(timestamp)
+              });
+            }
+          } catch (e) {
+            if (!e.message.includes('permission_denied')) {
+              console.debug(`Error loading ${ws.path}:`, e);
+            }
+          }
+        }
+
+        // Sort by timestamp (newest first) and take top 8
+        allActivities.sort((a, b) => b.timestamp - a.timestamp);
+        const recent = allActivities.slice(0, 8);
+
+        renderRecentActivity(recent);
+
+        // Auto-refresh every 30 seconds
+        if (activityInterval) clearInterval(activityInterval);
+        activityInterval = setInterval(() => loadRecentActivity(), 30000);
+
+      } catch (e) {
+        console.error('Error loading recent activity:', e);
+        feed.innerHTML = `
+          <div class="activity-empty">
+            <i class="fas fa-exclamation-circle" style="color:var(--danger);"></i>
+            <p>Error loading activity</p>
+          </div>
+        `;
+      }
+    }
+
+    function renderRecentActivity(activities) {
+      const feed = document.getElementById('activityFeed');
+      if (!feed) return;
+
+      if (!activities || activities.length === 0) {
+        feed.innerHTML = `
+          <div class="activity-empty">
+            <i class="fas fa-clock"></i>
+            <p>No recent activity</p>
+          </div>
+        `;
+        return;
+      }
+
+      feed.innerHTML = activities.map(a => {
+        const statusMap = {
+          'delivered': 'delivered',
+          'completed': 'completed',
+          'approved': 'approved',
+          'assigned': 'assigned',
+          'confirmed': 'confirmed',
+          'processing': 'processing',
+          'shipped': 'shipped',
+          'scheduled': 'scheduled',
+          'en-route': 'en-route',
+          'cancelled': 'cancelled',
+          'rejected': 'rejected',
+          'revision': 'revision',
+          'new': 'new'
+        };
+        const badgeClass = statusMap[a.status] || 'new';
+        
+        // Role emoji
+        const roleEmoji = a.actorRole === 'staff' ? '👤' : 
+                          a.actorRole === 'admin' ? '⭐' : 
+                          a.actorRole === 'driver' ? '🚗' : '👤';
+        
+        const initials = a.actor.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) || '?';
+
+        return `
+          <div class="activity-item gold-reveal">
+            <div class="activity-avatar" style="background:${a.iconColor}">${initials}</div>
+            <div class="activity-content">
+              <div>
+                <span class="actor">${escapeHtml(a.actor)}</span>
+                <span class="action"> ${escapeHtml(a.action)}</span>
+                <span class="workspace">${escapeHtml(a.workspace)}</span>
+              </div>
+              <div class="activity-meta">
+                ${roleEmoji} ${a.actorEmail ? escapeHtml(a.actorEmail) : 'System'}
+                ${a.actorEmail ? ' · ' : ''}
+                #${a.id.slice(-6)}
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:0.2rem;flex-shrink:0;">
+              <span class="activity-badge ${badgeClass}">${escapeHtml(a.status)}</span>
+              <span class="activity-time">${a.timeAgo}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
     }
 
     // ============================================================
@@ -2150,9 +1689,6 @@
 
       setTimeout(() => { if (overviewMap) overviewMap.invalidateSize(); }, 300);
       updateMapData();
-      
-      if (mapUpdateInterval) clearInterval(mapUpdateInterval);
-      mapUpdateInterval = setInterval(updateMapData, 30000);
     }
 
     function getOperationColor(operation) {
@@ -2187,7 +1723,6 @@
           businesses.forEach(biz => {
             const color = getOperationColor(biz.operation);
             
-            // Main marker
             const marker = L.circleMarker([biz.lat, biz.lng], {
               radius: 6,
               fillColor: color,
@@ -2197,7 +1732,6 @@
               fillOpacity: 0.8
             }).addTo(overviewMap);
             
-            // Pulse ring
             const ring = L.circleMarker([biz.lat, biz.lng], {
               radius: 12,
               fillColor: color,
@@ -2207,13 +1741,11 @@
               fillOpacity: 0.05
             }).addTo(overviewMap);
             
-            // Animate pulse
             let pulseId = setInterval(() => {
               const r = 12 + Math.sin(Date.now() / 1000) * 4;
               ring.setRadius(r);
             }, 50);
             
-            // Store reference to clear later
             ring._pulseId = pulseId;
 
             mapMarkers.push(marker);
@@ -2237,128 +1769,6 @@
     }
 
     // ============================================================
-    // CONFETTI CELEBRATION
-    // ============================================================
-    function celebrateMilestone(type) {
-      const colors = ['#ca8a04', '#fbbf24', '#fef3c7', '#ffd700', '#8b5cf6', '#10b981', '#3b82f6', '#ec4899'];
-      const canvas = document.createElement('canvas');
-      canvas.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        pointer-events: none;
-        z-index: 9999;
-      `;
-      document.body.appendChild(canvas);
-      
-      const ctx = canvas.getContext('2d');
-      let particles = [];
-      const duration = 2500;
-      const startTime = performance.now();
-      
-      const shapes = ['circle', 'rect', 'triangle'];
-      
-      for (let i = 0; i < 70; i++) {
-        const shape = shapes[Math.floor(Math.random() * shapes.length)];
-        particles.push({
-          x: Math.random() * canvas.width,
-          y: Math.random() * canvas.height - canvas.height * 0.5,
-          vx: (Math.random() - 0.5) * 15,
-          vy: Math.random() * 12 + 4,
-          color: colors[Math.floor(Math.random() * colors.length)],
-          size: Math.random() * 10 + 4,
-          rotation: Math.random() * 360,
-          rotSpeed: (Math.random() - 0.5) * 15,
-          shape: shape,
-          wobble: Math.random() * Math.PI * 2,
-          wobbleSpeed: (Math.random() - 0.5) * 0.1
-        });
-      }
-      
-      function animate(time) {
-        const elapsed = time - startTime;
-        const progress = elapsed / duration;
-        
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        
-        particles.forEach(p => {
-          p.x += p.vx + Math.sin(p.wobble) * 0.5;
-          p.y += p.vy;
-          p.vy += 0.15;
-          p.size *= 0.995;
-          p.rotation += p.rotSpeed;
-          p.wobble += p.wobbleSpeed;
-          
-          ctx.save();
-          ctx.translate(p.x, p.y);
-          ctx.rotate(p.rotation * Math.PI / 180);
-          ctx.globalAlpha = 1 - progress * 1.2;
-          ctx.fillStyle = p.color;
-          
-          if (p.shape === 'circle') {
-            ctx.beginPath();
-            ctx.arc(0, 0, p.size/2, 0, Math.PI * 2);
-            ctx.fill();
-          } else if (p.shape === 'rect') {
-            ctx.fillRect(-p.size/2, -p.size/4, p.size, p.size/2);
-          } else {
-            ctx.beginPath();
-            ctx.moveTo(0, -p.size/2);
-            ctx.lineTo(-p.size/2, p.size/2);
-            ctx.lineTo(p.size/2, p.size/2);
-            ctx.closePath();
-            ctx.fill();
-          }
-          
-          ctx.restore();
-        });
-        
-        if (progress < 1 && particles.some(p => p.size > 0.5)) {
-          requestAnimationFrame(animate);
-        } else {
-          canvas.remove();
-        }
-      }
-      
-      requestAnimationFrame(animate);
-    }
-
-    function checkMilestones(user) {
-      // First login celebration
-      const firstLogin = localStorage.getItem('kazinni_first_login');
-      if (!firstLogin) {
-        localStorage.setItem('kazinni_first_login', 'true');
-        setTimeout(() => {
-          celebrateMilestone('welcome');
-          showToast('🎉 Welcome to KazInni Operations Portal!', 'success');
-        }, 1000);
-      }
-      
-      // Check if user has completed orders (based on their involvement)
-      if (user) {
-        setTimeout(() => {
-          database.ref(`users/${user.uid}/orders`).once('value')
-            .then(snap => {
-              const orders = snap.val() || {};
-              const orderCount = Object.keys(orders).length;
-              
-              // Celebrate first order milestone
-              if (orderCount >= 1 && !localStorage.getItem('kazinni_first_order_celebrated')) {
-                localStorage.setItem('kazinni_first_order_celebrated', 'true');
-                setTimeout(() => {
-                  celebrateMilestone('first-order');
-                  showToast('🎉 Congrats on your first order!', 'success');
-                }, 500);
-              }
-            })
-            .catch(() => {});
-        }, 2000);
-      }
-    }
-
-    // ============================================================
     // UTILITY FUNCTIONS
     // ============================================================
     function escapeHtml(text) {
@@ -2368,7 +1778,8 @@
       return div.innerHTML;
     }
 
-    function timeAgo(timestamp) {
+    function getTimeAgo(timestamp) {
+      if (!timestamp) return 'just now';
       const seconds = Math.floor((Date.now() - timestamp) / 1000);
       if (seconds < 10) return 'just now';
       if (seconds < 60) return `${seconds}s ago`;
@@ -2415,11 +1826,6 @@
         await auth.signInWithEmailAndPassword(email, password);
         showToast('Welcome back!', 'success');
         closeAuthModal();
-        setTimeout(() => {
-          if (Math.random() > 0.6) {
-            celebrateMilestone('login');
-          }
-        }, 500);
       } catch(e) {
         let msg = e.message.replace('Firebase: ', '').replace(/\(auth\/.*\)\.?/, '').trim();
         if (e.code === 'auth/user-not-found') msg = 'No account found';
@@ -2456,6 +1862,17 @@
     document.getElementById('authModalOverlay').addEventListener('click', closeAuthModal);
 
     // ============================================================
+    // KEYBOARD SHORTCUTS
+    // ============================================================
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeAuthModal();
+        const userDropdown = document.getElementById('userDropdownMenu');
+        if (userDropdown) userDropdown.classList.remove('active');
+      }
+    });
+
+    // ============================================================
     // INIT
     // ============================================================
     window.addEventListener('load', () => {
@@ -2463,17 +1880,11 @@
       updateWeather();
       updateDailyProgress();
       
-      // Update weather every 30 minutes
       setInterval(updateWeather, 1800000);
-      
-      // Update progress every minute
       setInterval(updateDailyProgress, 60000);
-      
-      // Stats refresh every minute
-      statsInterval = setInterval(loadStats, 60000);
+      setInterval(loadStats, 60000);
     });
 
-    // Set deploy date
     document.getElementById('lastDeploy').textContent = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   </script>
 </body>
