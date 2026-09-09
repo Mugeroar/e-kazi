@@ -88,10 +88,11 @@
     .stat-icon.green { background: #ecfdf5; color: #10b981; }
     .stat-icon.blue { background: #eff6ff; color: #3b82f6; }
     .stat-icon.purple { background: #faf5ff; color: #8b5cf6; }
+    .stat-icon.pink { background: #fdf2f8; color: #db2777; }
     .stat-value { font-size: 1.6rem; font-weight: 800; line-height: 1; }
     .stat-label { font-size: 0.6rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
 
-    .action-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 1.5rem; }
+    .action-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-bottom: 1.5rem; }
     .action-card {
       background: var(--surface); border-radius: var(--radius-lg); padding: 1.2rem;
       border: 1px solid var(--border-light); box-shadow: var(--shadow-sm); transition: all 0.25s;
@@ -116,7 +117,7 @@
     .chart-body { position: relative; }
     .chart-body canvas { max-height: 250px; }
 
-    .recent-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .recent-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
     .recent-card {
       background: var(--surface); border-radius: var(--radius-lg); border: 1px solid var(--border-light); box-shadow: var(--shadow-sm); overflow: hidden;
     }
@@ -139,18 +140,20 @@
     .badge-info { background: #eff6ff; color: #1e40af; }
     .badge-gold { background: #fffbeb; color: #92400e; }
     .badge-purple { background: #faf5ff; color: #6d28d9; }
+    .badge-pink { background: #fdf2f8; color: #be185d; }
     .empty-state { text-align: center; padding: 1.5rem; color: #94a3b8; font-size: 0.72rem; }
     .footer { text-align: center; padding: 1rem; color: #94a3b8; font-size: 0.65rem; border-top: 1px solid var(--border-light); margin-top: 1rem; }
 
     @media (max-width: 1100px) {
-      .action-grid { grid-template-columns: repeat(2, 1fr); }
+      .action-grid { grid-template-columns: repeat(3, 1fr); }
       .analytics-grid { grid-template-columns: 1fr 1fr; }
       .chart-card.full-width, .chart-card.wide { grid-column: span 2; }
+      .recent-grid { grid-template-columns: 1fr 1fr; }
     }
     @media (max-width: 768px) {
       .main { padding: 1rem; }
       .stats-grid { grid-template-columns: 1fr 1fr; }
-      .action-grid { grid-template-columns: 1fr; }
+      .action-grid { grid-template-columns: 1fr 1fr; }
       .analytics-grid { grid-template-columns: 1fr; }
       .chart-card.full-width, .chart-card.wide { grid-column: span 1; }
       .recent-grid { grid-template-columns: 1fr; }
@@ -163,7 +166,6 @@
 <body>
   <nav class="navbar">
     <div class="navbar-left">
-      <!-- Logo click redirects to dashboard: https://kazinni-staff.vercel.app/dashboard -->
       <a class="brand" href="https://kazinni-staff.vercel.app/dashboard" onclick="event.preventDefault(); window.location.href='https://kazinni-staff.vercel.app/dashboard';">
         <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png" alt="Logo">
         <span>WorkFit Wellness</span>
@@ -186,18 +188,19 @@
   <div class="main">
     <div class="page-header">
       <h1 class="page-title">🏋️ WorkFit Wellness · Furnace Hub</h1>
-      <p class="page-subtitle">Central dashboard for managing gym franchises, trainers, members, and tracking growth across Kenya.</p>
+      <p class="page-subtitle">Central dashboard for managing gym franchises, trainers, members, bookings, and tracking growth across Kenya.</p>
     </div>
 
-    <!-- Stats Grid -->
+    <!-- Stats Grid (added Bookings stat) -->
     <div class="stats-grid" id="statsGrid">
       <div class="stat-card"><div class="stat-icon orange"><i class="fas fa-building"></i></div><div><div class="stat-value skeleton skeleton-value" id="statClubs">—</div><div class="stat-label">Total Clubs</div></div></div>
       <div class="stat-card"><div class="stat-icon green"><i class="fas fa-users"></i></div><div><div class="stat-value skeleton skeleton-value" id="statMembers">—</div><div class="stat-label">Total Members</div></div></div>
       <div class="stat-card"><div class="stat-icon blue"><i class="fas fa-user-check"></i></div><div><div class="stat-value skeleton skeleton-value" id="statTrainers">—</div><div class="stat-label">Active Trainers</div></div></div>
+      <div class="stat-card"><div class="stat-icon pink"><i class="fas fa-calendar-check"></i></div><div><div class="stat-value skeleton skeleton-value" id="statBookings">—</div><div class="stat-label">Total Bookings</div></div></div>
       <div class="stat-card"><div class="stat-icon purple"><i class="fas fa-hand-holding-heart"></i></div><div><div class="stat-value skeleton skeleton-value" id="statGiving">—</div><div class="stat-label">Total Giving (KES)</div></div></div>
     </div>
 
-    <!-- Action Cards -->
+    <!-- Action Cards (added Booking card) -->
     <div class="action-grid">
       <a href="/workspaces/workfit/clubs.html" class="action-card">
         <div class="action-icon"><i class="fas fa-building"></i></div>
@@ -228,6 +231,11 @@
         <div class="action-icon"><i class="fas fa-clipboard-list"></i></div>
         <h3>Equipment Inventory</h3><p>Track gym equipment, maintenance schedules, and asset values.</p>
         <span class="action-link">View Inventory <i class="fas fa-arrow-right"></i></span>
+      </a>
+      <a href="/workspaces/workfit/bookings.html" class="action-card">
+        <div class="action-icon" style="background:#fdf2f8;color:#db2777;"><i class="fas fa-calendar-plus"></i></div>
+        <h3>Bookings</h3><p>Manage client appointments, class bookings, and trainer schedules.</p>
+        <span class="action-link">Manage Bookings <i class="fas fa-arrow-right"></i></span>
       </a>
       <a href="/workspaces/workfit/giving.html" class="action-card">
         <div class="action-icon"><i class="fas fa-hand-holding-dollar"></i></div>
@@ -268,11 +276,17 @@
       </div>
     </div>
 
-    <!-- Recent Activity -->
+    <!-- Recent Activity (three columns: Clubs, Bookings, Giving) -->
     <div class="recent-grid">
       <div class="recent-card">
         <div class="recent-header"><h3><i class="fas fa-building"></i> Recent Clubs</h3><a href="/workspaces/workfit/clubs.html">View all →</a></div>
         <div class="recent-list" id="recentClubs">
+          <div class="empty-state"><div class="skeleton skeleton-text" style="margin:0 auto 8px;"></div><div class="skeleton skeleton-text short" style="margin:0 auto;"></div></div>
+        </div>
+      </div>
+      <div class="recent-card">
+        <div class="recent-header"><h3><i class="fas fa-calendar-check"></i> Recent Bookings</h3><a href="/workspaces/workfit/bookings.html">View all →</a></div>
+        <div class="recent-list" id="recentBookings">
           <div class="empty-state"><div class="skeleton skeleton-text" style="margin:0 auto 8px;"></div><div class="skeleton skeleton-text short" style="margin:0 auto;"></div></div>
         </div>
       </div>
@@ -301,10 +315,10 @@
     const auth = firebase.auth();
     const db = firebase.database();
 
-    let allClubs = {}, allMembers = {}, allTrainers = {}, allGiving = {};
+    let allClubs = {}, allMembers = {}, allTrainers = {}, allGiving = {}, allBookings = {};
     let allGivingData = [];
+    let allBookingsData = [];
     let charts = {};
-    let dataLoaded = false;
 
     function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
     
@@ -322,8 +336,6 @@
 
     function collectGivingData() {
       allGivingData = [];
-      
-      // Collect from members' giving sub-nodes
       Object.entries(allMembers).forEach(([memberId, member]) => {
         if (member.giving) {
           Object.entries(member.giving).forEach(([givingId, record]) => {
@@ -338,8 +350,6 @@
           });
         }
       });
-
-      // Also check workfit_giving node (legacy)
       Object.entries(allGiving).forEach(([id, record]) => {
         if (!allGivingData.some(g => g.id === id && g.memberId === record.memberId)) {
           const member = allMembers[record.memberId] || {};
@@ -354,56 +364,44 @@
       });
     }
 
-    // DEBUG: Log club and member data to console
-    function debugData() {
-      const clubs = Object.values(allClubs).filter(c => c && (c.businessName || c.name));
-      const members = Object.values(allMembers).filter(m => m && m.name);
-      
-      console.log('=== WORKFIT DASHBOARD DEBUG ===');
-      console.log('Total Clubs:', clubs.length);
-      console.log('Total Members:', members.length);
-      
-      clubs.forEach(c => {
-        const count = members.filter(m => m.clubId === c.id).length;
-        console.log(`  ${c.businessName || c.name} (${c.id}): ${count} members`);
-        const clubMembers = members.filter(m => m.clubId === c.id);
-        clubMembers.forEach(m => {
-          console.log(`    - ${m.name} (${m.id})`);
-        });
+    function collectBookingsData() {
+      allBookingsData = [];
+      Object.entries(allBookings).forEach(([id, booking]) => {
+        if (booking) {
+          allBookingsData.push({
+            id: id,
+            ...booking,
+            clientName: booking.clientName || booking.memberName || 'Guest',
+            clubName: booking.clubName || 'Unassigned'
+          });
+        }
       });
-      
-      const unassigned = members.filter(m => !m.clubId);
-      if (unassigned.length > 0) {
-        console.log('⚠️ Unassigned members (no clubId):', unassigned.length);
-        unassigned.forEach(m => console.log(`    - ${m.name} (${m.id})`));
-      }
-      console.log('=== END DEBUG ===');
     }
 
     function updateStats() {
       collectGivingData();
+      collectBookingsData();
       
       const clubs = Object.values(allClubs).filter(c => c && (c.businessName || c.name));
       const members = Object.values(allMembers).filter(m => m && m.name);
       const trainers = Object.values(allTrainers).filter(t => t && t.name);
       
-      // Calculate total giving
       const totalGiving = allGivingData.reduce((sum, g) => sum + (Number(g.amount) || 0), 0);
+      const totalBookings = allBookingsData.length;
       
       removeSkeleton(document.getElementById('statClubs'));
       removeSkeleton(document.getElementById('statMembers'));
       removeSkeleton(document.getElementById('statTrainers'));
+      removeSkeleton(document.getElementById('statBookings'));
       removeSkeleton(document.getElementById('statGiving'));
       
       document.getElementById('statClubs').textContent = clubs.length;
       document.getElementById('statMembers').textContent = members.length;
       document.getElementById('statTrainers').textContent = trainers.length;
+      document.getElementById('statBookings').textContent = totalBookings;
       document.getElementById('statGiving').textContent = formatCurrency(totalGiving);
-      document.getElementById('footerStats').textContent = `${clubs.length} clubs · ${members.length} members · ${trainers.length} trainers · KES ${formatCurrency(totalGiving)} giving`;
+      document.getElementById('footerStats').textContent = `${clubs.length} clubs · ${members.length} members · ${trainers.length} trainers · ${totalBookings} bookings · KES ${formatCurrency(totalGiving)} giving`;
       document.getElementById('liveIndicator').innerHTML = `<i class="fas fa-circle"></i> Live · ${new Date().toLocaleTimeString()}`;
-      
-      // Debug to console
-      debugData();
       
       renderRecent();
       renderCharts();
@@ -412,7 +410,8 @@
     function renderRecent() {
       const clubs = Object.entries(allClubs).map(([id, c]) => ({ id, ...c })).filter(c => c.businessName || c.name).sort((a,b) => (b.createdAt||b.timestamp||0) - (a.createdAt||a.timestamp||0)).slice(0,5);
       
-      // Recent giving - newest first
+      const recentBookings = allBookingsData.slice().sort((a,b) => (b.createdAt||0) - (a.createdAt||0)).slice(0,5);
+      
       const recentGiving = allGivingData.slice().sort((a,b) => (b.createdAt||0) - (a.createdAt||0)).slice(0,5);
       
       document.getElementById('recentClubs').innerHTML = clubs.length ? clubs.map(c => `
@@ -420,6 +419,23 @@
           <div><strong>${esc(c.businessName||c.name)}</strong><br><small>${esc(c.city||c.location||'')} · <span class="badge ${(c.tier||'standard')==='premium'?'badge-warning':'badge-info'}">${(c.tier||'Standard').toUpperCase()}</span></small></div>
           <span class="badge ${c.status==='active'?'badge-success':'badge-danger'}">${c.status||'active'}</span>
         </div>`).join('') : '<div class="empty-state">No clubs yet</div>';
+      
+      document.getElementById('recentBookings').innerHTML = recentBookings.length ? recentBookings.map(b => {
+        const date = b.createdAt ? new Date(b.createdAt).toLocaleDateString('en-KE') : 'Unknown';
+        const status = b.status || 'pending';
+        const statusBadge = status === 'confirmed' ? 'badge-success' : status === 'cancelled' ? 'badge-danger' : 'badge-warning';
+        return `
+          <div class="recent-item" onclick="window.location.href='/workspaces/workfit/bookings.html'">
+            <div>
+              <strong>${esc(b.clientName)}</strong>
+              <br><small>${esc(b.service || 'Class')} · ${esc(b.clubName)}</small>
+            </div>
+            <div style="text-align:right;">
+              <span class="badge ${statusBadge}">${esc(status)}</span>
+              <br><small style="color:#94a3b8;font-size:0.6rem;">${date}</small>
+            </div>
+          </div>`;
+      }).join('') : '<div class="empty-state">No bookings yet</div>';
       
       document.getElementById('recentGiving').innerHTML = recentGiving.length ? recentGiving.map(g => {
         const reason = g.reason || 'Support';
@@ -454,113 +470,32 @@
 
       if (!clubs.length && !members.length && !trainers.length) return;
 
-      // ============================================
       // Members by Club
-      // ============================================
       destroyChart('membersByClub');
-      
-      const clubData = clubs.map(c => {
-        const count = members.filter(m => m.clubId === c.id).length;
-        return {
-          id: c.id,
-          name: c.businessName || c.name || 'Unknown',
-          count: count,
-          members: members.filter(m => m.clubId === c.id)
-        };
-      });
-      
+      const clubData = clubs.map(c => ({ id: c.id, name: c.businessName || c.name || 'Unknown', count: members.filter(m => m.clubId === c.id).length }));
       clubData.sort((a, b) => b.count - a.count);
-      
       const unassigned = members.filter(m => !m.clubId);
-      
-      let chartLabels = [];
-      let chartCounts = [];
-      let chartColors = [];
-      
+      let chartLabels = [], chartCounts = [], chartColors = [];
       const colorPalette = ['#f97316', '#fb923c', '#fdba74', '#fed7aa', '#ffedd5', '#f59e0b', '#d97706'];
-      
       const clubsWithMembers = clubData.filter(c => c.count > 0);
-      
       if (clubsWithMembers.length > 0) {
-        clubsWithMembers.forEach((c, i) => {
-          chartLabels.push(c.name);
-          chartCounts.push(c.count);
-          chartColors.push(colorPalette[i % colorPalette.length]);
-        });
+        clubsWithMembers.forEach((c, i) => { chartLabels.push(c.name); chartCounts.push(c.count); chartColors.push(colorPalette[i % colorPalette.length]); });
       } else {
-        clubData.forEach((c, i) => {
-          chartLabels.push(c.name);
-          chartCounts.push(0);
-          chartColors.push(colorPalette[i % colorPalette.length]);
-        });
+        clubData.forEach((c, i) => { chartLabels.push(c.name); chartCounts.push(0); chartColors.push(colorPalette[i % colorPalette.length]); });
       }
-      
-      if (unassigned.length > 0) {
-        chartLabels.push('Unassigned');
-        chartCounts.push(unassigned.length);
-        chartColors.push('#94a3b8');
-      }
-      
-      if (chartLabels.length === 0) {
-        chartLabels = ['No Data'];
-        chartCounts = [0];
-        chartColors = ['#e2e8f0'];
-      }
-      
+      if (unassigned.length > 0) { chartLabels.push('Unassigned'); chartCounts.push(unassigned.length); chartColors.push('#94a3b8'); }
+      if (chartLabels.length === 0) { chartLabels = ['No Data']; chartCounts = [0]; chartColors = ['#e2e8f0']; }
       const ctx1 = document.getElementById('membersByClubChart')?.getContext('2d');
       if (ctx1) {
         showChartCanvas('membersByClubChart', 'skeletonChart1');
         charts.membersByClub = new Chart(ctx1, {
           type: 'bar', 
-          data: { 
-            labels: chartLabels, 
-            datasets: [{ 
-              label: 'Members', 
-              data: chartCounts, 
-              backgroundColor: chartColors,
-              borderRadius: 8,
-              borderSkipped: false
-            }] 
-          },
-          options: { 
-            responsive: true, 
-            maintainAspectRatio: false, 
-            plugins: { 
-              legend: { display: false },
-              tooltip: {
-                callbacks: {
-                  label: function(context) {
-                    const idx = context.dataIndex;
-                    const club = clubData[idx];
-                    if (club && club.members && club.members.length > 0) {
-                      const names = club.members.map(m => m.name || m.fullName).join(', ');
-                      return `${context.raw} members: ${names}`;
-                    }
-                    return `${context.raw} members`;
-                  }
-                }
-              }
-            }, 
-            scales: { 
-              y: { 
-                beginAtZero: true, 
-                ticks: { stepSize: 1 },
-                title: { display: true, text: 'Members' }
-              },
-              x: {
-                ticks: {
-                  maxRotation: 45,
-                  minRotation: 30
-                }
-              }
-            } 
-          }
+          data: { labels: chartLabels, datasets: [{ label: 'Members', data: chartCounts, backgroundColor: chartColors, borderRadius: 8, borderSkipped: false }] },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } }, x: { ticks: { maxRotation: 45, minRotation: 30 } } } }
         });
       }
 
-      // ============================================
       // Tier Distribution
-      // ============================================
       destroyChart('tierDistribution');
       const tiers = ['Basic', 'Standard', 'Premium'];
       const tierCounts = tiers.map(t => members.filter(m => m.membershipTier === t).length);
@@ -569,30 +504,12 @@
         showChartCanvas('tierDistributionChart', 'skeletonChart2');
         charts.tierDistribution = new Chart(ctx2, {
           type: 'doughnut', 
-          data: { 
-            labels: tiers, 
-            datasets: [{ 
-              data: tierCounts, 
-              backgroundColor: ['#94a3b8', '#3b82f6', '#f59e0b'], 
-              borderWidth: 0 
-            }] 
-          },
-          options: { 
-            responsive: true, 
-            maintainAspectRatio: false, 
-            plugins: { 
-              legend: { 
-                position: 'bottom', 
-                labels: { boxWidth: 12, padding: 12, font: { size: 10 } } 
-              } 
-            } 
-          }
+          data: { labels: tiers, datasets: [{ data: tierCounts, backgroundColor: ['#94a3b8', '#3b82f6', '#f59e0b'], borderWidth: 0 }] },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, padding: 12, font: { size: 10 } } } } }
         });
       }
 
-      // ============================================
       // Giving by Month
-      // ============================================
       destroyChart('giving');
       const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
       const now = new Date();
@@ -601,41 +518,18 @@
         const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
         last6.push({ label: months[d.getMonth()], month: d.getMonth(), year: d.getFullYear() });
       }
-      const givingData = last6.map(l => allGivingData.filter(g => {
-        const d = g.createdAt ? new Date(g.createdAt) : null;
-        return d && d.getMonth() === l.month && d.getFullYear() === l.year;
-      }).reduce((s, g) => s + (Number(g.amount) || 0), 0));
-      
+      const givingData = last6.map(l => allGivingData.filter(g => { const d = g.createdAt ? new Date(g.createdAt) : null; return d && d.getMonth() === l.month && d.getFullYear() === l.year; }).reduce((s, g) => s + (Number(g.amount) || 0), 0));
       const ctx3 = document.getElementById('givingChart')?.getContext('2d');
       if (ctx3) {
         showChartCanvas('givingChart', 'skeletonChart3');
         charts.giving = new Chart(ctx3, {
           type: 'line', 
-          data: { 
-            labels: last6.map(l=>l.label), 
-            datasets: [{ 
-              label: 'Giving', 
-              data: givingData, 
-              borderColor: '#f97316', 
-              backgroundColor: 'rgba(249,115,22,0.1)', 
-              fill: true, 
-              tension: 0.4, 
-              pointRadius: 4, 
-              pointBackgroundColor: '#f97316' 
-            }] 
-          },
-          options: { 
-            responsive: true, 
-            maintainAspectRatio: false, 
-            plugins: { legend: { display: false } }, 
-            scales: { y: { beginAtZero: true, ticks: { callback: v => formatCurrency(v) } } } 
-          }
+          data: { labels: last6.map(l=>l.label), datasets: [{ label: 'Giving', data: givingData, borderColor: '#f97316', backgroundColor: 'rgba(249,115,22,0.1)', fill: true, tension: 0.4, pointRadius: 4, pointBackgroundColor: '#f97316' }] },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { callback: v => formatCurrency(v) } } } }
         });
       }
 
-      // ============================================
       // Trainer Specialty
-      // ============================================
       destroyChart('trainerSpecialty');
       const specialties = ['Yoga','Cardio','Strength Training','HIIT','Zumba','Pilates','CrossFit','Spin'];
       const specCounts = specialties.map(s => trainers.filter(t => (t.specialty||'').toLowerCase().includes(s.toLowerCase())).length);
@@ -644,22 +538,8 @@
         showChartCanvas('trainerSpecialtyChart', 'skeletonChart4');
         charts.trainerSpecialty = new Chart(ctx4, {
           type: 'bar', 
-          data: { 
-            labels: specialties, 
-            datasets: [{ 
-              label: 'Trainers', 
-              data: specCounts, 
-              backgroundColor: '#3b82f6', 
-              borderRadius: 6 
-            }] 
-          },
-          options: { 
-            responsive: true, 
-            maintainAspectRatio: false, 
-            indexAxis: 'y', 
-            plugins: { legend: { display: false } }, 
-            scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } } } 
-          }
+          data: { labels: specialties, datasets: [{ label: 'Trainers', data: specCounts, backgroundColor: '#3b82f6', borderRadius: 6 }] },
+          options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } } } }
         });
       }
     }
@@ -669,11 +549,11 @@
       document.getElementById('userName').textContent = user.displayName?.split(' ')[0] || user.email?.split('@')[0] || 'Director';
       document.getElementById('userAvatar').textContent = (user.displayName || user.email?.[0] || 'W').substring(0,2).toUpperCase();
 
-      // Load data with realtime updates
       db.ref('workfit_clubs').on('value', s => { allClubs = s.val() || {}; updateStats(); });
       db.ref('workfit_members').on('value', s => { allMembers = s.val() || {}; updateStats(); });
       db.ref('workfit_trainers').on('value', s => { allTrainers = s.val() || {}; updateStats(); });
       db.ref('workfit_giving').on('value', s => { allGiving = s.val() || {}; updateStats(); });
+      db.ref('workfit_bookings').on('value', s => { allBookings = s.val() || {}; updateStats(); });
     });
   </script>
 </body>
