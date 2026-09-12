@@ -12,6 +12,7 @@
   <link rel="icon" type="image/png" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -25,7 +26,6 @@
       flex-direction: column;
     }
 
-    /* Login */
     .login-overlay {
       position: fixed; inset: 0;
       background: rgba(30, 27, 47, 0.95);
@@ -71,7 +71,6 @@
 
     #dashboardMain { display: none; }
 
-    /* Navbar */
     .navbar {
       background: rgba(255, 255, 255, 0.95);
       backdrop-filter: blur(10px);
@@ -141,7 +140,6 @@
     }
     .scope-badge i { font-size: 0.65rem; }
 
-    /* Tabs */
     .page-tabs {
       display: flex; gap: 8px; margin-bottom: 1.5rem;
       background: white; padding: 0.5rem; border-radius: 40px;
@@ -163,7 +161,6 @@
     .page-section { display: none; }
     .page-section.active { display: block; }
 
-    /* Summary cards */
     .subs-summary {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -195,7 +192,6 @@
     .subs-summary-icon.txns     { background: #dbeafe; color: #1e40af; }
     .subs-summary-icon.suspended { background: #fee2e2; color: #991b1b; }
 
-    /* Filter pills */
     .plan-filter {
       display: flex; gap: 8px; flex-wrap: wrap;
       margin-bottom: 1.2rem; align-items: center;
@@ -220,7 +216,6 @@
     }
     .plan-filter-pill.active .count { background: rgba(255,255,255,0.25); }
 
-    /* Search */
     .search-card {
       background: white; border-radius: 24px; padding: 1.2rem 1.5rem;
       border: 1px solid #f1eaff;
@@ -263,12 +258,11 @@
       font-size: 0.75rem; font-weight: 700;
     }
 
-    /* Table */
     .table-container {
       background: white; border-radius: 24px; border: 1px solid #f1eaff;
       overflow-x: auto; box-shadow: 0 8px 25px rgba(124, 58, 237, 0.05);
     }
-    table { width: 100%; border-collapse: collapse; min-width: 1100px; }
+    table { width: 100%; border-collapse: collapse; min-width: 1200px; }
     th {
       text-align: left; padding: 1.1rem 1.4rem;
       font-weight: 600; font-size: 0.75rem;
@@ -309,6 +303,12 @@
     .contact-cell { font-size: 0.8rem; color: #475569; line-height: 1.35; }
     .contact-cell small { color: #94a3b8; font-size: 0.7rem; }
 
+    .invoice-number-cell {
+      font-family: 'Courier New', monospace;
+      font-size: 0.75rem; font-weight: 700;
+      color: #6d28d9; letter-spacing: 0.3px;
+    }
+
     .status-badge {
       display: inline-flex; align-items: center; gap: 5px;
       padding: 0.25rem 0.8rem; border-radius: 30px;
@@ -336,13 +336,16 @@
       background: white; border: 1.5px solid #e2e8f0; color: #64748b;
     }
     .action-btn.ghost:hover { border-color: #7c3aed; color: #7c3aed; background: #f5f0ff; }
+    .action-btn.green {
+      background: white; border: 1.5px solid #10b981; color: #059669;
+    }
+    .action-btn.green:hover { background: #10b981; color: white; border-color: #10b981; }
 
     .empty-state { text-align: center; padding: 3rem 2rem; color: #94a3b8; }
     .empty-state i { font-size: 3rem; margin-bottom: 1rem; opacity: 0.5; display: block; }
     .empty-state h3 { color: #475569; margin-bottom: 0.5rem; font-size: 1.1rem; }
     .empty-state p { font-size: 0.85rem; max-width: 420px; margin: 0 auto; line-height: 1.5; }
 
-    /* Modal */
     .modal-overlay {
       position: fixed; inset: 0;
       background: rgba(15, 23, 42, 0.55);
@@ -371,7 +374,6 @@
       color: #64748b; font-size: 0.85rem; margin-bottom: 1.5rem;
     }
 
-    /* Manage-modal tabs */
     .manage-tabs {
       display: flex; gap: 6px; margin-bottom: 1.2rem;
       background: #f8fafc; padding: 0.35rem; border-radius: 40px;
@@ -393,7 +395,6 @@
     .manage-panel { display: none; }
     .manage-panel.active { display: block; }
 
-    /* Plan picker */
     .plan-option {
       border: 2px solid #e2e8f0; border-radius: 16px;
       padding: 0.9rem 1.1rem; margin-bottom: 0.7rem;
@@ -416,7 +417,6 @@
     }
     .plan-option-price small { display: block; font-size: 0.68rem; font-weight: 400; color: #64748b; }
 
-    /* Form */
     .form-group { margin-bottom: 1rem; }
     .form-group label {
       display: block; font-weight: 600; margin-bottom: 0.35rem;
@@ -493,7 +493,6 @@
     }
     .modal-note i { color: #d97706; }
 
-    /* Detail rows */
     .payment-detail-row {
       display: flex; justify-content: space-between;
       padding: 0.65rem 0; border-bottom: 1px solid #f1f5f9;
@@ -513,8 +512,13 @@
       color: #64748b; font-size: 0.8rem; margin-top: 0.4rem;
       text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;
     }
+    .payment-invoice-number {
+      text-align: center; margin-top: 0.5rem;
+      font-family: 'Courier New', monospace;
+      font-size: 0.8rem; font-weight: 700;
+      color: #6d28d9; letter-spacing: 0.5px;
+    }
 
-    /* Activity log inside manage modal */
     .activity-list {
       max-height: 220px; overflow-y: auto;
       border: 1px solid #e2e8f0; border-radius: 12px;
@@ -531,16 +535,15 @@
       display: flex; align-items: center; justify-content: center;
       font-size: 0.7rem; flex-shrink: 0; margin-top: 2px;
     }
-    .activity-icon.plan      { background: #f5f0ff; color: #6d28d9; }
-    .activity-icon.payment   { background: #f0fdf4; color: #10b981; }
-    .activity-icon.extend    { background: #dbeafe; color: #1e40af; }
-    .activity-icon.suspend   { background: #fee2e2; color: #991b1b; }
+    .activity-icon.plan       { background: #f5f0ff; color: #6d28d9; }
+    .activity-icon.payment    { background: #f0fdf4; color: #10b981; }
+    .activity-icon.extend     { background: #dbeafe; color: #1e40af; }
+    .activity-icon.suspend    { background: #fee2e2; color: #991b1b; }
     .activity-icon.reactivate { background: #d1fae5; color: #065f46; }
     .activity-body { flex: 1; }
     .activity-title { font-weight: 600; color: #0f172a; }
     .activity-meta { font-size: 0.7rem; color: #94a3b8; margin-top: 2px; }
 
-    /* Toast */
     .toast-container { position: fixed; bottom: 30px; right: 30px; z-index: 4000; }
     .toast {
       background: #1e293b; color: white; padding: 1rem 1.5rem;
@@ -553,7 +556,6 @@
     .toast.error { background: #ef4444; }
     @keyframes slideIn { from { opacity: 0; transform: translateX(100%); } to { opacity: 1; transform: translateX(0); } }
 
-    /* Loading */
     .loading-spinner { text-align: center; padding: 3rem; }
     .spinner {
       width: 40px; height: 40px; border: 3px solid #f1eaff;
@@ -587,7 +589,6 @@
 </head>
 <body>
 
-<!-- Login -->
 <div id="loginOverlay" class="login-overlay">
   <div class="login-card">
     <div class="login-icon"><i class="fas fa-crown"></i></div>
@@ -602,7 +603,6 @@
   </div>
 </div>
 
-<!-- Main -->
 <div id="dashboardMain">
   <nav class="navbar">
     <a href="/workspaces/brandinn/index.html" class="logo">
@@ -799,7 +799,7 @@
         <div class="search-box">
           <div class="search-input-wrapper">
             <i class="fas fa-search"></i>
-            <input type="text" class="search-input" id="paymentSearchInput" placeholder="Search by business, email, reference, action...">
+            <input type="text" class="search-input" id="paymentSearchInput" placeholder="Search by business, email, reference, invoice #, action...">
           </div>
           <button class="reset-btn" id="paymentResetBtn"><i class="fas fa-undo-alt"></i> Reset</button>
         </div>
@@ -813,6 +813,7 @@
         <table>
           <thead>
             <tr>
+              <th>Invoice #</th>
               <th>Date</th>
               <th>Business</th>
               <th>Action</th>
@@ -824,7 +825,7 @@
             </tr>
           </thead>
           <tbody id="paymentsTableBody">
-            <tr><td colspan="8"><div class="loading-spinner"><div class="spinner"></div><p>Loading payments...</p></td></tr>
+            <tr><td colspan="9"><div class="loading-spinner"><div class="spinner"></div><p>Loading payments...</p></td></tr>
           </tbody>
         </table>
       </div>
@@ -838,7 +839,7 @@
   </div>
 </div>
 
-<!-- ===================== MANAGE SUBSCRIPTION MODAL ===================== -->
+<!-- MANAGE SUBSCRIPTION MODAL -->
 <div class="modal-overlay" id="manageModal">
   <div class="modal-box">
     <h3><i class="fas fa-sliders-h"></i> <span id="manageTitle">Manage Subscription</span></h3>
@@ -859,7 +860,6 @@
       </button>
     </div>
 
-    <!-- Plan panel -->
     <div class="manage-panel active" id="panel-plan">
       <div class="plan-option" data-plan="basic" data-price="1000">
         <div class="plan-option-left">
@@ -883,11 +883,10 @@
         <div class="plan-option-price">KSh 3,500<small>per month</small></div>
       </div>
       <div class="modal-note">
-        <i class="fas fa-info-circle"></i> Plan change is instant. Client page updates live. An audit entry is recorded automatically.
+        <i class="fas fa-info-circle"></i> Plan change is instant. Client page updates live. An audit entry with a stable invoice number is recorded automatically.
       </div>
     </div>
 
-    <!-- Payment panel -->
     <div class="manage-panel" id="panel-payment">
       <div class="form-row">
         <div class="form-group">
@@ -932,11 +931,10 @@
         </div>
       </div>
       <div class="modal-note">
-        <i class="fas fa-info-circle"></i> The payment is recorded in the audit log. If "Also change plan" is set, the business plan updates and the client page reflects it live.
+        <i class="fas fa-info-circle"></i> The payment is recorded in the audit log with a stable invoice number. If "Also change plan" is set, the business plan updates and the client page reflects it live.
       </div>
     </div>
 
-    <!-- Billing panel -->
     <div class="manage-panel" id="panel-billing">
       <div class="form-group">
         <label>Current Next Billing Date</label>
@@ -961,11 +959,10 @@
         <input type="text" id="extendReason" placeholder="e.g. Client paid 2 months upfront">
       </div>
       <div class="modal-note">
-        <i class="fas fa-info-circle"></i> Client page's "Next Billing" updates live.
+        <i class="fas fa-info-circle"></i> Client page's "Next Billing" updates live. An audit entry is recorded.
       </div>
     </div>
 
-    <!-- Status panel -->
     <div class="manage-panel" id="panel-status">
       <div id="statusCurrentBlock"></div>
       <div class="form-group">
@@ -977,7 +974,6 @@
       </div>
     </div>
 
-    <!-- Activity log -->
     <div style="margin-top:1.2rem;">
       <label style="display:block;font-weight:600;margin-bottom:0.4rem;color:#334155;font-size:0.8rem;">
         <i class="fas fa-history"></i> Recent Activity
@@ -996,7 +992,7 @@
   </div>
 </div>
 
-<!-- ===================== PAYMENT DETAIL MODAL ===================== -->
+<!-- PAYMENT DETAIL MODAL -->
 <div class="modal-overlay" id="paymentDetailModal">
   <div class="modal-box">
     <h3><i class="fas fa-receipt"></i> Payment Details</h3>
@@ -1005,14 +1001,20 @@
     <div class="payment-amount-big">
       <div class="amount" id="detailAmount">KSh 0</div>
       <div class="label">Amount Paid</div>
+      <div class="payment-invoice-number" id="detailInvoiceNumber"></div>
     </div>
 
     <div id="detailRows"></div>
 
-    <div class="modal-actions">
-      <button class="btn btn-secondary" onclick="closePaymentDetailModal()">Close</button>
+    <div class="modal-actions" style="flex-wrap:wrap; gap:8px;">
+      <button class="btn btn-secondary" id="detailDownloadInvoiceBtn">
+        <i class="fas fa-download"></i> Download
+      </button>
+      <button class="btn btn-primary green" id="detailEmailInvoiceBtn">
+        <i class="fas fa-envelope"></i> Email Invoice
+      </button>
       <button class="btn btn-primary" id="detailOpenBusinessBtn">
-        <i class="fas fa-sliders-h"></i> Manage Business
+        <i class="fas fa-sliders-h"></i> Manage
       </button>
     </div>
   </div>
@@ -1033,7 +1035,7 @@
 <script type="module">
   import { initializeApp } from "firebase/app";
   import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "firebase/auth";
-  import { getDatabase, ref, onValue, update, get, query, orderByChild, limitToLast } from "firebase/database";
+  import { getDatabase, ref, onValue, update, get } from "firebase/database";
 
   const firebaseConfig = {
     apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
@@ -1063,13 +1065,12 @@
   let activePlanFilter = 'all';
   let activePaymentFilter = 'all';
 
-  let manageBiz = null;              // business being managed in modal
+  let manageBiz = null;
   let pendingPlan = null;
   let pendingPrice = null;
   let pendingExtendDays = 30;
-  let pendingStatusAction = null;    // 'suspend' | 'reactivate' | null
+  let pendingStatusAction = null;
 
-  // DOM refs
   const loginOverlay = document.getElementById('loginOverlay');
   const dashboardMain = document.getElementById('dashboardMain');
   const loginBtn = document.getElementById('loginBtn');
@@ -1092,7 +1093,13 @@
   const paymentsCount = document.getElementById('paymentsCount');
   const paymentSearchInput = document.getElementById('paymentSearchInput');
 
-  // ---------- Helpers ----------
+  // ---------- Utilities ----------
+  function generateInvoiceNumber(date = new Date()) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const seq = String(Math.floor(Math.random() * 9000) + 1000);
+    return `INV-${year}${month}-${seq}`;
+  }
   function showToast(message, type = 'info') {
     const t = document.createElement('div');
     t.className = `toast ${type}`;
@@ -1118,6 +1125,12 @@
     const d = new Date(ts);
     if (isNaN(d.getTime())) return '—';
     return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+  }
+  function formatShortDate(ts) {
+    if (!ts) return '—';
+    const d = new Date(ts);
+    if (isNaN(d.getTime())) return '—';
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   }
   function formatDateTime(ts) {
     if (!ts) return '—';
@@ -1148,7 +1161,6 @@
   }
   function getBizNextBilling(b) {
     if (b.nextBillingDate) return new Date(b.nextBillingDate).getTime();
-    // fallback: 30 days from createdAt
     if (b.createdAt) return new Date(b.createdAt).getTime() + 30 * 24 * 60 * 60 * 1000;
     return null;
   }
@@ -1163,7 +1175,6 @@
     });
   });
 
-  // ---------- Plans filter pills ----------
   document.querySelectorAll('#planFilter [data-plan-filter]').forEach(pill => {
     pill.addEventListener('click', () => {
       document.querySelectorAll('#planFilter .plan-filter-pill').forEach(p => p.classList.remove('active'));
@@ -1173,7 +1184,6 @@
     });
   });
 
-  // ---------- Payments filter pills ----------
   document.querySelectorAll('#paymentFilter [data-payment-filter]').forEach(pill => {
     pill.addEventListener('click', () => {
       document.querySelectorAll('#paymentFilter .plan-filter-pill').forEach(p => p.classList.remove('active'));
@@ -1183,7 +1193,7 @@
     });
   });
 
-  // ---------- Plans render ----------
+  // ---------- Plans ----------
   function applyPlanFilter() {
     const term = searchInput.value.toLowerCase().trim();
     filteredBusinesses = allBusinesses.filter(b => {
@@ -1223,10 +1233,10 @@
     document.getElementById('countSuspended').textContent = counts.suspended;
 
     const mrr = allBusinesses.reduce((sum, b) => sum + planPrice(b.plan), 0);
-    document.getElementById('statTotalBiz').textContent   = allBusinesses.length;
-    document.getElementById('statMRR').textContent        = formatKsh(mrr);
-    document.getElementById('statPremium').textContent    = counts.premium;
-    document.getElementById('statSuspended').textContent  = counts.suspended;
+    document.getElementById('statTotalBiz').textContent  = allBusinesses.length;
+    document.getElementById('statMRR').textContent       = formatKsh(mrr);
+    document.getElementById('statPremium').textContent   = counts.premium;
+    document.getElementById('statSuspended').textContent = counts.suspended;
   }
 
   function renderPlansTable() {
@@ -1282,7 +1292,7 @@
     }).join('');
   }
 
-  // ---------- Payments render ----------
+  // ---------- Payments ----------
   function applyPaymentFilter() {
     const term = paymentSearchInput.value.toLowerCase().trim();
     filteredPayments = allPayments.filter(p => {
@@ -1296,7 +1306,7 @@
       if (!term) return true;
       const haystack = [
         p.businessName, p.email, p.phone, p.mpesaReference, p.reference,
-        p.tier, p.action, p.changedBy, p.reason, p.subscriptionId
+        p.tier, p.action, p.changedBy, p.reason, p.subscriptionId, p.invoiceNumber
       ].filter(Boolean).join(' ').toLowerCase();
       return haystack.includes(term);
     });
@@ -1345,7 +1355,6 @@
     if (s === 'failed') return 'failed';
     return 'paid';
   }
-
   function getActionIcon(action) {
     const a = (action || '').toLowerCase();
     if (a === 'subscribe') return 'fa-cart-plus';
@@ -1374,11 +1383,13 @@
       const amount = Number(p.amount) || 0;
       const action = p.action || 'subscribe';
       const date = p.startDate || p.createdAt || p.timestamp;
+      const invoiceNumber = p.invoiceNumber || '—';
       const sourceBadge = source === 'admin'
         ? `<span class="status-badge pending" style="background:#dbeafe;color:#1e40af;"><i class="fas fa-user-shield"></i> Admin</span>`
         : `<span class="status-badge paid"><i class="fas fa-user"></i> Client</span>`;
       return `
         <tr>
+          <td><span class="invoice-number-cell">${escapeHtml(invoiceNumber)}</span></td>
           <td>${formatDate(date)}</td>
           <td>
             <div class="business-cell">
@@ -1395,16 +1406,24 @@
           <td>${sourceBadge}</td>
           <td><span class="status-badge ${getPaymentStatusClass(status)}">${escapeHtml(status)}</span></td>
           <td>
-            <button class="action-btn ghost" onclick="openPaymentDetailModal(${i})">
-              <i class="fas fa-eye"></i> View
-            </button>
+            <div class="action-group">
+              <button class="action-btn ghost" onclick="openPaymentDetailModal(${i})" title="View details">
+                <i class="fas fa-eye"></i>
+              </button>
+              <button class="action-btn ghost" onclick="downloadInvoiceFromRow(${i})" title="Download Invoice PDF">
+                <i class="fas fa-download"></i>
+              </button>
+              <button class="action-btn green" onclick="emailInvoiceFromRow(${i})" title="Email Invoice to Client">
+                <i class="fas fa-envelope"></i>
+              </button>
+            </div>
           </td>
         </tr>
       `;
     }).join('');
   }
 
-  // ---------- Manage Subscription Modal ----------
+  // ---------- Manage Modal ----------
   window.openManageModal = async function(subdomain) {
     const biz = allBusinesses.find(b => b.subdomain === subdomain);
     if (!biz) return;
@@ -1418,19 +1437,16 @@
     document.getElementById('manageTitle').textContent = name;
     document.getElementById('manageSubtitle').textContent = subdomain;
 
-    // Reset tabs to Plan
     document.querySelectorAll('.manage-tab').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.manage-panel').forEach(p => p.classList.remove('active'));
     document.querySelector('.manage-tab[data-manage-tab="plan"]').classList.add('active');
     document.getElementById('panel-plan').classList.add('active');
 
-    // Preselect current plan
     document.querySelectorAll('.plan-option').forEach(opt => {
       opt.classList.remove('selected');
       if (opt.dataset.plan === getPlanKey(biz.plan)) opt.classList.add('selected');
     });
 
-    // Billing
     const nextBillingTs = getBizNextBilling(biz);
     document.getElementById('currentNextBilling').value = nextBillingTs ? formatDate(nextBillingTs) : '—';
     pendingExtendDays = 30;
@@ -1438,7 +1454,6 @@
     document.querySelector('.extend-pill[data-days="30"]').classList.add('selected');
     updateNewNextBilling();
 
-    // Status
     const status = (biz.status || 'active').toLowerCase();
     const block = document.getElementById('statusCurrentBlock');
     if (status === 'suspended') {
@@ -1460,7 +1475,6 @@
     }
     document.getElementById('suspendReason').value = '';
 
-    // Payment defaults
     document.getElementById('payAmount').value = planPrice(biz.plan) || '';
     document.getElementById('payPlan').value = getPlanKey(biz.plan) === 'other' ? 'basic' : getPlanKey(biz.plan);
     document.getElementById('payReference').value = '';
@@ -1468,10 +1482,10 @@
     document.getElementById('payAlsoChange').value = 'no';
     document.getElementById('payMethod').value = 'M-Pesa';
 
-    // Load activity
     loadActivityForBiz(subdomain);
 
     document.getElementById('manageModal').classList.add('open');
+    updateApplyButtonLabel();
   };
 
   window.closeManageModal = function() {
@@ -1482,7 +1496,6 @@
     pendingStatusAction = null;
   };
 
-  // Tab switching
   document.querySelectorAll('.manage-tab').forEach(tab => {
     tab.addEventListener('click', () => {
       document.querySelectorAll('.manage-tab').forEach(t => t.classList.remove('active'));
@@ -1518,7 +1531,6 @@
     }
   }
 
-  // Plan option click
   document.querySelectorAll('.plan-option').forEach(opt => {
     opt.addEventListener('click', () => {
       document.querySelectorAll('.plan-option').forEach(o => o.classList.remove('selected'));
@@ -1528,7 +1540,6 @@
     });
   });
 
-  // Extend pills
   document.querySelectorAll('.extend-pill').forEach(pill => {
     pill.addEventListener('click', () => {
       document.querySelectorAll('.extend-pill').forEach(p => p.classList.remove('selected'));
@@ -1578,6 +1589,7 @@
         const paymentId = `pay_${now}_${Math.random().toString(36).substr(2, 6)}`;
         updates[`brandinn_subscription_payments/${paymentId}`] = {
           subscriptionId: paymentId,
+          invoiceNumber: generateInvoiceNumber(),
           businessSlug: subdomain,
           businessName,
           email, phone,
@@ -1613,6 +1625,7 @@
         const updates = {};
         updates[`brandinn_subscription_payments/${paymentId}`] = {
           subscriptionId: paymentId,
+          invoiceNumber: generateInvoiceNumber(),
           businessSlug: subdomain,
           businessName,
           email, phone,
@@ -1662,6 +1675,7 @@
         updates[`brandinn_subdomains/${subdomain}/updatedBy`]       = userNameEl.textContent;
         updates[`brandinn_subscription_payments/${paymentId}`] = {
           subscriptionId: paymentId,
+          invoiceNumber: generateInvoiceNumber(),
           businessSlug: subdomain,
           businessName,
           email, phone,
@@ -1684,10 +1698,9 @@
       else if (activeTab === 'status') {
         const status = (manageBiz.status || 'active').toLowerCase();
         const reason = document.getElementById('suspendReason').value.trim();
+        const paymentId = `pay_${now}_${Math.random().toString(36).substr(2, 6)}`;
 
         if (status === 'suspended') {
-          // Reactivate
-          const paymentId = `pay_${now}_${Math.random().toString(36).substr(2, 6)}`;
           const updates = {};
           updates[`brandinn_subdomains/${subdomain}/status`]            = 'active';
           updates[`brandinn_subdomains/${subdomain}/suspensionReason`]  = null;
@@ -1695,6 +1708,7 @@
           updates[`brandinn_subdomains/${subdomain}/updatedBy`]         = userNameEl.textContent;
           updates[`brandinn_subscription_payments/${paymentId}`] = {
             subscriptionId: paymentId,
+            invoiceNumber: generateInvoiceNumber(),
             businessSlug: subdomain,
             businessName,
             email, phone,
@@ -1710,8 +1724,6 @@
           await update(ref(db), updates);
           showToast('Subscription reactivated', 'success');
         } else {
-          // Suspend
-          const paymentId = `pay_${now}_${Math.random().toString(36).substr(2, 6)}`;
           const updates = {};
           updates[`brandinn_subdomains/${subdomain}/status`]           = 'suspended';
           updates[`brandinn_subdomains/${subdomain}/suspensionReason`] = reason || 'Suspended by admin';
@@ -1719,6 +1731,7 @@
           updates[`brandinn_subdomains/${subdomain}/updatedBy`]        = userNameEl.textContent;
           updates[`brandinn_subscription_payments/${paymentId}`] = {
             subscriptionId: paymentId,
+            invoiceNumber: generateInvoiceNumber(),
             businessSlug: subdomain,
             businessName,
             email, phone,
@@ -1746,7 +1759,7 @@
     }
   });
 
-  // ---------- Activity log ----------
+  // ---------- Activity ----------
   async function loadActivityForBiz(subdomain) {
     const list = document.getElementById('activityList');
     list.innerHTML = '<p style="color:#94a3b8;text-align:center;padding:1rem;font-size:0.8rem;">Loading...</p>';
@@ -1777,7 +1790,7 @@
             <div class="activity-icon ${iconClass}"><i class="fas ${getActionIcon(action)}"></i></div>
             <div class="activity-body">
               <div class="activity-title">${escapeHtml(title)}${amountStr}</div>
-              <div class="activity-meta">${escapeHtml(p.changedBy || p.email || '—')} · ${formatDateTime(p.createdAt)}</div>
+              <div class="activity-meta">${escapeHtml(p.invoiceNumber || '')} · ${escapeHtml(p.changedBy || p.email || '—')} · ${formatDateTime(p.createdAt)}</div>
               ${p.reason ? `<div class="activity-meta" style="color:#475569;">"${escapeHtml(p.reason)}"</div>` : ''}
             </div>
           </div>`;
@@ -1792,20 +1805,25 @@
   window.openPaymentDetailModal = function(index) {
     const p = filteredPayments[index];
     if (!p) return;
+
     const status = (p.status || 'paid').toLowerCase();
     const amount = Number(p.amount) || 0;
     const businessName = p.businessName || p.name || p.email || '—';
+    const invoiceNumber = p.invoiceNumber || '—';
 
     document.getElementById('paymentDetailSubtitle').textContent = businessName;
     document.getElementById('detailAmount').textContent = formatKsh(amount);
+    document.getElementById('detailInvoiceNumber').textContent = invoiceNumber !== '—'
+      ? `Invoice ${invoiceNumber}` : '';
 
     const rows = [
+      ['Invoice Number', invoiceNumber],
       ['Status', status.toUpperCase()],
       ['Action', (p.action || 'subscribe').replace(/_/g, ' ')],
       ['Source', (p.source || 'client').toUpperCase()],
       ['Business', businessName],
       ['Email', p.email || '—'],
-      ['Phone', p.phone || p.paymentDetails?.phone || '—'],
+      ['Phone', p.phone || '—'],
       ['Plan / Tier', p.tier || '—'],
       ['Interval', p.interval || '—'],
       ['Payment Method', p.paymentMethod || '—'],
@@ -1825,12 +1843,10 @@
       </div>
     `).join('');
 
-    const viewBtn = document.getElementById('detailOpenBusinessBtn');
-    viewBtn.onclick = () => {
+    document.getElementById('detailOpenBusinessBtn').onclick = () => {
       closePaymentDetailModal();
       const slug = p.businessSlug;
       if (slug) {
-        // switch to plans tab
         document.querySelector('[data-page-tab="plans"]').click();
         searchInput.value = slug;
         applyPlanFilter();
@@ -1840,6 +1856,14 @@
       }
     };
 
+    document.getElementById('detailDownloadInvoiceBtn').onclick = () => {
+      generateInvoicePDFForPayment(p);
+    };
+
+    document.getElementById('detailEmailInvoiceBtn').onclick = () => {
+      emailInvoiceForPayment(p);
+    };
+
     document.getElementById('paymentDetailModal').classList.add('open');
   };
 
@@ -1847,7 +1871,6 @@
     document.getElementById('paymentDetailModal').classList.remove('open');
   };
 
-  // Close modals on backdrop click
   document.querySelectorAll('.modal-overlay').forEach(overlay => {
     overlay.addEventListener('click', (e) => {
       if (e.target === overlay) overlay.classList.remove('open');
@@ -1866,6 +1889,217 @@
     activePaymentFilter = 'all';
     applyPaymentFilter();
   };
+
+  // ---------- Quick invoice actions ----------
+  window.downloadInvoiceFromRow = function(index) {
+    const p = filteredPayments[index];
+    if (!p) return;
+    if (!Number(p.amount)) {
+      showToast('No amount recorded — nothing to invoice', 'error');
+      return;
+    }
+    generateInvoicePDFForPayment(p);
+  };
+
+  window.emailInvoiceFromRow = function(index) {
+    const p = filteredPayments[index];
+    if (!p) return;
+    emailInvoiceForPayment(p);
+  };
+
+  // ---------- Email invoice (download + mailto draft) ----------
+  function emailInvoiceForPayment(p) {
+    if (!Number(p.amount)) {
+      showToast('No amount recorded — nothing to invoice', 'error');
+      return;
+    }
+    const clientEmail = p.email || '';
+    if (!clientEmail) {
+      showToast('No email address on this payment record', 'error');
+      return;
+    }
+
+    // 1) Download the PDF
+    try {
+      generateInvoicePDFForPayment(p);
+    } catch (err) {
+      console.error('PDF generation failed:', err);
+      showToast('Could not generate invoice PDF', 'error');
+      return;
+    }
+
+    // 2) Build the mailto draft
+    const invoiceNumber = p.invoiceNumber || 'INV-UNKNOWN';
+    const businessName = p.businessName || 'your business';
+    const amount = Number(p.amount) || 0;
+    const planLabel = PLAN_INFO[getPlanKey(p.tier)]?.label || p.tier || 'Subscription';
+    const invoiceDate = formatShortDate(new Date(p.createdAt || p.startDate || Date.now()));
+
+    const subject = `Your BrandInn Invoice ${invoiceNumber}`;
+    const body = [
+      `Hi ${businessName},`,
+      ``,
+      `Thank you for your subscription payment to BrandInn Pages. Please find your invoice attached.`,
+      ``,
+      `Invoice:   ${invoiceNumber}`,
+      `Date:      ${invoiceDate}`,
+      `Plan:      ${planLabel}`,
+      `Amount:    KSh ${amount.toLocaleString()}`,
+      `Method:    ${p.paymentMethod || 'M-Pesa'}`,
+      ``,
+      `Note: The invoice PDF has been downloaded to your device. Please attach it to this email before sending.`,
+      ``,
+      `If you have any questions, reply to this email or contact support at support@brandinn.pages.`,
+      ``,
+      `Warm regards,`,
+      `BrandInn Pages`,
+      `brandinn.pages`
+    ].join('\n');
+
+    const mailto = `mailto:${encodeURIComponent(clientEmail)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+    setTimeout(() => {
+      window.location.href = mailto;
+    }, 400);
+
+    showToast('Invoice downloaded. Attach it to the mail draft that just opened.', 'info');
+  }
+
+  // ---------- Invoice PDF generator ----------
+  function generateInvoicePDFForPayment(p) {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 18;
+    const primary = { r: 124, g: 58, b: 237 };
+    const darkText = { r: 30, g: 41, b: 59 };
+    const grayText = { r: 100, g: 116, b: 139 };
+
+    const invoiceNumber = p.invoiceNumber || 'INV-UNKNOWN';
+    const invoiceDate = new Date(p.createdAt || p.startDate || Date.now());
+    const amount = Number(p.amount) || 0;
+    const planLabel = PLAN_INFO[getPlanKey(p.tier)]?.label || p.tier || 'Subscription';
+    const businessName = p.businessName || '—';
+    const businessEmail = p.email || '—';
+    const phone = p.phone || '—';
+
+    doc.setFillColor(primary.r, primary.g, primary.b);
+    doc.rect(0, 0, pageWidth, 38, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(22);
+    doc.text('BrandInn Pages', margin, 18);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.text('Subscription Invoice', margin, 26);
+    doc.text('brandinn.pages', pageWidth - margin, 26, { align: 'right' });
+
+    let y = 52;
+    doc.setTextColor(darkText.r, darkText.g, darkText.b);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(16);
+    doc.text('INVOICE', margin, y);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.setTextColor(grayText.r, grayText.g, grayText.b);
+    doc.text(`Invoice No: ${invoiceNumber}`, pageWidth - margin, y - 6, { align: 'right' });
+    doc.text(`Date Issued: ${formatShortDate(invoiceDate.getTime())}`, pageWidth - margin, y, { align: 'right' });
+    doc.text(`Status: PAID`, pageWidth - margin, y + 6, { align: 'right' });
+
+    y += 10;
+    doc.setDrawColor(226, 232, 240);
+    doc.line(margin, y, pageWidth - margin, y);
+
+    y += 12;
+    doc.setTextColor(darkText.r, darkText.g, darkText.b);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(11);
+    doc.text('Billed To', margin, y);
+    doc.text('From', pageWidth / 2 + 10, y);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.setTextColor(grayText.r, grayText.g, grayText.b);
+    doc.text(businessName, margin, y + 7);
+    doc.text('BrandInn Pages', pageWidth / 2 + 10, y + 7);
+    doc.text(businessEmail, margin, y + 13);
+    doc.text('support@brandinn.pages', pageWidth / 2 + 10, y + 13);
+    if (phone && phone !== '—') doc.text(phone, margin, y + 19);
+    doc.text(`Till: 9442155`, pageWidth / 2 + 10, y + 19);
+
+    y += 34;
+    const tableX = margin;
+    const tableW = pageWidth - margin * 2;
+    const colDesc = tableX + 4;
+    const colQty = tableX + tableW * 0.62;
+    const colPrice = tableX + tableW * 0.78;
+    const colTotal = tableX + tableW - 4;
+
+    doc.setFillColor(245, 240, 255);
+    doc.rect(tableX, y, tableW, 9, 'F');
+    doc.setTextColor(darkText.r, darkText.g, darkText.b);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9);
+    doc.text('Description', colDesc, y + 6);
+    doc.text('Qty', colQty, y + 6, { align: 'center' });
+    doc.text('Unit Price', colPrice, y + 6, { align: 'right' });
+    doc.text('Amount', colTotal, y + 6, { align: 'right' });
+
+    y += 9;
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(grayText.r, grayText.g, grayText.b);
+    doc.setFontSize(10);
+    const description = `Subscription - ${planLabel} Plan`;
+    doc.text(description, colDesc, y + 7);
+    doc.text('1', colQty, y + 7, { align: 'center' });
+    doc.text(`KSh ${amount.toLocaleString()}`, colPrice, y + 7, { align: 'right' });
+    doc.text(`KSh ${amount.toLocaleString()}`, colTotal, y + 7, { align: 'right' });
+
+    y += 12;
+    doc.setDrawColor(226, 232, 240);
+    doc.line(tableX, y, tableX + tableW, y);
+
+    y += 10;
+    const totalsX = pageWidth - margin - 70;
+    doc.setFontSize(10);
+    doc.setTextColor(grayText.r, grayText.g, grayText.b);
+    doc.text('Subtotal', totalsX, y);
+    doc.text(`KSh ${amount.toLocaleString()}`, pageWidth - margin, y, { align: 'right' });
+    y += 6;
+    doc.text('Tax (0%)', totalsX, y);
+    doc.text('KSh 0', pageWidth - margin, y, { align: 'right' });
+    y += 6;
+    doc.setDrawColor(124, 58, 237);
+    doc.line(totalsX, y, pageWidth - margin, y);
+    y += 8;
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(13);
+    doc.setTextColor(primary.r, primary.g, primary.b);
+    doc.text('Total Paid', totalsX, y);
+    doc.text(`KSh ${amount.toLocaleString()}`, pageWidth - margin, y, { align: 'right' });
+
+    y += 18;
+    doc.setFillColor(240, 253, 244);
+    doc.roundedRect(margin, y, tableW, 16, 3, 3, 'F');
+    doc.setTextColor(6, 95, 70);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
+    doc.text('Payment received via M-Pesa Till 9442155', margin + 5, y + 7);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.text('Thank you for your business! This invoice is auto-generated.', margin + 5, y + 12);
+
+    const footerY = doc.internal.pageSize.getHeight() - 18;
+    doc.setDrawColor(226, 232, 240);
+    doc.line(margin, footerY - 4, pageWidth - margin, footerY - 4);
+    doc.setTextColor(grayText.r, grayText.g, grayText.b);
+    doc.setFontSize(8);
+    doc.text('BrandInn Pages • brandinn.pages • support@brandinn.pages', margin, footerY);
+    doc.text(`Invoice ${invoiceNumber}`, pageWidth - margin, footerY, { align: 'right' });
+
+    const fileName = `BrandInn_Invoice_${invoiceNumber}_${formatShortDate(invoiceDate.getTime()).replace(/[\s,]/g, '_')}.pdf`;
+    doc.save(fileName);
+  }
 
   // ---------- Search & reset ----------
   searchInput.addEventListener('input', applyPlanFilter);
