@@ -141,9 +141,9 @@
     .stat-trend { font-size: 0.65rem; margin-top: 4px; display: flex; align-items: center; gap: 4px; color: var(--gray-500); }
     .stat-icon { width: 52px; height: 52px; background: var(--primary-bg); border-radius: 14px; display: flex; align-items: center; justify-content: center; color: var(--primary); font-size: 1.3rem; }
 
-    /* Action Grid - 8 cards */
+    /* Action Grid - now 9 cards */
     .action-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.8rem; }
-    @media (min-width: 1200px) { .action-grid { grid-template-columns: repeat(8, 1fr); } }
+    @media (min-width: 1200px) { .action-grid { grid-template-columns: repeat(9, 1fr); } }
     @media (max-width: 1000px) { .action-grid { grid-template-columns: repeat(4, 1fr); } }
     @media (max-width: 600px) { .action-grid { grid-template-columns: repeat(2, 1fr); } }
     
@@ -168,6 +168,7 @@
     .project-card .action-icon { background: #eff6ff; color: #3b82f6; }
     .booking-card .action-icon { background: #f5f0ff; color: #8b5cf6; }
     .service-card .action-icon { background: #fdf2f8; color: #ec4899; }
+    .subscription-card .action-icon { background: #fef3c7; color: #d97706; }
 
     .quick-section {
       background: white; border-radius: 20px; padding: 1rem 1.2rem;
@@ -202,6 +203,9 @@
     .status-pending { background: #fef3c7; color: #92400e; }
     .status-planning { background: #fef3c7; color: #92400e; }
     .status-in-progress { background: #dbeafe; color: #1e40af; }
+    .status-basic { background: #f5f0ff; color: #6d28d9; }
+    .status-standard { background: #dbeafe; color: #1e40af; }
+    .status-premium { background: #fef3c7; color: #92400e; }
 
     .empty-state { text-align: center; padding: 2rem; color: var(--gray-400); font-size: 0.8rem; }
 
@@ -223,6 +227,9 @@
       <span class="logo-text">BrandInn <span>Agency</span></span>
     </a>
     <div class="nav-right">
+      <a href="/workspaces/brandinn/subscriptions.html" class="nav-btn subscription-nav-btn" style="background:#fef3c7; color:#92400e;">
+        <i class="fas fa-crown"></i> Subscriptions
+      </a>
       <a href="/workspaces/brandinn/map.html" class="nav-btn map-btn"><i class="fas fa-map-marked-alt"></i> Map</a>
       <div class="user-badge">
         <div class="user-avatar" id="userAvatar">BI</div>
@@ -250,8 +257,9 @@
       <div class="skeleton-stat-card"><div><div class="skeleton skeleton-text" style="width:70px;"></div><div class="skeleton skeleton-number"></div></div><div class="skeleton skeleton-icon"></div></div>
     </div>
 
-    <!-- ACTION CARDS SKELETON -->
+    <!-- ACTION CARDS SKELETON - 9 cards now -->
     <div class="action-grid" id="actionGrid">
+      <div class="skeleton-action-card"><div class="skeleton skeleton-action-icon"></div><div class="skeleton skeleton-text" style="width:70%;"></div><div class="skeleton skeleton-text" style="width:50%;"></div></div>
       <div class="skeleton-action-card"><div class="skeleton skeleton-action-icon"></div><div class="skeleton skeleton-text" style="width:70%;"></div><div class="skeleton skeleton-text" style="width:50%;"></div></div>
       <div class="skeleton-action-card"><div class="skeleton skeleton-action-icon"></div><div class="skeleton skeleton-text" style="width:70%;"></div><div class="skeleton skeleton-text" style="width:50%;"></div></div>
       <div class="skeleton-action-card"><div class="skeleton skeleton-action-icon"></div><div class="skeleton skeleton-text" style="width:70%;"></div><div class="skeleton skeleton-text" style="width:50%;"></div></div>
@@ -299,6 +307,18 @@
         <div class="recent-item"><div><div class="skeleton skeleton-text" style="width:140px;"></div><div class="skeleton skeleton-text" style="width:100px; margin-top:5px;"></div></div><div class="skeleton skeleton-text" style="width:60px; height:22px; border-radius:20px;"></div></div>
       </div>
     </div>
+
+    <!-- SUBSCRIPTION SUMMARY (NEW) -->
+    <div class="recent-section">
+      <div class="recent-header">
+        <h3><i class="fas fa-crown"></i> Subscription Overview</h3>
+        <a href="/workspaces/brandinn/subscriptions.html" style="color:var(--primary); font-size:0.7rem;">Manage all</a>
+      </div>
+      <div class="recent-list" id="recentSubscriptions">
+        <div class="recent-item"><div><div class="skeleton skeleton-text" style="width:140px;"></div><div class="skeleton skeleton-text" style="width:100px; margin-top:5px;"></div></div><div class="skeleton skeleton-text" style="width:60px; height:22px; border-radius:20px;"></div></div>
+        <div class="recent-item"><div><div class="skeleton skeleton-text" style="width:140px;"></div><div class="skeleton skeleton-text" style="width:100px; margin-top:5px;"></div></div><div class="skeleton skeleton-text" style="width:60px; height:22px; border-radius:20px;"></div></div>
+      </div>
+    </div>
   </div>
 
   <div class="footer">
@@ -327,7 +347,7 @@
       projectId: "mugera-e51cc",
       storageBucket: "mugera-e51cc.firebasestorage.app",
       messagingSenderId: "1024868637509",
-      appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
+      appId: "1:1028637509:web:321faecddce8f11d9cfc2c"
     };
 
     const app = initializeApp(firebaseConfig);
@@ -338,6 +358,7 @@
     let allRequests = {};
     let allProjects = {};
     let allBookings = {};
+    let allSubdomains = {};
 
     function getInitials(name) {
       if (!name) return 'BI';
@@ -360,17 +381,38 @@
       return map[status] || 'status-pending';
     }
 
+    function getPlanBadgeClass(plan) {
+      const p = (plan || 'basic').toLowerCase();
+      if (p === 'premium') return 'status-premium';
+      if (p === 'standard') return 'status-standard';
+      return 'status-basic';
+    }
+
+    function getPlanLabel(plan) {
+      const p = (plan || 'basic').toLowerCase();
+      if (p === 'premium') return 'Premium';
+      if (p === 'standard') return 'Standard';
+      return 'Basic';
+    }
+
     function renderDashboard() {
       const businesses = Object.values(allBusinesses).filter(b => b && b.businessName);
       const requests = Object.values(allRequests).filter(r => r);
       const projects = Object.values(allProjects).filter(p => p);
       const bookings = Object.values(allBookings).filter(b => b);
+      const subdomains = Object.values(allSubdomains).filter(s => s);
       
       const totalBiz = businesses.length;
       const activeBiz = businesses.filter(b => b.status === 'active' || !b.status).length;
       const pendingRequests = requests.filter(r => r.status === 'pending').length;
       const activeProjects = projects.filter(p => p.status === 'in-progress' || p.status === 'planning').length;
       const todayBookings = bookings.filter(b => b.date === new Date().toISOString().split('T')[0]).length;
+      
+      // Subscription counts
+      const totalSubs = subdomains.length;
+      const basicCount = subdomains.filter(s => (s.plan || 'basic').toLowerCase() === 'basic').length;
+      const standardCount = subdomains.filter(s => (s.plan || '').toLowerCase() === 'standard').length;
+      const premiumCount = subdomains.filter(s => (s.plan || '').toLowerCase() === 'premium').length;
       
       // Stats Grid
       document.getElementById('statsGrid').innerHTML = `
@@ -380,8 +422,14 @@
         <div class="stat-card"><div class="stat-left"><h4>Active Projects</h4><div class="stat-number">${activeProjects}</div><div class="stat-trend"><i class="fas fa-chart-line"></i> In progress</div></div><div class="stat-icon"><i class="fas fa-project-diagram"></i></div></div>
       `;
       
-      // Action Cards
+      // Action Cards — SUBSCRIPTION CARD ADDED as the first card
       document.getElementById('actionGrid').innerHTML = `
+        <a href="/workspaces/brandinn/subscriptions.html" class="action-card subscription-card">
+          <div class="action-icon"><i class="fas fa-crown"></i></div>
+          <h3>Subscriptions</h3>
+          <p>Manage plans & billing</p>
+          <span class="action-link">Manage →</span>
+        </a>
         <a href="/workspaces/brandinn/new-business.html" class="action-card"><div class="action-icon"><i class="fas fa-plus-circle"></i></div><h3>List Business</h3><p>Register new business</p><span class="action-link">Register →</span></a>
         <a href="/workspaces/brandinn/list-business.html" class="action-card"><div class="action-icon"><i class="fas fa-file-alt"></i></div><h3>Landing Page</h3><p>Create client landing page</p><span class="action-link">Create →</span></a>
         <a href="/workspaces/brandinn/manage-businesses.html" class="action-card"><div class="action-icon"><i class="fas fa-store"></i></div><h3>Businesses</h3><p>Manage all listings</p><span class="action-link">Manage →</span></a>
@@ -392,8 +440,9 @@
         <a href="/workspaces/brandinn/asset-handover.html" class="action-card asset-card"><div class="action-icon"><i class="fas fa-envelope-open-text"></i></div><h3>Asset Handover</h3><p>Client credentials</p><span class="action-link">Generate →</span></a>
       `;
       
-      // Quick Links
+      // Quick Links — SUBSCRIPTIONS LINK ADDED
       document.getElementById('quickLinks').innerHTML = `
+        <a href="/workspaces/brandinn/subscriptions.html" class="quick-btn"><i class="fas fa-crown"></i> Subscriptions (${totalSubs})</a>
         <a href="/workspaces/brandinn/new-business.html" class="quick-btn"><i class="fas fa-plus-circle"></i> New Business</a>
         <a href="/workspaces/brandinn/list-business.html" class="quick-btn"><i class="fas fa-file-alt"></i> Landing Page</a>
         <a href="/workspaces/brandinn/service-requests.html" class="quick-btn"><i class="fas fa-headset"></i> Requests (${pendingRequests})</a>
@@ -431,12 +480,32 @@
         </div>
       `).join('') : '<div class="empty-state">No active projects</div>';
       
-      document.getElementById('footerStats').textContent = `${totalBiz} businesses · ${pendingRequests} pending · ${activeProjects} active projects · ${todayBookings} bookings today`;
+      // Subscriptions Overview (NEW)
+      const recentSubs = Object.entries(allSubdomains).map(([slug, s]) => ({ slug, ...s }))
+        .filter(s => s.businessName || s.name)
+        .sort((a, b) => (b.updatedAt || b.createdAt || 0) - (a.updatedAt || a.createdAt || 0))
+        .slice(0, 4);
+      document.getElementById('recentSubscriptions').innerHTML = recentSubs.length ? recentSubs.map(s => {
+        const name = s.businessName || s.name || s.slug;
+        const plan = s.plan || 'basic';
+        const price = s.price || (plan === 'premium' ? 3500 : plan === 'standard' ? 2500 : 1000);
+        return `
+          <div class="recent-item" onclick="window.location.href='/workspaces/brandinn/subscriptions.html'">
+            <div>
+              <strong>${escapeHtml(name)}</strong><br>
+              <span style="font-size:0.7rem;color:var(--gray-500);">KSh ${price.toLocaleString()}/mo · ${escapeHtml(s.email || s.phone || 'No contact')}</span>
+            </div>
+            <span class="status-tag ${getPlanBadgeClass(plan)}">${getPlanLabel(plan)}</span>
+          </div>
+        `;
+      }).join('') : '<div class="empty-state">No subscriptions yet</div>';
+      
+      document.getElementById('footerStats').textContent = `${totalBiz} businesses · ${pendingRequests} pending · ${activeProjects} active projects · ${totalSubs} subscriptions (${basicCount}B / ${standardCount}S / ${premiumCount}P)`;
       document.getElementById('lastUpdated').innerHTML = `<i class="fas fa-circle" style="color:#10b981;"></i> Live · ${new Date().toLocaleTimeString()}`;
     }
 
     function setupListeners() {
-      onValue(ref(db, 'brandinn_subdomains'), (snap) => { allBusinesses = snap.val() || {}; renderDashboard(); });
+      onValue(ref(db, 'brandinn_subdomains'), (snap) => { allBusinesses = snap.val() || {}; allSubdomains = snap.val() || {}; renderDashboard(); });
       onValue(ref(db, 'brandinn_service_requests'), (snap) => { allRequests = snap.val() || {}; renderDashboard(); });
       onValue(ref(db, 'brandinn_projects'), (snap) => { allProjects = snap.val() || {}; renderDashboard(); });
       onValue(ref(db, 'brandinn_bookings'), (snap) => { allBookings = snap.val() || {}; renderDashboard(); });
