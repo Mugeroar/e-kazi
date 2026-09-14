@@ -104,6 +104,11 @@
       transition: all 0.2s;
     }
     .nav-btn:hover { background: #f5f0ff; border-color: #7c3aed; color: #7c3aed; }
+    .nav-btn.primary {
+      background: linear-gradient(135deg, #7c3aed, #8b5cf6);
+      color: white; border-color: transparent;
+    }
+    .nav-btn.primary:hover { box-shadow: 0 8px 20px rgba(124, 58, 237, 0.3); transform: translateY(-1px); }
     .user-badge {
       background: linear-gradient(135deg, #7c3aed, #8b5cf6);
       color: white; padding: 0.5rem 1.2rem; border-radius: 40px;
@@ -308,6 +313,14 @@
       font-size: 0.75rem; font-weight: 700;
       color: #6d28d9; letter-spacing: 0.3px;
     }
+    .manual-tag {
+      display: inline-flex; align-items: center; gap: 3px;
+      margin-left: 4px; padding: 0.1rem 0.4rem;
+      background: #fef3c7; color: #92400e;
+      border-radius: 20px; font-size: 0.6rem;
+      font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
 
     .status-badge {
       display: inline-flex; align-items: center; gap: 5px;
@@ -493,6 +506,48 @@
     }
     .modal-note i { color: #d97706; }
 
+    /* Create Invoice preview */
+    .invoice-preview {
+      background: #f8fafc;
+      border: 1px dashed #cbd5e1;
+      border-radius: 14px;
+      padding: 1rem 1.2rem;
+      margin: 1rem 0;
+      font-size: 0.82rem;
+    }
+    .invoice-preview h4 {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #64748b;
+      margin-bottom: 0.6rem;
+      font-weight: 700;
+    }
+    .invoice-preview-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.35rem 0;
+      border-bottom: 1px dashed #e2e8f0;
+    }
+    .invoice-preview-row:last-child { border-bottom: none; }
+    .invoice-preview-row span:first-child { color: #64748b; }
+    .invoice-preview-row span:last-child {
+      color: #0f172a; font-weight: 700;
+      text-align: right; max-width: 60%;
+      word-break: break-word;
+    }
+    .invoice-preview-total {
+      background: #f5f0ff;
+      padding: 0.6rem 0.9rem;
+      border-radius: 10px;
+      margin-top: 0.6rem;
+      font-size: 0.9rem;
+      display: flex;
+      justify-content: space-between;
+      font-weight: 800;
+      color: #6d28d9;
+    }
+
     .payment-detail-row {
       display: flex; justify-content: space-between;
       padding: 0.65rem 0; border-bottom: 1px solid #f1f5f9;
@@ -540,6 +595,7 @@
     .activity-icon.extend     { background: #dbeafe; color: #1e40af; }
     .activity-icon.suspend    { background: #fee2e2; color: #991b1b; }
     .activity-icon.reactivate { background: #d1fae5; color: #065f46; }
+    .activity-icon.invoice    { background: #fef3c7; color: #d97706; }
     .activity-body { flex: 1; }
     .activity-title { font-weight: 600; color: #0f172a; }
     .activity-meta { font-size: 0.7rem; color: #94a3b8; margin-top: 2px; }
@@ -616,6 +672,9 @@
       <a href="/workspaces/brandinn/manage-businesses.html" class="nav-btn">
         <i class="fas fa-store"></i> Businesses
       </a>
+      <button class="nav-btn primary" id="openCreateInvoiceBtn">
+        <i class="fas fa-file-invoice"></i> Create Invoice
+      </button>
       <div class="user-badge">
         <i class="fas fa-user"></i>
         <span id="userName">Staff</span>
@@ -632,7 +691,7 @@
         <i class="fas fa-crown"></i> Subscription Manager
         <span class="scope-badge"><i class="fas fa-filter"></i> BrandInn Only</span>
       </h1>
-      <p>Full control over BrandInn business plans, payments, billing cycles, and account status</p>
+      <p>Full control over BrandInn business plans, payments, billing cycles, and invoices</p>
     </div>
 
     <div class="page-tabs">
@@ -790,6 +849,9 @@
         <button class="plan-filter-pill" data-payment-filter="admin">
           Admin <span class="count" id="payCountAdmin">0</span>
         </button>
+        <button class="plan-filter-pill" data-payment-filter="manual">
+          Manual <span class="count" id="payCountManual">0</span>
+        </button>
         <button class="plan-filter-pill" data-payment-filter="pending">
           Pending <span class="count" id="payCountPending">0</span>
         </button>
@@ -839,7 +901,7 @@
   </div>
 </div>
 
-<!-- MANAGE SUBSCRIPTION MODAL -->
+<!-- ===================== MANAGE SUBSCRIPTION MODAL ===================== -->
 <div class="modal-overlay" id="manageModal">
   <div class="modal-box">
     <h3><i class="fas fa-sliders-h"></i> <span id="manageTitle">Manage Subscription</span></h3>
@@ -992,7 +1054,7 @@
   </div>
 </div>
 
-<!-- PAYMENT DETAIL MODAL -->
+<!-- ===================== PAYMENT DETAIL MODAL ===================== -->
 <div class="modal-overlay" id="paymentDetailModal">
   <div class="modal-box">
     <h3><i class="fas fa-receipt"></i> Payment Details</h3>
@@ -1011,10 +1073,126 @@
         <i class="fas fa-download"></i> Download
       </button>
       <button class="btn btn-primary green" id="detailEmailInvoiceBtn">
-        <i class="fas fa-envelope"></i> Email Invoice
+        <i class="fas fa-envelope"></i> Email
       </button>
       <button class="btn btn-primary" id="detailOpenBusinessBtn">
         <i class="fas fa-sliders-h"></i> Manage
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== CREATE INVOICE MODAL ===================== -->
+<div class="modal-overlay" id="createInvoiceModal">
+  <div class="modal-box">
+    <h3><i class="fas fa-file-invoice"></i> <span id="createInvoiceTitle">Create Manual Invoice</span></h3>
+    <p class="modal-subtitle">Issue an invoice for a payment. Useful for offline payments, corrections, or past transactions.</p>
+
+    <div class="form-group">
+      <label>Business</label>
+      <select id="ciBusiness">
+        <option value="">— Select a business —</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Existing payment (optional)</label>
+      <select id="ciPayment">
+        <option value="">— None — Create a new standalone invoice —</option>
+      </select>
+      <small style="color:#64748b;font-size:0.75rem;display:block;margin-top:4px;">
+        Select an existing payment to base this invoice on, or leave blank to enter details manually.
+      </small>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Amount (KSh) *</label>
+        <input type="number" id="ciAmount" placeholder="e.g. 2500" min="0">
+      </div>
+      <div class="form-group">
+        <label>Payment Date</label>
+        <input type="date" id="ciDate">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Plan / Description *</label>
+        <select id="ciPlan">
+          <option value="basic">Basic Plan (KSh 1,000)</option>
+          <option value="standard">Standard Plan (KSh 2,500)</option>
+          <option value="premium">Premium Plan (KSh 3,500)</option>
+          <option value="custom">Custom description…</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Payment Method</label>
+        <select id="ciMethod">
+          <option value="M-Pesa">M-Pesa</option>
+          <option value="Cash">Cash</option>
+          <option value="Bank Transfer">Bank Transfer</option>
+          <option value="Card">Card</option>
+          <option value="Cheque">Cheque</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group" id="ciCustomDescWrap" style="display:none;">
+      <label>Custom Description</label>
+      <input type="text" id="ciCustomDesc" placeholder="e.g. Advert boosting service">
+    </div>
+
+    <div class="form-group">
+      <label>Reference / Transaction Code</label>
+      <input type="text" id="ciReference" placeholder="e.g. QWERTY123">
+    </div>
+
+    <div class="form-group">
+      <label>Notes / Reason (optional)</label>
+      <textarea id="ciNotes" rows="2" placeholder="e.g. Manual invoice for offline payment"></textarea>
+    </div>
+
+    <div class="invoice-preview">
+      <h4>Invoice Preview</h4>
+      <div class="invoice-preview-row">
+        <span>Invoice Number</span>
+        <span id="ciPreviewNumber">—</span>
+      </div>
+      <div class="invoice-preview-row">
+        <span>Business</span>
+        <span id="ciPreviewBusiness">—</span>
+      </div>
+      <div class="invoice-preview-row">
+        <span>Email</span>
+        <span id="ciPreviewEmail">—</span>
+      </div>
+      <div class="invoice-preview-row">
+        <span>Description</span>
+        <span id="ciPreviewDesc">—</span>
+      </div>
+      <div class="invoice-preview-row">
+        <span>Date</span>
+        <span id="ciPreviewDate">—</span>
+      </div>
+      <div class="invoice-preview-total">
+        <span>Total</span>
+        <span id="ciPreviewTotal">KSh 0</span>
+      </div>
+    </div>
+
+    <div class="modal-note">
+      <i class="fas fa-info-circle"></i> This records a new entry in the payment log. It does not change the business's plan unless you also apply a plan change from the Manage panel.
+    </div>
+
+    <div class="modal-actions" style="flex-wrap:wrap;">
+      <button class="btn btn-secondary" onclick="closeCreateInvoiceModal()">Cancel</button>
+      <button class="btn btn-primary gold" id="ciDownloadBtn">
+        <i class="fas fa-download"></i> Save & Download
+      </button>
+      <button class="btn btn-primary green" id="ciEmailBtn">
+        <i class="fas fa-envelope"></i> Save & Email
       </button>
     </div>
   </div>
@@ -1071,6 +1249,10 @@
   let pendingExtendDays = 30;
   let pendingStatusAction = null;
 
+  // Create invoice state
+  let ciGeneratedNumber = '';
+
+  // DOM refs
   const loginOverlay = document.getElementById('loginOverlay');
   const dashboardMain = document.getElementById('dashboardMain');
   const loginBtn = document.getElementById('loginBtn');
@@ -1237,6 +1419,9 @@
     document.getElementById('statMRR').textContent       = formatKsh(mrr);
     document.getElementById('statPremium').textContent   = counts.premium;
     document.getElementById('statSuspended').textContent = counts.suspended;
+
+    // Populate the create-invoice business dropdown
+    populateCIBusinessOptions();
   }
 
   function renderPlansTable() {
@@ -1302,6 +1487,7 @@
       if (activePaymentFilter === 'client' && source !== 'client') return false;
       if (activePaymentFilter === 'admin'  && source !== 'admin')  return false;
       if (activePaymentFilter === 'pending' && status !== 'pending') return false;
+      if (activePaymentFilter === 'manual' && !p.isManual) return false;
 
       if (!term) return true;
       const haystack = [
@@ -1315,7 +1501,7 @@
   }
 
   function updatePaymentCounts() {
-    let clientCount = 0, adminCount = 0, pendingCount = 0, totalPaid = 0, txns = 0, thisMonthPaid = 0;
+    let clientCount = 0, adminCount = 0, manualCount = 0, pendingCount = 0, totalPaid = 0, txns = 0, thisMonthPaid = 0;
     const now = new Date();
     const thisMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
 
@@ -1325,6 +1511,7 @@
       const status = (p.status || 'paid').toLowerCase();
       if (source === 'client') clientCount++;
       if (source === 'admin')  adminCount++;
+      if (p.isManual) manualCount++;
       if (status === 'pending') pendingCount++;
       const amount = Number(p.amount) || 0;
       if (status === 'paid') totalPaid += amount;
@@ -1340,6 +1527,7 @@
     document.getElementById('payCountAll').textContent     = txns;
     document.getElementById('payCountClient').textContent  = clientCount;
     document.getElementById('payCountAdmin').textContent   = adminCount;
+    document.getElementById('payCountManual').textContent  = manualCount;
     document.getElementById('payCountPending').textContent = pendingCount;
 
     document.getElementById('statTotalPaid').textContent = formatKsh(totalPaid);
@@ -1360,6 +1548,7 @@
     if (a === 'subscribe') return 'fa-cart-plus';
     if (a === 'change_plan') return 'fa-exchange-alt';
     if (a === 'manual_payment') return 'fa-hand-holding-usd';
+    if (a === 'manual_invoice') return 'fa-file-invoice';
     if (a === 'extend') return 'fa-calendar-plus';
     if (a === 'suspend') return 'fa-ban';
     if (a === 'reactivate') return 'fa-check-circle';
@@ -1384,12 +1573,13 @@
       const action = p.action || 'subscribe';
       const date = p.startDate || p.createdAt || p.timestamp;
       const invoiceNumber = p.invoiceNumber || '—';
+      const manualTag = p.isManual ? `<span class="manual-tag"><i class="fas fa-hand"></i> Manual</span>` : '';
       const sourceBadge = source === 'admin'
         ? `<span class="status-badge pending" style="background:#dbeafe;color:#1e40af;"><i class="fas fa-user-shield"></i> Admin</span>`
         : `<span class="status-badge paid"><i class="fas fa-user"></i> Client</span>`;
       return `
         <tr>
-          <td><span class="invoice-number-cell">${escapeHtml(invoiceNumber)}</span></td>
+          <td><span class="invoice-number-cell">${escapeHtml(invoiceNumber)}</span>${manualTag}</td>
           <td>${formatDate(date)}</td>
           <td>
             <div class="business-cell">
@@ -1783,6 +1973,7 @@
         else if (action === 'extend') iconClass = 'extend';
         else if (action === 'suspend') iconClass = 'suspend';
         else if (action === 'reactivate') iconClass = 'reactivate';
+        else if (action === 'manual_invoice') iconClass = 'invoice';
         const title = action.replace(/_/g, ' ');
         const amountStr = p.amount ? ` · ${formatKsh(p.amount)}` : '';
         return `
@@ -1820,7 +2011,7 @@
       ['Invoice Number', invoiceNumber],
       ['Status', status.toUpperCase()],
       ['Action', (p.action || 'subscribe').replace(/_/g, ' ')],
-      ['Source', (p.source || 'client').toUpperCase()],
+      ['Source', (p.source || 'client').toUpperCase() + (p.isManual ? ' · Manual' : '')],
       ['Business', businessName],
       ['Email', p.email || '—'],
       ['Phone', p.phone || '—'],
@@ -1907,7 +2098,7 @@
     emailInvoiceForPayment(p);
   };
 
-  // ---------- Email invoice (download + mailto draft) ----------
+  // ---------- Email invoice ----------
   function emailInvoiceForPayment(p) {
     if (!Number(p.amount)) {
       showToast('No amount recorded — nothing to invoice', 'error');
@@ -1919,7 +2110,6 @@
       return;
     }
 
-    // 1) Download the PDF
     try {
       generateInvoicePDFForPayment(p);
     } catch (err) {
@@ -1928,7 +2118,6 @@
       return;
     }
 
-    // 2) Build the mailto draft
     const invoiceNumber = p.invoiceNumber || 'INV-UNKNOWN';
     const businessName = p.businessName || 'your business';
     const amount = Number(p.amount) || 0;
@@ -1965,7 +2154,231 @@
     showToast('Invoice downloaded. Attach it to the mail draft that just opened.', 'info');
   }
 
-  // ---------- Invoice PDF generator ----------
+  // ============================================================
+  // CREATE INVOICE (MANUAL)
+  // ============================================================
+
+  function populateCIBusinessOptions() {
+    const sel = document.getElementById('ciBusiness');
+    const currentVal = sel.value;
+    sel.innerHTML = '<option value="">— Select a business —</option>' +
+      allBusinesses.map(b => {
+        const slug = b.subdomain || '';
+        const name = b.businessName || b.name || slug;
+        return `<option value="${escapeHtml(slug)}">${escapeHtml(name)} — ${escapeHtml(slug)}</option>`;
+      }).join('');
+    if (currentVal) sel.value = currentVal;
+  }
+
+  function refreshCIPaymentOptions() {
+    const slug = document.getElementById('ciBusiness').value;
+    const sel = document.getElementById('ciPayment');
+    if (!slug) {
+      sel.innerHTML = '<option value="">— None — Create a new standalone invoice —</option>';
+      return;
+    }
+    const bizPayments = allPayments
+      .filter(p => p.businessSlug === slug)
+      .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+    sel.innerHTML = '<option value="">— None — Create a new standalone invoice —</option>' +
+      bizPayments.map((p, i) => {
+        const date = formatDate(p.createdAt || p.startDate);
+        const amt = formatKsh(p.amount || 0);
+        const inv = p.invoiceNumber || '—';
+        const action = (p.action || '').replace(/_/g, ' ');
+        return `<option value="${i}" data-payment-id="${escapeHtml(p.id)}">${escapeHtml(inv)} · ${date} · ${amt} · ${escapeHtml(action)}</option>`;
+      }).join('');
+  }
+
+  window.openCreateInvoiceModal = function() {
+    // Reset form
+    document.getElementById('ciBusiness').value = '';
+    document.getElementById('ciPayment').value = '';
+    document.getElementById('ciAmount').value = '';
+    document.getElementById('ciDate').value = new Date().toISOString().slice(0, 10);
+    document.getElementById('ciPlan').value = 'basic';
+    document.getElementById('ciMethod').value = 'M-Pesa';
+    document.getElementById('ciCustomDescWrap').style.display = 'none';
+    document.getElementById('ciCustomDesc').value = '';
+    document.getElementById('ciReference').value = '';
+    document.getElementById('ciNotes').value = '';
+
+    ciGeneratedNumber = generateInvoiceNumber();
+    refreshCIPaymentOptions();
+    updateCIPreview();
+
+    document.getElementById('createInvoiceModal').classList.add('open');
+  };
+
+  window.closeCreateInvoiceModal = function() {
+    document.getElementById('createInvoiceModal').classList.remove('open');
+  };
+
+  function updateCIPreview() {
+    const slug = document.getElementById('ciBusiness').value;
+    const biz = allBusinesses.find(b => b.subdomain === slug);
+    const amount = Number(document.getElementById('ciAmount').value) || 0;
+    const dateStr = document.getElementById('ciDate').value;
+    const planKey = document.getElementById('ciPlan').value;
+    const customDesc = document.getElementById('ciCustomDesc').value;
+    const desc = planKey === 'custom'
+      ? (customDesc || 'Custom charge')
+      : (PLAN_INFO[planKey]?.label + ' Plan' || planKey);
+
+    document.getElementById('ciPreviewNumber').textContent = ciGeneratedNumber || '—';
+    document.getElementById('ciPreviewBusiness').textContent = biz
+      ? (biz.businessName || biz.name || slug)
+      : '—';
+    document.getElementById('ciPreviewEmail').textContent = biz?.email || '—';
+    document.getElementById('ciPreviewDesc').textContent = desc;
+    document.getElementById('ciPreviewDate').textContent = dateStr
+      ? new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+      : '—';
+    document.getElementById('ciPreviewTotal').textContent = formatKsh(amount);
+  }
+
+  function loadCIPaymentIntoForm() {
+    const slug = document.getElementById('ciBusiness').value;
+    const sel = document.getElementById('ciPayment');
+    const idx = sel.value;
+    if (!slug || idx === '') return;
+
+    const bizPayments = allPayments
+      .filter(p => p.businessSlug === slug)
+      .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+    const p = bizPayments[parseInt(idx, 10)];
+    if (!p) return;
+
+    document.getElementById('ciAmount').value = p.amount || '';
+    document.getElementById('ciReference').value = p.mpesaReference || p.reference || '';
+    document.getElementById('ciMethod').value = p.paymentMethod || 'M-Pesa';
+    if (p.tier && PLAN_INFO[getPlanKey(p.tier)]) {
+      document.getElementById('ciPlan').value = getPlanKey(p.tier);
+      document.getElementById('ciCustomDescWrap').style.display = 'none';
+    } else {
+      document.getElementById('ciPlan').value = 'custom';
+      document.getElementById('ciCustomDescWrap').style.display = 'block';
+      document.getElementById('ciCustomDesc').value = p.tier || p.reason || 'Subscription';
+    }
+    if (p.createdAt) {
+      document.getElementById('ciDate').value = new Date(p.createdAt).toISOString().slice(0, 10);
+    }
+    if (p.reason) document.getElementById('ciNotes').value = p.reason;
+
+    // Preserve the existing invoice number if we're re-issuing for this payment
+    if (p.invoiceNumber) ciGeneratedNumber = p.invoiceNumber;
+
+    updateCIPreview();
+  }
+
+  // Wire up live preview updates
+  document.getElementById('openCreateInvoiceBtn').addEventListener('click', window.openCreateInvoiceModal);
+  document.getElementById('ciBusiness').addEventListener('change', () => {
+    refreshCIPaymentOptions();
+    updateCIPreview();
+  });
+  document.getElementById('ciPayment').addEventListener('change', loadCIPaymentIntoForm);
+  document.getElementById('ciAmount').addEventListener('input', updateCIPreview);
+  document.getElementById('ciDate').addEventListener('input', updateCIPreview);
+  document.getElementById('ciPlan').addEventListener('change', (e) => {
+    const custom = e.target.value === 'custom';
+    document.getElementById('ciCustomDescWrap').style.display = custom ? 'block' : 'none';
+    if (!custom) {
+      const info = PLAN_INFO[e.target.value];
+      if (info) document.getElementById('ciAmount').value = info.price;
+    }
+    updateCIPreview();
+  });
+  document.getElementById('ciCustomDesc').addEventListener('input', updateCIPreview);
+
+  // Save + Download
+  document.getElementById('ciDownloadBtn').addEventListener('click', async () => {
+    const saved = await saveManualInvoice('download');
+    if (saved) {
+      generateInvoicePDFForPayment(saved);
+      closeCreateInvoiceModal();
+    }
+  });
+
+  // Save + Email
+  document.getElementById('ciEmailBtn').addEventListener('click', async () => {
+    const saved = await saveManualInvoice('email');
+    if (saved) {
+      emailInvoiceForPayment(saved);
+      closeCreateInvoiceModal();
+    }
+  });
+
+  async function saveManualInvoice(mode) {
+    const slug = document.getElementById('ciBusiness').value;
+    const amount = Number(document.getElementById('ciAmount').value);
+    const dateStr = document.getElementById('ciDate').value;
+    const planKey = document.getElementById('ciPlan').value;
+    const customDesc = document.getElementById('ciCustomDesc').value.trim();
+    const method = document.getElementById('ciMethod').value;
+    const reference = document.getElementById('ciReference').value.trim();
+    const notes = document.getElementById('ciNotes').value.trim();
+
+    if (!slug) { showToast('Select a business', 'error'); return null; }
+    if (!amount || amount <= 0) { showToast('Enter a valid amount', 'error'); return null; }
+
+    const biz = allBusinesses.find(b => b.subdomain === slug);
+    if (!biz) { showToast('Business not found', 'error'); return null; }
+
+    const paymentId = `pay_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
+    const tierLabel = planKey === 'custom'
+      ? (customDesc || 'Custom')
+      : getPlanKey(planKey);
+    const dateIso = dateStr ? new Date(dateStr).toISOString() : new Date().toISOString();
+
+    const record = {
+      subscriptionId: paymentId,
+      invoiceNumber: ciGeneratedNumber || generateInvoiceNumber(),
+      businessSlug: slug,
+      businessName: biz.businessName || biz.name || slug,
+      email: biz.email || '',
+      phone: biz.phone || '',
+      tier: tierLabel,
+      amount,
+      currency: 'KSh',
+      interval: 'monthly',
+      status: 'paid',
+      source: 'admin',
+      action: 'manual_invoice',
+      isManual: true,
+      mpesaReference: reference,
+      paymentMethod: method,
+      reason: notes || `Manual invoice created by ${userNameEl.textContent}`,
+      changedBy: userNameEl.textContent,
+      startDate: dateIso,
+      currentPeriodEnd: new Date(new Date(dateIso).getTime() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      createdAt: Date.now(),
+      createdFromModal: mode
+    };
+
+    try {
+      const updates = {};
+      updates[`brandinn_subscription_payments/${paymentId}`] = record;
+      // Mirror to the business's lastPaymentId only if this is the newest
+      updates[`brandinn_subdomains/${slug}/updatedAt`] = Date.now();
+      await update(ref(db), updates);
+
+      showToast(
+        mode === 'email'
+          ? 'Invoice saved. Mail draft opening…'
+          : 'Invoice saved and downloading…',
+        'success'
+      );
+      return record;
+    } catch (e) {
+      console.error(e);
+      showToast('Failed to save invoice: ' + e.message, 'error');
+      return null;
+    }
+  }
+
+  // ---------- Invoice PDF ----------
   function generateInvoicePDFForPayment(p) {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ unit: 'mm', format: 'a4' });
@@ -1978,7 +2391,8 @@
     const invoiceNumber = p.invoiceNumber || 'INV-UNKNOWN';
     const invoiceDate = new Date(p.createdAt || p.startDate || Date.now());
     const amount = Number(p.amount) || 0;
-    const planLabel = PLAN_INFO[getPlanKey(p.tier)]?.label || p.tier || 'Subscription';
+    const tierKey = getPlanKey(p.tier);
+    const planLabel = PLAN_INFO[tierKey]?.label || p.tier || 'Subscription';
     const businessName = p.businessName || '—';
     const businessEmail = p.email || '—';
     const phone = p.phone || '—';
@@ -2049,7 +2463,7 @@
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(grayText.r, grayText.g, grayText.b);
     doc.setFontSize(10);
-    const description = `Subscription - ${planLabel} Plan`;
+    const description = `Subscription - ${planLabel}${planLabel.toLowerCase().includes('plan') ? '' : ' Plan'}`;
     doc.text(description, colDesc, y + 7);
     doc.text('1', colQty, y + 7, { align: 'center' });
     doc.text(`KSh ${amount.toLocaleString()}`, colPrice, y + 7, { align: 'right' });
