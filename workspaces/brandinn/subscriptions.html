@@ -506,7 +506,6 @@
     }
     .modal-note i { color: #d97706; }
 
-    /* Create Invoice preview */
     .invoice-preview {
       background: #f8fafc;
       border: 1px dashed #cbd5e1;
@@ -689,9 +688,9 @@
     <div class="page-header">
       <h1>
         <i class="fas fa-crown"></i> Subscription Manager
-        <span class="scope-badge"><i class="fas fa-filter"></i> BrandInn Only</span>
+        <span class="scope-badge"><i class="fas fa-filter"></i> BrandInn Business</span>
       </h1>
-      <p>Full control over BrandInn business plans, payments, billing cycles, and invoices</p>
+      <p>Full control over BrandInn Business plans, payments, billing cycles, and invoices</p>
     </div>
 
     <div class="page-tabs">
@@ -808,7 +807,7 @@
           <div class="subs-summary-left">
             <h4>Total Paid</h4>
             <div class="subs-summary-number" id="statTotalPaid">—</div>
-            <div class="subs-summary-label">BrandInn revenue</div>
+            <div class="subs-summary-label">BrandInn Business revenue</div>
           </div>
           <div class="subs-summary-icon paid"><i class="fas fa-money-bill-wave"></i></div>
         </div>
@@ -868,7 +867,7 @@
       </div>
 
       <div class="results-header">
-        <h3><i class="fas fa-receipt"></i> BrandInn Payments <span class="results-count" id="paymentsCount">0</span></h3>
+        <h3><i class="fas fa-receipt"></i> BrandInn Business Payments <span class="results-count" id="paymentsCount">0</span></h3>
       </div>
 
       <div class="table-container" id="paymentsTableContainer">
@@ -894,7 +893,7 @@
 
       <div id="paymentsEmptyState" class="empty-state" style="display:none;">
         <i class="fas fa-receipt"></i>
-        <h3>No BrandInn payments yet</h3>
+        <h3>No BrandInn Business payments yet</h3>
         <p>Payments will appear here once customers subscribe — or when you record one manually from the Plans tab.</p>
       </div>
     </section>
@@ -1249,10 +1248,8 @@
   let pendingExtendDays = 30;
   let pendingStatusAction = null;
 
-  // Create invoice state
   let ciGeneratedNumber = '';
 
-  // DOM refs
   const loginOverlay = document.getElementById('loginOverlay');
   const dashboardMain = document.getElementById('dashboardMain');
   const loginBtn = document.getElementById('loginBtn');
@@ -1275,7 +1272,6 @@
   const paymentsCount = document.getElementById('paymentsCount');
   const paymentSearchInput = document.getElementById('paymentSearchInput');
 
-  // ---------- Utilities ----------
   function generateInvoiceNumber(date = new Date()) {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -1347,7 +1343,6 @@
     return null;
   }
 
-  // ---------- Page tabs ----------
   document.querySelectorAll('[data-page-tab]').forEach(tab => {
     tab.addEventListener('click', () => {
       document.querySelectorAll('[data-page-tab]').forEach(t => t.classList.remove('active'));
@@ -1375,7 +1370,6 @@
     });
   });
 
-  // ---------- Plans ----------
   function applyPlanFilter() {
     const term = searchInput.value.toLowerCase().trim();
     filteredBusinesses = allBusinesses.filter(b => {
@@ -1420,7 +1414,6 @@
     document.getElementById('statPremium').textContent   = counts.premium;
     document.getElementById('statSuspended').textContent = counts.suspended;
 
-    // Populate the create-invoice business dropdown
     populateCIBusinessOptions();
   }
 
@@ -1477,7 +1470,6 @@
     }).join('');
   }
 
-  // ---------- Payments ----------
   function applyPaymentFilter() {
     const term = paymentSearchInput.value.toLowerCase().trim();
     filteredPayments = allPayments.filter(p => {
@@ -1613,7 +1605,6 @@
     }).join('');
   }
 
-  // ---------- Manage Modal ----------
   window.openManageModal = async function(subdomain) {
     const biz = allBusinesses.find(b => b.subdomain === subdomain);
     if (!biz) return;
@@ -1747,7 +1738,6 @@
     document.getElementById('newNextBilling').value = formatDate(newDate.getTime());
   }
 
-  // ---------- Apply handler ----------
   document.getElementById('applyManageBtn').addEventListener('click', async () => {
     if (!manageBiz) return;
     const activeTab = document.querySelector('.manage-tab.active').dataset.manageTab;
@@ -1949,7 +1939,6 @@
     }
   });
 
-  // ---------- Activity ----------
   async function loadActivityForBiz(subdomain) {
     const list = document.getElementById('activityList');
     list.innerHTML = '<p style="color:#94a3b8;text-align:center;padding:1rem;font-size:0.8rem;">Loading...</p>';
@@ -1992,7 +1981,6 @@
     }
   }
 
-  // ---------- Payment Detail Modal ----------
   window.openPaymentDetailModal = function(index) {
     const p = filteredPayments[index];
     if (!p) return;
@@ -2068,7 +2056,6 @@
     });
   });
 
-  // ---------- Shortcut from plans table ----------
   window.viewBusinessPayments = function(subdomain) {
     const biz = allBusinesses.find(b => b.subdomain === subdomain);
     if (!biz) return;
@@ -2081,7 +2068,6 @@
     applyPaymentFilter();
   };
 
-  // ---------- Quick invoice actions ----------
   window.downloadInvoiceFromRow = function(index) {
     const p = filteredPayments[index];
     if (!p) return;
@@ -2098,7 +2084,6 @@
     emailInvoiceForPayment(p);
   };
 
-  // ---------- Email invoice ----------
   function emailInvoiceForPayment(p) {
     if (!Number(p.amount)) {
       showToast('No amount recorded — nothing to invoice', 'error');
@@ -2124,11 +2109,11 @@
     const planLabel = PLAN_INFO[getPlanKey(p.tier)]?.label || p.tier || 'Subscription';
     const invoiceDate = formatShortDate(new Date(p.createdAt || p.startDate || Date.now()));
 
-    const subject = `Your BrandInn Invoice ${invoiceNumber}`;
+    const subject = `Your BrandInn Business Invoice ${invoiceNumber}`;
     const body = [
       `Hi ${businessName},`,
       ``,
-      `Thank you for your subscription payment to BrandInn Pages. Please find your invoice attached.`,
+      `Thank you for your subscription payment to BrandInn Business. Please find your invoice attached.`,
       ``,
       `Invoice:   ${invoiceNumber}`,
       `Date:      ${invoiceDate}`,
@@ -2138,11 +2123,11 @@
       ``,
       `Note: The invoice PDF has been downloaded to your device. Please attach it to this email before sending.`,
       ``,
-      `If you have any questions, reply to this email or contact support at support@brandinn.pages.`,
+      `If you have any questions, reply to this email or contact support at business.brandinn@gmail.com.`,
       ``,
       `Warm regards,`,
-      `BrandInn Pages`,
-      `brandinn.pages`
+      `BrandInn Business`,
+      `business.brandinn@gmail.com`
     ].join('\n');
 
     const mailto = `mailto:${encodeURIComponent(clientEmail)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
@@ -2155,9 +2140,8 @@
   }
 
   // ============================================================
-  // CREATE INVOICE (MANUAL)
+  // CREATE INVOICE
   // ============================================================
-
   function populateCIBusinessOptions() {
     const sel = document.getElementById('ciBusiness');
     const currentVal = sel.value;
@@ -2192,7 +2176,6 @@
   }
 
   window.openCreateInvoiceModal = function() {
-    // Reset form
     document.getElementById('ciBusiness').value = '';
     document.getElementById('ciPayment').value = '';
     document.getElementById('ciAmount').value = '';
@@ -2265,14 +2248,11 @@
       document.getElementById('ciDate').value = new Date(p.createdAt).toISOString().slice(0, 10);
     }
     if (p.reason) document.getElementById('ciNotes').value = p.reason;
-
-    // Preserve the existing invoice number if we're re-issuing for this payment
     if (p.invoiceNumber) ciGeneratedNumber = p.invoiceNumber;
 
     updateCIPreview();
   }
 
-  // Wire up live preview updates
   document.getElementById('openCreateInvoiceBtn').addEventListener('click', window.openCreateInvoiceModal);
   document.getElementById('ciBusiness').addEventListener('change', () => {
     refreshCIPaymentOptions();
@@ -2292,7 +2272,6 @@
   });
   document.getElementById('ciCustomDesc').addEventListener('input', updateCIPreview);
 
-  // Save + Download
   document.getElementById('ciDownloadBtn').addEventListener('click', async () => {
     const saved = await saveManualInvoice('download');
     if (saved) {
@@ -2301,7 +2280,6 @@
     }
   });
 
-  // Save + Email
   document.getElementById('ciEmailBtn').addEventListener('click', async () => {
     const saved = await saveManualInvoice('email');
     if (saved) {
@@ -2360,7 +2338,6 @@
     try {
       const updates = {};
       updates[`brandinn_subscription_payments/${paymentId}`] = record;
-      // Mirror to the business's lastPaymentId only if this is the newest
       updates[`brandinn_subdomains/${slug}/updatedAt`] = Date.now();
       await update(ref(db), updates);
 
@@ -2378,7 +2355,6 @@
     }
   }
 
-  // ---------- Invoice PDF ----------
   function generateInvoicePDFForPayment(p) {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ unit: 'mm', format: 'a4' });
@@ -2402,11 +2378,11 @@
     doc.setTextColor(255, 255, 255);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(22);
-    doc.text('BrandInn Pages', margin, 18);
+    doc.text('BrandInn Business', margin, 18);
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(10);
     doc.text('Subscription Invoice', margin, 26);
-    doc.text('brandinn.pages', pageWidth - margin, 26, { align: 'right' });
+    doc.text('business.brandinn@gmail.com', pageWidth - margin, 26, { align: 'right' });
 
     let y = 52;
     doc.setTextColor(darkText.r, darkText.g, darkText.b);
@@ -2435,9 +2411,9 @@
     doc.setFontSize(10);
     doc.setTextColor(grayText.r, grayText.g, grayText.b);
     doc.text(businessName, margin, y + 7);
-    doc.text('BrandInn Pages', pageWidth / 2 + 10, y + 7);
+    doc.text('BrandInn Business', pageWidth / 2 + 10, y + 7);
     doc.text(businessEmail, margin, y + 13);
-    doc.text('support@brandinn.pages', pageWidth / 2 + 10, y + 13);
+    doc.text('business.brandinn@gmail.com', pageWidth / 2 + 10, y + 13);
     if (phone && phone !== '—') doc.text(phone, margin, y + 19);
     doc.text(`Till: 9442155`, pageWidth / 2 + 10, y + 19);
 
@@ -2508,14 +2484,13 @@
     doc.line(margin, footerY - 4, pageWidth - margin, footerY - 4);
     doc.setTextColor(grayText.r, grayText.g, grayText.b);
     doc.setFontSize(8);
-    doc.text('BrandInn Pages • brandinn.pages • support@brandinn.pages', margin, footerY);
+    doc.text('BrandInn Business • business.brandinn@gmail.com', margin, footerY);
     doc.text(`Invoice ${invoiceNumber}`, pageWidth - margin, footerY, { align: 'right' });
 
-    const fileName = `BrandInn_Invoice_${invoiceNumber}_${formatShortDate(invoiceDate.getTime()).replace(/[\s,]/g, '_')}.pdf`;
+    const fileName = `BrandInn_Business_Invoice_${invoiceNumber}_${formatShortDate(invoiceDate.getTime()).replace(/[\s,]/g, '_')}.pdf`;
     doc.save(fileName);
   }
 
-  // ---------- Search & reset ----------
   searchInput.addEventListener('input', applyPlanFilter);
   document.getElementById('resetBtn').addEventListener('click', () => {
     searchInput.value = '';
@@ -2534,7 +2509,6 @@
     applyPaymentFilter();
   });
 
-  // ---------- Auth ----------
   loginBtn.addEventListener('click', async () => {
     const email = loginEmail.value.trim();
     const password = loginPassword.value;
@@ -2558,7 +2532,6 @@
     window.location.href = 'https://kazinni.vercel.app';
   });
 
-  // ---------- Data loading ----------
   function loadSubscriptions() {
     onValue(
       ref(db, 'brandinn_subdomains'),
@@ -2570,7 +2543,7 @@
       },
       (err) => {
         console.error('Subscriptions read failed:', err);
-        showToast('Could not load subscriptions — check BrandInn permission', 'error');
+        showToast('Could not load subscriptions — check BrandInn Business permission', 'error');
       }
     );
   }
@@ -2607,7 +2580,7 @@
     try {
       const perm = await get(ref(db, `workspacePermissions/${user.uid}/brandinn`));
       if (!perm.exists() || perm.val() !== true) {
-        showToast('You do not have BrandInn permission — data may not load', 'error');
+        showToast('You do not have BrandInn Business permission — data may not load', 'error');
       }
     } catch (e) { /* ignore */ }
 
