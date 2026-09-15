@@ -141,11 +141,12 @@
     .stat-trend { font-size: 0.65rem; margin-top: 4px; display: flex; align-items: center; gap: 4px; color: var(--gray-500); }
     .stat-icon { width: 52px; height: 52px; background: var(--primary-bg); border-radius: 14px; display: flex; align-items: center; justify-content: center; color: var(--primary); font-size: 1.3rem; }
 
-    /* Action Grid - now 9 cards */
+    /* Action Grid — now 10 cards */
     .action-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.8rem; }
-    @media (min-width: 1200px) { .action-grid { grid-template-columns: repeat(9, 1fr); } }
+    /* 10 cards: 5 per row on wide, 2 rows of 5 → clean */
+    @media (min-width: 1200px) { .action-grid { grid-template-columns: repeat(5, 1fr); } }
     @media (max-width: 1000px) { .action-grid { grid-template-columns: repeat(4, 1fr); } }
-    @media (max-width: 600px) { .action-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 700px) { .action-grid { grid-template-columns: repeat(2, 1fr); } }
     
     .action-card {
       background: white; border-radius: 16px; padding: 1rem;
@@ -169,6 +170,9 @@
     .booking-card .action-icon { background: #f5f0ff; color: #8b5cf6; }
     .service-card .action-icon { background: #fdf2f8; color: #ec4899; }
     .subscription-card .action-icon { background: #fef3c7; color: #d97706; }
+    /* NEW: Shop manager card */
+    .shop-card .action-icon { background: #dcfce7; color: #16a34a; }
+    .shop-card:hover { border-color: #86efac; }
 
     .quick-section {
       background: white; border-radius: 20px; padding: 1rem 1.2rem;
@@ -185,6 +189,10 @@
     .quick-btn i { color: var(--primary); font-size: 0.7rem; }
     .quick-btn:hover { background: var(--primary); color: white; border-color: var(--primary); }
     .quick-btn:hover i { color: white; }
+    /* NEW: Shop manager quick link */
+    .quick-btn.shop-quick i { color: #16a34a; }
+    .quick-btn.shop-quick:hover { background: #16a34a; border-color: #16a34a; }
+    .quick-btn.shop-quick:hover i { color: white; }
 
     .recent-section { margin-top: 1.2rem; }
     .recent-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem; }
@@ -230,6 +238,9 @@
       <a href="/workspaces/brandinn/subscriptions.html" class="nav-btn subscription-nav-btn" style="background:#fef3c7; color:#92400e;">
         <i class="fas fa-crown"></i> Subscriptions
       </a>
+      <a href="/workspaces/brandinn/shop-manager.html" class="nav-btn" style="background:#dcfce7; color:#166534;">
+        <i class="fas fa-cash-register"></i> Shop Manager
+      </a>
       <a href="/workspaces/brandinn/map.html" class="nav-btn map-btn"><i class="fas fa-map-marked-alt"></i> Map</a>
       <div class="user-badge">
         <div class="user-avatar" id="userAvatar">BI</div>
@@ -245,7 +256,7 @@
     <div class="page-header">
       <div>
         <h1><i class="fas fa-chart-pie"></i> BrandInn Dashboard <span class="last-updated" id="lastUpdated"><i class="fas fa-circle"></i> Live</span></h1>
-        <p>Manage businesses, service requests, projects, and client bookings</p>
+        <p>Manage businesses, service requests, projects, client bookings, and shops</p>
       </div>
     </div>
 
@@ -257,8 +268,9 @@
       <div class="skeleton-stat-card"><div><div class="skeleton skeleton-text" style="width:70px;"></div><div class="skeleton skeleton-number"></div></div><div class="skeleton skeleton-icon"></div></div>
     </div>
 
-    <!-- ACTION CARDS SKELETON - 9 cards now -->
+    <!-- ACTION CARDS SKELETON — 10 cards now -->
     <div class="action-grid" id="actionGrid">
+      <div class="skeleton-action-card"><div class="skeleton skeleton-action-icon"></div><div class="skeleton skeleton-text" style="width:70%;"></div><div class="skeleton skeleton-text" style="width:50%;"></div></div>
       <div class="skeleton-action-card"><div class="skeleton skeleton-action-icon"></div><div class="skeleton skeleton-text" style="width:70%;"></div><div class="skeleton skeleton-text" style="width:50%;"></div></div>
       <div class="skeleton-action-card"><div class="skeleton skeleton-action-icon"></div><div class="skeleton skeleton-text" style="width:70%;"></div><div class="skeleton skeleton-text" style="width:50%;"></div></div>
       <div class="skeleton-action-card"><div class="skeleton skeleton-action-icon"></div><div class="skeleton skeleton-text" style="width:70%;"></div><div class="skeleton skeleton-text" style="width:50%;"></div></div>
@@ -308,7 +320,7 @@
       </div>
     </div>
 
-    <!-- SUBSCRIPTION SUMMARY (NEW) -->
+    <!-- SUBSCRIPTION SUMMARY -->
     <div class="recent-section">
       <div class="recent-header">
         <h3><i class="fas fa-crown"></i> Subscription Overview</h3>
@@ -347,7 +359,7 @@
       projectId: "mugera-e51cc",
       storageBucket: "mugera-e51cc.firebasestorage.app",
       messagingSenderId: "1024868637509",
-      appId: "1:1028637509:web:321faecddce8f11d9cfc2c"
+      appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
     };
 
     const app = initializeApp(firebaseConfig);
@@ -422,12 +434,18 @@
         <div class="stat-card"><div class="stat-left"><h4>Active Projects</h4><div class="stat-number">${activeProjects}</div><div class="stat-trend"><i class="fas fa-chart-line"></i> In progress</div></div><div class="stat-icon"><i class="fas fa-project-diagram"></i></div></div>
       `;
       
-      // Action Cards — SUBSCRIPTION CARD ADDED as the first card
+      // Action Cards — SHOP MANAGER CARD ADDED (right after Subscriptions)
       document.getElementById('actionGrid').innerHTML = `
         <a href="/workspaces/brandinn/subscriptions.html" class="action-card subscription-card">
           <div class="action-icon"><i class="fas fa-crown"></i></div>
           <h3>Subscriptions</h3>
           <p>Manage plans & billing</p>
+          <span class="action-link">Manage →</span>
+        </a>
+        <a href="/workspaces/brandinn/shop-manager.html" class="action-card shop-card">
+          <div class="action-icon"><i class="fas fa-cash-register"></i></div>
+          <h3>Shop Manager</h3>
+          <p>Products, orders & settings</p>
           <span class="action-link">Manage →</span>
         </a>
         <a href="/workspaces/brandinn/new-business.html" class="action-card"><div class="action-icon"><i class="fas fa-plus-circle"></i></div><h3>List Business</h3><p>Register new business</p><span class="action-link">Register →</span></a>
@@ -440,9 +458,10 @@
         <a href="/workspaces/brandinn/asset-handover.html" class="action-card asset-card"><div class="action-icon"><i class="fas fa-envelope-open-text"></i></div><h3>Asset Handover</h3><p>Client credentials</p><span class="action-link">Generate →</span></a>
       `;
       
-      // Quick Links — SUBSCRIPTIONS LINK ADDED
+      // Quick Links — SHOP MANAGER LINK ADDED
       document.getElementById('quickLinks').innerHTML = `
         <a href="/workspaces/brandinn/subscriptions.html" class="quick-btn"><i class="fas fa-crown"></i> Subscriptions (${totalSubs})</a>
+        <a href="/workspaces/brandinn/shop-manager.html" class="quick-btn shop-quick"><i class="fas fa-cash-register"></i> Shop Manager</a>
         <a href="/workspaces/brandinn/new-business.html" class="quick-btn"><i class="fas fa-plus-circle"></i> New Business</a>
         <a href="/workspaces/brandinn/list-business.html" class="quick-btn"><i class="fas fa-file-alt"></i> Landing Page</a>
         <a href="/workspaces/brandinn/service-requests.html" class="quick-btn"><i class="fas fa-headset"></i> Requests (${pendingRequests})</a>
@@ -480,7 +499,7 @@
         </div>
       `).join('') : '<div class="empty-state">No active projects</div>';
       
-      // Subscriptions Overview (NEW)
+      // Subscriptions Overview
       const recentSubs = Object.entries(allSubdomains).map(([slug, s]) => ({ slug, ...s }))
         .filter(s => s.businessName || s.name)
         .sort((a, b) => (b.updatedAt || b.createdAt || 0) - (a.updatedAt || a.createdAt || 0))
