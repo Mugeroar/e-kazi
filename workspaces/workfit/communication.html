@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Communications Manager | WorkFit</title>
+    <title>Communications & Inquiries | WorkFit</title>
     <meta name="theme-color" content="#f97316">
     <link rel="icon" type="image/png" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
@@ -47,24 +47,41 @@
         .nav-btn.primary { background: var(--orange); color: white; border-color: var(--orange); }
         .nav-btn.primary:hover { background: var(--orange-dark); }
 
-        .main { padding: 1.5rem; max-width: 1100px; margin: 0 auto; }
+        .main { padding: 1.5rem; max-width: 1200px; margin: 0 auto; }
         .page-header { margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
         .page-title { font-size: 1.4rem; font-weight: 800; display: flex; align-items: center; gap: 8px; }
         .page-title i { color: var(--orange); }
         .page-subtitle { font-size: 0.75rem; color: var(--text-secondary); }
 
-        .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 1.5rem; }
+        .stats-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 1.5rem; }
         .stat-card {
             background: var(--surface); border-radius: var(--radius-lg); padding: 1rem;
             border: 1px solid var(--border-light); box-shadow: var(--shadow-sm);
+            cursor: pointer; transition: all 0.2s;
         }
+        .stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: #fed7aa; }
+        .stat-card.active { border-color: var(--orange); box-shadow: 0 0 0 3px rgba(249,115,22,0.08); }
         .stat-card .stat-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 0.5rem; font-size: 0.9rem; }
         .stat-icon.orange { background: #fff7ed; color: #f97316; }
         .stat-icon.green { background: #ecfdf5; color: #10b981; }
         .stat-icon.purple { background: #faf5ff; color: #8b5cf6; }
         .stat-icon.blue { background: #eff6ff; color: #3b82f6; }
+        .stat-icon.red { background: #fef2f2; color: #ef4444; }
         .stat-value { font-size: 1.5rem; font-weight: 800; line-height: 1; }
         .stat-label { font-size: 0.6rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+
+        .tab-bar {
+            display: flex; gap: 4px; background: white; padding: 0.35rem; border-radius: var(--radius);
+            border: 1px solid var(--border-light); box-shadow: var(--shadow-sm); margin-bottom: 1rem; width: fit-content;
+        }
+        .tab-btn {
+            padding: 0.5rem 1.1rem; border-radius: var(--radius-sm); border: none; cursor: pointer;
+            font-family: 'Inter', sans-serif; font-weight: 600; font-size: 0.72rem;
+            background: transparent; color: var(--text-secondary); transition: all 0.2s;
+            display: inline-flex; align-items: center; gap: 6px;
+        }
+        .tab-btn:hover { background: #f8fafc; color: var(--text); }
+        .tab-btn.active { background: var(--orange); color: white; }
 
         .filter-bar {
             display: flex; gap: 10px; margin-bottom: 1.2rem; flex-wrap: wrap; align-items: center;
@@ -77,25 +94,49 @@
         .filter-bar input:focus, .filter-bar select:focus { border-color: var(--orange); }
         .filter-bar input { flex: 1; min-width: 180px; }
 
-        .communications-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 14px; }
-        .comm-card {
+        /* === Inquiries list === */
+        .inquiries-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 14px; }
+        .inquiry-card {
             background: var(--surface); border-radius: var(--radius-lg); border: 1px solid var(--border-light);
             box-shadow: var(--shadow-sm); transition: all 0.25s; overflow: hidden; display: flex; flex-direction: column;
+            border-left: 3px solid var(--warning);
         }
-        .comm-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); border-color: #fed7aa; }
-        .comm-card-body { padding: 1.1rem; flex: 1; display: flex; flex-direction: column; gap: 8px; }
-        .comm-type-badge {
-            display: inline-block; padding: 0.15rem 0.5rem; border-radius: 20px; font-size: 0.55rem; font-weight: 600;
+        .inquiry-card.unread { border-left-color: var(--warning); }
+        .inquiry-card.read { border-left-color: var(--info); }
+        .inquiry-card.replied { border-left-color: var(--success); }
+        .inquiry-card.archived { border-left-color: #cbd5e1; opacity: 0.7; }
+        .inquiry-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+        .inquiry-card-body { padding: 1.1rem; flex: 1; display: flex; flex-direction: column; gap: 8px; }
+        .inquiry-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+        .inquiry-sender { display: flex; align-items: center; gap: 8px; min-width: 0; }
+        .inquiry-avatar {
+            width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-weight: 700; font-size: 0.75rem;
         }
-        .comm-type-badge.announcement { background: #fef3c7; color: #92400e; }
-        .comm-type-badge.product { background: #faf5ff; color: #7c3aed; }
-        .comm-type-badge.promo { background: #ecfdf5; color: #065f46; }
-        .comm-type-badge.event { background: #eff6ff; color: #1e40af; }
-        .comm-type-badge.tip { background: #fce7f3; color: #9d174d; }
-        .comm-title { font-weight: 700; font-size: 0.9rem; }
-        .comm-content { font-size: 0.75rem; color: var(--text-secondary); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; flex: 1; }
-        .comm-meta { font-size: 0.6rem; color: var(--text-muted); }
-        .comm-actions { display: flex; gap: 6px; margin-top: 0.5rem; flex-wrap: wrap; }
+        .inquiry-sender-info { min-width: 0; }
+        .inquiry-sender-name { font-weight: 700; font-size: 0.82rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .inquiry-sender-email { font-size: 0.62rem; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .inquiry-status-badge {
+            padding: 0.15rem 0.5rem; border-radius: 20px; font-size: 0.55rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.3px; flex-shrink: 0;
+        }
+        .status-unread { background: #fef3c7; color: #92400e; }
+        .status-read { background: #dbeafe; color: #1e40af; }
+        .status-replied { background: #d1fae5; color: #065f46; }
+        .status-archived { background: #f1f5f9; color: #64748b; }
+
+        .inquiry-subject { font-weight: 700; font-size: 0.85rem; }
+        .inquiry-message { font-size: 0.75rem; color: var(--text-secondary); line-height: 1.5; }
+        .inquiry-club-tag {
+            display: inline-flex; align-items: center; gap: 5px;
+            font-size: 0.62rem; padding: 0.2rem 0.55rem; border-radius: 20px;
+            background: #faf5ff; color: #7c3aed; font-weight: 600;
+        }
+        .inquiry-meta { font-size: 0.6rem; color: #94a3b8; }
+        .inquiry-actions { display: flex; gap: 6px; margin-top: 0.5rem; flex-wrap: wrap; }
+
         .btn {
             padding: 0.35rem 0.8rem; border-radius: var(--radius-sm); font-weight: 600; font-size: 0.68rem;
             cursor: pointer; border: 1px solid transparent; transition: all 0.2s; display: inline-flex; align-items: center; gap: 4px;
@@ -109,11 +150,35 @@
         .btn-outline { background: white; border-color: var(--border); color: var(--text-secondary); }
         .btn-outline:hover { background: #f8fafc; }
         .btn-sm { padding: 0.2rem 0.5rem; font-size: 0.6rem; }
-        .btn-success:disabled { opacity: 0.5; cursor: not-allowed; }
 
         .empty-state { text-align: center; padding: 3rem; color: #94a3b8; background: white; border-radius: var(--radius-lg); border: 1px solid var(--border-light); grid-column: 1 / -1; }
         .empty-state i { font-size: 3rem; display: block; margin-bottom: 1rem; color: #cbd5e1; }
 
+        /* === Log list (outbound comms) === */
+        .log-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 14px; }
+        .log-card {
+            background: var(--surface); border-radius: var(--radius-lg); border: 1px solid var(--border-light);
+            box-shadow: var(--shadow-sm); padding: 1.1rem; display: flex; flex-direction: column; gap: 8px;
+            transition: all 0.25s; border-left: 3px solid var(--purple);
+        }
+        .log-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+        .log-type-badge {
+            display: inline-flex; align-items: center; gap: 4px;
+            padding: 0.15rem 0.55rem; border-radius: 20px; font-size: 0.55rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.3px; width: fit-content;
+        }
+        .log-type-call { background: #eff6ff; color: #1e40af; }
+        .log-type-email { background: #fef3c7; color: #92400e; }
+        .log-type-whatsapp { background: #d1fae5; color: #065f46; }
+        .log-type-sms { background: #ede9fe; color: #6d28d9; }
+        .log-type-meeting { background: #fce7f3; color: #9d174d; }
+        .log-type-other { background: #f1f5f9; color: #64748b; }
+
+        .log-subject { font-weight: 700; font-size: 0.85rem; }
+        .log-summary { font-size: 0.75rem; color: var(--text-secondary); line-height: 1.5; }
+        .log-recipient { font-size: 0.7rem; color: var(--text); font-weight: 600; }
+
+        /* === Modal === */
         .modal-overlay {
             position: fixed; inset: 0; background: rgba(15,23,42,0.4); backdrop-filter: blur(4px);
             display: flex; align-items: flex-end; justify-content: center; z-index: 300;
@@ -121,8 +186,8 @@
         }
         .modal-overlay.active { opacity: 1; visibility: visible; }
         .modal {
-            background: white; border-radius: 20px 20px 0 0; padding: 1.5rem; width: 100%; max-width: 550px;
-            max-height: 85vh; overflow-y: auto; box-shadow: 0 -4px 30px rgba(0,0,0,0.1);
+            background: white; border-radius: 20px 20px 0 0; padding: 1.5rem; width: 100%; max-width: 600px;
+            max-height: 90vh; overflow-y: auto; box-shadow: 0 -4px 30px rgba(0,0,0,0.1);
         }
         .modal-handle { width: 36px; height: 4px; background: #e2e8f0; border-radius: 2px; margin: 0 auto 1rem; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem; }
@@ -139,6 +204,12 @@
         .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--orange); box-shadow: 0 0 0 3px rgba(249,115,22,0.06); background: white; }
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
 
+        .inquiry-detail-block {
+            background: #f8fafc; padding: 0.8rem; border-radius: var(--radius-sm);
+            font-size: 0.75rem; color: #334155; line-height: 1.6;
+            border-left: 3px solid var(--orange); margin-bottom: 1rem;
+        }
+
         .toast {
             position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 400;
             padding: 0.6rem 1.2rem; border-radius: 10px; font-size: 0.75rem; font-weight: 600;
@@ -148,12 +219,17 @@
         .toast.success { background: #065f46; }
         @keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(15px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
 
+        @media (max-width: 900px) {
+            .stats-row { grid-template-columns: repeat(3, 1fr); }
+        }
         @media (max-width: 768px) {
             .main { padding: 1rem; }
             .stats-row { grid-template-columns: 1fr 1fr; }
-            .communications-grid { grid-template-columns: 1fr; }
+            .inquiries-grid, .log-grid { grid-template-columns: 1fr; }
             .form-row { grid-template-columns: 1fr; }
             .topbar { padding: 0 0.8rem; }
+            .tab-bar { width: 100%; }
+            .tab-btn { flex: 1; justify-content: center; padding: 0.5rem 0.5rem; font-size: 0.65rem; }
         }
     </style>
 </head>
@@ -167,38 +243,107 @@
         </div>
         <div class="topbar-right">
             <a href="/workspaces/workfit/index.html" class="nav-btn"><i class="fas fa-arrow-left"></i> Dashboard</a>
-            <button class="nav-btn primary" onclick="openCreateComm()"><i class="fas fa-plus"></i> Create Communication</button>
+            <button class="nav-btn primary" onclick="openLogModal()"><i class="fas fa-plus"></i> Log Communication</button>
         </div>
     </div>
 
     <div class="main">
         <div class="page-header">
             <div>
-                <h1 class="page-title"><i class="fas fa-bullhorn"></i> Communications Manager</h1>
-                <p class="page-subtitle">Master control for all posts. Create communications that trainers can publish to their clubs.</p>
+                <h1 class="page-title"><i class="fas fa-inbox"></i> Communications & Inquiries</h1>
+                <p class="page-subtitle">Manage incoming inquiries from members and log outbound communications with them.</p>
             </div>
         </div>
 
+        <!-- Stat cards = quick filters -->
         <div class="stats-row">
-            <div class="stat-card"><div class="stat-icon orange"><i class="fas fa-bullhorn"></i></div><div class="stat-value" id="statTotal">0</div><div class="stat-label">Total Communications</div></div>
-            <div class="stat-card"><div class="stat-icon green"><i class="fas fa-check-circle"></i></div><div class="stat-value" id="statPublished">0</div><div class="stat-label">Published</div></div>
-            <div class="stat-card"><div class="stat-icon purple"><i class="fas fa-clock"></i></div><div class="stat-value" id="statDraft">0</div><div class="stat-label">Drafts</div></div>
-            <div class="stat-card"><div class="stat-icon blue"><i class="fas fa-file-alt"></i></div><div class="stat-value" id="statTypes">0</div><div class="stat-label">Categories</div></div>
+            <div class="stat-card active" data-status="all" onclick="setStatusFilter('all')">
+                <div class="stat-icon orange"><i class="fas fa-inbox"></i></div>
+                <div class="stat-value" id="statTotal">0</div>
+                <div class="stat-label">All Inquiries</div>
+            </div>
+            <div class="stat-card" data-status="unread" onclick="setStatusFilter('unread')">
+                <div class="stat-icon red"><i class="fas fa-envelope"></i></div>
+                <div class="stat-value" id="statUnread">0</div>
+                <div class="stat-label">Unread</div>
+            </div>
+            <div class="stat-card" data-status="read" onclick="setStatusFilter('read')">
+                <div class="stat-icon blue"><i class="fas fa-envelope-open"></i></div>
+                <div class="stat-value" id="statRead">0</div>
+                <div class="stat-label">Read</div>
+            </div>
+            <div class="stat-card" data-status="replied" onclick="setStatusFilter('replied')">
+                <div class="stat-icon green"><i class="fas fa-reply"></i></div>
+                <div class="stat-value" id="statReplied">0</div>
+                <div class="stat-label">Replied</div>
+            </div>
+            <div class="stat-card" data-status="__logs" onclick="setStatusFilter('__logs')">
+                <div class="stat-icon purple"><i class="fas fa-phone"></i></div>
+                <div class="stat-value" id="statLogs">0</div>
+                <div class="stat-label">Comms Logged</div>
+            </div>
         </div>
 
-        <div class="filter-bar">
-            <i class="fas fa-search" style="color:#94a3b8;"></i>
-            <input type="text" id="searchInput" placeholder="Search communications...">
-            <select id="typeFilter"><option value="all">All Types</option><option value="announcement">Announcement</option><option value="product">Product</option><option value="promo">Promotion</option><option value="event">Event</option><option value="tip">Tip</option></select>
-            <select id="statusFilter"><option value="all">All Status</option><option value="published">Published</option><option value="draft">Draft</option></select>
+        <!-- Tab: Inquiries / Log -->
+        <div class="tab-bar">
+            <button class="tab-btn active" id="tabInquiries" onclick="switchTab('inquiries')">
+                <i class="fas fa-envelope"></i> Inquiries
+            </button>
+            <button class="tab-btn" id="tabLog" onclick="switchTab('log')">
+                <i class="fas fa-history"></i> Communication Log
+            </button>
         </div>
 
-        <div id="communicationsContainer" class="communications-grid"></div>
+        <!-- Inquiries view -->
+        <div id="viewInquiries">
+            <div class="filter-bar">
+                <i class="fas fa-search" style="color:#94a3b8;"></i>
+                <input type="text" id="searchInput" placeholder="Search by name, email, subject, message...">
+                <select id="subjectFilter">
+                    <option value="all">All Subjects</option>
+                    <option value="Membership Inquiry">Membership Inquiry</option>
+                    <option value="Furnace Question">Furnace / Location Question</option>
+                    <option value="Session Related">Session Related</option>
+                    <option value="Technical Support">Technical Support</option>
+                    <option value="Feedback & Suggestions">Feedback & Suggestions</option>
+                    <option value="Other">Other</option>
+                </select>
+                <select id="clubFilter">
+                    <option value="all">All Clubs</option>
+                </select>
+            </div>
+
+            <div id="inquiriesContainer" class="inquiries-grid"></div>
+        </div>
+
+        <!-- Communication Log view -->
+        <div id="viewLog" style="display:none;">
+            <div class="filter-bar">
+                <i class="fas fa-search" style="color:#94a3b8;"></i>
+                <input type="text" id="logSearchInput" placeholder="Search logged communications...">
+                <select id="logTypeFilter">
+                    <option value="all">All Channels</option>
+                    <option value="call">Phone Call</option>
+                    <option value="email">Email</option>
+                    <option value="whatsapp">WhatsApp</option>
+                    <option value="sms">SMS</option>
+                    <option value="meeting">Meeting</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+
+            <div id="logContainer" class="log-grid"></div>
+        </div>
     </div>
 
-    <!-- Create/Edit Communication Modal -->
-    <div class="modal-overlay" id="commModal">
-        <div class="modal" id="commModalContent"><div class="modal-handle"></div></div>
+    <!-- Inquiry detail / reply modal -->
+    <div class="modal-overlay" id="inquiryModal">
+        <div class="modal" id="inquiryModalContent"></div>
+    </div>
+
+    <!-- Log communication modal -->
+    <div class="modal-overlay" id="logModal">
+        <div class="modal" id="logModalContent"></div>
     </div>
 
     <div id="toast" class="toast"></div>
@@ -218,9 +363,12 @@
         const auth = firebase.auth();
         const db = firebase.database();
 
-        let allCommunications = {};
-        let allProducts = {};
+        let allInquiries = {};
+        let allLogs = {};
         let allClubs = {};
+        let currentUser = null;
+        let statusFilter = 'all';
+        let activeTab = 'inquiries';
 
         function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
         function toast(msg, type) {
@@ -229,98 +377,10 @@
             t.style.display = 'block'; clearTimeout(t._timeout);
             t._timeout = setTimeout(() => t.style.display = 'none', 2800);
         }
-        function formatCurrency(n) { return Number(n || 0).toLocaleString(); }
-
-        function getTypeBadge(type) {
-            const map = {
-                'announcement': 'announcement',
-                'product': 'product',
-                'promo': 'promo',
-                'event': 'event',
-                'tip': 'tip'
-            };
-            return map[type] || 'announcement';
+        function initialsOf(name) {
+            if (!name) return '?';
+            return name.trim().split(/\s+/).map(n => n[0]).slice(0, 2).join('').toUpperCase();
         }
-
-        function getTypeIcon(type) {
-            const map = {
-                'announcement': 'fa-bullhorn',
-                'product': 'fa-tag',
-                'promo': 'fa-fire',
-                'event': 'fa-calendar',
-                'tip': 'fa-lightbulb'
-            };
-            return map[type] || 'fa-bullhorn';
-        }
-
-        function renderCommunications() {
-            const searchTerm = (document.getElementById('searchInput').value || '').toLowerCase();
-            const typeVal = document.getElementById('typeFilter').value;
-            const statusVal = document.getElementById('statusFilter').value;
-
-            let comms = Object.entries(allCommunications).map(([id, data]) => ({ id, ...data })).filter(c => c && c.title);
-            
-            if (typeVal !== 'all') comms = comms.filter(c => c.type === typeVal);
-            if (statusVal !== 'all') comms = comms.filter(c => c.status === statusVal);
-            if (searchTerm) {
-                comms = comms.filter(c =>
-                    (c.title || '').toLowerCase().includes(searchTerm) ||
-                    (c.content || '').toLowerCase().includes(searchTerm) ||
-                    (c.type || '').toLowerCase().includes(searchTerm)
-                );
-            }
-
-            comms.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-
-            // Stats
-            const all = Object.values(allCommunications).filter(c => c && c.title);
-            const published = all.filter(c => c.status === 'published');
-            const drafts = all.filter(c => c.status === 'draft');
-            const types = new Set(all.map(c => c.type));
-
-            document.getElementById('statTotal').textContent = all.length;
-            document.getElementById('statPublished').textContent = published.length;
-            document.getElementById('statDraft').textContent = drafts.length;
-            document.getElementById('statTypes').textContent = types.size;
-
-            const container = document.getElementById('communicationsContainer');
-            if (!comms.length) {
-                container.innerHTML = `<div class="empty-state"><i class="fas fa-bullhorn"></i><p>No communications found</p><button class="btn btn-primary" style="margin-top:1rem;" onclick="openCreateComm()"><i class="fas fa-plus"></i> Create Communication</button></div>`;
-                return;
-            }
-
-            container.innerHTML = comms.map(c => {
-                const typeBadge = getTypeBadge(c.type);
-                const statusClass = c.status === 'published' ? 'badge-success' : 'badge-warning';
-                const statusLabel = c.status === 'published' ? 'Published' : 'Draft';
-                const canPublish = c.status === 'draft';
-
-                return `
-                <div class="comm-card">
-                    <div class="comm-card-body">
-                        <div style="display:flex;justify-content:space-between;align-items:flex-start;">
-                            <span class="comm-type-badge ${typeBadge}"><i class="fas ${getTypeIcon(c.type)}"></i> ${c.type || 'General'}</span>
-                            <span class="badge ${statusClass}" style="font-size:0.55rem;padding:0.15rem 0.5rem;border-radius:6px;font-weight:600;">${statusLabel}</span>
-                        </div>
-                        <div class="comm-title">${esc(c.title)}</div>
-                        <div class="comm-content">${esc(c.content || '')}</div>
-                        ${c.productId && allProducts[c.productId] ? `
-                            <div style="font-size:0.65rem;color:var(--text-secondary);padding:0.3rem 0.5rem;background:#f8fafc;border-radius:6px;">
-                                <i class="fas fa-tag"></i> ${esc(allProducts[c.productId].name)} · KES ${formatCurrency(allProducts[c.productId].price)}
-                            </div>
-                        ` : ''}
-                        <div class="comm-meta">Created ${timeAgo(c.createdAt)} · ${c.assignedClubs ? Object.keys(c.assignedClubs).length : 0} clubs</div>
-                        <div class="comm-actions">
-                            <button class="btn btn-outline btn-sm" onclick="openEditComm('${c.id}')"><i class="fas fa-pen"></i> Edit</button>
-                            ${canPublish ? `<button class="btn btn-success btn-sm" onclick="publishComm('${c.id}')"><i class="fas fa-check"></i> Publish</button>` : ''}
-                            <button class="btn btn-danger btn-sm" onclick="deleteComm('${c.id}')"><i class="fas fa-trash"></i> Delete</button>
-                            <button class="btn btn-primary btn-sm" onclick="postToFeed('${c.id}')"><i class="fas fa-share"></i> Post to Feed</button>
-                        </div>
-                    </div>
-                </div>`;
-            }).join('');
-        }
-
         function timeAgo(ts) {
             if (!ts) return 'Just now';
             const diff = Date.now() - new Date(ts).getTime();
@@ -329,267 +389,603 @@
             if (mins < 60) return mins + 'm ago';
             const hrs = Math.floor(mins / 60);
             if (hrs < 24) return hrs + 'h ago';
-            return Math.floor(hrs / 24) + 'd ago';
+            const days = Math.floor(hrs / 24);
+            if (days < 30) return days + 'd ago';
+            return new Date(ts).toLocaleDateString();
+        }
+        function formatDateTime(ts) {
+            if (!ts) return '—';
+            const d = new Date(ts);
+            return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) +
+                   ' · ' + d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+        }
+        function statusOf(inq) {
+            return (inq.status || 'unread').toLowerCase();
         }
 
-        // ============ CREATE COMMUNICATION ============
-        window.openCreateComm = function() {
-            // Load products for product type selection
-            db.ref('workfit_shop_products').once('value', snap => {
-                allProducts = snap.val() || {};
-                renderCommForm();
-            });
+        // ---------- Tab switching ----------
+        window.switchTab = function(tab) {
+            activeTab = tab;
+            document.getElementById('tabInquiries').classList.toggle('active', tab === 'inquiries');
+            document.getElementById('tabLog').classList.toggle('active', tab === 'log');
+            document.getElementById('viewInquiries').style.display = tab === 'inquiries' ? 'block' : 'none';
+            document.getElementById('viewLog').style.display = tab === 'log' ? 'block' : 'none';
+            if (tab === 'inquiries') renderInquiries();
+            else renderLogs();
         };
 
-        function renderCommForm(editData) {
-            const productOptions = Object.entries(allProducts)
-                .filter(([id, p]) => p && p.name)
-                .map(([id, p]) => `
-                    <option value="${id}" ${editData?.productId === id ? 'selected' : ''}>${esc(p.name)} (KES ${formatCurrency(p.price)})</option>
-                `).join('');
+        // ---------- Stat card quick filters ----------
+        window.setStatusFilter = function(status) {
+            statusFilter = status;
 
-            const clubOptions = Object.entries(allClubs)
-                .filter(([id, c]) => c && (c.businessName || c.name))
-                .map(([id, c]) => `
-                    <option value="${id}" ${editData?.assignedClubs && editData.assignedClubs[id] ? 'selected' : ''}>${esc(c.businessName || c.name)}</option>
-                `).join('');
+            // Toggle active state
+            document.querySelectorAll('.stat-card').forEach(c => c.classList.remove('active'));
+            const card = document.querySelector(`.stat-card[data-status="${status}"]`);
+            if (card) card.classList.add('active');
 
-            document.getElementById('commModalContent').innerHTML = `
-                <div class="modal-handle"></div>
-                <div class="modal-header">
-                    <h3><i class="fas fa-bullhorn" style="color:var(--orange);"></i> ${editData ? 'Edit' : 'Create'} Communication</h3>
-                    <button class="modal-close" onclick="closeCommModal()"><i class="fas fa-times"></i></button>
-                </div>
-                <input type="hidden" id="editCommId" value="${editData?.id || ''}">
-                <div class="form-group">
-                    <label>Title *</label>
-                    <input id="commTitle" value="${esc(editData?.title || '')}" placeholder="e.g. New Product Launch!">
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Type *</label>
-                        <select id="commType" onchange="toggleProductField()">
-                            <option value="announcement" ${editData?.type === 'announcement' ? 'selected' : ''}>📢 Announcement</option>
-                            <option value="product" ${editData?.type === 'product' ? 'selected' : ''}>🏷️ Product</option>
-                            <option value="promo" ${editData?.type === 'promo' ? 'selected' : ''}>🔥 Promotion</option>
-                            <option value="event" ${editData?.type === 'event' ? 'selected' : ''}>📅 Event</option>
-                            <option value="tip" ${editData?.type === 'tip' ? 'selected' : ''}>💡 Tip</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Status</label>
-                        <select id="commStatus">
-                            <option value="draft" ${editData?.status === 'draft' ? 'selected' : ''}>Draft</option>
-                            <option value="published" ${editData?.status === 'published' ? 'selected' : ''}>Published</option>
-                        </select>
-                    </div>
-                </div>
-                <div id="productField" style="${editData?.type === 'product' ? 'display:block' : 'display:none'}">
-                    <div class="form-group">
-                        <label>Select Product</label>
-                        <select id="commProduct">
-                            <option value="">-- Select a product --</option>
-                            ${productOptions}
-                        </select>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Content *</label>
-                    <textarea id="commContent" rows="4" placeholder="Write the communication content...">${esc(editData?.content || '')}</textarea>
-                </div>
-                <div class="form-group">
-                    <label>Assign to Clubs (select all that apply)</label>
-                    <div style="max-height:150px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--radius-sm);padding:0.5rem;">
-                        ${clubOptions || '<div style="color:var(--text-muted);font-size:0.7rem;">No clubs available</div>'}
-                    </div>
-                    <small class="hint" style="font-size:0.6rem;color:var(--text-muted);">Select the clubs that can post this communication.</small>
-                </div>
-                <div style="display:flex;gap:8px;">
-                    <button class="btn btn-outline" style="flex:1;" onclick="closeCommModal()">Cancel</button>
-                    <button class="btn btn-primary" style="flex:1;" onclick="saveCommunication()">${editData ? 'Update' : 'Save'} Communication</button>
-                </div>
-            `;
-            document.getElementById('commModal').classList.add('active');
+            if (status === '__logs') {
+                switchTab('log');
+                return;
+            }
+            switchTab('inquiries');
+            renderInquiries();
+        };
+
+        // ---------- Render stats ----------
+        function renderStats() {
+            const inq = Object.values(allInquiries);
+            document.getElementById('statTotal').textContent   = inq.length;
+            document.getElementById('statUnread').textContent  = inq.filter(i => statusOf(i) === 'unread').length;
+            document.getElementById('statRead').textContent    = inq.filter(i => statusOf(i) === 'read').length;
+            document.getElementById('statReplied').textContent = inq.filter(i => statusOf(i) === 'replied').length;
+            document.getElementById('statLogs').textContent    = Object.keys(allLogs).length;
         }
 
-        window.toggleProductField = function() {
-            const type = document.getElementById('commType').value;
-            document.getElementById('productField').style.display = type === 'product' ? 'block' : 'none';
-        };
+        // ---------- Render inquiries ----------
+        function renderInquiries() {
+            const searchTerm = (document.getElementById('searchInput').value || '').toLowerCase();
+            const subjectVal = document.getElementById('subjectFilter').value;
+            const clubVal = document.getElementById('clubFilter').value;
 
-        // ============ SAVE COMMUNICATION ============
-        window.saveCommunication = async function() {
-            const title = document.getElementById('commTitle').value.trim();
-            const type = document.getElementById('commType').value;
-            const content = document.getElementById('commContent').value.trim();
-            const status = document.getElementById('commStatus').value;
-            const productId = document.getElementById('commProduct')?.value || '';
-            const editId = document.getElementById('editCommId').value;
+            let items = Object.entries(allInquiries).map(([id, i]) => ({ id, ...i })).filter(i => i && i.email);
 
-            if (!title) return toast('Title is required', 'error');
-            if (!content) return toast('Content is required', 'error');
-
-            // Get selected clubs
-            const clubSelect = document.querySelector('#commModalContent select[multiple]') || 
-                              document.querySelector('#commModalContent select:last-of-type');
-            const selectedClubs = {};
-            if (clubSelect) {
-                Array.from(clubSelect.options).forEach(opt => {
-                    if (opt.selected) selectedClubs[opt.value] = true;
-                });
+            // Status filter
+            if (statusFilter !== 'all' && statusFilter !== '__logs') {
+                items = items.filter(i => statusOf(i) === statusFilter);
+            }
+            // Subject filter
+            if (subjectVal !== 'all') items = items.filter(i => i.subject === subjectVal);
+            // Club filter
+            if (clubVal !== 'all') items = items.filter(i => i.clubId === clubVal);
+            // Search
+            if (searchTerm) {
+                items = items.filter(i =>
+                    (i.name || '').toLowerCase().includes(searchTerm) ||
+                    (i.email || '').toLowerCase().includes(searchTerm) ||
+                    (i.subject || '').toLowerCase().includes(searchTerm) ||
+                    (i.message || '').toLowerCase().includes(searchTerm)
+                );
             }
 
-            const data = {
-                title, type, content, status,
-                productId: productId || '',
-                assignedClubs: selectedClubs,
-                updatedAt: firebase.database.ServerValue.TIMESTAMP,
-                updatedBy: currentUser?.uid || ''
-            };
+            items.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
 
-            try {
-                if (editId) {
-                    await db.ref('workfit_communications/' + editId).update(data);
-                    toast('Communication updated!', 'success');
-                } else {
-                    data.createdAt = firebase.database.ServerValue.TIMESTAMP;
-                    data.createdBy = currentUser?.uid || '';
-                    await db.ref('workfit_communications').push(data);
-                    toast('Communication created!', 'success');
-                }
-                closeCommModal();
-            } catch(e) {
-                toast('Error saving', 'error');
-                console.error(e);
-            }
-        };
-
-        // ============ OPEN EDIT ============
-        window.openEditComm = function(commId) {
-            const comm = allCommunications[commId];
-            if (!comm) return;
-            
-            db.ref('workfit_shop_products').once('value', snap => {
-                allProducts = snap.val() || {};
-                renderCommForm({ id: commId, ...comm });
-            });
-        };
-
-        // ============ PUBLISH ============
-        window.publishComm = async function(commId) {
-            try {
-                await db.ref('workfit_communications/' + commId).update({
-                    status: 'published',
-                    publishedAt: firebase.database.ServerValue.TIMESTAMP
-                });
-                toast('Communication published!', 'success');
-            } catch(e) {
-                toast('Error publishing', 'error');
-            }
-        };
-
-        // ============ DELETE ============
-        window.deleteComm = async function(commId) {
-            if (!confirm('Delete this communication?')) return;
-            try {
-                await db.ref('workfit_communications/' + commId).remove();
-                toast('Communication deleted', 'success');
-            } catch(e) {
-                toast('Error deleting', 'error');
-            }
-        };
-
-        // ============ POST TO FEED ============
-        window.postToFeed = async function(commId) {
-            const comm = allCommunications[commId];
-            if (!comm) return toast('Communication not found', 'error');
-
-            // Get the clubs this comm is assigned to
-            const assignedClubs = comm.assignedClubs || {};
-            const clubIds = Object.keys(assignedClubs);
-            
-            if (!clubIds.length) {
-                toast('No clubs assigned to this communication', 'error');
+            const container = document.getElementById('inquiriesContainer');
+            if (!items.length) {
+                container.innerHTML = `<div class="empty-state"><i class="fas fa-inbox"></i><p>No inquiries found</p><p style="font-size:0.7rem;margin-top:0.5rem;">Inquiries from the contact page will appear here.</p></div>`;
                 return;
             }
 
-            // Confirm posting
-            if (!confirm(`Post "${comm.title}" to ${clubIds.length} club(s)?`)) return;
+            container.innerHTML = items.map(i => {
+                const st = statusOf(i);
+                const initials = initialsOf(i.name || i.email);
+                const clubTag = i.clubName ? `<span class="inquiry-club-tag"><i class="fas fa-dumbbell"></i> ${esc(i.clubName)}</span>` : '';
+                const logCount = Object.values(allLogs).filter(l => l.inquiryId === i.id).length;
+                return `
+                <div class="inquiry-card ${st}">
+                    <div class="inquiry-card-body">
+                        <div class="inquiry-top">
+                            <div class="inquiry-sender">
+                                <div class="inquiry-avatar">${esc(initials)}</div>
+                                <div class="inquiry-sender-info">
+                                    <div class="inquiry-sender-name">${esc(i.name || 'Unknown')}</div>
+                                    <div class="inquiry-sender-email">${esc(i.email || '')}</div>
+                                </div>
+                            </div>
+                            <span class="inquiry-status-badge status-${st}">${st}</span>
+                        </div>
+                        <div class="inquiry-subject">${esc(i.subject || 'No Subject')}</div>
+                        <div class="inquiry-message">${esc((i.message || '').slice(0, 180))}${(i.message || '').length > 180 ? '…' : ''}</div>
+                        ${clubTag}
+                        <div class="inquiry-meta">
+                            <i class="far fa-clock"></i> ${timeAgo(i.createdAt)}
+                            ${logCount ? ` · <i class="fas fa-phone"></i> ${logCount} logged` : ''}
+                        </div>
+                        <div class="inquiry-actions">
+                            <button class="btn btn-primary btn-sm" onclick="openInquiry('${i.id}')"><i class="fas fa-eye"></i> Open</button>
+                            ${st === 'unread' ? `<button class="btn btn-outline btn-sm" onclick="markRead('${i.id}')"><i class="fas fa-check"></i> Mark Read</button>` : ''}
+                            <button class="btn btn-success btn-sm" onclick="openReply('${i.id}')"><i class="fas fa-reply"></i> Reply & Log</button>
+                            <button class="btn btn-danger btn-sm" onclick="archiveInquiry('${i.id}')"><i class="fas fa-archive"></i></button>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
 
+        // ---------- Render logs ----------
+        function renderLogs() {
+            const searchTerm = (document.getElementById('logSearchInput').value || '').toLowerCase();
+            const typeVal = document.getElementById('logTypeFilter').value;
+
+            let items = Object.entries(allLogs).map(([id, l]) => ({ id, ...l }));
+            if (typeVal !== 'all') items = items.filter(l => (l.type || '').toLowerCase() === typeVal);
+            if (searchTerm) {
+                items = items.filter(l =>
+                    (l.subject || '').toLowerCase().includes(searchTerm) ||
+                    (l.recipient || '').toLowerCase().includes(searchTerm) ||
+                    (l.summary || '').toLowerCase().includes(searchTerm)
+                );
+            }
+            items.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+            const container = document.getElementById('logContainer');
+            if (!items.length) {
+                container.innerHTML = `<div class="empty-state"><i class="fas fa-history"></i><p>No communication logs yet</p><p style="font-size:0.7rem;margin-top:0.5rem;">Log calls, emails, WhatsApp replies, or meetings here.</p></div>`;
+                return;
+            }
+
+            container.innerHTML = items.map(l => {
+                const type = (l.type || 'other').toLowerCase();
+                return `
+                <div class="log-card">
+                    <span class="log-type-badge log-type-${type}">
+                        <i class="fas ${typeIcon(type)}"></i> ${type}
+                    </span>
+                    <div class="log-subject">${esc(l.subject || 'No Subject')}</div>
+                    <div class="log-recipient"><i class="fas fa-user"></i> ${esc(l.recipient || '—')}</div>
+                    <div class="log-summary">${esc(l.summary || '')}</div>
+                    <div class="inquiry-meta">
+                        <i class="far fa-clock"></i> ${timeAgo(l.createdAt)}
+                        ${l.inquiryId ? ` · <i class="fas fa-link"></i> linked to inquiry` : ''}
+                    </div>
+                    <div class="inquiry-actions">
+                        <button class="btn btn-outline btn-sm" onclick="editLog('${l.id}')"><i class="fas fa-pen"></i> Edit</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteLog('${l.id}')"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function typeIcon(type) {
+            return ({
+                call: 'fa-phone', email: 'fa-envelope', whatsapp: 'fa-whatsapp',
+                sms: 'fa-comment-sms', meeting: 'fa-users', other: 'fa-circle'
+            })[type] || 'fa-circle';
+        }
+
+        // ---------- Inquiry detail ----------
+        window.openInquiry = function(id) {
+            const i = allInquiries[id];
+            if (!i) return;
+
+            // Auto-mark read
+            if (statusOf(i) === 'unread') markRead(id, true);
+
+            const relatedLogs = Object.entries(allLogs)
+                .map(([lid, l]) => ({ id: lid, ...l }))
+                .filter(l => l.inquiryId === id)
+                .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+            const logHtml = relatedLogs.length ? relatedLogs.map(l => `
+                <div style="padding:0.55rem 0.7rem;border-left:2px solid var(--purple);background:#faf5ff;border-radius:6px;margin-bottom:0.5rem;font-size:0.72rem;">
+                    <div style="display:flex;justify-content:space-between;">
+                        <strong><i class="fas ${typeIcon(l.type)}"></i> ${esc(l.type || 'other')}</strong>
+                        <span style="color:#94a3b8;font-size:0.65rem;">${timeAgo(l.createdAt)}</span>
+                    </div>
+                    <div style="color:#475569;margin-top:4px;">${esc(l.summary || '')}</div>
+                </div>
+            `).join('') : '<p style="font-size:0.7rem;color:#94a3b8;">No communication logged yet.</p>';
+
+            document.getElementById('inquiryModalContent').innerHTML = `
+                <div class="modal-handle"></div>
+                <div class="modal-header">
+                    <h3><i class="fas fa-envelope-open" style="color:var(--orange);"></i> Inquiry Detail</h3>
+                    <button class="modal-close" onclick="closeInquiryModal()"><i class="fas fa-times"></i></button>
+                </div>
+
+                <div class="inquiry-sender" style="margin-bottom:1rem;">
+                    <div class="inquiry-avatar">${esc(initialsOf(i.name || i.email))}</div>
+                    <div class="inquiry-sender-info">
+                        <div class="inquiry-sender-name">${esc(i.name || 'Unknown')}</div>
+                        <div class="inquiry-sender-email">${esc(i.email || '')}</div>
+                    </div>
+                    <span class="inquiry-status-badge status-${statusOf(i)}" style="margin-left:auto;">${statusOf(i)}</span>
+                </div>
+
+                <div class="inquiry-detail-block">
+                    <div style="font-weight:700;font-size:0.8rem;margin-bottom:0.4rem;">
+                        <i class="fas fa-tag"></i> ${esc(i.subject || 'No Subject')}
+                    </div>
+                    <div>${esc(i.message || '')}</div>
+                </div>
+
+                <div style="font-size:0.7rem;color:#94a3b8;margin-bottom:1rem;">
+                    Received ${formatDateTime(i.createdAt)}
+                    ${i.clubName ? ` · <i class="fas fa-dumbbell"></i> ${esc(i.clubName)}` : ''}
+                </div>
+
+                <div style="font-weight:700;font-size:0.8rem;margin-bottom:0.6rem;">
+                    <i class="fas fa-history"></i> Communication History (${relatedLogs.length})
+                </div>
+                <div style="max-height:220px;overflow-y:auto;margin-bottom:1rem;">
+                    ${logHtml}
+                </div>
+
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                    <button class="btn btn-primary" style="flex:1;" onclick="openReply('${id}')">
+                        <i class="fas fa-reply"></i> Log Reply
+                    </button>
+                    <button class="btn btn-outline" style="flex:1;" onclick="openLogModal('${id}')">
+                        <i class="fas fa-plus"></i> Log Other Contact
+                    </button>
+                    <button class="btn btn-outline" onclick="closeInquiryModal()">Close</button>
+                </div>
+            `;
+            document.getElementById('inquiryModal').classList.add('active');
+        };
+
+        window.closeInquiryModal = function() {
+            document.getElementById('inquiryModal').classList.remove('active');
+        };
+
+        document.getElementById('inquiryModal').addEventListener('click', function(e) {
+            if (e.target === this) closeInquiryModal();
+        });
+
+        // ---------- Mark read / replied / archive ----------
+        window.markRead = async function(id, silent) {
             try {
-                let postedCount = 0;
-                const product = comm.productId ? allProducts[comm.productId] : null;
-
-                // For each assigned club, create a post
-                for (const clubId of clubIds) {
-                    const clubName = allClubs[clubId]?.businessName || allClubs[clubId]?.name || 'Club';
-                    
-                    const postData = {
-                        clubId: clubId,
-                        clubName: clubName,
-                        communicationId: commId,
-                        title: comm.title,
-                        content: comm.content,
-                        type: comm.type,
-                        isAdvert: comm.type === 'product' || comm.type === 'promo',
-                        authorName: 'WorkFit Communications',
-                        authorEmail: 'communications@workfit.com',
-                        createdAt: firebase.database.ServerValue.TIMESTAMP,
-                        source: 'communications_manager'
-                    };
-
-                    // If it's a product type, include product details
-                    if (product) {
-                        postData.productId = product.id;
-                        postData.productName = product.name;
-                        postData.productPrice = product.price;
-                        postData.productImage = product.image || '';
-                        postData.isAdvert = true;
-                        postData.isNewProduct = false;
-                    }
-
-                    await db.ref('workfit_posts').push(postData);
-                    postedCount++;
-                }
-
-                toast(`Posted to ${postedCount} club(s)!`, 'success');
-            } catch(e) {
-                toast('Error posting to feed', 'error');
+                await db.ref('workfit_contact_messages/' + id).update({
+                    status: 'read',
+                    readAt: firebase.database.ServerValue.TIMESTAMP,
+                    readBy: currentUser?.email || ''
+                });
+                if (!silent) toast('Marked as read', 'success');
+            } catch (e) {
+                if (!silent) toast('Failed to update', 'error');
                 console.error(e);
             }
         };
 
-        // ============ CLOSE MODAL ============
-        function closeCommModal() { document.getElementById('commModal').classList.remove('active'); }
-        document.getElementById('commModal').addEventListener('click', function(e) { if (e.target === this) closeCommModal(); });
+        window.markReplied = async function(id) {
+            try {
+                await db.ref('workfit_contact_messages/' + id).update({
+                    status: 'replied',
+                    repliedAt: firebase.database.ServerValue.TIMESTAMP,
+                    repliedBy: currentUser?.email || ''
+                });
+            } catch (e) { console.error(e); }
+        };
 
-        // ============ FILTERS ============
-        document.getElementById('searchInput').addEventListener('input', renderCommunications);
-        document.getElementById('typeFilter').addEventListener('change', renderCommunications);
-        document.getElementById('statusFilter').addEventListener('change', renderCommunications);
+        window.archiveInquiry = async function(id) {
+            if (!confirm('Archive this inquiry?')) return;
+            try {
+                await db.ref('workfit_contact_messages/' + id).update({
+                    status: 'archived',
+                    archivedAt: firebase.database.ServerValue.TIMESTAMP,
+                    archivedBy: currentUser?.email || ''
+                });
+                toast('Inquiry archived', 'success');
+            } catch (e) {
+                toast('Failed to archive', 'error');
+            }
+        };
 
-        let currentUser = null;
+        // ---------- Reply modal ----------
+        window.openReply = function(inquiryId) {
+            const i = allInquiries[inquiryId];
+            if (!i) return;
 
-        // ============ AUTH ============
+            const emailBody = `Dear ${i.name || 'Member'},\n\nThank you for your message.\n\n[Write your reply here]\n\nWarm regards,\nWorkFit Wellness\nmembership.workfit@gmail.com`;
+
+            document.getElementById('logModalContent').innerHTML = `
+                <div class="modal-handle"></div>
+                <div class="modal-header">
+                    <h3><i class="fas fa-reply" style="color:var(--success);"></i> Reply to ${esc(i.name || 'Inquiry')}</h3>
+                    <button class="modal-close" onclick="closeLogModal()"><i class="fas fa-times"></i></button>
+                </div>
+
+                <div class="inquiry-detail-block" style="border-left-color:var(--info);background:#eff6ff;">
+                    <div style="font-weight:600;font-size:0.75rem;margin-bottom:0.3rem;">
+                        <i class="fas fa-quote-left"></i> ${esc(i.subject || 'No Subject')}
+                    </div>
+                    <div style="font-size:0.7rem;color:#475569;">${esc(i.message || '')}</div>
+                </div>
+
+                <input type="hidden" id="logInquiryId" value="${inquiryId}">
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Reply Method *</label>
+                        <select id="logType">
+                            <option value="email" selected>Email</option>
+                            <option value="whatsapp">WhatsApp</option>
+                            <option value="call">Phone Call</option>
+                            <option value="sms">SMS</option>
+                            <option value="meeting">In-person / Meeting</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Contact (recipient)</label>
+                        <input id="logRecipient" value="${esc(i.email || '')}">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Subject / Topic *</label>
+                    <input id="logSubject" value="Re: ${esc(i.subject || 'Your inquiry')}">
+                </div>
+
+                <div class="form-group">
+                    <label>Your Reply / Summary *</label>
+                    <textarea id="logSummary" rows="5">${esc(emailBody)}</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Internal notes (optional)</label>
+                    <textarea id="logNotes" rows="2" placeholder="Not visible to the member..."></textarea>
+                </div>
+
+                <div style="display:flex;gap:8px;">
+                    <button class="btn btn-outline" style="flex:1;" onclick="closeLogModal()">Cancel</button>
+                    <button class="btn btn-primary" style="flex:1;" onclick="saveLog(true)"><i class="fas fa-save"></i> Save & Mark Replied</button>
+                </div>
+            `;
+            document.getElementById('logModal').classList.add('active');
+        };
+
+        // ---------- Standalone log modal ----------
+        window.openLogModal = function(inquiryId) {
+            const preselected = inquiryId ? allInquiries[inquiryId] : null;
+
+            document.getElementById('logModalContent').innerHTML = `
+                <div class="modal-handle"></div>
+                <div class="modal-header">
+                    <h3><i class="fas fa-plus-circle" style="color:var(--purple);"></i> Log Communication</h3>
+                    <button class="modal-close" onclick="closeLogModal()"><i class="fas fa-times"></i></button>
+                </div>
+
+                <input type="hidden" id="logInquiryId" value="${inquiryId || ''}">
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Channel *</label>
+                        <select id="logType">
+                            <option value="call">Phone Call</option>
+                            <option value="email">Email</option>
+                            <option value="whatsapp">WhatsApp</option>
+                            <option value="sms">SMS</option>
+                            <option value="meeting">Meeting</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Date & time</label>
+                        <input type="datetime-local" id="logDateTime" value="${new Date().toISOString().slice(0,16)}">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Recipient (name / email / phone) *</label>
+                    <input id="logRecipient" value="${preselected ? esc(preselected.name || preselected.email || '') : ''}" placeholder="e.g. John Mwangi or +254...">
+                </div>
+
+                <div class="form-group">
+                    <label>Subject / Topic *</label>
+                    <input id="logSubject" placeholder="e.g. Membership renewal call">
+                </div>
+
+                <div class="form-group">
+                    <label>Summary / Details *</label>
+                    <textarea id="logSummary" rows="4" placeholder="What was discussed / sent?"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Internal notes (optional)</label>
+                    <textarea id="logNotes" rows="2"></textarea>
+                </div>
+
+                <div style="display:flex;gap:8px;">
+                    <button class="btn btn-outline" style="flex:1;" onclick="closeLogModal()">Cancel</button>
+                    <button class="btn btn-primary" style="flex:1;" onclick="saveLog(false)"><i class="fas fa-save"></i> Save Log</button>
+                </div>
+            `;
+            document.getElementById('logModal').classList.add('active');
+        };
+
+        window.closeLogModal = function() {
+            document.getElementById('logModal').classList.remove('active');
+        };
+
+        document.getElementById('logModal').addEventListener('click', function(e) {
+            if (e.target === this) closeLogModal();
+        });
+
+        // ---------- Save log ----------
+        window.saveLog = async function(markReplied) {
+            const inquiryId = document.getElementById('logInquiryId').value;
+            const type = document.getElementById('logType').value;
+            const recipient = document.getElementById('logRecipient').value.trim();
+            const subject = document.getElementById('logSubject').value.trim();
+            const summary = document.getElementById('logSummary').value.trim();
+            const notes = document.getElementById('logNotes').value.trim();
+            const dtEl = document.getElementById('logDateTime');
+            const dateTime = dtEl ? new Date(dtEl.value).getTime() : Date.now();
+
+            if (!recipient) return toast('Recipient is required', 'error');
+            if (!subject)   return toast('Subject is required', 'error');
+            if (!summary)   return toast('Summary is required', 'error');
+
+            const data = {
+                type, recipient, subject, summary, notes,
+                inquiryId: inquiryId || '',
+                createdAt: firebase.database.ServerValue.TIMESTAMP,
+                loggedAt: dateTime || Date.now(),
+                loggedBy: currentUser?.email || ''
+            };
+
+            try {
+                await db.ref('workfit_communications_log').push(data);
+
+                if (markReplied && inquiryId) {
+                    await markReplied_(inquiryId);
+                }
+
+                toast(markReplied ? 'Reply logged' : 'Communication logged', 'success');
+                closeLogModal();
+            } catch (e) {
+                toast('Failed to save log', 'error');
+                console.error(e);
+            }
+        };
+
+        async function markReplied_(id) {
+            try {
+                await db.ref('workfit_contact_messages/' + id).update({
+                    status: 'replied',
+                    repliedAt: firebase.database.ServerValue.TIMESTAMP,
+                    repliedBy: currentUser?.email || ''
+                });
+            } catch (e) { console.error(e); }
+        }
+
+        // ---------- Edit / delete log ----------
+        window.editLog = function(id) {
+            const l = allLogs[id];
+            if (!l) return;
+
+            document.getElementById('logModalContent').innerHTML = `
+                <div class="modal-handle"></div>
+                <div class="modal-header">
+                    <h3><i class="fas fa-pen" style="color:var(--purple);"></i> Edit Log</h3>
+                    <button class="modal-close" onclick="closeLogModal()"><i class="fas fa-times"></i></button>
+                </div>
+
+                <input type="hidden" id="logEditId" value="${id}">
+                <input type="hidden" id="logInquiryId" value="${esc(l.inquiryId || '')}">
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Channel</label>
+                        <select id="logType">
+                            ${['call','email','whatsapp','sms','meeting','other'].map(t =>
+                                `<option value="${t}" ${l.type === t ? 'selected' : ''}>${t}</option>`
+                            ).join('')}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Date & time</label>
+                        <input type="datetime-local" id="logDateTime" value="${l.loggedAt ? new Date(l.loggedAt).toISOString().slice(0,16) : new Date().toISOString().slice(0,16)}">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Recipient</label>
+                    <input id="logRecipient" value="${esc(l.recipient || '')}">
+                </div>
+
+                <div class="form-group">
+                    <label>Subject</label>
+                    <input id="logSubject" value="${esc(l.subject || '')}">
+                </div>
+
+                <div class="form-group">
+                    <label>Summary</label>
+                    <textarea id="logSummary" rows="4">${esc(l.summary || '')}</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Internal notes</label>
+                    <textarea id="logNotes" rows="2">${esc(l.notes || '')}</textarea>
+                </div>
+
+                <div style="display:flex;gap:8px;">
+                    <button class="btn btn-outline" style="flex:1;" onclick="closeLogModal()">Cancel</button>
+                    <button class="btn btn-primary" style="flex:1;" onclick="saveLogEdit()"><i class="fas fa-save"></i> Save Changes</button>
+                </div>
+            `;
+            document.getElementById('logModal').classList.add('active');
+        };
+
+        window.saveLogEdit = async function() {
+            const id = document.getElementById('logEditId').value;
+            if (!id) return;
+            const type = document.getElementById('logType').value;
+            const recipient = document.getElementById('logRecipient').value.trim();
+            const subject = document.getElementById('logSubject').value.trim();
+            const summary = document.getElementById('logSummary').value.trim();
+            const notes = document.getElementById('logNotes').value.trim();
+            const dtEl = document.getElementById('logDateTime');
+            const dateTime = dtEl ? new Date(dtEl.value).getTime() : Date.now();
+
+            try {
+                await db.ref('workfit_communications_log/' + id).update({
+                    type, recipient, subject, summary, notes,
+                    loggedAt: dateTime,
+                    updatedAt: firebase.database.ServerValue.TIMESTAMP,
+                    updatedBy: currentUser?.email || ''
+                });
+                toast('Log updated', 'success');
+                closeLogModal();
+            } catch (e) {
+                toast('Failed to update', 'error');
+            }
+        };
+
+        window.deleteLog = async function(id) {
+            if (!confirm('Delete this log entry?')) return;
+            try {
+                await db.ref('workfit_communications_log/' + id).remove();
+                toast('Log deleted', 'success');
+            } catch (e) {
+                toast('Failed to delete', 'error');
+            }
+        };
+
+        // ---------- Filters ----------
+        document.getElementById('searchInput').addEventListener('input', renderInquiries);
+        document.getElementById('subjectFilter').addEventListener('change', renderInquiries);
+        document.getElementById('clubFilter').addEventListener('change', renderInquiries);
+        document.getElementById('logSearchInput').addEventListener('input', renderLogs);
+        document.getElementById('logTypeFilter').addEventListener('change', renderLogs);
+
+        // ---------- Auth ----------
         auth.onAuthStateChanged(user => {
             if (!user) { window.location.href = '/'; return; }
             currentUser = user;
 
-            // Load communications
-            db.ref('workfit_communications').on('value', snap => {
-                allCommunications = snap.val() || {};
-                renderCommunications();
+            // Load inquiries (real-time)
+            db.ref('workfit_contact_messages').on('value', snap => {
+                allInquiries = snap.val() || {};
+                renderStats();
+                if (activeTab === 'inquiries') renderInquiries();
             });
 
-            // Load clubs
+            // Load communication logs (real-time)
+            db.ref('workfit_communications_log').on('value', snap => {
+                allLogs = snap.val() || {};
+                renderStats();
+                if (activeTab === 'log') renderLogs();
+            });
+
+            // Load clubs for filter
             db.ref('workfit_clubs').on('value', snap => {
                 allClubs = snap.val() || {};
-                renderCommunications();
-            });
-
-            // Load products for reference
-            db.ref('workfit_shop_products').on('value', snap => {
-                allProducts = snap.val() || {};
+                const sel = document.getElementById('clubFilter');
+                const current = sel.value;
+                sel.innerHTML = '<option value="all">All Clubs</option>' +
+                    Object.entries(allClubs).filter(([id, c]) => c && (c.businessName || c.name))
+                        .map(([id, c]) => `<option value="${id}">${esc(c.businessName || c.name)}</option>`).join('');
+                sel.value = current || 'all';
             });
         });
     </script>
