@@ -5,9 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Inventory | BrandInn Prints</title>
   <link rel="icon" type="image/png" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
-  <style>* { margin: 0; padding: 0; box-sizing: border-box; } body { font-family: 'Inter', sans-serif; background: #f8fafc; color: #1e293b; line-height: 1.5; min-height: 100vh; }</style>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
 </head>
 <body>
   <script type="importmap">
@@ -17,53 +19,113 @@
       "firebase/database": "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js"
     }}
   </script>
+
   <script type="module">
-    import { mountPageShell, bootstrapListPage, promptForm, esc } from "./_print-shared.js";
+    import {
+      mountPageShell, bootstrapListPage, createViaModal, openDrawer,
+      updateRecord, deleteRecord, esc, formatMoney
+    } from "./_print-shared.js";
+
+    const NODE = "brandinn_print_inventory";
 
     mountPageShell({
       title: "Inventory",
       subtitle: "Stock levels for paper, ink, blanks, and materials",
-      icon: "fa-boxes-stacked"
+      icon: "fa-boxes-stacked",
+      createLabel: "New Item",
+      searchPlaceholder: "Search by name, category, or supplier..."
     });
 
-    bootstrapListPage({
-      node: "brandinn_print_inventory",
-      containerId: "listContainer",
-      searchFields: ["name", "category"],
-      statusOptions: [], // no status field on inventory
-      emptyMessage: "No inventory items yet.",
-      emptyIcon: "fa-boxes-stacked",
-      onCreate: () => {
-        const data = promptForm([
-          { key: "name", label: "Item name", required: true },
-          { key: "category", label: "Category", placeholder: "Paper / Ink / Blanks" },
-          { key: "quantity", label: "Quantity", placeholder: "0" },
-          { key: "threshold", label: "Low-stock threshold", placeholder: "10" },
-        ]);
-        if (data) {
-          data.quantity = Number(data.quantity) || 0;
-          data.threshold = Number(data.threshold) || 10;
-        }
-        return data;
+    const FIELDS = [
+      { key: "name", label: "Item name", required: true, placeholder: "e.g. A4 Paper (80gsm)" },
+      {
+        key: "category", label: "Category", type: "select", defaultValue: "Paper",
+        options: ["Paper", "Ink", "Blanks", "Vinyl", "Fabric", "Tools", "Equipment", "Other"]
       },
+      { key: "quantity", label: "Quantity in stock", type: "number", min: 0, defaultValue: 0 },
+      {
+        key: "threshold", label: "Low-stock threshold", type: "number", min: 0, defaultValue: 10,
+        help: "Alert appears when quantity drops to or below this number"
+      },
+      { key: "unit", label: "Unit", placeholder: "pcs / rolls / sheets", defaultValue: "pcs" },
+      { key: "unitPrice", label: "Unit price (KSh)", type: "number", min: 0, placeholder: "0" },
+      { key: "supplier", label: "Supplier", placeholder: "Supplier name" },
+      { key: "notes", label: "Notes", type: "textarea", rows: 2 }
+    ];
+
+    bootstrapListPage({
+      node: NODE,
+      containerId: "listContainer",
+      searchFields: ["name", "category", "supplier"],
+      statusOptions: [],
+      emptyMessage: "No inventory items yet",
+      emptyIcon: "fa-boxes-stacked",
+      emptyCta: "Add your first item",
+
       sortFn: (a, b) => {
         const aLow = Number(a.quantity || 0) <= Number(a.threshold || 10);
         const bLow = Number(b.quantity || 0) <= Number(b.threshold || 10);
-        if (aLow !== bLow) return aLow ? -1 : 1; // low stock first
-        return (b.createdAt || 0) - (a.createdAt || 0);
+        if (aLow !== bLow) return aLow ? -1 : 1;
+        return (a.name || "").localeCompare(b.name || "");
       },
+
+      onCreate: () => createViaModal(NODE, {
+        title: "New Inventory Item",
+        subtitle: "Track stock levels and materials",
+        submitLabel: "Add item",
+        fields: FIELDS
+      }),
+
       renderCard: (i) => {
         const qty = Number(i.quantity || 0);
         const thr = Number(i.threshold || 10);
         const low = qty <= thr;
+        const catIcons = {
+          Paper: "fa-scroll",
+          Ink: "fa-fill-drip",
+          Blanks: "fa-tshirt",
+          Vinyl: "fa-tape",
+          Fabric: "fa-layer-group",
+          Tools: "fa-screwdriver-wrench",
+          Equipment: "fa-gears",
+          Other: "fa-box"
+        };
+        const icon = catIcons[i.category] || "fa-box";
         return `
-          <h3>${esc(i.name || "Item")}</h3>
-          <div class="meta">${esc(i.category || "Uncategorised")} · Qty: ${qty} · Min: ${thr}</div>
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:0.6rem;">
+            <div style="width:42px;height:42px;background:${low ? "#fef2f2" : "#f5f0ff"};border-radius:12px;display:flex;align-items:center;justify-content:center;color:${low ? "#ef4444" : "#7c3aed"};font-size:1.1rem;flex-shrink:0;">
+              <i class="fas ${icon}"></i>
+            </div>
+            <div style="min-width:0;">
+              <h3 style="margin:0;">${esc(i.name || "Item")}</h3>
+              <div style="font-size:0.72rem;color:#94a3b8;">${esc(i.category || "Uncategorised")}</div>
+            </div>
+          </div>
+          <div class="meta">
+            Qty: <strong style="color:${low ? "#ef4444" : "#0f172a"};">${qty}</strong> ${esc(i.unit || "")} · Min: ${thr}
+            ${i.unitPrice ? ` · ${formatMoney(i.unitPrice)}/${esc(i.unit || "unit")}` : ""}
+          </div>
           <div class="row">
-            <span class="status-tag ${low ? "status-low" : "status-ok"}">${low ? "LOW STOCK" : "OK"}</span>
+            <span class="status-tag ${low ? "status-low" : "status-ok"}">${low ? "LOW STOCK" : "IN STOCK"}</span>
+            <span style="font-size:0.7rem;color:#64748b;">${esc(i.supplier || "")}</span>
           </div>
         `;
       },
+
+      onCardClick: async (item, id) => {
+        await openDrawer({
+          title: item.name || "Item",
+          subtitle: item.category || "",
+          fields: FIELDS,
+          initialValues: item,
+          onSave: async (values) => {
+            await updateRecord(NODE, id, values);
+          },
+          onDelete: async () => {
+            await deleteRecord(NODE, id);
+          }
+        });
+      }
     });
   </script>
 </body>
