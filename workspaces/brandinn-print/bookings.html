@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Bookings | BrandInn Prints</title>
+  <link rel="icon" type="image/png" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  <style>* { margin: 0; padding: 0; box-sizing: border-box; } body { font-family: 'Inter', sans-serif; background: #f8fafc; color: #1e293b; line-height: 1.5; min-height: 100vh; }</style>
+</head>
+<body>
+  <script type="importmap">
+    {"imports": {
+      "firebase/app": "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js",
+      "firebase/auth": "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js",
+      "firebase/database": "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js"
+    }}
+  </script>
+  <script type="module">
+    import { mountPageShell, bootstrapListPage, promptForm, esc, statusClass } from "./_print-shared.js";
+
+    mountPageShell({
+      title: "Bookings",
+      subtitle: "Client appointments and print consultations",
+      icon: "fa-calendar-check"
+    });
+
+    bootstrapListPage({
+      node: "brandinn_print_bookings",
+      containerId: "listContainer",
+      searchFields: ["clientName", "service"],
+      statusOptions: ["pending", "confirmed", "completed", "cancelled"],
+      emptyMessage: "No bookings yet.",
+      emptyIcon: "fa-calendar-check",
+      onCreate: () => promptForm([
+        { key: "clientName", label: "Client name", required: true },
+        { key: "phone", label: "Phone" },
+        { key: "service", label: "Service", placeholder: "Consultation" },
+        { key: "date", label: "Date", placeholder: "YYYY-MM-DD", required: true },
+        { key: "time", label: "Time", placeholder: "14:00" },
+        { key: "notes", label: "Notes" },
+      ]),
+      renderCard: (b) => `
+        <h3>${esc(b.clientName || "Client")}</h3>
+        <div class="meta">${esc(b.service || "Booking")} · ${esc(b.date || "")} ${esc(b.time || "")}</div>
+        <div class="row">
+          <span class="status-tag ${statusClass(b.status)}">${esc(b.status || "pending")}</span>
+          <span style="font-size:0.7rem;color:#64748b;">${esc(b.phone || "")}</span>
+        </div>
+      `,
+    });
+  </script>
+</body>
+</html>
