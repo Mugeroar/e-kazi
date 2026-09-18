@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Service Requests | BrandInn Prints</title>
+  <link rel="icon" type="image/png" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  <style>* { margin: 0; padding: 0; box-sizing: border-box; } body { font-family: 'Inter', sans-serif; background: #f8fafc; color: #1e293b; line-height: 1.5; min-height: 100vh; }</style>
+</head>
+<body>
+  <script type="importmap">
+    {"imports": {
+      "firebase/app": "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js",
+      "firebase/auth": "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js",
+      "firebase/database": "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js"
+    }}
+  </script>
+  <script type="module">
+    import { mountPageShell, bootstrapListPage, promptForm, esc, statusClass } from "./_print-shared.js";
+
+    mountPageShell({
+      title: "Service Requests",
+      subtitle: "Client inquiries, quotes, and print service requests",
+      icon: "fa-headset"
+    });
+
+    bootstrapListPage({
+      node: "brandinn_print_service_requests",
+      containerId: "listContainer",
+      searchFields: ["clientName", "subject", "service"],
+      statusOptions: ["pending", "quoted", "approved", "processing", "completed", "cancelled"],
+      emptyMessage: "No service requests yet.",
+      emptyIcon: "fa-headset",
+      onCreate: () => promptForm([
+        { key: "clientName", label: "Client name", required: true },
+        { key: "subject", label: "Subject / inquiry", required: true },
+        { key: "service", label: "Service", placeholder: "Banner printing" },
+        { key: "urgency", label: "Urgency", placeholder: "normal / high" },
+        { key: "phone", label: "Phone" },
+        { key: "notes", label: "Notes" },
+      ]),
+      renderCard: (r) => `
+        <h3>${esc(r.clientName || "Client")}</h3>
+        <div class="meta">${esc(r.subject || r.service || "Request")}</div>
+        <div class="row">
+          <span class="status-tag ${statusClass(r.status)}">${esc(r.status || "pending")}</span>
+          <span style="font-size:0.7rem;color:#64748b;">${esc(r.urgency || "normal")}</span>
+        </div>
+      `,
+    });
+  </script>
+</body>
+</html>
