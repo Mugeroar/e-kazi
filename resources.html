@@ -25,6 +25,7 @@
             --gold-soft: #fef3c7;
             --gold-glow: rgba(202, 138, 4, 0.12);
             --gold-gradient: linear-gradient(135deg, #ca8a04 0%, #eab308 50%, #fbbf24 100%);
+
             --success: #10b981;
             --warning: #f59e0b;
             --danger: #ef4444;
@@ -32,6 +33,7 @@
             --purple: #8b5cf6;
             --emerald: #059669;
             --pink: #ec4899;
+
             --bg-primary: #ffffff;
             --bg-secondary: #faf9f7;
             --bg-card: #ffffff;
@@ -40,19 +42,24 @@
             --text-muted: #718096;
             --border-light: #e9ecef;
             --border-medium: #d1d5db;
+
             --shadow-sm: 0 2px 4px rgba(0,0,0,0.02), 0 1px 2px rgba(0,0,0,0.03);
             --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
             --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -2px rgba(0,0,0,0.04);
             --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
             --shadow-gold: 0 8px 32px rgba(202,138,4,0.15);
+
             --nav-bg: rgba(255,255,255,0.98);
             --card-bg: #ffffff;
             --input-bg: #ffffff;
+
             --header-height: 80px;
+
             --font-display: 'Clash Display', 'Cabinet Grotesk', sans-serif;
             --font-heading: 'Satoshi', 'General Sans', sans-serif;
             --font-body: 'General Sans', 'Outfit', sans-serif;
             --font-accent: 'Chillax', 'Cabinet Grotesk', sans-serif;
+
             --guide-color: #3b82f6;
             --training-color: #8b5cf6;
             --tool-color: #10b981;
@@ -72,12 +79,14 @@
             0% { background-position: -200% 0; }
             100% { background-position: 200% 0; }
         }
+
         .skeleton {
             background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
             background-size: 200% 100%;
             animation: shimmer 1.5s ease-in-out infinite;
             border-radius: 8px;
         }
+
         .skeleton-card {
             background: var(--card-bg); border: 1px solid var(--border-light);
             border-radius: 18px; overflow: hidden; box-shadow: var(--shadow-sm);
@@ -159,7 +168,9 @@
             padding: 0 2.5rem;
         }
 
-        .page-header { text-align: center; margin-bottom: 2rem; }
+        .page-header {
+            text-align: center; margin-bottom: 2rem;
+        }
         .page-header h1 {
             font-size: 2.2rem; font-weight: 800; color: var(--text-primary);
             margin-bottom: 0.3rem; font-family: var(--font-display);
@@ -171,7 +182,9 @@
             margin: 0 auto;
         }
 
-        .search-container { max-width: 600px; margin: 2rem auto; position: relative; z-index: 100; }
+        .search-container {
+            max-width: 600px; margin: 2rem auto; position: relative; z-index: 100;
+        }
         .search-wrapper {
             display: flex; align-items: center;
             background: var(--bg-card); border: 1.5px solid var(--border-light);
@@ -400,8 +413,8 @@
         <div class="search-container">
             <div class="search-wrapper">
                 <i class="fas fa-search search-icon"></i>
-                <input type="text" class="search-input" id="searchInput" 
-                       placeholder="Search guides, tools, training..." 
+                <input type="text" class="search-input" id="searchInput"
+                       placeholder="Search guides, tools, training..."
                        oninput="handleSearchInput()"
                        onfocus="handleSearchInput()"
                        autocomplete="off">
@@ -485,10 +498,10 @@
 
     let currentUser = null;
     let userPermissions = {};
-    let isAdmin = false;
     const resources = { guides: [], training: [], tools: [], references: [] };
     const allResources = [];
 
+    // ========== HELPERS ==========
     function escapeHtml(text) {
         if (!text) return '';
         const div = document.createElement('div');
@@ -510,21 +523,31 @@
         if (link) window.open(link, '_blank');
     }
 
-    // ========== PERMISSION HELPERS ==========
+    // ========== PERMISSION LOGIC ==========
+    // A resource is visible if:
+    //   - it has NO workspace tag (public), OR
+    //   - its workspace tag matches a workspace the user has permission for
     function userHasWorkspaceAccess(workspaceId) {
-        if (isAdmin || userPermissions.isAdmin === true) return true;
-        if (!workspaceId) return true; // no workspace → public/global
-        if (workspaceId === 'global') return true;
+        if (!workspaceId) return true;                  // public
+        if (workspaceId === 'global') return true;      // explicitly global
         return userPermissions[workspaceId] === true;
     }
 
     function filterResourcesByPermission(items) {
-        return items.filter(item => {
-            // No workspace tag → public resource, show to everyone
-            if (!item.workspace) return true;
-            // Tagged workspace must be one the user has access to
-            return userHasWorkspaceAccess(item.workspace);
-        });
+        return items.filter(item => userHasWorkspaceAccess(item.workspace));
+    }
+
+    // ========== LOAD USER PERMISSIONS ==========
+    async function loadUserPermissions(user) {
+        userPermissions = {};
+        try {
+            const permSnap = await database.ref(`workspacePermissions/${user.uid}`).once('value');
+            userPermissions = permSnap.exists() ? permSnap.val() : {};
+            console.log('Loaded permissions:', userPermissions);
+        } catch (e) {
+            console.warn('Could not load permissions:', e);
+            userPermissions = {};
+        }
     }
 
     // ========== SEARCH ==========
@@ -552,7 +575,7 @@
         } else {
             const typeIcons = { guides: 'book', training: 'video', tools: 'tools', references: 'link' };
             const typeLabels = { guides: 'Guide', training: 'Training', tools: 'Tool', references: 'Reference' };
-            
+
             dropdown.innerHTML = filtered.slice(0, 8).map(item => `
                 <div class="search-result-item" onclick="openResourceLink('${escapeHtml(item.link)}')">
                     <div class="search-result-icon ${item.type === 'guides' ? 'guide' : item.type === 'training' ? 'training' : item.type === 'tools' ? 'tool' : 'reference'}">
@@ -583,13 +606,14 @@
         }
     });
 
+    // ========== RENDER ==========
     function createCardHtml(item, placeholderIcon) {
-        const imageHtml = item.image 
+        const imageHtml = item.image
             ? `<img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.title)}" loading="lazy">`
             : `<div class="image-placeholder"><i class="fas fa-${placeholderIcon}"></i></div>`;
-        
+
         const linkLabels = { book: 'Access Guide', video: 'Start Learning', tools: 'Access Tool', link: 'View Reference' };
-        
+
         return `
             <div class="resource-card" onclick="openResourceLink('${escapeHtml(item.link)}')">
                 <div class="card-image">${imageHtml}</div>
@@ -605,13 +629,10 @@
     function renderSection(containerId, items, placeholderIcon) {
         const container = document.getElementById(containerId);
         if (!container) return;
-        
+
         if (!items || items.length === 0) {
             const iconMap = { guidesContainer: 'book', trainingContainer: 'video', toolsContainer: 'tools', referencesContainer: 'link' };
-            const sectionName = { guidesContainer: 'guides', trainingContainer: 'training', toolsContainer: 'tools', referencesContainer: 'references' }[containerId];
-            // Show a friendlier message when empty because of permissions
-            const hasAnyGlobal = allResources.some(r => r.type === sectionName);
-            container.innerHTML = `<div class="empty-section"><i class="fas fa-${iconMap[containerId]}"></i><h3>No items available</h3><p>${hasAnyGlobal ? 'You don\'t have access to any resources in this section yet.' : 'Resources will appear here once added'}</p></div>`;
+            container.innerHTML = `<div class="empty-section"><i class="fas fa-${iconMap[containerId]}"></i><h3>No items available</h3><p>Resources for your workspaces will appear here.</p></div>`;
             return;
         }
 
@@ -619,21 +640,14 @@
     }
 
     // ========== LOAD ==========
-    async function loadUserPermissions(user) {
-        try {
-            const adminSnap = await database.ref(`admins/${user.uid}`).once('value');
-            isAdmin = adminSnap.val() === true;
-
-            const permSnap = await database.ref(`workspacePermissions/${user.uid}`).once('value');
-            userPermissions = permSnap.exists() ? permSnap.val() : {};
-            if (isAdmin) userPermissions.isAdmin = true;
-        } catch (e) {
-            console.warn('Failed to load permissions:', e);
-            userPermissions = {};
-        }
-    }
-
     async function loadResources() {
+        // Clear arrays in case of refresh
+        allResources.length = 0;
+        resources.guides = [];
+        resources.training = [];
+        resources.tools = [];
+        resources.references = [];
+
         try {
             const paths = [
                 { ref: 'resources/guides', key: 'guides', type: 'guides' },
@@ -641,15 +655,15 @@
                 { ref: 'resources/tools', key: 'tools', type: 'tools' },
                 { ref: 'resources/references', key: 'references', type: 'references' }
             ];
-            
+
             for (let p of paths) {
                 const snapshot = await database.ref(p.ref).once('value');
                 const data = snapshot.val() || {};
                 const items = Object.entries(data)
                     .map(([id, item]) => ({ id, ...item, type: p.type }))
                     .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-                
-                // ✅ FILTER by workspace permission
+
+                // Apply the permission filter
                 const permitted = filterResourcesByPermission(items);
                 resources[p.key] = permitted;
                 allResources.push(...permitted);
@@ -659,18 +673,16 @@
             renderSection('trainingContainer', resources.training, 'video');
             renderSection('toolsContainer', resources.tools, 'tools');
             renderSection('referencesContainer', resources.references, 'link');
+
+            console.log(`Loaded resources — guides: ${resources.guides.length}, training: ${resources.training.length}, tools: ${resources.tools.length}, references: ${resources.references.length}`);
         } catch (error) {
             console.error('loadResources error:', error);
             showToast('Failed to load resources', 'error');
         }
     }
 
+    // ========== REFRESH / LOGOUT ==========
     window.refreshData = async function() {
-        allResources.length = 0;
-        resources.guides = [];
-        resources.training = [];
-        resources.tools = [];
-        resources.references = [];
         if (currentUser) {
             await loadUserPermissions(currentUser);
             await loadResources();
@@ -682,27 +694,36 @@
     };
 
     window.handleLogout = async function() {
-        if(confirm('Sign out?')) {
+        if (confirm('Sign out?')) {
             await auth.signOut();
             window.location.href = 'index.html';
         }
     };
 
+    // ========== AUTH BOOT ==========
     auth.onAuthStateChanged(async (user) => {
-        if (user) {
-            currentUser = user;
+        if (!user) {
+            window.location.href = 'index.html';
+            return;
+        }
+
+        currentUser = user;
+
+        // Update user display name
+        try {
             const userSnap = await database.ref(`brandinn_users/${user.uid}`).once('value');
             const userData = userSnap.exists() ? userSnap.val() : {};
             const name = userData.name || user.displayName || user.email?.split('@')[0] || 'User';
             document.getElementById('userDisplayName').textContent = name;
             document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
-            
-            // ✅ Load permissions BEFORE loading resources
-            await loadUserPermissions(user);
-            await loadResources();
-        } else {
-            window.location.href = 'index.html';
+        } catch (e) {
+            document.getElementById('userDisplayName').textContent = user.email?.split('@')[0] || 'User';
+            document.getElementById('userAvatar').textContent = (user.email?.[0] || 'U').toUpperCase();
         }
+
+        // Load permissions BEFORE resources
+        await loadUserPermissions(user);
+        await loadResources();
     });
 </script>
 </body>
