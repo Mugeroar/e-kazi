@@ -5,9 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Service Requests | BrandInn Prints</title>
   <link rel="icon" type="image/png" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
-  <style>* { margin: 0; padding: 0; box-sizing: border-box; } body { font-family: 'Inter', sans-serif; background: #f8fafc; color: #1e293b; line-height: 1.5; min-height: 100vh; }</style>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
 </head>
 <body>
   <script type="importmap">
@@ -17,38 +19,86 @@
       "firebase/database": "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js"
     }}
   </script>
+
   <script type="module">
-    import { mountPageShell, bootstrapListPage, promptForm, esc, statusClass } from "./_print-shared.js";
+    import {
+      mountPageShell, bootstrapListPage, createViaModal, openDrawer,
+      updateRecord, deleteRecord, esc, statusClass, formatMoney
+    } from "./_print-shared.js";
+
+    const NODE = "brandinn_print_service_requests";
 
     mountPageShell({
       title: "Service Requests",
       subtitle: "Client inquiries, quotes, and print service requests",
-      icon: "fa-headset"
+      icon: "fa-headset",
+      createLabel: "New Request",
+      searchPlaceholder: "Search by client, subject, or phone..."
     });
 
+    const FIELDS = [
+      { key: "clientName", label: "Client name", required: true, placeholder: "e.g. Lake Victoria Crafts" },
+      { key: "phone", label: "Phone", type: "tel" },
+      { key: "email", label: "Email", type: "email" },
+      { key: "subject", label: "Subject", required: true, placeholder: "e.g. Business banner request" },
+      { key: "service", label: "Requested service", placeholder: "e.g. Banner printing" },
+      {
+        key: "urgency", label: "Urgency", type: "select", defaultValue: "normal",
+        options: ["low", "normal", "high", "urgent"]
+      },
+      { key: "estimatedCost", label: "Estimated cost (KSh)", type: "number", min: 0, placeholder: "0" },
+      {
+        key: "status", label: "Status", type: "select", defaultValue: "pending",
+        options: ["pending", "quoted", "approved", "processing", "completed", "cancelled"]
+      },
+      { key: "notes", label: "Details", type: "textarea", rows: 4, placeholder: "Full description of what the client needs..." }
+    ];
+
     bootstrapListPage({
-      node: "brandinn_print_service_requests",
+      node: NODE,
       containerId: "listContainer",
-      searchFields: ["clientName", "subject", "service"],
+      searchFields: ["clientName", "subject", "service", "phone", "email"],
       statusOptions: ["pending", "quoted", "approved", "processing", "completed", "cancelled"],
-      emptyMessage: "No service requests yet.",
+      emptyMessage: "No service requests yet",
       emptyIcon: "fa-headset",
-      onCreate: () => promptForm([
-        { key: "clientName", label: "Client name", required: true },
-        { key: "subject", label: "Subject / inquiry", required: true },
-        { key: "service", label: "Service", placeholder: "Banner printing" },
-        { key: "urgency", label: "Urgency", placeholder: "normal / high" },
-        { key: "phone", label: "Phone" },
-        { key: "notes", label: "Notes" },
-      ]),
-      renderCard: (r) => `
-        <h3>${esc(r.clientName || "Client")}</h3>
-        <div class="meta">${esc(r.subject || r.service || "Request")}</div>
-        <div class="row">
-          <span class="status-tag ${statusClass(r.status)}">${esc(r.status || "pending")}</span>
-          <span style="font-size:0.7rem;color:#64748b;">${esc(r.urgency || "normal")}</span>
-        </div>
-      `,
+      emptyCta: "Log your first request",
+
+      onCreate: () => createViaModal(NODE, {
+        title: "New Service Request",
+        subtitle: "Log a client inquiry",
+        submitLabel: "Create request",
+        fields: FIELDS
+      }),
+
+      renderCard: (r) => {
+        const status = r.status || "pending";
+        const urgency = r.urgency || "normal";
+        const urgencyColors = { low: "#10b981", normal: "#64748b", high: "#f59e0b", urgent: "#ef4444" };
+        return `
+          <h3>${esc(r.clientName || "Client")}</h3>
+          <div class="meta">${esc(r.subject || r.service || "Request")}</div>
+          <div class="row">
+            <span class="status-tag ${statusClass(status)}">${esc(status)}</span>
+            <span style="font-size:0.7rem;color:${urgencyColors[urgency] || "#64748b"};font-weight:600;text-transform:uppercase;">${esc(urgency)}</span>
+          </div>
+          ${r.estimatedCost ? `<div style="margin-top:0.6rem;font-size:0.75rem;color:#64748b;">Est. ${formatMoney(r.estimatedCost)}</div>` : ""}
+        `;
+      },
+
+      onCardClick: async (item, id) => {
+        await openDrawer({
+          title: item.clientName || "Request",
+          subtitle: item.subject || "",
+          fields: FIELDS,
+          initialValues: item,
+          onSave: async (values) => {
+            await updateRecord(NODE, id, values);
+          },
+          onDelete: async () => {
+            await deleteRecord(NODE, id);
+          }
+        });
+      }
     });
   </script>
 </body>
