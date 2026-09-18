@@ -1,8 +1,8 @@
 /**
- * BrandInn Prints — Shared Page Module v2
- * ----------------------------------------
- * Firebase + UI kit: modals, forms, toasts, confirmations, drawers.
- * Pages supply a config, module handles everything else.
+ * BrandInn Prints — Shared Page Module v2.1
+ * ------------------------------------------
+ * Fix: submit button outside <form> now correctly triggers submission
+ * via form.requestSubmit() with a dispatchEvent fallback.
  */
 
 import { initializeApp } from "firebase/app";
@@ -169,16 +169,7 @@ export function toast(message, type = "info", duration = 3500) {
 
 // ---------------- Modal system ----------------
 /**
- * Opens a modal. Returns a Promise that resolves with the result (or null if cancelled).
- * config = {
- *   title: 'New Project',
- *   subtitle: '',
- *   fields: [ { key, label, type, required, placeholder, options, defaultValue, help, min, max, rows } ],
- *   submitLabel: 'Create',
- *   cancelLabel: 'Cancel',
- *   size: 'md' | 'lg' | 'sm',
- *   onSubmit: async (values) => { ... }   // optional — return truthy to auto-close
- * }
+ * Opens a modal. Returns a Promise that resolves with the form values (or null if cancelled).
  */
 export function openModal(config) {
   return new Promise((resolve) => {
@@ -193,17 +184,14 @@ export function openModal(config) {
       initialValues = {},
     } = config;
 
-    // Backdrop
     const backdrop = document.createElement("div");
     backdrop.className = "modal-backdrop";
 
-    // Modal
     const modal = document.createElement("div");
     modal.className = `modal modal-${size}`;
     modal.setAttribute("role", "dialog");
     modal.setAttribute("aria-modal", "true");
 
-    // Header
     const header = document.createElement("div");
     header.className = "modal-header";
     header.innerHTML = `
@@ -214,7 +202,6 @@ export function openModal(config) {
       <button class="modal-close" type="button" aria-label="Close"><i class="fas fa-times"></i></button>
     `;
 
-    // Body
     const body = document.createElement("div");
     body.className = "modal-body";
 
@@ -231,7 +218,6 @@ export function openModal(config) {
       let inputHtml = "";
       const t = f.type || "text";
       const baseAttrs = `id="${id}" name="${esc(f.key)}" placeholder="${esc(f.placeholder || "")}"${f.required ? " required" : ""}`;
-      const inputStyles = "";
 
       if (t === "textarea") {
         inputHtml = `<textarea ${baseAttrs} rows="${f.rows || 3}">${esc(val)}</textarea>`;
@@ -265,17 +251,21 @@ export function openModal(config) {
 
     body.appendChild(form);
 
-    // Footer
+    // Footer (still outside the form for layout)
     const footer = document.createElement("div");
     footer.className = "modal-footer";
+
     const cancelBtn = document.createElement("button");
     cancelBtn.type = "button";
     cancelBtn.className = "btn-secondary";
     cancelBtn.textContent = cancelLabel;
+
+    // ✅ FIX: type="button" not "submit" — since it's outside the form
     const submitBtn = document.createElement("button");
-    submitBtn.type = "submit";
+    submitBtn.type = "button";
     submitBtn.className = "btn-primary";
     submitBtn.innerHTML = `<span>${esc(submitLabel)}</span>`;
+
     footer.appendChild(cancelBtn);
     footer.appendChild(submitBtn);
 
@@ -286,13 +276,10 @@ export function openModal(config) {
     backdrop.appendChild(modal);
     document.body.appendChild(backdrop);
 
-    // Lock scroll
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-
     requestAnimationFrame(() => backdrop.classList.add("modal-show"));
 
-    // Focus first input
     setTimeout(() => {
       const first = form.querySelector("input, textarea, select");
       if (first) first.focus();
@@ -353,9 +340,8 @@ export function openModal(config) {
     header.querySelector(".modal-close").addEventListener("click", () => close(null));
     cancelBtn.addEventListener("click", () => close(null));
 
-    // ---- Submit ----
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
+    // ---- Submit logic (called from both form submit AND button click) ----
+    async function doSubmit() {
       const values = {};
       let allValid = true;
       form.querySelectorAll(".field").forEach(fieldEl => {
@@ -397,6 +383,18 @@ export function openModal(config) {
         submitBtn.innerHTML = original;
         toast(err?.message || "Something went wrong.", "error");
       }
+    }
+
+    // Form submit (fires on Enter keypress inside form)
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      doSubmit();
+    });
+
+    // ✅ FIX: Wire the footer button to trigger submission
+    submitBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      doSubmit();
     });
   });
 }
@@ -413,9 +411,7 @@ export function confirmDialog({ title, message, confirmLabel = "Confirm", cancel
 
     modal.innerHTML = `
       <div class="modal-header">
-        <div>
-          <h2>${esc(title)}</h2>
-        </div>
+        <div><h2>${esc(title)}</h2></div>
       </div>
       <div class="modal-body">
         <p class="confirm-message">${esc(message)}</p>
@@ -453,12 +449,6 @@ export function confirmDialog({ title, message, confirmLabel = "Confirm", cancel
 }
 
 // ---------------- Detail drawer ----------------
-/**
- * Side drawer for viewing/editing a single item.
- * fields: same shape as modal fields
- * onSave: async (values) => {}
- * onDelete: async () => {} (optional)
- */
 export function openDrawer({ title, subtitle, fields, initialValues = {}, onSave, onDelete }) {
   return new Promise((resolve) => {
     const backdrop = document.createElement("div");
@@ -495,7 +485,6 @@ export function openDrawer({ title, subtitle, fields, initialValues = {}, onSave
 
     const form = drawer.querySelector(".drawer-form");
 
-    // Build fields (same rendering as modal)
     fields.forEach(f => {
       const wrap = document.createElement("div");
       wrap.className = `field field-${f.type || "text"}`;
@@ -726,12 +715,7 @@ export function bootstrapListPage(config) {
   return { refresh: render, getItems: () => allItems };
 }
 
-// ---------------- Reusable create flow helper ----------------
-/**
- * Combines openModal + createRecord + error handling.
- * fields: array of field configs
- * extraFields: object merged into the record (e.g. fixed status:'new')
- */
+// ---------------- Create helper ----------------
 export async function createViaModal(node, { title, subtitle, fields, submitLabel = "Create", extraFields = {} }) {
   const values = await openModal({ title, subtitle, fields, submitLabel });
   if (!values) return null;
@@ -755,7 +739,6 @@ export function injectSharedStyles() {
   if (document.getElementById("prints-shared-styles")) return;
 
   const css = `
-    /* ---------- Base ---------- */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body { width: 100%; overflow-x: hidden; }
     body {
@@ -763,14 +746,12 @@ export function injectSharedStyles() {
       background: #f8fafc; color: #1e293b; line-height: 1.5; min-height: 100vh;
     }
 
-    /* ---------- Layout ---------- */
     .container { width: 100%; max-width: 1400px; margin: 0 auto; padding: 2rem; }
     .page-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
     .page-header h1 { font-size: 1.5rem; font-weight: 800; display: flex; align-items: center; gap: 10px; color: #0f172a; }
     .page-header h1 i { color: #7c3aed; }
     .page-header p { color: #64748b; font-size: 0.85rem; margin-top: 0.3rem; }
 
-    /* ---------- Toolbar ---------- */
     .toolbar {
       background: white; border-radius: 16px; padding: 1rem 1.2rem;
       border: 1px solid #e2e8f0; margin-bottom: 1.5rem;
@@ -788,7 +769,6 @@ export function injectSharedStyles() {
     }
     .toolbar input { flex: 1; min-width: 200px; }
 
-    /* ---------- Buttons ---------- */
     .btn-primary, .btn-secondary, .btn-danger, .btn-danger-ghost {
       border: none; padding: 0.65rem 1.3rem; border-radius: 12px;
       font-weight: 700; font-size: 0.85rem; cursor: pointer;
@@ -805,7 +785,6 @@ export function injectSharedStyles() {
     .btn-danger-ghost { background: transparent; color: #ef4444; }
     .btn-danger-ghost:hover { background: #fee2e2; }
 
-    /* ---------- Item grid ---------- */
     .item-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; }
     .item-card {
       background: white; border-radius: 16px; padding: 1.2rem;
@@ -818,7 +797,6 @@ export function injectSharedStyles() {
     .item-card .meta { color: #64748b; font-size: 0.75rem; margin-bottom: 0.8rem; }
     .item-card .row { display: flex; justify-content: space-between; align-items: center; margin-top: 0.8rem; gap: 8px; }
 
-    /* ---------- Status tags ---------- */
     .status-tag { padding: 0.25rem 0.7rem; border-radius: 20px; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; white-space: nowrap; }
     .status-active      { background: #d1fae5; color: #065f46; }
     .status-pending     { background: #fef3c7; color: #92400e; }
@@ -836,7 +814,6 @@ export function injectSharedStyles() {
     .status-processing  { background: #fef3c7; color: #92400e; }
     .status-info        { background: #dbeafe; color: #1e40af; }
 
-    /* ---------- Empty & loading ---------- */
     .empty-state { text-align: center; padding: 3rem 1rem; color: #94a3b8; }
     .empty-state i { font-size: 2.5rem; display: block; margin-bottom: 0.8rem; opacity: 0.4; color: #7c3aed; }
     .empty-state h3 { font-size: 1.1rem; color: #475569; margin-bottom: 0.3rem; font-weight: 700; }
@@ -844,7 +821,6 @@ export function injectSharedStyles() {
     .empty-cta { margin-top: 0.5rem; }
     .loading { text-align: center; padding: 3rem; color: #94a3b8; }
 
-    /* ---------- Skeleton ---------- */
     @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
     .skeleton, .skeleton-line {
       background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
@@ -855,7 +831,6 @@ export function injectSharedStyles() {
     .skeleton-line { height: 0.85rem; margin-bottom: 0.5rem; }
     .skeleton-card { pointer-events: none; }
 
-    /* ---------- Toast ---------- */
     .toast-host {
       position: fixed; bottom: 24px; right: 24px;
       display: flex; flex-direction: column; gap: 10px;
@@ -881,7 +856,6 @@ export function injectSharedStyles() {
     .toast-warning i { color: #f59e0b; }
     .toast-info i { color: #7c3aed; }
 
-    /* ---------- Modal ---------- */
     .modal-backdrop {
       position: fixed; inset: 0; background: rgba(15,23,42,0.5);
       backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
@@ -921,7 +895,6 @@ export function injectSharedStyles() {
     .modal-body { padding: 1.2rem 1.5rem; overflow-y: auto; flex: 1; }
     .modal-form { display: flex; flex-direction: column; gap: 1rem; }
 
-    /* ---------- Fields ---------- */
     .field { display: flex; flex-direction: column; gap: 0.35rem; }
     .field label {
       font-size: 0.8rem; font-weight: 600; color: #334155;
@@ -954,11 +927,9 @@ export function injectSharedStyles() {
       justify-content: flex-end; border-top: 1px solid #f1f5f9;
     }
 
-    /* ---------- Confirm dialog ---------- */
     .modal-confirm .modal-body { padding: 1rem 1.5rem; }
     .confirm-message { color: #475569; font-size: 0.9rem; line-height: 1.6; }
 
-    /* ---------- Drawer ---------- */
     .drawer-backdrop {
       position: fixed; inset: 0; background: rgba(15,23,42,0.4);
       backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
@@ -987,7 +958,6 @@ export function injectSharedStyles() {
     }
     .drawer-footer-right { display: flex; gap: 0.6rem; }
 
-    /* ---------- Navbar ---------- */
     .navbar {
       background: white; padding: 0.8rem 2rem;
       display: flex; justify-content: space-between; align-items: center;
