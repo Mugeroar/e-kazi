@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Customers | BrandInn Prints</title>
+  <link rel="icon" type="image/png" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  <style>* { margin: 0; padding: 0; box-sizing: border-box; } body { font-family: 'Inter', sans-serif; background: #f8fafc; color: #1e293b; line-height: 1.5; min-height: 100vh; }</style>
+</head>
+<body>
+  <script type="importmap">
+    {"imports": {
+      "firebase/app": "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js",
+      "firebase/auth": "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js",
+      "firebase/database": "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js"
+    }}
+  </script>
+  <script type="module">
+    import { mountPageShell, bootstrapListPage, promptForm, esc, initials } from "./_print-shared.js";
+
+    mountPageShell({
+      title: "Customers",
+      subtitle: "Client directory — phone, email, and order history",
+      icon: "fa-user-group"
+    });
+
+    bootstrapListPage({
+      node: "brandinn_print_customers",
+      containerId: "listContainer",
+      searchFields: ["name", "phone", "email"],
+      statusOptions: [], // no status filter for customers
+      emptyMessage: "No customers yet.",
+      emptyIcon: "fa-user-group",
+      onCreate: () => promptForm([
+        { key: "name", label: "Full name", required: true },
+        { key: "phone", label: "Phone" },
+        { key: "email", label: "Email" },
+        { key: "address", label: "Address" },
+        { key: "notes", label: "Notes" },
+      ]),
+      renderCard: (c) => `
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:0.6rem;">
+          <div style="width:40px;height:40px;background:#ecfdf5;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.8rem;color:#10b981;flex-shrink:0;">${initials(c.name)}</div>
+          <h3 style="margin:0;">${esc(c.name || "Customer")}</h3>
+        </div>
+        <div class="meta">${esc(c.phone || "No phone")} · ${esc(c.email || "No email")}</div>
+        <div class="row">
+          <span class="status-tag status-active">${c.ordersCount ?? c.totalOrders ?? 0} orders</span>
+        </div>
+      `,
+    });
+  </script>
+</body>
+</html>
