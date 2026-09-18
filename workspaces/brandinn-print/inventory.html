@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Inventory | BrandInn Prints</title>
+  <link rel="icon" type="image/png" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  <style>* { margin: 0; padding: 0; box-sizing: border-box; } body { font-family: 'Inter', sans-serif; background: #f8fafc; color: #1e293b; line-height: 1.5; min-height: 100vh; }</style>
+</head>
+<body>
+  <script type="importmap">
+    {"imports": {
+      "firebase/app": "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js",
+      "firebase/auth": "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js",
+      "firebase/database": "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js"
+    }}
+  </script>
+  <script type="module">
+    import { mountPageShell, bootstrapListPage, promptForm, esc } from "./_print-shared.js";
+
+    mountPageShell({
+      title: "Inventory",
+      subtitle: "Stock levels for paper, ink, blanks, and materials",
+      icon: "fa-boxes-stacked"
+    });
+
+    bootstrapListPage({
+      node: "brandinn_print_inventory",
+      containerId: "listContainer",
+      searchFields: ["name", "category"],
+      statusOptions: [], // no status field on inventory
+      emptyMessage: "No inventory items yet.",
+      emptyIcon: "fa-boxes-stacked",
+      onCreate: () => {
+        const data = promptForm([
+          { key: "name", label: "Item name", required: true },
+          { key: "category", label: "Category", placeholder: "Paper / Ink / Blanks" },
+          { key: "quantity", label: "Quantity", placeholder: "0" },
+          { key: "threshold", label: "Low-stock threshold", placeholder: "10" },
+        ]);
+        if (data) {
+          data.quantity = Number(data.quantity) || 0;
+          data.threshold = Number(data.threshold) || 10;
+        }
+        return data;
+      },
+      sortFn: (a, b) => {
+        const aLow = Number(a.quantity || 0) <= Number(a.threshold || 10);
+        const bLow = Number(b.quantity || 0) <= Number(b.threshold || 10);
+        if (aLow !== bLow) return aLow ? -1 : 1; // low stock first
+        return (b.createdAt || 0) - (a.createdAt || 0);
+      },
+      renderCard: (i) => {
+        const qty = Number(i.quantity || 0);
+        const thr = Number(i.threshold || 10);
+        const low = qty <= thr;
+        return `
+          <h3>${esc(i.name || "Item")}</h3>
+          <div class="meta">${esc(i.category || "Uncategorised")} · Qty: ${qty} · Min: ${thr}</div>
+          <div class="row">
+            <span class="status-tag ${low ? "status-low" : "status-ok"}">${low ? "LOW STOCK" : "OK"}</span>
+          </div>
+        `;
+      },
+    });
+  </script>
+</body>
+</html>
