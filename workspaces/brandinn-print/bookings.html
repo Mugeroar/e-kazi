@@ -5,9 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Bookings | BrandInn Prints</title>
   <link rel="icon" type="image/png" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
-  <style>* { margin: 0; padding: 0; box-sizing: border-box; } body { font-family: 'Inter', sans-serif; background: #f8fafc; color: #1e293b; line-height: 1.5; min-height: 100vh; }</style>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
 </head>
 <body>
   <script type="importmap">
@@ -17,38 +19,97 @@
       "firebase/database": "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js"
     }}
   </script>
+
   <script type="module">
-    import { mountPageShell, bootstrapListPage, promptForm, esc, statusClass } from "./_print-shared.js";
+    import {
+      mountPageShell, bootstrapListPage, createViaModal, openDrawer,
+      updateRecord, deleteRecord, esc, statusClass
+    } from "./_print-shared.js";
+
+    const NODE = "brandinn_print_bookings";
 
     mountPageShell({
       title: "Bookings",
       subtitle: "Client appointments and print consultations",
-      icon: "fa-calendar-check"
+      icon: "fa-calendar-check",
+      createLabel: "New Booking",
+      searchPlaceholder: "Search by client, service, or phone..."
     });
 
+    const FIELDS = [
+      { key: "clientName", label: "Client name", required: true, placeholder: "e.g. Moses Mugera" },
+      { key: "phone", label: "Phone", type: "tel", placeholder: "+254 7XX XXX XXX" },
+      { key: "email", label: "Email", type: "email", placeholder: "name@example.com" },
+      {
+        key: "service", label: "Service", type: "select", defaultValue: "Consultation",
+        options: ["Consultation", "Site Visit", "Phone Call", "Design Review", "Delivery"]
+      },
+      { key: "date", label: "Date", type: "date", required: true },
+      { key: "time", label: "Time", type: "time" },
+      { key: "duration", label: "Duration (minutes)", type: "number", min: 15, step: 15, placeholder: "30" },
+      { key: "location", label: "Location", placeholder: "e.g. Ngong Road office" },
+      {
+        key: "status", label: "Status", type: "select", defaultValue: "pending",
+        options: ["pending", "confirmed", "completed", "cancelled"]
+      },
+      { key: "notes", label: "Notes", type: "textarea", rows: 3, placeholder: "Agenda, requirements, etc." }
+    ];
+
     bootstrapListPage({
-      node: "brandinn_print_bookings",
+      node: NODE,
       containerId: "listContainer",
-      searchFields: ["clientName", "service"],
+      searchFields: ["clientName", "service", "phone", "email"],
       statusOptions: ["pending", "confirmed", "completed", "cancelled"],
-      emptyMessage: "No bookings yet.",
+      emptyMessage: "No bookings yet",
       emptyIcon: "fa-calendar-check",
-      onCreate: () => promptForm([
-        { key: "clientName", label: "Client name", required: true },
-        { key: "phone", label: "Phone" },
-        { key: "service", label: "Service", placeholder: "Consultation" },
-        { key: "date", label: "Date", placeholder: "YYYY-MM-DD", required: true },
-        { key: "time", label: "Time", placeholder: "14:00" },
-        { key: "notes", label: "Notes" },
-      ]),
-      renderCard: (b) => `
-        <h3>${esc(b.clientName || "Client")}</h3>
-        <div class="meta">${esc(b.service || "Booking")} · ${esc(b.date || "")} ${esc(b.time || "")}</div>
-        <div class="row">
-          <span class="status-tag ${statusClass(b.status)}">${esc(b.status || "pending")}</span>
-          <span style="font-size:0.7rem;color:#64748b;">${esc(b.phone || "")}</span>
-        </div>
-      `,
+      emptyCta: "Schedule your first booking",
+
+      sortFn: (a, b) => {
+        // Upcoming first, then by date
+        const now = Date.now();
+        const aT = a.date ? new Date(a.date + " " + (a.time || "00:00")).getTime() : 0;
+        const bT = b.date ? new Date(b.date + " " + (b.time || "00:00")).getTime() : 0;
+        const aFuture = aT >= now;
+        const bFuture = bT >= now;
+        if (aFuture !== bFuture) return aFuture ? -1 : 1;
+        return aFuture ? aT - bT : bT - aT;
+      },
+
+      onCreate: () => createViaModal(NODE, {
+        title: "New Booking",
+        subtitle: "Schedule an appointment with a client",
+        submitLabel: "Create booking",
+        fields: FIELDS
+      }),
+
+      renderCard: (b) => {
+        const status = b.status || "pending";
+        const dateStr = b.date ? new Date(b.date).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }) : "";
+        const timeStr = b.time ? b.time : "";
+        return `
+          <h3>${esc(b.clientName || "Client")}</h3>
+          <div class="meta">${esc(b.service || "Booking")} · ${esc(dateStr)} ${timeStr ? "· " + esc(timeStr) : ""}</div>
+          <div class="row">
+            <span class="status-tag ${statusClass(status)}">${esc(status)}</span>
+            <span style="font-size:0.7rem;color:#64748b;">${esc(b.phone || "")}</span>
+          </div>
+        `;
+      },
+
+      onCardClick: async (item, id) => {
+        await openDrawer({
+          title: item.clientName || "Booking",
+          subtitle: `${item.service || ""}${item.date ? " · " + item.date : ""}`,
+          fields: FIELDS,
+          initialValues: item,
+          onSave: async (values) => {
+            await updateRecord(NODE, id, values);
+          },
+          onDelete: async () => {
+            await deleteRecord(NODE, id);
+          }
+        });
+      }
     });
   </script>
 </body>
