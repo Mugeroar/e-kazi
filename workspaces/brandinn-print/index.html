@@ -3,290 +3,346 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Print Shop | KazInni Workspaces</title>
-  
+  <title>KazInni Workspaces | BrandInn Dashboard</title>
+
   <meta name="theme-color" content="#7c3aed">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  
+
   <link rel="icon" type="image/png" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
+
+  <!-- Perf: preconnect to font/CDN origins -->
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://i.postimg.cc" crossorigin>
+
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
-  
+
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
+    :root {
+      --primary: #7c3aed;
+      --primary-dark: #5b21b6;
+      --primary-light: #a78bfa;
+      --primary-bg: #f5f0ff;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --info: #3b82f6;
+      --text-primary: #1e293b;
+      --text-muted: #64748b;
+      --border-light: #e9d5ff;
+      --gray-50: #f8fafc;
+      --gray-100: #f1f5f9;
+      --gray-200: #e2e8f0;
+      --gray-300: #cbd5e1;
+      --gray-400: #94a3b8;
+      --gray-500: #64748b;
+      --gray-600: #475569;
+      --gray-700: #334155;
+      --gray-800: #1e293b;
+    }
+
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: linear-gradient(145deg, #f8f6fc 0%, #ffffff 100%);
-      color: #1a1a2e;
-      line-height: 1.4;
+      background: #f8fafc;
+      color: var(--text-primary);
+      line-height: 1.5;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
     }
 
+    /* Skeleton Animation */
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    .skeleton {
+      background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 12px;
+    }
+    .skeleton-stat-card {
+      background: white; border-radius: 20px; padding: 1.2rem;
+      border: 1px solid var(--gray-200); display: flex; align-items: center; justify-content: space-between;
+    }
+    .skeleton-icon { width: 52px; height: 52px; border-radius: 14px; }
+    .skeleton-text { height: 0.9rem; margin-bottom: 0.5rem; }
+    .skeleton-number { height: 1.8rem; width: 40%; }
+    .skeleton-action-card {
+      background: white; border-radius: 16px; padding: 1rem;
+      border: 1px solid var(--gray-200);
+    }
+    .skeleton-action-icon { width: 44px; height: 44px; border-radius: 12px; margin-bottom: 0.8rem; }
+
     .navbar {
-      background: rgba(255, 255, 255, 0.92);
-      backdrop-filter: blur(12px);
-      padding: 0.5rem 3%;
+      background: white;
+      padding: 0.8rem 4%;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 1px solid rgba(124, 58, 237, 0.1);
+      border-bottom: 1px solid var(--gray-200);
       position: sticky;
       top: 0;
       z-index: 100;
       flex-wrap: wrap;
-      gap: 0.5rem;
+      gap: 12px;
     }
 
-    .logo { display: flex; align-items: center; gap: 10px; }
-    .logo-img { height: 34px; width: 34px; border-radius: 10px; object-fit: contain; background: white; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.15); }
+    .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+    .logo-img { height: 38px; width: 38px; border-radius: 12px; object-fit: contain; }
     .logo-text {
-      font-weight: 800; font-size: 1.1rem;
-      background: linear-gradient(145deg, #7c3aed, #8b5cf6);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      font-weight: 800; font-size: 1.2rem;
+      color: var(--gray-800);
     }
-    .logo-text span { font-weight: 600; font-size: 0.7rem; background: #f59e0b; -webkit-text-fill-color: #f59e0b; margin-left: 3px; }
+    .logo-text span { font-weight: 600; font-size: 0.75rem; color: var(--primary); margin-left: 5px; }
 
-    .nav-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-    .rep-profile { display: flex; align-items: center; gap: 8px; background: #f1f5f9; padding: 0.2rem 0.7rem 0.2rem 0.5rem; border-radius: 40px; }
-    .rep-avatar {
-      width: 32px; height: 32px; background: linear-gradient(145deg, #7c3aed, #c084fc);
+    .nav-right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .nav-btn {
+      background: transparent; border: none;
+      padding: 0.45rem 1rem; border-radius: 30px; color: var(--gray-600);
+      font-weight: 600; font-size: 0.8rem; cursor: pointer; display: inline-flex;
+      align-items: center; gap: 6px; text-decoration: none; transition: all 0.2s;
+    }
+    .nav-btn:hover { background: var(--gray-100); color: var(--primary); }
+    .nav-btn.active { background: var(--primary); color: white; }
+    .nav-btn.map-btn { background: var(--primary); color: white; }
+
+    .user-badge {
+      display: flex; align-items: center; gap: 10px; background: var(--primary-bg);
+      padding: 0.3rem 1rem 0.3rem 0.7rem; border-radius: 40px;
+    }
+    .user-avatar {
+      width: 36px; height: 36px; background: var(--primary);
       border-radius: 50%; display: flex; align-items: center; justify-content: center;
-      color: white; font-weight: 700; font-size: 0.8rem;
+      color: white; font-weight: 700; font-size: 0.85rem;
     }
-    .rep-info { line-height: 1.2; }
-    .rep-name { font-weight: 700; color: #0f172a; font-size: 0.8rem; }
-    .rep-role { font-size: 0.6rem; color: #f59e0b; font-weight: 700; text-transform: uppercase; }
+    .user-info .user-name { font-weight: 700; font-size: 0.85rem; }
+    .user-info .user-role { font-size: 0.65rem; color: var(--gray-500); }
 
-    .logout-btn {
-      background: white; border: 1.5px solid #e2e8f0; padding: 0.4rem 0.9rem;
-      border-radius: 30px; color: #475569; font-weight: 600; font-size: 0.75rem;
-      cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.2s;
-    }
-    .logout-btn:hover { background: #fee2e2; border-color: #ef4444; color: #ef4444; }
+    .container { max-width: 1400px; margin: 0 auto; padding: 1.5rem 4%; flex: 1; width: 100%; }
 
-    .container { padding: 1.2rem 2%; flex: 1; }
+    .page-header { margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; }
+    .page-header h1 { font-size: 1.5rem; font-weight: 800; color: var(--gray-800); display: flex; align-items: center; gap: 10px; }
+    .page-header h1 i { color: var(--primary); font-size: 1.3rem; }
+    .page-header p { color: var(--gray-500); font-size: 0.85rem; margin-top: 0.3rem; }
+    .last-updated { font-size: 0.7rem; color: var(--gray-400); margin-left: 10px; }
 
-    .page-header { margin-bottom: 1.2rem; }
-    .page-header h1 {
-      font-size: 1.3rem; font-weight: 800; color: #0f172a;
-      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
-    }
-    .page-header h1 i {
-      color: #7c3aed; background: white; padding: 8px;
-      border-radius: 12px; box-shadow: 0 6px 14px rgba(124, 58, 237, 0.06);
-      font-size: 1rem;
-    }
-    .page-header p { color: #475569; font-size: 0.8rem; margin-top: 0.2rem; margin-left: 48px; }
-    .last-updated { font-size: 0.65rem; color: #94a3b8; margin-left: 6px; }
-    .last-updated i { color: #10b981; font-size: 0.4rem; }
-
-    .stats-grid {
-      display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 1.2rem;
-    }
+    /* Stats Grid */
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.8rem; }
     .stat-card {
-      background: white; border-radius: 16px; padding: 1rem 1.2rem;
-      border: 1px solid #f1eaff; box-shadow: 0 4px 12px rgba(0,0,0,0.02);
-      display: flex; align-items: center; justify-content: space-between;
+      background: white; border-radius: 20px; padding: 1.2rem;
+      border: 1px solid var(--gray-200); display: flex; align-items: center; justify-content: space-between;
+      transition: all 0.2s;
     }
-    .stat-left h4 { font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; color: #64748b; margin-bottom: 0.2rem; }
-    .stat-number { font-size: 1.8rem; font-weight: 800; color: #0f172a; line-height: 1.1; }
-    .stat-trend { font-size: 0.65rem; margin-top: 2px; display: flex; align-items: center; gap: 3px; }
-    .trend-up { color: #10b981; }
-    .trend-warn { color: #f59e0b; }
-    .trend-neutral { color: #7c3aed; }
-    .stat-icon {
-      width: 42px; height: 42px; background: #f5f0ff; border-radius: 12px;
-      display: flex; align-items: center; justify-content: center;
-      color: #7c3aed; font-size: 1.2rem;
-    }
+    .stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-color: var(--primary-light); }
+    .stat-left h4 { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--gray-500); margin-bottom: 0.3rem; }
+    .stat-number { font-size: 1.8rem; font-weight: 800; color: var(--gray-800); line-height: 1.2; }
+    .stat-trend { font-size: 0.65rem; margin-top: 4px; display: flex; align-items: center; gap: 4px; color: var(--gray-500); }
+    .stat-icon { width: 52px; height: 52px; background: var(--primary-bg); border-radius: 14px; display: flex; align-items: center; justify-content: center; color: var(--primary); font-size: 1.3rem; }
 
-    .action-grid {
-      display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 1.2rem;
-    }
+    /* Action Grid — 10 cards, deterministic responsive breakpoints (no conflicts) */
+    .action-grid { display: grid; gap: 1rem; margin-bottom: 1.8rem; grid-template-columns: repeat(4, 1fr); }
+    @media (min-width: 1200px) { .action-grid { grid-template-columns: repeat(5, 1fr); } }
+    @media (max-width: 700px)  { .action-grid { grid-template-columns: repeat(2, 1fr); } }
+
     .action-card {
-      background: white; border-radius: 20px; padding: 1.2rem 1.2rem;
-      border: 1px solid #f1eaff; box-shadow: 0 8px 20px -6px rgba(124,58,237,0.04);
-      transition: all 0.25s; text-decoration: none; color: inherit; display: block; cursor: pointer;
+      background: white; border-radius: 16px; padding: 1rem;
+      border: 1px solid var(--gray-200); transition: all 0.2s;
+      text-decoration: none; color: inherit; display: block; cursor: pointer;
     }
-    .action-card:hover { transform: translateY(-4px); box-shadow: 0 20px 35px -10px rgba(124,58,237,0.12); border-color: #c9b3ff; }
+    .action-card:hover { transform: translateY(-3px); box-shadow: 0 6px 16px rgba(0,0,0,0.06); border-color: var(--primary-light); }
     .action-icon {
-      width: 46px; height: 46px; background: linear-gradient(145deg, #f5f0ff, #ffffff);
+      width: 48px; height: 48px; background: var(--primary-bg);
       border-radius: 14px; display: flex; align-items: center; justify-content: center;
-      margin-bottom: 0.8rem; color: #7c3aed; font-size: 1.4rem;
-      border: 1px solid rgba(124,58,237,0.15);
+      margin-bottom: 0.8rem; color: var(--primary); font-size: 1.3rem;
     }
-    .action-card h2 { font-size: 1rem; font-weight: 800; margin-bottom: 0.3rem; }
-    .action-card p { color: #64748b; font-size: 0.7rem; margin-bottom: 0.8rem; line-height: 1.4; }
-    .action-link { display: inline-flex; align-items: center; gap: 5px; font-weight: 700; color: #7c3aed; font-size: 0.7rem; }
+    .action-card h3 { font-size: 0.9rem; font-weight: 700; margin-bottom: 0.3rem; }
+    .action-card p { color: var(--gray-500); font-size: 0.7rem; margin-bottom: 0.6rem; line-height: 1.4; }
+    .action-link { font-size: 0.7rem; font-weight: 600; color: var(--primary); display: inline-flex; align-items: center; gap: 4px; }
 
-    .print-card .action-icon { color: #f59e0b; border-color: rgba(245,158,11,0.2); background: linear-gradient(145deg, #fffbeb, #ffffff); }
-    .print-card .action-link { color: #d97706; }
-    .shop-card .action-icon { color: #ec4899; border-color: rgba(236,72,153,0.2); background: linear-gradient(145deg, #fdf2f8, #ffffff); }
-    .shop-card .action-link { color: #db2777; }
+    /* Card variations */
+    .map-card .action-icon { background: #ecfdf5; color: #10b981; }
+    .asset-card .action-icon { background: #fffbeb; color: #d97706; }
+    .project-card .action-icon { background: #eff6ff; color: #3b82f6; }
+    .booking-card .action-icon { background: #f5f0ff; color: #8b5cf6; }
+    .service-card .action-icon { background: #fdf2f8; color: #ec4899; }
+    .subscription-card .action-icon { background: #fef3c7; color: #d97706; }
+    .shop-card .action-icon { background: #dcfce7; color: #16a34a; }
+    .shop-card:hover { border-color: #86efac; }
 
     .quick-section {
-      background: white; border-radius: 18px; padding: 1rem 1.2rem;
-      border: 1px solid #f1eaff; margin-bottom: 1.2rem;
+      background: white; border-radius: 20px; padding: 1rem 1.2rem;
+      border: 1px solid var(--gray-200); margin-bottom: 1.5rem;
     }
-    .quick-header { display: flex; align-items: center; gap: 8px; margin-bottom: 0.8rem; }
-    .quick-header i { color: #7c3aed; background: #f5f0ff; padding: 6px; border-radius: 10px; font-size: 0.8rem; }
-    .quick-header h3 { font-size: 0.85rem; }
-    .quick-links { display: flex; flex-wrap: wrap; gap: 8px; }
+    .quick-header { display: flex; align-items: center; gap: 8px; margin-bottom: 0.8rem; font-weight: 700; font-size: 0.85rem; }
+    .quick-header i { color: var(--primary); font-size: 0.9rem; }
+    .quick-links { display: flex; flex-wrap: wrap; gap: 10px; }
     .quick-btn {
-      background: #f8fafc; border: 1px solid #e2e8f0; padding: 0.45rem 0.9rem;
-      border-radius: 30px; color: #1e293b; font-weight: 500; text-decoration: none;
-      display: inline-flex; align-items: center; gap: 6px; font-size: 0.7rem;
+      background: var(--gray-50); border: 1px solid var(--gray-200); padding: 0.45rem 1rem;
+      border-radius: 30px; color: var(--gray-600); font-weight: 500; font-size: 0.75rem;
+      text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;
     }
-    .quick-btn i { color: #7c3aed; font-size: 0.7rem; }
-    .quick-btn:hover { background: #7c3aed; color: white; border-color: #7c3aed; }
+    .quick-btn i { color: var(--primary); font-size: 0.7rem; }
+    .quick-btn:hover { background: var(--primary); color: white; border-color: var(--primary); }
     .quick-btn:hover i { color: white; }
-    .map-quick i { color: #10b981; }
-    .map-quick:hover { background: #10b981; border-color: #10b981; }
+    .quick-btn.shop-quick i { color: #16a34a; }
+    .quick-btn.shop-quick:hover { background: #16a34a; border-color: #16a34a; }
+    .quick-btn.shop-quick:hover i { color: white; }
 
     .recent-section { margin-top: 1.2rem; }
-    .recent-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem; }
-    .recent-header h3 { font-size: 0.85rem; }
-    .recent-list { background: white; border-radius: 14px; border: 1px solid #f1eaff; overflow: hidden; }
+    .recent-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem; }
+    .recent-header h3 { font-size: 0.9rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+    .recent-list { background: white; border-radius: 16px; border: 1px solid var(--gray-200); overflow: hidden; }
     .recent-item {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 0.7rem 1rem; border-bottom: 1px solid #f1f5f9; font-size: 0.75rem;
+      padding: 0.8rem 1rem; border-bottom: 1px solid var(--gray-100);
+      font-size: 0.8rem; cursor: pointer;
     }
-    .status-tag { padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.6rem; font-weight: 700; }
-    .status-new { background: #dbeafe; color: #1e40af; }
+    .recent-item:last-child { border-bottom: none; }
+    .recent-item:hover { background: var(--gray-50); }
+    .status-tag {
+      padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.65rem; font-weight: 600;
+    }
+    .status-active { background: #d1fae5; color: #065f46; }
     .status-pending { background: #fef3c7; color: #92400e; }
-    .status-printing { background: #ede9fe; color: #5b21b6; }
-    .status-completed { background: #e6f7e6; color: #0d7c3f; }
-    .empty-state { text-align: center; padding: 2rem; color: #94a3b8; font-size: 0.8rem; }
+    .status-planning { background: #fef3c7; color: #92400e; }
+    .status-in-progress { background: #dbeafe; color: #1e40af; }
+    .status-basic { background: #f5f0ff; color: #6d28d9; }
+    .status-standard { background: #dbeafe; color: #1e40af; }
+    .status-premium { background: #fef3c7; color: #92400e; }
 
-    .footer { text-align: center; padding: 1rem; color: #94a3b8; border-top: 1px solid #f1eaff; font-size: 0.7rem; }
+    .empty-state { text-align: center; padding: 2rem; color: var(--gray-400); font-size: 0.8rem; }
 
-    .loading-overlay {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(255,255,255,0.8); backdrop-filter: blur(4px);
-      display: flex; justify-content: center; align-items: center; z-index: 999;
-    }
-    .loading-overlay.hide { display: none; }
-    .spinner {
-      width: 35px; height: 35px; border: 3px solid #f1eaff;
-      border-top-color: #7c3aed; border-radius: 50%; animation: spin 0.8s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
+    .footer { text-align: center; padding: 1rem; color: var(--gray-400); font-size: 0.7rem; border-top: 1px solid var(--gray-200); margin-top: 1.5rem; }
 
-    @media (max-width: 1100px) { .action-grid { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 700px) {
-      .action-grid, .stats-grid { grid-template-columns: 1fr; }
-      .container { padding: 0.8rem; }
-      .page-header p { margin-left: 0; }
-      .page-header h1 { font-size: 1.1rem; }
+    @media (max-width: 768px) {
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .container { padding: 1rem; }
+      .page-header h1 { font-size: 1.2rem; }
     }
   </style>
 </head>
 <body>
-  <div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div></div>
 
   <nav class="navbar">
-    <div class="logo">
-      <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png" alt="KazInni Logo" class="logo-img">
-      <span class="logo-text">KazInni <span>Print Shop</span></span>
-    </div>
+    <a href="https://kazinni-staff.vercel.app/dashboard" class="logo" rel="noopener">
+      <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png" alt="BrandInn" class="logo-img">
+      <span class="logo-text">BrandInn <span>Agency</span></span>
+    </a>
     <div class="nav-right">
-      <div class="rep-profile">
-        <div class="rep-avatar" id="repAvatar">KA</div>
-        <div class="rep-info">
-          <div class="rep-name" id="repName">Loading...</div>
-          <div class="rep-role"><i class="fas fa-badge-check"></i> Print Shop Admin</div>
+      <a href="/workspaces/brandinn/subscriptions.html" class="nav-btn subscription-nav-btn" style="background:#fef3c7; color:#92400e;">
+        <i class="fas fa-crown" aria-hidden="true"></i> Subscriptions
+      </a>
+      <a href="/workspaces/brandinn/shop-manager.html" class="nav-btn" style="background:#dcfce7; color:#166534;">
+        <i class="fas fa-cash-register" aria-hidden="true"></i> Shop Manager
+      </a>
+      <a href="/workspaces/brandinn/map.html" class="nav-btn map-btn"><i class="fas fa-map-marked-alt" aria-hidden="true"></i> Map</a>
+      <div class="user-badge">
+        <div class="user-avatar" id="userAvatar">BI</div>
+        <div class="user-info">
+          <div class="user-name" id="userName">Loading...</div>
+          <div class="user-role">Field Agent</div>
         </div>
       </div>
-      <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
     </div>
   </nav>
 
   <div class="container">
     <div class="page-header">
-      <h1><i class="fas fa-print"></i> Print Shop Dashboard <span class="last-updated" id="lastUpdated"><i class="fas fa-circle"></i> Live</span></h1>
-      <p>Manage print orders, track jobs, and run your shop efficiently.</p>
-    </div>
-
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-left"><h4>New Orders</h4><div class="stat-number" id="newOrders">--</div><div class="stat-trend trend-up" id="newTrend">Loading</div></div>
-        <div class="stat-icon"><i class="fas fa-shopping-cart"></i></div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-left"><h4>Pending</h4><div class="stat-number" id="pendingOrders">--</div><div class="stat-trend trend-warn" id="pendingTrend">Loading</div></div>
-        <div class="stat-icon"><i class="fas fa-clock"></i></div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-left"><h4>Print Jobs</h4><div class="stat-number" id="printJobs">--</div><div class="stat-trend trend-neutral" id="printTrend">Loading</div></div>
-        <div class="stat-icon"><i class="fas fa-print"></i></div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-left"><h4>Today's Revenue</h4><div class="stat-number" id="todayRevenue">--</div><div class="stat-trend trend-up" id="revenueTrend">Loading</div></div>
-        <div class="stat-icon"><i class="fas fa-money-bill"></i></div>
+      <div>
+        <h1><i class="fas fa-chart-pie" aria-hidden="true"></i> BrandInn Dashboard <span class="last-updated" id="lastUpdated"><i class="fas fa-circle" aria-hidden="true"></i> Live</span></h1>
+        <p>Manage businesses, service requests, projects, client bookings, and shops</p>
       </div>
     </div>
 
-    <div class="action-grid">
-      <a href="/workspaces/brandinn-print/new-order.html" class="action-card print-card">
-        <div class="action-icon"><i class="fas fa-plus-circle"></i></div>
-        <h2>New Order</h2>
-        <p>Create a print order — T-shirts, banners, stickers.</p>
-        <span class="action-link">Create Order <i class="fas fa-arrow-right"></i></span>
-      </a>
-      <a href="/workspaces/brandinn-print/orders.html" class="action-card">
-        <div class="action-icon"><i class="fas fa-clipboard-list"></i></div>
-        <h2>Manage Orders</h2>
-        <p>View, update status, and track all incoming orders.</p>
-        <span class="action-link">Order Panel <i class="fas fa-arrow-right"></i></span>
-      </a>
-      <a href="/workspaces/brandinn-print/print-jobs.html" class="action-card">
-        <div class="action-icon"><i class="fas fa-cogs"></i></div>
-        <h2>Print Jobs</h2>
-        <p>Queue jobs, assign machines, track completion.</p>
-        <span class="action-link">Job Queue <i class="fas fa-arrow-right"></i></span>
-      </a>
-      <a href="/workspaces/brandinn-print/shop-manager.html" class="action-card shop-card">
-        <div class="action-icon"><i class="fas fa-store-alt"></i></div>
-        <h2>Shop Manager</h2>
-        <p>Manage branches, inventory, staff & operations.</p>
-        <span class="action-link">Franchise Panel <i class="fas fa-arrow-right"></i></span>
-      </a>
+    <!-- STATS SKELETON -->
+    <div class="stats-grid" id="statsGrid">
+      <div class="skeleton-stat-card"><div><div class="skeleton skeleton-text" style="width:70px;"></div><div class="skeleton skeleton-number"></div></div><div class="skeleton skeleton-icon"></div></div>
+      <div class="skeleton-stat-card"><div><div class="skeleton skeleton-text" style="width:70px;"></div><div class="skeleton skeleton-number"></div></div><div class="skeleton skeleton-icon"></div></div>
+      <div class="skeleton-stat-card"><div><div class="skeleton skeleton-text" style="width:70px;"></div><div class="skeleton skeleton-number"></div></div><div class="skeleton skeleton-icon"></div></div>
+      <div class="skeleton-stat-card"><div><div class="skeleton skeleton-text" style="width:70px;"></div><div class="skeleton skeleton-number"></div></div><div class="skeleton skeleton-icon"></div></div>
     </div>
 
-    <div class="quick-section">
-      <div class="quick-header"><i class="fas fa-bolt"></i><h3>Quick Actions</h3></div>
-      <div class="quick-links">
-        <a href="/workspaces/brandinn-print/new-order.html" class="quick-btn"><i class="fas fa-tshirt"></i> T-Shirt</a>
-        <a href="/workspaces/brandinn-print/new-order.html?type=banner" class="quick-btn"><i class="fas fa-flag"></i> Banner</a>
-        <a href="/workspaces/brandinn-print/new-order.html?type=sticker" class="quick-btn"><i class="fas fa-sticky-note"></i> Sticker</a>
-        <a href="/workspaces/brandinn-print/print-jobs.html" class="quick-btn"><i class="fas fa-play"></i> Print Job</a>
-        <a href="/workspaces/brandinn-print/map.html" class="quick-btn map-quick"><i class="fas fa-map-pin"></i> Map</a>
+    <!-- ACTION CARDS SKELETON — 10 cards -->
+    <div class="action-grid" id="actionGrid">
+      <div class="skeleton-action-card"><div class="skeleton skeleton-action-icon"></div><div class="skeleton skeleton-text" style="width:70%;"></div><div class="skeleton skeleton-text" style="width:50%;"></div></div>
+      <div class="skeleton-action-card"><div class="skeleton skeleton-action-icon"></div><div class="skeleton skeleton-text" style="width:70%;"></div><div class="skeleton skeleton-text" style="width:50%;"></div></div>
+      <div class="skeleton-action-card"><div class="skeleton skeleton-action-icon"></div><div class="skeleton skeleton-text" style="width:70%;"></div><div class="skeleton skeleton-text" style="width:50%;"></div></div>
+      <div class="skeleton-action-card"><div class="skeleton skeleton-action-icon"></div><div class="skeleton skeleton-text" style="width:70%;"></div><div class="skeleton skeleton-text" style="width:50%;"></div></div>
+      <div class="skeleton-action-card"><div class="skeleton skeleton-action-icon"></div><div class="skeleton skeleton-text" style="width:70%;"></div><div class="skeleton skeleton-text" style="width:50%;"></div></div>
+      <div class="skeleton-action-card"><div class="skeleton skeleton-action-icon"></div><div class="skeleton skeleton-text" style="width:70%;"></div><div class="skeleton skeleton-text" style="width:50%;"></div></div>
+      <div class="skeleton-action-card"><div class="skeleton skeleton-action-icon"></div><div class="skeleton skeleton-text" style="width:70%;"></div><div class="skeleton skeleton-text" style="width:50%;"></div></div>
+      <div class="skeleton-action-card"><div class="skeleton skeleton-action-icon"></div><div class="skeleton skeleton-text" style="width:70%;"></div><div class="skeleton skeleton-text" style="width:50%;"></div></div>
+      <div class="skeleton-action-card"><div class="skeleton skeleton-action-icon"></div><div class="skeleton skeleton-text" style="width:70%;"></div><div class="skeleton skeleton-text" style="width:50%;"></div></div>
+      <div class="skeleton-action-card"><div class="skeleton skeleton-action-icon"></div><div class="skeleton skeleton-text" style="width:70%;"></div><div class="skeleton skeleton-text" style="width:50%;"></div></div>
+    </div>
+
+    <!-- QUICK LINKS SKELETON -->
+    <div class="quick-section" id="quickSection">
+      <div class="quick-header"><i class="fas fa-bolt" aria-hidden="true"></i> Quick Actions</div>
+      <div class="quick-links" id="quickLinks">
+        <div class="skeleton skeleton-text" style="width:90px; height:32px; border-radius:30px;"></div>
+        <div class="skeleton skeleton-text" style="width:100px; height:32px; border-radius:30px;"></div>
+        <div class="skeleton skeleton-text" style="width:80px; height:32px; border-radius:30px;"></div>
+        <div class="skeleton skeleton-text" style="width:110px; height:32px; border-radius:30px;"></div>
       </div>
     </div>
 
+    <!-- RECENT BUSINESSES SKELETON -->
+    <div class="recent-section">
+      <div class="recent-header"><h3><i class="fas fa-building" aria-hidden="true"></i> Recent Businesses</h3><a href="/workspaces/brandinn/manage-businesses.html" style="color:var(--primary); font-size:0.7rem;">View all</a></div>
+      <div class="recent-list" id="recentBusinesses">
+        <div class="recent-item"><div><div class="skeleton skeleton-text" style="width:140px;"></div><div class="skeleton skeleton-text" style="width:100px; margin-top:5px;"></div></div><div class="skeleton skeleton-text" style="width:60px; height:22px; border-radius:20px;"></div></div>
+        <div class="recent-item"><div><div class="skeleton skeleton-text" style="width:140px;"></div><div class="skeleton skeleton-text" style="width:100px; margin-top:5px;"></div></div><div class="skeleton skeleton-text" style="width:60px; height:22px; border-radius:20px;"></div></div>
+      </div>
+    </div>
+
+    <!-- RECENT REQUESTS SKELETON -->
+    <div class="recent-section">
+      <div class="recent-header"><h3><i class="fas fa-headset" aria-hidden="true"></i> Recent Service Requests</h3><a href="/workspaces/brandinn/service-requests.html" style="color:var(--primary); font-size:0.7rem;">View all</a></div>
+      <div class="recent-list" id="recentRequests">
+        <div class="recent-item"><div><div class="skeleton skeleton-text" style="width:140px;"></div><div class="skeleton skeleton-text" style="width:100px; margin-top:5px;"></div></div><div class="skeleton skeleton-text" style="width:60px; height:22px; border-radius:20px;"></div></div>
+        <div class="recent-item"><div><div class="skeleton skeleton-text" style="width:140px;"></div><div class="skeleton skeleton-text" style="width:100px; margin-top:5px;"></div></div><div class="skeleton skeleton-text" style="width:60px; height:22px; border-radius:20px;"></div></div>
+      </div>
+    </div>
+
+    <!-- RECENT PROJECTS SKELETON -->
+    <div class="recent-section">
+      <div class="recent-header"><h3><i class="fas fa-project-diagram" aria-hidden="true"></i> Active Projects</h3><a href="/workspaces/brandinn/projects.html" style="color:var(--primary); font-size:0.7rem;">View all</a></div>
+      <div class="recent-list" id="recentProjects">
+        <div class="recent-item"><div><div class="skeleton skeleton-text" style="width:140px;"></div><div class="skeleton skeleton-text" style="width:100px; margin-top:5px;"></div></div><div class="skeleton skeleton-text" style="width:60px; height:22px; border-radius:20px;"></div></div>
+        <div class="recent-item"><div><div class="skeleton skeleton-text" style="width:140px;"></div><div class="skeleton skeleton-text" style="width:100px; margin-top:5px;"></div></div><div class="skeleton skeleton-text" style="width:60px; height:22px; border-radius:20px;"></div></div>
+      </div>
+    </div>
+
+    <!-- SUBSCRIPTION SUMMARY -->
     <div class="recent-section">
       <div class="recent-header">
-        <h3><i class="fas fa-clock-rotate-left" style="color:#7c3aed;"></i> Recent Orders</h3>
-        <a href="/workspaces/brandinn-print/orders.html" style="color:#7c3aed;font-weight:600;font-size:0.75rem;">View all</a>
+        <h3><i class="fas fa-crown" aria-hidden="true"></i> Subscription Overview</h3>
+        <a href="/workspaces/brandinn/subscriptions.html" style="color:var(--primary); font-size:0.7rem;">Manage all</a>
       </div>
-      <div class="recent-list" id="recentList">
-        <div class="empty-state">Loading orders...</div>
+      <div class="recent-list" id="recentSubscriptions">
+        <div class="recent-item"><div><div class="skeleton skeleton-text" style="width:140px;"></div><div class="skeleton skeleton-text" style="width:100px; margin-top:5px;"></div></div><div class="skeleton skeleton-text" style="width:60px; height:22px; border-radius:20px;"></div></div>
+        <div class="recent-item"><div><div class="skeleton skeleton-text" style="width:140px;"></div><div class="skeleton skeleton-text" style="width:100px; margin-top:5px;"></div></div><div class="skeleton skeleton-text" style="width:60px; height:22px; border-radius:20px;"></div></div>
       </div>
     </div>
   </div>
 
   <div class="footer">
-    <i class="far fa-copyright"></i> 2026 KazInni Workspaces • BrandInn Print Shop • <span id="footerStats">--</span>
+    <i class="far fa-copyright" aria-hidden="true"></i> 2026 BrandInn Agency · <span id="footerStats">Loading...</span>
   </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getDatabase, ref, onValue, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    <script type="module">
+    import { initializeApp } from "firebase/app";
+    import { getAuth, onAuthStateChanged } from "firebase/auth";
+    import { getDatabase, ref, get, onValue } from "firebase/database";
 
     const firebaseConfig = {
       apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
@@ -299,102 +355,242 @@
     };
 
     const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
     const auth = getAuth(app);
+    const db = getDatabase(app);
 
-    let allOrders = {};
+    let allBusinesses = {};
+    let allRequests = {};
+    let allProjects = {};
+    let allBookings = {};
+    let allSubdomains = {};
 
-    const loadingOverlay = document.getElementById('loadingOverlay');
-    const repNameEl = document.getElementById('repName');
-    const repAvatarEl = document.getElementById('repAvatar');
-    const footerStatsEl = document.getElementById('footerStats');
+    // Track listeners so we can clean up on unload (prevents leaks / duplicate listeners)
+    const activeUnsubscribers = [];
 
     function getInitials(name) {
-      return name ? name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0,2) : 'KA';
+      if (!name) return 'BI';
+      const cleaned = String(name).trim().replace(/\s+/g, ' ');
+      if (!cleaned) return 'BI';
+      const parts = cleaned.split(' ').filter(Boolean);
+      const initials = parts.map(n => n[0]).join('').toUpperCase().substring(0, 2);
+      return initials || 'BI';
+    }
+
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return '';
+      return String(str).replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : m === '>' ? '&gt;' : m);
+    }
+
+    function formatDate(timestamp) {
+      if (!timestamp) return '';
+      const d = new Date(timestamp);
+      if (isNaN(d.getTime())) return '';
+      return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
     }
 
     function getStatusClass(status) {
-      const map = { new:'status-new', pending:'status-pending', printing:'status-printing', completed:'status-completed', delivered:'status-completed' };
-      return map[status] || 'status-new';
+      const map = { active: 'status-active', pending: 'status-pending', planning: 'status-planning', 'in-progress': 'status-in-progress' };
+      return map[status] || 'status-pending';
     }
 
-    function renderRecentOrders() {
-      const recentList = document.getElementById('recentList');
-      const orders = Object.entries(allOrders).filter(([_,o]) => o && o.customerName)
-        .map(([id,data]) => ({id,...data}))
-        .sort((a,b) => (b.createdAt||0)-(a.createdAt||0)).slice(0,6);
+    function getPlanBadgeClass(plan) {
+      const p = (plan || 'basic').toLowerCase();
+      if (p === 'premium') return 'status-premium';
+      if (p === 'standard') return 'status-standard';
+      return 'status-basic';
+    }
 
-      if (!orders.length) {
-        recentList.innerHTML = `<div class="empty-state"><i class="fas fa-receipt" style="font-size:1.5rem;display:block;margin-bottom:6px;"></i>No orders yet</div>`;
-        return;
-      }
+    function getPlanLabel(plan) {
+      const p = (plan || 'basic').toLowerCase();
+      if (p === 'premium') return 'Premium';
+      if (p === 'standard') return 'Standard';
+      return 'Basic';
+    }
 
-      recentList.innerHTML = orders.map(order => {
-        const status = order.status || 'new';
-        const icon = order.type==='tshirt'?'👕':order.type==='banner'?'🪧':order.type==='sticker'?'🏷️':'📦';
-        return `<div class="recent-item">
-          <div style="display:flex;align-items:center;gap:10px;">
-            <div style="width:32px;height:32px;background:#f5f0ff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.65rem;">${getInitials(order.customerName)}</div>
-            <div><strong>${icon} ${order.customerName}</strong><p style="font-size:0.65rem;color:#64748b;">${order.product||'Print Order'} • Qty: ${order.quantity||1} • KES ${(order.total||0).toLocaleString()}</p></div>
+    function renderDashboard() {
+      const businesses = Object.values(allBusinesses).filter(b => b && b.businessName);
+      const requests = Object.values(allRequests).filter(r => r);
+      const projects = Object.values(allProjects).filter(p => p);
+      const bookings = Object.values(allBookings).filter(b => b);
+      const subdomains = Object.values(allSubdomains).filter(s => s);
+
+      const totalBiz = businesses.length;
+      const activeBiz = businesses.filter(b => b.status === 'active' || !b.status).length;
+      const pendingRequests = requests.filter(r => r.status === 'pending').length;
+      const activeProjects = projects.filter(p => p.status === 'in-progress' || p.status === 'planning').length;
+      const todayBookings = bookings.filter(b => b.date === new Date().toISOString().split('T')[0]).length;
+
+      const totalSubs = subdomains.length;
+      const basicCount = subdomains.filter(s => (s.plan || 'basic').toLowerCase() === 'basic').length;
+      const standardCount = subdomains.filter(s => (s.plan || '').toLowerCase() === 'standard').length;
+      const premiumCount = subdomains.filter(s => (s.plan || '').toLowerCase() === 'premium').length;
+
+      document.getElementById('statsGrid').innerHTML = `
+        <div class="stat-card"><div class="stat-left"><h4>Total Businesses</h4><div class="stat-number">${totalBiz}</div><div class="stat-trend"><i class="fas fa-building" aria-hidden="true"></i> Registered</div></div><div class="stat-icon"><i class="fas fa-building" aria-hidden="true"></i></div></div>
+        <div class="stat-card"><div class="stat-left"><h4>Active Listings</h4><div class="stat-number">${activeBiz}</div><div class="stat-trend"><i class="fas fa-check-circle" aria-hidden="true"></i> Live</div></div><div class="stat-icon"><i class="fas fa-check-circle" aria-hidden="true"></i></div></div>
+        <div class="stat-card"><div class="stat-left"><h4>Pending Requests</h4><div class="stat-number">${pendingRequests}</div><div class="stat-trend"><i class="fas fa-clock" aria-hidden="true"></i> Need attention</div></div><div class="stat-icon"><i class="fas fa-headset" aria-hidden="true"></i></div></div>
+        <div class="stat-card"><div class="stat-left"><h4>Active Projects</h4><div class="stat-number">${activeProjects}</div><div class="stat-trend"><i class="fas fa-chart-line" aria-hidden="true"></i> In progress</div></div><div class="stat-icon"><i class="fas fa-project-diagram" aria-hidden="true"></i></div></div>
+      `;
+
+      document.getElementById('actionGrid').innerHTML = `
+        <a href="/workspaces/brandinn/subscriptions.html" class="action-card subscription-card">
+          <div class="action-icon"><i class="fas fa-crown" aria-hidden="true"></i></div>
+          <h3>Subscriptions</h3>
+          <p>Manage plans & billing</p>
+          <span class="action-link">Manage →</span>
+        </a>
+        <a href="/workspaces/brandinn/shop-manager.html" class="action-card shop-card">
+          <div class="action-icon"><i class="fas fa-cash-register" aria-hidden="true"></i></div>
+          <h3>Shop Manager</h3>
+          <p>Products, orders & settings</p>
+          <span class="action-link">Manage →</span>
+        </a>
+        <a href="/workspaces/brandinn/new-business.html" class="action-card"><div class="action-icon"><i class="fas fa-plus-circle" aria-hidden="true"></i></div><h3>List Business</h3><p>Register new business</p><span class="action-link">Register →</span></a>
+        <a href="/workspaces/brandinn/list-business.html" class="action-card"><div class="action-icon"><i class="fas fa-file-alt" aria-hidden="true"></i></div><h3>Landing Page</h3><p>Create client landing page</p><span class="action-link">Create →</span></a>
+        <a href="/workspaces/brandinn/manage-businesses.html" class="action-card"><div class="action-icon"><i class="fas fa-store" aria-hidden="true"></i></div><h3>Businesses</h3><p>Manage all listings</p><span class="action-link">Manage →</span></a>
+        <a href="/workspaces/brandinn/service-requests.html" class="action-card service-card"><div class="action-icon"><i class="fas fa-headset" aria-hidden="true"></i></div><h3>Service Requests</h3><p>View client inquiries</p><span class="action-link">View →</span></a>
+        <a href="/workspaces/brandinn/projects.html" class="action-card project-card"><div class="action-icon"><i class="fas fa-project-diagram" aria-hidden="true"></i></div><h3>Projects</h3><p>Track project progress</p><span class="action-link">Projects →</span></a>
+        <a href="/workspaces/brandinn/bookings.html" class="action-card booking-card"><div class="action-icon"><i class="fas fa-calendar-check" aria-hidden="true"></i></div><h3>Bookings</h3><p>Client appointments</p><span class="action-link">Bookings →</span></a>
+        <a href="/workspaces/brandinn/map.html" class="action-card map-card"><div class="action-icon"><i class="fas fa-map-location-dot" aria-hidden="true"></i></div><h3>Business Map</h3><p>View locations</p><span class="action-link">Open →</span></a>
+        <a href="/workspaces/brandinn/asset-handover.html" class="action-card asset-card"><div class="action-icon"><i class="fas fa-envelope-open-text" aria-hidden="true"></i></div><h3>Asset Handover</h3><p>Client credentials</p><span class="action-link">Generate →</span></a>
+      `;
+
+      document.getElementById('quickLinks').innerHTML = `
+        <a href="/workspaces/brandinn/subscriptions.html" class="quick-btn" aria-label="Subscriptions"><i class="fas fa-crown" aria-hidden="true"></i> Subscriptions (${totalSubs})</a>
+        <a href="/workspaces/brandinn/shop-manager.html" class="quick-btn shop-quick" aria-label="Shop Manager"><i class="fas fa-cash-register" aria-hidden="true"></i> Shop Manager</a>
+        <a href="/workspaces/brandinn/new-business.html" class="quick-btn" aria-label="New Business"><i class="fas fa-plus-circle" aria-hidden="true"></i> New Business</a>
+        <a href="/workspaces/brandinn/list-business.html" class="quick-btn" aria-label="Landing Page"><i class="fas fa-file-alt" aria-hidden="true"></i> Landing Page</a>
+        <a href="/workspaces/brandinn/service-requests.html" class="quick-btn" aria-label="Service Requests"><i class="fas fa-headset" aria-hidden="true"></i> Requests (${pendingRequests})</a>
+        <a href="/workspaces/brandinn/projects.html" class="quick-btn" aria-label="Projects"><i class="fas fa-project-diagram" aria-hidden="true"></i> Projects</a>
+        <a href="/workspaces/brandinn/bookings.html" class="quick-btn" aria-label="Today's Bookings"><i class="fas fa-calendar-check" aria-hidden="true"></i> Today (${todayBookings})</a>
+      `;
+
+      const recentBiz = Object.entries(allBusinesses).map(([id, b]) => ({ id, ...b }))
+        .filter(b => b.businessName).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)).slice(0, 4);
+      document.getElementById('recentBusinesses').innerHTML = recentBiz.length ? recentBiz.map(b => `
+        <div class="recent-item" onclick="window.location.href='/workspaces/brandinn/manage-businesses.html'">
+          <div><strong>${escapeHtml(b.businessName)}</strong><br><span style="font-size:0.7rem;color:var(--gray-500);">${escapeHtml(b.industry || 'Business')}</span></div>
+          <span class="status-tag ${b.status === 'active' ? 'status-active' : 'status-pending'}">${b.status || 'active'}</span>
+        </div>
+      `).join('') : '<div class="empty-state">No businesses yet</div>';
+
+      const recentReqs = Object.entries(allRequests).map(([id, r]) => ({ id, ...r }))
+        .filter(r => r.clientName).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)).slice(0, 4);
+      document.getElementById('recentRequests').innerHTML = recentReqs.length ? recentReqs.map(r => `
+        <div class="recent-item" onclick="window.location.href='/workspaces/brandinn/service-requests.html'">
+          <div><strong>${escapeHtml(r.clientName)}</strong><br><span style="font-size:0.7rem;color:var(--gray-500);">${r.services?.length || 0} services · ${r.urgency || 'normal'}</span></div>
+          <span class="status-tag ${getStatusClass(r.status)}">${r.status || 'pending'}</span>
+        </div>
+      `).join('') : '<div class="empty-state">No service requests</div>';
+
+      const recentProj = Object.entries(allProjects).map(([id, p]) => ({ id, ...p }))
+        .filter(p => p.projectName).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)).slice(0, 4);
+      document.getElementById('recentProjects').innerHTML = recentProj.length ? recentProj.map(p => `
+        <div class="recent-item" onclick="window.location.href='/workspaces/brandinn/projects.html'">
+          <div><strong>${escapeHtml(p.projectName)}</strong><br><span style="font-size:0.7rem;color:var(--gray-500);">${escapeHtml(p.businessName)} · ${p.assignees?.length || 0} assigned</span></div>
+          <span class="status-tag ${getStatusClass(p.status)}">${p.status || 'planning'}</span>
+        </div>
+      `).join('') : '<div class="empty-state">No active projects</div>';
+
+      const recentSubs = Object.entries(allSubdomains).map(([slug, s]) => ({ slug, ...s }))
+        .filter(s => s.businessName || s.name)
+        .sort((a, b) => (b.updatedAt || b.createdAt || 0) - (a.updatedAt || a.createdAt || 0))
+        .slice(0, 4);
+      document.getElementById('recentSubscriptions').innerHTML = recentSubs.length ? recentSubs.map(s => {
+        const name = s.businessName || s.name || s.slug;
+        const plan = s.plan || 'basic';
+        const price = s.price || (plan === 'premium' ? 3500 : plan === 'standard' ? 2500 : 1000);
+        return `
+          <div class="recent-item" onclick="window.location.href='/workspaces/brandinn/subscriptions.html'">
+            <div>
+              <strong>${escapeHtml(name)}</strong><br>
+              <span style="font-size:0.7rem;color:var(--gray-500);">KSh ${price.toLocaleString()}/mo · ${escapeHtml(s.email || s.phone || 'No contact')}</span>
+            </div>
+            <span class="status-tag ${getPlanBadgeClass(plan)}">${getPlanLabel(plan)}</span>
           </div>
-          <span class="status-tag ${getStatusClass(status)}">${status.toUpperCase()}</span>
-        </div>`;
-      }).join('');
+        `;
+      }).join('') : '<div class="empty-state">No subscriptions yet</div>';
+
+      document.getElementById('footerStats').textContent = `${totalBiz} businesses · ${pendingRequests} pending · ${activeProjects} active projects · ${totalSubs} subscriptions (${basicCount}B / ${standardCount}S / ${premiumCount}P)`;
+      document.getElementById('lastUpdated').innerHTML = `<i class="fas fa-circle" aria-hidden="true" style="color:#10b981;"></i> Live · ${new Date().toLocaleTimeString()}`;
     }
 
-    function updateStats() {
-      const orders = Object.values(allOrders).filter(o => o && o.customerName);
-      const n = orders.filter(o => o.status==='new').length;
-      const p = orders.filter(o => o.status==='pending').length;
-      const pr = orders.filter(o => o.status==='printing').length;
-      const today = orders.filter(o => o.createdAt && new Date(o.createdAt).toDateString()===new Date().toDateString()).reduce((s,o)=>s+(o.total||0),0);
-
-      document.getElementById('newOrders').textContent = n;
-      document.getElementById('pendingOrders').textContent = p;
-      document.getElementById('printJobs').textContent = pr;
-      document.getElementById('todayRevenue').textContent = `KES ${today.toLocaleString()}`;
-      document.getElementById('newTrend').innerHTML = '<i class="fas fa-shopping-cart"></i> Awaiting';
-      document.getElementById('pendingTrend').innerHTML = '<i class="fas fa-clock"></i> In queue';
-      document.getElementById('printTrend').innerHTML = '<i class="fas fa-print"></i> Active';
-      document.getElementById('revenueTrend').innerHTML = '<i class="fas fa-check-circle"></i> Today';
-      document.getElementById('lastUpdated').innerHTML = `<i class="fas fa-circle" style="color:#10b981;"></i> Live`;
-      footerStatsEl.textContent = `${orders.length} total · ${n} new · ${pr} printing · KES ${today.toLocaleString()} today`;
-      renderRecentOrders();
-    }
-
-    function setupRealtimeListener() {
-      onValue(ref(db, 'brandinn_print_orders'), (snapshot) => {
-        allOrders = snapshot.val() || {};
-        updateStats();
-        loadingOverlay.classList.add('hide');
-      }, (error) => {
-        console.error(error);
-        loadingOverlay.classList.add('hide');
-        document.getElementById('recentList').innerHTML = `<div class="empty-state">Error loading data</div>`;
+    // Coalesce multiple listener fires into a single render per frame (initial load fires 4x)
+    let renderQueued = false;
+    function scheduleRender() {
+      if (renderQueued) return;
+      renderQueued = true;
+      requestAnimationFrame(() => {
+        renderQueued = false;
+        try {
+          renderDashboard();
+        } catch (err) {
+          console.error('[BrandInn Dashboard] Render failed:', err);
+        }
       });
     }
 
+    function setupListeners() {
+      const safeOnValue = (path, onData) => {
+        try {
+          const unsub = onValue(
+            ref(db, path),
+            (snap) => onData(snap),
+            (err) => {
+              console.error(`[BrandInn Dashboard] Listener failed for "${path}":`, err);
+              onData({ val: () => null });
+            }
+          );
+          activeUnsubscribers.push(unsub);
+        } catch (err) {
+          console.error(`[BrandInn Dashboard] Could not attach listener for "${path}":`, err);
+          onData({ val: () => null });
+        }
+      };
+
+      safeOnValue('brandinn_subdomains', (snap) => {
+        const data = snap.val() || {};
+        allBusinesses = data;
+        allSubdomains = data;
+        scheduleRender();
+      });
+      safeOnValue('brandinn_service_requests', (snap) => {
+        allRequests = snap.val() || {};
+        scheduleRender();
+      });
+      safeOnValue('brandinn_projects', (snap) => {
+        allProjects = snap.val() || {};
+        scheduleRender();
+      });
+      safeOnValue('brandinn_bookings', (snap) => {
+        allBookings = snap.val() || {};
+        scheduleRender();
+      });
+    }
+
+    window.addEventListener('beforeunload', () => {
+      activeUnsubscribers.forEach((unsub) => {
+        try { unsub(); } catch (_) { /* noop */ }
+      });
+      activeUnsubscribers.length = 0;
+    });
+
     onAuthStateChanged(auth, async (user) => {
       if (user) {
-        const userSnap = await get(ref(db, `brandinn_users/${user.uid}`));
-        let userName = 'Shop Manager';
-        if (userSnap.exists()) userName = userSnap.val().name || user.displayName || user.email?.split('@')[0] || 'Shop Manager';
-        else userName = user.displayName || user.email?.split('@')[0] || 'Shop Manager';
-        repNameEl.textContent = userName;
-        repAvatarEl.textContent = getInitials(userName);
-        setupRealtimeListener();
+        let userName = user.email?.split('@')[0] || 'Agent';
+        try {
+          const userSnap = await get(ref(db, `brandinn_users/${user.uid}`));
+          if (userSnap.exists()) userName = userSnap.val().name || userName;
+        } catch (err) {
+          console.error('[BrandInn Dashboard] Failed to load user profile:', err);
+        }
+        document.getElementById('userName').textContent = userName;
+        document.getElementById('userAvatar').textContent = getInitials(userName);
+        setupListeners();
       } else {
         window.location.href = 'https://kazinni-staff.vercel.app';
       }
     });
-
-    document.getElementById('logoutBtn').addEventListener('click', async () => {
-      if (confirm('Log out of KazInni Workspaces?')) {
-        try { await signOut(auth); } catch (e) { alert('Logout failed.'); }
-      }
-    });
-
-    setTimeout(() => loadingOverlay.classList.add('hide'), 5000);
   </script>
 </body>
 </html>
