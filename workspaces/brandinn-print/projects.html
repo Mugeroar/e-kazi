@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Projects | BrandInn Prints</title>
+  <link rel="icon" type="image/png" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: #f8fafc; color: #1e293b; line-height: 1.5; min-height: 100vh; }
+  </style>
+</head>
+<body>
+  <script type="importmap">
+    {"imports": {
+      "firebase/app": "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js",
+      "firebase/auth": "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js",
+      "firebase/database": "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js"
+    }}
+  </script>
+
+  <script type="module">
+    import {
+      mountPageShell, bootstrapListPage, promptForm,
+      esc, statusClass, formatDate, initials
+    } from "./_print-shared.js";
+
+    mountPageShell({
+      title: "Projects",
+      subtitle: "Print projects — banners, stickers, receipts, business cards, and more",
+      icon: "fa-project-diagram"
+    });
+
+    bootstrapListPage({
+      node: "brandinn_print_projects",
+      containerId: "listContainer",
+      searchFields: ["projectName", "businessName"],
+      statusOptions: ["planning", "in-progress", "completed", "on-hold"],
+      emptyMessage: "No projects yet — create your first one.",
+      emptyIcon: "fa-project-diagram",
+      onCreate: () => promptForm([
+        { key: "projectName", label: "Project name", required: true },
+        { key: "businessName", label: "Client / business name" },
+        { key: "serviceType", label: "Service type", placeholder: "Print Design" },
+        { key: "startDate", label: "Start date", placeholder: "YYYY-MM-DD" },
+        { key: "status", label: "Status", placeholder: "planning" },
+      ]),
+      renderCard: (p) => `
+        <h3>${esc(p.projectName || p.name || "Untitled")}</h3>
+        <div class="meta">${esc(p.businessName || "Client")} · ${esc(p.serviceType || "Print")}</div>
+        <div class="row">
+          <span class="status-tag ${statusClass(p.status)}">${esc(p.status || "planning")}</span>
+          <span style="font-size:0.7rem;color:#64748b;">${p.startDate ? "Start " + esc(p.startDate) : ""}</span>
+        </div>
+      `,
+      onCardClick: (item, id) => {
+        const newStatus = prompt(`Project: ${item.projectName}\nCurrent status: ${item.status}\n\nEnter new status (or cancel):`, item.status);
+        if (newStatus && newStatus !== item.status) {
+          import("./_print-shared.js").then(m => m.updateRecord("brandinn_print_projects", id, { status: newStatus }));
+        }
+      }
+    });
+  </script>
+</body>
+</html>
