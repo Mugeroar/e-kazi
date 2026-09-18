@@ -1339,7 +1339,7 @@
                 // Load user data
                 const userSnap = await database.ref(`brandinn_users/${user.uid}`).once('value');
                 const userData = userSnap.exists() ? userSnap.val() : {};
-                const userName = userData.name || user.displayName || user.email?.split('@')[0] || 'User';
+                const userName = userData.name || userData.displayName || user.displayName || user.email?.split('@')[0] || 'User';
                 const businessName = userData.businessName || '';
 
                 updateWelcomeUI(user);
@@ -1540,8 +1540,16 @@
         }
 
         // ===== UI UPDATES =====
-        function updateWelcomeUI(user) {
-            const userName = user.displayName || user.email?.split('@')[0] || 'User';
+        async function updateWelcomeUI(user) {
+            let dbName = '';
+            try {
+                const snap = await database.ref(`brandinn_users/${user.uid}`).once('value');
+                if (snap.exists()) {
+                    const d = snap.val();
+                    dbName = d.name || d.displayName || '';
+                }
+            } catch (e) {}
+            const userName = dbName || user.displayName || user.email?.split('@')[0] || 'User';
             const hour = new Date().getHours();
             document.getElementById('greeting').textContent = hour < 12 ? 'Morning' : hour < 17 ? 'Afternoon' : 'Evening';
             document.getElementById('userName').textContent = userName;
