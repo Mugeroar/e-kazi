@@ -793,6 +793,60 @@
       text-align: center; font-size: 0.75rem; color: var(--text-muted); margin-top: 0.8rem;
     }
 
+    /* ===== GOOGLE SIGN-IN ===== */
+    .auth-divider {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin: 1.2rem 0;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      font-weight: 500;
+      font-family: var(--font-heading);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .auth-divider::before,
+    .auth-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border-light);
+    }
+    .google-btn {
+      width: 100%;
+      padding: 0.75rem;
+      background: #ffffff;
+      color: #3c4043;
+      border: 1.5px solid var(--border-medium);
+      border-radius: 40px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      font-family: var(--font-heading);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+    }
+    .google-btn:hover {
+      background: #f8f9fa;
+      border-color: #dadce0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      transform: translateY(-2px);
+    }
+    .google-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    .google-btn img {
+      width: 18px;
+      height: 18px;
+    }
+
     /* ===== TOASTS ===== */
     .toast-container { position: fixed; top:20px; right:20px; z-index:4000; }
     .toast {
@@ -886,6 +940,14 @@
           <i class="fas fa-sign-in-alt"></i> Sign in
         </button>
       </form>
+      
+      <!-- Google Sign-In Divider and Button -->
+      <div class="auth-divider">or continue with</div>
+      <button type="button" class="google-btn" id="googleSignInBtn" onclick="handleGoogleSignIn()">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+        Sign in with Google
+      </button>
+      
       <button class="modal-link" onclick="showForgotPassword()">
         <i class="fas fa-key"></i> Forgot your password?
       </button>
@@ -1248,6 +1310,59 @@
       } catch (error) {
         console.error('Sign out error:', error);
         showToast('Error signing out', 'error');
+      }
+    }
+
+    // ============================================================
+    // GOOGLE SIGN-IN
+    // ============================================================
+    async function handleGoogleSignIn() {
+      const btn = document.getElementById('googleSignInBtn');
+      const originalHTML = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Connecting...';
+
+      const provider = new firebase.auth.GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: 'select_account' });
+
+      try {
+        const result = await auth.signInWithPopup(provider);
+        const user = result.user;
+        
+        // Save/update user profile in database
+        if (user) {
+          await database.ref(`users/${user.uid}`).update({
+            displayName: user.displayName || user.email?.split('@')[0] || 'User',
+            email: user.email,
+            photoURL: user.photoURL || null,
+            provider: 'google',
+            lastLogin: firebase.database.ServerValue.TIMESTAMP,
+            status: 'available'
+          });
+        }
+        
+        showToast(`Welcome, ${user.displayName || 'Staff'}!`, 'success');
+        closeAuthModal();
+      } catch (error) {
+        console.error('Google sign-in error:', error);
+        let msg = 'Google sign-in failed';
+        if (error.code === 'auth/popup-closed-by-user') {
+          msg = 'Sign-in popup was closed';
+        } else if (error.code === 'auth/popup-blocked') {
+          msg = 'Popup blocked. Please allow popups for this site.';
+        } else if (error.code === 'auth/cancelled-popup-request') {
+          msg = 'Sign-in cancelled';
+        } else if (error.code === 'auth/account-exists-with-different-credential') {
+          msg = 'An account already exists with this email using a different sign-in method';
+        } else if (error.code === 'auth/operation-not-allowed') {
+          msg = 'Google sign-in is not enabled. Contact your administrator.';
+        } else if (error.message) {
+          msg = error.message.replace('Firebase: ', '').replace(/\(auth\/.*\)\.?/, '').trim();
+        }
+        showToast(msg, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalHTML;
       }
     }
 
