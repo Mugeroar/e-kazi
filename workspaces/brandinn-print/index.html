@@ -31,10 +31,6 @@
       --warning: #f59e0b;
       --danger: #ef4444;
       --info: #3b82f6;
-      --amber: #f59e0b;
-      --pink: #ec4899;
-      --text-primary: #1e293b;
-      --text-muted: #64748b;
       --gray-50: #f8fafc;
       --gray-100: #f1f5f9;
       --gray-200: #e2e8f0;
@@ -51,7 +47,7 @@
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       background: #f8fafc;
-      color: var(--text-primary);
+      color: #1e293b;
       line-height: 1.5;
       min-height: 100vh;
       display: flex;
@@ -186,7 +182,7 @@
       display: grid;
       gap: 1rem;
       margin-bottom: 1.8rem;
-      grid-template-columns: repeat(6, minmax(0, 1fr));
+      grid-template-columns: repeat(5, minmax(0, 1fr));
     }
     @media (max-width: 1200px) { .action-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
     @media (max-width: 900px)  { .action-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
@@ -216,7 +212,6 @@
     .customer-card .action-icon{ background: #ecfdf5; color: #10b981; }
     .service-card .action-icon { background: #fef2f2; color: #ef4444; }
     .inventory-card .action-icon{background: #fffbeb; color: #d97706; }
-    .staff-card .action-icon   { background: #eef2ff; color: #4f46e5; }
     .map-card .action-icon     { background: #ecfdf5; color: #10b981; }
     .asset-card .action-icon   { background: #fffbeb; color: #d97706; }
 
@@ -276,6 +271,9 @@
     .status-confirmed   { background: #d1fae5; color: #065f46; }
     .status-low         { background: #fee2e2; color: #991b1b; }
     .status-ok          { background: #d1fae5; color: #065f46; }
+    .status-quoted      { background: #e0e7ff; color: #3730a3; }
+    .status-approved    { background: #d1fae5; color: #065f46; }
+    .status-processing  { background: #fef3c7; color: #92400e; }
 
     .empty-state { text-align: center; padding: 2rem; color: var(--gray-400); font-size: 0.8rem; }
 
@@ -328,6 +326,7 @@
       </div>
     </div>
 
+    <!-- STATS SKELETON -->
     <div class="stats-grid" id="statsGrid">
       <div class="skeleton-stat-card"><div><div class="skeleton skeleton-text" style="width:70px;"></div><div class="skeleton skeleton-number"></div></div><div class="skeleton skeleton-icon"></div></div>
       <div class="skeleton-stat-card"><div><div class="skeleton skeleton-text" style="width:70px;"></div><div class="skeleton skeleton-number"></div></div><div class="skeleton skeleton-icon"></div></div>
@@ -335,8 +334,8 @@
       <div class="skeleton-stat-card"><div><div class="skeleton skeleton-text" style="width:70px;"></div><div class="skeleton skeleton-number"></div></div><div class="skeleton skeleton-icon"></div></div>
     </div>
 
+    <!-- ACTION CARDS SKELETON -->
     <div class="action-grid" id="actionGrid">
-      <div class="skeleton-action-card"><div class="skeleton skeleton-action-icon"></div><div class="skeleton skeleton-text" style="width:70%;"></div><div class="skeleton skeleton-text" style="width:50%;"></div></div>
       <div class="skeleton-action-card"><div class="skeleton skeleton-action-icon"></div><div class="skeleton skeleton-text" style="width:70%;"></div><div class="skeleton skeleton-text" style="width:50%;"></div></div>
       <div class="skeleton-action-card"><div class="skeleton skeleton-action-icon"></div><div class="skeleton skeleton-text" style="width:70%;"></div><div class="skeleton skeleton-text" style="width:50%;"></div></div>
       <div class="skeleton-action-card"><div class="skeleton skeleton-action-icon"></div><div class="skeleton skeleton-text" style="width:70%;"></div><div class="skeleton skeleton-text" style="width:50%;"></div></div>
@@ -344,6 +343,7 @@
       <div class="skeleton-action-card"><div class="skeleton skeleton-action-icon"></div><div class="skeleton skeleton-text" style="width:70%;"></div><div class="skeleton skeleton-text" style="width:50%;"></div></div>
     </div>
 
+    <!-- QUICK LINKS SKELETON -->
     <div class="quick-section" id="quickSection">
       <div class="quick-header"><i class="fas fa-bolt" aria-hidden="true"></i> Quick Actions</div>
       <div class="quick-links" id="quickLinks">
@@ -354,6 +354,7 @@
       </div>
     </div>
 
+    <!-- RECENT GRID -->
     <div class="recent-grid">
       <div class="recent-section">
         <div class="recent-header">
@@ -473,8 +474,6 @@
     let authResolved = false;
     let dataTimeoutHandle = null;
     let authTimeoutHandle = null;
-
-    // Track which nodes have already warned, so console isn't spammed
     const warnedPaths = new Set();
 
     function showError(msg) {
@@ -506,7 +505,8 @@
         completed: 'status-completed', delivered: 'status-completed',
         cancelled: 'status-cancelled', active: 'status-active',
         planning: 'status-planning', 'in-progress': 'status-in-progress',
-        confirmed: 'status-confirmed', low: 'status-low', ok: 'status-ok'
+        confirmed: 'status-confirmed', low: 'status-low', ok: 'status-ok',
+        quoted: 'status-quoted', approved: 'status-approved', processing: 'status-processing'
       };
       return map[(status || '').toLowerCase()] || 'status-pending';
     }
@@ -619,12 +619,6 @@
           <p>Stock & materials</p>
           <span class="action-link">Stock →</span>
         </a>
-        <a href="/workspaces/brandinn-print/staff.html" class="action-card staff-card">
-          <div class="action-icon"><i class="fas fa-users-gear" aria-hidden="true"></i></div>
-          <h3>Staff</h3>
-          <p>Team & assignments</p>
-          <span class="action-link">Team →</span>
-        </a>
         <a href="/workspaces/brandinn-print/shop-manager.html" class="action-card shop-card">
           <div class="action-icon"><i class="fas fa-store-alt" aria-hidden="true"></i></div>
           <h3>Shop Manager</h3>
@@ -637,12 +631,6 @@
           <p>Locations & coverage</p>
           <span class="action-link">Open →</span>
         </a>
-        <a href="/workspaces/brandinn-print/asset-handover.html" class="action-card asset-card">
-          <div class="action-icon"><i class="fas fa-envelope-open-text" aria-hidden="true"></i></div>
-          <h3>Asset Handover</h3>
-          <p>Client credentials</p>
-          <span class="action-link">Generate →</span>
-        </a>
       `;
 
       document.getElementById('quickLinks').innerHTML = `
@@ -652,10 +640,12 @@
         <a href="/workspaces/brandinn-print/new-order.html?type=sticker" class="quick-btn" aria-label="Sticker Order"><i class="fas fa-sticky-note" aria-hidden="true"></i> Sticker</a>
         <a href="/workspaces/brandinn-print/orders.html" class="quick-btn" aria-label="Orders"><i class="fas fa-clipboard-list" aria-hidden="true"></i> Orders (${orders.length})</a>
         <a href="/workspaces/brandinn-print/print-jobs.html" class="quick-btn print-quick" aria-label="Print Jobs"><i class="fas fa-play" aria-hidden="true"></i> Print Jobs (${printing})</a>
+        <a href="/workspaces/brandinn-print/projects.html" class="quick-btn" aria-label="Projects"><i class="fas fa-project-diagram" aria-hidden="true"></i> Projects (${projects.length})</a>
         <a href="/workspaces/brandinn-print/bookings.html" class="quick-btn" aria-label="Bookings"><i class="fas fa-calendar-check" aria-hidden="true"></i> Bookings (${bookings.length})</a>
         <a href="/workspaces/brandinn-print/map.html" class="quick-btn map-quick" aria-label="Map"><i class="fas fa-map-pin" aria-hidden="true"></i> Map</a>
       `;
 
+      // Recent Orders
       const recentOrders = Object.entries(allOrders)
         .map(([id, o]) => ({ id, ...o }))
         .filter(o => o.customerName || o.customer)
@@ -678,6 +668,7 @@
         `;
       }).join('') : '<div class="empty-state">No orders yet</div>';
 
+      // Recent Projects
       const recentProjects = Object.entries(allProjects)
         .map(([id, p]) => ({ id, ...p }))
         .filter(p => p.projectName || p.name)
@@ -690,13 +681,14 @@
           <div class="recent-item" onclick="window.location.href='/workspaces/brandinn-print/projects.html'">
             <div style="min-width:0;">
               <strong>${escapeHtml(name)}</strong>
-              <br><span style="font-size:0.7rem;color:var(--gray-500);">${escapeHtml(p.businessName || p.client || 'Client')} · ${p.assignees?.length || 0} assigned</span>
+              <br><span style="font-size:0.7rem;color:var(--gray-500);">${escapeHtml(p.businessName || p.client || 'Client')}</span>
             </div>
             <span class="status-tag ${getStatusClass(status)}">${escapeHtml(status)}</span>
           </div>
         `;
       }).join('') : '<div class="empty-state">No active projects</div>';
 
+      // Recent Bookings
       const recentBookings = Object.entries(allBookings)
         .map(([id, b]) => ({ id, ...b }))
         .filter(b => b.clientName || b.customerName || b.name)
@@ -717,6 +709,7 @@
         `;
       }).join('') : '<div class="empty-state">No bookings yet</div>';
 
+      // Recent Customers
       const recentCustomers = Object.entries(allCustomers)
         .map(([id, c]) => ({ id, ...c }))
         .filter(c => c.name || c.customerName || c.businessName)
@@ -739,6 +732,7 @@
         `;
       }).join('') : '<div class="empty-state">No customers yet</div>';
 
+      // Service Requests
       const recentRequests = Object.entries(allServiceRequests)
         .map(([id, r]) => ({ id, ...r }))
         .filter(r => r.clientName || r.customerName || r.name)
@@ -758,6 +752,7 @@
         `;
       }).join('') : '<div class="empty-state">No service requests</div>';
 
+      // Inventory
       const lowStock = Object.entries(allInventory)
         .map(([id, i]) => ({ id, ...i }))
         .filter(i => i.name || i.item)
@@ -822,7 +817,6 @@
             ref(db, path),
             (snap) => onData(snap),
             (err) => {
-              // Silent console warning only — no banner. Expected until rules are added.
               if (!warnedPaths.has(path)) {
                 warnedPaths.add(path);
                 console.warn(`[BrandInn Prints] "${path}" not readable (rules pending?):`, err?.message || err);
