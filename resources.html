@@ -17,7 +17,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
+
         :root {
             --gold: #ca8a04;
             --gold-dark: #a16207;
@@ -25,7 +25,6 @@
             --gold-soft: #fef3c7;
             --gold-glow: rgba(202, 138, 4, 0.12);
             --gold-gradient: linear-gradient(135deg, #ca8a04 0%, #eab308 50%, #fbbf24 100%);
-            
             --success: #10b981;
             --warning: #f59e0b;
             --danger: #ef4444;
@@ -33,7 +32,6 @@
             --purple: #8b5cf6;
             --emerald: #059669;
             --pink: #ec4899;
-            
             --bg-primary: #ffffff;
             --bg-secondary: #faf9f7;
             --bg-card: #ffffff;
@@ -42,24 +40,19 @@
             --text-muted: #718096;
             --border-light: #e9ecef;
             --border-medium: #d1d5db;
-            
             --shadow-sm: 0 2px 4px rgba(0,0,0,0.02), 0 1px 2px rgba(0,0,0,0.03);
             --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
             --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -2px rgba(0,0,0,0.04);
             --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
             --shadow-gold: 0 8px 32px rgba(202,138,4,0.15);
-            
             --nav-bg: rgba(255,255,255,0.98);
             --card-bg: #ffffff;
             --input-bg: #ffffff;
-            
             --header-height: 80px;
-            
             --font-display: 'Clash Display', 'Cabinet Grotesk', sans-serif;
             --font-heading: 'Satoshi', 'General Sans', sans-serif;
             --font-body: 'General Sans', 'Outfit', sans-serif;
             --font-accent: 'Chillax', 'Cabinet Grotesk', sans-serif;
-            
             --guide-color: #3b82f6;
             --training-color: #8b5cf6;
             --tool-color: #10b981;
@@ -79,14 +72,12 @@
             0% { background-position: -200% 0; }
             100% { background-position: 200% 0; }
         }
-        
         .skeleton {
             background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
             background-size: 200% 100%;
             animation: shimmer 1.5s ease-in-out infinite;
             border-radius: 8px;
         }
-        
         .skeleton-card {
             background: var(--card-bg); border: 1px solid var(--border-light);
             border-radius: 18px; overflow: hidden; box-shadow: var(--shadow-sm);
@@ -168,9 +159,7 @@
             padding: 0 2.5rem;
         }
 
-        .page-header {
-            text-align: center; margin-bottom: 2rem;
-        }
+        .page-header { text-align: center; margin-bottom: 2rem; }
         .page-header h1 {
             font-size: 2.2rem; font-weight: 800; color: var(--text-primary);
             margin-bottom: 0.3rem; font-family: var(--font-display);
@@ -182,9 +171,7 @@
             margin: 0 auto;
         }
 
-        .search-container {
-            max-width: 600px; margin: 2rem auto; position: relative; z-index: 100;
-        }
+        .search-container { max-width: 600px; margin: 2rem auto; position: relative; z-index: 100; }
         .search-wrapper {
             display: flex; align-items: center;
             background: var(--bg-card); border: 1.5px solid var(--border-light);
@@ -340,6 +327,11 @@
             border: 1px dashed var(--border-medium); grid-column: 1 / -1;
         }
         .empty-section i { font-size: 3rem; color: var(--gold); margin-bottom: 1rem; opacity: 0.4; }
+        .empty-section h3 {
+            font-size: 1.1rem; font-weight: 700; color: var(--text-primary);
+            margin-bottom: 0.4rem; font-family: var(--font-heading);
+        }
+        .empty-section p { color: var(--text-muted); font-size: 0.9rem; }
 
         .toast-container { position: fixed; top:20px; right:20px; z-index:4000; }
         .toast {
@@ -405,7 +397,6 @@
             <p>Business guides, tools, and reference materials for your workspaces</p>
         </div>
 
-        <!-- Search Bar with Dropdown -->
         <div class="search-container">
             <div class="search-wrapper">
                 <i class="fas fa-search search-icon"></i>
@@ -421,7 +412,6 @@
             <div class="search-results-dropdown" id="searchDropdown"></div>
         </div>
 
-        <!-- Guides Section -->
         <section class="resources-section guides-section">
             <div class="section-header">
                 <div class="section-icon guides"><i class="fas fa-graduation-cap"></i></div>
@@ -436,7 +426,6 @@
             </div>
         </section>
 
-        <!-- Training Section -->
         <section class="resources-section training-section">
             <div class="section-header">
                 <div class="section-icon training"><i class="fas fa-video"></i></div>
@@ -451,7 +440,6 @@
             </div>
         </section>
 
-        <!-- Tools Section -->
         <section class="resources-section tools-section">
             <div class="section-header">
                 <div class="section-icon tools"><i class="fas fa-tools"></i></div>
@@ -466,7 +454,6 @@
             </div>
         </section>
 
-        <!-- References Section -->
         <section class="resources-section references-section">
             <div class="section-header">
                 <div class="section-icon references"><i class="fas fa-link"></i></div>
@@ -497,6 +484,8 @@
     auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 
     let currentUser = null;
+    let userPermissions = {};
+    let isAdmin = false;
     const resources = { guides: [], training: [], tools: [], references: [] };
     const allResources = [];
 
@@ -521,6 +510,24 @@
         if (link) window.open(link, '_blank');
     }
 
+    // ========== PERMISSION HELPERS ==========
+    function userHasWorkspaceAccess(workspaceId) {
+        if (isAdmin || userPermissions.isAdmin === true) return true;
+        if (!workspaceId) return true; // no workspace → public/global
+        if (workspaceId === 'global') return true;
+        return userPermissions[workspaceId] === true;
+    }
+
+    function filterResourcesByPermission(items) {
+        return items.filter(item => {
+            // No workspace tag → public resource, show to everyone
+            if (!item.workspace) return true;
+            // Tagged workspace must be one the user has access to
+            return userHasWorkspaceAccess(item.workspace);
+        });
+    }
+
+    // ========== SEARCH ==========
     function handleSearchInput() {
         const query = document.getElementById('searchInput').value.trim().toLowerCase();
         const dropdown = document.getElementById('searchDropdown');
@@ -601,11 +608,29 @@
         
         if (!items || items.length === 0) {
             const iconMap = { guidesContainer: 'book', trainingContainer: 'video', toolsContainer: 'tools', referencesContainer: 'link' };
-            container.innerHTML = `<div class="empty-section"><i class="fas fa-${iconMap[containerId]}"></i><h3>No items yet</h3><p>Resources will appear here once added</p></div>`;
+            const sectionName = { guidesContainer: 'guides', trainingContainer: 'training', toolsContainer: 'tools', referencesContainer: 'references' }[containerId];
+            // Show a friendlier message when empty because of permissions
+            const hasAnyGlobal = allResources.some(r => r.type === sectionName);
+            container.innerHTML = `<div class="empty-section"><i class="fas fa-${iconMap[containerId]}"></i><h3>No items available</h3><p>${hasAnyGlobal ? 'You don\'t have access to any resources in this section yet.' : 'Resources will appear here once added'}</p></div>`;
             return;
         }
 
         container.innerHTML = items.map(item => createCardHtml(item, placeholderIcon)).join('');
+    }
+
+    // ========== LOAD ==========
+    async function loadUserPermissions(user) {
+        try {
+            const adminSnap = await database.ref(`admins/${user.uid}`).once('value');
+            isAdmin = adminSnap.val() === true;
+
+            const permSnap = await database.ref(`workspacePermissions/${user.uid}`).once('value');
+            userPermissions = permSnap.exists() ? permSnap.val() : {};
+            if (isAdmin) userPermissions.isAdmin = true;
+        } catch (e) {
+            console.warn('Failed to load permissions:', e);
+            userPermissions = {};
+        }
     }
 
     async function loadResources() {
@@ -620,9 +645,14 @@
             for (let p of paths) {
                 const snapshot = await database.ref(p.ref).once('value');
                 const data = snapshot.val() || {};
-                resources[p.key] = Object.entries(data).map(([id, item]) => ({ id, ...item, type: p.type }))
+                const items = Object.entries(data)
+                    .map(([id, item]) => ({ id, ...item, type: p.type }))
                     .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-                allResources.push(...resources[p.key]);
+                
+                // ✅ FILTER by workspace permission
+                const permitted = filterResourcesByPermission(items);
+                resources[p.key] = permitted;
+                allResources.push(...permitted);
             }
 
             renderSection('guidesContainer', resources.guides, 'book');
@@ -630,13 +660,21 @@
             renderSection('toolsContainer', resources.tools, 'tools');
             renderSection('referencesContainer', resources.references, 'link');
         } catch (error) {
+            console.error('loadResources error:', error);
             showToast('Failed to load resources', 'error');
         }
     }
 
     window.refreshData = async function() {
         allResources.length = 0;
-        await loadResources();
+        resources.guides = [];
+        resources.training = [];
+        resources.tools = [];
+        resources.references = [];
+        if (currentUser) {
+            await loadUserPermissions(currentUser);
+            await loadResources();
+        }
         document.getElementById('searchInput').value = '';
         document.getElementById('searchClear').style.display = 'none';
         document.getElementById('searchDropdown').classList.remove('active');
@@ -658,6 +696,9 @@
             const name = userData.name || user.displayName || user.email?.split('@')[0] || 'User';
             document.getElementById('userDisplayName').textContent = name;
             document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
+            
+            // ✅ Load permissions BEFORE loading resources
+            await loadUserPermissions(user);
             await loadResources();
         } else {
             window.location.href = 'index.html';
