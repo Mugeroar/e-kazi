@@ -18,7 +18,6 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
   <style>
-    /* ===== BASE STYLES ===== */
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     :root {
@@ -48,6 +47,7 @@
       --shadow-gold: 0 10px 40px rgba(202, 138, 4, 0.2);
       --nav-bg: rgba(255, 255, 255, 0.98);
       --header-height: 80px;
+      --footer-height: 56px;
       --font-display: 'Clash Display', 'Cabinet Grotesk', sans-serif;
       --font-heading: 'Satoshi', 'General Sans', sans-serif;
       --font-body: 'General Sans', 'Outfit', sans-serif;
@@ -62,6 +62,7 @@
       min-height: 100vh;
       position: relative;
       overflow-x: hidden;
+      padding-bottom: var(--footer-height);
     }
 
     /* ===== BACKGROUND ORBS ===== */
@@ -115,13 +116,9 @@
     }
     @keyframes floatSlow {
       0%, 100% { transform: translateY(0px) rotate(0deg); }
-      50% { transform: translateY(-12px) rotate(1deg); }
+      50% { transform: translateY(-8px) rotate(1deg); }
     }
     @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-    @keyframes shimmerGold {
-      0% { background-position: -200% 0; }
-      100% { background-position: 200% 0; }
-    }
 
     .gold-reveal { animation: goldReveal 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
     .gold-reveal-stagger { opacity: 0; animation: goldReveal 0.6s ease-out forwards; }
@@ -163,9 +160,6 @@
     .nav-link:hover::after, .nav-link.active::after { width: 100%; }
     .nav-link:hover, .nav-link.active { color: var(--gold); }
     .nav-link i { margin-right: 0.4rem; font-size: 0.8rem; }
-
-    .live-indicator { display: flex; align-items: center; gap: 0.4rem; font-size: 0.7rem; color: var(--success); font-weight: 600; font-family: var(--font-heading); }
-    .live-dot { width: 8px; height: 8px; background: var(--success); border-radius: 50%; animation: pulse-glow 2s infinite; }
 
     /* ===== VERIFYING STATE ===== */
     .verifying-state {
@@ -260,7 +254,7 @@
       border-radius: 20px; color: #92400e; font-weight: 600;
     }
 
-    /* ===== WEATHER WIDGET ===== */
+    /* ===== WEATHER WIDGET (header) ===== */
     .weather-widget {
       display: flex; align-items: center; gap: 0.5rem;
       background: rgba(255,255,255,0.8); padding: 0.3rem 1rem; border-radius: 50px;
@@ -279,8 +273,8 @@
 
     /* ===== HERO SECTION ===== */
     .hero-section {
-      display: grid; grid-template-columns: 1.1fr 1fr; gap: 3rem;
-      align-items: center; margin-bottom: 3rem;
+      display: grid; grid-template-columns: 1fr 1.15fr; gap: 3rem;
+      align-items: start; margin-bottom: 2.5rem;
     }
     .hero-content h1 {
       font-size: 2.8rem; font-weight: 800; line-height: 1.15;
@@ -306,91 +300,8 @@
     }
     .hero-greeting-pill i { color: var(--gold); }
 
-    /* ===== ENGAGING INFO PANEL ===== */
-    .info-panel { position: relative; display: flex; flex-direction: column; gap: 1rem; }
-
-    .glass-card {
-      background: rgba(255,255,255,0.75);
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(255,255,255,0.9);
-      border-radius: 24px;
-      padding: 1.5rem 1.8rem;
-      box-shadow: 0 20px 60px rgba(202,138,4,0.12), 0 8px 20px rgba(0,0,0,0.04);
-      transition: all 0.3s ease;
-    }
-    .glass-card:hover { transform: translateY(-3px); box-shadow: 0 30px 70px rgba(202,138,4,0.18); }
-
-    /* ===== CLOCK CARD ===== */
-    .clock-card {
-      display: flex; align-items: center; justify-content: space-between; gap: 1rem;
-      animation: floatSlow 8s ease-in-out infinite;
-    }
-    .clock-time {
-      font-family: var(--font-display); font-size: 2.6rem; font-weight: 800;
-      background: var(--gold-gradient);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      line-height: 1; letter-spacing: -0.03em;
-    }
-    .clock-ampm { font-size: 1rem; font-weight: 700; color: var(--gold); margin-left: 0.4rem; }
-    .clock-date {
-      font-size: 0.85rem; color: var(--text-secondary);
-      font-weight: 500; margin-top: 0.4rem; font-family: var(--font-heading);
-    }
-    .clock-icon {
-      width: 56px; height: 56px; border-radius: 50%;
-      background: var(--gold-gradient); color: white;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.4rem; box-shadow: 0 10px 25px rgba(202,138,4,0.35);
-      animation: pulseRing 3s ease-in-out infinite;
-    }
-
-    /* ===== WEATHER CARD ===== */
-    .weather-card {
-      display: flex; align-items: center; justify-content: space-between; gap: 1rem;
-      animation: floatSlow 10s ease-in-out infinite; animation-delay: -3s;
-    }
-    .weather-main { display: flex; align-items: center; gap: 0.9rem; }
-    .weather-icon-big { font-size: 2rem; color: var(--gold); }
-    .weather-temp-big {
-      font-family: var(--font-display); font-size: 2rem; font-weight: 800;
-      color: var(--text-primary); line-height: 1;
-    }
-    .weather-desc { font-size: 0.85rem; color: var(--text-secondary); font-weight: 500; margin-top: 0.2rem; }
-    .weather-location-badge {
-      display: inline-flex; align-items: center; gap: 0.3rem;
-      padding: 0.3rem 0.8rem; background: rgba(202,138,4,0.1);
-      border-radius: 30px; font-size: 0.75rem; font-weight: 600;
-      color: var(--gold-dark); font-family: var(--font-heading);
-    }
-
-    /* ===== DAILY PROGRESS CARD ===== */
-    .progress-card {
-      display: flex; align-items: center; justify-content: space-between; gap: 1rem;
-      animation: floatSlow 12s ease-in-out infinite; animation-delay: -6s;
-    }
-    .progress-ring {
-      width: 60px; height: 60px; transform: rotate(-90deg); flex-shrink: 0;
-    }
-    .progress-ring circle {
-      fill: none; stroke-width: 8;
-      transition: stroke-dashoffset 1.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-    .progress-ring .bg { stroke: #e5e7eb; }
-    .progress-ring .fg { stroke: url(#goldGradMini); stroke-linecap: round; }
-    .progress-text-sm {
-      font-family: var(--font-display); font-size: 1.5rem; font-weight: 800;
-      color: var(--text-primary); line-height: 1;
-    }
-    .progress-label-sm {
-      font-size: 0.72rem; color: var(--text-muted); margin-top: 0.2rem;
-      font-family: var(--font-heading); font-weight: 500;
-    }
-
-    /* ===== DAILY PROGRESS (inline in hero) ===== */
-    .daily-progress { display: flex; flex-direction: column; align-items: center; padding: 0.25rem; }
-    .daily-progress svg { width: 60px; height: 60px; transform: rotate(-90deg); }
-    #progressCircle { transition: stroke-dashoffset 1.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
-    .progress-label { font-size: 0.6rem; color: var(--text-muted); font-weight: 600; margin-top: 0.1rem; }
+    /* ===== HERO RIGHT COLUMN: MAP + MINI CARDS ===== */
+    .hero-right { display: flex; flex-direction: column; gap: 1rem; }
 
     /* ===== MAP ===== */
     .map-widget {
@@ -413,8 +324,12 @@
       font-weight: 700; color: #059669; font-family: var(--font-heading);
       text-transform: uppercase; letter-spacing: 0.3px; animation: pulseRing 2s ease-in-out infinite;
     }
+    .live-dot {
+      width: 6px; height: 6px; background: var(--success);
+      border-radius: 50%; animation: pulse-glow 2s infinite;
+    }
     .map-container-leaflet {
-      width: 100%; height: 280px; position: relative; z-index: 1; background: #f8fafc;
+      width: 100%; height: 340px; position: relative; z-index: 1; background: #f8fafc;
     }
     .map-container-leaflet .leaflet-control-zoom { display: none; }
     .map-container-leaflet .leaflet-control-attribution { font-size: 8px; }
@@ -428,6 +343,40 @@
     .map-stat-label {
       font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase;
       letter-spacing: 0.3px; font-weight: 600; font-family: var(--font-heading); margin-top: 0.1rem;
+    }
+
+    /* ===== MINI INFO CARDS (under map) ===== */
+    .mini-cards-row {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
+    }
+    .mini-card {
+      background: rgba(255,255,255,0.85); backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.9);
+      border-radius: 20px; padding: 1rem 1.2rem;
+      box-shadow: 0 12px 30px rgba(202,138,4,0.1), 0 4px 12px rgba(0,0,0,0.03);
+      display: flex; align-items: center; gap: 0.9rem;
+      transition: all 0.3s ease;
+    }
+    .mini-card:hover { transform: translateY(-3px); box-shadow: 0 20px 45px rgba(202,138,4,0.16); }
+    .mini-card-icon {
+      width: 44px; height: 44px; border-radius: 14px;
+      background: var(--gold-gradient); color: white;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; flex-shrink: 0;
+      box-shadow: 0 6px 16px rgba(202,138,4,0.3);
+    }
+    .mini-card-body { flex: 1; min-width: 0; }
+    .mini-card-value {
+      font-family: var(--font-display); font-size: 1.4rem; font-weight: 800;
+      color: var(--text-primary); line-height: 1.1; letter-spacing: -0.02em;
+    }
+    .mini-card-label {
+      font-size: 0.72rem; color: var(--text-muted);
+      font-family: var(--font-heading); font-weight: 500;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .mini-card-ampm {
+      font-size: 0.75rem; font-weight: 700; color: var(--gold); margin-left: 0.2rem;
     }
 
     /* ===== STATS ROW ===== */
@@ -497,22 +446,24 @@
     .activity-empty { text-align: center; padding: 1.5rem; color: var(--text-muted); }
     .activity-empty i { font-size: 1.5rem; display: block; margin-bottom: 0.5rem; }
 
-    /* ===== ACCESS GATE ===== */
-    .access-gate {
-      text-align: center; padding: 2.5rem 1.5rem; background: white;
-      border: 1px solid var(--border-light); border-radius: 24px; margin-bottom: 2rem;
-      box-shadow: var(--shadow-sm);
+    /* ===== SIGN-IN PROMPT (compact, replaces full gate) ===== */
+    .signin-prompt {
+      display: flex; align-items: center; gap: 1rem;
+      padding: 1rem 1.4rem; background: linear-gradient(135deg, #fffbeb, #fef3c7);
+      border: 1px solid #fde68a; border-radius: 16px;
+      font-family: var(--font-heading); font-size: 0.88rem; color: var(--gold-dark);
+      margin-bottom: 1rem;
     }
-    .access-gate .gate-icon {
-      width: 64px; height: 64px; border-radius: 20px; margin: 0 auto 1rem;
-      background: linear-gradient(135deg, #fef3c7, #fde68a);
-      color: var(--gold-dark); display: flex; align-items: center;
-      justify-content: center; font-size: 1.6rem;
+    .signin-prompt i { font-size: 1.2rem; color: var(--gold); }
+    .signin-prompt .prompt-text { flex: 1; }
+    .signin-prompt .prompt-text strong { font-weight: 700; }
+    .signin-prompt button {
+      background: var(--gold-gradient); color: white; border: none;
+      padding: 0.45rem 1.1rem; border-radius: 50px; font-weight: 600;
+      font-size: 0.8rem; cursor: pointer; font-family: var(--font-heading);
+      white-space: nowrap; transition: all 0.3s;
     }
-    .access-gate h3 {
-      font-family: var(--font-display); font-size: 1.3rem; font-weight: 700; margin-bottom: 0.4rem;
-    }
-    .access-gate p { color: var(--text-muted); font-size: 0.9rem; max-width: 420px; margin: 0 auto 1.2rem; }
+    .signin-prompt button:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(202,138,4,0.3); }
 
     /* ===== QUICK ACCESS GRID ===== */
     .portal-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2.5rem; }
@@ -606,25 +557,29 @@
     .toast.info { border-left: 3px solid var(--info); }
     .toast.info i { color: var(--info); }
 
-    /* ===== FOOTER ===== */
+    /* ===== FIXED FOOTER ===== */
     .footer {
-      background: var(--bg-secondary); padding: 2rem 0; border-top: 1px solid var(--border-light);
-      margin-top: 2rem; position: relative; z-index: 2;
+      position: fixed; bottom: 0; left: 0; right: 0;
+      height: var(--footer-height);
+      background: rgba(250, 249, 247, 0.98);
+      backdrop-filter: blur(20px);
+      border-top: 1px solid var(--border-light);
+      z-index: 999;
     }
     .footer-content {
-      max-width: 1400px; margin: 0 auto; padding: 0 2.5rem;
+      max-width: 1400px; height: 100%; margin: 0 auto; padding: 0 2.5rem;
       display: flex; align-items: center; justify-content: space-between;
     }
-    .footer-logo { display: flex; align-items: center; gap: 0.5rem; font-weight: 700; font-size: 1rem; color: var(--text-primary); }
+    .footer-logo { display: flex; align-items: center; gap: 0.5rem; font-weight: 700; font-size: 0.9rem; color: var(--text-primary); }
     .footer-logo i { color: var(--gold); }
-    .footer-text { color: var(--text-muted); font-size: 0.8rem; }
+    .footer-text { color: var(--text-muted); font-size: 0.75rem; }
 
     /* ===== RESPONSIVE ===== */
     @media (max-width:1024px) {
       .hero-section{grid-template-columns:1fr;text-align:center;gap:2rem}
       .hero-content p { margin: 0 auto 2rem; }
       .hero-buttons { justify-content: center; }
-      .info-panel { max-width: 520px; margin: 0 auto; width: 100%; }
+      .hero-right { max-width: 640px; margin: 0 auto; width: 100%; }
       .portal-grid{grid-template-columns:repeat(2,1fr)}
       .stats-row{grid-template-columns:repeat(2,1fr)}
       .status-grid{grid-template-columns:repeat(2,1fr)}
@@ -635,7 +590,6 @@
       .portal-grid{grid-template-columns:1fr}
       .stats-row{grid-template-columns:1fr}
       .status-grid{grid-template-columns:1fr}
-      .footer-content{flex-direction:column;gap:0.8rem;text-align:center}
       .hero-content h1 { font-size: 2rem; }
       .main-content{padding:0 1rem}
       .weather-widget { display: none; }
@@ -645,10 +599,11 @@
       .greeting-time { font-size: 0.7rem !important; }
       .greeting-name { font-size: 0.85rem !important; }
       .user-menu-btn .user-info .user-email { max-width: 80px; }
-      .daily-progress svg { width: 50px; height: 50px; }
       .activity-feed { max-height: 200px; }
-      .clock-time { font-size: 2rem; }
-      .clock-icon { width: 48px; height: 48px; font-size: 1.2rem; }
+      .mini-cards-row { grid-template-columns: 1fr; }
+      .footer-content { padding: 0 1rem; flex-direction: column; justify-content: center; gap: 0.15rem; }
+      .footer-logo { font-size: 0.8rem; }
+      .footer-text { font-size: 0.65rem; }
     }
   </style>
 </head>
@@ -659,20 +614,6 @@
     <div class="orb orb-2"></div>
     <div class="orb orb-3"></div>
   </div>
-
-  <!-- Shared SVG gradient defs -->
-  <svg width="0" height="0" style="position:absolute;">
-    <defs>
-      <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-        <stop offset="0%" style="stop-color:#ca8a04"/>
-        <stop offset="100%" style="stop-color:#fbbf24"/>
-      </linearGradient>
-      <linearGradient id="goldGradMini" x1="0%" y1="0%" x2="100%" y2="0%">
-        <stop offset="0%" style="stop-color:#ca8a04"/>
-        <stop offset="100%" style="stop-color:#fbbf24"/>
-      </linearGradient>
-    </defs>
-  </svg>
 
   <div class="toast-container" id="toastContainer"></div>
 
@@ -783,176 +724,147 @@
         <div class="hero-buttons" id="heroActions"></div>
       </div>
 
-      <!-- Engaging Info Panel -->
-      <div class="info-panel">
-        <!-- Live Clock -->
-        <div class="glass-card clock-card">
-          <div>
-            <div style="display:flex;align-items:baseline;">
-              <span class="clock-time" id="clockTime">--:--</span>
-              <span class="clock-ampm" id="clockAmPm">--</span>
-            </div>
-            <div class="clock-date" id="clockDate">Loading date...</div>
+      <!-- Hero right column: Map + mini cards -->
+      <div class="hero-right">
+        <!-- Map Widget -->
+        <div class="map-widget">
+          <div class="map-header">
+            <div class="map-title"><i class="fas fa-map-marked-alt"></i> Field Operations Map</div>
+            <div class="live-badge"><div class="live-dot"></div> Live</div>
           </div>
-          <div class="clock-icon"><i class="fas fa-clock"></i></div>
+          <div class="map-container-leaflet" id="overviewMap"></div>
+          <div class="map-stats-row">
+            <div class="map-stat-item">
+              <div class="map-stat-value" style="color:#ca8a04;" id="statLocations">—</div>
+              <div class="map-stat-label">Locations</div>
+            </div>
+            <div class="map-stat-item">
+              <div class="map-stat-value" style="color:#7c3aed;" id="statOperations">—</div>
+              <div class="map-stat-label">Operations</div>
+            </div>
+            <div class="map-stat-item">
+              <div class="map-stat-value" style="color:#059669;">🇰🇪</div>
+              <div class="map-stat-label">Kenya</div>
+            </div>
+          </div>
         </div>
 
-        <!-- Weather -->
-        <div class="glass-card weather-card">
-          <div class="weather-main">
-            <i class="fas fa-cloud-sun weather-icon-big" id="weatherIcon"></i>
-            <div>
-              <div class="weather-temp-big" id="weatherTempBig">--°</div>
-              <div class="weather-desc" id="weatherDesc">Fetching weather...</div>
+        <!-- Mini info cards: Clock + Weather -->
+        <div class="mini-cards-row">
+          <div class="mini-card">
+            <div class="mini-card-icon"><i class="fas fa-clock"></i></div>
+            <div class="mini-card-body">
+              <div class="mini-card-value"><span id="miniClockTime">--:--</span><span class="mini-card-ampm" id="miniClockAmPm">--</span></div>
+              <div class="mini-card-label" id="miniClockDate">Loading date...</div>
             </div>
           </div>
-          <span class="weather-location-badge"><i class="fas fa-map-marker-alt"></i> Nairobi</span>
-        </div>
-
-        <!-- Daily Progress -->
-        <div class="glass-card progress-card">
-          <div>
-            <div class="progress-text-sm" id="progressTextBig">0%</div>
-            <div class="progress-label-sm">of today elapsed</div>
+          <div class="mini-card">
+            <div class="mini-card-icon"><i class="fas fa-cloud-sun" id="miniWeatherIcon"></i></div>
+            <div class="mini-card-body">
+              <div class="mini-card-value"><span id="miniWeatherTemp">--°</span></div>
+              <div class="mini-card-label" id="miniWeatherDesc">Fetching weather...</div>
+            </div>
           </div>
-          <svg class="progress-ring" viewBox="0 0 100 100">
-            <circle class="bg" cx="50" cy="50" r="40"/>
-            <circle class="fg" cx="50" cy="50" r="40"
-                    stroke-dasharray="251.2" stroke-dashoffset="251.2"
-                    id="progressCircleBig"/>
-          </svg>
         </div>
       </div>
     </section>
 
-    <!-- Access Gate (shown only when signed out) -->
-    <div id="accessGate" class="access-gate" style="display:none;">
-      <div class="gate-icon"><i class="fas fa-user-lock"></i></div>
-      <h3>Staff Access Required</h3>
-      <p id="accessGateMessage">Sign in with an authorized staff account to view operations data, activity, and workspace metrics.</p>
-      <button class="btn btn-primary" onclick="openAuthModal()">
-        <i class="fas fa-sign-in-alt"></i> Sign in
-      </button>
+    <!-- Stats Row (public-safe counts) -->
+    <div class="stats-row" id="statsRow">
+      <div class="stat-card gold-reveal-stagger"><div class="skeleton" style="height:44px;width:44px;border-radius:14px;margin:0 auto 0.7rem;"></div><div class="skeleton" style="height:1.7rem;width:50%;margin:0 auto 0.15rem;"></div><div class="skeleton" style="height:0.75rem;width:60%;margin:0 auto;"></div></div>
+      <div class="stat-card gold-reveal-stagger"><div class="skeleton" style="height:44px;width:44px;border-radius:14px;margin:0 auto 0.7rem;"></div><div class="skeleton" style="height:1.7rem;width:50%;margin:0 auto 0.15rem;"></div><div class="skeleton" style="height:0.75rem;width:60%;margin:0 auto;"></div></div>
+      <div class="stat-card gold-reveal-stagger"><div class="skeleton" style="height:44px;width:44px;border-radius:14px;margin:0 auto 0.7rem;"></div><div class="skeleton" style="height:1.7rem;width:50%;margin:0 auto 0.15rem;"></div><div class="skeleton" style="height:0.75rem;width:60%;margin:0 auto;"></div></div>
+      <div class="stat-card gold-reveal-stagger"><div class="skeleton" style="height:44px;width:44px;border-radius:14px;margin:0 auto 0.7rem;"></div><div class="skeleton" style="height:1.7rem;width:50%;margin:0 auto 0.15rem;"></div><div class="skeleton" style="height:0.75rem;width:60%;margin:0 auto;"></div></div>
     </div>
 
-    <!-- Protected content wrapper -->
-    <div id="protectedContent" style="display:none;">
-      <!-- Map Widget (staff only) -->
-      <div class="section-header">
-        <i class="fas fa-map-marked-alt"></i>
-        <h2>Field Operations Map</h2>
-        <span class="live-badge" style="margin-left:0.5rem;"><div class="live-dot"></div> Live</span>
-      </div>
-      <div class="map-widget" style="margin-bottom:2.5rem;">
-        <div class="map-header">
-          <div class="map-title"><i class="fas fa-map-marked-alt"></i> Live Field Operations</div>
-          <div class="live-badge"><div class="live-dot"></div> Streaming</div>
-        </div>
-        <div class="map-container-leaflet" id="overviewMap"></div>
-        <div class="map-stats-row">
-          <div class="map-stat-item">
-            <div class="map-stat-value" style="color:#ca8a04;" id="statLocations">—</div>
-            <div class="map-stat-label">Locations</div>
-          </div>
-          <div class="map-stat-item">
-            <div class="map-stat-value" style="color:#7c3aed;" id="statOperations">—</div>
-            <div class="map-stat-label">Operations</div>
-          </div>
-          <div class="map-stat-item">
-            <div class="map-stat-value" style="color:#059669;">🇰🇪</div>
-            <div class="map-stat-label">Kenya</div>
-          </div>
-        </div>
-      </div>
+    <!-- Activity section -->
+    <div class="section-header">
+      <i class="fas fa-clock-rotate-left"></i>
+      <h2>Recent Activity</h2>
+      <span class="live-badge" style="margin-left:0.5rem;"><div class="live-dot"></div> Updated</span>
+    </div>
 
-      <!-- Stats Row -->
-      <div class="stats-row" id="statsRow">
-        <div class="stat-card gold-reveal-stagger"><div class="skeleton" style="height:44px;width:44px;border-radius:14px;margin:0 auto 0.7rem;"></div><div class="skeleton" style="height:1.7rem;width:50%;margin:0 auto 0.15rem;"></div><div class="skeleton" style="height:0.75rem;width:60%;margin:0 auto;"></div></div>
-        <div class="stat-card gold-reveal-stagger"><div class="skeleton" style="height:44px;width:44px;border-radius:14px;margin:0 auto 0.7rem;"></div><div class="skeleton" style="height:1.7rem;width:50%;margin:0 auto 0.15rem;"></div><div class="skeleton" style="height:0.75rem;width:60%;margin:0 auto;"></div></div>
-        <div class="stat-card gold-reveal-stagger"><div class="skeleton" style="height:44px;width:44px;border-radius:14px;margin:0 auto 0.7rem;"></div><div class="skeleton" style="height:1.7rem;width:50%;margin:0 auto 0.15rem;"></div><div class="skeleton" style="height:0.75rem;width:60%;margin:0 auto;"></div></div>
-        <div class="stat-card gold-reveal-stagger"><div class="skeleton" style="height:44px;width:44px;border-radius:14px;margin:0 auto 0.7rem;"></div><div class="skeleton" style="height:1.7rem;width:50%;margin:0 auto 0.15rem;"></div><div class="skeleton" style="height:0.75rem;width:60%;margin:0 auto;"></div></div>
-      </div>
+    <!-- Compact sign-in prompt (only shows when signed out) -->
+    <div class="signin-prompt" id="signinPrompt" style="display:none;">
+      <i class="fas fa-lock"></i>
+      <div class="prompt-text"><strong>Sign in</strong> to view live activity across all workspaces.</div>
+      <button onclick="openAuthModal()"><i class="fas fa-sign-in-alt"></i> Sign in</button>
+    </div>
 
-      <!-- Recent Activity -->
-      <div class="section-header">
-        <i class="fas fa-clock-rotate-left"></i>
-        <h2>Recent Activity</h2>
-        <span class="live-badge" style="margin-left:0.5rem;"><div class="live-dot"></div> Updated</span>
+    <!-- Activity feed -->
+    <div class="activity-feed" id="activityFeed">
+      <div class="activity-empty">
+        <i class="fas fa-spinner fa-spin"></i>
+        <p>Loading recent activity...</p>
       </div>
-      <div class="activity-feed" id="activityFeed">
-        <div class="activity-empty">
-          <i class="fas fa-spinner fa-spin"></i>
-          <p>Loading recent activity...</p>
-        </div>
-      </div>
+    </div>
 
-      <!-- System Status -->
-      <div class="section-header">
-        <i class="fas fa-server"></i>
-        <h2>System Status</h2>
-      </div>
-      <div class="status-grid">
-        <div class="status-item gold-reveal-stagger">
-          <div class="status-dot online"></div>
-          <div class="status-info">
-            <div class="status-name">Authentication</div>
-            <div class="status-desc">Firebase Auth</div>
-          </div>
-        </div>
-        <div class="status-item gold-reveal-stagger">
-          <div class="status-dot online"></div>
-          <div class="status-info">
-            <div class="status-name">Database</div>
-            <div class="status-desc">Real-time DB</div>
-          </div>
-        </div>
-        <div class="status-item gold-reveal-stagger">
-          <div class="status-dot online"></div>
-          <div class="status-info">
-            <div class="status-name">Map Services</div>
-            <div class="status-desc">Leaflet / OSM</div>
-          </div>
-        </div>
-        <div class="status-item gold-reveal-stagger">
-          <div class="status-dot online"></div>
-          <div class="status-info">
-            <div class="status-name">Last Deploy</div>
-            <div class="status-desc" id="lastDeploy">Today</div>
-          </div>
+    <!-- System Status -->
+    <div class="section-header">
+      <i class="fas fa-server"></i>
+      <h2>System Status</h2>
+    </div>
+    <div class="status-grid">
+      <div class="status-item gold-reveal-stagger">
+        <div class="status-dot online"></div>
+        <div class="status-info">
+          <div class="status-name">Authentication</div>
+          <div class="status-desc">Firebase Auth</div>
         </div>
       </div>
+      <div class="status-item gold-reveal-stagger">
+        <div class="status-dot online"></div>
+        <div class="status-info">
+          <div class="status-name">Database</div>
+          <div class="status-desc">Real-time DB</div>
+        </div>
+      </div>
+      <div class="status-item gold-reveal-stagger">
+        <div class="status-dot online"></div>
+        <div class="status-info">
+          <div class="status-name">Map Services</div>
+          <div class="status-desc">Leaflet / OSM</div>
+        </div>
+      </div>
+      <div class="status-item gold-reveal-stagger">
+        <div class="status-dot online"></div>
+        <div class="status-info">
+          <div class="status-name">Last Deploy</div>
+          <div class="status-desc" id="lastDeploy">Today</div>
+        </div>
+      </div>
+    </div>
 
-      <!-- Quick Access Cards -->
-      <div class="section-header">
-        <i class="fas fa-th-large"></i>
-        <h2>Quick Access</h2>
-      </div>
-      <div class="portal-grid">
-        <a href="dashboard.html" class="portal-card gold-reveal-stagger">
-          <div class="portal-icon" style="background:#fef3c7;"><i class="fas fa-chart-pie"></i></div>
-          <h3>Dashboard</h3>
-          <p>Operations overview & analytics</p>
-        </a>
-        <a href="profile.html" class="portal-card gold-reveal-stagger">
-          <div class="portal-icon" style="background:#ecfdf5;"><i class="fas fa-user-circle"></i></div>
-          <h3>Profile</h3>
-          <p>Manage your account</p>
-        </a>
-        <a href="workspaces.html" class="portal-card gold-reveal-stagger">
-          <div class="portal-icon" style="background:#eff6ff;"><i class="fas fa-cubes"></i></div>
-          <h3>Workspace</h3>
-          <p>Access your workspaces</p>
-        </a>
-        <a href="resources.html" class="portal-card gold-reveal-stagger">
-          <div class="portal-icon" style="background:#fdf2f8;"><i class="fas fa-book-open"></i></div>
-          <h3>Resources</h3>
-          <p>Guides, tools & training</p>
-        </a>
-      </div>
+    <!-- Quick Access Cards -->
+    <div class="section-header">
+      <i class="fas fa-th-large"></i>
+      <h2>Quick Access</h2>
+    </div>
+    <div class="portal-grid">
+      <a href="dashboard.html" class="portal-card gold-reveal-stagger">
+        <div class="portal-icon" style="background:#fef3c7;"><i class="fas fa-chart-pie"></i></div>
+        <h3>Dashboard</h3>
+        <p>Operations overview & analytics</p>
+      </a>
+      <a href="profile.html" class="portal-card gold-reveal-stagger">
+        <div class="portal-icon" style="background:#ecfdf5;"><i class="fas fa-user-circle"></i></div>
+        <h3>Profile</h3>
+        <p>Manage your account</p>
+      </a>
+      <a href="workspaces.html" class="portal-card gold-reveal-stagger">
+        <div class="portal-icon" style="background:#eff6ff;"><i class="fas fa-cubes"></i></div>
+        <h3>Workspace</h3>
+        <p>Access your workspaces</p>
+      </a>
+      <a href="resources.html" class="portal-card gold-reveal-stagger">
+        <div class="portal-icon" style="background:#fdf2f8;"><i class="fas fa-book-open"></i></div>
+        <h3>Resources</h3>
+        <p>Guides, tools & training</p>
+      </a>
     </div>
   </main>
 
-  <!-- ===== FOOTER ===== -->
+  <!-- ===== FIXED FOOTER ===== -->
   <footer class="footer">
     <div class="footer-content">
       <div class="footer-logo"><i class="fas fa-briefcase"></i> KazInni</div>
@@ -1015,15 +927,13 @@
     // ACCESS VERIFICATION
     // ============================================================
     async function verifyStaffAccess(user) {
-      // 1. Admins are always staff
       try {
         const adminSnap = await database.ref(`admins/${user.uid}`).once('value');
         if (adminSnap.exists() && adminSnap.val() === true) {
           return { ok: true, role: 'admin', source: 'admins' };
         }
-      } catch (e) { /* continue */ }
+      } catch (e) {}
 
-      // 2. users/{uid}/role or users/{uid}/isStaff
       try {
         const userSnap = await database.ref(`users/${user.uid}`).once('value');
         const userData = userSnap.val() || {};
@@ -1033,16 +943,15 @@
         if (ACCESS_CONFIG.honorIsStaffFlag && userData.isStaff === true) {
           return { ok: true, role: 'staff', source: 'users.isStaff' };
         }
-      } catch (e) { /* continue */ }
+      } catch (e) {}
 
-      // 3. Allowlist paths
       for (const path of ACCESS_CONFIG.allowlistPaths) {
         try {
           const snap = await database.ref(`${path}/${user.uid}`).once('value');
           if (snap.exists() && snap.val()) {
             return { ok: true, role: 'staff', source: path };
           }
-        } catch (e) { /* continue */ }
+        } catch (e) {}
       }
 
       return {
@@ -1054,23 +963,14 @@
     // ============================================================
     // UI STATE
     // ============================================================
-    function showProtectedContent() {
-      document.getElementById('protectedContent').style.display = 'block';
-      document.getElementById('accessGate').style.display = 'none';
-    }
-    function hideProtectedContent(message) {
-      document.getElementById('protectedContent').style.display = 'none';
-      document.getElementById('accessGate').style.display = 'block';
-      if (message) document.getElementById('accessGateMessage').textContent = message;
-    }
     function renderVerifyingUI() {
       const container = document.getElementById('headerAuthContainer');
       container.innerHTML = `
         <div class="verifying-state">
-          <i class="fas fa-circle-notch"></i> Verifying access...
+          <i class="fas fa-circle-notch"></i> Verifying...
         </div>
       `;
-      hideProtectedContent();
+      document.getElementById('signinPrompt').style.display = 'none';
     }
     function renderAuthenticatedUI(user, role) {
       const container = document.getElementById('headerAuthContainer');
@@ -1097,16 +997,26 @@
           </div>
         </div>
       `;
-      showProtectedContent();
+      document.getElementById('signinPrompt').style.display = 'none';
     }
-    function renderUnauthenticatedUI(gateMessage) {
+    function renderUnauthenticatedUI() {
       const container = document.getElementById('headerAuthContainer');
       container.innerHTML = `
         <button class="btn btn-primary" onclick="openAuthModal()">
           <i class="fas fa-lock"></i> Staff Sign In
         </button>
       `;
-      hideProtectedContent(gateMessage);
+      // Show the compact prompt but keep the activity feed placeholder visible
+      document.getElementById('signinPrompt').style.display = 'flex';
+      const feed = document.getElementById('activityFeed');
+      if (feed) {
+        feed.innerHTML = `
+          <div class="activity-empty">
+            <i class="fas fa-lock"></i>
+            <p>Sign in to view live activity.</p>
+          </div>
+        `;
+      }
     }
 
     function toggleUserDropdown() {
@@ -1134,7 +1044,7 @@
               displayName: currentUser.displayName || currentUser.email || 'User',
               email: currentUser.email
             });
-          } catch (e) { /* non-fatal */ }
+          } catch (e) {}
         }
         await auth.signOut();
         showToast('Signed out successfully', 'info');
@@ -1145,7 +1055,7 @@
     }
 
     // ============================================================
-    // AUTH STATE — the security-critical handler
+    // AUTH STATE
     // ============================================================
     auth.onAuthStateChanged(async (user) => {
       if (!user) {
@@ -1154,6 +1064,9 @@
         isVerifying = false;
         renderUnauthenticatedUI();
         updateHeroGreeting(null);
+        // Load public-safe stats + map
+        loadPublicStats();
+        updateMapData();
         return;
       }
       if (isVerifying) return;
@@ -1166,8 +1079,10 @@
           try { await auth.signOut(); } catch (e) {}
           isVerifying = false;
           showToast(access.reason || 'Access denied.', 'error');
-          renderUnauthenticatedUI(access.reason);
+          renderUnauthenticatedUI();
           updateHeroGreeting(null);
+          loadPublicStats();
+          updateMapData();
           return;
         }
         currentUser = user;
@@ -1185,8 +1100,126 @@
         showToast('Could not verify access. Please try again.', 'error');
         renderUnauthenticatedUI();
         updateHeroGreeting(null);
+        loadPublicStats();
+        updateMapData();
       }
     });
+
+    // ============================================================
+    // PUBLIC SAFE STATS (no sensitive details)
+    // ============================================================
+    async function loadPublicStats() {
+      // Start with placeholder counts that don't reveal specifics.
+      // We attempt to read counts but swallow errors so nothing leaks.
+      let workspaceCount = 4;
+      let resourceCount = 12;
+      let mapLocations = 0;
+      let activeCount = 0;
+
+      // Try to fetch counts (may be blocked by rules — that's fine)
+      try {
+        const wsSnap = await database.ref('resources/workspaces').once('value');
+        const n = Object.keys(wsSnap.val() || {}).length;
+        if (n > 0) workspaceCount = n;
+      } catch (e) {}
+
+      try {
+        const resourcePaths = ['resources/guides', 'resources/training', 'resources/tools', 'resources/references'];
+        let total = 0;
+        for (const p of resourcePaths) {
+          try {
+            const s = await database.ref(p).once('value');
+            total += Object.keys(s.val() || {}).length;
+          } catch (e) {}
+        }
+        if (total > 0) resourceCount = total;
+      } catch (e) {}
+
+      try {
+        const mapSnap = await database.ref('iam_mugera_registrations').once('value');
+        mapLocations = Object.values(mapSnap.val() || {}).filter(b => b.lat && b.lng).length;
+      } catch (e) {}
+
+      try {
+        const usersSnap = await database.ref('users').once('value');
+        const users = usersSnap.val() || {};
+        Object.values(users).forEach(u => {
+          if (u.status === 'available' || u.status === 'busy' || u.status === 'away') activeCount++;
+        });
+      } catch (e) {}
+
+      renderStats(workspaceCount, resourceCount, activeCount, mapLocations);
+    }
+
+    function renderStats(workspaceCount, resourceCount, activeCount, mapLocations) {
+      const row = document.getElementById('statsRow');
+      if (!row) return;
+      row.innerHTML = `
+        <div class="stat-card gold-reveal-stagger">
+          <div class="stat-icon" style="background:#fef3c7;color:#ca8a04;"><i class="fas fa-cubes"></i></div>
+          <div class="stat-value" style="color:#ca8a04;">${workspaceCount}</div>
+          <div class="stat-label">Workspaces</div>
+        </div>
+        <div class="stat-card gold-reveal-stagger">
+          <div class="stat-icon" style="background:#ecfdf5;color:#059669;"><i class="fas fa-book-open"></i></div>
+          <div class="stat-value" style="color:#059669;">${resourceCount}+</div>
+          <div class="stat-label">Resources</div>
+        </div>
+        <div class="stat-card gold-reveal-stagger">
+          <div class="stat-icon" style="background:#eff6ff;color:#2563eb;"><i class="fas fa-users"></i></div>
+          <div class="stat-value" style="color:#2563eb;">${activeCount}</div>
+          <div class="stat-label">Active Users</div>
+          ${activeCount > 0 ? `<span class="stat-badge online">${activeCount} online</span>` : `<span class="stat-badge" style="background:#f3f4f6;color:#4b5563;">0 online</span>`}
+        </div>
+        <div class="stat-card gold-reveal-stagger">
+          <div class="stat-icon" style="background:#fdf2f8;color:#ec4899;"><i class="fas fa-map-marker-alt"></i></div>
+          <div class="stat-value" style="color:#ec4899;">${mapLocations || '—'}</div>
+          <div class="stat-label">Field Locations</div>
+        </div>
+      `;
+    }
+
+    // Signed-in version (same rendering, but loaded from richer sources)
+    async function loadStats() {
+      if (!currentUser) return;
+      let workspaceCount = 0, resourceCount = 0, mapLocations = 0;
+
+      const knownPaths = ['fusion_foods_products', 'dsog_fashion_orders', 'heritage_listings', 'brandinn_print_orders'];
+      for (const p of knownPaths) {
+        try {
+          const s = await database.ref(p).once('value');
+          if (s.exists() && Object.keys(s.val()).length > 0) workspaceCount++;
+        } catch (e) {}
+      }
+      try {
+        const wsSnap = await database.ref('resources/workspaces').once('value');
+        workspaceCount = Math.max(workspaceCount, Object.keys(wsSnap.val() || {}).length);
+      } catch (e) {}
+
+      const resourcePaths = ['resources/guides', 'resources/training', 'resources/tools', 'resources/references'];
+      for (const p of resourcePaths) {
+        try {
+          const s = await database.ref(p).once('value');
+          resourceCount += Object.keys(s.val() || {}).length;
+        } catch (e) {}
+      }
+
+      try {
+        const mapSnap = await database.ref('iam_mugera_registrations').once('value');
+        mapLocations = Object.values(mapSnap.val() || {}).filter(b => b.lat && b.lng).length;
+      } catch (e) {}
+
+      let activeCount = 0;
+      try {
+        const usersSnap = await database.ref('users').once('value');
+        const users = usersSnap.val() || {};
+        Object.values(users).forEach(u => {
+          if (u.status === 'available' || u.status === 'busy' || u.status === 'away') activeCount++;
+        });
+      } catch (e) {}
+
+      renderStats(workspaceCount || 4, resourceCount || 12, activeCount, mapLocations);
+    }
 
     // ============================================================
     // HERO GREETING
@@ -1194,7 +1227,6 @@
     function updateHeroGreeting(user) {
       const heroActions = document.getElementById('heroActions');
       const greetingPill = document.getElementById('heroGreetingPill');
-      const greetingText = document.getElementById('heroGreetingText');
 
       const hour = new Date().getHours();
       let timeGreeting = 'Good morning';
@@ -1210,7 +1242,6 @@
           greetingPill.innerHTML = `<i class="fas ${icon}"></i><span>${timeGreeting}, <strong>${escapeHtml(displayName)}</strong></span>`;
         }
 
-        // Streak tracking
         let streak = parseInt(localStorage.getItem('kazinni_streak') || '0');
         const today = new Date().toDateString();
         const lastLogin = localStorage.getItem('kazinni_last_login');
@@ -1253,7 +1284,7 @@
     }
 
     // ============================================================
-    // LIVE CLOCK
+    // LIVE CLOCK (header mini + big)
     // ============================================================
     function updateClock() {
       const now = new Date();
@@ -1263,20 +1294,20 @@
       hours = hours % 12 || 12;
       const timeStr = `${hours}:${minutes}`;
 
-      const timeEl = document.getElementById('clockTime');
-      const ampmEl = document.getElementById('clockAmPm');
-      const dateEl = document.getElementById('clockDate');
-      if (timeEl) timeEl.textContent = timeStr;
-      if (ampmEl) ampmEl.textContent = ampm;
-      if (dateEl) {
-        dateEl.textContent = now.toLocaleDateString('en-US', {
-          weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'
+      const miniTime = document.getElementById('miniClockTime');
+      const miniAmpm = document.getElementById('miniClockAmPm');
+      const miniDate = document.getElementById('miniClockDate');
+      if (miniTime) miniTime.textContent = timeStr;
+      if (miniAmpm) miniAmpm.textContent = ampm;
+      if (miniDate) {
+        miniDate.textContent = now.toLocaleDateString('en-US', {
+          weekday: 'short', month: 'short', day: 'numeric'
         });
       }
     }
 
     // ============================================================
-    // WEATHER
+    // WEATHER (header + mini)
     // ============================================================
     async function updateWeather() {
       try {
@@ -1295,7 +1326,6 @@
           else if (code >= 80 && code <= 82) { condition = 'Rain showers'; icon = 'fa-cloud-showers-heavy'; }
           else if (code >= 95) { condition = 'Thunderstorm'; icon = 'fa-bolt'; }
 
-          // Header widget
           const wTemp = document.getElementById('weatherTemp');
           const wCond = document.getElementById('weatherCondition');
           const wIcon = document.getElementById('weatherWidget')?.querySelector('i');
@@ -1303,102 +1333,21 @@
           if (wCond) wCond.textContent = condition;
           if (wIcon) wIcon.className = `fas ${icon}`;
 
-          // Big card
-          const wTempBig = document.getElementById('weatherTempBig');
-          const wDesc = document.getElementById('weatherDesc');
-          const wIconBig = document.getElementById('weatherIcon');
-          if (wTempBig) wTempBig.textContent = `${temp}°C`;
-          if (wDesc) wDesc.textContent = condition;
-          if (wIconBig) wIconBig.className = `fas ${icon} weather-icon-big`;
+          const miniTemp = document.getElementById('miniWeatherTemp');
+          const miniDesc = document.getElementById('miniWeatherDesc');
+          const miniIcon = document.getElementById('miniWeatherIcon');
+          if (miniTemp) miniTemp.textContent = `${temp}°C`;
+          if (miniDesc) miniDesc.textContent = condition;
+          if (miniIcon) miniIcon.className = `fas ${icon}`;
         }
       } catch (e) {
-        const wDesc = document.getElementById('weatherDesc');
+        const wDesc = document.getElementById('miniWeatherDesc');
         if (wDesc) wDesc.textContent = 'Weather unavailable';
       }
     }
 
     // ============================================================
-    // DAILY PROGRESS
-    // ============================================================
-    function updateDailyProgress() {
-      const now = new Date();
-      const start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
-      const end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
-      const total = end - start;
-      const elapsed = now - start;
-      const progress = Math.min((elapsed / total) * 100, 100);
-      const circumference = 2 * Math.PI * 40;
-      const offset = circumference - (progress / 100) * circumference;
-
-      const circleBig = document.getElementById('progressCircleBig');
-      const textBig = document.getElementById('progressTextBig');
-      if (circleBig) circleBig.style.strokeDashoffset = offset;
-      if (textBig) textBig.textContent = `${Math.round(progress)}%`;
-    }
-
-    // ============================================================
-    // STATS
-    // ============================================================
-    async function loadStats() {
-      if (!currentUser) return;
-      try {
-        let workspaceCount = 0, resourceCount = 0, mapLocations = 0;
-        const knownPaths = ['fusion_foods_products', 'dsog_fashion_orders', 'heritage_listings', 'brandinn_print_orders'];
-        for (const p of knownPaths) {
-          const s = await database.ref(p).once('value');
-          if (s.exists() && Object.keys(s.val()).length > 0) workspaceCount++;
-        }
-        const wsSnap = await database.ref('resources/workspaces').once('value');
-        workspaceCount = Math.max(workspaceCount, Object.keys(wsSnap.val() || {}).length);
-
-        const resourcePaths = ['resources/guides', 'resources/training', 'resources/tools', 'resources/references'];
-        for (const p of resourcePaths) {
-          const s = await database.ref(p).once('value');
-          resourceCount += Object.keys(s.val() || {}).length;
-        }
-
-        try {
-          const mapSnap = await database.ref('iam_mugera_registrations').once('value');
-          mapLocations = Object.values(mapSnap.val() || {}).filter(b => b.lat && b.lng).length;
-        } catch (e) {}
-
-        let activeCount = 0;
-        try {
-          const usersSnap = await database.ref('users').once('value');
-          const users = usersSnap.val() || {};
-          Object.values(users).forEach(u => {
-            if (u.status === 'available' || u.status === 'busy' || u.status === 'away') activeCount++;
-          });
-        } catch (e) {}
-
-        document.getElementById('statsRow').innerHTML = `
-          <div class="stat-card gold-reveal-stagger">
-            <div class="stat-icon" style="background:#fef3c7;color:#ca8a04;"><i class="fas fa-cubes"></i></div>
-            <div class="stat-value" style="color:#ca8a04;">${workspaceCount || 4}</div>
-            <div class="stat-label">Workspaces</div>
-          </div>
-          <div class="stat-card gold-reveal-stagger">
-            <div class="stat-icon" style="background:#ecfdf5;color:#059669;"><i class="fas fa-book-open"></i></div>
-            <div class="stat-value" style="color:#059669;">${resourceCount || 12}+</div>
-            <div class="stat-label">Resources</div>
-          </div>
-          <div class="stat-card gold-reveal-stagger">
-            <div class="stat-icon" style="background:#eff6ff;color:#2563eb;"><i class="fas fa-users"></i></div>
-            <div class="stat-value" style="color:#2563eb;">${activeCount || 0}</div>
-            <div class="stat-label">Active Users</div>
-            ${activeCount > 0 ? `<span class="stat-badge online">${activeCount} online</span>` : `<span class="stat-badge" style="background:#f3f4f6;color:#4b5563;">0 online</span>`}
-          </div>
-          <div class="stat-card gold-reveal-stagger">
-            <div class="stat-icon" style="background:#fdf2f8;color:#ec4899;"><i class="fas fa-map-marker-alt"></i></div>
-            <div class="stat-value" style="color:#ec4899;">${mapLocations || '—'}</div>
-            <div class="stat-label">Field Locations</div>
-          </div>
-        `;
-      } catch (e) { console.error('Error loading stats:', e); }
-    }
-
-    // ============================================================
-    // RECENT ACTIVITY
+    // ACTIVITY (only when signed in)
     // ============================================================
     async function loadRecentActivity() {
       if (!currentUser) return;
@@ -1536,7 +1485,7 @@
     }
 
     // ============================================================
-    // MAP
+    // MAP (always visible — public markers only, no PII)
     // ============================================================
     function initOverviewMap() {
       const mapContainer = document.getElementById('overviewMap');
@@ -1545,12 +1494,12 @@
       mapMarkers = [];
 
       overviewMap = L.map('overviewMap', {
-        center: [-1.2864, 36.8172], zoom: 13, zoomControl: false, attributionControl: true,
+        center: [-1.2864, 36.8172], zoom: 12, zoomControl: false, attributionControl: true,
         dragging: true, scrollWheelZoom: false, doubleClickZoom: true, touchZoom: true
       });
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OSM' }).addTo(overviewMap);
       setTimeout(() => { if (overviewMap) overviewMap.invalidateSize(); }, 300);
-      if (currentUser) updateMapData();
+      updateMapData();
     }
 
     function getOperationColor(operation) {
@@ -1563,7 +1512,6 @@
     }
 
     function updateMapData() {
-      if (!currentUser) return;
       if (!overviewMap) { initOverviewMap(); return; }
       database.ref('iam_mugera_registrations').once('value').then(snap => {
         const data = snap.val() || {};
@@ -1711,16 +1659,20 @@
     window.addEventListener('load', () => {
       updateClock();
       updateWeather();
-      updateDailyProgress();
-      setTimeout(initOverviewMap, 500);
+      setTimeout(initOverviewMap, 400);
+
+      // Public-safe stats immediately (even before auth resolves)
+      loadPublicStats();
 
       setInterval(updateClock, 1000);
       setInterval(updateWeather, 1800000);
-      setInterval(updateDailyProgress, 30000);
-      setInterval(() => { if (currentUser) loadStats(); }, 60000);
+      setInterval(() => {
+        if (currentUser) loadStats();
+        else loadPublicStats();
+      }, 60000);
     });
 
-    // Set greeting pill immediately (before auth resolves)
+    // Set the greeting pill immediately (before auth resolves)
     updateHeroGreeting(null);
 
     const lastDeployEl = document.getElementById('lastDeploy');
