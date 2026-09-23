@@ -60,6 +60,27 @@
       color: var(--text-primary);
       line-height: 1.6;
       min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* ===== BACKGROUND ORBS ===== */
+    .bg-orbs {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      pointer-events: none; overflow: hidden; z-index: 0;
+    }
+    .orb {
+      position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.35;
+      animation: orb 24s ease-in-out infinite;
+    }
+    .orb-1 { width: 500px; height: 500px; background: #fbbf24; top: -100px; left: -150px; }
+    .orb-2 { width: 400px; height: 400px; background: #f59e0b; top: 40%; right: -150px; animation-delay: -8s; }
+    .orb-3 { width: 350px; height: 350px; background: #ca8a04; bottom: -100px; left: 30%; animation-delay: -16s; opacity: 0.22; }
+
+    @keyframes orb {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(40px, -40px) scale(1.05); }
+      66% { transform: translate(-30px, 30px) scale(0.95); }
     }
 
     /* ===== ANIMATIONS ===== */
@@ -88,18 +109,19 @@
       0% { box-shadow: 0 0 0 0 rgba(202, 138, 4, 0.3); }
       100% { box-shadow: 0 0 0 15px rgba(202, 138, 4, 0); }
     }
-    @keyframes goldMorph {
-      0%, 100% { background: radial-gradient(circle at 0% 0%, #fffbeb 0%, #ffffff 50%, #faf9f7 100%); }
-      33% { background: radial-gradient(circle at 100% 0%, #fef3c7 0%, #ffffff 50%, #faf9f7 100%); }
-      66% { background: radial-gradient(circle at 100% 100%, #fffbeb 0%, #ffffff 50%, #faf9f7 100%); }
-    }
     @keyframes cardFloat {
       0%, 100% { transform: translateY(0px); }
       50% { transform: translateY(-4px); }
     }
+    @keyframes floatSlow {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-12px) rotate(1deg); }
+    }
     @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-
-    body { animation: goldMorph 24s ease-in-out infinite; background-attachment: fixed; }
+    @keyframes shimmerGold {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
 
     .gold-reveal { animation: goldReveal 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
     .gold-reveal-stagger { opacity: 0; animation: goldReveal 0.6s ease-out forwards; }
@@ -251,20 +273,120 @@
 
     /* ===== MAIN CONTENT ===== */
     .main-content {
-      max-width: 1400px; margin: calc(var(--header-height) + 2rem) auto 2rem; padding: 0 2.5rem;
+      max-width: 1400px; margin: calc(var(--header-height) + 2rem) auto 2rem;
+      padding: 0 2.5rem; position: relative; z-index: 2;
     }
 
     /* ===== HERO SECTION ===== */
-    .hero-section { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: start; margin-bottom: 2.5rem; }
-    .hero-content h1 {
-      font-size: 2.8rem; font-weight: 800; line-height: 1.15; margin-bottom: 1rem;
-      letter-spacing: -0.03em; font-family: var(--font-display); color: var(--text-primary);
+    .hero-section {
+      display: grid; grid-template-columns: 1.1fr 1fr; gap: 3rem;
+      align-items: center; margin-bottom: 3rem;
     }
-    .gold-text { background: var(--gold-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .hero-content p { font-size: 1.1rem; color: var(--text-secondary); margin-bottom: 2rem; max-width: 500px; line-height: 1.7; }
+    .hero-content h1 {
+      font-size: 2.8rem; font-weight: 800; line-height: 1.15;
+      margin-bottom: 1rem; letter-spacing: -0.03em;
+      font-family: var(--font-display); color: var(--text-primary);
+    }
+    .gold-text {
+      background: var(--gold-gradient);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .hero-content p {
+      font-size: 1.1rem; color: var(--text-secondary);
+      margin-bottom: 2rem; max-width: 500px; line-height: 1.7;
+    }
     .hero-buttons { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
 
-    /* ===== DAILY PROGRESS ===== */
+    .hero-greeting-pill {
+      display: inline-flex; align-items: center; gap: 0.6rem;
+      padding: 0.5rem 1.1rem; background: rgba(255,255,255,0.75);
+      backdrop-filter: blur(10px); border: 1px solid rgba(202,138,4,0.2);
+      border-radius: 50px; font-size: 0.85rem; font-weight: 600;
+      color: var(--gold-dark); margin-bottom: 1.2rem; font-family: var(--font-heading);
+    }
+    .hero-greeting-pill i { color: var(--gold); }
+
+    /* ===== ENGAGING INFO PANEL ===== */
+    .info-panel { position: relative; display: flex; flex-direction: column; gap: 1rem; }
+
+    .glass-card {
+      background: rgba(255,255,255,0.75);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.9);
+      border-radius: 24px;
+      padding: 1.5rem 1.8rem;
+      box-shadow: 0 20px 60px rgba(202,138,4,0.12), 0 8px 20px rgba(0,0,0,0.04);
+      transition: all 0.3s ease;
+    }
+    .glass-card:hover { transform: translateY(-3px); box-shadow: 0 30px 70px rgba(202,138,4,0.18); }
+
+    /* ===== CLOCK CARD ===== */
+    .clock-card {
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+      animation: floatSlow 8s ease-in-out infinite;
+    }
+    .clock-time {
+      font-family: var(--font-display); font-size: 2.6rem; font-weight: 800;
+      background: var(--gold-gradient);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      line-height: 1; letter-spacing: -0.03em;
+    }
+    .clock-ampm { font-size: 1rem; font-weight: 700; color: var(--gold); margin-left: 0.4rem; }
+    .clock-date {
+      font-size: 0.85rem; color: var(--text-secondary);
+      font-weight: 500; margin-top: 0.4rem; font-family: var(--font-heading);
+    }
+    .clock-icon {
+      width: 56px; height: 56px; border-radius: 50%;
+      background: var(--gold-gradient); color: white;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem; box-shadow: 0 10px 25px rgba(202,138,4,0.35);
+      animation: pulseRing 3s ease-in-out infinite;
+    }
+
+    /* ===== WEATHER CARD ===== */
+    .weather-card {
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+      animation: floatSlow 10s ease-in-out infinite; animation-delay: -3s;
+    }
+    .weather-main { display: flex; align-items: center; gap: 0.9rem; }
+    .weather-icon-big { font-size: 2rem; color: var(--gold); }
+    .weather-temp-big {
+      font-family: var(--font-display); font-size: 2rem; font-weight: 800;
+      color: var(--text-primary); line-height: 1;
+    }
+    .weather-desc { font-size: 0.85rem; color: var(--text-secondary); font-weight: 500; margin-top: 0.2rem; }
+    .weather-location-badge {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      padding: 0.3rem 0.8rem; background: rgba(202,138,4,0.1);
+      border-radius: 30px; font-size: 0.75rem; font-weight: 600;
+      color: var(--gold-dark); font-family: var(--font-heading);
+    }
+
+    /* ===== DAILY PROGRESS CARD ===== */
+    .progress-card {
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+      animation: floatSlow 12s ease-in-out infinite; animation-delay: -6s;
+    }
+    .progress-ring {
+      width: 60px; height: 60px; transform: rotate(-90deg); flex-shrink: 0;
+    }
+    .progress-ring circle {
+      fill: none; stroke-width: 8;
+      transition: stroke-dashoffset 1.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .progress-ring .bg { stroke: #e5e7eb; }
+    .progress-ring .fg { stroke: url(#goldGradMini); stroke-linecap: round; }
+    .progress-text-sm {
+      font-family: var(--font-display); font-size: 1.5rem; font-weight: 800;
+      color: var(--text-primary); line-height: 1;
+    }
+    .progress-label-sm {
+      font-size: 0.72rem; color: var(--text-muted); margin-top: 0.2rem;
+      font-family: var(--font-heading); font-weight: 500;
+    }
+
+    /* ===== DAILY PROGRESS (inline in hero) ===== */
     .daily-progress { display: flex; flex-direction: column; align-items: center; padding: 0.25rem; }
     .daily-progress svg { width: 60px; height: 60px; transform: rotate(-90deg); }
     #progressCircle { transition: stroke-dashoffset 1.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
@@ -375,7 +497,7 @@
     .activity-empty { text-align: center; padding: 1.5rem; color: var(--text-muted); }
     .activity-empty i { font-size: 1.5rem; display: block; margin-bottom: 0.5rem; }
 
-    /* ===== ACCESS DENIED BANNER ===== */
+    /* ===== ACCESS GATE ===== */
     .access-gate {
       text-align: center; padding: 2.5rem 1.5rem; background: white;
       border: 1px solid var(--border-light); border-radius: 24px; margin-bottom: 2rem;
@@ -438,8 +560,9 @@
       position: fixed; top:50%;left:50%; transform: translate(-50%,-50%);
       background: white; border-radius: 28px; padding: 2.2rem; max-width: 460px; width: 90%;
       z-index: 2001; box-shadow: 0 30px 60px rgba(0,0,0,0.25); display: none;
+      max-height: 90vh; overflow-y: auto;
     }
-    .modal.active { display: block; }
+    .modal.active { display: block; animation: fadeInUp 0.3s ease; }
     .modal-close {
       position: absolute; top:1rem; right:1.3rem; background: none; border: none;
       font-size: 1.4rem; cursor: pointer; color: var(--text-muted); transition: color 0.2s;
@@ -469,23 +592,6 @@
     .modal-link:hover { color: var(--gold-dark); text-decoration: underline; }
     .modal-info-text { text-align: center; font-size: 0.75rem; color: var(--text-muted); margin-top: 0.8rem; }
 
-    /* ===== GOOGLE SIGN-IN ===== */
-    .auth-divider {
-      display: flex; align-items: center; gap: 1rem; margin: 1.2rem 0;
-      color: var(--text-muted); font-size: 0.75rem; font-weight: 500;
-      font-family: var(--font-heading); text-transform: uppercase; letter-spacing: 0.5px;
-    }
-    .auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 1px; background: var(--border-light); }
-    .google-btn {
-      width: 100%; padding: 0.75rem; background: #ffffff; color: #3c4043;
-      border: 1.5px solid var(--border-medium); border-radius: 40px; font-weight: 600;
-      font-size: 0.9rem; font-family: var(--font-heading); cursor: pointer;
-      transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 0.6rem;
-    }
-    .google-btn:hover { background: #f8f9fa; border-color: #dadce0; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transform: translateY(-2px); }
-    .google-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
-    .google-btn img { width: 18px; height: 18px; }
-
     /* ===== TOASTS ===== */
     .toast-container { position: fixed; top:20px; right:20px; z-index:4000; }
     .toast {
@@ -501,7 +607,10 @@
     .toast.info i { color: var(--info); }
 
     /* ===== FOOTER ===== */
-    .footer { background: var(--bg-secondary); padding: 2rem 0; border-top: 1px solid var(--border-light); margin-top: 2rem; }
+    .footer {
+      background: var(--bg-secondary); padding: 2rem 0; border-top: 1px solid var(--border-light);
+      margin-top: 2rem; position: relative; z-index: 2;
+    }
     .footer-content {
       max-width: 1400px; margin: 0 auto; padding: 0 2.5rem;
       display: flex; align-items: center; justify-content: space-between;
@@ -512,10 +621,10 @@
 
     /* ===== RESPONSIVE ===== */
     @media (max-width:1024px) {
-      .hero-section{grid-template-columns:1fr;text-align:center}
+      .hero-section{grid-template-columns:1fr;text-align:center;gap:2rem}
       .hero-content p { margin: 0 auto 2rem; }
       .hero-buttons { justify-content: center; }
-      .map-widget { max-width: 500px; margin: 0 auto; }
+      .info-panel { max-width: 520px; margin: 0 auto; width: 100%; }
       .portal-grid{grid-template-columns:repeat(2,1fr)}
       .stats-row{grid-template-columns:repeat(2,1fr)}
       .status-grid{grid-template-columns:repeat(2,1fr)}
@@ -538,10 +647,33 @@
       .user-menu-btn .user-info .user-email { max-width: 80px; }
       .daily-progress svg { width: 50px; height: 50px; }
       .activity-feed { max-height: 200px; }
+      .clock-time { font-size: 2rem; }
+      .clock-icon { width: 48px; height: 48px; font-size: 1.2rem; }
     }
   </style>
 </head>
 <body>
+  <!-- Background orbs -->
+  <div class="bg-orbs">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <!-- Shared SVG gradient defs -->
+  <svg width="0" height="0" style="position:absolute;">
+    <defs>
+      <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" style="stop-color:#ca8a04"/>
+        <stop offset="100%" style="stop-color:#fbbf24"/>
+      </linearGradient>
+      <linearGradient id="goldGradMini" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" style="stop-color:#ca8a04"/>
+        <stop offset="100%" style="stop-color:#fbbf24"/>
+      </linearGradient>
+    </defs>
+  </svg>
+
   <div class="toast-container" id="toastContainer"></div>
 
   <!-- ===== AUTH MODAL ===== -->
@@ -551,8 +683,10 @@
 
     <div id="loginView">
       <div style="text-align:center;margin-bottom:1.2rem">
-        <i class="fas fa-building" style="font-size:2.2rem;color:var(--gold)"></i>
-        <h3 style="font-weight:700;margin-top:0.4rem;font-family:var(--font-display);font-size:1.3rem;">Staff Access</h3>
+        <div style="width:64px;height:64px;border-radius:20px;background:var(--gold-gradient);color:white;display:flex;align-items:center;justify-content:center;font-size:1.6rem;margin:0 auto 0.8rem;box-shadow:0 12px 30px rgba(202,138,4,0.35);">
+          <i class="fas fa-building"></i>
+        </div>
+        <h3 style="font-weight:700;font-family:var(--font-display);font-size:1.3rem;">Staff Access</h3>
         <p style="color:var(--text-muted);font-size:0.85rem;margin-top:0.2rem">Sign in to access the operations portal</p>
       </div>
       <form id="loginForm" onsubmit="handleLogin(event)">
@@ -566,13 +700,6 @@
           <i class="fas fa-sign-in-alt"></i> Sign in
         </button>
       </form>
-
-      <div class="auth-divider">or continue with</div>
-      <button type="button" class="google-btn" id="googleSignInBtn" onclick="handleGoogleSignIn()">
-        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
-        Sign in with Google
-      </button>
-
       <button class="modal-link" onclick="showForgotPassword()">
         <i class="fas fa-key"></i> Forgot your password?
       </button>
@@ -647,31 +774,79 @@
     <!-- Hero Section -->
     <section class="hero-section">
       <div class="hero-content">
-        <div style="display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;">
-          <h1>Operations <span class="gold-text">Portal</span></h1>
-          <div class="daily-progress">
-            <svg viewBox="0 0 100 100">
-              <defs>
-                <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" style="stop-color:#ca8a04"/>
-                  <stop offset="100%" style="stop-color:#fbbf24"/>
-                </linearGradient>
-              </defs>
-              <circle cx="50" cy="50" r="40" fill="none" stroke="#e5e7eb" stroke-width="8"/>
-              <circle cx="50" cy="50" r="40" fill="none" stroke="url(#goldGrad)" stroke-width="8"
-                      stroke-dasharray="251.2" stroke-dashoffset="251.2" id="progressCircle"/>
-              <text x="50" y="55" text-anchor="middle" font-size="18" font-weight="800" fill="var(--text-primary)" id="progressText">0%</text>
-            </svg>
-            <div class="progress-label">Day Progress</div>
-          </div>
+        <div class="hero-greeting-pill" id="heroGreetingPill">
+          <i class="fas fa-sun"></i>
+          <span id="heroGreetingText">Welcome to KazInni Operations</span>
         </div>
+        <h1>Operations <span class="gold-text">Portal</span></h1>
         <p>Internal dashboard for managing workspaces, monitoring field operations, and accessing business resources.</p>
         <div class="hero-buttons" id="heroActions"></div>
       </div>
-      <div class="map-widget">
+
+      <!-- Engaging Info Panel -->
+      <div class="info-panel">
+        <!-- Live Clock -->
+        <div class="glass-card clock-card">
+          <div>
+            <div style="display:flex;align-items:baseline;">
+              <span class="clock-time" id="clockTime">--:--</span>
+              <span class="clock-ampm" id="clockAmPm">--</span>
+            </div>
+            <div class="clock-date" id="clockDate">Loading date...</div>
+          </div>
+          <div class="clock-icon"><i class="fas fa-clock"></i></div>
+        </div>
+
+        <!-- Weather -->
+        <div class="glass-card weather-card">
+          <div class="weather-main">
+            <i class="fas fa-cloud-sun weather-icon-big" id="weatherIcon"></i>
+            <div>
+              <div class="weather-temp-big" id="weatherTempBig">--°</div>
+              <div class="weather-desc" id="weatherDesc">Fetching weather...</div>
+            </div>
+          </div>
+          <span class="weather-location-badge"><i class="fas fa-map-marker-alt"></i> Nairobi</span>
+        </div>
+
+        <!-- Daily Progress -->
+        <div class="glass-card progress-card">
+          <div>
+            <div class="progress-text-sm" id="progressTextBig">0%</div>
+            <div class="progress-label-sm">of today elapsed</div>
+          </div>
+          <svg class="progress-ring" viewBox="0 0 100 100">
+            <circle class="bg" cx="50" cy="50" r="40"/>
+            <circle class="fg" cx="50" cy="50" r="40"
+                    stroke-dasharray="251.2" stroke-dashoffset="251.2"
+                    id="progressCircleBig"/>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- Access Gate (shown only when signed out) -->
+    <div id="accessGate" class="access-gate" style="display:none;">
+      <div class="gate-icon"><i class="fas fa-user-lock"></i></div>
+      <h3>Staff Access Required</h3>
+      <p id="accessGateMessage">Sign in with an authorized staff account to view operations data, activity, and workspace metrics.</p>
+      <button class="btn btn-primary" onclick="openAuthModal()">
+        <i class="fas fa-sign-in-alt"></i> Sign in
+      </button>
+    </div>
+
+    <!-- Protected content wrapper -->
+    <div id="protectedContent" style="display:none;">
+      <!-- Map Widget (staff only) -->
+      <div class="section-header">
+        <i class="fas fa-map-marked-alt"></i>
+        <h2>Field Operations Map</h2>
+        <span class="live-badge" style="margin-left:0.5rem;"><div class="live-dot"></div> Live</span>
+      </div>
+      <div class="map-widget" style="margin-bottom:2.5rem;">
         <div class="map-header">
-          <div class="map-title"><i class="fas fa-map-marked-alt"></i> Field Operations Map</div>
-          <div class="live-badge"><div class="live-dot"></div> Live</div>
+          <div class="map-title"><i class="fas fa-map-marked-alt"></i> Live Field Operations</div>
+          <div class="live-badge"><div class="live-dot"></div> Streaming</div>
         </div>
         <div class="map-container-leaflet" id="overviewMap"></div>
         <div class="map-stats-row">
@@ -689,20 +864,7 @@
           </div>
         </div>
       </div>
-    </section>
 
-    <!-- Access Gate (shown only when signed out or access denied) -->
-    <div id="accessGate" class="access-gate" style="display:none;">
-      <div class="gate-icon"><i class="fas fa-user-lock"></i></div>
-      <h3>Staff Access Required</h3>
-      <p id="accessGateMessage">Sign in with an authorized staff account to view operations data, activity, and workspace metrics.</p>
-      <button class="btn btn-primary" onclick="openAuthModal()">
-        <i class="fas fa-sign-in-alt"></i> Sign in
-      </button>
-    </div>
-
-    <!-- Protected content wrapper -->
-    <div id="protectedContent">
       <!-- Stats Row -->
       <div class="stats-row" id="statsRow">
         <div class="stat-card gold-reveal-stagger"><div class="skeleton" style="height:44px;width:44px;border-radius:14px;margin:0 auto 0.7rem;"></div><div class="skeleton" style="height:1.7rem;width:50%;margin:0 auto 0.15rem;"></div><div class="skeleton" style="height:0.75rem;width:60%;margin:0 auto;"></div></div>
@@ -713,7 +875,7 @@
 
       <!-- Recent Activity -->
       <div class="section-header">
-        <i class="fas fa-clock-rotate-left" style="color:var(--gold);"></i>
+        <i class="fas fa-clock-rotate-left"></i>
         <h2>Recent Activity</h2>
         <span class="live-badge" style="margin-left:0.5rem;"><div class="live-dot"></div> Updated</span>
       </div>
@@ -815,23 +977,11 @@
     auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 
     // ============================================================
-    // ============ ACCESS CONTROL CONFIGURATION ==================
+    // ACCESS CONTROL CONFIGURATION
     // ============================================================
-    // THIS IS THE KEY SECTION — configure who can access this page.
     const ACCESS_CONFIG = {
-      // Google email domains that auto-grant staff access on first sign-in.
-      // Leave empty [] to require manual approval for every Google account.
-      // Example: ['teleiosavour.com', 'kazinni.com']
-      autoGrantDomains: [],
-
-      // Roles stored in users/{uid}/role that grant access.
       staffRoles: ['staff', 'admin', 'manager', 'driver', 'employee', 'agent'],
-
-      // Additional allowlist paths to check. If `staff/{uid}` or similar
-      // exists with any truthy value, access is granted.
       allowlistPaths: ['staff', 'approved_staff'],
-
-      // If true, also grant access when users/{uid}/isStaff === true
       honorIsStaffFlag: true
     };
 
@@ -865,25 +1015,15 @@
     // ACCESS VERIFICATION
     // ============================================================
     async function verifyStaffAccess(user) {
-      // 1. Domain auto-grant for Google sign-ins (if configured)
-      if (ACCESS_CONFIG.autoGrantDomains.length > 0) {
-        const domain = (user.email || '').split('@')[1]?.toLowerCase();
-        if (domain && ACCESS_CONFIG.autoGrantDomains.map(d => d.toLowerCase()).includes(domain)) {
-          return { ok: true, role: 'staff', source: 'domain' };
-        }
-      }
-
-      // 2. Admins are always staff
+      // 1. Admins are always staff
       try {
         const adminSnap = await database.ref(`admins/${user.uid}`).once('value');
         if (adminSnap.exists() && adminSnap.val() === true) {
           return { ok: true, role: 'admin', source: 'admins' };
         }
-      } catch (e) {
-        // permission_denied is expected for non-admins; continue
-      }
+      } catch (e) { /* continue */ }
 
-      // 3. Check users/{uid}/role and users/{uid}/isStaff
+      // 2. users/{uid}/role or users/{uid}/isStaff
       try {
         const userSnap = await database.ref(`users/${user.uid}`).once('value');
         const userData = userSnap.val() || {};
@@ -893,20 +1033,16 @@
         if (ACCESS_CONFIG.honorIsStaffFlag && userData.isStaff === true) {
           return { ok: true, role: 'staff', source: 'users.isStaff' };
         }
-      } catch (e) {
-        // permission_denied possible; continue
-      }
+      } catch (e) { /* continue */ }
 
-      // 4. Check allowlist paths
+      // 3. Allowlist paths
       for (const path of ACCESS_CONFIG.allowlistPaths) {
         try {
           const snap = await database.ref(`${path}/${user.uid}`).once('value');
           if (snap.exists() && snap.val()) {
             return { ok: true, role: 'staff', source: path };
           }
-        } catch (e) {
-          // ignore
-        }
+        } catch (e) { /* continue */ }
       }
 
       return {
@@ -916,7 +1052,7 @@
     }
 
     // ============================================================
-    // UI STATE RENDERERS
+    // UI STATE
     // ============================================================
     function showProtectedContent() {
       document.getElementById('protectedContent').style.display = 'block';
@@ -927,7 +1063,6 @@
       document.getElementById('accessGate').style.display = 'block';
       if (message) document.getElementById('accessGateMessage').textContent = message;
     }
-
     function renderVerifyingUI() {
       const container = document.getElementById('headerAuthContainer');
       container.innerHTML = `
@@ -937,7 +1072,6 @@
       `;
       hideProtectedContent();
     }
-
     function renderAuthenticatedUI(user, role) {
       const container = document.getElementById('headerAuthContainer');
       const email = user.email || 'User';
@@ -954,28 +1088,17 @@
             <i class="fas fa-chevron-down"></i>
           </button>
           <div class="user-dropdown-menu" id="userDropdownMenu">
-            <a href="dashboard.html" class="dropdown-item">
-              <i class="fas fa-chart-pie" style="width:20px;"></i> Dashboard
-            </a>
-            <a href="profile.html" class="dropdown-item">
-              <i class="fas fa-user" style="width:20px;"></i> Profile
-            </a>
-            <a href="workspaces.html" class="dropdown-item">
-              <i class="fas fa-cubes" style="width:20px;"></i> Workspace
-            </a>
-            <a href="resources.html" class="dropdown-item">
-              <i class="fas fa-book" style="width:20px;"></i> Resources
-            </a>
+            <a href="dashboard.html" class="dropdown-item"><i class="fas fa-chart-pie" style="width:20px;"></i> Dashboard</a>
+            <a href="profile.html" class="dropdown-item"><i class="fas fa-user" style="width:20px;"></i> Profile</a>
+            <a href="workspaces.html" class="dropdown-item"><i class="fas fa-cubes" style="width:20px;"></i> Workspace</a>
+            <a href="resources.html" class="dropdown-item"><i class="fas fa-book" style="width:20px;"></i> Resources</a>
             <div class="divider"></div>
-            <button class="dropdown-item danger" onclick="handleSignOut()">
-              <i class="fas fa-sign-out-alt" style="width:20px;"></i> Sign Out
-            </button>
+            <button class="dropdown-item danger" onclick="handleSignOut()"><i class="fas fa-sign-out-alt" style="width:20px;"></i> Sign Out</button>
           </div>
         </div>
       `;
       showProtectedContent();
     }
-
     function renderUnauthenticatedUI(gateMessage) {
       const container = document.getElementById('headerAuthContainer');
       container.innerHTML = `
@@ -991,7 +1114,6 @@
       const btn = document.getElementById('userMenuBtn');
       if (menu) { menu.classList.toggle('active'); if (btn) btn.classList.toggle('active'); }
     }
-
     document.addEventListener('click', function(e) {
       const wrapper = document.querySelector('.user-menu-wrapper');
       if (wrapper && !wrapper.contains(e.target)) {
@@ -1027,27 +1149,20 @@
     // ============================================================
     auth.onAuthStateChanged(async (user) => {
       if (!user) {
-        // Signed out
         currentUser = null;
         currentUserRole = null;
         isVerifying = false;
         renderUnauthenticatedUI();
         updateHeroGreeting(null);
-        updateWeather();
-        updateDailyProgress();
         return;
       }
-
-      // Signed in — verify BEFORE rendering any protected UI
       if (isVerifying) return;
       isVerifying = true;
       renderVerifyingUI();
 
       try {
         const access = await verifyStaffAccess(user);
-
         if (!access.ok) {
-          // Not authorized — sign out and show denial
           try { await auth.signOut(); } catch (e) {}
           isVerifying = false;
           showToast(access.reason || 'Access denied.', 'error');
@@ -1055,19 +1170,14 @@
           updateHeroGreeting(null);
           return;
         }
-
-        // Authorized — now render the portal
         currentUser = user;
         currentUserRole = access.role;
         isVerifying = false;
-
         renderAuthenticatedUI(user, access.role);
         updateHeroGreeting(user);
         loadStats();
         loadRecentActivity();
         updateMapData();
-        updateDailyProgress();
-        updateWeather();
       } catch (err) {
         console.error('Access verification failed:', err);
         try { await auth.signOut(); } catch (e) {}
@@ -1079,87 +1189,36 @@
     });
 
     // ============================================================
-    // GOOGLE SIGN-IN
-    // ============================================================
-    async function handleGoogleSignIn() {
-      const btn = document.getElementById('googleSignInBtn');
-      const originalHTML = btn.innerHTML;
-      btn.disabled = true;
-      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Connecting...';
-
-      const provider = new firebase.auth.GoogleAuthProvider();
-      provider.setCustomParameters({ prompt: 'select_account' });
-
-      try {
-        const result = await auth.signInWithPopup(provider);
-        const user = result.user;
-
-        // Save/update minimal user profile (best-effort; rules may block)
-        try {
-          const profileData = {
-            displayName: user.displayName || user.email?.split('@')[0] || 'User',
-            email: user.email,
-            photoURL: user.photoURL || null,
-            provider: 'google',
-            lastLogin: firebase.database.ServerValue.TIMESTAMP
-          };
-          // Don't overwrite role/isStaff if they already exist
-          const snap = await database.ref(`users/${user.uid}`).once('value');
-          const existing = snap.val() || {};
-          await database.ref(`users/${user.uid}`).update({ ...profileData, ...(
-            existing.role !== undefined ? { role: existing.role } : {}
-          ), ...(
-            existing.isStaff !== undefined ? { isStaff: existing.isStaff } : {}
-          )});
-        } catch (e) {
-          // Non-fatal — verification handles whether they get in
-        }
-
-        // Note: we don't show "Welcome" here — auth.onAuthStateChanged runs
-        // the access check and will either render the portal or sign them out.
-        closeAuthModal();
-      } catch (error) {
-        console.error('Google sign-in error:', error);
-        let msg = 'Google sign-in failed';
-        if (error.code === 'auth/popup-closed-by-user') msg = 'Sign-in popup was closed';
-        else if (error.code === 'auth/popup-blocked') msg = 'Popup blocked. Please allow popups for this site.';
-        else if (error.code === 'auth/cancelled-popup-request') msg = 'Sign-in cancelled';
-        else if (error.code === 'auth/account-exists-with-different-credential') msg = 'An account already exists with this email using a different sign-in method';
-        else if (error.code === 'auth/operation-not-allowed') msg = 'Google sign-in is not enabled. Contact your administrator.';
-        else if (error.code === 'auth/unauthorized-domain') msg = 'This domain is not authorized. Contact your administrator.';
-        else if (error.message) msg = error.message.replace('Firebase: ', '').replace(/\(auth\/.*\)\.?/, '').trim();
-        showToast(msg, 'error');
-      } finally {
-        btn.disabled = false;
-        btn.innerHTML = originalHTML;
-      }
-    }
-
-    // ============================================================
     // HERO GREETING
     // ============================================================
     function updateHeroGreeting(user) {
       const heroActions = document.getElementById('heroActions');
+      const greetingPill = document.getElementById('heroGreetingPill');
+      const greetingText = document.getElementById('heroGreetingText');
+
+      const hour = new Date().getHours();
+      let timeGreeting = 'Good morning';
+      let icon = 'fa-sun';
+      if (hour >= 12 && hour < 17) { timeGreeting = 'Good afternoon'; icon = 'fa-cloud-sun'; }
+      else if (hour >= 17) { timeGreeting = 'Good evening'; icon = 'fa-moon'; }
 
       if (user) {
         const displayName = user.displayName || user.email?.split('@')[0] || 'Team Member';
         const initials = (user.displayName || user.email || 'U').charAt(0).toUpperCase();
 
-        const hour = new Date().getHours();
-        let timeGreeting = 'Good morning';
-        if (hour >= 12 && hour < 17) timeGreeting = 'Good afternoon';
-        else if (hour >= 17) timeGreeting = 'Good evening';
+        if (greetingPill) {
+          greetingPill.innerHTML = `<i class="fas ${icon}"></i><span>${timeGreeting}, <strong>${escapeHtml(displayName)}</strong></span>`;
+        }
 
+        // Streak tracking
         let streak = parseInt(localStorage.getItem('kazinni_streak') || '0');
         const today = new Date().toDateString();
         const lastLogin = localStorage.getItem('kazinni_last_login');
-
         if (lastLogin === today) { /* no-op */ }
         else if (lastLogin) {
           const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
           if (lastLogin === yesterday.toDateString()) streak++; else streak = 1;
         } else streak = 1;
-
         localStorage.setItem('kazinni_streak', streak.toString());
         localStorage.setItem('kazinni_last_login', today);
 
@@ -1179,6 +1238,9 @@
           <a href="workspaces.html" class="btn btn-outline btn-large"><i class="fas fa-cubes"></i> Workspaces</a>
         `;
       } else {
+        if (greetingPill) {
+          greetingPill.innerHTML = `<i class="fas ${icon}"></i><span>${timeGreeting} — welcome to KazInni</span>`;
+        }
         heroActions.innerHTML = `
           <button class="btn btn-primary btn-large" onclick="openAuthModal()">
             <i class="fas fa-sign-in-alt"></i> Sign in
@@ -1187,6 +1249,29 @@
             <i class="fas fa-cubes"></i> Workspaces
           </a>
         `;
+      }
+    }
+
+    // ============================================================
+    // LIVE CLOCK
+    // ============================================================
+    function updateClock() {
+      const now = new Date();
+      let hours = now.getHours();
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      hours = hours % 12 || 12;
+      const timeStr = `${hours}:${minutes}`;
+
+      const timeEl = document.getElementById('clockTime');
+      const ampmEl = document.getElementById('clockAmPm');
+      const dateEl = document.getElementById('clockDate');
+      if (timeEl) timeEl.textContent = timeStr;
+      if (ampmEl) ampmEl.textContent = ampm;
+      if (dateEl) {
+        dateEl.textContent = now.toLocaleDateString('en-US', {
+          weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'
+        });
       }
     }
 
@@ -1201,15 +1286,35 @@
           const temp = Math.round(data.current.temperature_2m);
           const code = data.current.weathercode;
           let condition = 'Clear', icon = 'fa-sun';
-          if (code >= 51 && code <= 67) { condition = 'Rainy'; icon = 'fa-cloud-rain'; }
+          if (code === 0) { condition = 'Clear sky'; icon = 'fa-sun'; }
+          else if (code >= 1 && code <= 3) { condition = 'Partly cloudy'; icon = 'fa-cloud-sun'; }
+          else if (code === 45 || code === 48) { condition = 'Foggy'; icon = 'fa-smog'; }
+          else if (code >= 51 && code <= 57) { condition = 'Drizzle'; icon = 'fa-cloud-rain'; }
+          else if (code >= 61 && code <= 67) { condition = 'Rainy'; icon = 'fa-cloud-showers-heavy'; }
           else if (code >= 71 && code <= 77) { condition = 'Snowy'; icon = 'fa-snowflake'; }
-          else if (code >= 80 && code <= 99) { condition = 'Stormy'; icon = 'fa-bolt'; }
-          else if (code >= 1 && code <= 3) { condition = 'Cloudy'; icon = 'fa-cloud'; }
-          document.getElementById('weatherTemp').textContent = `${temp}°C`;
-          document.getElementById('weatherCondition').textContent = condition;
-          document.getElementById('weatherWidget').querySelector('i').className = `fas ${icon}`;
+          else if (code >= 80 && code <= 82) { condition = 'Rain showers'; icon = 'fa-cloud-showers-heavy'; }
+          else if (code >= 95) { condition = 'Thunderstorm'; icon = 'fa-bolt'; }
+
+          // Header widget
+          const wTemp = document.getElementById('weatherTemp');
+          const wCond = document.getElementById('weatherCondition');
+          const wIcon = document.getElementById('weatherWidget')?.querySelector('i');
+          if (wTemp) wTemp.textContent = `${temp}°C`;
+          if (wCond) wCond.textContent = condition;
+          if (wIcon) wIcon.className = `fas ${icon}`;
+
+          // Big card
+          const wTempBig = document.getElementById('weatherTempBig');
+          const wDesc = document.getElementById('weatherDesc');
+          const wIconBig = document.getElementById('weatherIcon');
+          if (wTempBig) wTempBig.textContent = `${temp}°C`;
+          if (wDesc) wDesc.textContent = condition;
+          if (wIconBig) wIconBig.className = `fas ${icon} weather-icon-big`;
         }
-      } catch (e) { /* silent */ }
+      } catch (e) {
+        const wDesc = document.getElementById('weatherDesc');
+        if (wDesc) wDesc.textContent = 'Weather unavailable';
+      }
     }
 
     // ============================================================
@@ -1222,16 +1327,17 @@
       const total = end - start;
       const elapsed = now - start;
       const progress = Math.min((elapsed / total) * 100, 100);
-      const circle = document.getElementById('progressCircle');
-      const text = document.getElementById('progressText');
       const circumference = 2 * Math.PI * 40;
       const offset = circumference - (progress / 100) * circumference;
-      if (circle) circle.style.strokeDashoffset = offset;
-      if (text) text.textContent = `${Math.round(progress)}%`;
+
+      const circleBig = document.getElementById('progressCircleBig');
+      const textBig = document.getElementById('progressTextBig');
+      if (circleBig) circleBig.style.strokeDashoffset = offset;
+      if (textBig) textBig.textContent = `${Math.round(progress)}%`;
     }
 
     // ============================================================
-    // STATS (only runs when signed in as staff)
+    // STATS
     // ============================================================
     async function loadStats() {
       if (!currentUser) return;
@@ -1292,7 +1398,7 @@
     }
 
     // ============================================================
-    // RECENT ACTIVITY (staff-only)
+    // RECENT ACTIVITY
     // ============================================================
     async function loadRecentActivity() {
       if (!currentUser) return;
@@ -1530,6 +1636,8 @@
     window.closeAuthModal = () => {
       document.getElementById('authModal').classList.remove('active');
       document.getElementById('authModalOverlay').classList.remove('active');
+      const btn = document.getElementById('loginBtn');
+      if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign in'; }
     };
     window.showLogin = () => {
       document.getElementById('loginView').style.display = 'block';
@@ -1554,7 +1662,6 @@
       btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
       try {
         await auth.signInWithEmailAndPassword(email, password);
-        // Access is verified by onAuthStateChanged — modal closes on success
         closeAuthModal();
       } catch (e) {
         let msg = e.message.replace('Firebase: ', '').replace(/\(auth\/.*\)\.?/, '').trim();
@@ -1590,7 +1697,6 @@
     };
 
     document.getElementById('authModalOverlay').addEventListener('click', closeAuthModal);
-
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         closeAuthModal();
@@ -1603,15 +1709,24 @@
     // INIT
     // ============================================================
     window.addEventListener('load', () => {
-      setTimeout(initOverviewMap, 500);
+      updateClock();
       updateWeather();
       updateDailyProgress();
+      setTimeout(initOverviewMap, 500);
+
+      setInterval(updateClock, 1000);
       setInterval(updateWeather, 1800000);
-      setInterval(updateDailyProgress, 60000);
+      setInterval(updateDailyProgress, 30000);
       setInterval(() => { if (currentUser) loadStats(); }, 60000);
     });
 
-    document.getElementById('lastDeploy').textContent = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    // Set greeting pill immediately (before auth resolves)
+    updateHeroGreeting(null);
+
+    const lastDeployEl = document.getElementById('lastDeploy');
+    if (lastDeployEl) {
+      lastDeployEl.textContent = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
   </script>
 </body>
 </html>
