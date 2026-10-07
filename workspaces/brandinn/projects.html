@@ -172,20 +172,14 @@
     .progress-bar { height: 4px; background: var(--gray-200); border-radius: 4px; overflow: hidden; }
     .progress-fill { height: 100%; background: var(--primary); border-radius: 4px; }
 
-    /* Dispatch pill on project card */
     .dispatch-pill {
       display: inline-flex; align-items: center; gap: 5px;
       padding: 0.2rem 0.6rem; border-radius: 12px;
       font-size: 0.6rem; font-weight: 600; margin-top: 0.5rem;
-      cursor: pointer; transition: all 0.15s;
     }
-    .dispatch-pill:hover { transform: translateY(-1px); }
     .dispatch-pill.flexi { background: var(--gold-soft); color: var(--gold-dark); }
     .dispatch-pill.kasikazi { background: var(--cyan-soft); color: var(--cyan-dark); }
     .dispatch-pill.none { background: var(--gray-100); color: var(--gray-500); }
-    .dispatch-pill.done { background: #d1fae5; color: #065f46; }
-    .dispatch-pill.review { background: #f3e8ff; color: #6b21a5; }
-    .dispatch-pill.revision { background: #fee2e2; color: #991b1b; }
 
     .project-footer {
       padding: 0.6rem 1rem; background: var(--gray-50); border-top: 1px solid var(--gray-200);
@@ -333,14 +327,6 @@
     .btn-save:hover { background: var(--primary-dark); }
     .btn-save:disabled { opacity: 0.6; cursor: not-allowed; }
 
-    .btn-secondary {
-      background: white; color: var(--gray-600); border: 1px solid var(--gray-200);
-      padding: 0.55rem 1rem; border-radius: 40px; font-weight: 600;
-      cursor: pointer; font-size: 0.72rem; display: inline-flex;
-      align-items: center; gap: 5px;
-    }
-    .btn-secondary:hover { border-color: var(--primary); color: var(--primary); }
-
     .toast {
       position: fixed; bottom: 20px; right: 20px; background: var(--success); color: white;
       padding: 0.5rem 1rem; border-radius: 30px; font-weight: 500; z-index: 2000;
@@ -451,7 +437,6 @@
       <div class="modal-body">
         <form id="projectForm" onsubmit="return false;">
 
-          <!-- Linked task banner (only when editing an already-dispatched project) -->
           <div class="linked-task-banner" id="linkedTaskBanner">
             <div class="ltb-info">
               <div class="ltb-title" id="ltbTitle">—</div>
@@ -514,66 +499,43 @@
 
             <!-- FlexiKazi fields -->
             <div class="dispatch-fields flexi" id="flexiFields">
-              <div class="form-row">
-                <div class="form-group">
-                  <label>Suite *</label>
-                  <select id="flexiSuite" onchange="onFlexiSuiteChange()">
-                    <option value="">Select suite...</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label>Pay Rate (KES) *</label>
-                  <input type="number" id="flexiPayRate" min="0" step="50" placeholder="e.g. 1500">
-                </div>
-              </div>
               <div class="form-group">
                 <label>Assign Tasker *</label>
                 <select id="flexiTasker">
-                  <option value="">Select a suite first...</option>
+                  <option value="">Loading taskers...</option>
                 </select>
-                <div class="dispatch-hint" id="flexiHint"><i class="fas fa-info-circle"></i> Pick a suite to see eligible taskers.</div>
+                <div class="dispatch-hint" id="flexiHint"><i class="fas fa-info-circle"></i> Only taskers with BrandInn access are listed.</div>
               </div>
               <div class="form-row">
+                <div class="form-group"><label>Pay Rate (KES) *</label><input type="number" id="flexiPayRate" min="0" step="50" placeholder="e.g. 1500"></div>
                 <div class="form-group"><label>Due Date *</label><input type="date" id="flexiDueDate"></div>
-                <div class="form-group"><label>Category</label>
-                  <select id="flexiCategory">
-                    <option value="Content Writing">Content Writing</option>
-                    <option value="Graphic Design">Graphic Design</option>
-                    <option value="Web Development">Web Development</option>
-                    <option value="Data Entry">Data Entry</option>
-                    <option value="Social Media">Social Media</option>
-                    <option value="Virtual Assistant">Virtual Assistant</option>
-                    <option value="Photography">Photography</option>
-                    <option value="Video Editing">Video Editing</option>
-                    <option value="Other">Other</option>
-                  </select>
-                </div>
+              </div>
+              <div class="form-group"><label>Category</label>
+                <select id="flexiCategory">
+                  <option value="Content Writing">Content Writing</option>
+                  <option value="Graphic Design">Graphic Design</option>
+                  <option value="Web Development">Web Development</option>
+                  <option value="Data Entry">Data Entry</option>
+                  <option value="Social Media">Social Media</option>
+                  <option value="Virtual Assistant">Virtual Assistant</option>
+                  <option value="Photography">Photography</option>
+                  <option value="Video Editing">Video Editing</option>
+                  <option value="Other">Other</option>
+                </select>
               </div>
               <div class="form-group"><label>Brief / Job Link</label><input type="url" id="flexiJobLink" placeholder="https://docs.google.com/..."></div>
               <div class="form-group"><label>Notes for tasker</label><textarea id="flexiNotes" rows="2"></textarea></div>
             </div>
 
-            <!-- Kasikazi fields -->
+            <!-- Kasikazi fields (no tasker) -->
             <div class="dispatch-fields kasikazi" id="kasikaziFields">
               <div class="form-row">
-                <div class="form-group">
-                  <label>Suite *</label>
-                  <select id="kasikaziSuite">
-                    <option value="">Select suite...</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label>Pay Rate (KES) *</label>
-                  <input type="number" id="kasikaziPayRate" min="0" step="50" placeholder="e.g. 1500">
-                </div>
+                <div class="form-group"><label>Pay Rate (KES) *</label><input type="number" id="kasikaziPayRate" min="0" step="50" placeholder="e.g. 1500"></div>
+                <div class="form-group"><label>Slots *</label><input type="number" id="kasikaziSlots" min="1" max="50" value="1"></div>
               </div>
               <div class="form-row">
-                <div class="form-group">
-                  <label>Slots *</label>
-                  <input type="number" id="kasikaziSlots" min="1" max="50" value="1">
-                </div>
-                <div class="form-group">
-                  <label>Category *</label>
+                <div class="form-group"><label>Due Date *</label><input type="date" id="kasikaziDueDate"></div>
+                <div class="form-group"><label>Category *</label>
                   <select id="kasikaziCategory">
                     <option value="Content Writing">Content Writing</option>
                     <option value="Graphic Design">Graphic Design</option>
@@ -587,12 +549,9 @@
                   </select>
                 </div>
               </div>
-              <div class="form-row">
-                <div class="form-group"><label>Due Date *</label><input type="date" id="kasikaziDueDate"></div>
-                <div class="form-group"><label>Brief / Job Link</label><input type="url" id="kasikaziJobLink" placeholder="https://..."></div>
-              </div>
+              <div class="form-group"><label>Brief / Job Link</label><input type="url" id="kasikaziJobLink" placeholder="https://..."></div>
               <div class="form-group"><label>Notes for taskers</label><textarea id="kasikaziNotes" rows="2"></textarea></div>
-              <div class="dispatch-hint"><i class="fas fa-bullhorn"></i> This task will be visible to all verified taskers with suite access.</div>
+              <div class="dispatch-hint"><i class="fas fa-bullhorn"></i> This task will be visible to all verified BrandInn taskers.</div>
             </div>
           </div>
 
@@ -637,40 +596,21 @@
     const auth = firebase.auth();
 
     /* ----------------------------------------------------------
-       SUITE CONFIG (mirrors task-management page)
+       HARDCODED WORKSPACE — BrandInn (this page lives in brandinn)
        ---------------------------------------------------------- */
-    const SUITE_CONFIG = {
-      'brandinn':            { name: 'BrandInn',              icon: 'fa-building' },
-      'brandinn-print':      { name: 'BrandInn Print',        icon: 'fa-print' },
-      'dsog':                { name: 'DSOG Fashion',          icon: 'fa-tshirt' },
-      'fusion-foods':        { name: 'Fusion Foods',          icon: 'fa-utensils' },
-      'mugs-n-dines':        { name: 'Mugs n Dines',          icon: 'fa-utensil-spoon' },
-      'heritage':            { name: 'Heritage Ads',          icon: 'fa-landmark' },
-      'heritage-marketplace':{ name: 'Heritage Marketplace',  icon: 'fa-store' },
-      'heritage-interiors':  { name: 'Heritage Interiors',    icon: 'fa-couch' },
-      'digital-services':    { name: 'E-Huduma',              icon: 'fa-laptop-code' },
-      'pick-up':             { name: 'Pick-Up Deliveries',    icon: 'fa-truck-fast' },
-      'pick-me':             { name: 'Pick-Me Rides',         icon: 'fa-taxi' },
-      'workfit':             { name: 'WorkFit',               icon: 'fa-dumbbell' },
-      'epitome':             { name: 'Epitome Reviews',       icon: 'fa-car' },
-      'ekazi':               { name: 'FlexiKazi Tasks',       icon: 'fa-list-check' },
-      'latter-logistics':    { name: 'Latter Logistics',      icon: 'fa-ship' },
-      'craftikazi':          { name: 'CraftiKazi',            icon: 'fa-hammer' },
-      'zindua':              { name: 'Zindua Hub',            icon: 'fa-rocket' }
-    };
+    const WORKSPACE = 'brandinn';
 
     /* ----------------------------------------------------------
        STATE
        ---------------------------------------------------------- */
     let allProjects = {};
-    let allTaskers = [];              // verified taskers from /taskers
-    let workspacePermissions = {};    // tasker UID -> { suite: true }
-    let taskerById = {};              // UID -> tasker object
+    let allTaskers = [];
+    let workspacePermissions = {};
     let currentFilter = 'all';
     let currentDispatchFilter = 'all';
     let searchQuery = '';
     let currentMilestones = [];
-    let dispatchMode = 'none';         // 'none' | 'flexikazi' | 'kasikazi'
+    let dispatchMode = 'none';
     let statusChart, progressChart;
     let currentUser = null;
     let pendingUnlink = false;
@@ -719,13 +659,8 @@
       return map[status] || 'status-planning';
     }
 
-    function getAllowedSuites(uid) {
-      const perms = workspacePermissions[uid] || {};
-      return Object.keys(perms).filter(k => perms[k] === true && SUITE_CONFIG[k]);
-    }
-
     /* ----------------------------------------------------------
-       LOAD DATA
+       LOAD TASKERS (BrandInn-scoped only)
        ---------------------------------------------------------- */
     async function loadTaskers() {
       const [taskersSnap, permsSnap] = await Promise.all([
@@ -734,14 +669,17 @@
       ]);
 
       const raw = (taskersSnap && taskersSnap.val()) || {};
-      allTaskers = Object.entries(raw)
+      const all = Object.entries(raw)
         .map(([id, t]) => ({ id, ...t }))
         .filter(t => t.verified === true || t.status === 'verified');
 
-      taskerById = {};
-      allTaskers.forEach(t => { taskerById[t.id] = t; });
-
       workspacePermissions = (permsSnap && permsSnap.val()) || {};
+
+      // Only keep taskers with brandinn access
+      allTaskers = all.filter(t => {
+        const perms = workspacePermissions[t.id] || {};
+        return perms[WORKSPACE] === true;
+      });
     }
 
     /* ----------------------------------------------------------
@@ -782,7 +720,6 @@
        DISPATCH MODE
        ---------------------------------------------------------- */
     function setDispatchMode(mode) {
-      // If user is switching away from an already-linked mode, warn
       const editId = document.getElementById('editProjectId').value;
       const existing = editId ? allProjects[editId] : null;
       const wasLinked = existing && existing.dispatch && existing.dispatch.linkedTaskId;
@@ -801,43 +738,23 @@
       document.getElementById('kasikaziFields').classList.toggle('show', mode === 'kasikazi');
     }
 
-    function populateSuiteDropdowns() {
-      const options = Object.entries(SUITE_CONFIG).map(([k, v]) =>
-        `<option value="${k}">${escapeHtml(v.name)}</option>`
-      ).join('');
-      document.getElementById('flexiSuite').innerHTML = '<option value="">Select suite...</option>' + options;
-      document.getElementById('kasikaziSuite').innerHTML = '<option value="">Select suite...</option>' + options;
-    }
-
-    function onFlexiSuiteChange() {
-      const suite = document.getElementById('flexiSuite').value;
-      const taskerSelect = document.getElementById('flexiTasker');
+    function populateTaskerDropdown() {
+      const select = document.getElementById('flexiTasker');
       const hint = document.getElementById('flexiHint');
+      if (!select) return;
 
-      if (!suite) {
-        taskerSelect.innerHTML = '<option value="">Select a suite first...</option>';
-        hint.className = 'dispatch-hint';
-        hint.innerHTML = '<i class="fas fa-info-circle"></i> Pick a suite to see eligible taskers.';
-        return;
-      }
-
-      const eligible = allTaskers.filter(t => {
-        const perms = workspacePermissions[t.id] || {};
-        return perms[suite] === true;
-      });
-
-      if (eligible.length === 0) {
-        taskerSelect.innerHTML = '<option value="">No taskers with access</option>';
+      if (allTaskers.length === 0) {
+        select.innerHTML = '<option value="">No BrandInn taskers available</option>';
         hint.className = 'dispatch-hint warn';
-        hint.innerHTML = `<i class="fas fa-exclamation-triangle"></i> No taskers have access to <strong>${escapeHtml(SUITE_CONFIG[suite].name)}</strong>.`;
+        hint.innerHTML = `<i class="fas fa-exclamation-triangle"></i> No verified taskers have BrandInn access yet.`;
         return;
       }
 
-      taskerSelect.innerHTML = '<option value="">Select tasker...</option>' + eligible.map(t =>
+      select.innerHTML = '<option value="">Select tasker...</option>' + allTaskers.map(t =>
         `<option value="${escapeHtml(t.email || t.id)}">${escapeHtml(t.name || t.email || 'Unnamed')}${t.zone ? ` · ${escapeHtml(t.zone)}` : ''}</option>`
       ).join('');
       hint.className = 'dispatch-hint ok';
-      hint.innerHTML = `<i class="fas fa-check-circle"></i> ${eligible.length} eligible tasker${eligible.length !== 1 ? 's' : ''}.`;
+      hint.innerHTML = `<i class="fas fa-check-circle"></i> ${allTaskers.length} BrandInn tasker${allTaskers.length !== 1 ? 's' : ''} available.`;
     }
 
     /* ----------------------------------------------------------
@@ -851,9 +768,6 @@
       }
       const d = project.dispatch;
       const boardName = d.linkedBoard === 'kasikazi_tasks' ? 'Kasikazi' : 'FlexiKazi';
-      const taskPath = d.linkedBoard === 'kasikazi_tasks'
-        ? `kasikazi_tasks/${d.linkedTaskId}`
-        : `ekazi_assigned_tasks/${d.linkedTaskId}`;
 
       document.getElementById('ltbTitle').innerHTML = `<i class="fas fa-link"></i> Linked to ${boardName} task`;
       document.getElementById('ltbMeta').innerHTML = `Task ID: ${escapeHtml(d.linkedTaskId.slice(-10))}${d.taskerEmail ? ` · ${escapeHtml(d.taskerEmail)}` : ''}`;
@@ -868,7 +782,7 @@
     }
 
     /* ----------------------------------------------------------
-       OPEN MODAL (new / edit)
+       OPEN MODAL
        ---------------------------------------------------------- */
     function openModalForNew() {
       document.getElementById('modalTitle').textContent = 'New Project';
@@ -879,13 +793,12 @@
       pendingUnlink = false;
       renderMilestonesList();
 
-      // defaults
       document.getElementById('startDate').value = todayPlus(0);
       document.getElementById('targetDate').value = todayPlus(14);
       document.getElementById('flexiDueDate').value = todayPlus(7);
       document.getElementById('kasikaziDueDate').value = todayPlus(7);
 
-      populateSuiteDropdowns();
+      populateTaskerDropdown();
       setDispatchMode('none');
 
       document.getElementById('projectModal').classList.add('show');
@@ -910,18 +823,15 @@
 
       currentMilestones = p.milestones ? JSON.parse(JSON.stringify(p.milestones)) : [];
       renderMilestonesList();
-      populateSuiteDropdowns();
+      populateTaskerDropdown();
       pendingUnlink = false;
 
-      // Restore dispatch
       const d = p.dispatch || {};
       const mode = d.linkedTaskId ? (d.linkedBoard === 'kasikazi_tasks' ? 'kasikazi' : 'flexikazi') : 'none';
       dispatchMode = mode;
       setDispatchMode(mode);
 
       if (mode === 'flexikazi') {
-        document.getElementById('flexiSuite').value = d.suite || '';
-        onFlexiSuiteChange();
         document.getElementById('flexiTasker').value = d.taskerEmail || '';
         document.getElementById('flexiPayRate').value = d.payRate || '';
         document.getElementById('flexiDueDate').value = d.dueDate || '';
@@ -929,11 +839,10 @@
         document.getElementById('flexiJobLink').value = d.jobLink || '';
         document.getElementById('flexiNotes').value = d.notes || '';
       } else if (mode === 'kasikazi') {
-        document.getElementById('kasikaziSuite').value = d.suite || '';
         document.getElementById('kasikaziPayRate').value = d.payRate || '';
         document.getElementById('kasikaziSlots').value = d.slots || 1;
-        document.getElementById('kasikaziCategory').value = d.category || 'Other';
         document.getElementById('kasikaziDueDate').value = d.dueDate || '';
+        document.getElementById('kasikaziCategory').value = d.category || 'Other';
         document.getElementById('kasikaziJobLink').value = d.jobLink || '';
         document.getElementById('kasikaziNotes').value = d.notes || '';
       }
@@ -965,21 +874,18 @@
       const client = document.getElementById('businessName').value.trim();
       if (!name || !client) { showToast('Project name and client required', 'error'); return; }
 
-      // Validate dispatch fields if a dispatch mode is chosen
       let dispatchPayload = { mode: 'none' };
 
       if (dispatchMode === 'flexikazi') {
-        const suite = document.getElementById('flexiSuite').value;
         const tasker = document.getElementById('flexiTasker').value;
         const payRate = Number(document.getElementById('flexiPayRate').value);
         const dueDate = document.getElementById('flexiDueDate').value;
         const category = document.getElementById('flexiCategory').value;
-        if (!suite || !tasker || !payRate || !dueDate) {
-          showToast('Fill all FlexiKazi fields (suite, tasker, pay, due date)', 'warning'); return;
+        if (!tasker || !payRate || !dueDate) {
+          showToast('Fill all FlexiKazi fields (tasker, pay, due date)', 'warning'); return;
         }
         dispatchPayload = {
           mode: 'flexikazi',
-          suite,
           taskerEmail: tasker,
           payRate,
           dueDate,
@@ -988,17 +894,15 @@
           notes: document.getElementById('flexiNotes').value.trim()
         };
       } else if (dispatchMode === 'kasikazi') {
-        const suite = document.getElementById('kasikaziSuite').value;
         const payRate = Number(document.getElementById('kasikaziPayRate').value);
         const slots = Number(document.getElementById('kasikaziSlots').value);
         const dueDate = document.getElementById('kasikaziDueDate').value;
         const category = document.getElementById('kasikaziCategory').value;
-        if (!suite || !payRate || !dueDate || !slots || slots < 1) {
-          showToast('Fill all Kasikazi fields (suite, pay, slots, due date)', 'warning'); return;
+        if (!payRate || !dueDate || !slots || slots < 1) {
+          showToast('Fill all Kasikazi fields (pay, slots, due date)', 'warning'); return;
         }
         dispatchPayload = {
           mode: 'kasikazi',
-          suite,
           payRate,
           slots,
           dueDate,
@@ -1032,7 +936,7 @@
         const existingDispatch = existing && existing.dispatch ? existing.dispatch : null;
         const wasLinked = existingDispatch && existingDispatch.linkedTaskId;
 
-        // STEP 1: Create or update the project
+        // STEP 1 — project write
         if (editId) {
           await database.ref(`brandinn_projects/${editId}`).update(projectData);
         } else {
@@ -1043,11 +947,10 @@
           await ref.set(projectData);
         }
 
-        // STEP 2: Handle dispatch
+        // STEP 2 — dispatch
         const dispatchNode = {};
 
         if (pendingUnlink || dispatchMode === 'none') {
-          // Clear dispatch link but keep record of past dispatch if unlink
           if (wasLinked) {
             dispatchNode.dispatch = {
               ...existingDispatch,
@@ -1060,7 +963,6 @@
             dispatchNode.dispatch = { mode: 'none' };
           }
         } else if (dispatchMode === 'flexikazi' && !wasLinked) {
-          // Create new FlexiKazi task
           const tasker = allTaskers.find(t => (t.email || t.id) === dispatchPayload.taskerEmail);
           const taskRef = database.ref('ekazi_assigned_tasks').push();
           const taskId = taskRef.key;
@@ -1076,8 +978,8 @@
             notes: dispatchPayload.notes,
             taskerEmail: tasker ? tasker.email : dispatchPayload.taskerEmail,
             taskerName: tasker ? (tasker.name || tasker.email) : dispatchPayload.taskerEmail,
-            workspace: dispatchPayload.suite,
-            suite: dispatchPayload.suite,
+            workspace: WORKSPACE,
+            suite: WORKSPACE,
             assignedBy: (currentUser && currentUser.email) || 'staff',
             assignedByUid: (currentUser && currentUser.uid) || null,
             source: 'project_dispatch',
@@ -1089,7 +991,6 @@
             currentReviewCount: 0
           });
 
-          // Log
           const logId = database.ref('admin_logs').push().key;
           await database.ref(`admin_logs/${logId}`).set({
             action: 'dispatch_flexikazi_from_project',
@@ -1097,13 +998,13 @@
             admin: (currentUser && currentUser.email) || 'staff',
             targetId: taskId,
             projectId: projectId,
-            workspace: dispatchPayload.suite,
+            workspace: WORKSPACE,
             timestamp: firebase.database.ServerValue.TIMESTAMP
           });
 
           dispatchNode.dispatch = {
             mode: 'flexikazi',
-            suite: dispatchPayload.suite,
+            suite: WORKSPACE,
             linkedTaskId: taskId,
             linkedBoard: 'ekazi_assigned_tasks',
             taskerEmail: tasker ? tasker.email : dispatchPayload.taskerEmail,
@@ -1113,7 +1014,6 @@
             dispatchedBy: (currentUser && currentUser.email) || 'staff'
           };
         } else if (dispatchMode === 'kasikazi' && !wasLinked) {
-          // Create new Kasikazi task
           const taskRef = database.ref('kasikazi_tasks').push();
           const taskId = taskRef.key;
 
@@ -1127,8 +1027,8 @@
             clientEmail: '',
             jobLink: dispatchPayload.jobLink,
             notes: dispatchPayload.notes,
-            workspace: dispatchPayload.suite,
-            suite: dispatchPayload.suite,
+            workspace: WORKSPACE,
+            suite: WORKSPACE,
             postedBy: (currentUser && currentUser.email) || 'staff',
             postedByUid: (currentUser && currentUser.uid) || null,
             source: 'kasikazi_board',
@@ -1147,13 +1047,13 @@
             admin: (currentUser && currentUser.email) || 'staff',
             targetId: taskId,
             projectId: projectId,
-            workspace: dispatchPayload.suite,
+            workspace: WORKSPACE,
             timestamp: firebase.database.ServerValue.TIMESTAMP
           });
 
           dispatchNode.dispatch = {
             mode: 'kasikazi',
-            suite: dispatchPayload.suite,
+            suite: WORKSPACE,
             linkedTaskId: taskId,
             linkedBoard: 'kasikazi_tasks',
             slots: dispatchPayload.slots,
@@ -1163,7 +1063,7 @@
             dispatchedBy: (currentUser && currentUser.email) || 'staff'
           };
         } else if (wasLinked) {
-          // Already linked — just refresh the dispatch metadata, don't recreate
+          // Refresh metadata only
           dispatchNode.dispatch = {
             ...existingDispatch,
             ...(dispatchMode === 'flexikazi' ? {
@@ -1200,13 +1100,13 @@
     }
 
     /* ----------------------------------------------------------
-       RENDER PROJECTS GRID
+       RENDER
        ---------------------------------------------------------- */
     function dispatchPillHtml(p) {
       const d = p.dispatch;
       if (!d || !d.linkedTaskId) {
         if (p.dispatch && p.dispatch.unlinkedAt) {
-          return `<span class="dispatch-pill none" title="Task was unlinked"><i class="fas fa-unlink"></i> Unlinked</span>`;
+          return `<span class="dispatch-pill none"><i class="fas fa-unlink"></i> Unlinked</span>`;
         }
         return `<span class="dispatch-pill none"><i class="fas fa-folder"></i> Internal</span>`;
       }
@@ -1381,12 +1281,10 @@
 
       document.getElementById('createProjectBtn').addEventListener('click', openModalForNew);
 
-      // Close modal on overlay click
       document.getElementById('projectModal').addEventListener('click', (e) => {
         if (e.target.id === 'projectModal') closeModal();
       });
 
-      // Escape closes modal
       document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') closeModal();
       });
@@ -1399,10 +1297,9 @@
       try {
         await loadTaskers();
       } catch (e) {
-        console.warn('Tasker load failed, continuing without dispatch eligibility data:', e);
+        console.warn('Tasker load failed:', e);
       }
 
-      // Live projects feed
       database.ref('brandinn_projects').on('value', s => {
         allProjects = s.val() || {};
         renderProjects();
@@ -1418,7 +1315,6 @@
       await boot();
     });
 
-    // Expose to inline handlers
     window.openProjectDetails = openProjectDetails;
     window.closeModal = closeModal;
     window.saveProject = saveProject;
@@ -1426,7 +1322,6 @@
     window.updateMilestone = updateMilestone;
     window.removeMilestone = removeMilestone;
     window.setDispatchMode = setDispatchMode;
-    window.onFlexiSuiteChange = onFlexiSuiteChange;
     window.unlinkTask = unlinkTask;
     wireUp();
   </script>
