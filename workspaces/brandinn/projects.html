@@ -188,7 +188,6 @@
 
     .empty-state { text-align: center; padding: 2rem; color: var(--gray-400); font-size: 0.8rem; }
 
-    /* Modal */
     .modal-overlay {
       display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(0,0,0,0.4); backdrop-filter: blur(2px);
@@ -219,7 +218,6 @@
     }
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
 
-    /* Milestones */
     .milestones-section { margin: 1rem 0; }
     .milestone-item {
       background: var(--gray-50); border-radius: 10px; padding: 0.6rem;
@@ -237,7 +235,6 @@
     }
     .btn-add-milestone:hover { background: var(--gray-50); border-color: var(--primary); color: var(--primary); }
 
-    /* Dispatch section */
     .dispatch-section {
       background: linear-gradient(135deg, var(--primary-bg) 0%, #faf5ff 100%);
       border: 1px solid var(--border-light);
@@ -427,7 +424,6 @@
 
   <div id="toastContainer"></div>
 
-  <!-- Project Modal -->
   <div class="modal-overlay" id="projectModal">
     <div class="modal">
       <div class="modal-header">
@@ -476,7 +472,6 @@
           </div>
           <div class="form-group"><label>Description</label><textarea id="description" rows="2" placeholder="Project goals and deliverables..."></textarea></div>
 
-          <!-- Dispatch section -->
           <div class="dispatch-section">
             <div class="dispatch-section-title"><i class="fas fa-paper-plane"></i> Dispatch Work</div>
             <div class="dispatch-options" id="dispatchOptions">
@@ -497,7 +492,6 @@
               </div>
             </div>
 
-            <!-- FlexiKazi fields -->
             <div class="dispatch-fields flexi" id="flexiFields">
               <div class="form-group">
                 <label>Assign Tasker *</label>
@@ -527,7 +521,6 @@
               <div class="form-group"><label>Notes for tasker</label><textarea id="flexiNotes" rows="2"></textarea></div>
             </div>
 
-            <!-- Kasikazi fields (no tasker) -->
             <div class="dispatch-fields kasikazi" id="kasikaziFields">
               <div class="form-row">
                 <div class="form-group"><label>Pay Rate (KES) *</label><input type="number" id="kasikaziPayRate" min="0" step="50" placeholder="e.g. 1500"></div>
@@ -595,14 +588,8 @@
     const database = firebase.database();
     const auth = firebase.auth();
 
-    /* ----------------------------------------------------------
-       HARDCODED WORKSPACE — BrandInn (this page lives in brandinn)
-       ---------------------------------------------------------- */
     const WORKSPACE = 'brandinn';
 
-    /* ----------------------------------------------------------
-       STATE
-       ---------------------------------------------------------- */
     let allProjects = {};
     let allTaskers = [];
     let workspacePermissions = {};
@@ -615,9 +602,6 @@
     let currentUser = null;
     let pendingUnlink = false;
 
-    /* ----------------------------------------------------------
-       UTILITIES
-       ---------------------------------------------------------- */
     function showToast(msg, type = 'success') {
       const c = document.getElementById('toastContainer');
       const existing = c.querySelector('.toast');
@@ -659,9 +643,6 @@
       return map[status] || 'status-planning';
     }
 
-    /* ----------------------------------------------------------
-       LOAD TASKERS (BrandInn-scoped only)
-       ---------------------------------------------------------- */
     async function loadTaskers() {
       const [taskersSnap, permsSnap] = await Promise.all([
         database.ref('taskers').once('value').catch(() => null),
@@ -675,16 +656,12 @@
 
       workspacePermissions = (permsSnap && permsSnap.val()) || {};
 
-      // Only keep taskers with brandinn access
       allTaskers = all.filter(t => {
         const perms = workspacePermissions[t.id] || {};
         return perms[WORKSPACE] === true;
       });
     }
 
-    /* ----------------------------------------------------------
-       MILESTONES
-       ---------------------------------------------------------- */
     function addMilestoneField(title = '', dueDate = '', completed = false) {
       currentMilestones.push({ title, dueDate, completed });
       renderMilestonesList();
@@ -716,9 +693,6 @@
       });
     }
 
-    /* ----------------------------------------------------------
-       DISPATCH MODE
-       ---------------------------------------------------------- */
     function setDispatchMode(mode) {
       const editId = document.getElementById('editProjectId').value;
       const existing = editId ? allProjects[editId] : null;
@@ -757,9 +731,6 @@
       hint.innerHTML = `<i class="fas fa-check-circle"></i> ${allTaskers.length} BrandInn tasker${allTaskers.length !== 1 ? 's' : ''} available.`;
     }
 
-    /* ----------------------------------------------------------
-       LINKED TASK BANNER
-       ---------------------------------------------------------- */
     function showLinkedTaskBanner(project) {
       const banner = document.getElementById('linkedTaskBanner');
       if (!project || !project.dispatch || !project.dispatch.linkedTaskId) {
@@ -781,9 +752,6 @@
       showToast('Unlink will apply when you save', 'info');
     }
 
-    /* ----------------------------------------------------------
-       OPEN MODAL
-       ---------------------------------------------------------- */
     function openModalForNew() {
       document.getElementById('modalTitle').textContent = 'New Project';
       document.getElementById('projectForm').reset();
@@ -863,9 +831,21 @@
       renderMilestonesList();
     }
 
-    /* ----------------------------------------------------------
-       SAVE (with dispatch)
-       ---------------------------------------------------------- */
+    // ── Safe admin log helper ─────────────────────────────────
+    // Writes the audit log, but never lets a permission failure
+    // on the log node break the main save.
+    async function writeAdminLog(payload) {
+      try {
+        const logId = database.ref('admin_logs').push().key;
+        await database.ref(`admin_logs/${logId}`).set({
+          ...payload,
+          timestamp: firebase.database.ServerValue.TIMESTAMP
+        });
+      } catch (e) {
+        console.warn('Admin log write skipped:', e.message);
+      }
+    }
+
     async function saveProject() {
       const btn = document.getElementById('saveProjectBtn');
       const editId = document.getElementById('editProjectId').value;
@@ -936,7 +916,6 @@
         const existingDispatch = existing && existing.dispatch ? existing.dispatch : null;
         const wasLinked = existingDispatch && existingDispatch.linkedTaskId;
 
-        // STEP 1 — project write
         if (editId) {
           await database.ref(`brandinn_projects/${editId}`).update(projectData);
         } else {
@@ -947,7 +926,6 @@
           await ref.set(projectData);
         }
 
-        // STEP 2 — dispatch
         const dispatchNode = {};
 
         if (pendingUnlink || dispatchMode === 'none') {
@@ -991,15 +969,13 @@
             currentReviewCount: 0
           });
 
-          const logId = database.ref('admin_logs').push().key;
-          await database.ref(`admin_logs/${logId}`).set({
+          await writeAdminLog({
             action: 'dispatch_flexikazi_from_project',
             adminId: (currentUser && currentUser.uid) || null,
             admin: (currentUser && currentUser.email) || 'staff',
             targetId: taskId,
             projectId: projectId,
-            workspace: WORKSPACE,
-            timestamp: firebase.database.ServerValue.TIMESTAMP
+            workspace: WORKSPACE
           });
 
           dispatchNode.dispatch = {
@@ -1040,15 +1016,13 @@
             claimedCount: 0
           });
 
-          const logId = database.ref('admin_logs').push().key;
-          await database.ref(`admin_logs/${logId}`).set({
+          await writeAdminLog({
             action: 'dispatch_kasikazi_from_project',
             adminId: (currentUser && currentUser.uid) || null,
             admin: (currentUser && currentUser.email) || 'staff',
             targetId: taskId,
             projectId: projectId,
-            workspace: WORKSPACE,
-            timestamp: firebase.database.ServerValue.TIMESTAMP
+            workspace: WORKSPACE
           });
 
           dispatchNode.dispatch = {
@@ -1063,7 +1037,6 @@
             dispatchedBy: (currentUser && currentUser.email) || 'staff'
           };
         } else if (wasLinked) {
-          // Refresh metadata only
           dispatchNode.dispatch = {
             ...existingDispatch,
             ...(dispatchMode === 'flexikazi' ? {
@@ -1099,9 +1072,6 @@
       }
     }
 
-    /* ----------------------------------------------------------
-       RENDER
-       ---------------------------------------------------------- */
     function dispatchPillHtml(p) {
       const d = p.dispatch;
       if (!d || !d.linkedTaskId) {
@@ -1258,9 +1228,6 @@
       });
     }
 
-    /* ----------------------------------------------------------
-       WIRE UP
-       ---------------------------------------------------------- */
     function wireUp() {
       document.querySelectorAll('.filter-chip').forEach(btn => btn.addEventListener('click', function() {
         document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
@@ -1290,9 +1257,6 @@
       });
     }
 
-    /* ----------------------------------------------------------
-       BOOT
-       ---------------------------------------------------------- */
     async function boot() {
       try {
         await loadTaskers();
