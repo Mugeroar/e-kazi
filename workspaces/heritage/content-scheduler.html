@@ -4,17 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Content Scheduler | The Heritage</title>
-  
+
   <meta name="theme-color" content="#8b5cf6">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  
+
   <link rel="icon" type="image/png" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview(1).png">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
-  
+
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    
+
     :root {
       --scheduler: #8b5cf6;
       --scheduler-dark: #6d28d9;
@@ -27,8 +27,11 @@
       --warning: #f59e0b;
       --danger: #ef4444;
       --info: #3b82f6;
+      --gold: #ca8a04;
+      --gold-soft: #fef3c7;
+      --gold-dark: #a16207;
     }
-    
+
     body {
       font-family: 'Inter', sans-serif;
       background: linear-gradient(145deg, #f8fafc 0%, #ffffff 100%);
@@ -38,7 +41,7 @@
       display: flex;
       flex-direction: column;
     }
-    
+
     .navbar {
       background: rgba(255,255,255,0.97);
       backdrop-filter: blur(16px);
@@ -53,379 +56,149 @@
       flex-wrap: wrap;
       gap: 8px;
     }
-    
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      cursor: pointer;
-      text-decoration: none;
-    }
-    
-    .logo-img {
-      height: 34px;
-      width: 34px;
-      border-radius: 10px;
-      object-fit: contain;
-      background: white;
-      box-shadow: 0 4px 12px rgba(139,92,246,0.2);
-    }
-    
-    .logo-text {
-      font-weight: 800;
-      font-size: 1.1rem;
-      background: linear-gradient(145deg, #a78bfa, #6d28d9);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    
-    .logo-text span {
-      font-weight: 600;
-      font-size: 0.7rem;
-      background: #8b5cf6;
-      -webkit-text-fill-color: #8b5cf6;
-      margin-left: 3px;
-    }
-    
-    .nav-right {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-    
-    .nav-btn {
-      background: rgba(139,92,246,0.08);
-      border: 1px solid rgba(139,92,246,0.2);
-      padding: 0.4rem 0.8rem;
-      border-radius: 25px;
-      color: var(--scheduler-dark);
-      font-weight: 600;
-      font-size: 0.7rem;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      text-decoration: none;
-      transition: all 0.2s;
-    }
-    
-    .nav-btn:hover,
-    .nav-btn.active {
-      background: var(--scheduler);
-      color: white;
-      border-color: var(--scheduler-dark);
-    }
-    
-    .container {
-      padding: 1rem 2%;
-      flex: 1;
-      max-width: 1400px;
-      margin: 0 auto;
-      width: 100%;
-    }
-    
-    .page-header {
-      margin-bottom: 1.5rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 0.8rem;
-    }
-    
-    .page-header h1 {
-      font-size: 1.3rem;
-      font-weight: 800;
-      color: #0f172a;
-    }
-    
-    .page-header h1 i {
-      color: var(--scheduler-dark);
-      margin-right: 8px;
-    }
-    
-    .stats-row {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 12px;
-      margin-bottom: 1.5rem;
-    }
-    
-    .stat-mini {
-      background: white;
-      border-radius: 16px;
-      padding: 0.9rem 1.2rem;
-      border: 1px solid var(--scheduler-light);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.02);
-    }
-    
-    .stat-mini .stat-num {
-      font-size: 1.6rem;
-      font-weight: 800;
-      color: var(--scheduler-dark);
-    }
-    
-    .stat-mini .stat-label {
-      font-size: 0.65rem;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    
-    .filter-bar {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-bottom: 1.2rem;
-      align-items: center;
-    }
-    
-    .filter-btn {
-      padding: 0.4rem 1rem;
-      border-radius: 30px;
-      border: 1.5px solid #e2e8f0;
-      background: white;
-      color: #64748b;
-      font-weight: 600;
-      font-size: 0.7rem;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    
-    .filter-btn:hover {
-      border-color: var(--scheduler);
-      color: var(--scheduler-dark);
-    }
-    
-    .filter-btn.active {
-      background: var(--scheduler);
-      color: white;
-      border-color: var(--scheduler);
-    }
-    
-    .search-box {
-      flex: 1;
-      min-width: 180px;
-      max-width: 300px;
-      position: relative;
-    }
-    
-    .search-box input {
-      width: 100%;
-      padding: 0.4rem 0.8rem 0.4rem 2rem;
-      border-radius: 30px;
-      border: 1.5px solid #e2e8f0;
-      font-size: 0.75rem;
-      font-family: 'Inter', sans-serif;
-    }
-    
-    .search-box i {
-      position: absolute;
-      left: 10px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: #94a3b8;
-      font-size: 0.75rem;
-    }
-    
-    .business-filter {
-      padding: 0.4rem 1rem;
-      border-radius: 30px;
-      border: 1.5px solid #e2e8f0;
-      background: white;
-      font-size: 0.7rem;
-      font-family: 'Inter', sans-serif;
-      min-width: 150px;
-    }
-    
-    .table-wrap {
-      background: white;
-      border-radius: 20px;
-      border: 1px solid var(--scheduler-light);
-      overflow: hidden;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.02);
-    }
-    
-    .table-scroll {
-      overflow-x: auto;
-      max-height: 55vh;
-      overflow-y: auto;
-    }
-    
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.75rem;
-    }
-    
-    thead {
-      position: sticky;
-      top: 0;
-      z-index: 2;
-      background: var(--scheduler-light);
-    }
-    
-    th {
-      padding: 0.7rem 0.8rem;
-      text-align: left;
-      font-weight: 700;
-      color: var(--scheduler-dark);
-      font-size: 0.65rem;
-      text-transform: uppercase;
-      letter-spacing: 0.3px;
-    }
-    
-    td {
-      padding: 0.6rem 0.8rem;
-      border-bottom: 1px solid #f1f5f9;
-      vertical-align: middle;
-    }
-    
-    tr:hover td {
-      background: #faf5ff;
-    }
-    
-    .status-badge {
-      display: inline-block;
-      padding: 0.2rem 0.6rem;
-      border-radius: 20px;
-      font-size: 0.6rem;
-      font-weight: 700;
-      white-space: nowrap;
-    }
-    
+
+    .logo { display: flex; align-items: center; gap: 10px; cursor: pointer; text-decoration: none; }
+    .logo-img { height: 34px; width: 34px; border-radius: 10px; object-fit: contain; background: white; box-shadow: 0 4px 12px rgba(139,92,246,0.2); }
+    .logo-text { font-weight: 800; font-size: 1.1rem; background: linear-gradient(145deg, #a78bfa, #6d28d9); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .logo-text span { font-weight: 600; font-size: 0.7rem; background: #8b5cf6; -webkit-text-fill-color: #8b5cf6; margin-left: 3px; }
+
+    .nav-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .nav-btn { background: rgba(139,92,246,0.08); border: 1px solid rgba(139,92,246,0.2); padding: 0.4rem 0.8rem; border-radius: 25px; color: var(--scheduler-dark); font-weight: 600; font-size: 0.7rem; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; text-decoration: none; transition: all 0.2s; }
+    .nav-btn:hover, .nav-btn.active { background: var(--scheduler); color: white; border-color: var(--scheduler-dark); }
+
+    .container { padding: 1rem 2%; flex: 1; max-width: 1400px; margin: 0 auto; width: 100%; }
+
+    .page-header { margin-bottom: 1.2rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.8rem; }
+    .page-header h1 { font-size: 1.3rem; font-weight: 800; color: #0f172a; }
+    .page-header h1 i { color: var(--scheduler-dark); margin-right: 8px; }
+
+    .stats-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin-bottom: 1.2rem; }
+    .stat-mini { background: white; border-radius: 16px; padding: 0.8rem 1rem; border: 1px solid var(--scheduler-light); box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+    .stat-mini .stat-num { font-size: 1.5rem; font-weight: 800; color: var(--scheduler-dark); }
+    .stat-mini .stat-label { font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .stat-mini.warn .stat-num { color: var(--gold-dark); }
+    .stat-mini.warn { border-color: var(--gold-soft); background: #fffdf5; }
+
+    /* Needs Content strip */
+    .needs-strip { background: white; border-radius: 16px; border: 1px solid var(--gold-soft); padding: 0.9rem; margin-bottom: 1.2rem; }
+    .needs-strip h4 { font-size: 0.7rem; font-weight: 800; color: var(--gold-dark); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 0.6rem; display: flex; align-items: center; gap: 6px; }
+    .needs-cards { display: flex; gap: 0.6rem; overflow-x: auto; padding-bottom: 4px; }
+    .need-card { flex: 0 0 240px; background: #fffdf5; border: 1px solid var(--gold-soft); border-radius: 12px; padding: 0.6rem 0.8rem; cursor: pointer; transition: all 0.15s; }
+    .need-card:hover { border-color: var(--gold); transform: translateY(-1px); }
+    .need-card .nc-partner { font-size: 0.75rem; font-weight: 700; color: var(--text-primary); }
+    .need-card .nc-meta { font-size: 0.6rem; color: var(--text-muted); margin-top: 2px; }
+    .need-card .nc-badge { display: inline-block; margin-top: 4px; padding: 0.1rem 0.45rem; border-radius: 10px; font-size: 0.55rem; font-weight: 700; background: var(--gold-soft); color: var(--gold-dark); }
+
+    .filter-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1rem; align-items: center; }
+    .filter-btn { padding: 0.4rem 1rem; border-radius: 30px; border: 1.5px solid #e2e8f0; background: white; color: #64748b; font-weight: 600; font-size: 0.7rem; cursor: pointer; transition: all 0.2s; }
+    .filter-btn:hover { border-color: var(--scheduler); color: var(--scheduler-dark); }
+    .filter-btn.active { background: var(--scheduler); color: white; border-color: var(--scheduler); }
+
+    .search-box { flex: 1; min-width: 180px; max-width: 300px; position: relative; }
+    .search-box input { width: 100%; padding: 0.4rem 0.8rem 0.4rem 2rem; border-radius: 30px; border: 1.5px solid #e2e8f0; font-size: 0.75rem; font-family: 'Inter', sans-serif; }
+    .search-box i { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 0.75rem; }
+
+    .table-wrap { background: white; border-radius: 20px; border: 1px solid var(--scheduler-light); overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.02); }
+    .table-scroll { overflow-x: auto; max-height: 55vh; overflow-y: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
+    thead { position: sticky; top: 0; z-index: 2; background: var(--scheduler-light); }
+    th { padding: 0.7rem 0.8rem; text-align: left; font-weight: 700; color: var(--scheduler-dark); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.3px; white-space: nowrap; }
+    td { padding: 0.6rem 0.8rem; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+    tr:hover td { background: #faf5ff; }
+
+    .status-badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.6rem; font-weight: 700; white-space: nowrap; }
     .status-scheduled { background: var(--scheduler-light); color: var(--scheduler-dark); }
     .status-published { background: #d1fae5; color: #065f46; }
     .status-pending { background: #fef3c7; color: #92400e; }
     .status-cancelled { background: #fee2e2; color: #991b1b; }
-    
+
     .platform-icon { display: inline-flex; align-items: center; gap: 5px; }
     .platform-icon i { font-size: 0.8rem; }
-    
+
     .action-btns { display: flex; gap: 6px; flex-wrap: wrap; }
-    
-    .action-btn {
-      padding: 0.25rem 0.6rem;
-      border-radius: 8px;
-      border: none;
-      font-size: 0.6rem;
-      font-weight: 600;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      font-family: inherit;
-      transition: all 0.2s;
-    }
-    
+    .action-btn { padding: 0.25rem 0.6rem; border-radius: 8px; border: none; font-size: 0.6rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; font-family: inherit; transition: all 0.2s; }
     .btn-edit { background: var(--scheduler-light); color: var(--scheduler-dark); }
     .btn-edit:hover { background: var(--scheduler); color: white; }
     .btn-publish { background: #d1fae5; color: #065f46; }
     .btn-publish:hover { background: var(--success); color: white; }
     .btn-cancel { background: #fee2e2; color: #991b1b; }
     .btn-cancel:hover { background: var(--danger); color: white; }
-    
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.5);
-      z-index: 3000;
-      justify-content: center;
-      align-items: center;
-    }
-    
+    .btn-approve { background: #dbeafe; color: #1e40af; }
+    .btn-approve:hover { background: var(--info); color: white; }
+
+    .dispatch-pill { display: inline-flex; align-items: center; gap: 4px; padding: 0.15rem 0.5rem; border-radius: 10px; font-size: 0.55rem; font-weight: 700; margin-top: 3px; }
+    .dispatch-pill.flexi { background: var(--gold-soft); color: var(--gold-dark); }
+    .dispatch-pill.none { background: #f1f5f9; color: #475569; }
+    .dispatch-pill.submitted { background: #dbeafe; color: #1e40af; }
+
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 3000; justify-content: center; align-items: center; }
     .modal-overlay.show { display: flex; }
-    
-    .modal {
-      background: white;
-      border-radius: 24px;
-      padding: 1.5rem;
-      max-width: 600px;
-      width: 95%;
-      max-height: 85vh;
-      overflow-y: auto;
-    }
-    
+    .modal { background: white; border-radius: 24px; padding: 1.5rem; max-width: 680px; width: 95%; max-height: 90vh; overflow-y: auto; }
     .modal h3 { font-size: 1rem; margin-bottom: 1.2rem; color: var(--scheduler-dark); display: flex; align-items: center; gap: 8px; }
-    .form-group { margin-bottom: 1rem; }
-    .form-group label { display: block; font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.3rem; }
-    .form-group input, .form-group select, .form-group textarea {
-      width: 100%;
-      padding: 0.6rem 0.8rem;
-      border-radius: 12px;
-      border: 1.5px solid #e2e8f0;
-      font-size: 0.8rem;
-      font-family: 'Inter', sans-serif;
-      background: #f8fafc;
-    }
-    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--scheduler); }
+
+    .form-group { margin-bottom: 0.9rem; }
+    .form-group label { display: block; font-size: 0.65rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.3rem; letter-spacing: 0.3px; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.6rem 0.8rem; border-radius: 12px; border: 1.5px solid #e2e8f0; font-size: 0.8rem; font-family: 'Inter', sans-serif; background: #f8fafc; }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--scheduler); background: white; }
+    .form-group input[readonly] { background: #f1f5f9; color: var(--text-muted); }
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
     .btn-row { display: flex; gap: 10px; margin-top: 1.2rem; }
-    
-    .btn {
-      padding: 0.6rem 1.2rem;
-      border-radius: 12px;
-      border: none;
-      font-weight: 700;
-      font-size: 0.8rem;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-family: inherit;
-    }
+
+    .btn { padding: 0.6rem 1.2rem; border-radius: 12px; border: none; font-weight: 700; font-size: 0.8rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font-family: inherit; }
     .btn-primary { background: var(--scheduler); color: white; }
     .btn-primary:hover { background: var(--scheduler-dark); }
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
     .btn-secondary { background: #f1f5f9; color: #475569; }
     .btn-secondary:hover { background: #e2e8f0; }
-    
+
     .empty-row td { text-align: center; padding: 2rem; color: #94a3b8; }
-    
-    .toast {
-      position: fixed;
-      bottom: 25px;
-      right: 25px;
-      background: var(--success);
-      color: white;
-      padding: 0.7rem 1.2rem;
-      border-radius: 30px;
-      font-weight: 600;
-      z-index: 4000;
-      animation: slideIn 0.3s ease;
-      font-size: 0.75rem;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    }
+
+    /* Dispatch section — mirrors BrandInn */
+    .dispatch-section { background: linear-gradient(135deg, var(--scheduler-light) 0%, #faf5ff 100%); border: 1px solid var(--scheduler-light); border-radius: 14px; padding: 1rem; margin: 1rem 0; }
+    .dispatch-section-title { font-size: 0.7rem; font-weight: 800; color: var(--scheduler-dark); text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px; margin-bottom: 0.6rem; }
+    .dispatch-options { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 0.8rem; }
+    .dispatch-option { background: white; border: 2px solid #e2e8f0; border-radius: 12px; padding: 0.7rem 0.6rem; cursor: pointer; text-align: center; transition: all 0.2s; position: relative; }
+    .dispatch-option:hover { border-color: var(--scheduler); transform: translateY(-2px); }
+    .dispatch-option.selected { border-color: var(--scheduler); background: var(--scheduler-light); box-shadow: 0 4px 12px rgba(139,92,246,0.15); }
+    .dispatch-option.selected::after { content: '\f00c'; font-family: 'Font Awesome 6 Free'; font-weight: 900; position: absolute; top: 6px; right: 8px; width: 16px; height: 16px; border-radius: 50%; background: var(--scheduler); color: white; display: flex; align-items: center; justify-content: center; font-size: 0.5rem; }
+    .dispatch-option.selected.flexi { border-color: var(--gold); background: linear-gradient(135deg, var(--gold-soft), #fffbf0); }
+    .dispatch-option.selected.flexi::after { background: var(--gold); }
+    .dispatch-option .do-icon { width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.35rem; color: white; font-size: 0.85rem; }
+    .dispatch-option.flexi .do-icon { background: linear-gradient(135deg, #ca8a04, #fbbf24); }
+    .dispatch-option.none .do-icon { background: linear-gradient(135deg, #94a3b8, #cbd5e1); }
+    .dispatch-option .do-title { font-size: 0.72rem; font-weight: 700; color: #1e293b; }
+    .dispatch-option .do-sub { font-size: 0.58rem; color: var(--text-muted); margin-top: 2px; line-height: 1.3; }
+
+    .dispatch-fields { display: none; background: white; border-radius: 12px; padding: 0.9rem; margin-top: 0.5rem; border: 1px solid #e2e8f0; }
+    .dispatch-fields.show { display: block; }
+    .dispatch-fields.flexi { border-left: 3px solid var(--gold); }
+
+    .dispatch-hint { font-size: 0.65rem; color: var(--text-muted); display: flex; align-items: center; gap: 5px; margin-top: 0.4rem; padding: 0.5rem 0.7rem; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; }
+    .dispatch-hint.warn { background: #fef3c7; border-color: #fcd34d; color: #92400e; }
+    .dispatch-hint.ok { background: #d1fae5; border-color: #6ee7b7; color: #065f46; }
+
+    .linked-task-banner { display: none; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 0.7rem 0.9rem; margin-bottom: 0.8rem; font-size: 0.7rem; color: var(--text-muted); align-items: center; justify-content: space-between; gap: 8px; }
+    .linked-task-banner.show { display: flex; }
+    .ltb-info { flex: 1; min-width: 0; }
+    .ltb-title { font-weight: 700; color: #1e293b; font-size: 0.75rem; }
+    .ltb-meta { font-size: 0.62rem; color: var(--text-muted); margin-top: 2px; }
+
+    .toast { position: fixed; bottom: 25px; right: 25px; background: var(--success); color: white; padding: 0.7rem 1.2rem; border-radius: 30px; font-weight: 600; z-index: 4000; animation: slideIn 0.3s ease; font-size: 0.75rem; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 6px; }
     .toast.error { background: var(--danger); }
+    .toast.warning { background: var(--warning); }
+    .toast.info { background: var(--info); }
     @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-    
-    .business-badge {
-      display: inline-block;
-      padding: 0.2rem 0.5rem;
-      background: #f1f5f9;
-      border-radius: 12px;
-      font-size: 0.6rem;
-      font-weight: 600;
-      color: #475569;
-    }
-    
-    @media (max-width: 768px) {
-      .stats-row { grid-template-columns: repeat(2, 1fr); }
+
+    @media (max-width: 900px) {
+      .stats-row { grid-template-columns: repeat(3, 1fr); }
       .form-row { grid-template-columns: 1fr; }
     }
-    
-    .footer {
-      text-align: center;
-      padding: 1rem;
-      color: #94a3b8;
-      font-size: 0.7rem;
-      border-top: 1px solid var(--scheduler-light);
-      margin-top: 1rem;
+    @media (max-width: 600px) {
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+      .dispatch-options { grid-template-columns: 1fr; }
     }
+
+    .footer { text-align: center; padding: 1rem; color: #94a3b8; font-size: 0.7rem; border-top: 1px solid var(--scheduler-light); margin-top: 1rem; }
   </style>
 </head>
 <body>
@@ -448,7 +221,7 @@
   <div class="container">
     <div class="page-header">
       <h1><i class="fas fa-calendar-alt"></i> Content Scheduler</h1>
-      <button class="btn btn-primary" onclick="showAddModal()" style="padding:0.5rem 1rem;font-size:0.7rem;">
+      <button class="btn btn-primary" id="newPostBtn" onclick="showAddModal()" style="padding:0.5rem 1rem;font-size:0.7rem;">
         <i class="fas fa-plus"></i> Schedule Post
       </button>
     </div>
@@ -457,8 +230,14 @@
       <div class="stat-mini"><div class="stat-num" id="statTotal">0</div><div class="stat-label">Total Posts</div></div>
       <div class="stat-mini"><div class="stat-num" id="statScheduled">0</div><div class="stat-label">Scheduled</div></div>
       <div class="stat-mini"><div class="stat-num" id="statPublished">0</div><div class="stat-label">Published</div></div>
-      <div class="stat-mini"><div class="stat-num" id="statPending">0</div><div class="stat-label">Pending</div></div>
-      <div class="stat-mini"><div class="stat-num" id="statBusinesses">0</div><div class="stat-label">Businesses</div></div>
+      <div class="stat-mini"><div class="stat-num" id="statPending">0</div><div class="stat-label">Pending Review</div></div>
+      <div class="stat-mini"><div class="stat-num" id="statBusinesses">0</div><div class="stat-label">Partners</div></div>
+      <div class="stat-mini warn"><div class="stat-num" id="statNeedsContent">0</div><div class="stat-label">Listings Need Content</div></div>
+    </div>
+
+    <div class="needs-strip" id="needsStrip" style="display:none;">
+      <h4><i class="fas fa-exclamation-circle"></i> Active listings still needing content</h4>
+      <div class="needs-cards" id="needsCards"></div>
     </div>
 
     <div class="filter-bar">
@@ -467,12 +246,9 @@
       <button class="filter-btn" data-filter="published">Published</button>
       <button class="filter-btn" data-filter="pending">Pending Review</button>
       <button class="filter-btn" data-filter="cancelled">Cancelled</button>
-      <select id="businessFilter" class="business-filter">
-        <option value="all">All Businesses</option>
-      </select>
       <div class="search-box">
         <i class="fas fa-search"></i>
-        <input type="text" id="searchInput" placeholder="Search by title, business...">
+        <input type="text" id="searchInput" placeholder="Search by title, partner, listing...">
       </div>
     </div>
 
@@ -481,16 +257,17 @@
         <table>
           <thead>
             <tr>
-              <th>Business/Partner</th>
+              <th>Listing / Partner</th>
               <th>Title / Content</th>
               <th>Platform</th>
-              <th>Scheduled Date</th>
+              <th>Scheduled</th>
               <th>Status</th>
+              <th>Dispatch</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody id="tableBody">
-            <tr class="empty-row"><td colspan="6">Loading content...</td></tr>
+            <tr class="empty-row"><td colspan="7">Loading content…</td></tr>
           </tbody>
         </table>
       </div>
@@ -498,7 +275,7 @@
   </div>
 
   <div class="footer">
-    <i class="far fa-copyright"></i> 2026 The Heritage · Content Scheduler — Plan, schedule & publish content for each business partner
+    <i class="far fa-copyright"></i> 2026 The Heritage · Content Scheduler
   </div>
 
   <div class="modal-overlay" id="modal"><div class="modal" id="modalContent"></div></div>
@@ -509,6 +286,9 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 
   <script>
+    /* ────────────────────────────────────────────────────────────
+       Firebase init
+    ──────────────────────────────────────────────────────────── */
     const firebaseConfig = {
       apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
       authDomain: "mugera-e51cc.firebaseapp.com",
@@ -518,146 +298,209 @@
       messagingSenderId: "1024868637509",
       appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
     };
-
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
     const auth = firebase.auth();
 
-    let allContent = {};
-    let allPartners = {};
+    /* ────────────────────────────────────────────────────────────
+       State
+    ──────────────────────────────────────────────────────────── */
+    const WORKSPACE = 'heritage';
+    let allContent = {};        // heritage_scheduled_content
+    let allListings = {};       // heritage_listings
+    let allPartners = {};       // heritage_partners
+    let eligibleTaskers = [];   // taskers with workspacePermissions.heritage === true
+    let currentUser = null;
     let currentFilter = 'all';
-    let currentBusinessFilter = 'all';
     let searchQuery = '';
+    let dispatchMode = 'none';
+    let linkedTasks = {};       // taskId → task (for submission preview)
 
-    const platformIcons = {
-      'Instagram': '<i class="fab fa-instagram" style="color:#e1306c;"></i>',
-      'Facebook': '<i class="fab fa-facebook" style="color:#1877f2;"></i>',
-      'Twitter': '<i class="fab fa-twitter" style="color:#1da1f2;"></i>',
-      'LinkedIn': '<i class="fab fa-linkedin" style="color:#0a66c2;"></i>',
-      'TikTok': '<i class="fab fa-tiktok"></i>',
-      'YouTube': '<i class="fab fa-youtube" style="color:#ff0000;"></i>',
-      'WhatsApp': '<i class="fab fa-whatsapp" style="color:#25d366;"></i>',
-      'Website': '<i class="fas fa-globe"></i>'
-    };
+    /* ────────────────────────────────────────────────────────────
+       Utilities
+    ──────────────────────────────────────────────────────────── */
+    function escapeHtml(str) {
+      if (str == null) return '';
+      return String(str).replace(/[&<>"']/g, m => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[m]));
+    }
 
-    function showToast(msg, isError) {
+    function showToast(msg, type) {
+      type = type || 'success';
       const c = document.getElementById('toastContainer');
       const existing = c.querySelector('.toast');
       if (existing) existing.remove();
+      const icons = { success: 'check-circle', error: 'exclamation-circle', warning: 'exclamation-triangle', info: 'info-circle' };
       const t = document.createElement('div');
-      t.className = 'toast' + (isError ? ' error' : '');
-      t.innerHTML = '<i class="fas fa-' + (isError ? 'exclamation-circle' : 'check-circle') + '"></i> ' + msg;
+      t.className = 'toast ' + (type === 'success' ? '' : type);
+      t.innerHTML = '<i class="fas fa-' + (icons[type] || 'check-circle') + '"></i> ' + escapeHtml(msg);
       c.appendChild(t);
       setTimeout(() => t.remove(), 3500);
     }
 
-    function getPartnerOptions(selectedId) {
-      let options = '<option value="">— Select Business —</option>';
-      Object.entries(allPartners).forEach(([id, partner]) => {
-        if (partner && (partner.status === 'active' || !partner.status)) {
-          const name = partner.businessName || partner.name || 'Unnamed';
-          options += `<option value="${escapeHtml(id)}" data-name="${escapeHtml(name)}" ${selectedId === id ? 'selected' : ''}>${escapeHtml(name)}</option>`;
-        }
-      });
-      return options;
+    // Parse a YYYY-MM-DD as local midnight (avoids the UTC off-by-one)
+    function parseLocalDate(dateStr) {
+      if (!dateStr) return null;
+      const [y, m, d] = dateStr.split('-').map(Number);
+      if (!y || !m || !d) return null;
+      return new Date(y, m - 1, d);
     }
 
-    function updateBusinessFilterDropdown() {
-      const select = document.getElementById('businessFilter');
-      let options = '<option value="all">All Businesses</option>';
-      const businesses = new Set();
-      Object.values(allContent).forEach(item => {
-        if (item.businessId && item.businessName) {
-          businesses.add(JSON.stringify({ id: item.businessId, name: item.businessName }));
-        }
-      });
-      Array.from(businesses).forEach(b => {
-        const parsed = JSON.parse(b);
-        options += `<option value="${escapeHtml(parsed.id)}">${escapeHtml(parsed.name)}</option>`;
-      });
-      select.innerHTML = options;
-      select.value = currentBusinessFilter;
-    }
-
-    function getBusinessName(partnerId, fallback) {
-      if (partnerId && allPartners[partnerId]) {
-        return allPartners[partnerId].businessName || allPartners[partnerId].name || fallback;
-      }
-      return fallback || 'Unknown Business';
-    }
-
-    function getStatusLabel(status) {
-      const labels = { scheduled: 'Scheduled', published: 'Published', pending: 'Pending Review', cancelled: 'Cancelled' };
-      return labels[status] || 'Scheduled';
-    }
-
-    function getStatusClass(status) {
-      const classes = { scheduled: 'status-scheduled', published: 'status-published', pending: 'status-pending', cancelled: 'status-cancelled' };
-      return classes[status] || 'status-scheduled';
+    function todayPlus(days) {
+      const d = new Date();
+      d.setDate(d.getDate() + days);
+      return d.toISOString().split('T')[0];
     }
 
     function formatDate(dateStr) {
       if (!dateStr) return '—';
-      const d = new Date(dateStr);
+      const d = parseLocalDate(dateStr);
+      if (!d) return dateStr;
       return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    function getStatusLabel(status) {
+      return ({ scheduled: 'Scheduled', published: 'Published', pending: 'Pending Review', cancelled: 'Cancelled' })[status] || 'Scheduled';
+    }
+    function getStatusClass(status) {
+      return ({ scheduled: 'status-scheduled', published: 'status-published', pending: 'status-pending', cancelled: 'status-cancelled' })[status] || 'status-scheduled';
+    }
+
+    /* ────────────────────────────────────────────────────────────
+       Permission gate + tasker loader
+    ──────────────────────────────────────────────────────────── */
+    async function loadHeritageTaskers() {
+      const [taskersSnap, permsSnap] = await Promise.all([
+        database.ref('taskers').once('value'),
+        database.ref('workspacePermissions').once('value')
+      ]);
+      const taskers = taskersSnap.val() || {};
+      const perms = permsSnap.val() || {};
+      eligibleTaskers = Object.entries(taskers)
+        .map(([id, t]) => ({ id, ...t }))
+        .filter(t => t.verified === true && perms[t.id] && perms[t.id][WORKSPACE] === true);
+    }
+
+    /* ────────────────────────────────────────────────────────────
+       Listing helpers
+    ──────────────────────────────────────────────────────────── */
+    function activeListings() {
+      return Object.entries(allListings)
+        .map(([id, l]) => ({ id, ...l }))
+        .filter(l => (l.status === 'active' || !l.status) && (l.contentStatus === 'needs_content' || l.contentStatus === 'in_progress' || l.contentStatus === 'scheduled' || !l.contentStatus));
+    }
+
+    function listingsNeedingContent() {
+      return Object.entries(allListings)
+        .map(([id, l]) => ({ id, ...l }))
+        .filter(l => (l.status === 'active' || !l.status) && (l.contentStatus === 'needs_content' || !l.contentStatus));
+    }
+
+    function getPartnerDisplay(partnerName) {
+      if (!partnerName) return 'Unknown partner';
+      return partnerName;
+    }
+
+    function listingLabel(l) {
+      const partner = l.partnerName || 'Unknown partner';
+      const range = (l.startDate || '?') + ' → ' + (l.endDate || '?');
+      return partner + ' · ' + (l.adType || 'Ad') + ' · ' + range;
+    }
+
+    /* ────────────────────────────────────────────────────────────
+       Render
+    ──────────────────────────────────────────────────────────── */
+    function renderNeedsStrip() {
+      const needs = listingsNeedingContent();
+      document.getElementById('statNeedsContent').textContent = needs.length;
+      const strip = document.getElementById('needsStrip');
+      const cards = document.getElementById('needsCards');
+      if (!needs.length) { strip.style.display = 'none'; return; }
+      strip.style.display = 'block';
+      cards.innerHTML = needs.map(l => {
+        const startFmt = formatDate(l.startDate);
+        return `
+          <div class="need-card" onclick="openNewForListing('${escapeHtml(l.id)}')">
+            <div class="nc-partner">${escapeHtml(getPartnerDisplay(l.partnerName))}</div>
+            <div class="nc-meta">${escapeHtml(l.adType || 'Ad')} · ${escapeHtml(startFmt)}</div>
+            <div class="nc-badge">Needs content</div>
+          </div>
+        `;
+      }).join('');
     }
 
     function renderTable() {
       const tbody = document.getElementById('tableBody');
-      let items = Object.entries(allContent).map(e => Object.assign({ id: e[0] }, e[1]));
+      let items = Object.entries(allContent).map(([id, c]) => ({ id, ...c }));
 
-      if (currentFilter !== 'all') {
-        items = items.filter(c => c.status === currentFilter);
-      }
-
-      if (currentBusinessFilter !== 'all') {
-        items = items.filter(c => c.businessId === currentBusinessFilter);
-      }
+      if (currentFilter !== 'all') items = items.filter(c => c.status === currentFilter);
 
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
-        items = items.filter(c => 
-          (c.title || '').toLowerCase().includes(q) || 
+        items = items.filter(c =>
+          (c.title || '').toLowerCase().includes(q) ||
           (c.content || '').toLowerCase().includes(q) ||
           (c.businessName || '').toLowerCase().includes(q)
         );
       }
 
-      items.sort((a, b) => new Date(b.scheduledDate || 0) - new Date(a.scheduledDate || 0));
+      items.sort((a, b) => {
+        const da = parseLocalDate(a.scheduledDate)?.getTime() || 0;
+        const db = parseLocalDate(b.scheduledDate)?.getTime() || 0;
+        return db - da;
+      });
 
       document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.classList.remove('active');
-        if (btn.dataset.filter === currentFilter) btn.classList.add('active');
+        btn.classList.toggle('active', btn.dataset.filter === currentFilter);
       });
 
       if (!items.length) {
-        tbody.innerHTML = '<tr class="empty-row"><td colspan="6"><i class="fas fa-calendar-day" style="font-size:2rem;display:block;margin-bottom:8px;opacity:0.4;"></i>No scheduled content found</td></tr>';
+        tbody.innerHTML = '<tr class="empty-row"><td colspan="7"><i class="fas fa-calendar-day" style="font-size:2rem;display:block;margin-bottom:8px;opacity:0.4;"></i>No scheduled content found</td></tr>';
+        updateStats();
         return;
       }
 
       tbody.innerHTML = items.map(item => {
-        const platformIcon = platformIcons[item.platform] || '<i class="fas fa-share-alt"></i>';
-        const statusLabel = getStatusLabel(item.status);
-        const statusClass = getStatusClass(item.status);
+        const d = item.dispatch || {};
+        const sub = item.submission || {};
+        const listing = allListings[item.listingId];
+        const listingLine = listing
+          ? escapeHtml(listing.partnerName || item.businessName || 'Unknown') + ' <span style="font-size:0.6rem;color:#64748b;">· ' + escapeHtml(listing.adType || '') + '</span>'
+          : escapeHtml(item.businessName || 'Unknown') + ' <span style="font-size:0.6rem;color:#dc2626;">· ⚠ no listing</span>';
+
+        let dispatchPill = '<span class="dispatch-pill none"><i class="fas fa-folder"></i> Internal</span>';
+        if (d.linkedTaskId) {
+          if (sub.submittedAt) {
+            dispatchPill = '<span class="dispatch-pill submitted"><i class="fas fa-inbox"></i> Submitted</span>';
+          } else if (d.mode === 'flexikazi') {
+            dispatchPill = '<span class="dispatch-pill flexi"><i class="fas fa-user-check"></i> ' + escapeHtml((d.taskerEmail || '').split('@')[0] || 'tasker') + '</span>';
+          }
+        }
+
         const canPublish = item.status === 'scheduled' || item.status === 'pending';
         const canCancel = item.status !== 'published' && item.status !== 'cancelled';
-        const businessDisplay = item.businessName || '—';
-        
+        const canApprove = sub.submittedAt && item.status !== 'published';
+
         return `
           <tr>
-            <td><span class="business-badge"><i class="fas fa-building"></i> ${escapeHtml(businessDisplay)}</span></td>
+            <td style="max-width:180px;">
+              <div style="font-weight:700;font-size:0.72rem;">${listingLine}</div>
+            </td>
             <td style="max-width:250px;">
               <strong>${escapeHtml(item.title || 'Untitled')}</strong>
-              <p style="font-size:0.65rem;color:#64748b;margin-top:3px;">${escapeHtml(item.content?.substring(0, 60) || 'No description')}${item.content?.length > 60 ? '...' : ''}</p>
+              <p style="font-size:0.62rem;color:#64748b;margin-top:2px;">${escapeHtml((item.content || '').substring(0, 70))}${(item.content || '').length > 70 ? '…' : ''}</p>
             </td>
-            <td><span class="platform-icon">${platformIcon} ${escapeHtml(item.platform || 'Other')}</span></td>
-            <td>${formatDate(item.scheduledDate)} ${item.scheduledTime || ''}</td>
-            <td><span class="status-badge ${statusClass}">${statusLabel}</span></td>
+            <td>${escapeHtml(item.platform || '—')}</td>
+            <td style="white-space:nowrap;">${escapeHtml(formatDate(item.scheduledDate))}<br><span style="font-size:0.62rem;color:#64748b;">${escapeHtml(item.scheduledTime || '')}</span></td>
+            <td><span class="status-badge ${getStatusClass(item.status)}">${getStatusLabel(item.status)}</span></td>
+            <td>${dispatchPill}${sub.submissionLinks && sub.submissionLinks.length ? '<br><a href="' + escapeHtml(sub.submissionLinks[0]) + '" target="_blank" rel="noopener" style="font-size:0.6rem;color:#2563eb;">View submission ↗</a>' : ''}</td>
             <td>
               <div class="action-btns">
-                <button class="action-btn btn-edit" onclick="editContent('${item.id}')"><i class="fas fa-edit"></i> Edit</button>
-                ${canPublish ? `<button class="action-btn btn-publish" onclick="updateStatus('${item.id}', 'published')"><i class="fas fa-check"></i> Publish</button>` : ''}
-                ${canCancel ? `<button class="action-btn btn-cancel" onclick="updateStatus('${item.id}', 'cancelled')"><i class="fas fa-times"></i> Cancel</button>` : ''}
+                <button class="action-btn btn-edit" onclick="editContent('${escapeHtml(item.id)}')"><i class="fas fa-edit"></i></button>
+                ${canApprove ? `<button class="action-btn btn-approve" onclick="approveSubmission('${escapeHtml(item.id)}')"><i class="fas fa-check-double"></i> Approve</button>` : ''}
+                ${canPublish ? `<button class="action-btn btn-publish" onclick="updateStatus('${escapeHtml(item.id)}', 'published')"><i class="fas fa-check"></i></button>` : ''}
+                ${canCancel ? `<button class="action-btn btn-cancel" onclick="updateStatus('${escapeHtml(item.id)}', 'cancelled')"><i class="fas fa-times"></i></button>` : ''}
               </div>
             </td>
           </tr>
@@ -669,39 +512,94 @@
 
     function updateStats() {
       const items = Object.values(allContent);
-      const total = items.length;
-      const scheduled = items.filter(c => c.status === 'scheduled').length;
-      const published = items.filter(c => c.status === 'published').length;
-      const pending = items.filter(c => c.status === 'pending').length;
-      const uniqueBusinesses = new Set(items.map(c => c.businessId).filter(Boolean)).size;
-      
-      document.getElementById('statTotal').textContent = total;
-      document.getElementById('statScheduled').textContent = scheduled;
-      document.getElementById('statPublished').textContent = published;
-      document.getElementById('statPending').textContent = pending;
-      document.getElementById('statBusinesses').textContent = uniqueBusinesses;
+      document.getElementById('statTotal').textContent = items.length;
+      document.getElementById('statScheduled').textContent = items.filter(c => c.status === 'scheduled').length;
+      document.getElementById('statPublished').textContent = items.filter(c => c.status === 'published').length;
+      document.getElementById('statPending').textContent = items.filter(c => c.status === 'pending').length;
+      const partners = new Set(items.map(c => c.partnerId || c.businessId || c.businessName).filter(Boolean));
+      document.getElementById('statBusinesses').textContent = partners.size;
     }
 
-    function escapeHtml(str) {
-      if (!str) return '';
-      return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
+    /* ────────────────────────────────────────────────────────────
+       Dispatch mode toggle
+    ──────────────────────────────────────────────────────────── */
+    function setDispatchMode(mode) {
+      dispatchMode = mode;
+      document.querySelectorAll('.dispatch-option').forEach(el => {
+        el.classList.toggle('selected', el.dataset.mode === mode);
+      });
+      const flexi = document.getElementById('flexiFields');
+      if (flexi) flexi.classList.toggle('show', mode === 'flexikazi');
+    }
+
+    function populateTaskerDropdown() {
+      const select = document.getElementById('flexiTasker');
+      const hint = document.getElementById('flexiHint');
+      if (!select) return;
+
+      if (!eligibleTaskers.length) {
+        select.innerHTML = '<option value="">No Heritage-permissioned taskers</option>';
+        hint.className = 'dispatch-hint warn';
+        hint.innerHTML = '<i class="fas fa-exclamation-triangle"></i> No verified tasker has Heritage access yet. Grant <code>workspacePermissions[uid].heritage</code> in the staff portal.';
+        return;
+      }
+      select.innerHTML = '<option value="">Select tasker…</option>' + eligibleTaskers.map(t =>
+        `<option value="${escapeHtml(t.email || t.id)}">${escapeHtml(t.name || t.email || t.id)}${t.zone ? ' · ' + escapeHtml(t.zone) : ''}</option>`
+      ).join('');
+      hint.className = 'dispatch-hint ok';
+      hint.innerHTML = `<i class="fas fa-check-circle"></i> ${eligibleTaskers.length} Heritage tasker${eligibleTaskers.length !== 1 ? 's' : ''} available.`;
+    }
+
+    /* ────────────────────────────────────────────────────────────
+       Modal — New
+    ──────────────────────────────────────────────────────────── */
+    function listingOptions(selectedId) {
+      const list = activeListings();
+      if (!list.length) {
+        return '<option value="">No active listings available — create one in Listings first</option>';
+      }
+      return '<option value="">— Select listing —</option>' + list.map(l =>
+        `<option value="${escapeHtml(l.id)}" ${selectedId === l.id ? 'selected' : ''}>${escapeHtml(listingLabel(l))}</option>`
+      ).join('');
+    }
+
+    function openNewForListing(listingId) {
+      showAddModal();
+      setTimeout(() => {
+        const sel = document.getElementById('cListingId');
+        if (sel) { sel.value = listingId; onListingChange(); }
+      }, 50);
     }
 
     function showAddModal() {
+      const urlListing = new URLSearchParams(window.location.search).get('listingId') || '';
+
       document.getElementById('modalContent').innerHTML = `
         <h3><i class="fas fa-calendar-plus"></i> Schedule New Content</h3>
-        <div class="form-group"><label>Select Business/Partner *</label>
-          <select id="cBusinessId">${getPartnerOptions('')}</select>
+
+        <div class="form-group">
+          <label>Active Listing *</label>
+          <select id="cListingId" onchange="onListingChange()">${listingOptions(urlListing)}</select>
+          <div class="dispatch-hint" id="listingHint" style="margin-top:4px;">
+            <i class="fas fa-info-circle"></i> Content must be scheduled against an active listing.
+          </div>
         </div>
-        <div class="form-group"><label>Post Title *</label><input type="text" id="cTitle" placeholder="e.g., Heritage Week Campaign"></div>
-        <div class="form-group"><label>Content / Caption *</label><textarea id="cContent" rows="3" placeholder="Write your post content here..."></textarea></div>
+
+        <div class="form-row">
+          <div class="form-group"><label>Partner</label><input type="text" id="cPartnerDisplay" readonly placeholder="Derived from listing"></div>
+          <div class="form-group"><label>Listing window</label><input type="text" id="cListingWindow" readonly placeholder="—"></div>
+        </div>
+
+        <div class="form-group"><label>Post Title *</label><input type="text" id="cTitle" placeholder="e.g., Beds Promotion"></div>
+        <div class="form-group"><label>Content / Caption *</label><textarea id="cContent" rows="3" placeholder="Write the post content…"></textarea></div>
+
         <div class="form-row">
           <div class="form-group"><label>Platform *</label>
             <select id="cPlatform">
-              <option value="Instagram">📱 Instagram</option><option value="Facebook">📘 Facebook</option>
-              <option value="Twitter">🐦 Twitter</option><option value="LinkedIn">💼 LinkedIn</option>
-              <option value="TikTok">🎵 TikTok</option><option value="YouTube">📺 YouTube</option>
-              <option value="WhatsApp">💬 WhatsApp</option><option value="Website">🌐 Website</option>
+              <option value="Instagram">Instagram</option><option value="Facebook" selected>Facebook</option>
+              <option value="Twitter">Twitter</option><option value="LinkedIn">LinkedIn</option>
+              <option value="TikTok">TikTok</option><option value="YouTube">YouTube</option>
+              <option value="WhatsApp">WhatsApp</option><option value="Website">Website</option>
             </select>
           </div>
           <div class="form-group"><label>Status</label>
@@ -711,84 +609,248 @@
             </select>
           </div>
         </div>
+
         <div class="form-row">
-          <div class="form-group"><label>Scheduled Date *</label><input type="date" id="cDate"></div>
+          <div class="form-group"><label>Scheduled Date *</label><input type="date" id="cDate" value="${todayPlus(1)}"></div>
           <div class="form-group"><label>Time</label><input type="time" id="cTime" value="09:00"></div>
         </div>
+
+        <div class="dispatch-section">
+          <div class="dispatch-section-title"><i class="fas fa-paper-plane"></i> Dispatch</div>
+          <div class="dispatch-options">
+            <div class="dispatch-option none selected" data-mode="none" onclick="setDispatchMode('none')">
+              <div class="do-icon"><i class="fas fa-folder"></i></div>
+              <div class="do-title">Keep Internal</div>
+              <div class="do-sub">Staff writes the post</div>
+            </div>
+            <div class="dispatch-option flexi" data-mode="flexikazi" onclick="setDispatchMode('flexikazi')">
+              <div class="do-icon"><i class="fas fa-user-check"></i></div>
+              <div class="do-title">FlexiKazi</div>
+              <div class="do-sub">Assign to a Heritage tasker</div>
+            </div>
+          </div>
+
+          <div class="dispatch-fields flexi" id="flexiFields">
+            <div class="form-group">
+              <label>Assign Tasker *</label>
+              <select id="flexiTasker"></select>
+              <div class="dispatch-hint" id="flexiHint"></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label>Pay Rate (KES) *</label><input type="number" id="flexiPayRate" min="0" step="50" placeholder="e.g. 500"></div>
+              <div class="form-group"><label>Due Date *</label><input type="date" id="flexiDueDate" value="${todayPlus(3)}"></div>
+            </div>
+            <div class="form-group"><label>Notes for tasker</label><textarea id="flexiNotes" rows="2" placeholder="Brief, references, template links…"></textarea></div>
+          </div>
+        </div>
+
         <div class="btn-row">
-          <button class="btn btn-primary" onclick="saveContent()"><i class="fas fa-save"></i> Schedule Post</button>
+          <button class="btn btn-primary" id="saveBtn" onclick="saveContent()"><i class="fas fa-save"></i> Schedule Post</button>
           <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
         </div>
       `;
+
+      dispatchMode = 'none';
+      populateTaskerDropdown();
       document.getElementById('modal').classList.add('show');
-    }
 
-    async function saveContent() {
-      const businessId = document.getElementById('cBusinessId').value;
-      const title = document.getElementById('cTitle').value.trim();
-      const content = document.getElementById('cContent').value.trim();
-      const platform = document.getElementById('cPlatform').value;
-      const scheduledDate = document.getElementById('cDate').value;
-      const scheduledTime = document.getElementById('cTime').value;
-      const status = document.getElementById('cStatus').value;
-
-      if (!businessId) { showToast('Please select a business/partner', true); return; }
-      if (!title || !content || !scheduledDate) { showToast('Please fill title, content, and date', true); return; }
-
-      const businessName = allPartners[businessId]?.businessName || allPartners[businessId]?.name || 'Unknown';
-
-      try {
-        await database.ref('heritage_scheduled_content').push().set({
-          businessId: businessId,
-          businessName: businessName,
-          title: title,
-          content: content,
-          platform: platform,
-          scheduledDate: scheduledDate,
-          scheduledTime: scheduledTime || '09:00',
-          status: status,
-          createdAt: firebase.database.ServerValue.TIMESTAMP,
-          updatedAt: firebase.database.ServerValue.TIMESTAMP
-        });
-        showToast(`Content scheduled for ${businessName}!`);
-        closeModal();
-      } catch (e) {
-        showToast('Failed to save: ' + e.message, true);
+      if (urlListing) {
+        const sel = document.getElementById('cListingId');
+        if (sel) { sel.value = urlListing; onListingChange(); }
       }
     }
 
+    function onListingChange() {
+      const listingId = document.getElementById('cListingId').value;
+      const partnerInput = document.getElementById('cPartnerDisplay');
+      const windowInput = document.getElementById('cListingWindow');
+      if (!listingId) { partnerInput.value = ''; windowInput.value = ''; return; }
+      const l = allListings[listingId];
+      if (!l) return;
+      partnerInput.value = l.partnerName || '';
+      windowInput.value = (l.startDate || '?') + ' → ' + (l.endDate || '?');
+    }
+
+    /* ────────────────────────────────────────────────────────────
+       Save (New)
+    ──────────────────────────────────────────────────────────── */
+    async function saveContent() {
+      const btn = document.getElementById('saveBtn');
+      const listingId = document.getElementById('cListingId').value;
+      const title = document.getElementById('cTitle').value.trim();
+      const content = document.getElementById('cContent').value.trim();
+      const scheduledDate = document.getElementById('cDate').value;
+      const scheduledTime = document.getElementById('cTime').value || '09:00';
+      const platform = document.getElementById('cPlatform').value;
+      const status = document.getElementById('cStatus').value;
+
+      if (!listingId) { showToast('Select an active listing first', 'warning'); return; }
+      const listing = allListings[listingId];
+      if (!listing) { showToast('Listing not found', 'error'); return; }
+      if (listing.status && listing.status !== 'active') { showToast('This listing is no longer active', 'error'); return; }
+      if (!title || !content || !scheduledDate) { showToast('Title, content and date are required', 'warning'); return; }
+
+      // Validate scheduling window overlaps the listing window
+      const sd = parseLocalDate(scheduledDate);
+      const lStart = parseLocalDate(listing.startDate);
+      const lEnd = parseLocalDate(listing.endDate);
+      if (sd && lStart && sd < lStart) { showToast('Scheduled date is before the listing starts', 'warning'); return; }
+      if (sd && lEnd && sd > lEnd) { showToast('Scheduled date is after the listing ends', 'warning'); return; }
+
+      // Dispatch validation
+      let tasker = null, payRate = 0, dueDate = '';
+      if (dispatchMode === 'flexikazi') {
+        const taskerKey = document.getElementById('flexiTasker').value;
+        payRate = Number(document.getElementById('flexiPayRate').value);
+        dueDate = document.getElementById('flexiDueDate').value;
+        if (!taskerKey) { showToast('Select a tasker for dispatch', 'warning'); return; }
+        if (!payRate || payRate <= 0) { showToast('Enter a valid pay rate', 'warning'); return; }
+        if (!dueDate) { showToast('Set a due date for the tasker', 'warning'); return; }
+        tasker = eligibleTaskers.find(t => (t.email || t.id) === taskerKey);
+        if (!tasker) { showToast('Selected tasker is no longer eligible', 'error'); return; }
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving…';
+
+      try {
+        const postRef = database.ref('heritage_scheduled_content').push();
+        const postId = postRef.key;
+
+        const postData = {
+          listingId,
+          partnerId: listing.partnerId || null,
+          businessId: listing.partnerId || listing.partnerName || null,
+          businessName: listing.partnerName || 'Unknown partner',
+          title, content, platform,
+          scheduledDate,
+          scheduledTime,
+          status,
+          createdAt: firebase.database.ServerValue.TIMESTAMP,
+          updatedAt: firebase.database.ServerValue.TIMESTAMP
+        };
+
+        await postRef.set(postData);
+
+        if (dispatchMode === 'flexikazi' && tasker) {
+          const taskRef = database.ref('ekazi_assigned_tasks').push();
+          const taskId = taskRef.key;
+
+          await taskRef.set({
+            title: 'Heritage Content: ' + title,
+            category: 'Social Media',
+            payRate,
+            dueDate,
+            clientName: postData.businessName,
+            jobLink: '',
+            notes: document.getElementById('flexiNotes').value.trim(),
+            taskerEmail: tasker.email || tasker.id,
+            taskerName: tasker.name || tasker.email || tasker.id,
+            workspace: WORKSPACE,
+            suite: WORKSPACE,
+            assignedBy: (currentUser && currentUser.email) || 'staff',
+            assignedByUid: (currentUser && currentUser.uid) || null,
+            source: 'heritage_scheduler',
+            listingId,
+            postId,
+            status: 'assigned',
+            assignedAt: Date.now(),
+            reviewCount: 0,
+            currentReviewCount: 0
+          });
+
+          await postRef.update({
+            dispatch: {
+              mode: 'flexikazi',
+              suite: WORKSPACE,
+              linkedTaskId: taskId,
+              linkedBoard: 'ekazi_assigned_tasks',
+              taskerEmail: tasker.email || tasker.id,
+              payRate,
+              dueDate,
+              dispatchedAt: Date.now(),
+              dispatchedBy: (currentUser && currentUser.email) || 'staff'
+            }
+          });
+        }
+
+        // Flip listing contentStatus
+        const newContentStatus = dispatchMode === 'flexikazi' ? 'in_progress' : 'scheduled';
+        const updates = {
+          contentStatus: newContentStatus,
+          scheduledPostCount: (listing.scheduledPostCount || 0) + 1,
+          updatedAt: firebase.database.ServerValue.TIMESTAMP
+        };
+        await database.ref('heritage_listings/' + listingId).update(updates);
+
+        showToast(dispatchMode === 'flexikazi' ? 'Post scheduled & tasker dispatched' : 'Post scheduled');
+        closeModal();
+      } catch (e) {
+        console.error(e);
+        showToast('Failed to save: ' + (e.message || 'Unknown error'), 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-save"></i> Schedule Post';
+      }
+    }
+
+    /* ────────────────────────────────────────────────────────────
+       Modal — Edit
+    ──────────────────────────────────────────────────────────── */
     function editContent(id) {
       const item = allContent[id];
       if (!item) return;
 
+      const listing = allListings[item.listingId] || null;
+      const d = item.dispatch || {};
+
+      let linkedBanner = '';
+      if (d.linkedTaskId) {
+        linkedBanner = `
+          <div class="linked-task-banner show">
+            <div class="ltb-info">
+              <div class="ltb-title"><i class="fas fa-link"></i> Dispatched to ${escapeHtml(d.taskerEmail || 'tasker')}</div>
+              <div class="ltb-meta">Task ID ${escapeHtml((d.linkedTaskId || '').slice(-8))} · due ${escapeHtml(d.dueDate || '—')}</div>
+            </div>
+          </div>
+        `;
+      }
+
       document.getElementById('modalContent').innerHTML = `
         <h3><i class="fas fa-edit"></i> Edit Scheduled Post</h3>
-        <div class="form-group"><label>Select Business/Partner *</label>
-          <select id="eBusinessId">${getPartnerOptions(item.businessId || '')}</select>
+        ${linkedBanner}
+
+        <div class="form-group">
+          <label>Listing</label>
+          <input type="text" readonly value="${escapeHtml(listing ? listingLabel(listing) : '⚠ Listing missing (legacy record)')}">
+          <div class="dispatch-hint" style="margin-top:4px;"><i class="fas fa-info-circle"></i> Listing cannot be changed after creation — create a new post instead.</div>
         </div>
+
         <div class="form-group"><label>Post Title</label><input type="text" id="eTitle" value="${escapeHtml(item.title || '')}"></div>
         <div class="form-group"><label>Content / Caption</label><textarea id="eContent" rows="3">${escapeHtml(item.content || '')}</textarea></div>
+
         <div class="form-row">
           <div class="form-group"><label>Platform</label>
             <select id="ePlatform">
-              ${['Instagram','Facebook','Twitter','LinkedIn','TikTok','YouTube','WhatsApp','Website'].map(p => `<option value="${p}" ${item.platform === p ? 'selected' : ''}>${p}</option>`).join('')}
+              ${['Instagram','Facebook','Twitter','LinkedIn','TikTok','YouTube','WhatsApp','Website'].map(p =>
+                `<option value="${p}" ${item.platform === p ? 'selected' : ''}>${p}</option>`).join('')}
             </select>
           </div>
           <div class="form-group"><label>Status</label>
             <select id="eStatus">
-              <option value="scheduled" ${item.status === 'scheduled' ? 'selected' : ''}>Scheduled</option>
-              <option value="pending" ${item.status === 'pending' ? 'selected' : ''}>Pending Review</option>
-              <option value="published" ${item.status === 'published' ? 'selected' : ''}>Published</option>
-              <option value="cancelled" ${item.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+              ${['scheduled','pending','published','cancelled'].map(s =>
+                `<option value="${s}" ${item.status === s ? 'selected' : ''}>${getStatusLabel(s)}</option>`).join('')}
             </select>
           </div>
         </div>
+
         <div class="form-row">
-          <div class="form-group"><label>Scheduled Date</label><input type="date" id="eDate" value="${item.scheduledDate || ''}"></div>
-          <div class="form-group"><label>Time</label><input type="time" id="eTime" value="${item.scheduledTime || '09:00'}"></div>
+          <div class="form-group"><label>Scheduled Date</label><input type="date" id="eDate" value="${escapeHtml(item.scheduledDate || '')}"></div>
+          <div class="form-group"><label>Time</label><input type="time" id="eTime" value="${escapeHtml(item.scheduledTime || '09:00')}"></div>
         </div>
+
         <div class="btn-row">
-          <button class="btn btn-primary" onclick="updateContent('${id}')"><i class="fas fa-save"></i> Update</button>
+          <button class="btn btn-primary" id="updateBtn" onclick="updateContent('${escapeHtml(id)}')"><i class="fas fa-save"></i> Update</button>
           <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
         </div>
       `;
@@ -796,98 +858,192 @@
     }
 
     async function updateContent(id) {
-      const businessId = document.getElementById('eBusinessId').value;
+      const btn = document.getElementById('updateBtn');
       const title = document.getElementById('eTitle').value.trim();
       const content = document.getElementById('eContent').value.trim();
-      const platform = document.getElementById('ePlatform').value;
       const scheduledDate = document.getElementById('eDate').value;
-      const scheduledTime = document.getElementById('eTime').value;
-      const status = document.getElementById('eStatus').value;
+      if (!title || !content || !scheduledDate) { showToast('Title, content and date are required', 'warning'); return; }
 
-      if (!businessId) { showToast('Please select a business', true); return; }
-      if (!title || !content || !scheduledDate) { showToast('Please fill required fields', true); return; }
-
-      const businessName = allPartners[businessId]?.businessName || allPartners[businessId]?.name || 'Unknown';
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving…';
 
       try {
         await database.ref('heritage_scheduled_content/' + id).update({
-          businessId: businessId,
-          businessName: businessName,
-          title: title,
-          content: content,
-          platform: platform,
-          scheduledDate: scheduledDate,
-          scheduledTime: scheduledTime,
-          status: status,
+          title, content,
+          platform: document.getElementById('ePlatform').value,
+          scheduledDate,
+          scheduledTime: document.getElementById('eTime').value || '09:00',
+          status: document.getElementById('eStatus').value,
           updatedAt: firebase.database.ServerValue.TIMESTAMP
         });
-        showToast('Content updated!');
+        showToast('Post updated');
         closeModal();
       } catch (e) {
-        showToast('Update failed', true);
+        showToast('Update failed: ' + (e.message || ''), 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-save"></i> Update';
       }
     }
 
+    /* ────────────────────────────────────────────────────────────
+       Status actions
+    ──────────────────────────────────────────────────────────── */
     async function updateStatus(id, newStatus) {
       const confirmMsg = newStatus === 'published' ? 'Mark as published?' : 'Cancel this scheduled post?';
       if (!confirm(confirmMsg)) return;
       try {
+        const item = allContent[id];
         await database.ref('heritage_scheduled_content/' + id).update({
           status: newStatus,
           updatedAt: firebase.database.ServerValue.TIMESTAMP
         });
-        showToast(`Post ${newStatus === 'published' ? 'published' : 'cancelled'}!`);
+        if (newStatus === 'published' && item && item.listingId) {
+          await syncListingStatus(item.listingId);
+        }
+        showToast('Post ' + newStatus);
       } catch (e) {
-        showToast('Failed to update status', true);
+        showToast('Failed to update status', 'error');
       }
     }
 
-    function closeModal() { document.getElementById('modal').classList.remove('show'); }
+    async function approveSubmission(id) {
+      if (!confirm('Approve the tasker submission and mark as published?')) return;
+      try {
+        const item = allContent[id];
+        await database.ref('heritage_scheduled_content/' + id).update({
+          status: 'published',
+          updatedAt: firebase.database.ServerValue.TIMESTAMP
+        });
+        if (item && item.listingId) await syncListingStatus(item.listingId);
+        showToast('Submission approved & published');
+      } catch (e) {
+        showToast('Failed: ' + (e.message || ''), 'error');
+      }
+    }
 
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-      btn.addEventListener('click', function() {
-        currentFilter = this.dataset.filter;
+    // Recompute a listing's contentStatus from its posts
+    async function syncListingStatus(listingId) {
+      const posts = Object.values(allContent).filter(c => c.listingId === listingId);
+      if (!posts.length) {
+        await database.ref('heritage_listings/' + listingId).update({ contentStatus: 'needs_content', scheduledPostCount: 0 });
+        return;
+      }
+      const anyPublished = posts.some(p => p.status === 'published');
+      const anyScheduled = posts.some(p => p.status === 'scheduled');
+      const anyPending = posts.some(p => p.status === 'pending');
+      const status = anyScheduled ? 'scheduled' : anyPending ? 'in_progress' : anyPublished ? 'published' : 'in_progress';
+      await database.ref('heritage_listings/' + listingId).update({
+        contentStatus: status,
+        scheduledPostCount: posts.length
+      });
+    }
+
+    function closeModal() {
+      document.getElementById('modal').classList.remove('show');
+      document.getElementById('modalContent').innerHTML = '';
+    }
+
+    /* ────────────────────────────────────────────────────────────
+       Wire-up
+    ──────────────────────────────────────────────────────────── */
+    function wireUp() {
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+          currentFilter = this.dataset.filter;
+          renderTable();
+        });
+      });
+
+      document.getElementById('searchInput').addEventListener('input', e => {
+        searchQuery = e.target.value;
         renderTable();
       });
+
+      document.getElementById('modal').addEventListener('click', e => {
+        if (e.target === document.getElementById('modal')) closeModal();
+      });
+      document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+    }
+
+    /* ────────────────────────────────────────────────────────────
+       Boot
+    ──────────────────────────────────────────────────────────── */
+    async function checkHeritagePermission(user) {
+      const snap = await database.ref('workspacePermissions/' + user.uid).once('value');
+      const perms = snap.val() || {};
+      if (perms[WORKSPACE] !== true) {
+        showToast('You do not have Heritage workspace access', 'error');
+        setTimeout(() => { window.location.href = 'https://kazinni-staff.vercel.app'; }, 1200);
+        return false;
+      }
+      return true;
+    }
+
+    auth.onAuthStateChanged(async user => {
+      if (!user) { window.location.href = 'https://kazinni-staff.vercel.app'; return; }
+      currentUser = user;
+
+      const ok = await checkHeritagePermission(user);
+      if (!ok) return;
+
+      try { await loadHeritageTaskers(); } catch (e) { console.warn('Tasker load failed', e); }
+
+      database.ref('heritage_scheduled_content').on('value', s => {
+        allContent = s.val() || {};
+        renderTable();
+      });
+
+      database.ref('heritage_listings').on('value', s => {
+        allListings = s.val() || {};
+        renderNeedsStrip();
+        renderTable();
+      });
+
+      database.ref('heritage_partners').on('value', s => {
+        allPartners = s.val() || {};
+        renderNeedsStrip();
+      });
+
+      // Refresh linked task submissions live
+      database.ref('ekazi_assigned_tasks').on('value', s => {
+        linkedTasks = s.val() || {};
+        // Merge submission info into content for display
+        Object.values(allContent).forEach(c => {
+          if (c.dispatch && c.dispatch.linkedTaskId) {
+            const task = linkedTasks[c.dispatch.linkedTaskId];
+            if (task && task.currentSubmissionId) {
+              database.ref('ekazi_task_submissions/' + task.currentSubmissionId).once('value').then(ss => {
+                const sub = ss.val();
+                if (sub) { c.submission = sub; renderTable(); }
+              });
+            }
+          }
+        });
+      });
+
+      // Deep-link: ?action=new
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('action') === 'new') {
+        setTimeout(() => showAddModal(), 400);
+      }
     });
 
-    document.getElementById('businessFilter').addEventListener('change', function(e) {
-      currentBusinessFilter = e.target.value;
-      renderTable();
-    });
-
-    document.getElementById('searchInput').addEventListener('input', function(e) {
-      searchQuery = e.target.value;
-      renderTable();
-    });
-
-    document.getElementById('modal').addEventListener('click', function(e) {
-      if (e.target === document.getElementById('modal')) closeModal();
-    });
-    document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeModal(); });
-
-    database.ref('heritage_scheduled_content').on('value', snapshot => {
-      allContent = snapshot.val() || {};
-      updateBusinessFilterDropdown();
-      renderTable();
-    });
-
-    database.ref('heritage_partners').on('value', snapshot => {
-      allPartners = snapshot.val() || {};
-      updateBusinessFilterDropdown();
-      renderTable();
-    });
-
-    auth.onAuthStateChanged(user => {
-      if (!user) window.location.href = 'https://kazinni-staff.vercel.app';
-    });
-
+    /* ────────────────────────────────────────────────────────────
+       Exports
+    ──────────────────────────────────────────────────────────── */
     window.showAddModal = showAddModal;
+    window.openNewForListing = openNewForListing;
+    window.onListingChange = onListingChange;
     window.saveContent = saveContent;
     window.editContent = editContent;
     window.updateContent = updateContent;
     window.updateStatus = updateStatus;
+    window.approveSubmission = approveSubmission;
+    window.setDispatchMode = setDispatchMode;
     window.closeModal = closeModal;
+
+    wireUp();
   </script>
 </body>
 </html>
