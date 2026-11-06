@@ -1,865 +1,1186 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#ca8a04">
-    <meta name="color-scheme" content="light">
-    <title>KazInni · Workspaces</title>
-    <link rel="icon" type="image/x-icon" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview-1.png">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@400;500;600;700;800&family=Satoshi:wght@400;500;600;700;800;900&family=Clash+Display:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&family=General+Sans:wght@400;500;600;700&family=Chillax:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@400,500,600,700,800&f[]=satoshi@400,500,600,700,800,900&f[]=clash-display@400,500,600,700&f[]=general-sans@400,500,600,700&f[]=chillax@400,500,600,700&display=swap" rel="stylesheet">
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        :root {
-            --gold: #ca8a04;
-            --gold-dark: #a16207;
-            --gold-light: #fbbf24;
-            --gold-soft: #fef3c7;
-            --gold-glow: rgba(202, 138, 4, 0.12);
-            --gold-gradient: linear-gradient(135deg, #ca8a04 0%, #eab308 50%, #fbbf24 100%);
-            
-            --success: #10b981;
-            --warning: #f59e0b;
-            --danger: #ef4444;
-            --info: #3b82f6;
-            --purple: #8b5cf6;
-            --pink: #ec4899;
-            --emerald: #059669;
-            
-            --bg-primary: #ffffff;
-            --bg-secondary: #faf9f7;
-            --bg-card: #ffffff;
-            --text-primary: #1a1a2e;
-            --text-secondary: #4a5568;
-            --text-muted: #718096;
-            --border-light: #e9ecef;
-            --border-medium: #d1d5db;
-            
-            --shadow-sm: 0 2px 4px rgba(0,0,0,0.02), 0 1px 2px rgba(0,0,0,0.03);
-            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
-            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -2px rgba(0,0,0,0.04);
-            --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
-            --shadow-gold: 0 8px 32px rgba(202,138,4,0.15);
-            
-            --nav-bg: rgba(255,255,255,0.98);
-            --card-bg: #ffffff;
-            --input-bg: #ffffff;
-            
-            --header-height: 80px;
-            
-            --font-display: 'Clash Display', 'Cabinet Grotesk', sans-serif;
-            --font-heading: 'Satoshi', 'General Sans', sans-serif;
-            --font-body: 'General Sans', 'Outfit', sans-serif;
-            --font-accent: 'Chillax', 'Cabinet Grotesk', sans-serif;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#ca8a04">
+<meta name="color-scheme" content="light">
+<title>KazInni · Workspaces</title>
+<link rel="icon" type="image/x-icon" href="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview-1.png">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@400;500;600;700;800&family=Satoshi:wght@400;500;600;700;800;900&family=Clash+Display:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&family=General+Sans:wght@400;500;600;700&family=Chillax:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@400,500,600,700,800&f[]=satoshi@400,500,600,700,800,900&f[]=clash-display@400,500,600,700&f[]=general-sans@400,500,600,700&f[]=chillax@400,500,600,700&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
 
-        body {
-            font-family: var(--font-body);
-            background: linear-gradient(180deg, #fffbeb 0%, #ffffff 15%, #faf9f7 100%);
-            color: var(--text-primary);
-            line-height: 1.6;
-            min-height: 100vh;
-            -webkit-font-smoothing: antialiased;
-        }
+:root{
+  --gold:#ca8a04; --gold-dark:#a16207; --gold-light:#fbbf24; --gold-soft:#fef3c7;
+  --gold-glow:rgba(202,138,4,.12);
+  --gold-gradient:linear-gradient(135deg,#ca8a04 0%,#eab308 50%,#fbbf24 100%);
+  --success:#10b981; --warning:#f59e0b; --danger:#ef4444; --info:#3b82f6;
+  --purple:#8b5cf6; --pink:#ec4899; --emerald:#059669;
+  --bg-primary:#fff; --bg-secondary:#faf9f7; --bg-card:#fff;
+  --text-primary:#1a1a2e; --text-secondary:#4a5568; --text-muted:#718096;
+  --border-light:#e9ecef; --border-medium:#d1d5db;
+  --shadow-sm:0 2px 4px rgba(0,0,0,.02),0 1px 2px rgba(0,0,0,.03);
+  --shadow-md:0 4px 6px -1px rgba(0,0,0,.05),0 2px 4px -1px rgba(0,0,0,.03);
+  --shadow-lg:0 10px 15px -3px rgba(0,0,0,.08),0 4px 6px -2px rgba(0,0,0,.04);
+  --shadow-gold:0 8px 32px rgba(202,138,4,.15);
+  --font-display:'Clash Display','Cabinet Grotesk',sans-serif;
+  --font-heading:'Satoshi','General Sans',sans-serif;
+  --font-body:'General Sans','Outfit',sans-serif;
+  --rail-w:64px; --side-w:248px; --top-h:56px; --tab-h:44px; --status-h:34px;
+}
 
-        @keyframes shimmer {
-            0% { background-position: -200% 0; }
-            100% { background-position: 200% 0; }
-        }
-        
-        .skeleton {
-            background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
-            background-size: 200% 100%;
-            animation: shimmer 1.5s ease-in-out infinite;
-            border-radius: 8px;
-        }
-        
-        .skeleton-card {
-            background: var(--card-bg); border: 1px solid var(--border-light);
-            border-radius: 20px; overflow: hidden; box-shadow: var(--shadow-sm);
-        }
-        .skeleton-image { height: 150px; border-radius: 0; }
-        .skeleton-badge { height: 22px; width: 80px; border-radius: 20px; margin-bottom: 0.75rem; }
-        .skeleton-title { height: 1.2rem; width: 70%; margin-bottom: 0.5rem; }
-        .skeleton-desc { height: 0.85rem; width: 100%; margin-bottom: 0.3rem; }
-        .skeleton-desc-sm { height: 0.85rem; width: 60%; margin-bottom: 1rem; }
-        .skeleton-link { height: 1rem; width: 50%; margin-top: auto; padding-top: 0.6rem; border-top: 1px solid var(--border-light); }
+html,body{height:100%}
+body{
+  font-family:var(--font-body);color:var(--text-primary);line-height:1.55;
+  background:linear-gradient(180deg,#fffbeb 0%,#ffffff 12%,#f4f5f7 100%);
+  -webkit-font-smoothing:antialiased;overflow:hidden;
+}
 
-        .site-header {
-            position: fixed; top: 0; width: 100%; height: var(--header-height);
-            background: var(--nav-bg); backdrop-filter: blur(25px);
-            border-bottom: 1px solid rgba(202,138,4,0.08); z-index: 1000; padding: 0 2.5rem;
-        }
-        .header-container {
-            max-width: 1400px; height: 100%; margin: 0 auto;
-            display: flex; align-items: center; justify-content: space-between;
-        }
-        .logo { display: flex; align-items: center; gap: 0.85rem; text-decoration: none; }
-        .logo img { height: 44px; width: auto; filter: drop-shadow(0 4px 8px rgba(202,138,4,0.15)); }
-        .logo span {
-            font-size: 1.6rem; font-weight: 800;
-            background: var(--gold-gradient);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            background-clip: text; font-family: var(--font-display); letter-spacing: -0.5px;
-        }
-        .nav-links { display: flex; gap: 2.5rem; }
-        .nav-link {
-            color: var(--text-secondary); text-decoration: none;
-            font-size: 0.95rem; font-weight: 500; font-family: var(--font-heading);
-            transition: all 0.3s ease; position: relative;
-        }
-        .nav-link::after {
-            content: ''; position: absolute; bottom: -4px; left: 0; width: 0; height: 2.5px;
-            background: var(--gold-gradient); border-radius: 2px;
-            transition: width 0.3s cubic-bezier(0.4,0,0.2,1);
-        }
-        .nav-link:hover::after, .nav-link.active::after { width: 100%; }
-        .nav-link:hover, .nav-link.active { color: var(--gold); }
+/* ============ SHELL FRAME ============ */
+.shell{display:grid;height:100vh;width:100vw;
+  grid-template-columns:var(--rail-w) var(--side-w) 1fr;
+  grid-template-rows:var(--top-h) 1fr var(--status-h);
+  grid-template-areas:
+    "rail top top"
+    "rail side stage"
+    "rail status status";
+  transition:grid-template-columns .25s cubic-bezier(.4,0,.2,1);
+}
+.shell.side-collapsed{grid-template-columns:var(--rail-w) 0 1fr}
+.shell.side-collapsed .sidebar{opacity:0;pointer-events:none}
 
-        .user-menu {
-            display: flex; align-items: center; gap: 0.5rem;
-            background: var(--bg-card); border: 1px solid var(--border-light);
-            border-radius: 60px; padding: 0.3rem 0.5rem 0.3rem 1rem;
-            cursor: pointer; position: relative; transition: all 0.25s;
-        }
-        .user-menu:hover { border-color: var(--gold); box-shadow: var(--shadow-md); }
-        .user-name {
-            color: var(--text-primary); font-weight: 600; font-size: 0.9rem;
-            font-family: var(--font-heading);
-        }
-        .user-avatar {
-            width: 38px; height: 38px;
-            background: var(--gold-gradient); color: white;
-            border-radius: 50%; display: flex; align-items: center;
-            justify-content: center; font-weight: 700; font-family: var(--font-heading);
-        }
-        .user-dropdown {
-            position: absolute; top: calc(100% + 10px); right: 0;
-            background: var(--card-bg); border: 1px solid var(--border-light);
-            border-radius: 16px; padding: 0.5rem; min-width: 180px;
-            opacity: 0; visibility: hidden;
-            transform: translateY(-10px); transition: all 0.2s ease;
-            z-index: 1001; box-shadow: var(--shadow-lg);
-        }
-        .user-menu:hover .user-dropdown { opacity: 1; visibility: visible; transform: translateY(0); }
-        .dropdown-item {
-            padding: 0.7rem 1rem; color: var(--text-secondary);
-            border-radius: 12px; display: flex; align-items: center; gap: 0.5rem;
-            cursor: pointer; font-size: 0.9rem; font-family: var(--font-body);
-            transition: all 0.2s; border: none; background: none; width: 100%;
-        }
-        .dropdown-item:hover { background: var(--bg-secondary); }
-        .dropdown-item.danger:hover { color: var(--danger); }
+/* ============ ICON RAIL ============ */
+.rail{
+  grid-area:rail;background:#111827;color:#9ca3af;display:flex;flex-direction:column;
+  align-items:center;padding:.6rem 0;gap:.35rem;z-index:60;overflow:hidden;
+}
+.rail .rail-logo{
+  width:38px;height:38px;border-radius:11px;overflow:hidden;background:#fff;
+  display:grid;place-items:center;margin-bottom:.4rem;flex-shrink:0;
+  box-shadow:0 2px 8px rgba(0,0,0,.4);
+}
+.rail .rail-logo img{width:30px;height:auto}
+.rail-btn{
+  width:44px;height:44px;border-radius:12px;border:none;background:transparent;
+  color:#9ca3af;font-size:1.02rem;cursor:pointer;display:grid;place-items:center;
+  transition:.18s;position:relative;flex-shrink:0;
+}
+.rail-btn:hover{background:#1f2937;color:#fbbf24}
+.rail-btn.active{background:linear-gradient(135deg,#ca8a04,#eab308);color:#fff;box-shadow:0 4px 12px rgba(202,138,4,.45)}
+.rail-btn .rail-tip{
+  position:absolute;left:calc(100% + 10px);top:50%;transform:translateY(-50%);
+  background:#111827;color:#fff;font-size:.7rem;padding:.3rem .6rem;border-radius:6px;
+  white-space:nowrap;opacity:0;pointer-events:none;transition:.15s;z-index:99;
+  font-family:var(--font-heading);font-weight:600;box-shadow:var(--shadow-lg);
+}
+.rail-btn:hover .rail-tip{opacity:1;left:calc(100% + 6px)}
+.rail-spacer{flex:1}
+.rail-avatar{
+  width:36px;height:36px;border-radius:50%;background:var(--gold-gradient);color:#fff;
+  display:grid;place-items:center;font-weight:800;font-size:.8rem;cursor:pointer;
+  font-family:var(--font-heading);border:2px solid #1f2937;transition:.2s;
+}
+.rail-avatar:hover{transform:scale(1.08);border-color:#fbbf24}
 
-        .main-content {
-            max-width: 1400px; margin: calc(var(--header-height) + 2rem) auto 2rem;
-            padding: 0 2.5rem;
-        }
+/* ============ SIDEBAR ============ */
+.sidebar{
+  grid-area:side;background:#fff;border-right:1px solid var(--border-light);
+  display:flex;flex-direction:column;overflow:hidden;transition:opacity .2s;z-index:50;
+}
+.side-head{padding:1rem 1.1rem .7rem;display:flex;align-items:center;justify-content:space-between}
+.side-head h2{
+  font-family:var(--font-display);font-size:1.12rem;font-weight:800;letter-spacing:-.4px;
+  background:var(--gold-gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.side-head .side-collapse{
+  border:none;background:var(--bg-secondary);width:26px;height:26px;border-radius:7px;
+  color:var(--text-muted);cursor:pointer;font-size:.72rem;display:grid;place-items:center;transition:.2s;
+}
+.side-head .side-collapse:hover{background:var(--gold-soft);color:var(--gold-dark)}
+.side-search{margin:0 .9rem .7rem;position:relative}
+.side-search input{
+  width:100%;border:1px solid var(--border-light);background:var(--bg-secondary);
+  border-radius:9px;padding:.5rem .6rem .5rem 2rem;font-size:.78rem;
+  font-family:var(--font-body);color:var(--text-primary);outline:none;transition:.2s;
+}
+.side-search input:focus{border-color:var(--gold);background:#fff;box-shadow:0 0 0 3px var(--gold-glow)}
+.side-search i{position:absolute;left:.7rem;top:50%;transform:translateY(-50%);font-size:.72rem;color:var(--text-muted)}
+.side-search kbd{
+  position:absolute;right:.5rem;top:50%;transform:translateY(-50%);
+  font-size:.6rem;font-family:var(--font-heading);background:#fff;border:1px solid var(--border-light);
+  border-radius:4px;padding:.05rem .3rem;color:var(--text-muted);pointer-events:none;
+}
+.side-scroll{flex:1;overflow-y:auto;padding:0 .6rem .8rem;scrollbar-width:thin}
+.side-scroll::-webkit-scrollbar{width:6px}
+.side-scroll::-webkit-scrollbar-thumb{background:#e2e8f0;border-radius:3px}
+.side-group-label{
+  font-size:.6rem;text-transform:uppercase;letter-spacing:.8px;font-weight:700;
+  color:var(--text-muted);padding:.7rem .7rem .3rem;font-family:var(--font-heading);
+}
+.side-link{
+  display:flex;align-items:center;gap:.6rem;padding:.48rem .7rem;border-radius:9px;
+  color:var(--text-secondary);text-decoration:none;font-size:.8rem;font-weight:500;
+  font-family:var(--font-heading);transition:.15s;cursor:pointer;border:none;background:none;
+  width:100%;text-align:left;
+}
+.side-link i{width:16px;font-size:.78rem;color:var(--text-muted);transition:.15s;text-align:center}
+.side-link:hover{background:var(--bg-secondary);color:var(--text-primary)}
+.side-link:hover i{color:var(--gold)}
+.side-link.active{background:var(--gold-soft);color:var(--gold-dark);font-weight:700}
+.side-link.active i{color:var(--gold-dark)}
+.side-link .side-badge{
+  margin-left:auto;font-size:.58rem;background:var(--success);color:#fff;padding:.05rem .38rem;
+  border-radius:20px;font-weight:700;font-family:var(--font-heading);
+}
+.side-link .side-badge.muted{background:#e2e8f0;color:var(--text-muted)}
+.side-link .side-emoji{
+  margin-left:auto;font-size:.75rem;
+}
+.side-foot{padding:.6rem .9rem;border-top:1px solid var(--border-light);font-size:.62rem;color:var(--text-muted)}
 
-        .page-header {
-            text-align: center; margin-bottom: 2rem;
-        }
-        .page-header h1 {
-            font-size: 2.2rem; font-weight: 800; color: var(--text-primary);
-            margin-bottom: 0.3rem; font-family: var(--font-display);
-            letter-spacing: -0.02em;
-        }
-        .page-header h1 i { color: var(--gold); margin-right: 0.5rem; }
-        .page-header p {
-            color: var(--text-muted); font-size: 1rem; max-width: 600px;
-            margin: 0 auto;
-        }
+/* ============ TOP BAR ============ */
+.topbar{
+  grid-area:top;background:rgba(255,255,255,.92);backdrop-filter:blur(18px);
+  border-bottom:1px solid var(--border-light);display:flex;align-items:center;
+  padding:0 1.1rem;gap:.9rem;z-index:40;
+}
+.topbar .tb-toggle{
+  border:none;background:var(--bg-secondary);width:32px;height:32px;border-radius:8px;
+  color:var(--text-secondary);cursor:pointer;font-size:.82rem;display:grid;place-items:center;transition:.2s;
+}
+.topbar .tb-toggle:hover{background:var(--gold-soft);color:var(--gold-dark)}
+.breadcrumb{display:flex;align-items:center;gap:.4rem;font-size:.78rem;font-family:var(--font-heading);white-space:nowrap}
+.breadcrumb .bc-home{color:var(--text-muted);text-decoration:none;font-weight:500}
+.breadcrumb .bc-home:hover{color:var(--gold)}
+.breadcrumb i{font-size:.55rem;color:#cbd5e1}
+.breadcrumb .bc-current{font-weight:700;color:var(--text-primary)}
+.tb-search{flex:1;max-width:420px;margin-left:auto;position:relative}
+.tb-search input{
+  width:100%;border:1px solid var(--border-light);background:var(--bg-secondary);
+  border-radius:9px;padding:.44rem .6rem .44rem 2rem;font-size:.76rem;outline:none;
+  font-family:var(--font-body);transition:.2s;
+}
+.tb-search input:focus{border-color:var(--gold);background:#fff;box-shadow:0 0 0 3px var(--gold-glow)}
+.tb-search i{position:absolute;left:.65rem;top:50%;transform:translateY(-50%);font-size:.7rem;color:var(--text-muted)}
+.tb-search kbd{
+  position:absolute;right:.45rem;top:50%;transform:translateY(-50%);font-size:.58rem;
+  font-family:var(--font-heading);background:#fff;border:1px solid var(--border-light);
+  border-radius:4px;padding:.04rem .3rem;color:var(--text-muted);
+}
+.tb-actions{display:flex;align-items:center;gap:.55rem;margin-left:.3rem}
+.tb-live{display:flex;align-items:center;gap:.3rem;font-size:.66rem;color:var(--success);font-weight:700;font-family:var(--font-heading)}
+.tb-live .dot{width:7px;height:7px;background:var(--success);border-radius:50%;animation:pg 2s infinite}
+@keyframes pg{0%,100%{box-shadow:0 0 0 0 rgba(16,185,129,.45)}50%{box-shadow:0 0 0 6px rgba(16,185,129,0)}}
+.tb-icon-btn{
+  width:34px;height:34px;border-radius:9px;border:1px solid var(--border-light);
+  background:#fff;color:var(--text-secondary);cursor:pointer;display:grid;place-items:center;
+  font-size:.82rem;transition:.18s;position:relative;
+}
+.tb-icon-btn:hover{border-color:var(--gold);color:var(--gold)}
+.tb-icon-btn .notif-dot{
+  position:absolute;top:6px;right:7px;width:6px;height:6px;background:var(--danger);
+  border-radius:50%;border:1.5px solid #fff;
+}
 
-        .search-bar {
-            display: flex; align-items: center; gap: 1rem;
-            max-width: 500px; margin: 0 auto 2rem;
-            background: var(--card-bg); border: 1px solid var(--border-light);
-            border-radius: 60px; padding: 0.5rem 0.5rem 0.5rem 1.2rem;
-            box-shadow: var(--shadow-sm); transition: all 0.3s;
-        }
-        .search-bar:focus-within { border-color: var(--gold); box-shadow: 0 0 0 4px var(--gold-glow); }
-        .search-bar input {
-            flex: 1; border: none; outline: none; font-size: 0.9rem;
-            color: var(--text-primary); background: transparent;
-            font-family: var(--font-body);
-        }
-        .search-bar input::placeholder { color: var(--text-muted); }
-        .search-bar button {
-            background: var(--gold-gradient); color: white; border: none;
-            border-radius: 50px; padding: 0.55rem 1.2rem; font-weight: 600;
-            font-size: 0.85rem; cursor: pointer; transition: all 0.2s;
-            font-family: var(--font-heading); display: flex; align-items: center; gap: 0.4rem;
-        }
-        .search-bar button:hover { box-shadow: var(--shadow-gold); }
-        .search-clear {
-            background: none; border: none; color: var(--text-muted);
-            cursor: pointer; padding: 0.3rem 0.5rem; font-size: 0.8rem;
-            transition: color 0.2s; display: none;
-        }
-        .search-clear.visible { display: block; }
-        .search-clear:hover { color: var(--danger); }
-        .search-results-count {
-            text-align: center; font-size: 0.8rem; color: var(--text-muted);
-            margin-bottom: 1.5rem; display: none;
-        }
-        .search-results-count.visible { display: block; }
+/* User menu */
+.user-menu{display:flex;align-items:center;gap:.5rem;background:#fff;border:1px solid var(--border-light);border-radius:60px;padding:.25rem .5rem .25rem .9rem;cursor:pointer;position:relative;transition:.25s;font-family:var(--font-heading)}
+.user-menu:hover{border-color:var(--gold);box-shadow:var(--shadow-md)}
+.user-name{color:var(--text-primary);font-weight:600;font-size:.78rem;font-family:var(--font-heading);max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.user-avatar{width:30px;height:30px;background:var(--gold-gradient);color:#fff;border-radius:50%;display:grid;place-items:center;font-weight:700;font-family:var(--font-heading);font-size:.78rem}
+.user-dropdown{
+  position:absolute;top:calc(100% + 10px);right:0;background:#fff;border:1px solid var(--border-light);
+  border-radius:14px;padding:.4rem;min-width:190px;opacity:0;visibility:hidden;
+  transform:translateY(-10px);transition:.2s;z-index:1001;box-shadow:var(--shadow-lg);
+}
+.user-menu:hover .user-dropdown{opacity:1;visibility:visible;transform:translateY(0)}
+.dropdown-item{
+  padding:.55rem .8rem;color:var(--text-secondary);border-radius:9px;
+  display:flex;align-items:center;gap:.5rem;cursor:pointer;font-size:.78rem;
+  font-family:var(--font-body);transition:.15s;border:none;background:none;width:100%;text-align:left;
+  text-decoration:none;
+}
+.dropdown-item:hover{background:var(--bg-secondary)}
+.dropdown-item.danger:hover{color:var(--danger)}
 
-        .section-header {
-            display: flex; align-items: center; gap: 1rem;
-            margin-bottom: 1.8rem; padding-bottom: 0.75rem;
-            border-bottom: 2px solid var(--border-light);
-        }
-        .section-icon {
-            width: 50px; height: 50px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.25rem;
-        }
-        .section-icon.workspaces { background: var(--gold-soft); color: var(--gold); }
-        .section-header h2 {
-            font-size: 1.6rem; font-weight: 700; color: var(--text-primary);
-            font-family: var(--font-heading);
-        }
+/* ============ TAB STRIP ============ */
+.tabstrip{
+  grid-area:stage;align-self:start;display:flex;align-items:center;gap:.3rem;
+  padding:.55rem 1.1rem .35rem;overflow-x:auto;scrollbar-width:none;background:transparent;
+  position:relative;z-index:30;
+}
+.tabstrip::-webkit-scrollbar{display:none}
+.tab{
+  display:flex;align-items:center;gap:.4rem;padding:.36rem .8rem;border-radius:9px 9px 0 0;
+  background:transparent;border:none;font-size:.74rem;font-family:var(--font-heading);
+  font-weight:600;color:var(--text-muted);cursor:pointer;white-space:nowrap;transition:.15s;
+  border-bottom:2px solid transparent;
+}
+.tab:hover{color:var(--text-primary);background:rgba(255,255,255,.6)}
+.tab.active{color:var(--gold-dark);background:#fff;border-bottom-color:var(--gold);box-shadow:0 -2px 8px rgba(0,0,0,.04)}
+.tab i{font-size:.72rem}
+.tab-add{
+  width:28px;height:28px;border-radius:8px;border:1px dashed #cbd5e1;background:transparent;
+  color:var(--text-muted);cursor:pointer;display:grid;place-items:center;font-size:.7rem;transition:.15s;flex-shrink:0;
+}
+.tab-add:hover{border-color:var(--gold);color:var(--gold);background:#fff}
 
-        .cards-grid {
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem;
-        }
+/* ============ STAGE ============ */
+.stage{
+  grid-area:stage;overflow-y:auto;overflow-x:hidden;padding:.2rem 1.1rem 1.2rem;
+  scrollbar-width:thin;
+}
+.stage::-webkit-scrollbar{width:8px}
+.stage::-webkit-scrollbar-thumb{background:#e2e8f0;border-radius:4px}
+.stage-inner{max-width:1400px;margin:0 auto}
 
-        .workspace-card {
-            background: var(--card-bg); border: 1px solid var(--border-light);
-            border-radius: 20px; overflow: hidden; box-shadow: var(--shadow-sm);
-            transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
-            cursor: pointer; display: flex; flex-direction: column;
-        }
-        .workspace-card:hover {
-            transform: translateY(-4px); border-color: var(--gold);
-            box-shadow: var(--shadow-lg);
-        }
-        .workspace-card.disabled {
-            opacity: 0.5; cursor: not-allowed; pointer-events: none;
-        }
-        .workspace-card.disabled:hover {
-            transform: none; border-color: var(--border-light);
-        }
-        .card-image {
-            width: 100%; height: 160px; background: var(--bg-secondary);
-            position: relative; overflow: hidden;
-        }
-        .card-image img {
-            width: 100%; height: 100%; object-fit: cover;
-            transition: transform 0.3s;
-        }
-        .workspace-card:hover .card-image img { transform: scale(1.05); }
-        .image-placeholder {
-            width: 100%; height: 100%;
-            background: linear-gradient(135deg, var(--gold-soft), #fef9e7);
-            display: flex; align-items: center; justify-content: center;
-            color: var(--gold); font-size: 3rem;
-        }
-        .card-content { padding: 1.3rem 1.5rem; flex: 1; display: flex; flex-direction: column; }
-        .workspace-badge {
-            display: inline-flex; align-items: center; gap: 0.3rem;
-            padding: 0.25rem 0.8rem; background: var(--gold-soft);
-            color: var(--gold-dark); border-radius: 20px;
-            font-size: 0.7rem; font-weight: 700; margin-bottom: 0.75rem;
-            width: fit-content; font-family: var(--font-heading);
-            letter-spacing: 0.3px;
-        }
-        .workspace-badge.locked {
-            background: #f3f4f6; color: #6b7280;
-        }
-        .card-title {
-            font-size: 1.1rem; font-weight: 700; color: var(--text-primary);
-            margin-bottom: 0.4rem; font-family: var(--font-heading);
-        }
-        .card-description {
-            color: var(--text-muted); font-size: 0.85rem;
-            margin-bottom: 1rem; line-height: 1.5; flex: 1;
-            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-        .card-link {
-            display: inline-flex; align-items: center; gap: 0.5rem;
-            color: var(--gold); text-decoration: none; font-size: 0.9rem;
-            font-weight: 600; margin-top: auto; padding: 0.6rem 0;
-            border-top: 1px solid var(--border-light);
-            transition: all 0.2s; font-family: var(--font-heading);
-        }
-        .card-link:hover { gap: 0.75rem; color: var(--gold-dark); }
-        .card-link.locked {
-            color: var(--text-muted); cursor: not-allowed;
-        }
-        .card-link.locked:hover { gap: 0.5rem; }
+/* ============ PAGE HEADER ============ */
+.page-head{
+  background:linear-gradient(135deg,#ffffff 0%,#fffdf5 100%);
+  border:1px solid var(--border-light);border-radius:18px;padding:1.2rem 1.5rem;
+  margin-bottom:1rem;box-shadow:var(--shadow-sm);
+  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.8rem;
+}
+.page-head-left h1{
+  font-size:1.35rem;font-weight:800;color:var(--text-primary);font-family:var(--font-display);
+  letter-spacing:-.02em;margin-bottom:.15rem;display:flex;align-items:center;gap:.55rem;
+}
+.page-head-left h1 i{color:var(--gold);font-size:1.15rem}
+.page-head-left p{color:var(--text-muted);font-size:.82rem}
+.page-head-right{display:flex;align-items:center;gap:.55rem;flex-wrap:wrap}
 
-        .empty-section {
-            text-align: center; padding: 4rem 2rem;
-            background: var(--bg-secondary); border-radius: 20px;
-            border: 1px dashed var(--border-medium); grid-column: 1 / -1;
-        }
-        .empty-section i { font-size: 3.5rem; color: var(--gold); margin-bottom: 1rem; opacity: 0.4; }
-        .empty-section h3 {
-            font-size: 1.2rem; font-weight: 700; color: var(--text-primary);
-            margin-bottom: 0.5rem; font-family: var(--font-heading);
-        }
-        .empty-section p { color: var(--text-muted); }
-        .btn-request {
-            margin-top: 1rem;
-            background: var(--gold-gradient);
-            color: white;
-            border: none;
-            border-radius: 50px;
-            padding: 0.7rem 2rem;
-            font-weight: 600;
-            cursor: pointer;
-            font-family: var(--font-heading);
-            transition: all 0.2s;
-        }
-        .btn-request:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-gold);
-        }
+/* search bar */
+.search-bar{
+  display:flex;align-items:center;gap:.6rem;max-width:520px;width:100%;
+  background:#fff;border:1px solid var(--border-light);border-radius:50px;
+  padding:.35rem .4rem .35rem 1rem;box-shadow:var(--shadow-sm);transition:.25s;
+}
+.search-bar:focus-within{border-color:var(--gold);box-shadow:0 0 0 4px var(--gold-glow)}
+.search-bar input{
+  flex:1;border:none;outline:none;font-size:.82rem;color:var(--text-primary);
+  background:transparent;font-family:var(--font-body);min-width:0;
+}
+.search-bar input::placeholder{color:var(--text-muted)}
+.search-bar button{
+  background:var(--gold-gradient);color:#fff;border:none;border-radius:50px;
+  padding:.42rem 1rem;font-weight:600;font-size:.76rem;cursor:pointer;transition:.2s;
+  font-family:var(--font-heading);display:flex;align-items:center;gap:.35rem;white-space:nowrap;
+}
+.search-bar button:hover{box-shadow:var(--shadow-gold)}
+.search-clear{
+  background:none;border:none;color:var(--text-muted);cursor:pointer;
+  padding:.3rem .4rem;font-size:.75rem;transition:.2s;display:none;
+}
+.search-clear.visible{display:block}
+.search-clear:hover{color:var(--danger)}
 
-        .badge {
-            padding: 0.25rem 0.7rem; border-radius: 40px; font-size: 0.65rem;
-            font-weight: 700; text-transform: uppercase; white-space: nowrap;
-            display: inline-block; font-family: var(--font-heading);
-        }
-        .badge-gold { background: var(--gold-soft); color: var(--gold-dark); }
+/* chips */
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.9rem}
+.chip{
+  display:inline-flex;align-items:center;gap:.3rem;padding:.28rem .7rem;border-radius:20px;
+  background:#fff;border:1px solid var(--border-light);color:var(--text-secondary);
+  font-size:.7rem;font-family:var(--font-heading);font-weight:600;cursor:pointer;transition:.15s;
+  white-space:nowrap;
+}
+.chip:hover{border-color:var(--gold);color:var(--gold-dark)}
+.chip.active{background:var(--gold-soft);border-color:var(--gold);color:var(--gold-dark)}
+.chip .chip-count{
+  font-size:.58rem;background:rgba(0,0,0,.05);padding:.02rem .32rem;border-radius:8px;
+  font-weight:700;color:inherit;
+}
 
-        .toast-container { position: fixed; top:20px; right:20px; z-index:4000; }
-        .toast {
-            background: var(--card-bg); border: 1px solid var(--border-light);
-            border-radius: 14px; padding: 0.8rem 1.2rem; margin-bottom: 0.5rem;
-            box-shadow: var(--shadow-lg); display: flex; align-items: center;
-            gap: 0.75rem; min-width: 280px; animation: slideIn 0.2s ease;
-            font-family: var(--font-body);
-        }
-        .toast.success { border-left: 3px solid var(--success); }
-        .toast.error { border-left: 3px solid var(--danger); }
-        .toast.info { border-left: 3px solid var(--gold); }
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateX(20px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
+/* controls */
+.view-controls{display:flex;align-items:center;gap:.45rem;margin-left:auto}
+.select-mini{
+  background:#fff;border:1px solid var(--border-light);border-radius:8px;
+  padding:.32rem .55rem;font-size:.72rem;font-family:var(--font-heading);color:var(--text-secondary);
+  cursor:pointer;outline:none;transition:.15s;
+}
+.select-mini:hover{border-color:var(--gold)}
+.view-toggle{
+  display:flex;background:#fff;border:1px solid var(--border-light);border-radius:8px;padding:.15rem;
+}
+.view-toggle button{
+  border:none;background:transparent;color:var(--text-muted);width:28px;height:26px;
+  border-radius:6px;cursor:pointer;font-size:.72rem;display:grid;place-items:center;transition:.15s;
+}
+.view-toggle button.active{background:var(--gold-soft);color:var(--gold-dark)}
+.view-toggle button:hover{color:var(--gold)}
 
-        @media (max-width: 1024px) {
-            .cards-grid { grid-template-columns: repeat(2, 1fr); }
-        }
-        @media (max-width: 768px) {
-            .cards-grid { grid-template-columns: 1fr; }
-            .page-header h1 { font-size: 1.8rem; }
-            .nav-links { display: none; }
-            .main-content { padding: 0 1rem; }
-        }
-    </style>
+/* search results */
+.search-results-count{
+  text-align:left;font-size:.76rem;color:var(--text-muted);margin-bottom:.8rem;
+  display:none;font-family:var(--font-heading);
+}
+.search-results-count.visible{display:block}
+
+/* ============ SECTION ============ */
+.section-header{
+  display:flex;align-items:center;gap:.8rem;margin-bottom:1rem;padding-bottom:.65rem;
+  border-bottom:2px solid var(--border-light);
+}
+.section-icon{
+  width:40px;height:40px;border-radius:50%;display:grid;place-items:center;
+  font-size:1rem;background:var(--gold-soft);color:var(--gold);flex-shrink:0;
+}
+.section-header h2{
+  font-size:1.1rem;font-weight:700;color:var(--text-primary);font-family:var(--font-heading);
+  display:flex;align-items:center;gap:.55rem;
+}
+.badge{padding:.22rem .62rem;border-radius:40px;font-size:.6rem;font-weight:700;text-transform:uppercase;white-space:nowrap;display:inline-block;font-family:var(--font-heading);letter-spacing:.3px}
+.badge-gold{background:var(--gold-soft);color:var(--gold-dark)}
+
+/* ============ CARDS GRID ============ */
+.cards-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+.cards-grid.list-view{grid-template-columns:1fr;gap:.6rem}
+
+.workspace-card{
+  background:#fff;border:1px solid var(--border-light);border-radius:18px;
+  overflow:hidden;box-shadow:var(--shadow-sm);
+  transition:.25s cubic-bezier(.4,0,.2,1);
+  cursor:pointer;display:flex;flex-direction:column;position:relative;
+}
+.workspace-card:hover{
+  transform:translateY(-3px);border-color:var(--gold);box-shadow:var(--shadow-lg);
+}
+.workspace-card.disabled{opacity:.55;cursor:not-allowed;pointer-events:none}
+.workspace-card.disabled:hover{transform:none;border-color:var(--border-light)}
+
+.card-image{
+  width:100%;height:140px;background:var(--bg-secondary);position:relative;overflow:hidden;
+}
+.card-image img{
+  width:100%;height:100%;object-fit:cover;transition:transform .3s;
+}
+.workspace-card:hover .card-image img{transform:scale(1.05)}
+.image-placeholder{
+  width:100%;height:100%;display:grid;place-items:center;font-size:2.4rem;
+}
+.card-content{padding:1rem 1.1rem;flex:1;display:flex;flex-direction:column}
+.workspace-badge{
+  display:inline-flex;align-items:center;gap:.3rem;padding:.22rem .65rem;background:var(--gold-soft);
+  color:var(--gold-dark);border-radius:20px;font-size:.62rem;font-weight:700;margin-bottom:.55rem;
+  width:fit-content;font-family:var(--font-heading);letter-spacing:.3px;
+}
+.workspace-badge.locked{background:#f3f4f6;color:#6b7280}
+.card-title{
+  font-size:.98rem;font-weight:700;color:var(--text-primary);margin-bottom:.3rem;
+  font-family:var(--font-heading);
+}
+.card-description{
+  color:var(--text-muted);font-size:.78rem;margin-bottom:.8rem;line-height:1.5;flex:1;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+}
+.card-link{
+  display:inline-flex;align-items:center;gap:.45rem;color:var(--gold);text-decoration:none;
+  font-size:.8rem;font-weight:600;margin-top:auto;padding:.5rem 0 0;
+  border-top:1px solid var(--border-light);transition:.2s;font-family:var(--font-heading);
+}
+.card-link:hover{gap:.65rem;color:var(--gold-dark)}
+.card-link.locked{color:var(--text-muted);cursor:not-allowed}
+
+/* list view modifications */
+.cards-grid.list-view .workspace-card{flex-direction:row;align-items:stretch}
+.cards-grid.list-view .card-image{width:140px;height:auto;min-height:92px;flex-shrink:0}
+.cards-grid.list-view .card-content{padding:.75rem 1rem;flex:1}
+.cards-grid.list-view .card-title{font-size:.9rem}
+.cards-grid.list-view .card-description{margin-bottom:.4rem}
+.cards-grid.list-view .card-link{padding:.35rem 0 0;font-size:.74rem}
+.cards-grid.list-view .card-image img{height:100%}
+
+/* ============ EMPTY ============ */
+.empty-section{
+  text-align:center;padding:3rem 1.5rem;background:var(--bg-secondary);
+  border-radius:18px;border:1px dashed var(--border-medium);grid-column:1 / -1;
+}
+.empty-section i{font-size:2.6rem;color:var(--gold);margin-bottom:.7rem;opacity:.4;display:block}
+.empty-section h3{
+  font-size:1.05rem;font-weight:700;color:var(--text-primary);margin-bottom:.3rem;
+  font-family:var(--font-heading);
+}
+.empty-section p{color:var(--text-muted);font-size:.82rem}
+.btn-request{
+  margin-top:.8rem;background:var(--gold-gradient);color:#fff;border:none;border-radius:50px;
+  padding:.55rem 1.6rem;font-weight:600;cursor:pointer;font-family:var(--font-heading);
+  transition:.2s;font-size:.78rem;
+}
+.btn-request:hover{transform:translateY(-2px);box-shadow:var(--shadow-gold)}
+
+/* ============ SKELETONS ============ */
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+.skeleton{
+  background:linear-gradient(90deg,#e5e7eb 25%,#f3f4f6 50%,#e5e7eb 75%);
+  background-size:200% 100%;animation:shimmer 1.5s ease-in-out infinite;border-radius:8px;
+}
+.skeleton-card{background:#fff;border:1px solid var(--border-light);border-radius:18px;overflow:hidden;box-shadow:var(--shadow-sm)}
+.skeleton-image{height:140px;border-radius:0}
+.skeleton-badge{height:20px;width:80px;border-radius:20px;margin-bottom:.65rem}
+.skeleton-title{height:1.1rem;width:70%;margin-bottom:.45rem}
+.skeleton-desc{height:.8rem;width:100%;margin-bottom:.3rem}
+.skeleton-desc-sm{height:.8rem;width:60%;margin-bottom:.9rem}
+.skeleton-link{height:.9rem;width:50%;margin-top:auto;padding-top:.55rem;border-top:1px solid var(--border-light)}
+
+/* ============ STATUS BAR ============ */
+.statusbar{
+  grid-area:status;background:#111827;color:#cbd5e1;display:flex;align-items:center;
+  padding:0 .9rem;gap:1rem;font-size:.66rem;font-family:var(--font-heading);z-index:60;
+  overflow:hidden;
+}
+.sb-item{display:flex;align-items:center;gap:.35rem;white-space:nowrap}
+.sb-item i{font-size:.7rem}
+.sb-sep{width:1px;height:14px;background:#374151}
+.sb-status{display:flex;align-items:center;gap:.4rem}
+.sb-status .sb-dot{
+  width:8px;height:8px;border-radius:50%;background:var(--success);
+  box-shadow:0 0 6px rgba(16,185,129,.6);animation:pg 2.4s infinite;
+}
+.sb-status-text{font-weight:700;letter-spacing:.2px;color:var(--success)}
+.sb-spacer{flex:1}
+.sb-clock{font-family:var(--font-heading);font-weight:700;color:#e5e7eb;font-size:.68rem;letter-spacing:.3px}
+.sb-kbd{
+  border:1px solid #374151;background:#1f2937;color:#9ca3af;border-radius:4px;
+  padding:.02rem .3rem;font-size:.58rem;font-family:var(--font-heading);font-weight:600;
+}
+
+/* ============ COMMAND PALETTE ============ */
+.cmd-overlay{
+  position:fixed;inset:0;background:rgba(17,24,39,.55);backdrop-filter:blur(4px);
+  z-index:5000;display:none;align-items:flex-start;justify-content:center;padding-top:12vh;
+}
+.cmd-overlay.active{display:flex;animation:fadein .15s ease}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+.cmd-palette{
+  width:min(600px,92vw);background:#fff;border-radius:16px;box-shadow:0 30px 80px rgba(0,0,0,.35);
+  overflow:hidden;border:1px solid var(--border-light);animation:cmdin .18s cubic-bezier(.16,1,.3,1);
+}
+@keyframes cmdin{from{opacity:0;transform:translateY(-12px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+.cmd-input-wrap{display:flex;align-items:center;gap:.6rem;padding:.9rem 1.1rem;border-bottom:1px solid var(--border-light)}
+.cmd-input-wrap i{color:var(--gold);font-size:.9rem}
+.cmd-input-wrap input{
+  flex:1;border:none;outline:none;font-size:.95rem;font-family:var(--font-body);
+  color:var(--text-primary);background:transparent;
+}
+.cmd-input-wrap kbd{
+  font-size:.6rem;font-family:var(--font-heading);background:var(--bg-secondary);
+  border:1px solid var(--border-light);border-radius:4px;padding:.1rem .35rem;color:var(--text-muted);
+}
+.cmd-results{max-height:50vh;overflow-y:auto;padding:.45rem}
+.cmd-group-label{font-size:.58rem;text-transform:uppercase;letter-spacing:.7px;font-weight:700;color:var(--text-muted);padding:.5rem .6rem .25rem;font-family:var(--font-heading)}
+.cmd-item{
+  display:flex;align-items:center;gap:.7rem;padding:.5rem .65rem;border-radius:9px;
+  cursor:pointer;transition:.1s;font-size:.82rem;font-family:var(--font-heading);
+}
+.cmd-item:hover,.cmd-item.selected{background:var(--gold-soft)}
+.cmd-item i.cmd-ic{
+  width:26px;height:26px;border-radius:7px;display:grid;place-items:center;font-size:.72rem;
+  background:var(--bg-secondary);color:var(--text-secondary);flex-shrink:0;
+}
+.cmd-item.selected i.cmd-ic{background:var(--gold);color:#fff}
+.cmd-item .cmd-label{font-weight:600;color:var(--text-primary)}
+.cmd-item .cmd-hint{margin-left:auto;font-size:.6rem;color:var(--text-muted);font-family:var(--font-body);overflow:hidden;text-overflow:ellipsis;max-width:200px;white-space:nowrap}
+.cmd-empty{padding:2rem;text-align:center;color:var(--text-muted);font-size:.8rem}
+.cmd-foot{
+  padding:.4rem .8rem;border-top:1px solid var(--border-light);display:flex;gap:1rem;
+  font-size:.6rem;color:var(--text-muted);font-family:var(--font-heading);background:var(--bg-secondary);
+}
+.cmd-foot kbd{background:#fff;border:1px solid var(--border-light);border-radius:3px;padding:.02rem .28rem;font-family:var(--font-heading);font-size:.58rem}
+
+/* ============ TOAST ============ */
+.toast-container{position:fixed;top:64px;right:18px;z-index:6000}
+.toast{
+  background:#fff;border:1px solid var(--border-light);border-radius:12px;
+  padding:.65rem 1rem;margin-bottom:.45rem;box-shadow:var(--shadow-lg);
+  display:flex;align-items:center;gap:.6rem;min-width:260px;
+  animation:slideIn .2s ease;font-family:var(--font-body);font-size:.78rem;
+}
+.toast.success{border-left:3px solid var(--success)}
+.toast.error{border-left:3px solid var(--danger)}
+.toast.info{border-left:3px solid var(--gold)}
+@keyframes slideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width:1200px){
+  .cards-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:1024px){
+  .shell{grid-template-columns:var(--rail-w) 0 1fr}
+  .sidebar{opacity:0;pointer-events:none}
+  .page-head{flex-direction:column;align-items:flex-start}
+  .search-bar{max-width:100%}
+}
+@media (max-width:760px){
+  :root{--rail-w:0px;--top-h:52px;--status-h:30px}
+  .rail{display:none}
+  .shell{
+    grid-template-columns:0 0 1fr;
+    grid-template-rows:var(--top-h) 1fr var(--status-h);
+    grid-template-areas:"top top top" "stage stage stage" "status status status";
+  }
+  .topbar{padding:0 .7rem;gap:.5rem}
+  .tb-search{display:none}
+  .breadcrumb .bc-home,.breadcrumb i{display:none}
+  .cards-grid{grid-template-columns:1fr}
+  .tabstrip{padding:.45rem .7rem .3rem}
+  .stage{padding:.1rem .7rem 1rem}
+  .cards-grid.list-view .card-image{width:100px}
+  .sb-item.sb-hide-mobile{display:none}
+  .user-name{display:none}
+}
+</style>
 </head>
 <body>
-    <div class="toast-container" id="toastContainer"></div>
 
-    <header class="site-header">
-        <div class="header-container">
-            <a href="dashboard.html" class="logo">
-                <img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview-1.png" alt="KazInni">
-                <span>KazInni</span>
-            </a>
-            <nav class="nav-links">
-                <a href="dashboard.html" class="nav-link">Dashboard</a>
-                <a href="profile.html" class="nav-link">Profile</a>
-                <a href="workspaces.html" class="nav-link active">Workspace</a>
-                <a href="resources.html" class="nav-link">Resources</a>
-            </nav>
-            <div class="user-menu" id="userMenu">
-                <span class="user-name" id="userDisplayName">Loading...</span>
-                <div class="user-avatar" id="userAvatar">K</div>
-                <div class="user-dropdown">
-                    <a href="profile.html" class="dropdown-item"><i class="fas fa-user"></i> View Profile</a>
-                    <button class="dropdown-item" onclick="refreshData()"><i class="fas fa-sync-alt"></i> Refresh</button>
-                    <button class="dropdown-item danger" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
-                </div>
-            </div>
+<!-- ================= SHELL ================= -->
+<div class="shell" id="shell">
+
+  <!-- ICON RAIL -->
+  <aside class="rail" id="rail">
+    <div class="rail-logo"><img src="https://i.postimg.cc/rFfXDj3L/kazinni-removebg-preview-1.png" alt="KazInni"></div>
+    <button class="rail-btn" onclick="window.location.href='dashboard.html'"><i class="fas fa-gauge-high"></i><span class="rail-tip">Dashboard</span></button>
+    <button class="rail-btn" onclick="window.location.href='profile.html'"><i class="fas fa-user"></i><span class="rail-tip">Profile</span></button>
+    <button class="rail-btn active" onclick="window.location.href='workspaces.html'"><i class="fas fa-cubes"></i><span class="rail-tip">Workspaces</span></button>
+    <button class="rail-btn" onclick="window.location.href='resources.html'"><i class="fas fa-book"></i><span class="rail-tip">Resources</span></button>
+    <button class="rail-btn" onclick="openCommandPalette()"><i class="fas fa-terminal"></i><span class="rail-tip">Command (⌘K)</span></button>
+    <div class="rail-spacer"></div>
+    <button class="rail-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i><span class="rail-tip">Toggle sidebar</span></button>
+    <button class="rail-btn" onclick="refreshData()"><i class="fas fa-rotate"></i><span class="rail-tip">Refresh</span></button>
+    <div class="rail-avatar" id="railAvatar">U</div>
+  </aside>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="side-head">
+      <h2>KazInni</h2>
+      <button class="side-collapse" onclick="toggleSidebar()"><i class="fas fa-angles-left"></i></button>
+    </div>
+    <div class="side-search">
+      <i class="fas fa-magnifying-glass"></i>
+      <input id="sideSearchInput" type="text" placeholder="Filter workspaces…" oninput="filterSideNav(this.value)">
+      <kbd>⌘K</kbd>
+    </div>
+    <div class="side-scroll" id="sideScroll">
+      <div class="side-group-label">Command Center</div>
+      <a href="dashboard.html" class="side-link"><i class="fas fa-gauge-high"></i> Dashboard</a>
+      <a href="analytics.html" class="side-link"><i class="fas fa-chart-pie"></i> Analytics</a>
+      <a href="reports.html" class="side-link"><i class="fas fa-file-alt"></i> Reports</a>
+      <div class="side-group-label">Workspaces <span id="sideWsCount" style="float:right;font-size:.55rem;color:var(--gold);">0</span></div>
+      <div id="sideWorkspaceLinks"></div>
+      <div class="side-group-label">Account</div>
+      <a href="profile.html" class="side-link"><i class="fas fa-user"></i> Profile</a>
+      <a href="resources.html" class="side-link"><i class="fas fa-book"></i> Resources</a>
+      <a href="blog.html" class="side-link"><i class="fas fa-newspaper"></i> Blog</a>
+      <div class="side-group-label">System</div>
+      <button class="side-link" onclick="openCommandPalette()"><i class="fas fa-terminal"></i> Command Palette <span class="side-badge muted">⌘K</span></button>
+      <button class="side-link" onclick="refreshData()"><i class="fas fa-rotate"></i> Refresh Data</button>
+    </div>
+    <div class="side-foot">Teleio Savour · v2.0</div>
+  </aside>
+
+  <!-- TOP BAR -->
+  <header class="topbar">
+    <button class="tb-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+    <div class="breadcrumb">
+      <a href="dashboard.html" class="bc-home">KazInni</a>
+      <i class="fas fa-chevron-right"></i>
+      <span class="bc-current">Workspaces</span>
+    </div>
+    <div class="tb-search">
+      <i class="fas fa-magnifying-glass"></i>
+      <input type="text" placeholder="Search workspaces…" onfocus="focusSearch()" oninput="syncTopSearch(this.value)">
+      <kbd>⌘K</kbd>
+    </div>
+    <div class="tb-actions">
+      <div class="tb-live"><span class="dot"></span> Live</div>
+      <button class="tb-icon-btn" onclick="refreshData()" title="Refresh"><i class="fas fa-rotate"></i></button>
+      <button class="tb-icon-btn" title="Notifications"><i class="fas fa-bell"></i><span class="notif-dot"></span></button>
+      <div class="user-menu" id="userMenu">
+        <span class="user-name" id="userDisplayName">Loading…</span>
+        <div class="user-avatar" id="userAvatar">K</div>
+        <div class="user-dropdown">
+          <a href="profile.html" class="dropdown-item"><i class="fas fa-user"></i> View Profile</a>
+          <button class="dropdown-item" onclick="openCommandPalette()"><i class="fas fa-terminal"></i> Command Palette</button>
+          <button class="dropdown-item" onclick="refreshData()"><i class="fas fa-sync-alt"></i> Refresh</button>
+          <button class="dropdown-item danger" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
         </div>
-    </header>
+      </div>
+    </div>
+  </header>
 
-    <main class="main-content">
-        <div id="workspacesContent">
-            <div class="page-header">
-                <h1><i class="fas fa-cubes"></i> Workspaces</h1>
-                <p>Access your business tools and management portals</p>
-            </div>
+  <!-- TAB STRIP -->
+  <div class="tabstrip" id="tabstrip">
+    <button class="tab active"><i class="fas fa-cubes"></i> Workspaces</button>
+  </div>
 
-            <!-- Search Bar -->
-            <div class="search-bar">
-                <i class="fas fa-search" style="color:var(--text-muted);"></i>
-                <input type="text" id="searchInput" placeholder="Search workspaces..." oninput="filterWorkspaces()">
-                <button class="search-clear" id="searchClear" onclick="clearSearch()">
-                    <i class="fas fa-times"></i>
-                </button>
-                <button onclick="filterWorkspaces()"><i class="fas fa-search"></i> Search</button>
-            </div>
-            <div class="search-results-count" id="searchCount"></div>
+  <!-- STAGE -->
+  <main class="stage" id="stage">
+    <div class="stage-inner" id="workspacesContent">
 
-            <section>
-                <div class="section-header">
-                    <div class="section-icon workspaces"><i class="fas fa-building"></i></div>
-                    <h2>Available Workspaces <span class="badge badge-gold" id="wsCount" style="margin-left:0.5rem;">0</span></h2>
-                </div>
-
-                <!-- Workspace Cards - Loading State -->
-                <div class="cards-grid" id="workspacesContainer">
-                    <div class="skeleton-card"><div class="skeleton skeleton-image"></div><div style="padding:1.3rem 1.5rem;"><div class="skeleton skeleton-badge"></div><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-desc"></div><div class="skeleton skeleton-desc-sm"></div><div class="skeleton skeleton-link"></div></div></div>
-                    <div class="skeleton-card"><div class="skeleton skeleton-image"></div><div style="padding:1.3rem 1.5rem;"><div class="skeleton skeleton-badge"></div><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-desc"></div><div class="skeleton skeleton-desc-sm"></div><div class="skeleton skeleton-link"></div></div></div>
-                    <div class="skeleton-card"><div class="skeleton skeleton-image"></div><div style="padding:1.3rem 1.5rem;"><div class="skeleton skeleton-badge"></div><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-desc"></div><div class="skeleton skeleton-desc-sm"></div><div class="skeleton skeleton-link"></div></div></div>
-                </div>
-            </section>
+      <div class="page-head">
+        <div class="page-head-left">
+          <h1><i class="fas fa-cubes"></i> Workspaces</h1>
+          <p>Access your business tools and management portals</p>
         </div>
-    </main>
+        <div class="page-head-right">
+          <div class="search-bar">
+            <i class="fas fa-search" style="color:var(--text-muted);font-size:.72rem"></i>
+            <input type="text" id="searchInput" placeholder="Search workspaces…" oninput="filterWorkspaces()">
+            <button class="search-clear" id="searchClear" onclick="clearSearch()"><i class="fas fa-times"></i></button>
+            <button onclick="filterWorkspaces()"><i class="fas fa-search"></i> Search</button>
+          </div>
+        </div>
+      </div>
 
-    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
-            authDomain: "mugera-e51cc.firebaseapp.com",
-            databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "mugera-e51cc"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
-        const auth = firebase.auth();
-        auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+      <!-- CHIPS + CONTROLS -->
+      <div style="display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin-bottom:.9rem;">
+        <div class="chips" id="categoryChips"></div>
+        <div class="view-controls">
+          <select class="select-mini" id="sortSelect" onchange="applySort(this.value)">
+            <option value="default">Sort: Default</option>
+            <option value="az">A → Z</option>
+            <option value="za">Z → A</option>
+            <option value="category">Category</option>
+          </select>
+          <div class="view-toggle">
+            <button id="viewGrid" class="active" onclick="setView('grid')" title="Grid view"><i class="fas fa-grip"></i></button>
+            <button id="viewList" onclick="setView('list')" title="List view"><i class="fas fa-list"></i></button>
+          </div>
+        </div>
+      </div>
 
-        let currentUser = null;
-        let userPermissions = {};
-        let isAdmin = false;
-        let allWorkspaces = [];
-        let filteredWorkspaces = [];
+      <div class="search-results-count" id="searchCount"></div>
 
-        // ===== COMPLETE: All 17 workspaces =====
-        const DEFAULT_WORKSPACES = {
-            'brandinn': { 
-                title: 'BrandInn Business', 
-                icon: 'fa-building', 
-                color: '#4f46e5', 
-                description: 'Business branding & website management platform.',
-                link: '/workspaces/brandinn/index.html',
-                image: 'https://github.com/user-attachments/assets/cb20f34e-d377-418e-a82a-e6b0bf1b0e23'
-            },
-            'brandinn-print': { 
-                title: 'BrandInn Print', 
-                icon: 'fa-print', 
-                color: '#db2777', 
-                description: 'Print & Merchandise Business Management.',
-                link: '/workspaces/brandinn-print/index.html',
-                image: 'https://github.com/user-attachments/assets/ba08f13d-3c16-4983-87f7-0247c396d4d9'
-            },
-            'pick-up': { 
-                title: 'Pick-Up Deliveries', 
-                icon: 'fa-truck-fast', 
-                color: '#f59e0b', 
-                description: 'Delivery Management Platform.',
-                link: '/workspaces/pick-up/index.html',
-                image: 'https://github.com/user-attachments/assets/cd9614e8-0f83-40d1-a44e-ca92113672a8'
-            },
-            'pick-me': { 
-                title: 'Pick-Me Rides', 
-                icon: 'fa-taxi', 
-                color: '#06b6d4', 
-                description: 'Ride-hailing Management.',
-                link: '/workspaces/pick-me/index.html',
-                image: 'https://github.com/user-attachments/assets/ed15f2f3-884d-4bfc-af4b-cd97f34f5c09'
-            },
-            'ekazi': { 
-                title: 'E-Kazi Tasks', 
-                icon: 'fa-tasks', 
-                color: '#059669', 
-                description: 'Freelance Task Management.',
-                link: '/workspaces/ekazi/index.html',
-                image: ''
-            },
-            'dsog': { 
-                title: 'DSOG Fashion', 
-                icon: 'fa-tshirt', 
-                color: '#ec4899', 
-                description: 'Fashion & Apparel Management.',
-                link: '/workspaces/dsog-fashion/index.html',
-                image: 'https://github.com/user-attachments/assets/2332c7aa-bd37-478b-a7f9-c6739e08452f'
-            },
-            'fusion-foods': { 
-                title: 'Fusion Foods', 
-                icon: 'fa-utensils', 
-                color: '#10b981', 
-                description: 'Food & Grocery Supply Management.',
-                link: '/workspaces/fusion-foods/index.html',
-                image: 'https://github.com/user-attachments/assets/3770f8b6-9316-43a2-8e76-d976b2ab6d62'
-            },
-            'heritage': { 
-                title: 'Heritage Ads', 
-                icon: 'fa-bullhorn', 
-                color: '#d946ef', 
-                description: 'Outdoor Advertising Platform.',
-                link: '/workspaces/heritage/index.html',
-                image: 'https://github.com/user-attachments/assets/e8d501a6-9c71-4a4d-8e14-c53c36366e5c'
-            },
-            'heritage-interiors': { 
-                title: 'Heritage Interiors', 
-                icon: 'fa-store', 
-                color: '#d97706', 
-                description: 'E-commerce Marketplace.',
-                link: '/workspaces/heritage-interiors/dashboard.html',
-                image: 'https://github.com/user-attachments/assets/eb38a760-be25-4646-a236-0e421310b348'
-            },
-            'mugs-n-dines': { 
-                title: 'Mugs n Dines', 
-                icon: 'fa-utensil-spoon', 
-                color: '#ef4444', 
-                description: 'Restaurant Management.',
-                link: '/workspaces/mugs-n-dines/index.html',
-                image: 'https://github.com/user-attachments/assets/aeb76ba9-3dac-43a5-8074-8bd133eaf13d'
-            },
-            'workfit': { 
-                title: 'WorkFit Club', 
-                icon: 'fa-dumbbell', 
-                color: '#22c55e', 
-                description: 'Fitness Club Management.',
-                link: '/workspaces/workfit/index.html',
-                image: 'https://github.com/user-attachments/assets/d0cece36-1dbb-46b6-9701-362738e6cbfa'
-            },
-            'epitome': { 
-                title: 'Epitome Reviews', 
-                icon: 'fa-home', 
-                color: '#3b82f6', 
-                description: 'Real Estate & Car Sales.',
-                link: '/workspaces/epitome/index.html',
-                image: 'https://github.com/user-attachments/assets/ce7a0d4b-1bb3-4bf2-af6d-bea273912aff'
-            },
-            'digital-services': { 
-                title: 'E-Huduma Portal', 
-                icon: 'fa-file-signature', 
-                color: '#7c3aed', 
-                description: 'Online applications — from government services to digital forms and client requests.',
-                link: '/workspaces/digital-services/index.html',
-                image: 'https://github.com/user-attachments/assets/fef9de10-7c05-4019-ac37-d18a32c587b9'
-            },
-            'latter-logistics': { 
-                title: 'Latter Logistics', 
-                icon: 'fa-ship', 
-                color: '#1e40af', 
-                description: 'Intercounty and cross-border logistics — real-time tracking, customs support, pay-per-shipment.',
-                link: '/workspaces/latter-logistics/index.html',
-                image: 'https://github.com/user-attachments/assets/e9065d9b-dbbc-4c4b-acd2-d6bce95665b3'
-            },
-            'tour-series': { 
-                title: 'World Tour Series', 
-                icon: 'fa-globe', 
-                color: '#1e40af', 
-                description: 'Explore the world.',
-                link: '/workspaces/tour-series/index.html',
-                image: 'https://github.com/user-attachments/assets/e9065d9b-dbbc-4c4b-acd2-d6bce95665b3'
-            },
-            'heritage-shop': { 
-                title: 'Heritage Shop', 
-                icon: 'fa-cart-shopping', 
-                color: '#b45309', 
-                description: 'Manage product listings, orders, and store operations.',
-                link: '/workspaces/heritage-shop/index.html',
-                image: ''
-            }
-        };
+      <section>
+        <div class="section-header">
+          <div class="section-icon"><i class="fas fa-building"></i></div>
+          <h2>Available Workspaces <span class="badge badge-gold" id="wsCount">0</span></h2>
+        </div>
 
-        // ===== Load user data =====
-        async function loadUserData(user) {
-            try {
-                const adminSnap = await database.ref(`admins/${user.uid}`).once('value');
-                isAdmin = adminSnap.val() === true;
+        <!-- Skeleton -->
+        <div class="cards-grid" id="workspacesContainer">
+          <div class="skeleton-card"><div class="skeleton skeleton-image"></div><div style="padding:1rem 1.1rem;"><div class="skeleton skeleton-badge"></div><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-desc"></div><div class="skeleton skeleton-desc-sm"></div><div class="skeleton skeleton-link"></div></div></div>
+          <div class="skeleton-card"><div class="skeleton skeleton-image"></div><div style="padding:1rem 1.1rem;"><div class="skeleton skeleton-badge"></div><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-desc"></div><div class="skeleton skeleton-desc-sm"></div><div class="skeleton skeleton-link"></div></div></div>
+          <div class="skeleton-card"><div class="skeleton skeleton-image"></div><div style="padding:1rem 1.1rem;"><div class="skeleton skeleton-badge"></div><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-desc"></div><div class="skeleton skeleton-desc-sm"></div><div class="skeleton skeleton-link"></div></div></div>
+        </div>
+      </section>
 
-                const permSnap = await database.ref(`workspacePermissions/${user.uid}`).once('value');
-                userPermissions = permSnap.exists() ? permSnap.val() : {};
+    </div>
+  </main>
 
-                const snap = await database.ref(`brandinn_users/${user.uid}`).once('value');
-                const userData = snap.exists() ? snap.val() : {};
-                const name = userData.name || user.displayName || user.email?.split('@')[0] || 'User';
-                
-                document.getElementById('userDisplayName').textContent = name;
-                document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
+  <!-- STATUS BAR -->
+  <footer class="statusbar">
+    <div class="sb-item sb-status">
+      <span class="sb-dot"></span>
+      <span class="sb-status-text">Workspaces Ready</span>
+    </div>
+    <div class="sb-sep"></div>
+    <div class="sb-item"><i class="fas fa-layer-group"></i> <span id="sbWsCount">—/—</span></div>
+    <div class="sb-sep"></div>
+    <div class="sb-item sb-hide-mobile"><i class="fas fa-signal"></i> <span>Realtime</span></div>
+    <div class="sb-spacer"></div>
+    <div class="sb-item"><span class="sb-kbd">⌘K</span> Command</div>
+    <div class="sb-sep"></div>
+    <div class="sb-clock" id="sbClock">--:--</div>
+  </footer>
 
-                if (isAdmin) {
-                    userPermissions.isAdmin = true;
-                }
+</div>
 
-            } catch(e) {
-                console.error('Error loading user data:', e);
-                showToast('Error loading user data', 'error');
-            }
-        }
+<!-- COMMAND PALETTE -->
+<div class="cmd-overlay" id="cmdOverlay" onclick="if(event.target===this)closeCommandPalette()">
+  <div class="cmd-palette">
+    <div class="cmd-input-wrap">
+      <i class="fas fa-terminal"></i>
+      <input id="cmdInput" type="text" placeholder="Search workspaces or type a command…" oninput="renderCommandResults(this.value)" onkeydown="handleCmdKey(event)">
+      <kbd>ESC</kbd>
+    </div>
+    <div class="cmd-results" id="cmdResults"></div>
+    <div class="cmd-foot">
+      <span><kbd>↑</kbd> <kbd>↓</kbd> navigate</span>
+      <span><kbd>↵</kbd> select</span>
+      <span><kbd>ESC</kbd> close</span>
+    </div>
+  </div>
+</div>
 
-        function userHasWorkspaceAccess(workspaceId) {
-            if (isAdmin || userPermissions.isAdmin === true) return true;
-            return userPermissions[workspaceId] === true;
-        }
+<div class="toast-container" id="toastContainer"></div>
 
-        // ===== Load workspaces without duplicates =====
-        async function loadWorkspaces() {
-            try {
-                // 1. Load workspaces from Firebase resources
-                let resourceWorkspaces = {};
-                try {
-                    const snap = await database.ref('resources/workspaces').once('value');
-                    resourceWorkspaces = snap.val() || {};
-                    console.log('Loaded from resources:', Object.keys(resourceWorkspaces).length);
-                } catch(e) {
-                    console.warn('Could not load resource workspaces:', e);
-                }
+<script>
+/* ================= FIREBASE ================= */
+const firebaseConfig = {
+  apiKey:"AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+  authDomain:"mugera-e51cc.firebaseapp.com",
+  databaseURL:"https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId:"mugera-e51cc"
+};
+firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
+const auth = firebase.auth();
+auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 
-                // 2. Build the final workspace list (use Map to avoid duplicates)
-                const workspaceMap = new Map();
+let currentUser = null;
+let userPermissions = {};
+let isAdmin = false;
+let allWorkspaces = [];
+let filteredWorkspaces = [];
+let currentView = 'grid';
+let currentCategory = 'all';
+let currentSort = 'default';
 
-                // First, add all DEFAULT workspaces
-                for (const [id, def] of Object.entries(DEFAULT_WORKSPACES)) {
-                    workspaceMap.set(id, {
-                        id: id,
-                        workspaceId: id,
-                        title: def.title,
-                        description: def.description,
-                        link: def.link,
-                        icon: def.icon,
-                        color: def.color,
-                        image: def.image || '',
-                        category: id
-                    });
-                }
+/* ================= DEFAULT WORKSPACES (preserved verbatim) ================= */
+const DEFAULT_WORKSPACES = {
+  'brandinn':{title:'BrandInn Business',icon:'fa-building',color:'#4f46e5',description:'Business branding & website management platform.',link:'/workspaces/brandinn/index.html',image:'https://github.com/user-attachments/assets/cb20f34e-d377-418e-a82a-e6b0bf1b0e23',category:'Business'},
+  'brandinn-print':{title:'BrandInn Print',icon:'fa-print',color:'#db2777',description:'Print & Merchandise Business Management.',link:'/workspaces/brandinn-print/index.html',image:'https://github.com/user-attachments/assets/ba08f13d-3c16-4983-87f7-0247c396d4d9',category:'Business'},
+  'pick-up':{title:'Pick-Up Deliveries',icon:'fa-truck-fast',color:'#f59e0b',description:'Delivery Management Platform.',link:'/workspaces/pick-up/index.html',image:'https://github.com/user-attachments/assets/cd9614e8-0f83-40d1-a44e-ca92113672a8',category:'Delivery'},
+  'pick-me':{title:'Pick-Me Rides',icon:'fa-taxi',color:'#06b6d4',description:'Ride-hailing Management.',link:'/workspaces/pick-me/index.html',image:'https://github.com/user-attachments/assets/ed15f2f3-884d-4bfc-af4b-cd97f34f5c09',category:'Delivery'},
+  'ekazi':{title:'E-Kazi Tasks',icon:'fa-tasks',color:'#059669',description:'Freelance Task Management.',link:'/workspaces/ekazi/index.html',image:'',category:'Services'},
+  'dsog':{title:'DSOG Fashion',icon:'fa-tshirt',color:'#ec4899',description:'Fashion & Apparel Management.',link:'/workspaces/dsog-fashion/index.html',image:'https://github.com/user-attachments/assets/2332c7aa-bd37-478b-a7f9-c6739e08452f',category:'Fashion'},
+  'fusion-foods':{title:'Fusion Foods',icon:'fa-utensils',color:'#10b981',description:'Food & Grocery Supply Management.',link:'/workspaces/fusion-foods/index.html',image:'https://github.com/user-attachments/assets/3770f8b6-9316-43a2-8e76-d976b2ab6d62',category:'Food'},
+  'heritage':{title:'Heritage Ads',icon:'fa-bullhorn',color:'#d946ef',description:'Outdoor Advertising Platform.',link:'/workspaces/heritage/index.html',image:'https://github.com/user-attachments/assets/e8d501a6-9c71-4a4d-8e14-c53c36366e5c',category:'Ads'},
+  'heritage-interiors':{title:'Heritage Interiors',icon:'fa-store',color:'#d97706',description:'E-commerce Marketplace.',link:'/workspaces/heritage-interiors/dashboard.html',image:'https://github.com/user-attachments/assets/eb38a760-be25-4646-a236-0e421310b348',category:'Marketplace'},
+  'mugs-n-dines':{title:'Mugs n Dines',icon:'fa-utensil-spoon',color:'#ef4444',description:'Restaurant Management.',link:'/workspaces/mugs-n-dines/index.html',image:'https://github.com/user-attachments/assets/aeb76ba9-3dac-43a5-8074-8bd133eaf13d',category:'Food'},
+  'workfit':{title:'WorkFit Club',icon:'fa-dumbbell',color:'#22c55e',description:'Fitness Club Management.',link:'/workspaces/workfit/index.html',image:'https://github.com/user-attachments/assets/d0cece36-1dbb-46b6-9701-362738e6cbfa',category:'Fitness'},
+  'epitome':{title:'Epitome Reviews',icon:'fa-home',color:'#3b82f6',description:'Real Estate & Car Sales.',link:'/workspaces/epitome/index.html',image:'https://github.com/user-attachments/assets/ce7a0d4b-1bb3-4bf2-af6d-bea273912aff',category:'Real Estate'},
+  'digital-services':{title:'E-Huduma Portal',icon:'fa-file-signature',color:'#7c3aed',description:'Online applications — from government services to digital forms and client requests.',link:'/workspaces/digital-services/index.html',image:'https://github.com/user-attachments/assets/fef9de10-7c05-4019-ac37-d18a32c587b9',category:'Services'},
+  'latter-logistics':{title:'Latter Logistics',icon:'fa-ship',color:'#1e40af',description:'Intercounty and cross-border logistics — real-time tracking, customs support, pay-per-shipment.',link:'/workspaces/latter-logistics/index.html',image:'https://github.com/user-attachments/assets/e9065d9b-dbbc-4c4b-acd2-d6bce95665b3',category:'Delivery'},
+  'tour-series':{title:'World Tour Series',icon:'fa-globe',color:'#1e40af',description:'Explore the world.',link:'/workspaces/tour-series/index.html',image:'https://github.com/user-attachments/assets/e9065d9b-dbbc-4c4b-acd2-d6bce95665b3',category:'Travel'},
+  'heritage-shop':{title:'Heritage Shop',icon:'fa-cart-shopping',color:'#b45309',description:'Manage product listings, orders, and store operations.',link:'/workspaces/heritage-shop/index.html',image:'',category:'Marketplace'}
+};
 
-                // Then, OVERRIDE with any resource workspaces
-                for (const [id, item] of Object.entries(resourceWorkspaces)) {
-                    if (workspaceMap.has(id)) {
-                        // Update existing workspace with resource data
-                        const existing = workspaceMap.get(id);
-                        workspaceMap.set(id, {
-                            ...existing,
-                            title: item.title || existing.title,
-                            description: item.description || existing.description,
-                            link: item.link || existing.link,
-                            icon: item.icon || existing.icon,
-                            color: item.color || existing.color,
-                            image: item.image || existing.image || '',
-                            category: item.category || existing.category
-                        });
-                    } else {
-                        // Add new workspace from resources (if not in defaults)
-                        workspaceMap.set(id, {
-                            id: id,
-                            workspaceId: id,
-                            title: item.title || id,
-                            description: item.description || '',
-                            link: item.link || `/workspaces/${id}/index.html`,
-                            icon: item.icon || 'fa-building',
-                            color: item.color || '#ca8a04',
-                            image: item.image || '',
-                            category: item.category || id
-                        });
-                    }
-                }
+/* ================= USER DATA ================= */
+async function loadUserData(user){
+  try{
+    const adminSnap = await database.ref(`admins/${user.uid}`).once('value');
+    isAdmin = adminSnap.val() === true;
 
-                // 3. Convert Map to array
-                const allWorkspaceList = Array.from(workspaceMap.values());
+    const permSnap = await database.ref(`workspacePermissions/${user.uid}`).once('value');
+    userPermissions = permSnap.exists() ? permSnap.val() : {};
 
-                // 4. Filter based on permissions
-                let accessibleWorkspaces;
-                
-                if (isAdmin || userPermissions.isAdmin === true) {
-                    // Admin sees ALL workspaces
-                    accessibleWorkspaces = allWorkspaceList;
-                } else {
-                    // Filter by permissions
-                    const permissionKeys = Object.keys(userPermissions).filter(k => userPermissions[k] === true);
-                    accessibleWorkspaces = allWorkspaceList.filter(w => 
-                        permissionKeys.includes(w.workspaceId || w.id)
-                    );
-                }
+    const snap = await database.ref(`brandinn_users/${user.uid}`).once('value');
+    const userData = snap.exists() ? snap.val() : {};
+    const name = userData.name || user.displayName || user.email?.split('@')[0] || 'User';
 
-                allWorkspaces = accessibleWorkspaces;
-                filteredWorkspaces = [...allWorkspaces];
-                
-                console.log('Total workspaces displayed:', filteredWorkspaces.length);
-                renderWorkspaces();
-                
-            } catch(e) {
-                console.error('Error loading workspaces:', e);
-                showToast('Error loading workspaces', 'error');
-            }
-        }
+    document.getElementById('userDisplayName').textContent = name;
+    document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
+    document.getElementById('railAvatar').textContent = name.charAt(0).toUpperCase();
 
-        // ===== Render workspaces =====
-        function renderWorkspaces() {
-            const container = document.getElementById('workspacesContainer');
-            document.getElementById('wsCount').textContent = filteredWorkspaces.length;
+    if(isAdmin) userPermissions.isAdmin = true;
+  }catch(e){
+    console.error('Error loading user data:', e);
+    showToast('Error loading user data','error');
+  }
+}
 
-            if (!filteredWorkspaces.length) {
-                const hasPermissions = Object.keys(userPermissions).some(k => userPermissions[k] === true) || isAdmin;
-                container.innerHTML = `
-                    <div class="empty-section">
-                        <i class="fas fa-${hasPermissions ? 'search' : 'lock'}"></i>
-                        <h3>${hasPermissions ? 'No Workspaces Found' : 'No Access to Workspaces'}</h3>
-                        <p>${hasPermissions ? 'Try adjusting your search or check back later.' : 'You don\'t have permission to view any workspaces. Contact your administrator to request access.'}</p>
-                        ${!hasPermissions ? `<button class="btn-request" onclick="requestAccess()"><i class="fas fa-envelope"></i> Request Access</button>` : ''}
-                    </div>
-                `;
-                document.getElementById('searchCount').classList.remove('visible');
-                return;
-            }
+function userHasWorkspaceAccess(workspaceId){
+  if(isAdmin || userPermissions.isAdmin === true) return true;
+  return userPermissions[workspaceId] === true;
+}
 
-            container.innerHTML = filteredWorkspaces.map(w => {
-                const workspaceId = w.workspaceId || w.id;
-                const iconClass = w.icon || 'fa-building';
-                const color = w.color || '#ca8a04';
-                const bgColor = `${color}15`;
-                const title = w.title || workspaceId;
-                const hasAccess = userHasWorkspaceAccess(workspaceId);
-                const isLocked = !hasAccess;
-                
-                let imageHtml;
-                if (w.image && w.image.trim() !== '') {
-                    imageHtml = `
-                        <img 
-                            src="${escapeHtml(w.image)}" 
-                            alt="${escapeHtml(title)}" 
-                            loading="lazy"
-                            onerror="this.style.display='none';this.parentElement.innerHTML='<div class=\\'image-placeholder\\' style=\\'background:linear-gradient(135deg, ${bgColor}, ${bgColor}50); color:${color};\\'><i class=\\'fas ${iconClass}\\'></i></div>';"
-                        >
-                    `;
-                } else {
-                    imageHtml = `
-                        <div class="image-placeholder" style="background:linear-gradient(135deg, ${bgColor}, ${bgColor}50); color:${color};">
-                            <i class="fas ${iconClass}"></i>
-                        </div>
-                    `;
-                }
+/* ================= LOAD WORKSPACES (verbatim logic + extras) ================= */
+async function loadWorkspaces(){
+  try{
+    let resourceWorkspaces = {};
+    try{
+      const snap = await database.ref('resources/workspaces').once('value');
+      resourceWorkspaces = snap.val() || {};
+    }catch(e){console.warn('Could not load resource workspaces:', e);}
 
-                return `
-                <div class="workspace-card ${isLocked ? 'disabled' : ''}" onclick="${hasAccess ? `openWorkspace('${escapeHtml(w.link)}')` : ''}">
-                    <div class="card-image">${imageHtml}</div>
-                    <div class="card-content">
-                        <span class="workspace-badge ${isLocked ? 'locked' : ''}">
-                            <i class="fas ${iconClass}"></i> 
-                            ${isLocked ? '🔒 Locked' : 'Workspace'}
-                        </span>
-                        <h3 class="card-title">${escapeHtml(title)}</h3>
-                        <p class="card-description">${escapeHtml(w.description || 'Access this workspace to manage your operations.')}</p>
-                        <span class="card-link ${isLocked ? 'locked' : ''}">
-                            ${isLocked ? 'No Access' : 'Launch Workspace'}
-                            <i class="fas ${isLocked ? 'fa-lock' : 'fa-arrow-right'}"></i>
-                        </span>
-                    </div>
-                </div>`;
-            }).join('');
-        }
+    const workspaceMap = new Map();
 
-        // ===== FILTER FUNCTIONS =====
-        window.filterWorkspaces = function() {
-            const query = document.getElementById('searchInput').value.trim().toLowerCase();
-            const clearBtn = document.getElementById('searchClear');
-            const countEl = document.getElementById('searchCount');
-            
-            if (query) {
-                clearBtn.classList.add('visible');
-                const results = allWorkspaces.filter(w => {
-                    const title = w.title || '';
-                    const desc = w.description || '';
-                    return title.toLowerCase().includes(query) || desc.toLowerCase().includes(query);
-                });
-                
-                filteredWorkspaces = results;
-                
-                if (results.length !== allWorkspaces.length) {
-                    countEl.innerHTML = `Showing <strong>${results.length}</strong> of <strong>${allWorkspaces.length}</strong> workspaces`;
-                    countEl.classList.add('visible');
-                } else {
-                    countEl.classList.remove('visible');
-                }
-                
-                renderWorkspaces();
-            } else {
-                clearBtn.classList.remove('visible');
-                countEl.classList.remove('visible');
-                filteredWorkspaces = [...allWorkspaces];
-                renderWorkspaces();
-            }
-        };
+    for(const [id,def] of Object.entries(DEFAULT_WORKSPACES)){
+      workspaceMap.set(id, {
+        id, workspaceId:id, title:def.title, description:def.description,
+        link:def.link, icon:def.icon, color:def.color, image:def.image||'', category:def.category||id
+      });
+    }
 
-        window.clearSearch = function() {
-            document.getElementById('searchInput').value = '';
-            document.getElementById('searchClear').classList.remove('visible');
-            document.getElementById('searchCount').classList.remove('visible');
-            filteredWorkspaces = [...allWorkspaces];
-            renderWorkspaces();
-        };
-
-        window.openWorkspace = function(link) {
-            if (link) {
-                if (link.startsWith('/') || link.includes('.html')) {
-                    window.location.href = link;
-                } else {
-                    window.open(link, '_blank');
-                }
-            }
-        };
-
-        window.requestAccess = function() {
-            const email = currentUser?.email || 'unknown';
-            const subject = encodeURIComponent('Workspace Access Request');
-            const body = encodeURIComponent(
-                `Hello,\n\nI would like to request access to workspaces.\n\nUser: ${email}\nUID: ${currentUser?.uid || 'N/A'}\n\nPlease grant me access to the following workspaces:\n\n[Please list the workspaces you need]\n\nThank you.`
-            );
-            window.location.href = `mailto:admin@kazinni.com?subject=${subject}&body=${body}`;
-            showToast('Access request opened in your email client', 'info');
-        };
-
-        window.refreshData = async function() {
-            showToast('Refreshing...', 'info');
-            await loadUserData(currentUser);
-            await loadWorkspaces();
-            showToast('Workspaces refreshed!', 'success');
-        };
-
-        window.handleLogout = async function() {
-            if(confirm('Sign out?')) {
-                await auth.signOut();
-                window.location.href = 'index.html';
-            }
-        };
-
-        function escapeHtml(t) { 
-            const d = document.createElement('div'); 
-            d.textContent = t || ''; 
-            return d.innerHTML; 
-        }
-        
-        function showToast(m, type='info') {
-            const t = document.createElement('div'); 
-            t.className = `toast ${type}`;
-            t.innerHTML = `<i class="fas fa-${type==='error'?'exclamation-circle':'check-circle'}"></i><span>${escapeHtml(m)}</span>`;
-            document.getElementById('toastContainer').appendChild(t);
-            setTimeout(()=>{
-                t.style.opacity='0';
-                t.style.transition='0.3s';
-                setTimeout(()=>t.remove(),300);
-            },3000);
-        }
-
-        // Initialize
-        auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                currentUser = user;
-                await loadUserData(user);
-                await loadWorkspaces();
-            } else {
-                window.location.href = 'index.html';
-            }
+    for(const [id,item] of Object.entries(resourceWorkspaces)){
+      if(workspaceMap.has(id)){
+        const existing = workspaceMap.get(id);
+        workspaceMap.set(id, {
+          ...existing,
+          title:item.title||existing.title,
+          description:item.description||existing.description,
+          link:item.link||existing.link,
+          icon:item.icon||existing.icon,
+          color:item.color||existing.color,
+          image:item.image||existing.image||'',
+          category:item.category||existing.category
         });
-    </script>
+      }else{
+        workspaceMap.set(id, {
+          id, workspaceId:id, title:item.title||id, description:item.description||'',
+          link:item.link||`/workspaces/${id}/index.html`,
+          icon:item.icon||'fa-building', color:item.color||'#ca8a04',
+          image:item.image||'', category:item.category||id
+        });
+      }
+    }
+
+    const allList = Array.from(workspaceMap.values());
+
+    let accessibleWorkspaces;
+    if(isAdmin || userPermissions.isAdmin === true){
+      accessibleWorkspaces = allList;
+    }else{
+      const permissionKeys = Object.keys(userPermissions).filter(k=>userPermissions[k]===true);
+      accessibleWorkspaces = allList.filter(w=>permissionKeys.includes(w.workspaceId||w.id));
+    }
+
+    allWorkspaces = accessibleWorkspaces;
+    filteredWorkspaces = [...allWorkspaces];
+
+    renderSidebarWorkspaces();
+    renderCategoryChips();
+    renderTabs();
+    renderWorkspaces();
+    updateStatusBar();
+  }catch(e){
+    console.error('Error loading workspaces:', e);
+    showToast('Error loading workspaces','error');
+  }
+}
+
+/* ================= SIDEBAR WORKSPACE LINKS ================= */
+function renderSidebarWorkspaces(){
+  const c = document.getElementById('sideWorkspaceLinks');
+  document.getElementById('sideWsCount').textContent = allWorkspaces.length;
+  if(!c) return;
+  if(allWorkspaces.length===0){
+    c.innerHTML = `<div style="padding:.3rem .7rem;font-size:.68rem;color:var(--text-muted)">No workspaces</div>`;
+    return;
+  }
+  c.innerHTML = allWorkspaces.map(w=>{
+    return `<a href="${w.link}" class="side-link" title="${escapeHtml(w.description||'')}">
+      <i class="fas ${w.icon}" style="color:${w.color}"></i> ${escapeHtml(w.title)}
+    </a>`;
+  }).join('');
+}
+
+/* ================= CATEGORY CHIPS ================= */
+function renderCategoryChips(){
+  const chips = document.getElementById('categoryChips');
+  const counts = {};
+  allWorkspaces.forEach(w=>{
+    const cat = w.category || 'Other';
+    counts[cat] = (counts[cat]||0) + 1;
+  });
+  const total = allWorkspaces.length;
+  let html = `<button class="chip ${currentCategory==='all'?'active':''}" onclick="setCategory('all')">All <span class="chip-count">${total}</span></button>`;
+  Object.entries(counts).sort((a,b)=>b[1]-a[1]).forEach(([cat,n])=>{
+    html += `<button class="chip ${currentCategory===cat?'active':''}" onclick="setCategory('${escapeHtml(cat)}')">${escapeHtml(cat)} <span class="chip-count">${n}</span></button>`;
+  });
+  chips.innerHTML = html;
+}
+
+window.setCategory = function(cat){
+  currentCategory = cat;
+  renderCategoryChips();
+  filterWorkspaces();
+};
+
+/* ================= RENDER TABS ================= */
+function renderTabs(){
+  const strip = document.getElementById('tabstrip');
+  if(!strip) return;
+  const visible = allWorkspaces.slice(0,6);
+  strip.innerHTML = `<button class="tab active"><i class="fas fa-cubes"></i> Workspaces</button>` +
+    visible.map(w=>`<button class="tab" onclick="openWorkspace('${escapeHtml(w.link)}')"><i class="fas ${w.icon}"></i> ${escapeHtml(w.title)}</button>`).join('') +
+    `<button class="tab-add" onclick="openCommandPalette()" title="Search"><i class="fas fa-plus"></i></button>`;
+}
+
+/* ================= STATUS BAR ================= */
+function updateStatusBar(){
+  const el = document.getElementById('sbWsCount');
+  if(el){
+    const locked = allWorkspaces.filter(w=>!userHasWorkspaceAccess(w.workspaceId||w.id)).length;
+    const accessible = allWorkspaces.length - locked;
+    el.textContent = `${accessible}/${allWorkspaces.length}`;
+  }
+}
+
+/* ================= RENDER WORKSPACES (verbatim + search filter) ================= */
+function renderWorkspaces(){
+  const container = document.getElementById('workspacesContainer');
+  document.getElementById('wsCount').textContent = filteredWorkspaces.length;
+  container.classList.toggle('list-view', currentView === 'list');
+
+  if(!filteredWorkspaces.length){
+    const hasPermissions = Object.keys(userPermissions).some(k=>userPermissions[k]===true) || isAdmin;
+    container.innerHTML = `
+      <div class="empty-section">
+        <i class="fas fa-${hasPermissions?'search':'lock'}"></i>
+        <h3>${hasPermissions?'No Workspaces Found':'No Access to Workspaces'}</h3>
+        <p>${hasPermissions?'Try adjusting your search or filters.':'You don\'t have permission to view any workspaces. Contact your administrator to request access.'}</p>
+        ${!hasPermissions?`<button class="btn-request" onclick="requestAccess()"><i class="fas fa-envelope"></i> Request Access</button>`:''}
+      </div>`;
+    document.getElementById('searchCount').classList.remove('visible');
+    return;
+  }
+
+  container.innerHTML = filteredWorkspaces.map(w=>{
+    const workspaceId = w.workspaceId || w.id;
+    const iconClass = w.icon || 'fa-building';
+    const color = w.color || '#ca8a04';
+    const bgColor = `${color}15`;
+    const title = w.title || workspaceId;
+    const hasAccess = userHasWorkspaceAccess(workspaceId);
+    const isLocked = !hasAccess;
+
+    let imageHtml;
+    if(w.image && w.image.trim() !== ''){
+      imageHtml = `<img src="${escapeHtml(w.image)}" alt="${escapeHtml(title)}" loading="lazy"
+        onerror="this.style.display='none';this.parentElement.innerHTML='<div class=\\'image-placeholder\\' style=\\'background:linear-gradient(135deg,${bgColor},${bgColor}50);color:${color};\\'><i class=\\'fas ${iconClass}\\'></i></div>';">
+      `;
+    }else{
+      imageHtml = `<div class="image-placeholder" style="background:linear-gradient(135deg,${bgColor},${bgColor}50);color:${color};"><i class="fas ${iconClass}"></i></div>`;
+    }
+
+    return `
+    <div class="workspace-card ${isLocked?'disabled':''}" onclick="${hasAccess?`openWorkspace('${escapeHtml(w.link)}')`:''}">
+      <div class="card-image">${imageHtml}</div>
+      <div class="card-content">
+        <span class="workspace-badge ${isLocked?'locked':''}">
+          <i class="fas ${iconClass}"></i> ${isLocked?'🔒 Locked':'Workspace'}
+        </span>
+        <h3 class="card-title">${escapeHtml(title)}</h3>
+        <p class="card-description">${escapeHtml(w.description || 'Access this workspace to manage your operations.')}</p>
+        <span class="card-link ${isLocked?'locked':''}">
+          ${isLocked?'No Access':'Launch Workspace'}
+          <i class="fas ${isLocked?'fa-lock':'fa-arrow-right'}"></i>
+        </span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ================= SEARCH / FILTER (verbatim logic, now honoring category + sort) ================= */
+window.filterWorkspaces = function(){
+  const query = document.getElementById('searchInput').value.trim().toLowerCase();
+  const clearBtn = document.getElementById('searchClear');
+  const countEl = document.getElementById('searchCount');
+
+  if(query) clearBtn.classList.add('visible');
+  else clearBtn.classList.remove('visible');
+
+  let results = allWorkspaces.filter(w=>{
+    if(currentCategory !== 'all' && (w.category||'Other') !== currentCategory) return false;
+    if(!query) return true;
+    const title = (w.title||'').toLowerCase();
+    const desc = (w.description||'').toLowerCase();
+    const cat = (w.category||'').toLowerCase();
+    return title.includes(query) || desc.includes(query) || cat.includes(query);
+  });
+
+  results = applySortTo(results, currentSort);
+  filteredWorkspaces = results;
+
+  if(query || currentCategory !== 'all'){
+    countEl.innerHTML = `Showing <strong>${results.length}</strong> of <strong>${allWorkspaces.length}</strong> workspaces`;
+    countEl.classList.add('visible');
+  }else{
+    countEl.classList.remove('visible');
+  }
+
+  renderWorkspaces();
+};
+
+function applySortTo(list, mode){
+  const arr = [...list];
+  if(mode==='az') arr.sort((a,b)=>(a.title||'').localeCompare(b.title||''));
+  else if(mode==='za') arr.sort((a,b)=>(b.title||'').localeCompare(a.title||''));
+  else if(mode==='category') arr.sort((a,b)=>(a.category||'').localeCompare(b.category||'') || (a.title||'').localeCompare(b.title||''));
+  return arr;
+}
+
+window.applySort = function(mode){
+  currentSort = mode;
+  filterWorkspaces();
+};
+
+window.clearSearch = function(){
+  document.getElementById('searchInput').value = '';
+  document.getElementById('searchClear').classList.remove('visible');
+  document.getElementById('searchCount').classList.remove('visible');
+  currentCategory = 'all';
+  renderCategoryChips();
+  filteredWorkspaces = applySortTo([...allWorkspaces], currentSort);
+  renderWorkspaces();
+};
+
+window.syncTopSearch = function(v){
+  const inp = document.getElementById('searchInput');
+  if(inp){ inp.value = v; filterWorkspaces(); }
+};
+window.focusSearch = function(){
+  const inp = document.getElementById('searchInput');
+  if(inp){ inp.focus(); inp.scrollIntoView({behavior:'smooth',block:'center'}); }
+};
+
+/* ================= VIEW TOGGLE ================= */
+window.setView = function(mode){
+  currentView = mode;
+  document.getElementById('viewGrid').classList.toggle('active', mode==='grid');
+  document.getElementById('viewList').classList.toggle('active', mode==='list');
+  renderWorkspaces();
+};
+
+/* ================= OPEN / REQUEST (verbatim) ================= */
+window.openWorkspace = function(link){
+  if(link){
+    if(link.startsWith('/') || link.includes('.html')) window.location.href = link;
+    else window.open(link,'_blank');
+  }
+};
+
+window.requestAccess = function(){
+  const email = currentUser?.email || 'unknown';
+  const subject = encodeURIComponent('Workspace Access Request');
+  const body = encodeURIComponent(
+    `Hello,\n\nI would like to request access to workspaces.\n\nUser: ${email}\nUID: ${currentUser?.uid || 'N/A'}\n\nPlease grant me access to the following workspaces:\n\n[Please list the workspaces you need]\n\nThank you.`
+  );
+  window.location.href = `mailto:admin@kazinni.com?subject=${subject}&body=${body}`;
+  showToast('Access request opened in your email client','info');
+};
+
+window.refreshData = async function(){
+  showToast('Refreshing…','info');
+  await loadUserData(currentUser);
+  await loadWorkspaces();
+  showToast('Workspaces refreshed!','success');
+};
+
+window.handleLogout = async function(){
+  if(confirm('Sign out?')){
+    await auth.signOut();
+    window.location.href = 'index.html';
+  }
+};
+
+/* ================= UTILS ================= */
+function escapeHtml(t){const d=document.createElement('div');d.textContent=t||'';return d.innerHTML;}
+function showToast(m,type='info'){
+  const t=document.createElement('div');
+  t.className=`toast ${type}`;
+  const icon = type==='error'?'exclamation-circle':type==='success'?'check-circle':'info-circle';
+  t.innerHTML=`<i class="fas fa-${icon}" style="color:var(--${type==='error'?'danger':type==='success'?'success':'gold'})"></i><span>${escapeHtml(m)}</span>`;
+  document.getElementById('toastContainer').appendChild(t);
+  setTimeout(()=>{t.style.opacity='0';t.style.transition='.3s';setTimeout(()=>t.remove(),300);},3000);
+}
+
+/* ================= SHELL INTERACTIONS ================= */
+function toggleSidebar(){
+  document.getElementById('shell').classList.toggle('side-collapsed');
+}
+
+function filterSideNav(q){
+  q = q.toLowerCase().trim();
+  document.querySelectorAll('.side-link').forEach(l=>{
+    l.style.display = !q || l.textContent.toLowerCase().includes(q) ? 'flex' : 'none';
+  });
+}
+
+/* ================= COMMAND PALETTE ================= */
+let cmdSelectedIndex = 0;
+let cmdFiltered = [];
+
+function buildCommands(){
+  const cmds = [];
+  cmds.push({group:'Navigation',label:'Go to Dashboard',icon:'fa-gauge-high',run:()=>{window.location.href='dashboard.html';}});
+  cmds.push({group:'Navigation',label:'Go to Profile',icon:'fa-user',run:()=>{window.location.href='profile.html';}});
+  cmds.push({group:'Navigation',label:'Go to Resources',icon:'fa-book',run:()=>{window.location.href='resources.html';}});
+
+  allWorkspaces.forEach(w=>{
+    cmds.push({group:'Workspaces',label:w.title,icon:w.icon,hint:w.category||w.description||'',run:()=>{openWorkspace(w.link);}});
+  });
+
+  cmds.push({group:'Actions',label:'Refresh Workspaces',icon:'fa-rotate',run:()=>{refreshData();}});
+  cmds.push({group:'Actions',label:'Toggle Sidebar',icon:'fa-bars',run:()=>{toggleSidebar();}});
+  cmds.push({group:'Actions',label:'Request Access',icon:'fa-envelope',run:()=>{requestAccess();}});
+  cmds.push({group:'Actions',label:'Sign Out',icon:'fa-sign-out-alt',run:()=>{handleLogout();}});
+
+  return cmds;
+}
+
+window.openCommandPalette = function(){
+  document.getElementById('cmdOverlay').classList.add('active');
+  const input = document.getElementById('cmdInput');
+  input.value = '';
+  renderCommandResults('');
+  setTimeout(()=>input.focus(),50);
+};
+window.closeCommandPalette = function(){
+  document.getElementById('cmdOverlay').classList.remove('active');
+};
+
+function renderCommandResults(q){
+  q = (q||'').toLowerCase().trim();
+  const all = buildCommands();
+  cmdFiltered = all.filter(c=>!q || c.label.toLowerCase().includes(q) || c.group.toLowerCase().includes(q) || (c.hint||'').toLowerCase().includes(q));
+  cmdSelectedIndex = 0;
+  const c = document.getElementById('cmdResults');
+  if(cmdFiltered.length===0){
+    c.innerHTML = `<div class="cmd-empty"><i class="fas fa-search"></i><br>No commands match "${escapeHtml(q)}"</div>`;
+    return;
+  }
+  let lastGroup = '', html = '';
+  cmdFiltered.forEach((cmd,i)=>{
+    if(cmd.group!==lastGroup){html+=`<div class="cmd-group-label">${cmd.group}</div>`;lastGroup=cmd.group;}
+    html += `<div class="cmd-item ${i===0?'selected':''}" data-idx="${i}" onmouseenter="cmdHover(${i})" onclick="cmdRun(${i})">
+      <i class="cmd-ic fas ${cmd.icon}"></i>
+      <span class="cmd-label">${escapeHtml(cmd.label)}</span>
+      ${cmd.hint?`<span class="cmd-hint">${escapeHtml(cmd.hint)}</span>`:''}
+    </div>`;
+  });
+  c.innerHTML = html;
+}
+
+window.cmdHover = function(i){
+  cmdSelectedIndex = i;
+  document.querySelectorAll('.cmd-item').forEach(el=>el.classList.toggle('selected',parseInt(el.dataset.idx)===i));
+};
+window.cmdRun = function(i){
+  const cmd = cmdFiltered[i];
+  if(cmd){closeCommandPalette();setTimeout(()=>cmd.run(),60);}
+};
+window.handleCmdKey = function(e){
+  if(e.key==='ArrowDown'){e.preventDefault();cmdSelectedIndex=Math.min(cmdSelectedIndex+1,cmdFiltered.length-1);cmdHover(cmdSelectedIndex);scrollCmdIntoView();}
+  else if(e.key==='ArrowUp'){e.preventDefault();cmdSelectedIndex=Math.max(cmdSelectedIndex-1,0);cmdHover(cmdSelectedIndex);scrollCmdIntoView();}
+  else if(e.key==='Enter'){e.preventDefault();cmdRun(cmdSelectedIndex);}
+  else if(e.key==='Escape'){closeCommandPalette();}
+};
+function scrollCmdIntoView(){
+  const el = document.querySelector(`.cmd-item[data-idx="${cmdSelectedIndex}"]`);
+  if(el) el.scrollIntoView({block:'nearest'});
+}
+
+document.addEventListener('keydown', function(e){
+  if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){e.preventDefault();openCommandPalette();}
+  if(e.key==='Escape') closeCommandPalette();
+});
+
+/* ================= CLOCK ================= */
+function tickClock(){
+  const el = document.getElementById('sbClock');
+  if(el){const d=new Date();el.textContent=d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});}
+}
+setInterval(tickClock,1000);tickClock();
+
+/* ================= INIT ================= */
+auth.onAuthStateChanged(async (user)=>{
+  if(user){
+    currentUser = user;
+    await loadUserData(user);
+    await loadWorkspaces();
+  }else{
+    window.location.href = 'index.html';
+  }
+});
+</script>
 </body>
 </html>
