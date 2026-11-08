@@ -35,8 +35,7 @@
   --font-display:'Clash Display','Cabinet Grotesk',sans-serif;
   --font-heading:'Satoshi','General Sans',sans-serif;
   --font-body:'General Sans','Outfit',sans-serif;
-  --rail-w:64px; --side-w:248px; --top-h:56px; --tab-h:44px; --status-h:34px;
-  --shell-radius:14px;
+  --rail-w:64px; --side-w:248px; --top-h:56px; --status-h:34px;
 }
 
 html,body{height:100%}
@@ -45,6 +44,34 @@ body{
   background:linear-gradient(180deg,#fffbeb 0%,#ffffff 12%,#f4f5f7 100%);
   -webkit-font-smoothing:antialiased; overflow:hidden;
 }
+
+/* ============ GUARD OVERLAY ============ */
+.guard-overlay{
+  position:fixed;inset:0;background:rgba(15,15,25,.72);backdrop-filter:blur(8px);
+  z-index:9999;display:none;align-items:center;justify-content:center;padding:1.5rem;
+}
+.guard-overlay.active{display:flex}
+.guard-card{
+  background:#fff;border-radius:20px;padding:2rem;max-width:420px;width:100%;
+  text-align:center;box-shadow:0 40px 80px rgba(0,0,0,.35);
+  animation:guardIn .25s cubic-bezier(.16,1,.3,1);
+}
+@keyframes guardIn{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
+.guard-icon{
+  width:64px;height:64px;border-radius:50%;
+  background:linear-gradient(135deg,#fef2f2,#fecaca);
+  color:var(--danger);display:flex;align-items:center;justify-content:center;
+  font-size:1.6rem;margin:0 auto 1rem;
+}
+.guard-card h2{font-family:var(--font-display);font-size:1.2rem;font-weight:800;margin-bottom:.35rem}
+.guard-card p{color:var(--text-muted);font-size:.85rem;margin-bottom:1.2rem;line-height:1.55}
+.guard-btn{
+  width:100%;padding:.75rem;background:var(--gold-gradient);color:#fff;border:none;
+  border-radius:40px;font-weight:600;cursor:pointer;font-family:var(--font-heading);
+  font-size:.88rem;transition:.25s;display:flex;align-items:center;justify-content:center;gap:.5rem;
+}
+.guard-btn:hover{box-shadow:0 10px 30px -6px rgba(202,138,4,.4)}
+.guard-btn.secondary{background:var(--bg-secondary);color:var(--text-primary);border:1px solid var(--border-light);margin-top:.5rem}
 
 /* ============ SHELL FRAME ============ */
 .shell{display:grid; height:100vh; width:100vw;
@@ -183,6 +210,20 @@ body{
   border-radius:4px;padding:.04rem .3rem;color:var(--text-muted);
 }
 .tb-actions{display:flex;align-items:center;gap:.55rem;margin-left:.3rem}
+
+/* Session countdown pill */
+.tb-session{
+  display:flex;align-items:center;gap:.4rem;background:linear-gradient(135deg,#fffbeb,#fef3c7);
+  border:1px solid rgba(202,138,4,.28);border-radius:50px;padding:.28rem .7rem;
+  font-size:.7rem;font-weight:700;color:var(--gold-dark);font-family:var(--font-heading);
+  font-variant-numeric:tabular-nums;white-space:nowrap;transition:.2s;
+}
+.tb-session i{font-size:.72rem;color:var(--gold)}
+.tb-session.warn{background:linear-gradient(135deg,#fffbeb,#fed7aa);border-color:rgba(245,158,11,.4);color:#b45309}
+.tb-session.warn i{color:#d97706}
+.tb-session.danger{background:linear-gradient(135deg,#fef2f2,#fecaca);border-color:rgba(239,68,68,.4);color:var(--danger)}
+.tb-session.danger i{color:var(--danger)}
+
 .tb-live{display:flex;align-items:center;gap:.3rem;font-size:.66rem;color:var(--success);font-weight:700;font-family:var(--font-heading)}
 .tb-live .dot{width:7px;height:7px;background:var(--success);border-radius:50%;animation:pg 2s infinite}
 @keyframes pg{0%,100%{box-shadow:0 0 0 0 rgba(16,185,129,.45)}50%{box-shadow:0 0 0 6px rgba(16,185,129,0)}}
@@ -197,7 +238,7 @@ body{
   border-radius:50%;border:1.5px solid #fff;
 }
 
-/* ---- Account switcher (preserved) ---- */
+/* ---- Account switcher ---- */
 .account-switcher-wrapper{position:relative;display:inline-flex;align-items:center}
 .account-switcher-btn{
   background:#fff;border:1px solid var(--border-light);padding:.24rem .7rem .24rem .35rem;
@@ -252,33 +293,9 @@ body{
 .account-dropdown-menu .add-account-option{color:var(--gold)}
 .account-dropdown-menu .add-account-option:hover{background:var(--gold-soft)}
 
-/* ============ WORKSPACE TAB STRIP ============ */
-.tabstrip{
-  grid-area:stage; align-self:start; display:flex; align-items:center; gap:.3rem;
-  padding:.55rem 1.1rem .35rem; overflow-x:auto; scrollbar-width:none; background:transparent;
-  position:relative; z-index:30;
-}
-.tabstrip::-webkit-scrollbar{display:none}
-.tab{
-  display:flex;align-items:center;gap:.4rem;padding:.36rem .8rem;border-radius:9px 9px 0 0;
-  background:transparent;border:none;font-size:.74rem;font-family:var(--font-heading);
-  font-weight:600;color:var(--text-muted);cursor:pointer;white-space:nowrap;transition:.15s;
-  border-bottom:2px solid transparent;
-}
-.tab:hover{color:var(--text-primary);background:rgba(255,255,255,.6)}
-.tab.active{color:var(--gold-dark);background:#fff;border-bottom-color:var(--gold);box-shadow:0 -2px 8px rgba(0,0,0,.04)}
-.tab i{font-size:.72rem}
-.tab .tab-close{margin-left:.3rem;font-size:.55rem;opacity:.5;transition:.15s}
-.tab .tab-close:hover{opacity:1;color:var(--danger)}
-.tab-add{
-  width:28px;height:28px;border-radius:8px;border:1px dashed #cbd5e1;background:transparent;
-  color:var(--text-muted);cursor:pointer;display:grid;place-items:center;font-size:.7rem;transition:.15s;flex-shrink:0;
-}
-.tab-add:hover{border-color:var(--gold);color:var(--gold);background:#fff}
-
 /* ============ STAGE ============ */
 .stage{
-  grid-area:stage; overflow-y:auto; overflow-x:hidden; padding:.2rem 1.1rem 1.2rem;
+  grid-area:stage; overflow-y:auto; overflow-x:hidden; padding:1.2rem 1.1rem 1.2rem;
   scrollbar-width:thin;
 }
 .stage::-webkit-scrollbar{width:8px}
@@ -483,7 +500,6 @@ body{
   .breadcrumb .bc-home,.breadcrumb i{display:none}
   .stats-grid{grid-template-columns:1fr}
   .bottom-grid{grid-template-columns:1fr}
-  .tabstrip{padding:.45rem .7rem .3rem}
   .stage{padding:.1rem .7rem 1rem}
   .welcome-section{flex-direction:column;text-align:center;padding:1rem}
   .sb-health{display:none}
@@ -492,6 +508,16 @@ body{
 </style>
 </head>
 <body>
+
+<!-- ================= GUARD OVERLAY ================= -->
+<div class="guard-overlay" id="guardOverlay">
+  <div class="guard-card">
+    <div class="guard-icon"><i class="fas fa-shield-halved"></i></div>
+    <h2>Session Expired</h2>
+    <p>Your secure access window has ended. Please return to the Command Center and request a new access key to continue.</p>
+    <button class="guard-btn" onclick="window.location.href='index.html'"><i class="fas fa-arrow-left"></i> Return to Login</button>
+  </div>
+</div>
 
 <!-- ================= SHELL ================= -->
 <div class="shell" id="shell">
@@ -554,15 +580,16 @@ body{
       <kbd>⌘K</kbd>
     </div>
     <div class="tb-actions">
+      <div class="tb-session" id="tbSessionPill" title="Session remaining">
+        <i class="fas fa-clock"></i>
+        <span id="tbSessionTime">--:--:--</span>
+      </div>
       <div class="tb-live"><span class="dot"></span> Live</div>
       <button class="tb-icon-btn" onclick="refreshData()" title="Refresh"><i class="fas fa-rotate"></i></button>
       <button class="tb-icon-btn" title="Notifications"><i class="fas fa-bell"></i><span class="notif-dot"></span></button>
       <div id="headerAuthContainer"></div>
     </div>
   </header>
-
-  <!-- ============ TAB STRIP ============ -->
-  <div class="tabstrip" id="tabstrip"></div>
 
   <!-- ============ STAGE ============ -->
   <main class="stage" id="stage">
@@ -700,8 +727,13 @@ const database = firebase.database();
 const auth = firebase.auth();
 auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 
+/* ================= STATE ================= */
 let currentUser=null, userPermissions={}, isAdmin=false;
 let ordersChart=null, distributionChart=null, overviewMap=null, mapMarkers=[];
+let sessionTicker=null;
+let sessionExpiresAt=null;
+let sessionStartedAt=null;
+const SESSION_WINDOW_MS = 8 * 60 * 60 * 1000;
 
 /* ================= MULTI-ACCOUNT ================= */
 let accounts=[], activeAccountIndex=0;
@@ -749,9 +781,24 @@ function switchAccount(index){
   return false;
 }
 
-/* ================= AUTH ================= */
+/* ================= AUTH & KEY GUARD ================= */
 auth.onAuthStateChanged(async(user)=>{
   if(user){
+    // 1. Check MFA Key
+    const keySnap = await database.ref(`loginKeys/${user.uid}`).once('value');
+    const keyRec = keySnap.val();
+    
+    if(!keyRec || keyRec.used !== true || Date.now() > keyRec.expiresAt) {
+       showGuard();
+       return;
+    }
+    
+    // Restore session countdown
+    sessionExpiresAt = keyRec.expiresAt;
+    sessionStartedAt = sessionExpiresAt - SESSION_WINDOW_MS;
+    startSessionCountdown();
+
+    // 2. Setup User
     currentUser=user;
     const exists=accounts.some(a=>a.user.uid===user.uid);
     if(!exists){addAccount(user);activeAccountIndex=accounts.length-1;}
@@ -761,6 +808,7 @@ auth.onAuthStateChanged(async(user)=>{
     const active=getActiveAccount();
     if(active)updateWelcomeUI(active.user);
     await initializeDashboard(user);
+
   }else{
     const has=loadAccounts();
     if(has){
@@ -776,6 +824,42 @@ auth.onAuthStateChanged(async(user)=>{
     window.location.href='index.html';
   }
 });
+
+function showGuard() {
+  document.getElementById('guardOverlay').classList.add('active');
+}
+
+function startSessionCountdown() {
+  if(sessionTicker) clearInterval(sessionTicker);
+  tickSession();
+  sessionTicker = setInterval(tickSession, 1000);
+}
+
+function tickSession() {
+  if(!sessionExpiresAt) return;
+  const now = Date.now();
+  const remaining = Math.max(0, sessionExpiresAt - now);
+  
+  const hh = Math.floor(remaining / 3600000);
+  const mm = Math.floor((remaining % 3600000) / 60000);
+  const ss = Math.floor((remaining % 60000) / 1000);
+  const text = `${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}:${String(ss).padStart(2,'0')}`;
+
+  const pill = document.getElementById('tbSessionPill');
+  const time = document.getElementById('tbSessionTime');
+  
+  if(time) time.textContent = text;
+  if(pill) {
+    pill.classList.remove('warn','danger');
+    if(remaining < 5*60*1000) pill.classList.add('danger');
+    else if(remaining < 30*60*1000) pill.classList.add('warn');
+  }
+
+  if(remaining === 0) {
+    clearInterval(sessionTicker);
+    showGuard();
+  }
+}
 
 /* ================= ACCOUNT SWITCHER UI ================= */
 function renderAccountSwitcher(){
@@ -861,12 +945,7 @@ async function signOutAccount(){
   const active=getActiveAccount();
   if(!active)return;
   try{
-    await database.ref(`users/${active.user.uid}/status`).set({
-      status:'offline',
-      lastUpdated:firebase.database.ServerValue.TIMESTAMP,
-      displayName:active.user.displayName||active.user.email||'User',
-      email:active.user.email
-    });
+    // Removed users/{uid}/status write - user no longer has write permission for status field
     const empty=removeAccount(active.user.uid);
     if(empty){
       await auth.signOut();
@@ -896,24 +975,9 @@ async function initializeDashboard(user){
     const permSnap=await database.ref(`workspacePermissions/${user.uid}`).once('value');
     userPermissions=permSnap.exists()?permSnap.val():{};
 
-    const userSnap=await database.ref(`brandinn_users/${user.uid}`).once('value');
-    const userData=userSnap.exists()?userSnap.val():{};
-
     updateWelcomeUI(user);
 
-    const availableIds=Object.keys(WORKSPACE_CONFIG);
-    if(!isAdmin&&availableIds.length>0){
-      let hasAny=false;
-      for(const id of availableIds){if(userHasWorkspaceAccess(id)){hasAny=true;break;}}
-      if(!hasAny){
-        const np={};
-        availableIds.forEach(id=>np[id]=true);
-        userPermissions=np;
-        await database.ref(`workspacePermissions/${user.uid}`).set(np);
-        console.log('✅ Auto-granted access');
-      }
-    }
-
+    // REMOVED AUTO-GRANT LOGIC
     const hasAccess=isAdmin||Object.keys(userPermissions).some(k=>userPermissions[k]===true);
 
     if(!hasAccess){
@@ -927,7 +991,6 @@ async function initializeDashboard(user){
       document.getElementById('sbHealthCount').innerHTML='<i class="fas fa-heart-pulse"></i> <span>No access</span>';
       showToast('No workspace access - please request permissions','info');
       renderSideWorkspaceLinks([]);
-      renderTabs([]);
       return;
     }
 
@@ -937,14 +1000,13 @@ async function initializeDashboard(user){
     await checkWorkspaceHealth();
     setupLiveListeners();
     renderSideWorkspaceLinks(getAccessibleWorkspaces());
-    renderTabs(getAccessibleWorkspaces());
   }catch(e){
     console.error('Dashboard error',e);
     showToast('Error loading dashboard: '+e.message,'error');
   }
 }
 
-/* ================= WORKSPACE CONFIG (unchanged) ================= */
+/* ================= WORKSPACE CONFIG ================= */
 const WORKSPACE_CONFIG={
   'brandinn':{name:'BrandInn Business',desc:'Business Management',icon:'fa-building',color:'#4f46e5',bgColor:'#eef2ff',link:'/workspaces/brandinn/index.html',paths:['brandinn_users','brandinn_franchises','brandinn_inquiries','brandinn_subdomains']},
   'brandinn-print':{name:'BrandInn Prints',desc:'Print & Merchandise',icon:'fa-print',color:'#db2777',bgColor:'#fdf2f8',link:'/workspaces/brandinn-print/index.html',paths:['brandinn_print_orders']},
@@ -1005,7 +1067,7 @@ function initOverviewMap(){
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(overviewMap);
 }
 
-/* ================= DATA LOADING (unchanged logic) ================= */
+/* ================= DATA LOADING ================= */
 async function loadAllData(){
   const accessible=getAccessibleWorkspaces();
   if(accessible.length===0){document.getElementById('accessDenied').style.display='block';return;}
@@ -1305,19 +1367,6 @@ function renderSideWorkspaceLinks(workspaces){
     const dn=displayNameFor(w.id,w.name);
     return `<a href="${w.link}" class="side-link"><i class="fas ${w.icon}" style="color:${w.color}"></i> ${dn}</a>`;
   }).join('');
-}
-
-function renderTabs(workspaces){
-  const strip=document.getElementById('tabstrip');
-  if(!strip)return;
-  if(!workspaces||workspaces.length===0){
-    strip.innerHTML=`<button class="tab active"><i class="fas fa-gauge-high"></i> Dashboard</button>`;
-    return;
-  }
-  strip.innerHTML=workspaces.slice(0,6).map((w,i)=>{
-    const dn=displayNameFor(w.id,w.name);
-    return `<button class="tab ${i===0?'active':''}" onclick="window.location.href='${w.link}'"><i class="fas ${w.icon}"></i> ${dn}<span class="tab-close" onclick="event.stopPropagation()"><i class="fas fa-xmark"></i></span></button>`;
-  }).join('')+`<button class="tab-add" onclick="window.location.href='workspaces.html'" title="Add workspace"><i class="fas fa-plus"></i></button>`;
 }
 
 /* ================= COMMAND PALETTE ================= */
